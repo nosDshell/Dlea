@@ -16,7 +16,7 @@ impl Fixture {
         let parent = Path::new(env!("CARGO_MANIFEST_DIR")).join(".superpowers/tmp");
         std::fs::create_dir_all(&parent).unwrap();
         let parent = parent.canonicalize().unwrap();
-        let output = Command::new("/usr/bin/mktemp")
+        let output = Command::new(flea::testpath::tool("/usr/bin/mktemp"))
             .arg("-d")
             .arg(parent.join("chafa-test.XXXXXX"))
             .output()
@@ -76,7 +76,7 @@ impl Fixture {
     pub(crate) fn stub(&self, body: &str) {
         let path = self.path("bin/chafa");
         // A child writes the script so concurrent fork/exec cannot inherit a writer and cause ETXTBSY.
-        let mut writer = Command::new("/bin/sh")
+        let mut writer = Command::new(flea::testpath::tool("/bin/sh"))
             .args(["-c", "cat > \"$1\" && chmod 755 \"$1\"", "sh"])
             .arg(path)
             .stdin(Stdio::piped())

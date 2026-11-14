@@ -189,7 +189,7 @@ fn an_exited_pty_child_still_has_its_final_terminal_write_to_drain() {
     assert_eq!(unsafe { openpty(&mut master, &mut slave, std::ptr::null_mut(), std::ptr::null(), std::ptr::null()) }, 0);
     let mut master = unsafe { std::fs::File::from_raw_fd(master) };
     let slave = unsafe { std::fs::File::from_raw_fd(slave) };
-    let mut child = Command::new("/usr/bin/printf").args(["%s", std::str::from_utf8(LEAVE).unwrap()])
+    let mut child = Command::new(flea::testpath::tool("/usr/bin/printf")).args(["%s", std::str::from_utf8(LEAVE).unwrap()])
         .stdout(slave.try_clone().unwrap()).spawn().unwrap();
     assert!(child.wait().unwrap().success());
     assert!(wait_input(master.as_raw_fd(), -1, 0).unwrap(), "exited child must have unread output");

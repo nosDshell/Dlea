@@ -46,7 +46,7 @@ fn multicall_preview_keeps_its_invocation_name() {
         "the fixture must be a multicall alias whatever the host's xzcat is"
     );
     let input = root.file("input.txt", "preview contents\n");
-    let output = std::process::Command::new("/usr/bin/xz")
+    let output = std::process::Command::new(flea::testpath::tool("/usr/bin/xz"))
         .args(["-c", input.to_str().unwrap()])
         .output()
         .unwrap();

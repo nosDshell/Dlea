@@ -13,7 +13,7 @@ fn listed(path: &str, writable: bool) -> String {
 
 // The child stands in for the backend: it answers the first List with the given listed lines, in order.
 fn disabled_rows(lines: &[String], cx: &mut TestAppContext) -> (bool, Vec<String>) {
-    let mut command = Command::new("/bin/bash");
+    let mut command = Command::new(flea::testpath::tool("/bin/bash"));
     command.args([
         "-c",
         r#"IFS= read -r line

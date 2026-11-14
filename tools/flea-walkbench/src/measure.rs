@@ -118,7 +118,9 @@ pub fn cache_gate(cache: &str, hook: Option<&str>) -> Result<&'static str, Strin
     match (cache, hook) {
         ("warm", _) => Ok("warm"),
         ("cold", Some(hook)) => {
-            let status = Command::new("/bin/sh")
+            // /bin/sh first; PATH keeps non-FHS toolchains working.
+            let sh = if Path::new("/bin/sh").exists() { "/bin/sh" } else { "sh" };
+            let status = Command::new(sh)
                 .arg("-c")
                 .arg(hook)
                 .stdin(Stdio::null())

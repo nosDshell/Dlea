@@ -118,7 +118,7 @@ impl Terminal {
     }
     pub fn run_editor(&mut self, editor: &str, path: &Path) -> io::Result<()> {
         // The bulk editor is shell syntax; keep filename bytes in $1, outside the shell program.
-        let mut command = Command::new("/bin/sh");
+        let mut command = Command::new(flea::testpath::tool("/bin/sh"));
         command.args(["-c", &format!("exec {} \"$1\"", editor), "flea-bulk-rename"]).arg(path);
         // A program sh could not find is named, as E names it.
         self.run(command, |status| {

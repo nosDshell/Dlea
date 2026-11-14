@@ -177,7 +177,7 @@ fn a_quit_and_the_end_of_input_cancel_the_running_copy_at_the_door() {
 
 // A pid this boot no longer runs: a child that has already been reaped.
 fn dead_pid() -> u32 {
-    let mut child = std::process::Command::new("/bin/true").spawn().unwrap();
+    let mut child = std::process::Command::new(flea::testpath::tool("/bin/true")).spawn().unwrap();
     let pid = child.id();
     child.wait().unwrap();
     pid
@@ -192,7 +192,7 @@ fn the_next_transfer_sweeps_a_dead_copys_siblings_and_nothing_else() {
     let dead = to.join(copystage::test_leaf_for(dead_pid(), 3));
     let other_boot = to.join(crate::backend::copysweep::test_foreign_leaf(4242, 1));
     let mine = to.join(copystage::test_leaf_for(std::process::id(), 99_999));
-    let mut sleeper = std::process::Command::new("/bin/sleep").arg("30").spawn().unwrap();
+    let mut sleeper = std::process::Command::new(flea::testpath::tool("/bin/sleep")).arg("30").spawn().unwrap();
     let live = to.join(copystage::test_leaf_for(sleeper.id(), 1));
     for path in [&dead, &other_boot, &mine, &live] {
         std::fs::write(path, "half").unwrap();

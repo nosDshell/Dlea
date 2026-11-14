@@ -8,7 +8,7 @@ use std::{
 };
 
 pub fn tool(args: &[&str]) -> Vec<u8> {
-    let output = Command::new("/usr/bin/timeout")
+    let output = Command::new(flea::testpath::tool("/usr/bin/timeout"))
         .args(["20", args[0]])
         .args(&args[1..])
         .output()
@@ -31,7 +31,7 @@ pub fn scenario(case: &str) {
     std::os::unix::fs::symlink("/usr/bin/true", bin.join("soffice")).unwrap();
     dir.dir("i18n/en");
     dir.file("i18n/en/flea.json", r#"{"tui.convert.cancelled":{"one":"Conversion cancelled; %1 output created.","other":"Conversion cancelled; %1 outputs created."},"tui.convert.failed":{"one":"Conversion failed after %1 output: %2","other":"Conversion failed after %1 outputs: %2"}}"#);
-    let mut command = Command::new("/usr/bin/setsid");
+    let mut command = Command::new(flea::testpath::tool("/usr/bin/setsid"));
     command
         .args([
             "-w",
@@ -217,7 +217,7 @@ fn tui_convert_process_helper() {
 }
 
 fn backend() -> Wire {
-    let mut command = Command::new("/bin/sh");
+    let mut command = Command::new(flea::testpath::tool("/bin/sh"));
     command.args(["-c", r#""$1" --exact tui::convert_process_tests::tui_convert_backend_helper --ignored --nocapture --quiet | /usr/bin/sed -u -n '/^{/p'"#, "tui-convert-backend"])
         .arg(std::env::current_exe().unwrap()).env("FLEA_TUI_CONVERT_BACKEND", "1");
     Wire::spawn(command).unwrap()

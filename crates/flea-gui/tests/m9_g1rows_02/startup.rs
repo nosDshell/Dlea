@@ -152,7 +152,7 @@ pub(crate) fn sample(
         "Drop kills and reaps an unfinished backend"
     );
     // Negative control: a subshell needs a real fork (dash runs simple commands through vfork), so a zero spawn count above is a measurement.
-    let mut shell = Command::new("/bin/sh");
+    let mut shell = Command::new(flea::testpath::tool("/bin/sh"));
     shell
         .arg("-c")
         .arg("(/bin/true \"$1\"); /bin/true")

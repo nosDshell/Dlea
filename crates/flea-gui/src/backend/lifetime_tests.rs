@@ -7,7 +7,7 @@ fn fx456_fixture_teardown_does_not_wake_a_retired_scheduler() {
     let dispatcher = TestDispatcher::new(0);
     let scheduler = dispatcher.scheduler().clone();
     let mut cx = TestAppContext::build(dispatcher, Some("fx456 real plugin host fixture"));
-    let mut command = Command::new("/bin/sh");
+    let mut command = Command::new(flea::testpath::tool("/bin/sh"));
     command.args([
         "-c",
         r#"while IFS= read -r line; do :; done
@@ -38,7 +38,7 @@ printf '%s\n' '{"t":"plugins","id":0,"plugins":[]}'
 #[test]
 fn fx456_completion_preserves_drained_before_and_after_another_owner_receives_it() {
     for receive_first in [false, true] {
-        let mut command = Command::new("/bin/sh");
+        let mut command = Command::new(flea::testpath::tool("/bin/sh"));
         command.args(["-c", "while IFS= read -r line; do :; done"]);
         let backend = Backend::start_with(command, r#"{"c":"noop"}"#.into()).unwrap();
         let completion = backend.test_completion().unwrap();
@@ -61,7 +61,7 @@ fn fx456_completion_preserves_drained_before_and_after_another_owner_receives_it
 
 #[test]
 fn fx456_shutdown_cannot_discard_a_worker_failure() {
-    let mut command = Command::new("/bin/sh");
+    let mut command = Command::new(flea::testpath::tool("/bin/sh"));
     // The child leaves after its second line, so the worker fails only after replies close.
     command.args(["-c", "read -r first; read -r second"]);
     let backend = Backend::start_with(command, r#"{"c":"noop"}"#.into()).unwrap();

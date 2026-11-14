@@ -14,7 +14,7 @@ const RACE: &str = "presentation::regression_tests::u01_fix2_same_content_save_d
 const GUARD: &str = "presentation::regression_tests::u01_fix2_fixtures_preserve_unmarked_sentinels_and_refuse_unowned_paths";
 
 fn child(test: &str, fixture: &Fixture) {
-    let output = Command::new("/usr/bin/setsid")
+    let output = Command::new(flea::testpath::tool("/usr/bin/setsid"))
         .arg("-w")
         .arg(std::env::current_exe().unwrap())
         .args(["--exact", test, "--nocapture", "--test-threads=1"])

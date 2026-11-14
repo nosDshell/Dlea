@@ -3,7 +3,7 @@ use crate::g2::media_preview::engine::{feed, Backend, Feed, FeedSender, Playback
 use flea::ui_logic_media_preview::frame::Command;
 use gpui::RenderImage;
 use std::cell::{Cell, RefCell};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::rc::Rc;
 use std::sync::Arc;
 
@@ -84,7 +84,12 @@ pub struct Root(pub PathBuf);
 
 impl Root {
     pub fn new() -> Self {
-        let output = std::process::Command::new("/usr/bin/mktemp")
+        let mktemp = if Path::new("/usr/bin/mktemp").exists() {
+            "/usr/bin/mktemp"
+        } else {
+            "mktemp"
+        };
+        let output = std::process::Command::new(mktemp)
             .args(["-d", "-t", "flea-pv3.XXXXXX"])
             .output()
             .expect("mktemp");

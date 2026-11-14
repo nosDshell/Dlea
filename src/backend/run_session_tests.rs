@@ -257,7 +257,7 @@ fn a_locate_after_a_partial_extension_finds_a_row_in_the_held_remainder() {
     let d = TestDir::new("sessionlocatepartial");
     // Child-only writers cannot leak through another test's fork and close after this scope's watch is armed.
     let files: Vec<_> = (0..400).map(|i| d.join(&format!("bench-{:04}.txt", i))).collect();
-    assert!(std::process::Command::new("/usr/bin/touch").args(&files).status().expect("the fixture writer starts").success(), "the fixture writer finishes");
+    assert!(std::process::Command::new(flea::testpath::tool("/usr/bin/touch")).args(&files).status().expect("the fixture writer starts").success(), "the fixture writer finishes");
     let root = d.path().to_str().expect("the sandbox path is utf-8").to_string();
     let tb = Tables::load();
     let (events, events_rx) = crate::backend::events::channel::<Event>();

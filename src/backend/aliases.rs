@@ -4,14 +4,17 @@ pub struct Aliases {
     to_canonical: HashMap<String, String>,
 }
 
-const ALIASES: &str = "/usr/share/mime/aliases";
-
 impl Aliases {
     pub fn load() -> Aliases {
-        match std::fs::read_to_string(ALIASES) {
-            Ok(text) => Aliases::from_str(&text),
-            Err(_) => Aliases::from_str(""),
-        }
+        // Later rows overwrite, so read lowest precedence first: the reversed
+        // XDG order ends with XDG_DATA_HOME's file winning every conflict.
+        let text = super::mime::data_files("aliases")
+            .iter()
+            .rev()
+            .filter_map(|path| std::fs::read_to_string(path).ok())
+            .collect::<Vec<_>>()
+            .join("\n");
+        Aliases::from_str(&text)
     }
 
     // Sample input, /usr/share/mime/aliases: "image/heic image/heif", the alias first, then its canonical name.

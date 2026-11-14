@@ -141,7 +141,7 @@ fn m9_g2rows_01_cancellation_in_clean_no_tty_pid_namespace() {
         return;
     }
     let root = root();
-    let out = Command::new("/usr/bin/bwrap")
+    let out = Command::new(flea::testpath::tool("/usr/bin/bwrap"))
         .args(["--unshare-all", "--dev-bind", "/", "/", "--proc", "/proc", "--die-with-parent", "/usr/bin/env", "-i", "PATH=/usr/bin:/bin"])
         .arg(format!("HOME={}", root.display())).arg(format!("TMPDIR={}", root.display())).arg("FLEA_CONTENTS_CI_ENV=1")
         .args(["/usr/bin/setsid", "-w"])

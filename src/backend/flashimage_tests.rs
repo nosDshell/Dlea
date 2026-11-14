@@ -208,7 +208,7 @@ fn b2_a_zipped_iso_larger_than_the_pipe_probes_zip_at_once() {
 
 // A plain child that writes this much stands in for a jailed tool, so the capture rule is proven where bwrap cannot run.
 fn writer_of(bytes: usize) -> crate::backend::jail::Jailed {
-    let child = std::process::Command::new("/bin/sh").arg("-c").arg(format!("head -c {bytes} /dev/zero"))
+    let child = std::process::Command::new(flea::testpath::tool("/bin/sh")).arg("-c").arg(format!("head -c {bytes} /dev/zero"))
         .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::piped()).stderr(std::process::Stdio::null()).spawn().unwrap();
     crate::backend::jail::Jailed { child, sandbox_pid: std::sync::Arc::new(std::sync::atomic::AtomicI32::new(crate::backend::jail::NO_PID)) }
 }

@@ -115,7 +115,7 @@ mod tests {
         let root = Root::new();
         std::fs::write(root.0.join(".flea-1-other.png"), b"x").unwrap();
         // A stand-in helper writes a temp under its own pid, then hangs as a stuck thumbnailer does.
-        let mut command = Command::new("/bin/sh");
+        let mut command = Command::new(flea::testpath::tool("/bin/sh"));
         command
             .arg("-c")
             .arg(r#"printf x > "$0/.flea-$$-temp.png"; exec sleep 60"#)

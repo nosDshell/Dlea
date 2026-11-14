@@ -106,7 +106,7 @@ mod tests {
         let script =
             format!("{SHELL_GUARD}\nguard \"$1\" \"$2\" \"$3\"\necho x >> \"$2\"\n{answer}");
         move || {
-            let mut command = Command::new("/bin/sh");
+            let mut command = Command::new(flea::testpath::tool("/bin/sh"));
             command.args(["-c", &script, "probe"]);
             command.arg(root).arg(count).arg(Fixture::parent());
             command

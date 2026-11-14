@@ -34,7 +34,7 @@ impl Fixture {
     pub(crate) fn command(&self, status: u8) -> PathBuf {
         let path = self.0.join("hyprctl");
         // A child writes the script, since a writable fd here leaks into concurrent forks and exec then fails ETXTBSY.
-        let written = Command::new("/bin/sh")
+        let written = Command::new(flea::testpath::tool("/bin/sh"))
             .args([
                 "-c",
                 "printf '%s' \"$2\" > \"$1\" && chmod 700 \"$1\"",

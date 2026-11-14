@@ -284,7 +284,7 @@ fn the_compressor_shares_the_extracts_uncapped_jail() {
 // X1: a cancel answers only after the last writer's EOF, bounded; a sleeping writer stands in with no jail.
 #[test]
 fn a_cancel_drains_the_last_writer_before_it_answers() {
-    let mut writer = std::process::Command::new("/usr/bin/sleep")
+    let mut writer = std::process::Command::new(flea::testpath::tool("/usr/bin/sleep"))
         .arg("1")
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::piped())

@@ -80,7 +80,7 @@ fn spawn_relayed(
 impl Process {
     // A reaped, harmless child lets the player's normal poll path observe a completed process.
     pub fn finished() -> Self {
-        let mut child = Command::new("/usr/bin/true").env_clear().stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null()).spawn().expect("true starts");
+        let mut child = Command::new(flea::testpath::tool("/usr/bin/true")).env_clear().stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null()).spawn().expect("true starts");
         child.wait().expect("true is reaped");
         let input = File::open("/dev/null").expect("/dev/null opens");
         Self { child, directory: PathBuf::from("/nonexistent"), _input: input, poster: Arc::new(AtomicBool::new(false)), forwarder: None }

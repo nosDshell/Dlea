@@ -8,7 +8,7 @@ fn executables_written_beside_forking_siblings_exec() {
             let stop = Arc::clone(&stop);
             thread::spawn(move || {
                 while !stop.load(Ordering::Relaxed) {
-                    let mut command = Command::new("/bin/true");
+                    let mut command = Command::new(flea::testpath::tool("/bin/true"));
                     // Holds each child before exec, so it keeps every descriptor this process has open.
                     unsafe {
                         command.pre_exec(|| {

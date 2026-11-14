@@ -152,7 +152,7 @@ wait
     let closed = closed.is_file();
     if !closed {
         assert!(holder > 1 && root.0.join(".flea-test-sandbox").is_file());
-        let _ = std::process::Command::new("/bin/kill")
+        let _ = std::process::Command::new(flea::testpath::tool("/bin/kill"))
             .args(["-KILL", "--", &format!("-{holder}")])
             .status();
     }

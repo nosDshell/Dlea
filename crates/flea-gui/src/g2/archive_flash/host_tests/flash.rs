@@ -195,7 +195,7 @@ fn a_chooser_that_fails_says_why() {
     let (handle, mut requests, _) = start(&mut cx);
     edit(&mut cx, handle, |shell, _, _| {
         shell.operations.archive.chooser = || {
-            let mut command = std::process::Command::new("/bin/sh");
+            let mut command = std::process::Command::new(flea::testpath::tool("/bin/sh"));
             command.args(["-c", "echo noise >&2; echo 'the chooser broke' >&2; exit 2"]);
             command
         };
@@ -229,7 +229,7 @@ fn a_chooser_that_fails_silently_names_its_exit_status() {
     let (handle, mut requests, _) = start(&mut cx);
     edit(&mut cx, handle, |shell, _, _| {
         shell.operations.archive.chooser = || {
-            let mut command = std::process::Command::new("/bin/sh");
+            let mut command = std::process::Command::new(flea::testpath::tool("/bin/sh"));
             command.args(["-c", "exit 3"]);
             command
         };
@@ -255,7 +255,7 @@ fn a_chooser_failure_after_the_pane_closed_stays_silent() {
     let (handle, mut requests, _) = start(&mut cx);
     edit(&mut cx, handle, |shell, _, _| {
         shell.operations.archive.chooser = || {
-            let mut command = std::process::Command::new("/bin/sh");
+            let mut command = std::process::Command::new(flea::testpath::tool("/bin/sh"));
             command.args(["-c", "echo 'the chooser broke' >&2; exit 2"]);
             command
         };
@@ -282,7 +282,7 @@ fn a_cancelled_chooser_stays_silent() {
     let mut cx = crate::list::bench::real_cx();
     let (handle, mut requests, _) = start(&mut cx);
     edit(&mut cx, handle, |shell, _, _| {
-        shell.operations.archive.chooser = || std::process::Command::new("/bin/true");
+        shell.operations.archive.chooser = || std::process::Command::new(flea::testpath::tool("/bin/true"));
     });
     choose(&mut cx, handle, 48, "flashDrive", "", &["/files/disk.img"]);
     drain(&mut requests);

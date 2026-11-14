@@ -321,7 +321,7 @@ fn real_stalled_children_are_reaped_after_a_cancel(cx: &mut TestAppContext) {
     }
     let began = std::rc::Rc::new(std::cell::Cell::new(None));
     let stalled = || {
-        let mut command = std::process::Command::new("/bin/sh");
+        let mut command = std::process::Command::new(flea::testpath::tool("/bin/sh"));
         command
             .arg("-c")
             .arg(r#"printf '{"t":"blocked"}\n'; exec sleep 30"#);

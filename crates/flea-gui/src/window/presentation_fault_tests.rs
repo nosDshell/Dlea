@@ -27,7 +27,7 @@ fn helper(fixture: &Fixture, dir: &Path, script: &str) {
 }
 
 fn child(test: &str, env: &[(&str, &str)]) -> (bool, String) {
-    let mut command = Command::new("/usr/bin/setsid");
+    let mut command = Command::new(flea::testpath::tool("/usr/bin/setsid"));
     command
         .arg("-w")
         .arg(std::env::current_exe().unwrap())

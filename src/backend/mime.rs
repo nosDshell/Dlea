@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::path::PathBuf;
 
 pub struct Db {
     // A "cs" glob keys on its original text, every other glob on a lowercased copy, so one .c can beat the other.
@@ -9,14 +10,40 @@ pub struct Db {
     by_name: HashMap<String, (u32, String)>,
 }
 
-const GLOBS2: &str = "/usr/share/mime/globs2";
+/// The freedesktop MIME database exists under every XDG data dir, highest
+/// precedence first — XDG_DATA_HOME, then each XDG_DATA_DIRS entry, then the
+/// /usr/share floor. Guix/NixOS keep it in a profile and never touch /usr/share,
+/// so reading only that one path left classification empty there.
+pub(crate) fn data_files(name: &str) -> Vec<PathBuf> {
+    let mut paths = Vec::new();
+    let home = std::env::var_os("XDG_DATA_HOME")
+        .filter(|v| !v.is_empty())
+        .map(PathBuf::from)
+        .or_else(|| {
+            std::env::var_os("HOME").map(|h| PathBuf::from(h).join(".local/share"))
+        });
+    if let Some(dir) = home {
+        paths.push(dir.join("mime").join(name));
+    }
+    let dirs = std::env::var("XDG_DATA_DIRS")
+        .unwrap_or_else(|_| "/usr/local/share:/usr/share".into());
+    for dir in dirs.split(':').filter(|d| !d.is_empty()) {
+        paths.push(PathBuf::from(dir).join("mime").join(name));
+    }
+    paths.push(PathBuf::from("/usr/share/mime").join(name));
+    paths
+}
 
 impl Db {
     pub fn load() -> Db {
-        match std::fs::read_to_string(GLOBS2) {
-            Ok(text) => Db::from_str(&text),
-            Err(_) => Db::from_str(""),
-        }
+        // insert_heaviest resolves conflicts by weight, and on a tie the earlier
+        // (higher-precedence) file keeps its answer.
+        let text = data_files("globs2")
+            .iter()
+            .filter_map(|path| std::fs::read_to_string(path).ok())
+            .collect::<Vec<_>>()
+            .join("\n");
+        Db::from_str(&text)
     }
 
     // Sample input, /usr/share/mime/globs2: "50:image/jpeg:*.jpeg", or with the flag field, "50:text/x-csrc:*.c:cs".

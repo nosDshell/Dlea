@@ -148,7 +148,7 @@ esac
         std::process::id()
     );
     // A child writes the executable so concurrent test forks cannot inherit a writable script fd.
-    let written = std::process::Command::new("/bin/sh")
+    let written = std::process::Command::new(flea::testpath::tool("/bin/sh"))
         .args([
             "-c",
             "printf '%s' \"$2\" > \"$1\" && chmod 500 \"$1\"",

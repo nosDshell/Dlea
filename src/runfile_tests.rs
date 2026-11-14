@@ -318,7 +318,7 @@ fn private_keys_takes_inherited_and_explicit_private_names_only() {
 #[test]
 fn harden_strips_a_private_variable_the_process_itself_inherited() {
     if std::env::var_os("FLEA_RUNFILE_HOP").is_some() {
-        let mut probe = std::process::Command::new("/bin/sh");
+        let mut probe = std::process::Command::new(flea::testpath::tool("/bin/sh"));
         probe.arg("-c").arg("echo inherited=${FLEA_RUNFILE_INHERITED:-absent}");
         super::runharden::harden(&mut probe);
         let out = probe.output().expect("the probe runs");

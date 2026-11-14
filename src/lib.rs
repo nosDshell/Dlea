@@ -21,6 +21,7 @@ pub mod uistore;
 // The library's state store checks only the ui shape; the binary reads every other document.
 #[allow(dead_code)]
 mod persistdoc;
+pub mod testpath;
 pub mod plugin_runtime;
 pub mod preview_model;
 pub mod protocol;

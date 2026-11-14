@@ -3,7 +3,7 @@ use super::*;
 use std::time::Instant;
 
 fn shell(script: &str) -> PickerProcess {
-    let mut command = Command::new("/bin/sh");
+    let mut command = Command::new(flea::testpath::tool("/bin/sh"));
     command.arg("-c").arg(script);
     PickerProcess::start(command)
 }

@@ -131,7 +131,7 @@ fn gcomp_oem_delivery_scales_received_empty_locked_and_copy_surfaces() {
         let fixture = Fixture::new("gcomp-font");
         let home = fixture.path().join("home");
         fixture.mkdir(&home);
-        let output = Command::new("/usr/bin/setsid")
+        let output = Command::new(flea::testpath::tool("/usr/bin/setsid"))
             .args([
                 "-w",
                 std::env::current_exe().unwrap().to_str().unwrap(),

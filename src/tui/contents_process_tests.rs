@@ -22,7 +22,7 @@ impl Root {
             .unwrap()
             .join(".superpowers/m9-tui-08");
         std::fs::create_dir_all(&parent).unwrap();
-        let made = Command::new("/usr/bin/mktemp")
+        let made = Command::new(flea::testpath::tool("/usr/bin/mktemp"))
             .arg("-d")
             .arg(parent.join("process.XXXXXXXX"))
             .output()
@@ -43,7 +43,7 @@ impl Root {
         Self(path)
     }
     pub(super) fn command(&self, missing_rg: bool, test: &str) -> Command {
-        let mut command = Command::new("/usr/bin/setsid");
+        let mut command = Command::new(flea::testpath::tool("/usr/bin/setsid"));
         command
             .args([
                 "-w",

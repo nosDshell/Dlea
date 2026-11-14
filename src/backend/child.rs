@@ -180,7 +180,7 @@ mod tests {
 
     #[test]
     fn a_failed_wait_is_told_apart_from_a_child_that_ran_and_failed() {
-        let mut child = std::process::Command::new("/usr/bin/true").spawn().unwrap();
+        let mut child = std::process::Command::new(flea::testpath::tool("/usr/bin/true")).spawn().unwrap();
         let pid = child.id() as i32;
         let mut status: i32 = 0;
         // Reaping the child here is what leaves the verdict's own wait nothing to reap, which is the ECHILD it cannot otherwise be shown.
@@ -199,7 +199,7 @@ mod tests {
 
     #[test]
     fn a_descriptor_still_opens_on_a_child_that_exited_before_the_wait_began() {
-        let mut child = std::process::Command::new("/usr/bin/true").spawn().unwrap();
+        let mut child = std::process::Command::new(flea::testpath::tool("/usr/bin/true")).spawn().unwrap();
         // Nothing here reaps it, so this is exactly the zombie state run_with_timeout can find its child in.
         std::thread::sleep(Duration::from_millis(200));
         let raw = unsafe { pidfd_open(child.id() as i32, 0) };

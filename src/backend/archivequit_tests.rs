@@ -249,7 +249,7 @@ fn a_launcher_without_an_inner_tool_is_not_a_running_compressor() {
     let d = TestDir::new("archquitwitnessctl");
     let work = Work::new(d.path(), "arc").expect("work");
     assert!(work_litter(d.path()) > 0, "the control needs a Work dir to stand beside");
-    let mut launcher = std::process::Command::new("/usr/bin/python3")
+    let mut launcher = std::process::Command::new(flea::testpath::tool("/usr/bin/python3"))
         .arg("-c")
         .arg("import time; time.sleep(30)")
         .arg(d.path())

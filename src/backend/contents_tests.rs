@@ -216,7 +216,7 @@ fn m9_g2rows_01_cancel_reaps_and_stale_generation_is_ignored() {
     for before_spawn in [true, false] {
         let mut f = Fixture::new();
         let tool = f.root.join("held-rg");
-        let mut writer = std::process::Command::new("/bin/sh")
+        let mut writer = std::process::Command::new(flea::testpath::tool("/bin/sh"))
             .args(["-c", "cat > \"$1\" && chmod 755 \"$1\"", "sh"])
             .arg(&tool)
             .stdin(std::process::Stdio::piped())
@@ -364,7 +364,7 @@ fn m9_g2rows_01_missing_rg_and_failure_never_publish_success() {
     assert!(!f.text().contains("listed"));
     assert!(f.text().contains(r#""gen":1"#));
     let tool = f.root.join("failing-rg");
-    let mut writer = std::process::Command::new("/bin/sh")
+    let mut writer = std::process::Command::new(flea::testpath::tool("/bin/sh"))
         .args(["-c", "cat > \"$1\" && chmod 755 \"$1\"", "sh"])
         .arg(&tool)
         .stdin(std::process::Stdio::piped())

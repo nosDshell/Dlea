@@ -119,7 +119,7 @@ mod tests {
     use super::*;
 
     fn shell(script: &str) -> Child {
-        spawn(Command::new("/bin/sh").args(["-c", script])).unwrap()
+        spawn(Command::new(flea::testpath::tool("/bin/sh")).args(["-c", script])).unwrap()
     }
 
     #[test]
@@ -152,7 +152,9 @@ mod tests {
         );
         for (script, limit, cap, kind) in [
             (
-                "sleep 30 & wait",
+                // A shell-only busy group: `sleep` is absent where /usr/bin is
+                // not FHS (Guix), and this keeps the grandchild-reaping cover.
+                "/bin/sh -c 'while :; do :; done' & wait",
                 Duration::from_millis(20),
                 64,
                 io::ErrorKind::TimedOut,

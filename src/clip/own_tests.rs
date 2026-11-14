@@ -89,7 +89,7 @@ fn an_owner_ready_deadline_reaps_its_named_child() { failed_child(true); }
 #[test]
 fn an_exited_owner_remains_unreaped_until_removed_from_the_map() {
     let token = "exit-race-test";
-    let child = std::process::Command::new("/bin/true").spawn().unwrap();
+    let child = std::process::Command::new(flea::testpath::tool("/bin/true")).spawn().unwrap();
     let pid = child.id();
     remember(token, pid);
     let (arrived, waiting) = channel();
@@ -120,7 +120,7 @@ fn an_exited_owner_remains_unreaped_until_removed_from_the_map() {
 #[test]
 fn withdraw_kills_only_what_this_process_owns() {
     assert!(!withdraw("no-such-token"));
-    let child = std::process::Command::new("/bin/sleep")
+    let child = std::process::Command::new(flea::testpath::tool("/bin/sleep"))
         .arg("30")
         .stdout(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
@@ -139,7 +139,7 @@ fn a_live_owner_clear_withdraws_without_verifying_the_selection() {
     use std::os::unix::process::ExitStatusExt;
     const TOKEN: &str = "cb1bcb1bcb1bcb1bcb1bcb1bcb1bcb1b";
     const SIGKILL: c_int = 9;
-    let mut child = Reaped(Some(std::process::Command::new("/bin/sleep")
+    let mut child = Reaped(Some(std::process::Command::new(flea::testpath::tool("/bin/sleep"))
         .arg("infinity")
         .spawn()
         .unwrap()));
@@ -178,7 +178,7 @@ fn a_live_owner_clear_withdraws_without_verifying_the_selection() {
 #[test]
 fn an_exited_owner_clear_uses_the_verified_selection_result() {
     const TOKEN: &str = "cb1ccb1ccb1ccb1ccb1ccb1ccb1ccb1c";
-    let mut child = std::process::Command::new("/bin/true").spawn().unwrap();
+    let mut child = std::process::Command::new(flea::testpath::tool("/bin/true")).spawn().unwrap();
     let pid = child.id();
     remember(TOKEN, pid);
     wait_for_exit(pid);

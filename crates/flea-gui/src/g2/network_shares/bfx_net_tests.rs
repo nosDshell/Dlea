@@ -137,7 +137,7 @@ fn bfx_net_bare_server_list_has_a_wall_deadline_and_reaps_the_child(cx: &mut gpu
             .parse()
             .unwrap();
         assert!(pid > 1 && root.0.join(".flea-test-sandbox").is_file());
-        let _ = std::process::Command::new("/bin/kill")
+        let _ = std::process::Command::new(flea::testpath::tool("/bin/kill"))
             .args(["-KILL", "--", &format!("-{pid}")])
             .status();
         let cleanup = Instant::now();

@@ -24,7 +24,12 @@ pub(super) fn enter(test: &str, script: &str) -> bool {
     let helper = root.join("bin/fc-match");
     fixture.write(&helper, script);
     fixture.executable(&helper);
-    let output = Command::new("/usr/bin/setsid")
+    let setsid = if std::path::Path::new("/usr/bin/setsid").exists() {
+        "/usr/bin/setsid"
+    } else {
+        "setsid"
+    };
+    let output = Command::new(setsid)
         .arg("-w")
         .arg(std::env::current_exe().unwrap())
         .args(["--exact", test, "--nocapture", "--test-threads=1"])

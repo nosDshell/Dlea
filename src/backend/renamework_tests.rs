@@ -14,7 +14,7 @@ fn publisher_keeps_its_history_after_a_diagnostic_write_failure() {
         "backend::renamework::tests::publisher_keeps_its_history_after_a_diagnostic_write_failure";
     if std::env::var_os(CHILD).is_none() {
         for broken in [false, true] {
-            let mut child = Command::new("/usr/bin/setsid")
+            let mut child = Command::new(flea::testpath::tool("/usr/bin/setsid"))
                 .arg("-w")
                 .arg(std::env::current_exe().unwrap())
                 .env_clear()

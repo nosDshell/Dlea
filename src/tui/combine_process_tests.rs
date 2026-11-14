@@ -16,7 +16,7 @@ use std::{
 
 pub fn scenario(case: &str) {
     if case == "review-navigation" {
-        let identity = Command::new("/usr/bin/timeout")
+        let identity = Command::new(flea::testpath::tool("/usr/bin/timeout"))
             .arg("10")
             .arg(std::env::var("RUSTC").unwrap_or_else(|_| "rustc".into()))
             .arg("-vV")
@@ -47,7 +47,7 @@ pub fn scenario(case: &str) {
         )
         .unwrap();
     }
-    let mut cmd = Command::new("/usr/bin/setsid");
+    let mut cmd = Command::new(flea::testpath::tool("/usr/bin/setsid"));
     cmd.args([
         "-w",
         "/usr/bin/bwrap",
@@ -117,7 +117,7 @@ pub fn scenario(case: &str) {
     }
 }
 fn backend() -> Wire {
-    let mut cmd = Command::new("/bin/sh");
+    let mut cmd = Command::new(flea::testpath::tool("/bin/sh"));
     cmd.args(["-c", r#""$1" --exact tui::combine_process_tests::tui_combine_backend_helper --ignored --nocapture --quiet | /usr/bin/sed -u -n '/^{/p'"#, "tui-combine-backend"])
         .arg(std::env::current_exe().unwrap()).env("FLEA_TUI_COMBINE_BACKEND", "1");
     Wire::spawn(cmd).unwrap()

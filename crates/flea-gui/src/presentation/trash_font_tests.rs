@@ -36,7 +36,7 @@ fn sandboxed<'a>(command: &'a mut Command, root: &Path) -> &'a mut Command {
 
 /// What fontconfig itself answers for `monospace` inside the child's sandbox.
 fn sandboxed_answer(fixture: &Fixture) -> Vec<u8> {
-    let mut command = Command::new("/usr/bin/fc-match");
+    let mut command = Command::new(flea::testpath::tool("/usr/bin/fc-match"));
     command.args(["-f", "%{family[0]}", "monospace"]);
     let answer = sandboxed(&mut command, fixture.path()).output().unwrap();
     assert!(answer.status.success());
@@ -48,7 +48,7 @@ fn isolated(test: &str, fixture: &Fixture, script: &str) {
     let helper = root.join("bin/fc-match");
     fixture.write(&helper, script);
     fixture.executable(&helper);
-    let mut command = Command::new("/usr/bin/setsid");
+    let mut command = Command::new(flea::testpath::tool("/usr/bin/setsid"));
     command
         .arg("-w")
         .arg(std::env::current_exe().unwrap())

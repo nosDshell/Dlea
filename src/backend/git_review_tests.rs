@@ -140,7 +140,7 @@ fn review_git_status_deep_index_exhausts_parent_memory() {
     let bytes = gitprobe::capture(&gitprobe::argv(&repo), gitprobe::DEADLINE).unwrap();
     println!("REVIEW_OOM valid_git_stdout_bytes={}", bytes.len());
     d.write("status-output", &bytes);
-    let output = std::process::Command::new("/usr/bin/prlimit")
+    let output = std::process::Command::new(flea::testpath::tool("/usr/bin/prlimit"))
         .arg(format!("--as={CHILD_ADDRESS_SPACE_BYTES}"))
         .arg("--core=0")
         .arg("--")
@@ -182,7 +182,7 @@ fn review_git_status_many_normal_length_paths_exhaust_parent_memory() {
         ));
     }
     d.write(".git/review-index-input", input.as_bytes());
-    let output = Command::new("/usr/bin/git")
+    let output = Command::new(flea::testpath::tool("/usr/bin/git"))
         .current_dir(&d.0)
         .args([
             "-c",
@@ -227,7 +227,7 @@ fn review_git_status_many_normal_length_paths_exhaust_parent_memory() {
         ("large-output", bytes.as_slice()),
     ] {
         d.write(name, bytes);
-        let output = Command::new("/usr/bin/prlimit")
+        let output = Command::new(flea::testpath::tool("/usr/bin/prlimit"))
             .arg(format!("--as={CHILD_ADDRESS_SPACE_BYTES}"))
             .arg("--core=0")
             .arg("--")

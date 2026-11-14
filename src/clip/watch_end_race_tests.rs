@@ -90,7 +90,7 @@ fn gone_at_report_dedupes_reserved_token() {
 #[test]
 fn foreign_live_pids_do_not_read() {
     if isolated("races::foreign_live_pids_do_not_read") { return; }
-    let foreign = Reaped(Some(std::process::Command::new("/bin/cat")
+    let foreign = Reaped(Some(std::process::Command::new(flea::testpath::tool("/bin/cat"))
         .stdin(std::process::Stdio::piped()).stdout(std::process::Stdio::null()).spawn().unwrap()));
     let mut watching = Watching::new();
     watching.report(INITIAL_OFFER, TOKEN, Some(foreign.0.as_ref().unwrap().id()));

@@ -119,7 +119,7 @@ impl Drop for Session {
 }
 
 pub(super) fn mode(slave: &std::fs::File) -> Vec<u8> {
-    let output = Command::new("/usr/bin/stty").arg("-g").stdin(slave.try_clone().unwrap()).output().unwrap();
+    let output = Command::new(flea::testpath::tool("/usr/bin/stty")).arg("-g").stdin(slave.try_clone().unwrap()).output().unwrap();
     assert!(output.status.success());
     output.stdout
 }

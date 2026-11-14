@@ -58,7 +58,7 @@ pub fn make_root(root: &Path) -> Option<()> {
 // A detached `flea --figure-compile` through a shell that exits at once, so the launcher keeps no zombie child and the build outlives it.
 pub fn spawn_background() {
     let Ok(exe) = std::env::current_exe() else { return };
-    let started = Command::new("/bin/sh")
+    let started = Command::new(flea::testpath::tool("/bin/sh"))
         .args(["-c", "\"$0\" --figure-compile < /dev/null > /dev/null 2>&1 &"])
         .arg(exe)
         .stdin(Stdio::null())

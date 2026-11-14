@@ -248,7 +248,7 @@ fn uish_04_live_theme_harness_controls() {
         .unwrap();
     let parent = repo.join(".superpowers/m9-uish-04");
     std::fs::create_dir_all(&parent).unwrap();
-    let output = Command::new("/usr/bin/mktemp")
+    let output = Command::new(flea::testpath::tool("/usr/bin/mktemp"))
         .args(["-d"])
         .arg(parent.join("harness.XXXXXXXX"))
         .env_clear()
@@ -264,7 +264,7 @@ fn uish_04_live_theme_harness_controls() {
         .create_new(true)
         .open(root.join(".flea-test-sandbox"))
         .unwrap();
-    let output = Command::new("/usr/bin/setsid")
+    let output = Command::new(flea::testpath::tool("/usr/bin/setsid"))
         .args(["-w", "/bin/bash"])
         .arg(repo.join("tests/ui-uish-common-observers.sh"))
         .arg("--controls")

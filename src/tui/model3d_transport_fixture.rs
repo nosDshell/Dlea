@@ -13,7 +13,7 @@ pub(super) fn chafa_child(name: &str, body: &str) -> bool {
     use std::os::unix::fs::PermissionsExt;
     std::fs::set_permissions(root.path("runtime"), std::fs::Permissions::from_mode(0o700)).unwrap();
     let script = root.path("bin/chafa");
-    let mut writer = std::process::Command::new("/bin/sh")
+    let mut writer = std::process::Command::new(flea::testpath::tool("/bin/sh"))
         .args(["-c", "cat > \"$1\" && chmod 755 \"$1\"", "sh"])
         .arg(&script)
         .stdin(std::process::Stdio::piped())
@@ -26,7 +26,7 @@ pub(super) fn chafa_child(name: &str, body: &str) -> bool {
         .write_all(format!("#!/bin/sh\nset -eu\n{body}\n").as_bytes())
         .unwrap();
     assert!(writer.wait().unwrap().success());
-    let output = std::process::Command::new("/usr/bin/setsid")
+    let output = std::process::Command::new(flea::testpath::tool("/usr/bin/setsid"))
         .arg("-w")
         .arg(std::env::current_exe().unwrap())
         .args([

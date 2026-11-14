@@ -178,7 +178,15 @@ mod tests {
     fn a_real_process_tree_retains_raw_evidence_and_refuses_overwrite() {
         let parent = std::env::current_dir().unwrap().join(".superpowers/g1-15");
         fs::create_dir_all(&parent).unwrap();
-        let output = Command::new("/usr/bin/mktemp")
+        let tool = |name: &str| {
+            let fhs = format!("/usr/bin/{name}");
+            if Path::new(&fhs).exists() {
+                fhs
+            } else {
+                name.to_owned()
+            }
+        };
+        let output = Command::new(tool("mktemp"))
             .args(["-d", parent.join("probe.XXXXXXXX").to_str().unwrap()])
             .output()
             .unwrap();
@@ -186,7 +194,7 @@ mod tests {
         let root = String::from_utf8(output.stdout).unwrap();
         let root = Path::new(root.trim());
         fs::write(root.join(".flea-test-sandbox"), "").unwrap();
-        let mut child = Command::new("/usr/bin/sleep")
+        let mut child = Command::new(tool("sleep"))
             .arg("60")
             .stdin(Stdio::null())
             .stdout(Stdio::null())

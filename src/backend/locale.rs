@@ -35,7 +35,7 @@ mod tests {
         let output = command("/bin/sh").args(["-c", probe]).output().unwrap();
         assert!(output.status.success());
         assert_eq!(String::from_utf8(output.stdout).unwrap(), format!("C.UTF-8|unset|{locale}"));
-        let mut opened = Command::new("/bin/sh");
+        let mut opened = Command::new(flea::testpath::tool("/bin/sh"));
         opened.args(["-c", probe]);
         crate::terminal::detach(&mut opened);
         let output = opened.stdout(Stdio::piped()).output().unwrap();

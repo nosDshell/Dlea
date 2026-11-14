@@ -247,7 +247,7 @@ fn the_proc_scan_sees_a_secret_that_is_in_argv() {
     use std::io::BufRead;
     let marker = format!("f039-control-{}-{}", std::process::id(), STUBS.fetch_add(1, Ordering::SeqCst));
     // The trailing `true` stops dash from exec'ing cat in sh's place, which would take the marker out of the cmdline.
-    let mut child = std::process::Command::new("/usr/bin/sh")
+    let mut child = std::process::Command::new(flea::testpath::tool("/usr/bin/sh"))
         .args(["-c", &format!(": {} control-secret-1006; echo up; cat; true", marker)])
         .stdin(Stdio::piped()).stdout(Stdio::piped()).spawn().expect("sh");
     let mut up = String::new();

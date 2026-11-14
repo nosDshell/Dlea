@@ -9,7 +9,12 @@ impl Root {
     pub(super) fn new() -> Self {
         let base = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../.superpowers/g2-pl2");
         fs::create_dir_all(&base).unwrap();
-        let output = std::process::Command::new("/usr/bin/mktemp")
+        let mktemp = if Path::new("/usr/bin/mktemp").exists() {
+            "/usr/bin/mktemp"
+        } else {
+            "mktemp"
+        };
+        let output = std::process::Command::new(mktemp)
             .arg("-d")
             .arg(base.join("store.XXXXXXXX"))
             .output()

@@ -297,7 +297,7 @@ fn headless_cli_and_harness_contract() {
         "#!/bin/sh\nFLEA_GUI_IPC_FIXTURE_PATH=$1\nexport FLEA_GUI_IPC_FIXTURE_PATH\nexec '{exe}' --exact ipc::server::fixture_child::ipc_fixture_child --nocapture --test-threads=1\n"
     );
     // Written by a child, so no sibling test's fork holds it open for write when the harness runs it.
-    let written = Command::new("/bin/sh")
+    let written = Command::new(flea::testpath::tool("/bin/sh"))
         .args([
             "-c",
             "printf '%s' \"$2\" > \"$1\" && chmod 700 \"$1\"",

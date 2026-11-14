@@ -12,7 +12,7 @@ struct Sandbox(PathBuf);
 
 // A sibling fork inherits any descriptor held open for writing, and exec then fails with ETXTBSY.
 fn executable(path: &Path, contents: &[u8]) {
-    let mut writer = Command::new("/bin/sh")
+    let mut writer = Command::new(flea::testpath::tool("/bin/sh"))
         .args(["-c", "/bin/cat > \"$1\"", "write-fixture"])
         .arg(path)
         .stdin(Stdio::piped())

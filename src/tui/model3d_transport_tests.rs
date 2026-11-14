@@ -292,7 +292,7 @@ fn tui_model3d_clean_environment_and_chafa_absent() {
         )
         .unwrap();
     }
-    let output = std::process::Command::new("/usr/bin/setsid")
+    let output = std::process::Command::new(flea::testpath::tool("/usr/bin/setsid"))
         .arg("-w")
         .arg(std::env::current_exe().unwrap())
         .args([

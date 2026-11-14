@@ -87,7 +87,7 @@ mod tests {
     fn an_oversized_reply_is_named_as_oversized_not_as_a_timeout() {
         let started = Instant::now();
         let error =
-            output(Command::new("/bin/sh").args(["-c", "head -c 70000 /dev/zero; sleep 5"]))
+            output(Command::new(flea::testpath::tool("/bin/sh")).args(["-c", "head -c 70000 /dev/zero; sleep 5"]))
                 .unwrap_err();
         assert_eq!(error, "the old window's reply was larger than 64 KiB");
         assert!(

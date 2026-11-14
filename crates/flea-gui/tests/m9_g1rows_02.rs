@@ -102,7 +102,7 @@ fn m9_g1rows_02_startup_work_is_viewport_bounded() {
 
 // A shell records every line the backend is sent, then hands stdin on unchanged.
 fn recorded_command(root: &Path, log: &Path) -> Command {
-    let mut command = Command::new("/bin/sh");
+    let mut command = Command::new(flea::testpath::tool("/bin/sh"));
     command
         .arg("-c")
         .arg("tee -a \"$0\" | \"$1\" --backend")

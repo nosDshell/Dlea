@@ -162,7 +162,7 @@ fn no_namespace_skips_jail_legs_and_runs_parser_cases() {
     for tool in ["prlimit", "cat", "chmod"] {
         symlink(Path::new("/usr/bin").join(tool), fake.join(tool)).unwrap();
     }
-    let mut writer = Command::new("/bin/sh")
+    let mut writer = Command::new(flea::testpath::tool("/bin/sh"))
         .args([
             "-c",
             "/usr/bin/cat > \"$1\" && /usr/bin/chmod 755 \"$1\"",

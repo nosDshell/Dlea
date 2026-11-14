@@ -5,7 +5,7 @@ mod lifetime;
 
 #[test]
 fn u09_backend_pipe_preserves_peeked_replies_for_the_columns_owner() {
-    let mut command = Command::new("/bin/bash");
+    let mut command = Command::new(flea::testpath::tool("/bin/bash"));
     command.args(["-c", r#"IFS= read -r line
 printf '%s\n' '{"t":"peeked","path":"/files/child","first":320,"n":1,"rows":[{"n":"seed.txt","d":false}]}'
 while IFS= read -r line; do :; done
@@ -71,7 +71,7 @@ fn a_reload_listed_line_carries_its_changed_count_and_others_carry_none() {
 
 #[test]
 fn a_reload_listed_line_from_the_child_sends_its_count_before_the_reply() {
-    let mut command = Command::new("/bin/bash");
+    let mut command = Command::new(flea::testpath::tool("/bin/bash"));
     command.args([
         "-c",
         r#"IFS= read -r line
@@ -101,7 +101,7 @@ while IFS= read -r line; do :; done
 // EY-468: a child line that is not protocol does not fail the pane, and the next reply still lands.
 #[test]
 fn a_garbled_child_line_is_not_a_backend_failure_and_the_next_reply_lands() {
-    let mut command = Command::new("/bin/bash");
+    let mut command = Command::new(flea::testpath::tool("/bin/bash"));
     command.args([
         "-c",
         r#"IFS= read -r line
@@ -130,7 +130,7 @@ while IFS= read -r line; do :; done
 
 #[test]
 fn ey468_a_non_utf8_child_line_is_garbled_and_the_next_reply_lands() {
-    let mut command = Command::new("/bin/bash");
+    let mut command = Command::new(flea::testpath::tool("/bin/bash"));
     command.args([
         "-c",
         r#"IFS= read -r line
@@ -157,7 +157,7 @@ while IFS= read -r line; do :; done
 // A backend that let go of its output but that the kernel still holds drains the pane at once.
 #[test]
 fn a_quit_drains_once_the_backend_lets_go_of_its_output_before_it_can_exit() {
-    let mut command = Command::new("/bin/bash");
+    let mut command = Command::new(flea::testpath::tool("/bin/bash"));
     command.args([
         "-c",
         r#"while IFS= read -r line; do case $line in *'"quit"'*) break ;; esac; done

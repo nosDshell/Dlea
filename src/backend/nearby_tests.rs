@@ -291,7 +291,7 @@ fn reviewer_backend_exit_stops_active_helpers() {
                 eprintln!("REVIEW active helpers survived backend exit: eof={eof}, attempt={attempt}, pids={live:?}");
                 fixture.dir.assert_contains(&fixture.root);
                 for pid in &live {
-                    assert!(Command::new("/usr/bin/kill").args(["-KILL", "--", pid]).status().unwrap().success());
+                    assert!(Command::new(flea::testpath::tool("/usr/bin/kill")).args(["-KILL", "--", pid]).status().unwrap().success());
                 }
                 survivors.push((eof, attempt, live));
             }

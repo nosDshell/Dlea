@@ -116,7 +116,7 @@ fn tui_print_process_helper() {
         std::env::var("FLEA_HOST_NET_NS").unwrap()
     );
     let command = || {
-        let mut c = Command::new("/bin/sh");
+        let mut c = Command::new(flea::testpath::tool("/bin/sh"));
         c.args(["-c", r#""$1" --exact tui::print_process_tests::tui_print_backend_helper --ignored --nocapture --format=terse --test-threads=1 | /usr/bin/sed -u -n '/^{/p'"#, "tui-print-backend"])
             .arg(std::env::current_exe().unwrap()).env("FLEA_TUI_PRINT_BACKEND", "1");
         c
@@ -275,7 +275,7 @@ fn tui_print_real_backend_and_private_setup_recorder() {
     }
     // The private /var must still expose this test's executable and English catalog.
     let executable = std::env::current_exe().unwrap();
-    let mut command = Command::new("/usr/bin/setsid");
+    let mut command = Command::new(flea::testpath::tool("/usr/bin/setsid"));
     command
         .args([
             "-w",

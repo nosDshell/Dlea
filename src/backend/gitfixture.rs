@@ -47,7 +47,7 @@ impl Fixture {
 
     pub fn git(&self, args: &[&str]) {
         self.check(&self.0);
-        let mut command = Command::new("/usr/bin/git");
+        let mut command = Command::new(flea::testpath::tool("/usr/bin/git"));
         command
             .current_dir(&self.0)
             .env("HOME", &self.0)
@@ -80,7 +80,7 @@ impl Fixture {
     }
 
     pub fn available() -> bool {
-        if Command::new("/usr/bin/git")
+        if Command::new(flea::testpath::tool("/usr/bin/git"))
             .arg("--version")
             .output()
             .is_ok_and(|out| out.status.success())

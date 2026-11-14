@@ -260,7 +260,7 @@ pub fn with_forking_siblings<T>(body: impl FnOnce() -> T) -> T {
         for _ in 0..SIBLING_FORKERS {
             scope.spawn(|| {
                 while !stop.load(Ordering::Relaxed) {
-                    let mut child = std::process::Command::new("/bin/true");
+                    let mut child = std::process::Command::new(flea::testpath::tool("/bin/true"));
                     // SAFETY: the hook only sleeps and touches no shared state, and it runs in the forked child before exec.
                     unsafe {
                         child.pre_exec(|| {
