@@ -172,12 +172,13 @@ fn theme_gate_stock_contrast_floors() {
                 theme.surface,
             ),
         );
-        // HIG rail-favorites: the rail edge is --hair, the foreground at 12%, not a control boundary.
-        assert_eq!(crate::list::HAIRLINE, 0.12);
-        // The cursor wash keeps the resting ink, QML cursorRecipe and MenuRow's foreground at 8%.
-        assert_eq!(crate::list::HOVER, 0.08);
+        // DDE rail-favorites: the rail edge is --hair, the foreground at 10% (#1Affffff), not a control boundary.
+        assert_eq!(crate::list::HAIRLINE, 0.10);
+        // The hover wash follows GXDE's #1Affffff (foreground at 10%).
+        assert_eq!(crate::list::HOVER, 0.10);
         let menu = crate::g2::context_menus::element::MenuInk::from_palette(&list);
-        assert_eq!(menu.wash, theme.foreground.opacity(0.08));
+        // GXDE menuHighlightColor #332ca7f8: the accent at 20%.
+        assert_eq!(menu.wash, theme.accent.opacity(0.20));
         assert_eq!(menu.rule, list.muted_frame.opacity(0.4));
         assert_eq!(menu.muted, list.muted);
         assert_eq!(menu.error, list.error);

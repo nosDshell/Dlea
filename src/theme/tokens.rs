@@ -203,7 +203,7 @@ impl Theme {
     }
 
     fn state_color(
-        &self,
+        background: Color,
         token: &str,
         fg: Color,
         accent: Color,
@@ -214,7 +214,7 @@ impl Theme {
             "foreground" | "text" => fg,
             "accent" => accent,
             "urgent" => urgent,
-            "background" => self.colors.background,
+            "background" => background,
             "transparent" => Color::BLACK.alpha(0.0),
             _ => Color::parse(token).unwrap_or(fallback),
         }
@@ -264,7 +264,8 @@ impl Theme {
                 ) {
                 hover
             } else {
-                self.state_color(
+                Self::state_color(
+                    self.colors.background,
                     token,
                     fg,
                     accent,
@@ -331,12 +332,41 @@ impl Theme {
             .insert("style.selectedAccentFill".into(), accent.alpha(selected));
         let inactive = self.fills["style.selectedFill"];
         self.fills.insert("inactiveCursorWash".into(), inactive);
+        // The wash roles accept `*-color` tokens and `*-alpha` numbers like the
+        // state fills; absent keys keep the resolved defaults unchanged.
+        let wash_color = |key: &str, fallback: Color| {
+            controls
+                .get(key)
+                .filter(|s| !s.trim().is_empty())
+                .map(|token| {
+                    Self::state_color(self.colors.background, token, fg, accent, urgent, fallback)
+                })
+                .unwrap_or(fallback)
+        };
+        let wash_alpha =
+            |key: &str, fallback: f64| finite(&controls, key, fallback).clamp(0.0, 1.0);
         for (name, color, alpha) in [
-            ("cursorWash", accent, selected),
-            ("menuCursorWash", fg, 0.08),
-            ("windowHairline", fg, 0.12),
-            ("rule", self.colors.mutedFrame, 0.4),
-            ("primaryWash", accent, 0.14),
+            ("cursorWash", wash_color("cursor-wash-color", accent), selected),
+            (
+                "menuCursorWash",
+                wash_color("menu-cursor-color", accent),
+                wash_alpha("menu-cursor-fill-alpha", 0.20),
+            ),
+            (
+                "windowHairline",
+                wash_color("window-hairline-color", fg),
+                wash_alpha("window-hairline-alpha", 0.10),
+            ),
+            (
+                "rule",
+                wash_color("rule-color", self.colors.mutedFrame),
+                wash_alpha("rule-alpha", 0.4),
+            ),
+            (
+                "primaryWash",
+                wash_color("primary-wash-color", accent),
+                wash_alpha("primary-wash-alpha", 0.14),
+            ),
         ] {
             self.fills.insert(name.into(), color.alpha(alpha));
         }

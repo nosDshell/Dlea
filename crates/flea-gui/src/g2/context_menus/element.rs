@@ -11,8 +11,8 @@ use gpui::{
 };
 use std::{cell::RefCell, rc::Rc};
 
-// The cursor and a lit flyout parent take the foreground at 8%, with no edge.
-const WASH: f32 = 0.08;
+// The cursor and a lit flyout parent take the accent at 20% (#332ca7f8, GXDE menuHighlightColor), with no edge.
+const WASH: f32 = 0.20;
 const RULE: f32 = 0.4;
 const DIM: f32 = 0.55;
 const TAG: f32 = 14.;

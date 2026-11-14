@@ -279,6 +279,8 @@ mod tests {
             dir.join("fontconfig/conf.d/im.conf"),
             dir.join("toggles/window-opaque.lua"),
             dir.join("toggles/window-glassy.lua"),
+            dir.join("flea/colors.toml"),
+            dir.join("flea/shell.toml"),
         ];
         let (service, _) = Service::start_with(
             Sources::at(inputs, dir.join("fc-match")),

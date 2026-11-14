@@ -38,7 +38,14 @@ impl Fixture {
             }
         }
         assert_eq!(parent.canonicalize().unwrap(), parent);
-        let output = Command::new("/usr/bin/mktemp")
+        // Prefer the FHS path so a PATH shadow cannot redirect the fixture root;
+        // PATH keeps non-FHS systems (Guix, NixOS) working.
+        let mktemp = if Path::new("/usr/bin/mktemp").exists() {
+            "/usr/bin/mktemp"
+        } else {
+            "mktemp"
+        };
+        let output = Command::new(mktemp)
             .args(["-d", "--"])
             .arg(parent.join(format!("{name}.XXXXXX")))
             .stdin(Stdio::null())

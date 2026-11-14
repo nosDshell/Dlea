@@ -25,7 +25,7 @@ impl MenuInk {
             surface: palette.background,
             frame: frames.ink,
             rule: frames.ink.opacity(RULE),
-            wash: palette.foreground.opacity(WASH),
+            wash: palette.accent.opacity(WASH),
             label: palette.foreground,
             accent: palette.accent,
             muted: palette.muted,

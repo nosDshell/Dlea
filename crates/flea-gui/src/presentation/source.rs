@@ -22,20 +22,23 @@ impl Snapshot {
     }
 }
 
-pub(super) type Inputs = [Option<String>; 7];
+pub(super) type Inputs = [Option<String>; 9];
 /// The most bytes one input may hold; a larger file is refused, never cut.
 pub(super) const INPUT_CAP: usize = 65536;
-pub(super) type Stamps = [Option<(u64, u64, u64, i64, i64, i64, i64, u32)>; 7];
+pub(super) type Stamps = [Option<(u64, u64, u64, i64, i64, i64, i64, u32)>; 9];
 
-/// The seven files a presentation reads, and where the resolved font family is cached.
+/// The nine files a presentation reads, and where the resolved font family is cached.
+/// Slots 7 and 8 hold `~/.config/flea/colors.toml` and `~/.config/flea/shell.toml`,
+/// the stable theme contract other shells (nosDshell templates) render into; each
+/// overlays the packaged Omarchy file key by key when present.
 pub(super) struct Sources {
-    inputs: [PathBuf; 7],
+    inputs: [PathBuf; 9],
     cache: PathBuf,
 }
 
 impl Sources {
     #[cfg(test)]
-    pub fn at(inputs: [PathBuf; 7], cache: PathBuf) -> Self {
+    pub fn at(inputs: [PathBuf; 9], cache: PathBuf) -> Self {
         Self { inputs, cache }
     }
 
@@ -59,6 +62,9 @@ impl Sources {
                 config.join("fontconfig/conf.d/50-omarchy-input-method.conf"),
                 state.join("omarchy/toggles/hypr/window-opaque.lua"),
                 state.join("omarchy/toggles/hypr/window-glassy.lua"),
+                // Theme paths follow HOME like flea::theme::ThemePaths, not XDG_CONFIG_HOME.
+                home.join(".config/flea/colors.toml"),
+                home.join(".config/flea/shell.toml"),
             ],
             cache: state.join("flea/fc-match-monospace"),
         }
@@ -74,6 +80,13 @@ impl Sources {
             .collect();
         dirs.extend(
             self.inputs[0]
+                .parent()
+                .and_then(Path::parent)
+                .map(Path::to_path_buf),
+        );
+        // Watch the config dir too so creating ~/.config/flea itself is a theme change.
+        dirs.extend(
+            self.inputs[7]
                 .parent()
                 .and_then(Path::parent)
                 .map(Path::to_path_buf),
@@ -154,10 +167,14 @@ impl Sources {
         deadline: std::time::Duration,
     ) -> (Snapshot, Option<io::Error>) {
         let text = |at: usize| input[at].as_deref().unwrap_or("");
-        let (mut theme, parsed) = Theme::from_text_observed(text(0));
+        // ~/.config/flea/* overlays the packaged theme files key by key: keys it
+        // does not set keep the Omarchy values, so a partial override works too.
+        let colors = format!("{}\n{}", text(0), text(7));
+        let shell = format!("{}\n{}", text(1), text(8));
+        let (mut theme, parsed) = Theme::from_text_observed(&colors);
         theme.glass = crate::window::glass::Inputs::resolve(
-            text(0),
-            text(1),
+            &colors,
+            &shell,
             text(2),
             input[5].is_some(),
             input[6].is_some(),
@@ -170,7 +187,7 @@ impl Sources {
         let snapshot = Snapshot {
             theme,
             parsed,
-            fonts: Fonts::from_sources(text(1), text(2), family),
+            fonts: Fonts::from_sources(&shell, text(2), family),
         };
         (snapshot, failure)
     }
@@ -181,7 +198,7 @@ mod tests {
     use super::*;
     use std::process::Command;
 
-    fn sources(inputs: [PathBuf; 7]) -> Sources {
+    fn sources(inputs: [PathBuf; 9]) -> Sources {
         Sources {
             inputs,
             cache: PathBuf::from("/proc/self/flea-u01-no-cache/entry"),
@@ -195,7 +212,7 @@ mod tests {
         }));
         assert_eq!(
             absent.read().unwrap(),
-            [None, None, None, None, None, None, None]
+            [None, None, None, None, None, None, None, None, None]
         );
         let failed = sources(std::array::from_fn(|_| PathBuf::from("/proc/self")));
         assert_eq!(
@@ -203,8 +220,11 @@ mod tests {
             io::ErrorKind::InvalidInput
         );
         let (launch, failures) = failed.read_for_launch();
-        assert_eq!(launch, [None, None, None, None, None, None, None]);
-        assert_eq!(failures.len(), 7);
+        assert_eq!(
+            launch,
+            [None, None, None, None, None, None, None, None, None]
+        );
+        assert_eq!(failures.len(), 9);
         let valid = sources(std::array::from_fn(|_| PathBuf::from("/proc/self/status")));
         assert!(valid
             .read()
@@ -237,7 +257,7 @@ mod tests {
             &inputs,
             "monospace",
             || {
-                let mut command = Command::new("/bin/sh");
+                let mut command = Command::new(flea::testpath::tool("/bin/sh"));
                 command.args(["-c", "exit 1"]);
                 command
             },

@@ -136,9 +136,15 @@ pub(crate) fn output_background(
 
 impl Theme {
     pub fn load() -> (Self, ParsedTheme) {
-        let path = std::env::var("HOME").unwrap_or_default()
-            + "/.local/state/omarchy/current/theme/colors.toml";
-        Self::from_text_observed(&std::fs::read_to_string(path).unwrap_or_default())
+        // ~/.config/flea/colors.toml overlays the packaged theme key by key, as
+        // presentation::source and flea::theme::ThemePaths resolve it.
+        let home = std::env::var("HOME").unwrap_or_default();
+        let text = ["/.local/state/omarchy/current/theme/colors.toml", "/.config/flea/colors.toml"]
+            .iter()
+            .map(|suffix| std::fs::read_to_string(format!("{home}{suffix}")).unwrap_or_default())
+            .collect::<Vec<_>>()
+            .join("\n");
+        Self::from_text_observed(&text)
     }
 
     // Sample input: color0='#101315' or background = "#101315", one key=value per line.

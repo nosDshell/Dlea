@@ -207,6 +207,41 @@ fn theme_watcher_follows_theme_directory_replacement_font_and_new_override() {
 }
 
 #[test]
+fn flea_config_overlays_the_packaged_theme_and_is_watched() {
+    let root = scratch();
+    let paths = ThemePaths::for_home(&root, None);
+    write(
+        &root,
+        &paths.current.join("theme/colors.toml"),
+        "background = '#101010'\nforeground = '#c0c0c0'",
+    );
+    let mut watcher = ThemeWatcher::new(paths.clone());
+    assert!(!watcher.poll());
+    // A rendered override only names the keys it owns; the rest keep the packaged values.
+    write(&root, &paths.flea.join("colors.toml"), "background = '#202020'");
+    assert!(watcher.poll());
+    let theme = paths.load(None, "monospace").unwrap();
+    assert_eq!(theme.colors.background, c("#202020"));
+    assert_eq!(theme.colors.foreground, c("#c0c0c0"));
+    // With no packaged theme at all, the contract file alone still resolves a theme.
+    let bare = scratch();
+    let bare_paths = ThemePaths::for_home(&bare, None);
+    write(
+        &bare,
+        &bare_paths.flea.join("colors.toml"),
+        "background = '#303030'",
+    );
+    write(
+        &bare,
+        &bare_paths.flea.join("shell.toml"),
+        "[font]\nbase-size = 15",
+    );
+    let bare_theme = bare_paths.load(None, "monospace").unwrap();
+    assert_eq!(bare_theme.colors.background, c("#303030"));
+    assert_eq!(bare_theme.font.base_size, 15);
+}
+
+#[test]
 fn theme_watcher_follows_symlinks_and_missing_targets() {
     let root = scratch();
     let paths = ThemePaths::for_home(&root, Some(&root.join("state")));

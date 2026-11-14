@@ -4,7 +4,10 @@ use std::path::PathBuf;
 
 impl Snapshot {
     pub(crate) fn glass_fixture(paths: &[PathBuf], cache: PathBuf) -> Self {
-        let sources = Sources::at(std::array::from_fn(|at| paths[at].clone()), cache);
+        let sources = Sources::at(
+            std::array::from_fn(|at| paths.get(at).cloned().unwrap_or_default()),
+            cache,
+        );
         let inputs = sources
             .read()
             .expect("the marked glass inputs are readable");

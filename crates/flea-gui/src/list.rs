@@ -69,14 +69,15 @@ pub(crate) const LABEL_X: f32 = PAD_X + 23. + 9.;
 pub(crate) const END_W: f32 = 28.;
 // Rows kept shaped past the viewport, so a short scroll back reshapes nothing.
 const CACHE_SCREENS: usize = 3;
-// ui.py's state washes over the foreground: a hover 8%, the header ground 4%, a hairline 12%, a grey cursor 18%, an unfocused mark 6%.
-pub const HOVER: f32 = 0.08;
+// The DDE/GXDE state recipe over the foreground (gxde-file-manager dark theme):
+// hover #1Affffff = 10%, the header ground 4%, hairlines ~10%, a grey cursor 18%, an unfocused mark 6%.
+pub const HOVER: f32 = 0.10;
 pub const NORMAL: f32 = 0.04;
-pub const HAIRLINE: f32 = 0.12;
+pub const HAIRLINE: f32 = 0.10;
 pub const GREY_CURSOR: f32 = 0.18;
 pub const TRACK: f32 = 0.06;
-// The cursor rung is accent 18%, a match run accent 14%, and a cut row draws at Omarchy's disabled opacity.
-pub const CURSOR_WASH: f32 = 0.18;
+// The cursor/checked rung is accent 20% (#332ca7f8), a match run accent 14%, and a cut row draws at Omarchy's disabled opacity.
+pub const CURSOR_WASH: f32 = 0.20;
 pub const MATCH_WASH: f32 = 0.14;
 pub const CUT_DIM: f32 = 0.55;
 // Omarchy's selection plate is the foreground at 0.35, which the theme tokens ease per palette for 4.5:1 text.
