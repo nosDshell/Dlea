@@ -123,15 +123,15 @@ fn a_hidden_column_takes_no_room_whatever_its_stored_width() {
 }
 
 #[test]
-fn a_fresh_install_draws_name_size_and_date() {
+fn a_fresh_install_draws_name_size_date_and_kind() {
     let wide = resolve(
         1200.,
         &tokens(),
         Switched::default(),
         StoredWidths::default(),
     );
-    assert_eq!(wide.names(), "name,size,date");
-    assert_eq!(widths(&wide), [None, Some(70.), Some(125.), None]);
+    assert_eq!(wide.names(), "name,size,date,kind");
+    assert_eq!(widths(&wide), [None, Some(70.), Some(125.), Some(130.)]);
     let mut view = ListView::default();
     view.apply_settings(&parse("{}").unwrap(), 0);
     assert_eq!(
@@ -230,7 +230,7 @@ fn a_preview_moves_the_dragged_edge_and_the_chain_left_of_it_only() {
     );
     assert_eq!(preview.name.width, layout.name.width - 80.);
     assert_eq!(
-        layout.previewing(Column::Kind, 150., &t, row),
+        layout.previewing(Column::Mode, 150., &t, row),
         layout,
         "a column that is not drawn previews nothing"
     );

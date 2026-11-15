@@ -166,7 +166,7 @@ fn a_settle_rewrites_a_refused_value_out_of_the_file_and_keeps_its_neighbours() 
         .collect();
     assert_eq!(
         cols,
-        ["name", "size", "date"],
+        ["name", "size", "date", "kind"],
         "the refused array falls back to the shipped one"
     );
     assert_eq!(

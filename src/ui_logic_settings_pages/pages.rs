@@ -118,11 +118,11 @@ pub fn shelf_enabled(data: &Json) -> bool {
     at(data, &["shelf", "enabled"]).and_then(Json::as_bool) == Some(true)
 }
 
-// The stored columns, or the shipped three when none are stored.
+// The stored columns, or the shipped four when none are stored.
 pub fn columns(data: &Json) -> Vec<String> {
     match at(data, &["columns"]).and_then(Json::as_array) {
         Some(list) => list.iter().filter_map(Json::as_str).map(str::to_owned).collect(),
-        None => vec!["name".into(), "size".into(), "date".into()],
+        None => vec!["name".into(), "size".into(), "date".into(), "kind".into()],
     }
 }
 

@@ -323,7 +323,7 @@ function choice(id, label, glyph, values, labels, value) {
 function viewRows(state) {
     var data = state.data || {}
     var sort = data.sort || {}
-    var columns = data.columns || ["name", "size", "date"]
+    var columns = data.columns || ["name", "size", "date", "kind"]
     var out = [
         { kind: "group", label: "View" },
         choice("view", "Last-used view", undefined, ["list", "columns", "grid", "dual"],
@@ -432,7 +432,7 @@ function previewRows(state) {
 }
 
 function columnRows(state) {
-    var columns = (state.data || {}).columns || ["name", "size", "date"]
+    var columns = (state.data || {}).columns || ["name", "size", "date", "kind"]
     var rows = [{ kind: "group", label: "Columns" }, { kind: "lock", label: "Name", glyph: "file" }]
     for (var i = 0; i < 4; i++) {
         var id = ["mode", "size", "date", "kind"][i]

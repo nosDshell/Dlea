@@ -71,7 +71,10 @@ fn row_readers_answer_in_ipc_qml_shapes() {
     assert_eq!(ask("rowClipMark", &["1"]), "");
     assert_eq!(ask("rowClipMark", &["99"]), "unavailable");
     assert_eq!(ask("rowCellOverflow", &["1"]), "0|0|0|0");
-    assert_eq!(ask("columnSet", &["1"]), "name,size,date|name,size,date");
+    assert_eq!(
+        ask("columnSet", &["1"]),
+        "name,size,date,kind|name,size,date,kind"
+    );
     assert_eq!(ask("rowHovered", &["1"]), "false");
     // Window pixels: the header's own height above the list, rows the list's width less the lane.
     let header = m.header as i64;

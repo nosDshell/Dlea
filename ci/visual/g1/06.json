@@ -32,7 +32,7 @@
       },
       "assertions": [
         "cursor name A",
-        "columns name,size,date",
+        "columns name,size,date,kind",
         "row height 31 and header 27 at body 14",
         "one List Element, zero per-row containers"
       ],

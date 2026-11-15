@@ -14,7 +14,11 @@ impl ChromeView {
         palette: &Palette,
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
-        let present = self.inputs.view != View::Dual && !self.path.read(cx).editing();
+        let editing = self.path.read(cx).editing();
+        let present = self.inputs.view != View::Dual && !editing;
+        // Deepin 15 puts the magnifier at the right end of the address well. Grid keeps
+        // filter and sort in the tool cluster, so the well stays a path there.
+        let search_in_well = self.inputs.view != View::Grid && !editing;
         let mark = present.then(|| {
             let control = self.frame.borrow().controls[COPY];
             // Nothing draws at rest: the pointer over the slot, the keyboard or a held press shows the mark.
@@ -52,14 +56,17 @@ impl ChromeView {
         } else {
             palette.foreground.opacity(0.15)
         };
-        div()
+        let mut row = div()
             .id("chrome-address")
             .h(px(sizes.inner()))
             .flex_1()
             .min_w_0()
+            .flex()
+            .items_center()
             .relative()
             .rounded(px(super::plate::RADIUS))
             .bg(well)
+            .when(search_in_well, |row| row.pr(px(sizes.slot)))
             .when(light, |well| {
                 well.border_1()
                     .border_color(palette.foreground.opacity(0.10))
@@ -73,8 +80,36 @@ impl ChromeView {
                     cx.notify();
                 }
             }))
-            .child(self.path.clone())
-            .children(mark)
+            .child(
+                div()
+                    .flex_1()
+                    .min_w_0()
+                    .h_full()
+                    .relative()
+                    .child(self.path.clone())
+                    .children(mark),
+            );
+        if search_in_well {
+            // Absolute, so the glyph paints inside the well instead of pushing a second button past it.
+            row = row.child(
+                div()
+                    .absolute()
+                    .right_0()
+                    .top(px(((sizes.inner() - sizes.slot) / 2.).round()))
+                    .child(self.button(
+                        sizes,
+                        2,
+                        true,
+                        true,
+                        false,
+                        super::plate::Kind::Nav,
+                        palette,
+                        None,
+                        cx,
+                    )),
+            );
+        }
+        row
     }
 }
 

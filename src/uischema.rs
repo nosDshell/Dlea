@@ -6,7 +6,7 @@ pub const DEFAULTS: &str = r#"{
   "view": "list",
   "pickerView": "list",
   "density": "compact",
-  "columns": ["name", "size", "date"],
+  "columns": ["name", "size", "date", "kind"],
   "columnsLimit": 3,
   "columnWidths": {},
   "addressBar": "breadcrumb",

@@ -36,10 +36,24 @@ Dlea 的界面目标是 [gxde-file-manager](https://github.com/GXDE-OS/gxde-file
 - 图标不是 `themes/dark/icons` 里的那套彩色侧栏和工具栏 SVG。那些资源是 GPL-3.0，没有并入 MIT 的 Dlea。
 - 浅色悬停不是 QSS 里的蓝渐变，选中工具栏图标也不是强制白色。
 - 面包屑分隔是 `/`，当前段圆角是四角而不是仅右侧。
-- 视图托盘比 GXDE 多出分栏和双栏。网格模式的筛选、排序仍占搜索按钮的位置。
+- 视图托盘比 GXDE 多出分栏和双栏。列表和分栏里搜索在地址槽右端；网格模式的筛选、排序仍在托盘左边。
 - 状态栏仍显示磁盘余量和操作消息；项数字体颜色改为次级色。
 - 对话框、滚动条和拖放跟手动画没有逐控件对照到 DTK。对话框圆角继续跟合成器的 `decoration.rounding`。
-## 真实安装（2026-11-15）
+
+## 真实安装（2026-11-15）——不能当视觉对照
+
+这次 chroot 里的 `gxde-file-manager` 6.4.21 没有画出 DTK 标题栏。地址栏只在 `isDXcbPlatform()` 为真时放进 `DTitlebar`，而 `dde-qt6xcb-plugin` 没有装上（见下）。窗口只有侧栏和内容区，外加 Openbox 的框。**那些截图和“按这个残缺窗口改 Dlea”的结论作废**，不作为布局、工具栏或图标的依据。下面留下安装记录，是为了说明阻塞点，不是为了对照像素。
+
+行为记录仍然只描述那个缺插件的进程实际做了什么，不能外推成完整文件管理器的外观：
+
+- 点侧栏 Documents：行变成浅蓝、文字变蓝，标题变成 `Documents — Deepin File Manager`，空目录显示 Folder is empty。
+- 空白处右键：New folder、New document、Display as、Sort by、Refresh、Open in new window as admin、Open in terminal、Copy Path、Paste（灰）、Select all、Properties。
+- Ctrl+2：详情列 Name / Time changed / Size / Type；选中行是整行浅蓝。目录的 Size 是 `-`。
+- 右键 readme.md：Open、Open with、Cut、Copy、Rename、Delete、Compress、Create link、Send to desktop、Properties。
+- Properties 对话框能打开，路径文字挤成了 `optfixturereadme.md`，这是该环境自己的显示问题。
+- Alt+Left 没有回到上一级，因为工具栏不在树上。
+
+同一时刻的 Dlea 点击落在列表上，选中了 Desktop，当时没有切到图标视图。后来在客户区里对准图标按钮的中心再点一次，视图切过去了。那一次失败是点到了工具栏下面，不是按钮把事件吞掉。
 
 镜像：`https://mirrors.hit.edu.cn/GXDE/gxde-os/`。主机是 Ubuntu 24.04 amd64，不能直接装这些包：它们要求 `libqt6core6t64 >= 6.8.2`，以及 `qt6-base-private-abi (= 6.8.2)`。Noble 的 Qt 更旧，没有替换主机的 Qt。
 
@@ -77,34 +91,33 @@ deb [signed-by=/etc/apt/keyrings/gxde-archive.gpg] https://mirrors.hit.edu.cn/GX
 - `dde-qt6integration`（zhuangzhuang `6.0.35-gxde2`）依赖 `dde-qt6xcb-plugin`，而 zhuangzhuang 的索引里没有这个包。
 - hetao 有 `dde-qt6xcb-plugin_6.0.48-2_amd64.deb`，SHA256 `70d2175e7c1d603748a8e6d4f0a34168a1bab94304d80965abca0896313d7647` 与签名索引一致，但依赖 `qt6-base-private-abi (= 6.8.0)`。trixie 只提供 `6.8.2`。没有用 `--force-depends`。
 
-源码 `dfilemanagerwindow.cpp` 里，地址栏只在 `isDXcbPlatform()` 为真时放进 `DTitlebar`。没有这个插件时，真实进程画出的窗口就没有后退/前进/面包屑。这是这次运行的真实结果，不是 Dlea 该去模仿的残缺布局。
+## DDE 15 公开截图（视觉依据）
 
-运行：chroot 内 `Xvfb :99 -screen 0 1280x800x24`，`openbox`，`LANG=en_US.UTF-8`，`QT_FONT_DPI=96`，`gxde-file-manager /opt/fixture`，窗口调到 1100×700。Dlea 用同一块 X11 socket（bind `/tmp/.X11-unix`）、同一夹具目录的宿主副本 `/tmp/gxde-fixture`、`target/debug/flea --gui`，窗口同样 1100×700。夹具只有临时文件：Desktop、Documents、Downloads、Music、Pictures、Videos、notes.txt、readme.md。
+这些图是下载后看过的，不是凭记忆画的。截图只说明当时屏幕上有什么，不证明点击、菜单或快捷键。
 
-真实 GUI 里做成的事：
+| 来源 | 版本上下文 | 图 | 画面上能确认的 |
+|---|---|---|---|
+| [linuxdeepin/developer-center#416](https://github.com/linuxdeepin/developer-center/issues/416) | heck82，2017-11-24。正文写 Deepin Desktop 15.5 beta，Arch。deepin 的 hualet 当天回复。控制中心里日期是 Friday, November 24, 2017 | [15:50:55](https://user-images.githubusercontent.com/17931180/33214102-2d62d9b2-d133-11e7-90cc-0287ce0034fc.jpg)、[15:51:26](https://user-images.githubusercontent.com/17931180/33214103-2d7efebc-d133-11e7-9cf5-5351ee4ec7b7.jpg)、[15:52:07](https://user-images.githubusercontent.com/17931180/33214104-2d9a93b6-d133-11e7-8d5d-09f384b06146.jpg)、[15:55:19](https://user-images.githubusercontent.com/17931180/33214105-2db52b54-d133-11e7-902f-26cac95f330e.jpg) | 浅色窗口。工具栏在标题栏里：侧栏按钮（打开时蓝底）、后退和前进合成一个描边组、计算机按钮（在“计算机”页是蓝底白显示器图标）、长地址槽、搜索在地址槽右端。主目录那张的视图按钮是图标\|列表两半，当前一半为蓝。侧栏顺序 Home、Desktop、Videos、Music、Pictures、Documents、Downloads、Trash，再是 Computer（整行浅蓝、蓝字）、磁盘、Computers in LAN。图标视图里选中的是名字上的实心蓝底白字，图标本身没有框。状态栏居中写 `8 items` 或 `1 folder selected (contains 0 item)`，右侧是蓝色滑块 |
+| [Deepin Wiki：Deepin File Manager](https://wiki.deepin.org/en/Software/Offical_Project/Deepin_File_Manager) | 页面描述的是经典深度文件管理器的导航栏、地址栏、视图、设置和状态栏。正文写列表显示图标、名字、修改时间、大小和类型。这次没有把页面里的图下成功（抓取超时），所以只用这段文字，不用没看到的图 | — | 列表有类型列。交互步骤（新建、复制、视图切换）只作文字，不当成已验证的运行时行为 |
+| [ORDINATECHNIC：Deepin 15.4 Review](https://www.ordinatechnic.com/distribution-reviews/Deepin/deepin-154-review) | 2017-05-01，Deepin 15.4。文中写文件管理器列表只有 Name、Time Modified、Size、Type | 文中配图没有一张被确认是文件管理器列表，因此没有拿来当布局依据 | 列名和 15.5 截图的窗口是同一代产品；列顺序来自文字，不是来自一张列表截图 |
 
-- 点侧栏 Documents：行变成浅蓝、文字变蓝，窗口标题变成 `Documents — Deepin File Manager`，空目录显示 Folder is empty。
-- 空白处右键：New folder、New document、Display as、Sort by、Refresh、Open in new window as admin、Open in terminal、Copy Path、Paste（灰）、Select all、Properties。
-- Ctrl+2：详情列 Name / Time changed / Size / Type；选中行是整行浅蓝。目录的 Size 是 `-`。
-- 右键 readme.md：名字后面是圆角浅蓝选中块。菜单是 Open、Open with、Cut、Copy、Rename、Delete、Compress、Create link、Send to desktop、Properties。
-- 点 Properties：弹出一个灰头白身的对话框（Basic info）。路径文字挤成了 `optfixturereadme.md`，这是该环境下对话框自己的显示问题。
-- Alt+Left 没有回到上一级。没有 dxcb 时工具栏不在树上，历史按钮也不在。
+没有采用的图：`https://www.deepin.org/zh/original/dde-file-manager/` 上的四张预览是 2024-05 上传的（`计算机-无投影.png` 等），是现行文件管理器的宣传图，不是 Deepin 15。
 
-同一显示器上的 Dlea：
+## 按这些截图改过的，以及还没对齐的
 
-- 列表画出这 8 项。状态栏在列出之后是 `8 items`，右侧有磁盘余量和缩放滑块。
-- 顶栏有侧栏按钮、后退/前进/向上、蓝色当前路径 `/tmp/gxde-fixture`、搜索、四个视图按钮、设置。
-- 右键行菜单：Open、Open With、Cut、Copy、Paste、Duplicate、Rename、Properties、Permissions、Add to Favorites、Tags、Move to Trash。
-- 点视图按钮没有切到图标视图（点击落在列表上，选中了 Desktop）。图标视图的对照仍是 GXDE 的真实图标视图对 Dlea 的列表。
+已在 Dlea 里改、并用真窗口复核的：
 
-无头 GPUI 单测截图和这次 X11 真窗口是两回事。无头图只证明 Dlea 自己的绘制；上面这些才是两个进程在同一 Xvfb 上的界面。
+- 搜索按钮放进地址槽右端（网格视图仍把这个位置留给筛选和排序）。
+- 图标视图的选中态改成文件名上的实心强调色底、白字，不再给整个图标铺一块选中框。
+- 新安装的列表多出 Kind 列，对应截图和 15.4 评论里的 Type。表头文案仍是现有的 Name / Size / Modified / Kind，不是 Time modified / Type。列从左到右仍是名字、大小、修改时间、类型，15.4 评论里的顺序是名字、修改时间、大小、类型。
+- 视图按钮：在 1100×700 的 X11 窗口里，点客户区图标按钮中心会从列表切到图标视图。Ctrl+1 是列表，Ctrl+3 是图标视图。
 
-## 和真实窗口比，仍然差的
+仍然不是 1:1：
 
-- 真实 6.4.21 在没有 dxcb 时没有地址栏。源码要求地址栏嵌在标题栏里，高 40。Dlea 把同一组控件画在客户区，高 27。不是把工具栏删掉去迁就这次缺插件的窗口。
-- 真实默认是浅色。Dlea 在没有主题文件时用深色 `#202020`，这是 nosDshell 的深色配方，不是这次二进制在无主题服务时的浅色。
-- 侧栏：真实窗口是 Recent、Home、Desktop、Videos、Music、Pictures、Documents、Downloads、Trash，然后 Computer、System Disk、Data Disk、Computers in LAN。选中是整行浅蓝、蓝字。Dlea 这次只画出 Home、Trash 和一个名为 cursor 的地点。
-- 详情列：真实是 Name、Time changed、Size、Type。Dlea 是 Name、Size、Modified。
-- 右键菜单项不同，见上。
-- 真实图标选中是名字上的圆角浅蓝块。Dlea 的图标视图这次没有在真窗口里切出来。
-- 窗口按钮是 Openbox 画的，不是 DTitlebar。Dlea 的标题栏也是窗口管理器的框，里面没有最小/最大/关闭。
+- 工具栏在客户区里，高 27 px（正文字号 14），上面还有 GPUI / 窗口管理器的标题。DDE 15 把同一排控件和最小化、最大化、关闭画在同一条标题栏里。
+- 没有“计算机”按钮。15.5 截图里后退/前进右边是计算机，不是向上。Dlea 保留向上，因为 V4 工具栏有这一项，拿掉会丢掉现有导航。
+- 侧栏地点取决于本机目录。对照机这次只有 Home、Trash 和一个名为 cursor 的地点，没有截图里的 Desktop、Videos 那一串和磁盘行。
+- 图标是 Dlea 自己的描边字形，不是深度的彩色文件夹。那些 SVG 是 GPL，没有并入。
+- 浅色选中工具栏图标仍是深色字形加淡蓝底，不是截图里的白字蓝底。字形对比度测试要求当前标记用主题前景色。
+- 右键菜单项和 DDE 的 New folder / Display as / Compress 不是同一组。没有为了凑菜单去造没有后端的项。
+- 无头 GPUI 截图只证明 Dlea 自己的绘制。上面的 X11 点击才是这次的运行时结果。

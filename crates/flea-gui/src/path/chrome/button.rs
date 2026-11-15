@@ -34,8 +34,15 @@ impl ChromeView {
             let control = self.frame.borrow().controls[index];
             (control.hovered, control.pressed)
         };
-        // The copy mark draws nothing at rest; its plate appears with the glyph.
-        let show_plate = index != COPY || resting.a > 0. || hovered || pressed || focused;
+        // The copy mark draws nothing at rest. Search lives in the address well, so its
+        // plate appears only while the pointer, keyboard or a press is on it.
+        let show_plate = if index == COPY {
+            resting.a > 0. || hovered || pressed || focused
+        } else if index == 2 {
+            hovered || pressed || focused
+        } else {
+            true
+        };
         let recipe = plate::recipe(palette, kind, enabled, filled, hovered, pressed, show_plate);
         let plate_h = sizes.slot.min(sizes.band);
         let outer_h = if kind == Kind::Solo {
@@ -238,6 +245,7 @@ impl ChromeView {
                 None,
                 cx,
             ));
+        // Search sits in the address well except in Grid, where filter and sort take its place.
         let mut tools = div().h_full().flex().items_center().flex_none();
         if self.inputs.view == View::Grid {
             tools = tools
@@ -263,19 +271,8 @@ impl ChromeView {
                     palette,
                     None,
                     cx,
-                ));
-        } else {
-            tools = tools.child(self.button(
-                sizes,
-                2,
-                true,
-                true,
-                false,
-                Kind::Solo,
-                palette,
-                None,
-                cx,
-            ));
+                ))
+                .child(div().w(px(3.)).flex_none());
         }
         let mut tray = div()
             .flex()
@@ -328,7 +325,6 @@ impl ChromeView {
                     .child(self.address(sizes, palette, cx))
                     .child(div().w(px(10.)).flex_none())
                     .child(tools)
-                    .child(div().w(px(3.)).flex_none())
                     .child(tray)
                     .child(div().w(px(3.)).flex_none())
                     .child(self.button(sizes, 9, true, true, false, Kind::Solo, palette, None, cx)),

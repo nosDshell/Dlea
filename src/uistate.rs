@@ -628,7 +628,7 @@ mod tests {
         // A file carrying one costs that key its own default, and the key beside it still stands.
         let read = from_file(r#"{"columns":["size","size"],"density":"comfortable"}"#);
         let cols: Vec<&str> = read.get("columns").and_then(Json::as_array).expect("columns").iter().filter_map(Json::as_str).collect();
-        assert_eq!(cols, ["name", "size", "date"]);
+        assert_eq!(cols, ["name", "size", "date", "kind"]);
         assert_eq!(read.get("density").and_then(Json::as_str), Some("comfortable"));
     }
 

@@ -128,7 +128,7 @@ fn the_defaults_are_the_shipped_shape_key_for_key() {
         .iter()
         .filter_map(Json::as_str)
         .collect();
-    assert_eq!(cols, ["name", "size", "date"]);
+    assert_eq!(cols, ["name", "size", "date", "kind"]);
     // ColumnsWidth ships at 3, so a default install holds 3 columns from 900 px up.
     assert_eq!(d.get("columnsLimit").and_then(Json::as_f64), Some(3.0));
     assert_eq!(

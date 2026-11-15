@@ -84,8 +84,8 @@ fn pages_and_host_rows_leave_the_patch_to_others() {
     assert_eq!(activate("view", find(&view, "startFolder"), &data, 14), Edit::Host("startFolder".into()));
     let (data, columns) = rows("columns", "{}");
     assert_eq!(activate("columns", find(&columns, "backView"), &data, 14), Edit::Open("view"));
-    assert_eq!(patch(activate("columns", find(&columns, "column:size"), &data, 14)), r#"{"columns":["name","date"]}"#);
-    assert_eq!(patch(activate("columns", find(&columns, "column:kind"), &data, 14)), r#"{"columns":["name","size","date","kind"]}"#);
+    assert_eq!(patch(activate("columns", find(&columns, "column:size"), &data, 14)), r#"{"columns":["name","date","kind"]}"#);
+    assert_eq!(patch(activate("columns", find(&columns, "column:kind"), &data, 14)), r#"{"columns":["name","size","date"]}"#);
     let (data, places) = rows("places", "{}");
     assert_eq!(activate("places", &places[0], &data, 14), Edit::Host("addFavourite".into()));
 }

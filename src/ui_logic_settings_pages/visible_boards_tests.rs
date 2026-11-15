@@ -15,7 +15,7 @@ pub(super) const BOARDS: &[super::Board] = &[
             "Comfortable",
             "Compact stays the default.",
             "Columns",
-            "Name, Size, Modified",
+            "Name, Size, Modified, Kind",
             "Address bar",
             "Path",
             "Breadcrumb",
