@@ -100,8 +100,8 @@ fn fix9_copy_to_uses_accent_for_field_selection_and_default(cx: &mut TestAppCont
     assert!(
         quads
             .iter()
-            .any(|q| q.background == gpui::Background::from(palette.accent.opacity(0.14))),
-        "default wash"
+            .any(|q| q.background == gpui::Background::from(palette.accent)),
+        "default fill"
     );
     view.update(cx, |view, cx| {
         if let Some(super::model::Dialog::CopyTo { focus, .. }) = view.model.dialog.as_mut() {

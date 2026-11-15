@@ -1,6 +1,6 @@
 //! Native launch observers read the window and its active list without starting producer work.
 use super::Adapter;
-use crate::g2::rail_places::rows::{RAIL_ROW_SCALE, TEXT_LINE_HEIGHT_FACTOR};
+use crate::g2::rail_places::rows::{rail_icon, rail_row, TEXT_LINE_HEIGHT_FACTOR};
 use crate::list::STOCK_BASE;
 use crate::{
     list::{columns::Column, ListState},
@@ -98,10 +98,7 @@ impl Adapter for NativeWindowAdapter<'_> {
 
 impl NativeWindowAdapter<'_> {
     fn rail_icon_size(&self) -> f64 {
-        let metrics = crate::list::Metrics::for_typeface(&self.list.typeface);
-        let row = f64::from(metrics.nominal_row);
-        let padding = f64::from((metrics.nominal_row - metrics.slot) / 2.);
-        (row * RAIL_ROW_SCALE).round() - 2. * padding
+        f64::from(rail_icon(f32::from(self.list.typeface.base)))
     }
 
     fn tokens(&self) -> Reply {
@@ -118,7 +115,7 @@ impl NativeWindowAdapter<'_> {
         let space = |value: f64| (value * base / f64::from(STOCK_BASE)).round();
         let row = f64::from(metrics.nominal_row);
         let padding = f64::from((metrics.nominal_row - metrics.slot) / 2.);
-        let rail_row = (row * RAIL_ROW_SCALE).round();
+        let rail_row = f64::from(rail_row(f32::from(face.base)));
         let panel = (space(SETTINGS_PANEL_SPACE) * DIALOG_WIDTH_RATIO).round();
         let pane = (space(SETTINGS_PANE_SPACE) * DIALOG_WIDTH_RATIO).round();
         let column = |column| columns.wanted(column, self.list.view.stored).to_string();

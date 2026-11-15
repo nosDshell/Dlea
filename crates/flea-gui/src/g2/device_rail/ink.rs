@@ -11,9 +11,10 @@ pub struct CardInk {
     pub muted: Hsla,
     pub frame: Hsla,
     pub accent_frame: Hsla,
+    // The raw accent the recommend button fills with (the frame role is lifted for contrast).
+    pub accent: Hsla,
     pub error: Hsla,
     pub rule: Hsla,
-    pub wash: Hsla,
 }
 
 impl CardInk {
@@ -28,8 +29,8 @@ impl CardInk {
             frame: palette.muted_frame,
             accent_frame: palette.accent_frame,
             error: palette.error,
+            accent: palette.accent,
             rule: palette.muted_frame.opacity(0.4),
-            wash: palette.accent.opacity(0.14),
         }
     }
 }

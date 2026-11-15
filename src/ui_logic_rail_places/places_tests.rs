@@ -189,13 +189,13 @@ fn favorites_merge_home_dirs_and_bookmarks() {
     );
     assert_eq!(
         (favs[1].label.as_str(), favs[2].label.as_str()),
-        ("Downloads", "Documents"),
-        "the XDG dirs follow in file order"
+        ("Documents", "Downloads"),
+        "the XDG dirs follow the gxde rail order"
     );
     let labels: Vec<&str> = favs.iter().skip(1).map(|e| e.label.as_str()).collect();
     assert_eq!(
         labels,
-        ["Downloads", "Documents", "Media"],
+        ["Documents", "Downloads", "Media"],
         "a path already placed keeps its first position and label"
     );
     assert_eq!(favs.len(), 4, "a non-file bookmark never reaches FAVORITES");
@@ -204,7 +204,7 @@ fn favorites_merge_home_dirs_and_bookmarks() {
         (Group::Favorite, Kind::Favorite),
         "every row is tagged as a favourite"
     );
-    assert_eq!(favs[1].glyph, "download", "the caller resolves the mark");
+    assert_eq!(favs[2].glyph, "download", "the caller resolves the mark");
     assert_eq!(
         favorites("/home/gm", "", "", |_| "m").len(),
         1,

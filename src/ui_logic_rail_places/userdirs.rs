@@ -6,6 +6,7 @@ pub struct UserDir {
     pub path: String,
     pub label: String,
     pub label_key: &'static str,
+    rank: usize,
 }
 
 // Only a role's standard folder name is product copy; renamed folders retain their own names.
@@ -17,10 +18,6 @@ fn label_key(role: &str, label: &str) -> &'static str {
         ("MUSIC", "Music") => "places.row.music",
         ("PICTURES", "Pictures") => "places.row.pictures",
         ("VIDEOS", "Videos") => "places.row.videos",
-        ("TEMPLATES", "Templates") => "places.row.templates",
-        ("PUBLICSHARE", "Public") => "places.row.public",
-        // xdg-user-dirs 0.20's user-dirs.defaults lists PROJECTS beside the eight older roles.
-        ("PROJECTS", "Projects") => "places.row.projects",
         _ => "",
     }
 }
@@ -81,17 +78,37 @@ pub fn read_roles(body: &str, home: &str) -> Vec<(String, String)> {
         .collect()
 }
 
+// gxde-file-manager's Common group lists exactly these roles, in this order; other roles are never places.
+const GXDE_ORDER: [&str; 6] = [
+    "DESKTOP",
+    "VIDEOS",
+    "MUSIC",
+    "PICTURES",
+    "DOCUMENTS",
+    "DOWNLOAD",
+];
+
+fn gxde_rank(role: &str) -> usize {
+    GXDE_ORDER
+        .iter()
+        .position(|known| *known == role)
+        .unwrap_or(GXDE_ORDER.len())
+}
+
 // Sample input: XDG_DOWNLOAD_DIR="$HOME/Downloads"; a disabled role that points at Home is no place of its own.
 pub fn user_dirs(body: &str, home: &str) -> Vec<UserDir> {
-    read_roles(body, home)
+    let mut dirs: Vec<UserDir> = read_roles(body, home)
         .into_iter()
-        .filter(|(_, path)| path != home)
+        .filter(|(role, path)| path != home && gxde_rank(role) < GXDE_ORDER.len())
         .map(|(role, path)| UserDir {
             label_key: label_key(&role, leaf(&path)),
             label: leaf(&path).to_owned(),
             path,
+            rank: gxde_rank(&role),
         })
-        .collect()
+        .collect();
+    dirs.sort_by_key(|dir| dir.rank);
+    dirs
 }
 
 #[cfg(test)]

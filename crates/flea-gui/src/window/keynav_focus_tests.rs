@@ -83,9 +83,9 @@ fn keynav_vfix_chrome_raw_navigation_skips_hidden_and_disabled_controls(cx: &mut
     let handle = listing(cx);
     key(cx, handle, "tab");
     key(cx, handle, "tab");
-    chrome(cx, handle, "arrow-up");
+    chrome(cx, handle, "sidebar");
     for glyph in [
-        "copy", "search", "list", "columns", "grid", "dual", "sliders",
+        "arrow-up", "copy", "search", "list", "columns", "grid", "dual", "sliders",
     ] {
         key(cx, handle, "right");
         chrome(cx, handle, glyph);
@@ -95,9 +95,9 @@ fn keynav_vfix_chrome_raw_navigation_skips_hidden_and_disabled_controls(cx: &mut
     key(cx, handle, "left");
     chrome(cx, handle, "dual");
     key(cx, handle, "home");
-    chrome(cx, handle, "arrow-up");
+    chrome(cx, handle, "sidebar");
     key(cx, handle, "left");
-    chrome(cx, handle, "arrow-up");
+    chrome(cx, handle, "sidebar");
     key(cx, handle, "end");
     chrome(cx, handle, "sliders");
     key(cx, handle, "ctrl-left");
@@ -118,9 +118,10 @@ fn keynav_vfix_chrome_raw_navigation_skips_hidden_and_disabled_controls(cx: &mut
     frame(cx, handle);
     key(cx, handle, "tab");
     key(cx, handle, "tab");
-    chrome(cx, handle, "arrow-left");
+    chrome(cx, handle, "sidebar");
     for glyph in [
-        "arrow-up", "copy", "filter", "sort", "list", "columns", "grid", "dual", "sliders",
+        "arrow-left", "arrow-up", "copy", "filter", "sort", "list", "columns", "grid", "dual",
+        "sliders",
     ] {
         key(cx, handle, "right");
         chrome(cx, handle, glyph);
@@ -244,6 +245,8 @@ fn keynav_vfix_disabled_chrome_control_rehomes_without_activating(cx: &mut TestA
     frame(cx, handle);
     key(cx, handle, "tab");
     key(cx, handle, "tab");
+    chrome(cx, handle, "sidebar");
+    key(cx, handle, "right");
     chrome(cx, handle, "arrow-left");
     edit(cx, handle, |shell, _, _| {
         shell.panes[0].as_mut().unwrap().nav.history.back.clear();
@@ -290,13 +293,13 @@ fn keynav_vfix_composition_owns_raw_control_navigation_and_activation(cx: &mut T
         "right", "end", "home", "left", "enter", "space", "escape", "tab",
     ] {
         key(cx, handle, stroke);
-        chrome(cx, handle, "arrow-up");
+        chrome(cx, handle, "sidebar");
     }
     edit(cx, handle, |shell, _, _| {
         shell.keyboard.set_composing(false)
     });
     key(cx, handle, "right");
-    chrome(cx, handle, "copy");
+    chrome(cx, handle, "arrow-up");
 }
 
 #[gpui::test]

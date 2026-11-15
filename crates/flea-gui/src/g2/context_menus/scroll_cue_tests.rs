@@ -68,10 +68,10 @@ fn copy_as_in_a_small_window_shows_a_half_row_under_each_parent_fade(cx: &mut Te
         assert_eq!(
             (label(top), label(bottom)),
             (
-                Some(("openTerminal".to_owned(), 16)),
-                Some(("tags".to_owned(), 17))
+                Some(("openTerminal".to_owned(), 13)),
+                Some(("toggleLangMarks".to_owned(), 13))
             ),
-            "half of Open in Terminal over Move To and half of Tags under Copy As"
+            "half of Open in Terminal at the top fade and half of the code-icons row at the bottom"
         );
         assert!(fit::keeps_clear(
             &card.entries,
@@ -83,7 +83,7 @@ fn copy_as_in_a_small_window_shows_a_half_row_under_each_parent_fade(cx: &mut Te
     draw(cx, handle);
     let state = read(&menu.borrow(), "menuState", &[]);
     assert!(
-        state.contains("\"view\":218"),
+        state.contains("\"view\":214"),
         "the view is not trimmed: {state}"
     );
 }

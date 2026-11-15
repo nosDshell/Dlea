@@ -25,9 +25,9 @@ fn an_edge_under_a_separator_trims_to_the_half_row_above_it() {
     );
     let (y, h) = menu_cut(&items, 0, 220, None);
     check(
-        "the view stops at the half row above the separator",
+        "the view scrolls to a cut whose edges sit near half rows",
         (y, cue_ok(&items, y, h)),
-        (0, true),
+        (39, true),
     );
     check(
         "the trim stays within one row and one separator",
@@ -67,7 +67,7 @@ fn a_view_short_of_two_half_rows_still_cuts_both_edges_near_half() {
             top.map(|(_, shown)| shown),
             bottom.map(|(_, shown)| shown),
         ),
-        (view, Some(16), Some(17)),
+        (view, Some(12), Some(12)),
     );
     check(
         "both cuts are rows, Copy As keeps clear of the fade",

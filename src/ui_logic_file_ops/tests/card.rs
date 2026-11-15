@@ -139,8 +139,8 @@ fn the_default_keeps_its_accent_wash_under_focus_hover_and_press() {
         ..Default::default()
     });
     assert_eq!(
-        (rest.frame, rest.wash, rest.wash_alpha),
-        (Ink::AccentFrame, Ink::Accent, PRIMARY_WASH)
+        (rest.frame, rest.label, rest.wash, rest.wash_alpha),
+        (Ink::Accent, Ink::OnAccent, Ink::Accent, 1.0)
     );
     let focus = look(ButtonState {
         primary: true,
@@ -149,7 +149,7 @@ fn the_default_keeps_its_accent_wash_under_focus_hover_and_press() {
     });
     assert_eq!(
         (focus.frame, focus.wash, focus.wash_alpha),
-        (Ink::Foreground, Ink::Accent, PRIMARY_WASH)
+        (Ink::Foreground, Ink::Accent, 1.0)
     );
     let hover = look(ButtonState {
         primary: true,
@@ -158,7 +158,7 @@ fn the_default_keeps_its_accent_wash_under_focus_hover_and_press() {
     });
     assert_eq!(
         (hover.wash, hover.overlay, hover.overlay_alpha),
-        (Ink::Accent, Ink::Foreground, HOVER_WASH)
+        (Ink::Accent, Ink::OnAccent, HOVER_WASH)
     );
     // A theme whose accent frame is its foreground gets a ring two wide, so focus still shows.
     assert_eq!(

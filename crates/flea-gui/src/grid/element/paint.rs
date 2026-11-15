@@ -14,12 +14,15 @@ use gpui::{
 };
 use std::rc::Rc;
 
-// Board grid.html and Theme.qml: the cursor's 18% wash, the 35% mark plate, an 8% hover, the 14% match wash and a cut tile's 0.55.
+// Board grid.html and Theme.qml: the cursor's 18% wash, a hover at DStyledItemDelegate's 16/255, the 14% match wash and a cut tile's 0.55.
 const CURSOR_WASH: f32 = 0.18;
-const MARK_PLATE: f32 = 0.35;
-const HOVER: f32 = 0.08;
+const HOVER: f32 = 16. / 255.;
 const MATCH_WASH: f32 = 0.14;
 const CUT: f32 = 0.55;
+// DStyledItemDelegate::paintSelectionBox: the selection box is the accent at 76/255 fill and 150/255 edge, radius 3.
+const SEL_FILL: f32 = 76. / 255.;
+const SEL_EDGE: f32 = 150. / 255.;
+const SEL_RADIUS: f32 = 3.;
 
 #[path = "ground.rs"]
 mod ground;
@@ -396,10 +399,16 @@ impl Element for GridElement {
                     self.focus.focused(),
                     self.focus.selection_fill(),
                 ) {
-                    window.paint_quad(fill(frame, ground));
-                }
-                if drawn.cursor && self.focus.focused() {
-                    window.paint_quad(outline(frame, ink.accent_frame, BorderStyle::Solid));
+                    // GXDE's selection box rounds at 3 px and inks its 1 px edge in the dimmed accent; the compositor's square mode still wins.
+                    let edged = self.focus.focused() && (drawn.cursor || drawn.selected);
+                    window.paint_quad(gpui::quad(
+                        frame,
+                        px(SEL_RADIUS.min(crate::compositor::corner(cx))),
+                        ground,
+                        px(if edged { 1. } else { 0. }),
+                        ink.accent.opacity(SEL_EDGE),
+                        BorderStyle::Solid,
+                    ));
                 }
                 if drawn.drop.is_some() {
                     let cell = bounds_of(origin, drawn.cell);

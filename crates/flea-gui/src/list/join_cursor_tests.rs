@@ -145,7 +145,7 @@ fn an_inactive_window_draws_its_cursor_grey_while_it_keeps_the_focus_handle() {
                             .count()
                     };
                     (
-                        count(palette.accent.opacity(crate::list::CURSOR_WASH)),
+                        count(palette.accent.opacity(crate::list::SEL_FILL)),
                         count(palette.foreground.opacity(crate::list::GREY_CURSOR)),
                     )
                 })

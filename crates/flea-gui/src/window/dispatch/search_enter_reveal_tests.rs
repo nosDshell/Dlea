@@ -208,7 +208,7 @@ fn search_enter_standing_filter_keeps_rail_enter(cx: &mut TestAppContext) {
             assert_eq!(shell.keyboard.context, flea::keys::Context::Rail);
         });
     });
-    cx.simulate_keystrokes("home enter");
+    cx.simulate_keystrokes("home down enter");
     assert_eq!(asked(&shell, cx), std::env::var("HOME").unwrap());
     no_open(&shell, cx);
     shell.update(cx, |shell, _| shell.stop_for_app_quit());

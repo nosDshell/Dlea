@@ -1,12 +1,12 @@
 //! The stand-in frame: the card, its title, its controls and its buttons, drawn to the boards.
 use super::cards::*;
-use super::draw_step::{DISABLED_OPACITY, WASH_PRESS};
+use super::draw_step::DISABLED_OPACITY;
 use crate::g2::open_with_properties::shell::{card_heading, glyph};
 use crate::g2::status_feedback::caption::Tracked;
 use crate::list::{Palette, Typeface};
 use gpui::{
-    canvas, div, prelude::*, px, relative, AnyElement, App, Bounds, Div, FontWeight, MouseButton,
-    Pixels, Window,
+    canvas, div, prelude::*, px, relative, AnyElement, App, Bounds, Div, FontWeight, Hsla,
+    MouseButton, Pixels, Window,
 };
 use std::{cell::Cell, rc::Rc};
 
@@ -199,7 +199,7 @@ impl Draw<'_> {
         let primary = button.primary && button.available;
         let frame = match (button.focused, primary) {
             (true, _) => t.fg,
-            (false, true) => t.accent_frame,
+            (false, true) => t.accent,
             (false, false) => t.muted_frame,
         };
         self.text(BOARD_BODY)
@@ -211,8 +211,14 @@ impl Draw<'_> {
             .border_1()
             .border_color(frame)
             .rounded(self.px(self.r))
-            .text_color(if button.available { t.fg } else { t.muted })
-            .when(primary, |d| d.bg(t.accent.opacity(WASH_PRESS)))
+            .text_color(if primary {
+                Hsla::white()
+            } else if button.available {
+                t.fg
+            } else {
+                t.muted
+            })
+            .when(primary, |d| d.bg(t.accent))
             .when(!button.available, |d| d.opacity(DISABLED_OPACITY))
             .child(button.label.clone())
     }

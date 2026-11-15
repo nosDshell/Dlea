@@ -206,7 +206,7 @@ fn the_saved_places_keys_read_as_strictly_as_v0312() {
         read.shown,
         Shown {
             home: true,
-            recent: false,
+            recent: true,
             trash: false,
             tags: true
         }

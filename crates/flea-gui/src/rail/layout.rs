@@ -35,53 +35,36 @@ pub(super) fn layout(
             if !first {
                 y += metrics.panel_gap;
             }
-        } else {
-            let group_gap = if first { 0. } else { metrics.panel_gap };
-            let tracking = if section.caseless {
-                0.
-            } else {
-                HEADING_TRACKING
-            };
-            let run = cache.get(
-                &section.heading,
-                typeface.caption,
-                width - 2. * metrics.pad,
-                tracking,
-                typeface,
-                window,
-            );
-            // The board's heading pitch keeps both rounded font extents; row text is positioned independently.
-            let text_height = run.ascent.ceil() + (run.height - run.ascent).ceil();
-            let (top_padding, height) = if let Some(heading) = metrics.heading {
-                (
-                    group_gap + (heading - text_height) / 2.,
-                    group_gap + heading,
-                )
-            } else {
-                let lead = (f32::from(typeface.caption) * HEADING_LEAD).ceil() + group_gap;
-                (lead, lead + text_height + metrics.gap)
-            };
-            let text_width = run.width;
-            let rect = Rect::new(metrics.pad, y, text_width, height);
+        } else if !first {
+            // gxde-file-manager's dfmsidebar.cpp: groups part on a one-pixel rule in a slim band, no caps heading;
+            // the band's top_padding is the group gap, and NETWORK still carries its plus on the right edge.
             let network = section
                 .rows
                 .first()
                 .is_some_and(|row| row.group == flea::ui_logic_rail_places::rail::Group::Network);
+            let band = if network { SEPARATOR_ADD } else { SEPARATOR };
+            let rect = Rect::new(
+                metrics.pad,
+                y,
+                width - 2. * metrics.pad,
+                metrics.panel_gap + band,
+            );
             let add = network.then(|| {
                 Rect::new(
                     width - metrics.pad - metrics.slot,
-                    y + top_padding + (text_height - metrics.slot) / 2.,
+                    rect.y + metrics.panel_gap + (band - metrics.slot) / 2.,
                     metrics.slot,
                     metrics.slot,
                 )
             });
             laid.headers.push(LaidHeader {
                 text: section.heading.to_string(),
+                separator: true,
                 rect,
-                top_padding,
-                text_height,
+                top_padding: metrics.panel_gap,
+                text_height: band,
                 font_size: f32::from(typeface.caption),
-                tracking,
+                tracking: 0.,
                 add,
             });
             y += rect.height;

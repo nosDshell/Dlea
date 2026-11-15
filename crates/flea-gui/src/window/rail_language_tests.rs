@@ -131,7 +131,7 @@ fn runtime_language_switch_relabels_fixed_places(cx: &mut TestAppContext) {
             2,
             "zh-CN",
             [
-                "桌面", "文档", "下载", "音乐", "图片", "视频", "模板", "公共",
+                "桌面", "视频", "音乐", "图片", "文档", "下载",
             ],
         ),
         (
@@ -139,13 +139,11 @@ fn runtime_language_switch_relabels_fixed_places(cx: &mut TestAppContext) {
             "de",
             [
                 "Schreibtisch",
-                "Dokumente",
-                "Downloads",
+                "Videos",
                 "Musik",
                 "Bilder",
-                "Videos",
-                "Vorlagen",
-                "Öffentlich",
+                "Dokumente",
+                "Downloads",
             ],
         ),
         (
@@ -153,13 +151,11 @@ fn runtime_language_switch_relabels_fixed_places(cx: &mut TestAppContext) {
             "en",
             [
                 "Desktop",
-                "Documents",
-                "Downloads",
+                "Videos",
                 "Music",
                 "Pictures",
-                "Videos",
-                "Templates",
-                "Public",
+                "Documents",
+                "Downloads",
             ],
         ),
     ] {
@@ -174,8 +170,8 @@ fn runtime_language_switch_relabels_fixed_places(cx: &mut TestAppContext) {
         frame(cx);
         producer.read_with(cx, |producer, _| {
             let labels = producer.shown_entries();
-            assert_eq!(labels[0].as_ref(), catalog.tr("places.row.home"));
-            assert_eq!(labels[1].as_ref(), catalog.tr("places.row.recent"));
+            assert_eq!(labels[0].as_ref(), catalog.tr("places.row.recent"));
+            assert_eq!(labels[1].as_ref(), catalog.tr("places.row.home"));
             for (index, expected) in expected.into_iter().enumerate() {
                 assert_eq!(
                     labels[index + 2].as_ref(),
@@ -183,20 +179,19 @@ fn runtime_language_switch_relabels_fixed_places(cx: &mut TestAppContext) {
                     "{language}: fixed place {index}"
                 );
             }
-            assert_eq!(labels[10].as_ref(), "My projects");
-            assert_eq!(labels[11].as_ref(), catalog.tr("places.row.trash"));
-            assert_eq!(labels[12].as_ref(), "Downloads", "user bookmark name");
+            assert_eq!(labels[8].as_ref(), catalog.tr("places.row.trash"));
+            assert_eq!(labels[9].as_ref(), "Downloads", "user bookmark name");
             for (index, name) in flea::ui_logic_rail_places::tags::NAMES
                 .into_iter()
                 .enumerate()
             {
                 assert_eq!(
-                    labels[index + 13].as_ref(),
+                    labels[index + 10].as_ref(),
                     catalog.tr(flea::ui_logic_rail_places::tags::label_key(name))
                 );
             }
-            assert_eq!(labels[20].as_ref(), "NAS", "share name");
-            assert_eq!(labels[21].as_ref(), "Documents", "volume label");
+            assert_eq!(labels[17].as_ref(), "NAS", "share name");
+            assert_eq!(labels[18].as_ref(), "Documents", "volume label");
             for (section, key) in producer.provider.drawn.iter().zip([
                 "places.heading.places",
                 "places.heading.favorites",

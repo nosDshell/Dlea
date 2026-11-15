@@ -129,9 +129,9 @@ fn distinct_ink() -> super::ink::CardInk {
         muted: theme.foreground.opacity(0.62),
         frame: theme.foreground.opacity(0.5),
         accent_frame: theme.foreground.opacity(0.7),
+        accent: theme.foreground.opacity(0.55),
         error: theme.foreground.opacity(0.8),
         rule: theme.foreground.opacity(0.4),
-        wash: theme.foreground.opacity(0.33),
     };
     assert_pairwise_distinct(&ink);
     ink
@@ -145,9 +145,9 @@ fn assert_pairwise_distinct(ink: &super::ink::CardInk) {
         ("muted", ink.muted),
         ("frame", ink.frame),
         ("accent_frame", ink.accent_frame),
+        ("accent", ink.accent),
         ("error", ink.error),
         ("rule", ink.rule),
-        ("wash", ink.wash),
     ];
     for (i, (one, first)) in roles.iter().enumerate() {
         for (other, second) in &roles[i + 1..] {
@@ -170,14 +170,14 @@ fn the_inherited_ink_collapses_roles_so_the_helper_rejects_it() {
 }
 
 #[test]
-fn a_hovered_or_pressed_unlock_keeps_its_accent_wash_under_the_pointer_wash() {
+fn a_hovered_or_pressed_unlock_keeps_its_accent_fill_under_the_pointer_wash() {
     use super::card::{button_wash, WASH_HOVER, WASH_PRESS};
     let ink = distinct_ink();
     let unlock = button_wash(true, true, &ink);
     assert_eq!(
         unlock.rest,
-        Some(ink.wash),
-        "the primary rests on the accent wash in every pointer state"
+        Some(ink.accent),
+        "the primary rests on solid accent in every pointer state"
     );
     assert_eq!(unlock.hover, Some(ink.foreground.opacity(WASH_HOVER)));
     assert_eq!(unlock.press, Some(ink.foreground.opacity(WASH_PRESS)));
@@ -212,10 +212,10 @@ fn a_focused_primary_on_a_hued_accent_keeps_one_foreground_hairline() {
     );
     assert_eq!(
         button_frame(true, true, false, &ink),
-        (ink.accent_frame, false),
+        (ink.accent, false),
         "the resting primary keeps its accent frame"
     );
-    ink.accent_frame = ink.foreground;
+    ink.accent = ink.foreground;
     assert_eq!(
         button_frame(true, true, true, &ink),
         (ink.foreground, true),

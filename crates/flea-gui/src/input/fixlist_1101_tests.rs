@@ -1,7 +1,7 @@
 //! FIX-LIST 2026-11-01: List row plates per focus state, hover under a still pointer, and the header after a drag or a fit.
 use super::*;
 use crate::{
-    list::{columns::Column, Palette, GREY_CURSOR, HOVER},
+    list::{columns::Column, Palette, GREY_CURSOR, HOVER, SEL_FILL},
     palette::Theme,
     window::{pane::PaneHost, startup::View},
 };
@@ -121,7 +121,7 @@ fn fixlist_ey417_marked_plate_stays_while_the_menu_holds_the_keyboard(cx: &mut T
             let palette = palette(shell, 0);
             assert_eq!(
                 plates(shell, 0, 0, window),
-                [palette.marked],
+                [palette.accent.opacity(SEL_FILL)],
                 "{name}: focused mark"
             );
         });
@@ -142,7 +142,7 @@ fn fixlist_ey417_marked_plate_stays_while_the_menu_holds_the_keyboard(cx: &mut T
             let palette = palette(shell, 0);
             assert_eq!(
                 plates(shell, 0, 0, window),
-                [palette.marked],
+                [palette.accent.opacity(SEL_FILL)],
                 "{name}: the marked row under the menu"
             );
             assert_eq!(
@@ -178,7 +178,7 @@ fn fixlist_crcmpd1_other_pane_marks_take_the_grey_selected_fill(cx: &mut TestApp
             let grey = palette(shell, 1).foreground.opacity(GREY_CURSOR);
             assert_eq!(
                 plates(shell, 0, 2, window),
-                [palette(shell, 0).marked],
+                [palette(shell, 0).accent.opacity(SEL_FILL)],
                 "{name}: focused pane mark"
             );
             assert_eq!(

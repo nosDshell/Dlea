@@ -122,13 +122,16 @@ fn paths(body: &str) -> Vec<String> {
 fn user_dirs_read_the_rail_roles() {
     let dirs = "XDG_DESKTOP_DIR=\"$HOME/\"\nXDG_DOWNLOAD_DIR=\"$HOME/Downloads\"\nXDG_DOCUMENTS_DIR=\"$HOME/Documents\"\n# a comment line\nXDG_PROJECTS_DIR=\"/srv/projects\"\n";
     let got = user_dirs(dirs, "/home/gm");
-    assert_eq!(got.len(), 3, "home itself is not a favourite");
+    assert_eq!(got.len(), 2, "home itself and unlisted roles are not places");
     assert_eq!(
-        got[0].path, "/home/gm/Downloads",
+        got[0].path, "/home/gm/Documents",
+        "the gxde rail order ranks Documents first here"
+    );
+    assert_eq!(
+        got[1].path, "/home/gm/Downloads",
         "a relative entry expands"
     );
-    assert_eq!(got[0].label, "Downloads", "the label is the leaf");
-    assert_eq!(got[2].path, "/srv/projects", "an absolute entry survives");
+    assert_eq!(got[1].label, "Downloads", "the label is the leaf");
     for (name, value, want) in FIXTURE {
         assert_eq!(
             paths(&fixture_body(value)),
@@ -160,7 +163,7 @@ fn duplicate_roles_keep_the_last_valid_path() {
         );
     }
     let bodies: [(String, Vec<&str>); 4] = [
-        ("XDG_DOWNLOAD_DIR=\"relative\"\nXDG_PICTURES_DIR=\"$HOME/Photos\"\nXDG_DOWNLOAD_DIR=\"$HOME/Inbox\"\nXDG_VIDEOS_DIR=\"$HOME\"".into(), vec!["/home/test/Inbox", "/home/test/Photos"]),
+        ("XDG_DOWNLOAD_DIR=\"relative\"\nXDG_PICTURES_DIR=\"$HOME/Photos\"\nXDG_DOWNLOAD_DIR=\"$HOME/Inbox\"\nXDG_VIDEOS_DIR=\"$HOME\"".into(), vec!["/home/test/Photos", "/home/test/Inbox"]),
         (format!("{}\nXDG_DOWNLOAD_DIR=\"$HOME\"\nXDG_DOWNLOAD_DIR=\"relative\"", fixture_body(r#""$HOME/Original""#)), vec![]),
         (format!("{}\nXDG_DOWNLOAD_DIR=\"$HOME/Inbox\"\nXDG_DOWNLOAD_DIR=\"$HOME/Unterminated", fixture_body(r#""$HOME""#)), vec!["/home/test/Inbox"]),
         ("XDG_PICTURES_DIR=\"$HOME/Old Photos\"\nXDG_DOWNLOAD_DIR=\"$HOME/Inbox\"\nXDG_PICTURES_DIR=\"$HOME/Photos\"\nXDG_VIDEOS_DIR=\"$HOME\"".into(), vec!["/home/test/Photos", "/home/test/Inbox"]),

@@ -13,6 +13,8 @@ use std::{cell::RefCell, rc::Rc};
 
 // The cursor and a lit flyout parent take the accent at 20% (#332ca7f8, GXDE menuHighlightColor), with no edge.
 const WASH: f32 = 0.20;
+// ChameleonStyle::drawMenuItemBackground: margin 6, round 6.
+const LIT_INSET: f32 = 6.;
 const RULE: f32 = 0.4;
 const DIM: f32 = 0.55;
 const TAG: f32 = 14.;
@@ -81,10 +83,10 @@ pub(super) fn paint_mark(
     );
 }
 
-fn slot(at: gpui::Point<Pixels>, w: f32, h: f32, metrics: Metrics) -> Bounds<Pixels> {
+fn slot(at: gpui::Point<Pixels>, w: f32, h: f32, row: i32, metrics: Metrics) -> Bounds<Pixels> {
     let x = at.x + px(metrics.pad_x + (metrics.slot - w) / 2.);
     Bounds::new(
-        point(x, at.y + px((metrics.row as f32 - h) / 2.)),
+        point(x, at.y + px((row as f32 - h) / 2.)),
         size(px(w), px(h)),
     )
 }
@@ -96,6 +98,7 @@ fn paint_lead(
     ink: &MenuInk,
     busy: &crate::feedback::spinner::Crawl,
     at: gpui::Point<Pixels>,
+    row: i32,
     metrics: Metrics,
     window: &mut Window,
     cx: &mut App,
@@ -105,7 +108,7 @@ fn paint_lead(
             // One Omi grid in device pixels, two past the 18px slot on each side as the board draws it.
             let side = crate::feedback::spinner::OMI_GRID_PX / window.scale_factor();
             busy.show(true, ink.accent);
-            busy.place(slot(at, side, side, metrics), window);
+            busy.place(slot(at, side, side, row, metrics), window);
             busy.prepare(true, None, window, cx);
             busy.paint(window);
         }
@@ -115,7 +118,7 @@ fn paint_lead(
             paint_mark(
                 key,
                 data,
-                slot(at, metrics.slot, metrics.slot, metrics),
+                slot(at, metrics.slot, metrics.slot, row, metrics),
                 mark,
                 window,
                 cx,
@@ -126,7 +129,7 @@ fn paint_lead(
             paint_mark(
                 key,
                 data,
-                slot(at, metrics.of(CHECK), metrics.of(CHECK), metrics),
+                slot(at, metrics.of(CHECK), metrics.of(CHECK), row, metrics),
                 mark,
                 window,
                 cx,
@@ -137,7 +140,7 @@ fn paint_lead(
             paint_mark(
                 key,
                 data,
-                slot(at, (metrics.slot * ratio).round(), metrics.slot, metrics),
+                slot(at, (metrics.slot * ratio).round(), metrics.slot, row, metrics),
                 mark,
                 window,
                 cx,
@@ -150,7 +153,7 @@ fn paint_lead(
                 .copied()
                 .unwrap_or(ink.label);
             window.paint_quad(fill(
-                slot(at, metrics.of(TAG), metrics.of(TAG), metrics),
+                slot(at, metrics.of(TAG), metrics.of(TAG), row, metrics),
                 color,
             ));
         }
@@ -158,7 +161,7 @@ fn paint_lead(
             if app_icons::paint(
                 path,
                 metrics.slot,
-                slot(at, metrics.slot, metrics.slot, metrics),
+                slot(at, metrics.slot, metrics.slot, row, metrics),
                 window,
                 cx,
             ) => {}
@@ -167,7 +170,7 @@ fn paint_lead(
             paint_mark(
                 key,
                 data,
-                slot(at, metrics.slot, metrics.slot, metrics),
+                slot(at, metrics.slot, metrics.slot, row, metrics),
                 mark,
                 window,
                 cx,
@@ -180,6 +183,7 @@ fn paint_lead(
 fn paint_row(
     line: &Line,
     lit: bool,
+    radius: Pixels,
     ink: &MenuInk,
     busy: &crate::feedback::spinner::Crawl,
     at: gpui::Point<Pixels>,
@@ -188,6 +192,8 @@ fn paint_row(
     cx: &mut App,
 ) {
     let metrics = line.metrics;
+    // A wrapped refusal caption draws in the taller row Metrics::height reserves for it.
+    let row = metrics.row_height(line.hint_wrap);
     let (left, top, right) = (at.x, at.y, at.x + width);
     if line.separator {
         let y = top + px(((metrics.sep - 1) / 2) as f32);
@@ -198,9 +204,17 @@ fn paint_row(
         return;
     }
     if lit {
-        window.paint_quad(fill(
-            Bounds::new(point(left, top), size(width, px(metrics.row as f32))),
+        // GXDE's menu item highlight insets 6 px from the card's edges; the 6 px round caps the compositor corner.
+        window.paint_quad(gpui::quad(
+            Bounds::new(
+                point(left + px(LIT_INSET), top),
+                size(width - px(2. * LIT_INSET), px(row as f32)),
+            ),
+            radius.min(px(6.)),
             ink.wash,
+            px(0.),
+            ink.wash,
+            BorderStyle::Solid,
         ));
     }
     let dim = if line.disabled { DIM } else { 1. };
@@ -221,6 +235,7 @@ fn paint_row(
         ink,
         busy,
         point(left, top),
+        row,
         metrics,
         window,
         cx,
@@ -242,7 +257,7 @@ fn paint_row(
             let bounds = Bounds::new(
                 point(
                     edge - px(metrics.chevron),
-                    top + px((metrics.row as f32 - metrics.chevron) / 2.),
+                    top + px((row as f32 - metrics.chevron) / 2.),
                 ),
                 size(px(metrics.chevron), px(metrics.chevron)),
             );
@@ -272,7 +287,7 @@ fn paint_row(
                 } else {
                     ink.muted.opacity(dim)
                 },
-                metrics.row,
+                row,
                 window,
             );
         }
@@ -283,7 +298,7 @@ fn paint_row(
         let x = edge + px(metrics.gap) - px(line.status_width());
         window.paint_quad(fill(
             Bounds::new(
-                point(x, top + px((metrics.row as f32 - side) / 2.)),
+                point(x, top + px((row as f32 - side) / 2.)),
                 size(px(side), px(side)),
             ),
             ink.accent.opacity(dim),
@@ -298,10 +313,10 @@ fn paint_row(
     let start = left + px(metrics.pad_x + metrics.slot + metrics.gap);
     let column = Bounds::new(
         point(start, top),
-        size(px(line.label_room(width.into())), px(metrics.row as f32)),
+        size(px(line.label_room(width.into())), px(row as f32)),
     );
     window.with_content_mask(Some(ContentMask { bounds: column }), |window| {
-        paint_text(label, point(start, top), label_ink, metrics.row, window)
+        paint_text(label, point(start, top), label_ink, row, window)
     });
 }
 
@@ -349,6 +364,7 @@ fn paint_card(
                 paint_row(
                     line,
                     card.cursor == Some(index) || lit == Some(index),
+                    radius,
                     ink,
                     &card.busy,
                     point(inner.origin.x, row_top),

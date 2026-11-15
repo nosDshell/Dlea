@@ -112,7 +112,7 @@ pub fn button(
         disabled: !enabled,
         hovered: view.hovered == Some(control),
         pressed: view.hovered == Some(control) && view.pressed == Some(control),
-        rest_is_foreground: p.accent_frame == p.foreground,
+        rest_is_foreground: p.accent == p.foreground,
         ..Default::default()
     });
     let chrome = Chrome {
@@ -249,7 +249,7 @@ pub fn check(
         .size(px(18.))
         .border_2()
         .border_color(if value || focused {
-            p.foreground
+            p.accent
         } else {
             p.muted_frame
         })
@@ -257,8 +257,8 @@ pub fn check(
     if value {
         const CHECK: (&str, &[u8]) = ("op4-check", br#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square" stroke-linejoin="miter"><path d="m5 12 4 4L19 6"/></svg>"#);
         box_ = box_
-            .bg(p.foreground)
-            .child(Glyph::svg(CHECK, 14., p.surface));
+            .bg(p.accent)
+            .child(Glyph::svg(CHECK, 14., gpui::Hsla::white()));
         if focused {
             box_ = box_.child(
                 div()

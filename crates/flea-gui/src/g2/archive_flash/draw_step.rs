@@ -21,7 +21,6 @@ const WASH_HOVER: f32 = 0.08;
 /// Buttons.js:15: the press wash, laid in the control's own ink.
 pub(super) const WASH_PRESS: f32 = 0.14;
 /// Buttons.js:17: a primary's resting wash, at the press wash's weight.
-const WASH_PRIMARY: f32 = WASH_PRESS;
 /// Buttons.js:12: a dimmed control keeps over half its ink, like a cut row.
 pub(super) const DISABLED_OPACITY: f32 = 0.55;
 /// The DialogButton frame role for the step action, shared by the draw code and the tests.
@@ -104,8 +103,8 @@ impl StandIn {
     }
 
     /// Buttons.js:45 with no set members: the ring where a hairline frame would match the rest.
-    pub(super) fn frame_ring(primary: bool, accent_frame: Hsla, fg: Hsla) -> bool {
-        primary && accent_frame == fg
+    pub(super) fn frame_ring(primary: bool, rest_frame: Hsla, fg: Hsla) -> bool {
+        primary && rest_frame == fg
     }
 
     /// The shown press progress: the end state at once under reduced motion, else the honest eased value.
@@ -151,16 +150,20 @@ impl StandIn {
         let focus_shown = step.cursor && view.focused && available;
         let frame = match Self::action_frame(step, action, view.focused) {
             ActionFrame::Foreground => draw.t.fg,
-            ActionFrame::Accent => draw.t.accent_frame,
+            ActionFrame::Accent => draw.t.accent,
             ActionFrame::Muted => draw.t.muted_frame,
         };
-        let ring = focus_shown && Self::frame_ring(primary, draw.t.accent_frame, draw.t.fg);
+        let ring = focus_shown && Self::frame_ring(primary, draw.t.accent, draw.t.fg);
         let fill = if primary && available {
-            draw.t.accent.opacity(WASH_PRIMARY)
+            draw.t.accent
         } else {
             draw.t.accent.opacity(0.)
         };
-        let ink = Self::action_ink(&draw.t, available);
+        let ink = if primary && available {
+            Hsla::white()
+        } else {
+            Self::action_ink(&draw.t, available)
+        };
         let wash = if step.action_pressed && step.action_hover && available {
             Some((ink.opacity(WASH_PRESS), SEL_STEP_WASH_PRESS))
         } else if !step.action_pressed && step.action_hover && available {

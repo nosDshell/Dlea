@@ -170,6 +170,7 @@ fn rail_devices_empty_optical_drive_is_hidden(cx: &mut TestAppContext) {
     assert_eq!(
         labels(&shell, cx),
         [
+            "Recent",
             "Home",
             "Downloads",
             "Trash",

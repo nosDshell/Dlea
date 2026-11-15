@@ -5,13 +5,14 @@ use super::*;
 fn rail_devices_draw_with_lsblk_and_phones_join_when_gio_answers(cx: &mut TestAppContext) {
     let (shell, service, cx) = open("{}", cx);
     frame(cx);
-    assert_eq!(labels(&shell, cx), ["Home", "Downloads", "Trash"]);
+    assert_eq!(labels(&shell, cx), ["Recent", "Home", "Downloads", "Trash"]);
     // SW-07: the drives never wait on gio mount -li, which is a hundred times slower than lsblk.
     service.answer("lsblk", 0, BLOCKS);
     frame(cx);
     assert_eq!(
         labels(&shell, cx),
         [
+            "Recent",
             "Home",
             "Downloads",
             "Trash",
@@ -37,6 +38,7 @@ fn rail_devices_draw_in_the_first_frame_from_the_launch_seed(cx: &mut TestAppCon
     assert_eq!(
         labels(&shell, cx),
         [
+            "Recent",
             "Home",
             "Downloads",
             "Trash",
@@ -75,9 +77,20 @@ fn rail_heading_line_box_preserves_the_board_group_pitch(cx: &mut TestAppContext
         let mut cache = crate::g2::rail_places::rows::text::Cache::default();
         assert!(
             laid.headers.len() >= 2,
-            "PLACES, FAVORITES and DEVICES draw"
+            "FAVORITES and DEVICES draw separator bands"
         );
+        let mut separated = 0;
         for header in &laid.headers {
+            if header.separator {
+                separated += 1;
+                assert!(
+                    header.text_height == crate::g2::rail_places::rows::SEPARATOR
+                        || header.text_height == crate::g2::rail_places::rows::SEPARATOR_ADD,
+                    "{} separator band height",
+                    header.text
+                );
+                continue;
+            }
             let run = cache.get(
                 &header.text,
                 gpui::px(header.font_size),
@@ -98,6 +111,7 @@ fn rail_heading_line_box_preserves_the_board_group_pitch(cx: &mut TestAppContext
                 header.text
             );
         }
+        assert_eq!(separated, laid.headers.len(), "every group rule is a separator");
     });
 }
 
@@ -108,6 +122,7 @@ fn rail_devices_unmounted_setting_keeps_optical_and_removable_rows(cx: &mut Test
     assert_eq!(
         labels(&shell, cx),
         [
+            "Recent",
             "Home",
             "Downloads",
             "Trash",

@@ -5,8 +5,8 @@ pub use super::row_text::{drawn_letters, drawn_name};
 use super::{
     columns::{Column, Layout},
     pane::Held,
-    ListState, Metrics, Palette, RowStates, CACHE_SCREENS, CURSOR_WASH, CUT_DIM, GREY_CURSOR,
-    HOVER, MATCH_WASH,
+    ListState, Metrics, Palette, RowStates, CACHE_SCREENS, CUT_DIM, GREY_CURSOR,
+    HOVER, MATCH_WASH, SEL_EDGE, SEL_FILL, SEL_RADIUS,
 };
 use crate::palette::Theme;
 use crate::row::{
@@ -410,11 +410,12 @@ impl Element for ListElement {
                     let s = shown.state;
                     // The cursor draws its rung alone on a marked row, so no plate stacks into a brighter band.
                     // drag-cut-move: a drop target takes the cursor's accent wash and edge whichever window holds the keyboard.
+                    // DStyledItemDelegate::paintSelectionBox: the selection box is accent 76/255 with a 150/255 1px edge, radius 2 in list mode; the drop target fills at half accent.
                     let wash = if s.drop_target {
-                        Some(palette.accent.opacity(CURSOR_WASH))
+                        Some(palette.accent.opacity(0.5))
                     } else if s.cursor {
                         Some(if focused {
-                            palette.accent.opacity(CURSOR_WASH)
+                            palette.accent.opacity(SEL_FILL)
                         } else {
                             palette.foreground.opacity(GREY_CURSOR)
                         })
@@ -422,15 +423,27 @@ impl Element for ListElement {
                         Some(if self.states.other_pane && !focused {
                             palette.foreground.opacity(GREY_CURSOR)
                         } else {
-                            palette.marked
+                            palette.accent.opacity(SEL_FILL)
                         })
                     } else if s.hover_lit {
                         Some(palette.foreground.opacity(HOVER))
                     } else {
                         None
                     };
-                    if let Some(wash) = wash {
-                        window.paint_quad(fill(ground, wash));
+                    let boxed = s.drop_target
+                        || s.selected
+                        || (s.cursor && focused);
+                    match (wash, boxed) {
+                        (Some(wash), true) => window.paint_quad(gpui::quad(
+                            ground,
+                            px(SEL_RADIUS.min(crate::compositor::corner(cx))),
+                            wash,
+                            px(1.),
+                            palette.accent.opacity(SEL_EDGE),
+                            gpui::BorderStyle::Solid,
+                        )),
+                        (Some(wash), false) => window.paint_quad(fill(ground, wash)),
+                        _ => {}
                     }
                     if s.drop_target || (s.cursor && focused) {
                         window.paint_quad(fill(

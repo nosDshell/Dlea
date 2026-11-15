@@ -102,4 +102,30 @@ impl crate::state::Shell {
             .then(|| cx.background_executor().now());
         self.grid_scroll_at(delta, glide_at, cx);
     }
+
+    /// DStatusBar's scale slider lands on a stop directly; the reflow and the persisted thumbSize mirror zoomWheel.
+    pub(crate) fn slider_thumb(&mut self, index: usize, cx: &mut gpui::Context<Self>) {
+        let next = ThumbSize::at(index);
+        if let Some(host) = self.panes[self.focus_side].as_mut() {
+            if let Some(grid) = host.grid.as_mut() {
+                if grid.next_view.is_none() && !host.pane.busy() && grid.view.thumb != next {
+                    grid.view.reflow(
+                        Shown::All(host.pane.held.total),
+                        &super::host::GridHost::focus(&host.pane),
+                        |grid| grid.thumb = next,
+                    );
+                }
+            }
+        }
+        use flea::jsondoc::Json;
+        self.settings.patches.borrow_mut().push(Json::Obj(vec![
+            ("preview".into(), Json::Obj(vec![
+                ("thumbSize".into(), Json::Str(next.name().into())),
+            ])),
+        ]));
+        if let Some(footer) = &self.surfaces[0].footer {
+            footer.update(cx, |footer, _| footer.thumb = next.index());
+        }
+        cx.notify();
+    }
 }

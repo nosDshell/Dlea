@@ -166,12 +166,12 @@ pub(super) fn frames(quads: &[Quad], d: &Drawn) -> (Bounds<ScaledPixels>, Bounds
     let unlock: Vec<_> = framed
         .iter()
         .copied()
-        .filter(|b| filled(quads, d.ink.wash).contains(b))
+        .filter(|b| filled(quads, d.ink.accent).contains(b))
         .collect();
     assert_eq!(
         unlock.len(),
         1,
-        "the available Unlock rests on one framed accent wash"
+        "the available Unlock rests on one framed accent fill"
     );
     let unlock = unlock[0];
     let cancel: Vec<_> = framed
@@ -316,8 +316,8 @@ fn cancel_takes_the_same_pointer_washes_with_no_resting_wash(cx: &mut TestAppCon
 fn a_focused_unlock_whose_rest_frame_is_the_foreground_draws_the_ring(cx: &mut TestAppContext) {
     let (_view, cx, d) = card(cx, Some(Part::Unlock));
     assert!(
-        same(d.ink.accent_frame, d.ink.foreground),
-        "the interim palette draws the accent frame in the foreground"
+        same(d.ink.accent, d.ink.foreground),
+        "the interim palette draws the accent in the foreground"
     );
     let quads = paint(cx);
     let (unlock, cancel) = frames(&quads, &d);
@@ -361,10 +361,6 @@ fn a_focused_cancel_draws_a_foreground_hairline(cx: &mut TestAppContext) {
 fn an_unavailable_unlock_answers_no_pointer(cx: &mut TestAppContext) {
     let (_view, cx, d) = opened(cx, "", None);
     let quads = paint(cx);
-    assert!(
-        filled(&quads, d.ink.wash).is_empty(),
-        "an unavailable Unlock rests with no accent wash"
-    );
     let mut row: Vec<Bounds<ScaledPixels>> = Vec::new();
     for q in quads.iter().filter(|q| q.border_widths.top.0 > 0.) {
         let paired = quads.iter().any(|o| {
@@ -383,6 +379,13 @@ fn an_unavailable_unlock_answers_no_pointer(cx: &mut TestAppContext) {
     } else {
         row[1]
     };
+    assert!(
+        quads
+            .iter()
+            .filter(|q| q.bounds == unlock)
+            .all(|q| q.background.as_solid().is_none_or(|b| !same(b, d.ink.accent))),
+        "an unavailable Unlock rests with no accent fill"
+    );
     cx.simulate_mouse_move(d.at(unlock.center()), None, Modifiers::default());
     assert!(
         inside(&paint(cx), d.hover(), unlock).is_empty(),

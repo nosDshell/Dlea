@@ -25,7 +25,6 @@ pub const SCRIM_ALPHA: f32 = 0.50;
 pub const BUTTON_HEIGHT: f32 = 30.0;
 pub const BUTTON_PAD_X: f32 = 9.0;
 pub const BUTTON_GAP: f32 = 9.0;
-pub const PRIMARY_WASH: f32 = 0.14;
 pub const HOVER_WASH: f32 = 0.08;
 pub const PRESS_WASH: f32 = 0.14;
 pub const PRESS_SCALE: f32 = 0.96;
@@ -106,7 +105,7 @@ pub struct ButtonState {
     pub disabled: bool,
     pub hovered: bool,
     pub pressed: bool,
-    // The theme's accent frame is its foreground, so a focused default's hairline would match its rest.
+    // The theme's accent is its foreground, so a focused default's hairline would match its rest.
     pub rest_is_foreground: bool,
 }
 
@@ -115,8 +114,9 @@ pub struct ButtonState {
 pub enum Ink {
     MutedFrame,
     Accent,
-    AccentFrame,
     Foreground,
+    // The recommend button's label on its solid accent fill.
+    OnAccent,
     // A bare error ink draws only a frame; error text and marks on a card take the on-surface role.
     Error,
     ErrorOnSurface,
@@ -131,7 +131,7 @@ pub struct ButtonLook {
     pub frame: Ink,
     pub frame_width: f32,
     pub label: Ink,
-    // The resting wash under the frame: the default's accent role at 14%, nothing otherwise.
+    // The resting fill under the frame: the recommend button's solid accent, nothing otherwise.
     pub wash: Ink,
     pub wash_alpha: f32,
     // Hover and press lay the label's own ink inside the frame, over the resting wash.
@@ -143,8 +143,11 @@ pub struct ButtonLook {
 
 // The default keeps its accent and wash under the ring; a disabled default loses both and takes no pointer wash.
 pub fn look(s: ButtonState) -> ButtonLook {
+    let filled = s.primary && !s.destructive;
     let label = if s.destructive {
         Ink::ErrorOnSurface
+    } else if filled && !s.disabled {
+        Ink::OnAccent
     } else {
         Ink::Foreground
     };
@@ -163,18 +166,20 @@ pub fn look(s: ButtonState) -> ButtonLook {
     }
     let frame = if s.focused {
         Ink::Foreground
-    } else if s.primary {
-        Ink::AccentFrame
+    } else if filled {
+        Ink::Accent
     } else {
         Ink::MutedFrame
     };
-    let frame_width = if s.focused && s.primary && s.rest_is_foreground {
+    let frame_width = if s.focused && filled && s.rest_is_foreground {
         RING
     } else {
         BORDER
     };
-    let (wash, wash_alpha) = if s.primary {
-        (Ink::Accent, PRIMARY_WASH)
+    // The DTK recommend button: solid accent, white label; pointer states lay white ink over it.
+    // A destructive default stays a plain button with the warning ink instead.
+    let (wash, wash_alpha) = if filled {
+        (Ink::Accent, 1.0)
     } else {
         (Ink::None, 0.0)
     };

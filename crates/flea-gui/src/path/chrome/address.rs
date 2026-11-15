@@ -42,6 +42,8 @@ impl ChromeView {
             .flex_1()
             .min_w_0()
             .relative()
+            .rounded(px(self.inputs.corner / 2.))
+            .bg(palette.foreground.opacity(0.10))
             .hover_listener_mode(gpui::HoverListenerMode::InputModalityIndependent)
             .on_hover(cx.listener(|view, hovered: &bool, _, cx| {
                 let mut frame = view.frame.borrow_mut();

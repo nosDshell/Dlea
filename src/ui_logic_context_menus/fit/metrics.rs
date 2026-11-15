@@ -46,11 +46,20 @@ impl Metrics {
         (pixels * self.ratio).round()
     }
 
+    // The row a line paints in: a plain row, or room for the longest wrapped refusal caption.
+    pub fn row_height(&self, wraps: bool) -> i32 {
+        if wraps {
+            2 * self.row + self.sep
+        } else {
+            self.row
+        }
+    }
+
     pub fn height(&self, entry: &Entry) -> i32 {
         if entry.separator {
             self.sep
         } else {
-            self.row
+            self.row_height(entry.hint_wrap)
         }
     }
 

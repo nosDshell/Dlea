@@ -43,7 +43,7 @@ impl Caption {
             width,
             lines,
             line_height: layout.ascent + layout.descent,
-            row_height: px(Metrics::at(f32::from(env.typeface.body)).row as f32),
+            row_height: px(Metrics::at(f32::from(env.typeface.body)).row_height(true) as f32),
             #[cfg(test)]
             painted: std::cell::Cell::new(None),
         }

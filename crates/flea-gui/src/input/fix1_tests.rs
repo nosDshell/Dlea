@@ -232,7 +232,13 @@ fn fix1_a_blurred_window_keeps_the_marked_plate_under_a_marked_row(cx: &mut Test
         let host = shell.panes[0].as_ref().unwrap();
         let drawn = host.input.drawn.unwrap();
         (
-            host.list.borrow().drawn.palette.unwrap().marked,
+            host.list
+                .borrow()
+                .drawn
+                .palette
+                .unwrap()
+                .accent
+                .opacity(crate::list::SEL_FILL),
             drawn.frame,
             host.selected.clone(),
             host.pane.cursor,
@@ -301,8 +307,8 @@ fn ey210_selected_fill_names_the_grey_token_in_each_focus_state(cx: &mut TestApp
             crate::ipc::rows::colour(palette.marked),
             "focused {focused}: selectedFill is not the focused marked plate"
         );
-        // EY-417: Row.qml:127 keeps the marked plate in the current pane whatever the window's focus.
-        let painted = format!("{:?}", palette.marked);
+        // EY-417 + DStyledItemDelegate: the marked row keeps its accent selection box whatever the window's focus.
+        let painted = format!("{:?}", palette.accent.opacity(crate::list::SEL_FILL));
         assert!(
             quads.iter().any(|quad| {
                 quad.bounds.origin.y == top.scale(scale)

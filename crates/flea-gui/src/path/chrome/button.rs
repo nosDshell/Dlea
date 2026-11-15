@@ -23,6 +23,18 @@ impl ChromeView {
         }
         let focused = self.frame.borrow().controls[index].focused && enabled;
         let ink = mark_ink(enabled, focused, resting, foreground);
+        // The gxde recipe: a hovered control rests on foreground at 0.10, a pressed one at 0.15.
+        let (hovered, pressed) = {
+            let control = self.frame.borrow().controls[index];
+            (control.hovered, control.pressed)
+        };
+        let plate = if pressed {
+            foreground.opacity(0.15)
+        } else if hovered {
+            foreground.opacity(0.10)
+        } else {
+            foreground.opacity(0.)
+        };
         let hoverable = self.inputs.live;
         let live = enabled && hoverable;
         div()
@@ -116,8 +128,12 @@ impl ChromeView {
             .child(
                 div()
                     .h(px(sizes.inner()))
+                    .w_full()
                     .flex()
                     .items_center()
+                    .justify_center()
+                    .rounded(px(self.inputs.corner / 2.))
+                    .bg(plate)
                     .child(mark_sized(
                         glyph,
                         sizes.mark,

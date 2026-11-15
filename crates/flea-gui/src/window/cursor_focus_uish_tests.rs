@@ -56,7 +56,12 @@ fn cursor_paint(
                 && near(quad.bounds.size.width.0, bounds.size.width)
                 && near(quad.bounds.size.height.0, bounds.size.height)
         };
-        let fill: Hsla = if focused { accent } else { foreground }.opacity(0.18);
+        // DStyledItemDelegate::paintSelectionBox: the grid's focused cursor is the accent box (76/255 fill, 150/255 edge).
+        let fill: Hsla = if view == View::Grid && focused {
+            accent.opacity(76. / 255.)
+        } else {
+            (if focused { accent } else { foreground }).opacity(0.18)
+        };
         assert!(
             quads
                 .iter()
@@ -64,8 +69,9 @@ fn cursor_paint(
             "{view:?} cursor must paint its focused={focused} plate"
         );
         let has_edge = if view == View::Grid {
+            let frame = edge.opacity(150. / 255.);
             quads.iter().any(|quad| {
-                matches(quad, bounds) && quad.border_color == edge && quad.border_widths.top.0 > 0.
+                matches(quad, bounds) && quad.border_color == frame && quad.border_widths.top.0 > 0.
             })
         } else {
             let edge_bounds = Bounds::new(bounds.origin, size(px(2.), bounds.size.height));

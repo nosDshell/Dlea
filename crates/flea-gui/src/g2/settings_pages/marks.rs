@@ -213,7 +213,7 @@ pub fn card<E: InteractiveElement>(element: E) -> E {
         .on_scroll_wheel(|_, _, cx| cx.stop_propagation())
 }
 
-/// The checkbox every surface draws: empty against filled, the tick and the mixed bar cut in the surface.
+/// The checkbox every surface draws: empty against filled, the tick and the mixed bar cut on the accent fill.
 pub fn check(state: Master, ink: &Ink, corner: f32, s: Scale) -> Div {
     let filled = matches!(state, Master::All | Master::Some);
     div()
@@ -225,15 +225,15 @@ pub fn check(state: Master, ink: &Ink, corner: f32, s: Scale) -> Div {
         .border_2()
         .rounded(px(corner / 2.))
         .border_color(if filled {
-            ink.foreground
+            ink.accent
         } else {
             ink.muted_frame
         })
-        .when(filled, |box_| box_.bg(ink.foreground))
+        .when(filled, |box_| box_.bg(ink.accent))
         .when(state == Master::All, |box_| {
-            box_.child(mark("checkmark-bold", s.of(12.), ink.surface))
+            box_.child(mark("checkmark-bold", s.of(12.), Hsla::white()))
         })
         .when(state == Master::Some, |box_| {
-            box_.child(div().w(px(s.of(8.))).h(px(2.)).bg(ink.surface))
+            box_.child(div().w(px(s.of(8.))).h(px(2.)).bg(Hsla::white()))
         })
 }

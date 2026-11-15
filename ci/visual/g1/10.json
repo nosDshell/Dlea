@@ -54,7 +54,7 @@
       },
       "assertions": [
         "Ctrl+Return opens the cursor folder in a new tab and focuses it",
-        "labels work|Docs, Docs current with the 3 px accent edge",
+        "labels work|Docs, Docs current with the GXDE checked wash and accent ink",
         "a secondary press on Docs at x 262 opens the tab menu with its top at y 57, 3 under the strip",
         "notes.txt cursor grey while the menu holds the keyboard",
         "close mark on each tab and New tab after the last"
@@ -111,7 +111,7 @@
       "assertions": [
         "second tab opens on the same folder",
         "strip row 27 under the chrome with a 1 px hair",
-        "current plate with the accent edge",
+        "current plate with the GXDE checked wash and accent ink",
         "labels work|work"
       ],
       "parity_ids": [

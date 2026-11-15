@@ -63,21 +63,21 @@ fn rail_favorites_draws_places_then_favorites_then_the_built_in_tail() {
     assert_eq!(
         labels(&drawn),
         [
-            "places.heading.places:places.row.home,places.row.trash",
+            "places.heading.places:places.row.recent,places.row.home,places.row.trash",
             "places.heading.favorites:Docs",
             "devices.heading:QEMU HARDDISK"
         ],
-        "Recent and Tags ship off, and an empty section draws no heading"
+        "Tags ship off, and an empty section draws no heading"
     );
     assert_eq!(
         flat(&drawn).len(),
-        4,
+        5,
         "the cursor walks every drawn row in order"
     );
 }
 
 #[test]
-fn switches_place_recent_under_home_and_hide_home_or_trash() {
+fn switches_place_recent_first_and_hide_home_or_trash() {
     let home = home_entries("/h", "XDG_MUSIC_DIR=\"$HOME/Music\"\n", glyph);
     let shown = Shown {
         recent: true,
@@ -86,12 +86,13 @@ fn switches_place_recent_under_home_and_hide_home_or_trash() {
     let drawn = rail_sections(&home, shown, Vec::new(), &[false; 7], Vec::new(), &[]);
     assert_eq!(
         labels(&drawn),
-        ["places.heading.places:places.row.home,places.row.recent,Music,places.row.trash"]
+        ["places.heading.places:places.row.recent,places.row.home,Music,places.row.trash"]
     );
     let bare = rail_sections(
         &home,
         Shown {
             home: false,
+            recent: false,
             trash: false,
             ..Shown::default()
         },

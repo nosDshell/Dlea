@@ -39,11 +39,17 @@ fn pb_tags_list_and_grid_paint_solid_squares_from_wire_rows(cx: &mut TestAppCont
                 window.draw(cx).clear(cx);
                 let scale = window.scale_factor();
                 let quads = window.painted_quads();
+                let wanted = [theme.tag_listing_inks[0], theme.tag_listing_inks[4]];
                 let squares: Vec<_> = quads
                     .iter()
                     .filter(|quad| {
                         (quad.bounds.size.width.as_f32() - 14. * scale).abs() < 0.1
                             && (quad.bounds.size.height.as_f32() - 14. * scale).abs() < 0.1
+                            && quad.corner_radii.top_left.0 == 0.
+                            && quad
+                                .background
+                                .as_solid()
+                                .is_some_and(|ink| wanted.contains(&ink))
                     })
                     .collect();
                 assert_eq!(

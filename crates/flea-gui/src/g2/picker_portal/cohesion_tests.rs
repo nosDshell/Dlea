@@ -60,8 +60,8 @@ fn picker_caller_filter_has_dropdown_width_and_chevron(cx: &mut TestAppContext) 
             .expect("caller filter trigger");
     assert_eq!(
         f32::from(trigger.size.width),
-        257.,
-        "the dropdown shares v0.3.12's menu width"
+        162.,
+        "the dropdown shares the DTK menu width"
     );
     let chevron =
         f.cx.debug_bounds("picker-filter-chevron")
@@ -143,7 +143,7 @@ fn picker_dropdown_opens_flush_above_its_trigger_on_the_active_filter(cx: &mut T
     let card = f.cx.update(|_, cx| menu.read(cx).card_frame().unwrap());
     assert_eq!(card.x, f32::from(trigger.left()));
     assert_eq!(card.y + card.h, f32::from(trigger.top()));
-    assert_eq!(card.w, 257.);
+    assert_eq!(card.w, 162.);
     f.cx.simulate_keystrokes("enter");
     f.cx.run_until_parked();
     assert!(

@@ -39,7 +39,6 @@ pub const ERROR_LINE: f32 = 16.;
 
 /// A card's hairline is the board's rule: the muted frame at 40 percent.
 const RULE: f32 = 0.40;
-const WASH_DEFAULT: f32 = 0.14;
 const WASH_CURSOR: f32 = 0.18;
 const HOVER: f32 = 0.08;
 const DISABLED: f32 = 0.55;

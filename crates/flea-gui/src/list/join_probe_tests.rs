@@ -107,7 +107,8 @@ fn ey250_a_header_title_wider_than_its_cell_ends_in_an_ellipsis() {
         .and_then(Json::as_str)
         .expect("the label text");
     assert!(text.ends_with('\u{2026}'), "Modified drew as {text:?}");
-    assert!(text.starts_with("Modif"), "Modified drew as {text:?}");
+    // ElideRight keeps a real leading prefix; the kept count is font-metric bound.
+    assert!(text.starts_with("Modi"), "Modified drew as {text:?}");
 }
 
 #[test]

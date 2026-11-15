@@ -19,7 +19,7 @@ mod button;
 /// The copy mark after the path is the last control, so every earlier index keeps its place.
 pub const COPY: usize = 10;
 
-pub const GLYPHS: [&str; 11] = [
+pub const GLYPHS: [&str; 13] = [
     "arrow-left",
     "arrow-up",
     "search",
@@ -31,8 +31,10 @@ pub const GLYPHS: [&str; 11] = [
     "dual",
     "sliders",
     "copy",
+    "sidebar",
+    "arrow-right",
 ];
-pub const ACTIONS: [&str; 11] = [
+pub const ACTIONS: [&str; 13] = [
     "back",
     "up",
     "search",
@@ -44,9 +46,15 @@ pub const ACTIONS: [&str; 11] = [
     "viewDual",
     "settings",
     "copyAddress",
+    "sidebar",
+    "forward",
 ];
 /// The order the keyboard walks the controls, as they stand left to right: the copy mark follows the path.
-pub const ORDER: [usize; 11] = [0, 1, COPY, 2, 3, 4, 5, 6, 7, 8, 9];
+/// GXDE order: sidebar toggle, back, forward, up, then the path's copy mark, then the right cluster.
+pub const ORDER: [usize; 13] = [11, 0, 12, 1, COPY, 2, 3, 4, 5, 6, 7, 8, 9];
+/// The sidebar toggle and the forward step stand beside Back and Up the way gxde-file-manager's toolbar draws them.
+pub const SIDEBAR: usize = 11;
+pub const FORWARD: usize = 12;
 
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Control {
@@ -144,7 +152,7 @@ fn visual_geometry_toolbar_marks_keep_the_board_origin_at_14_and_20() {
 #[derive(Default)]
 pub struct Frame {
     pub bounds: Option<Bounds<Pixels>>,
-    pub controls: [Control; 11],
+    pub controls: [Control; 13],
     /// The open Settings card, whose marks underneath are left undrawn.
     pub cover: crate::g2::settings_pages::cover::Cover,
     /// The pointer is over the path's own slot, which is what shows the copy mark.
@@ -156,6 +164,11 @@ pub struct Inputs {
     pub view: View,
     pub back: bool,
     pub up: bool,
+    pub forward: bool,
+    /// The rail mode the sidebar toggle can change: Overlay answers no toggle, so its button rests dim.
+    pub sidebar: bool,
+    /// Whether the rail draws: the toggle wears the checked ink the way a gxde sidebar button does.
+    pub rail_shown: bool,
     pub filter: bool,
     pub sort: bool,
     pub live: bool,
@@ -166,7 +179,7 @@ pub struct ChromeView {
     pub path: Entity<PathView>,
     pub inputs: Inputs,
     pub frame: Rc<RefCell<Frame>>,
-    pub focus: [FocusHandle; 11],
+    pub focus: [FocusHandle; 13],
 }
 
 impl EventEmitter<&'static str> for ChromeView {}
@@ -271,13 +284,29 @@ impl Render for ChromeView {
                     .child(
                         div()
                             .flex()
-                            .gap(px(sizes.gap))
                             .flex_none()
+                            .child(self.button(
+                                sizes,
+                                SIDEBAR,
+                                self.inputs.sidebar,
+                                resting_ink(self.inputs.sidebar, self.inputs.rail_shown, &palette),
+                                palette.foreground,
+                                cx,
+                            ))
+                            .child(div().w(px(6. * sizes.band / 40.)))
                             .child(self.button(
                                 sizes,
                                 0,
                                 self.inputs.back,
                                 ink(self.inputs.back),
+                                palette.foreground,
+                                cx,
+                            ))
+                            .child(self.button(
+                                sizes,
+                                FORWARD,
+                                self.inputs.forward,
+                                ink(self.inputs.forward),
                                 palette.foreground,
                                 cx,
                             ))

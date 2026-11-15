@@ -103,7 +103,7 @@ fn rail_favorites_board_sections_read_in_capitals() {
     assert_eq!(
         texts(&drawn),
         [
-            "PLACES:Home,Trash",
+            "PLACES:Recent,Home,Trash",
             "FAVORITES:Docs",
             "NETWORK:NAS",
             "DEVICES:QEMU HARDDISK"
@@ -141,7 +141,7 @@ fn plugin_rail_section_board_adds_syncthing_after_devices() {
     assert_eq!(
         texts(&drawn),
         [
-            "PLACES:Home,Trash",
+            "PLACES:Recent,Home,Trash",
             "NETWORK:NAS",
             "DEVICES:QEMU HARDDISK",
             "SYNCTHING:Photos,Notes,Music"
@@ -228,18 +228,18 @@ fn the_provider_rebuilds_only_on_a_real_change() {
     let more = rail_sections(
         &home_entries("/h", "", |_| "folder"),
         Shown {
-            recent: true,
+            tags: true,
             ..Shown::default()
         },
         Vec::new(),
-        &[false; 7],
+        &[true; 7],
         Vec::new(),
         &[],
     );
     assert!(p.update(&c, more, theme_tags(&bench())));
     assert_eq!(
-        (p.revision, texts(&p.drawn)[0].as_str()),
-        (2, "PLACES:Home,Recent,Trash")
+        (p.revision, texts(&p.drawn)[1].as_str()),
+        (2, "TAGS:Red,Orange,Yellow,Green,Blue,Purple,Gray")
     );
 }
 

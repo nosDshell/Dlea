@@ -122,6 +122,7 @@ impl Element for StripElement {
                     1.
                 };
                 let tab = Bounds::new(point(x, top), size(width, px(TAB_HEIGHT)));
+                // GXDE Tab: every tab fills its own ground — the checked one a light wash, the rest a darker one, each edged right and bottom.
                 if current {
                     if crate::window::glass::producers::requested(window, cx) >= 1.
                         || frame.ghost != Some(index)
@@ -132,29 +133,29 @@ impl Element for StripElement {
                                 .opacity(fade),
                         ));
                     }
-                    let edge = Bounds::new(
-                        point(x, top + px(HEIGHT - ACCENT_EDGE)),
-                        size(width, px(ACCENT_EDGE)),
-                    );
-                    window.paint_quad(fill(edge, palette.accent_frame.opacity(fade)));
-                } else if slot + 1 < count {
-                    let separator = Bounds::new(
-                        point(x + width - px(1.), top + px(SEPARATOR_TOP)),
-                        size(px(1.), px(SEPARATOR_HEIGHT)),
-                    );
-                    window.paint_quad(fill(separator, hair.opacity(fade)));
+                    window.paint_quad(fill(
+                        tab,
+                        palette.foreground.opacity(CHECKED_FILL * fade),
+                    ));
+                } else {
+                    window.paint_quad(fill(tab, gpui::black().opacity(TAB_FILL * fade)));
                 }
+                let edge = Bounds::new(
+                    point(x + width - px(1.), top),
+                    size(px(1.), px(TAB_HEIGHT - 1.)),
+                );
+                window.paint_quad(fill(edge, gpui::black().opacity(TAB_EDGE * fade)));
                 if frame.focus == Some(index) {
                     let inside = Bounds::new(
                         point(x + px(FRAME_INSET), top + px(FRAME_INSET)),
                         size(
                             width - px(2. * FRAME_INSET),
-                            px(HEIGHT - 2. * FRAME_INSET - ACCENT_EDGE),
+                            px(HEIGHT - 2. * FRAME_INSET - 1.),
                         ),
                     );
                     frame_box(window, inside, palette.foreground);
                 }
-                // 0401-tabs-icons-a: the folder's mark alone, centred, foreground on the current tab, muted frame ink elsewhere.
+                // 0401-tabs-icons-a: the folder's mark alone, centred, accent on the current tab, muted frame ink elsewhere.
                 if let Some(icons) = &frame.icons {
                     let mark = Bounds::new(
                         point(
@@ -165,7 +166,11 @@ impl Element for StripElement {
                     );
                     let glyph = icons.marks.get(index).copied().unwrap_or("folder");
                     if let Some((key, data)) = crate::g2::rail_places::rows::glyph::svg(glyph) {
-                        let ink = palette.mark(current).opacity(fade);
+                        let ink = if current {
+                            palette.accent.opacity(fade)
+                        } else {
+                            palette.muted_frame.opacity(fade)
+                        };
                         let _ = window.paint_svg(
                             mark,
                             key,
@@ -182,13 +187,23 @@ impl Element for StripElement {
                 let baseline = window.pixel_snap(
                     top + (px(TAB_HEIGHT) - line.ascent - line.descent) / 2. + line.ascent,
                 );
-                let ink = palette.caption(current);
+                // GXDE Tab:checked inks its label in the accent; an unchecked tab reads muted.
+                let ink = if current {
+                    palette.accent
+                } else {
+                    palette.muted
+                };
                 let _ = window.paint_glyph_run(
                     point(x + px(LABEL_X), baseline),
                     run,
                     ink.opacity(fade),
                 );
-                let mark_ink = palette.mark(current || frame.close_hover == Some(index));
+                // GXDE active_tab_close_*: the checked tab's close mark reads the accent.
+                let mark_ink = if current {
+                    palette.accent
+                } else {
+                    palette.mark(frame.close_hover == Some(index))
+                };
                 let mark = Bounds::new(
                     point(
                         x + width - px(HIT_MIN) + px((HIT_MIN - MARK) / 2.),
@@ -212,7 +227,7 @@ impl Element for StripElement {
                     point(plus_x + px(FRAME_INSET), top + px(FRAME_INSET)),
                     size(
                         px(HIT_MIN - 2. * FRAME_INSET),
-                        px(HEIGHT - 2. * FRAME_INSET - ACCENT_EDGE),
+                        px(HEIGHT - 2. * FRAME_INSET - 1.),
                     ),
                 );
                 frame_box(window, inside, palette.foreground);

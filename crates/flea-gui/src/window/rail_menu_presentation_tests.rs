@@ -148,11 +148,7 @@ fn own_menu(cx: &mut TestAppContext, pointer: bool) {
     });
     let restored = grounds(&shell, cx);
     assert!(
-        restored.contains(&if pointer {
-            theme.foreground.opacity(list::GREY_CURSOR)
-        } else {
-            accent
-        }),
+        restored.contains(&accent),
         "dismissal restores the existing row presentation"
     );
     assert_eq!(

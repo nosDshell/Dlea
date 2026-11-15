@@ -13,7 +13,7 @@ use std::{cell::RefCell, rc::Rc};
 
 // The cursor wash, the 2px accent edge and the hover lift, as design-hig/source/ui.py draws the rung (rule 7).
 const CURSOR_WASH: f32 = 0.18;
-const HOVER: f32 = 0.08;
+const HOVER: f32 = crate::list::HOVER;
 const EDGE_W: f32 = 2.;
 const ROW_H: f32 = ROW as f32;
 

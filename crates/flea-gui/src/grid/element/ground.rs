@@ -48,18 +48,17 @@ pub(super) fn plate(
     focused: bool,
     selected: Option<Hsla>,
 ) -> Option<Hsla> {
-    if drawn.cursor {
-        Some(if focused {
-            ink.accent.opacity(super::CURSOR_WASH)
+    // DStyledItemDelegate: cursor and selected tiles share the one accent selection box.
+    if drawn.cursor && focused || drawn.selected && focused {
+        Some(if drawn.cursor {
+            ink.accent.opacity(super::SEL_FILL)
         } else {
-            ink.foreground.opacity(super::CURSOR_WASH)
+            selected.unwrap_or_else(|| ink.accent.opacity(super::SEL_FILL))
         })
+    } else if drawn.cursor {
+        Some(ink.foreground.opacity(super::CURSOR_WASH))
     } else if drawn.selected {
-        Some(if focused {
-            selected.unwrap_or_else(|| ink.foreground.opacity(super::MARK_PLATE))
-        } else {
-            ink.foreground.opacity(crate::list::TRACK)
-        })
+        Some(ink.foreground.opacity(crate::list::TRACK))
     } else if drawn.hovered && ink.hover_wash {
         Some(ink.foreground.opacity(super::HOVER))
     } else {

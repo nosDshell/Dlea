@@ -32,18 +32,19 @@ fn chrome_control(shell: &Entity<Shell>, cx: &mut VisualTestContext) -> Option<u
     })
 }
 
-// The chrome controls drawn and enabled, in drawn order: the ones a Tab can land on.
+// The chrome controls drawn and enabled, in keyboard order: the ones a Tab can land on.
 fn live_chrome_controls(shell: &Entity<Shell>, cx: &mut VisualTestContext) -> Vec<usize> {
     cx.update(|_, cx| {
         let shell = shell.read(cx);
         let view = shell.chrome.view.as_ref().unwrap().read(cx);
         let frame = view.frame.borrow();
-        let live: Vec<usize> = frame
-            .controls
+        let live: Vec<usize> = crate::path::chrome::ORDER
             .iter()
-            .enumerate()
-            .filter(|(_, control)| control.visible && control.enabled)
-            .map(|(index, _)| index)
+            .filter(|&&index| {
+                let control = &frame.controls[index];
+                control.visible && control.enabled
+            })
+            .copied()
             .collect();
         live
     })

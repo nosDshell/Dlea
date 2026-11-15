@@ -28,33 +28,25 @@ fn section(heading: &'static str, group: Group, labels: &[&str]) -> DrawnSection
 
 #[test]
 fn visual_geometry_rail_metrics_interpolate_and_then_scale() {
-    for (base, top, heading, gap, row) in [
-        (15, 9., 35., 11., 31.),
-        (16, 9., 36., 11., 33.),
-        (17, 9., 38., 11., 35.),
-        (18, 8., 39., 10., 37.),
-        (19, 8., 41., 10., 39.),
-        (20, 8., 42., 10., 41.),
-        (24, 10., 50., 12., 49.),
-        (28, 11., 59., 14., 57.),
+    for (base, top, gap, row, pad, horizontal_gap) in [
+        (15, 9., 11., 32., 13., 8.),
+        (16, 9., 11., 34., 14., 8.),
+        (17, 9., 11., 36., 14., 9.),
+        (18, 8., 10., 37., 14., 9.),
+        (19, 8., 10., 39., 15., 9.),
+        (20, 8., 10., 41., 15., 9.),
+        (24, 10., 12., 49., 18., 11.),
+        (28, 11., 14., 57., 21., 13.),
     ] {
         let metrics = RailMetrics::for_typeface(&Typeface::omarchy_default().at_base(base));
-        let (pad, horizontal_gap) = if base <= 20 {
-            (14., 9.)
-        } else {
-            (
-                (14. * base as f32 / 20.).round(),
-                (9. * base as f32 / 20.).round(),
-            )
-        };
         assert_eq!(
             (metrics.pad, metrics.gap),
             (pad, horizontal_gap),
             "size {base}"
         );
         assert_eq!(
-            (metrics.top, metrics.heading, metrics.panel_gap, metrics.row),
-            (top, Some(heading), gap, row),
+            (metrics.top, metrics.panel_gap, metrics.row),
+            (top, gap, row),
             "size {base}"
         );
     }
@@ -63,12 +55,9 @@ fn visual_geometry_rail_metrics_interpolate_and_then_scale() {
         let list = crate::list::Metrics::for_typeface(&face);
         let metrics = RailMetrics::for_typeface(&face);
         assert_eq!(metrics.top, list.pad);
-        assert_eq!(metrics.heading, None);
-        assert_eq!((metrics.pad, metrics.gap), (list.pad, list.gap));
-        assert_eq!(
-            metrics.row,
-            (list.nominal_row * RAIL_ROW_SCALE as f32).round()
-        );
+        assert_eq!((metrics.pad, metrics.gap), (PAD_X, GAP));
+        assert_eq!(metrics.row, ROW);
+        assert_eq!(metrics.icon, ICON);
         assert_eq!(
             metrics.panel_gap,
             (PANEL_GAP * base as f32 / OEM_BASE).round()
@@ -109,15 +98,12 @@ fn visual_geometry_size20_rail_uses_the_compressed_board_bands() {
             window,
             &mut text::Cache::default(),
         );
-        assert_eq!(laid.headers.len(), 3);
+        assert_eq!(laid.headers.len(), 2);
         assert_eq!(laid.rows.len(), 4);
         for header in &laid.headers {
-            assert_eq!(header.rect.x, 14., "{} heading inset", header.text);
+            assert_eq!(header.rect.x, 15., "{} heading inset", header.text);
         }
-        for (header, (top, height)) in
-            laid.headers
-                .iter()
-                .zip([(8., 42.), (132., 52.), (225., 52.)])
+        for (header, (top, height)) in laid.headers.iter().zip([(90., 24.), (155., 15.)])
         {
             assert_eq!(
                 (header.rect.y, header.rect.height),
@@ -126,9 +112,9 @@ fn visual_geometry_size20_rail_uses_the_compressed_board_bands() {
                 header.text
             );
         }
-        for (row, top) in laid.rows.iter().zip([50., 91., 184., 277.]) {
+        for (row, top) in laid.rows.iter().zip([8., 49., 114., 170.]) {
             assert_eq!((row.rect.y, row.rect.height), (top, 41.), "{}", row.label);
-            assert_eq!(row.label_rect.x, 44., "{} label inset", row.label);
+            assert_eq!(row.label_rect.x, 46., "{} label inset", row.label);
         }
     })
     .unwrap();
@@ -171,29 +157,29 @@ fn visual_geometry_rail_board_boxes_do_not_compress_later_groups() {
                 window,
                 &mut text::Cache::default(),
             );
-            let headers = if favorites {
-                vec![14., 100., 173., 246.]
+            let headers: Vec<(f32, f32)> = if favorites {
+                vec![(74., 21.), (125., 30.), (185., 21.)]
             } else {
-                vec![14., 100., 173.]
+                vec![(74., 30.), (134., 21.)]
             };
             assert_eq!(laid.headers.len(), headers.len());
-            for (header, top) in laid.headers.iter().zip(headers) {
+            for (header, (top, height)) in laid.headers.iter().zip(headers) {
                 assert_eq!(header.rect.y, top, "{} heading top", header.text);
-                assert_eq!(header.rect.height, if top == 14. { 28. } else { 44. });
+                assert_eq!(header.rect.height, height);
             }
             let rows = if favorites {
-                vec![42., 71., 144., 217., 290.]
+                vec![14., 44., 95., 155., 206.]
             } else {
-                vec![42., 71., 144., 217.]
+                vec![14., 44., 104., 155.]
             };
             assert_eq!(laid.rows.len(), rows.len());
             for (row, top) in laid.rows.iter().zip(rows) {
                 assert_eq!(row.rect.y, top, "{} row and menu anchor", row.label);
-                assert_eq!(row.rect.height, 29.);
+                assert_eq!(row.rect.height, 30.);
             }
             let home = &laid.rows[0];
             let run = text::Cache::default().get("Home", face.body, 150., 0., &face, window);
-            assert!((home.label_rect.y - (42. + (29. - run.height) / 2. - 1.)).abs() < 0.001);
+            assert!((home.label_rect.y - (14. + (30. - run.height) / 2. - 1.)).abs() < 0.001);
         }
     })
     .unwrap();

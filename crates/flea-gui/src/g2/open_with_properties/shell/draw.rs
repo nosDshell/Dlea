@@ -54,7 +54,7 @@ impl Draw<'_> {
         let t = self.t;
         let on = check.value != Tri::Off;
         let frame = if on || check.focused {
-            t.fg
+            t.accent
         } else {
             t.muted_frame
         };
@@ -67,13 +67,13 @@ impl Draw<'_> {
             .border_2()
             .border_color(frame)
             .rounded(px(self.corner / 2.))
-            .when(on, |d| d.bg(t.fg));
+            .when(on, |d| d.bg(t.accent));
         box_ = match check.value {
-            Tri::On => box_.child(glyph(Glyph::Check, 12. * self.s, t.surface)),
-            Tri::Mixed => box_.child(div().w(self.px(8.)).h(self.px(2.)).bg(t.surface)),
+            Tri::On => box_.child(glyph(Glyph::Check, 12. * self.s, Hsla::white())),
+            Tri::Mixed => box_.child(div().w(self.px(8.)).h(self.px(2.)).bg(Hsla::white())),
             Tri::Off => box_,
         };
-        // A focused filled box takes a ring 2 outside it, since its own frame is already foreground.
+        // A focused filled box takes a ring 2 outside it, since its own frame is already the accent fill.
         if check.focused && on {
             let ring = div()
                 .absolute()
@@ -118,7 +118,7 @@ impl Draw<'_> {
         let primary = button.primary && button.enabled;
         let frame = match (button.focused, primary) {
             (true, _) => t.fg,
-            (false, true) => t.accent_frame,
+            (false, true) => t.accent,
             (false, false) => t.muted_frame,
         };
         self.text(BOARD_BODY)
@@ -129,8 +129,8 @@ impl Draw<'_> {
             .border_1()
             .border_color(frame)
             .rounded(px(self.corner))
-            .text_color(t.fg)
-            .when(primary, |d| d.bg(t.accent.opacity(WASH_DEFAULT)))
+            .text_color(if primary { Hsla::white() } else { t.fg })
+            .when(primary, |d| d.bg(t.accent))
             .when(!button.enabled, |d| d.opacity(DISABLED))
             .child(button.label.clone())
     }

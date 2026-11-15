@@ -18,11 +18,12 @@ pub const HIT_MIN: f32 = 24.;
 const TAB_HEIGHT: f32 = 26.;
 const LABEL_X: f32 = 14.;
 const MARK: f32 = 16.;
-const ACCENT_EDGE: f32 = 3.;
-const SEPARATOR_TOP: f32 = 7.;
-const SEPARATOR_HEIGHT: f32 = 12.;
 const HAIR: f32 = 0.12;
-// The keyboard frame lies inside a tab's box, clear of the rule, the current tab's accent edge and the separator.
+// GXDE [Tab] grounds: #671c1c1c rests a tab just under the strip (≈black 8%), #67313131 lights the checked one (≈foreground 7%), and #0d000000 edges it (≈black 5%).
+const TAB_FILL: f32 = 0.08;
+const CHECKED_FILL: f32 = 0.07;
+const TAB_EDGE: f32 = 0.05;
+// The keyboard frame lies inside a tab's box, clear of the rule and the tab's own edges.
 const FRAME_INSET: f32 = 3.;
 // The tab a drag holds draws ghosted, at the shipped disabled opacity.
 const GHOST: f32 = 0.55;

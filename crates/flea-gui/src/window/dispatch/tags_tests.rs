@@ -261,7 +261,8 @@ fn pb_tag_columns_paint_solid_swatches_after_the_name(cx: &mut TestAppContext) {
         "background='#181818'\nforeground='#d8d8d8'\nred='#999999'\ngreen='#999999'\nblue='#999999'",
         "background='#181818'\nforeground='#d8d8d8'\nred='invalid'",
     ] {
-        cx.update(|_, cx| cx.set_global(crate::palette::Theme::from_text(text)));
+        let theme = crate::palette::Theme::from_text(text);
+        cx.update(|_, cx| cx.set_global(theme));
         let (mut squares, scale) = cx.update(|window, cx| {
             window.refresh();
             window.draw(cx).clear(cx);
@@ -270,7 +271,10 @@ fn pb_tag_columns_paint_solid_swatches_after_the_name(cx: &mut TestAppContext) {
         squares.retain(|quad| {
             (quad.bounds.size.width.0 / scale - 14.).abs() < 0.01 &&
             (quad.bounds.size.height.0 / scale - 14.).abs() < 0.01 &&
-            quad.background.as_solid().is_some_and(|ink| ink.a == 1.)
+            quad.corner_radii.top_left.0 == 0. &&
+            quad.background.as_solid().is_some_and(|ink| {
+                ink.a == 1. && theme.tag_listing_inks.contains(&ink)
+            })
         });
         squares.sort_by(|a, b| a.bounds.origin.x.0.total_cmp(&b.bounds.origin.x.0));
         assert_eq!(squares.len(), 3, "each tag paints a solid square on {text}");

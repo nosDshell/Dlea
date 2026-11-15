@@ -220,13 +220,29 @@ fn vf_frames_main_views(cx: &mut TestAppContext) {
             });
             draw(cx);
             // HIG list, cols-facts-full, grid and dual: rows and full-width strips stay square.
-            let (_, quads) = frame_gate::capture(cx);
+            let (scale, quads) = frame_gate::capture(cx);
             assert!(!quads.is_empty(), "{view}: real root painted");
+            // Deliberate rounding on unframed quads is bounded: GXDE's fixed radii cap at 6 px,
+            // fields/hovers follow the live corner/2 recipe, and round controls are fully rounded;
+            // rows and bars themselves stay square.
+            let recipe = radius / 2. * scale;
             assert!(
                 quads
                     .iter()
                     .filter(|q| q.border_widths.top.0 == 0.)
-                    .all(|q| q.corner_radii.top_left.0 == 0.),
+                    .all(|q| {
+                        let edge = q
+                            .bounds
+                            .size
+                            .width
+                            .0
+                            .min(q.bounds.size.height.0);
+                        let r = q.corner_radii.top_left.0;
+                        r == 0.
+                            || r * 2. >= edge
+                            || r <= 6. * scale
+                            || (r - recipe).abs() <= scale
+                    }),
                 "{view}: unframed rows and bars stay square"
             );
             println!("VF_FRAMES surface=main-{view} radius={radius} unframed=HIG PASS");

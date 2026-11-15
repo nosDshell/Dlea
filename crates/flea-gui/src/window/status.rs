@@ -14,7 +14,15 @@ use flea::{
     ui_logic_status_feedback::{messages::Messages, status::Hint},
 };
 use gpui::{div, prelude::*, px, AppContext, Context, Entity, Render, SharedString, Window};
-use std::sync::Arc;
+use std::{cell::Cell, rc::Rc, sync::Arc};
+
+/// The status slider's chosen thumbnail stop, GXDE DStatusBar m_scaleSlider's valueChanged.
+pub(crate) struct ThumbSlid(pub usize);
+impl gpui::EventEmitter<ThumbSlid> for Footer {}
+
+// DStatusBar m_scaleSlider: a 120 px slider anchored 20 px off the right edge.
+const SLIDER_W: f32 = 120.;
+const SLIDER_MARGIN: f32 = 20.;
 
 #[path = "status_counts.rs"]
 mod counts;
@@ -47,12 +55,105 @@ pub(crate) struct Footer {
     pub border_width: gpui::Pixels,
     pub width: f32,
     pub zone_width: f32,
+    /// The thumbnail stop the GXDE-style scale slider shows.
+    pub thumb: usize,
+    slider_left: Rc<Cell<f32>>,
+    slider_drag: bool,
     probe: Option<crate::visual::Probe>,
     revision: u64,
     _changed: gpui::Subscription,
 }
 
 impl Footer {
+    /// The stop a press inside the slider names: its fraction across the groove, snapped to THUMB_STOPS.
+    fn slider_index(&self, x: gpui::Pixels) -> usize {
+        let last = crate::grid::geometry::THUMB_STOPS.len() - 1;
+        let norm = ((f32::from(x) - self.slider_left.get()) / SLIDER_W).clamp(0., 1.);
+        ((norm * last as f32) + 0.5) as usize
+    }
+
+    /// DStatusBar m_scaleSlider: a horizontal groove with an accent fill and a circular handle, which drags to a thumbnail stop.
+    fn slider(&self, height: f32, ink: &Palette, cx: &mut Context<Self>) -> impl IntoElement {
+        let last = (crate::grid::geometry::THUMB_STOPS.len() - 1) as f32;
+        let centre = ((self.thumb as f32 / last) * SLIDER_W).clamp(7., SLIDER_W - 7.);
+        let left = self.slider_left.clone();
+        div()
+            .absolute()
+            .right(px(SLIDER_MARGIN))
+            .top_0()
+            .h(px(height))
+            .w(px(SLIDER_W))
+            .flex()
+            .items_center()
+            .cursor_pointer()
+            .on_mouse_down(
+                gpui::MouseButton::Left,
+                cx.listener(|view, event: &gpui::MouseDownEvent, window, cx| {
+                    // The strip keeps the keyboard; the press only moves the handle.
+                    window.prevent_default();
+                    view.slider_drag = true;
+                    let index = view.slider_index(event.position.x);
+                    if index != view.thumb {
+                        cx.emit(ThumbSlid(index));
+                    }
+                    cx.notify();
+                }),
+            )
+            .on_mouse_move(cx.listener(|view, event: &gpui::MouseMoveEvent, _, cx| {
+                if view.slider_drag {
+                    let index = view.slider_index(event.position.x);
+                    if index != view.thumb {
+                        cx.emit(ThumbSlid(index));
+                    }
+                }
+            }))
+            .on_mouse_up(
+                gpui::MouseButton::Left,
+                cx.listener(|view, _, _, _| view.slider_drag = false),
+            )
+            .on_mouse_up_out(
+                gpui::MouseButton::Left,
+                cx.listener(|view, _, _, _| view.slider_drag = false),
+            )
+            .child(
+                div()
+                    .relative()
+                    .w_full()
+                    .h(px(4.))
+                    .rounded_full()
+                    .bg(ink.foreground.opacity(0.18))
+                    .child(
+                        gpui::canvas(
+                            move |bounds, _, _| left.set(f32::from(bounds.origin.x)),
+                            |_, _, _, _| {},
+                        )
+                        .absolute()
+                        .size_full(),
+                    )
+                    .child(
+                        div()
+                            .absolute()
+                            .left_0()
+                            .top_0()
+                            .h_full()
+                            .w(px(centre))
+                            .rounded_full()
+                            .bg(ink.accent),
+                    )
+                    .child(
+                        div()
+                            .absolute()
+                            .top(px(-5.))
+                            .left(px(centre - 7.))
+                            .size(px(14.))
+                            .rounded_full()
+                            .bg(ink.foreground)
+                            .border_1()
+                            .border_color(ink.muted_frame),
+                    ),
+            )
+    }
+
     pub(crate) fn message_line(&self) -> Entity<MessageLine> {
         self.external_line.as_ref().unwrap_or(&self.line).clone()
     }
@@ -74,6 +175,9 @@ impl Footer {
             border_width: px(0.),
             width: 0.,
             zone_width: 0.,
+            thumb: 1,
+            slider_left: Rc::default(),
+            slider_drag: false,
             probe: None,
             revision: 0,
             _changed: changed,
@@ -112,6 +216,10 @@ impl Shell {
                 cx.notify();
             });
             self.surfaces[0].notice_watch = Some(ended);
+            let slider = cx.subscribe(&footer, |shell, _, event: &ThumbSlid, cx| {
+                shell.slider_thumb(event.0, cx);
+            });
+            self.surfaces[0].thumb_watch = Some(slider);
         }
         footer
     }
@@ -227,6 +335,11 @@ impl Shell {
             .pending
             .as_ref()
             .map(|_| self.visual.probe.clone());
+        let thumb = host
+            .grid
+            .as_ref()
+            .map(|grid| grid.view.thumb.index())
+            .unwrap_or(1);
         footer.update(cx, |footer, cx| {
             let changed = footer.path != path
                 || footer.total != total
@@ -236,6 +349,7 @@ impl Shell {
                 || footer.filesystem.as_ref() != filesystem
                 || footer.width != width
                 || footer.revision != revision;
+            footer.thumb = thumb;
             footer.path = path.clone();
             footer.total = total;
             footer.selected = selected;
@@ -310,7 +424,10 @@ impl Render for Footer {
         let disk_width = measure(&self.filesystem).min(self.zone_width);
         // HIG locked-menu lets the full notice use the count zone's unpainted space.
         let count_width = measure(&self.counts).min(self.zone_width);
-        let room = (self.width - 28. - disk_width - (14. + count_width + 14.)).max(0.);
+        // DStatusBar anchors its 120 px scale slider 20 px off the right edge; the disk facts step in before it.
+        let disk_x = SLIDER_MARGIN + SLIDER_W + 14.;
+        let room =
+            (self.width - 28. - disk_width - disk_x - (14. + count_width + 14.)).max(0.);
         let counts_text = counts::elided(&self.counts, self.zone_width, measure);
         self.counts_text = counts_text.layout().clone();
         // A block zone, not a flex row: only a text given its zone's width is cut with the ellipsis StatusBar.qml draws.
@@ -377,21 +494,22 @@ impl Render for Footer {
                     self.filesystem.clone().into_any_element(),
                 )
                 .absolute()
-                .right(px(14.))
+                .right(px(disk_x))
                 .text_right(),
             )
             .child(
                 self.painted.watch(
                     div()
                         .absolute()
-                        .right(px(28. + disk_width))
+                        .right(px(disk_x + disk_width + 14.))
                         .w(px(room))
                         .h(px(height))
                         .child(self.message_line()),
                     "lane",
                     SharedString::default(),
                 ),
-            );
+            )
+            .child(self.slider(height, &ink, cx));
         let footer = div()
             .size_full()
             .flex()

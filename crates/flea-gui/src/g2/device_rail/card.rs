@@ -281,10 +281,10 @@ pub struct ButtonWash {
     pub press: Option<Hsla>,
 }
 
-/// The oracle recipe: a primary rests on the accent wash, and hover or press adds ink over it, never in its place.
+/// The DTK recipe: a primary rests on solid accent, and hover or press adds ink over it, never in its place.
 pub fn button_wash(primary: bool, enabled: bool, ink: &CardInk) -> ButtonWash {
     ButtonWash {
-        rest: (primary && enabled).then_some(ink.wash),
+        rest: (primary && enabled).then_some(ink.accent),
         hover: enabled.then(|| ink.foreground.opacity(WASH_HOVER)),
         press: enabled.then(|| ink.foreground.opacity(WASH_PRESS)),
     }
@@ -296,9 +296,9 @@ pub const RING: f32 = 2.;
 /// The frame's ink, and whether it draws RING wide: foreground on focus, thick where a hairline would match the rest (DialogButton focusFrame).
 pub fn button_frame(primary: bool, enabled: bool, focused: bool, ink: &CardInk) -> (Hsla, bool) {
     match (focused && enabled, primary && enabled) {
-        (true, true) if ink.accent_frame == ink.foreground => (ink.foreground, true),
+        (true, true) if ink.accent == ink.foreground => (ink.foreground, true),
         (true, _) => (ink.foreground, false),
-        (false, true) => (ink.accent_frame, false),
+        (false, true) => (ink.accent, false),
         (false, false) => (ink.frame, false),
     }
 }
@@ -316,7 +316,7 @@ struct Act {
     probe: Option<ButtonProbe>,
 }
 
-/// The board's framed button: accent frame over a 14% wash when primary, foreground frame on focus, 8% hover, 14% press.
+/// The board's framed button: solid accent fill when primary, foreground frame on focus, 8% hover, 14% press.
 fn button(
     id: &'static str,
     label: &str,
@@ -368,7 +368,11 @@ fn button(
         .flex()
         .items_center()
         .text_size(k(14.))
-        .text_color(ink.foreground)
+        .text_color(if primary && enabled {
+            Hsla::white()
+        } else {
+            ink.foreground
+        })
         .whitespace_nowrap()
         .map(|d| if ring { d.border_2() } else { d.border_1() })
         .border_color(frame)

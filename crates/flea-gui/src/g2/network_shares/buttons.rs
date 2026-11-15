@@ -24,7 +24,7 @@ impl Drawn {
             disabled,
             hovered: view.hovered == Some(focus),
             pressed: view.pressed == Some(focus) && view.hovered == Some(focus),
-            rest_is_foreground: p.accent_frame == p.foreground,
+            rest_is_foreground: p.accent == p.foreground,
             ..ButtonState::default()
         });
         self.hits.push((focus, rect));

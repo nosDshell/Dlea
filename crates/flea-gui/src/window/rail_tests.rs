@@ -116,8 +116,8 @@ fn u08_composition_paints_rows_and_readers_report_the_drawn_centres(cx: &mut Tes
         let row = laid
             .row(1)
             .expect("composition painted the second rail row");
-        assert_eq!(row.rect.height, 29.);
-        assert_eq!(row.label_rect.x, 38.);
+        assert_eq!(row.rect.height, 30.);
+        assert_eq!(row.label_rect.x, 37.);
         point(
             px(row.rect.x + row.rect.width / 2.),
             px(row.rect.y + row.rect.height / 2.),
@@ -282,7 +282,7 @@ fn u08_trash_count_handoff_changes_the_live_draw_and_respects_the_setting(cx: &m
         let row = laid.row(0).unwrap();
         assert_eq!(row.indicator_rect.width, 0.);
         assert!(row.detail_rect.width > 0.);
-        assert_eq!(row.detail_rect.x + row.detail_rect.width, laid.width - 14.);
+        assert_eq!(row.detail_rect.x + row.detail_rect.width, laid.width - 13.);
     });
     shell.update(cx, |shell, cx| shell.rail_trash_count(0, cx));
     frame(cx);

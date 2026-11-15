@@ -19,7 +19,7 @@ impl Default for Shown {
     fn default() -> Self {
         Self {
             home: true,
-            recent: false,
+            recent: true,
             trash: true,
             tags: false,
         }
@@ -34,14 +34,14 @@ pub struct SavedPlaces {
     pub width: i64,
 }
 
-// Sample input: the whole `flea --ui-state` document; only a literal false hides Home or Trash, only a literal true shows Recent or Tags.
+// Sample input: the whole `flea --ui-state` document; only a literal false hides Home, Recent or Trash, only a literal true shows Tags.
 pub fn saved_places(state: &Json) -> SavedPlaces {
     let places = state.get("places");
     let key = |name: &str| places.and_then(|p| p.get(name)).and_then(Json::as_bool);
     SavedPlaces {
         shown: Shown {
             home: key("showHome") != Some(false),
-            recent: key("showRecent") == Some(true),
+            recent: key("showRecent") != Some(false),
             trash: key("showTrash") != Some(false),
             tags: key("showTags") == Some(true),
         },
@@ -135,11 +135,12 @@ pub fn rail_sections(
     plugins: &[Section],
 ) -> Vec<RailSection> {
     let home = if shown.home { home } else { &[] };
-    let mut places: Vec<RailEntry> = home.iter().take(1).cloned().collect();
+    // gxde-file-manager's Common group lists Recent first, the home places next and Trash last.
+    let mut places: Vec<RailEntry> = Vec::new();
     if shown.recent {
         places.push(recent_entry());
     }
-    places.extend(home.iter().skip(1).cloned());
+    places.extend(home.iter().cloned());
     if shown.trash {
         places.push(trash_entry());
     }

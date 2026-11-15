@@ -136,14 +136,14 @@ impl PluginsPane {
             .justify_center()
             .border(px(m::BOX_BORDER))
             .rounded(px(self.radius / 2.))
-            .border_color(if on { t.fg } else { t.muted_frame })
+            .border_color(if on { t.accent } else { t.muted_frame })
             .on_click(cx.listener(move |pane, _, _, cx| {
                 cx.stop_propagation();
                 pane.page.toggle(index, pane.wire.as_ref());
                 cx.notify();
             }));
         if on {
-            frame.bg(t.fg).child(Mark::tick(t.surface))
+            frame.bg(t.accent).child(Mark::tick(gpui::Hsla::white()))
         } else {
             frame
         }

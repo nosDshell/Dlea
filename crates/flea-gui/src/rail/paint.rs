@@ -26,14 +26,13 @@ pub(super) fn paint_ground(
         window.paint_quad(fill(ground, palette.foreground.opacity(crate::list::HOVER)));
     }
     let keyboard = model.focused && !model.pointer_focus;
-    let highlighted = if keyboard { model.cursor } else { model.lit };
     // SidebarRow.qml: the row behind a focused eject mark keeps the grey cursor ground.
-    let wash = keyboard && !model.mark_focused;
-    if highlighted == Some(row.index) {
-        let plate = if wash {
-            palette.accent.opacity(crate::list::CURSOR_WASH)
-        } else {
+    let grey = keyboard && model.mark_focused;
+    if checked(model, row.index) {
+        let plate = if grey {
             palette.foreground.opacity(crate::list::GREY_CURSOR)
+        } else {
+            palette.accent.opacity(crate::list::CURSOR_WASH)
         };
         window.paint_quad(fill(ground, plate));
         // HIG rail-favorites and SidebarRow.qml: the keyboard cursor keeps its accent edge, eject focus included.
@@ -68,12 +67,15 @@ pub(super) fn mark_slot(row: &LaidRow, metrics: &RailMetrics) -> Bounds<Pixels> 
 pub(super) fn paint_mark(
     row: &LaidRow,
     palette: &Palette,
+    lit: bool,
     _digit: Option<&text::Prepared>,
     metrics: &RailMetrics,
     window: &mut Window,
     cx: &mut App,
 ) {
     let slot = mark_slot(row, metrics);
+    // GXDE's checked sidebar row inks its icon in the accent too.
+    let mark_ink = if lit { palette.accent } else { palette.foreground };
     let (x, y) = (f32::from(slot.origin.x), f32::from(slot.origin.y));
     match &row.mark {
         RowMark::Tag(tag) => {
@@ -118,7 +120,7 @@ pub(super) fn paint_mark(
                     key.clone(),
                     Some(data),
                     TransformationMatrix::unit(),
-                    palette.foreground,
+                    mark_ink,
                     cx,
                 );
             } else if let Some((key, data)) = glyph::svg(row.glyph) {
@@ -127,7 +129,7 @@ pub(super) fn paint_mark(
                     key,
                     Some(data),
                     TransformationMatrix::unit(),
-                    palette.foreground,
+                    mark_ink,
                     cx,
                 );
             }
@@ -188,9 +190,15 @@ pub(super) fn is_cue(model: &RowsModel, index: usize) -> bool {
         .is_some_and(|(target, _)| *target == index)
 }
 
-/// The trailing caption's ink: the drop cue's label in the accent, any other detail muted (SidebarRow.qml detailText).
+/// dfmsidebar.cpp: one checked row — the keyboard cursor's under the keyboard, the open place's under the pointer.
+pub(super) fn checked(model: &RowsModel, index: usize) -> bool {
+    let keyboard = model.focused && !model.pointer_focus;
+    (if keyboard { model.cursor } else { model.lit }) == Some(index)
+}
+
+/// The trailing caption's ink: the drop cue's label in the accent, the checked row's too, any other detail muted (SidebarRow.qml detailText).
 pub(super) fn detail_ink(model: &RowsModel, index: usize, palette: &Palette) -> gpui::Hsla {
-    if is_cue(model, index) {
+    if is_cue(model, index) || checked(model, index) {
         palette.accent
     } else {
         palette.caption(false)

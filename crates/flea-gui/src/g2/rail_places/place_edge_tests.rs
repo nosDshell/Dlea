@@ -88,12 +88,12 @@ fn edges(quads: &[Quad], ink: Hsla, scale: f32) -> usize {
 #[gpui::test]
 fn the_place_has_no_accent_edge_while_the_list_holds_the_keyboard(cx: &mut TestAppContext) {
     let (theme, quads, scale) = place_quads(cx, false, false);
-    let grey = theme.foreground.opacity(crate::list::GREY_CURSOR);
+    let wash = theme.accent.opacity(crate::list::CURSOR_WASH);
     assert!(
         quads
             .iter()
-            .any(|quad| quad.background.as_solid() == Some(grey)),
-        "the place keeps --sel"
+            .any(|quad| quad.background.as_solid() == Some(wash)),
+        "the place keeps its checked accent wash"
     );
     assert_eq!(
         edges(&quads, theme.accent_frame, scale),

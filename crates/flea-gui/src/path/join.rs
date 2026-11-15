@@ -55,11 +55,18 @@ impl Shell {
         let Some(host) = self.panes[side].as_ref() else {
             return;
         };
+        let rail_mode = self
+            .rail
+            .as_ref()
+            .map(|join| join.host.read(cx).rail.mode());
         let inputs = Inputs {
             view: self.view,
             // Back and Up close Recent onto the folder it opened over, so both stand at full ink there, as v0.3.12 draws them.
             back: !host.nav.history.back.is_empty() || host.recent.on,
             up: host.nav.can_go_up(&host.pane) || host.recent.on,
+            forward: !host.nav.history.forward.is_empty(),
+            sidebar: rail_mode.is_some_and(|mode| mode != crate::rail::Mode::Overlay),
+            rail_shown: rail_mode == Some(crate::rail::Mode::Docked),
             filter: !host.search.owner.active() && !host.pane.state.search,
             sort: !host.search.owner.active() && !host.pane.state.search,
             live: !self.card_holds_keyboard(cx)
@@ -185,8 +192,11 @@ impl Shell {
             return;
         } else if action == "copyAddress" {
             self.copy_address(cx);
+        } else if action == "sidebar" {
+            self.toggle_sidebar(window, cx);
         } else if let Some(step) = match action {
             "back" => Some(Step::Back),
+            "forward" => Some(Step::Forward),
             "up" => Some(Step::Up),
             _ => None,
         } {

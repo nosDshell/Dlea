@@ -68,9 +68,9 @@ fn s6_update_menu_paints_the_accent_square_before_the_version(cx: &mut TestAppCo
             .copied()
             .unwrap_or_default();
         assert_eq!(square.background.as_solid().unwrap(), theme.accent);
-        let expected_x = bounds.x + bounds.w - 1. - 14. - 12. - 9. - row_top.1 - 7. - 6.;
+        let expected_x = bounds.x + bounds.w - 1. - 8. - 12. - 9. - row_top.1 - 7. - 6.;
         assert!((square.bounds.origin.x.0 / scale - expected_x).abs() < 0.01);
-        assert!((square.bounds.origin.y.0 / scale - row_top.0 - 15.5).abs() < 0.01);
+        assert!((square.bounds.origin.y.0 / scale - row_top.0 - 10.).abs() < 0.01);
     })
     .unwrap();
 }

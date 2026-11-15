@@ -153,8 +153,8 @@ fn rev_u06_r3_default_wrapped_refusal_matches_frozen_room_and_fits_row() {
         println!("R3_DEFAULT actual_width={} actual_lines={} actual_height={actual_height} frozen_width={} frozen_lines={} frozen_height={frozen_height} fixed_row={}", actual.width, actual.lines.len(), frozen.width, frozen.lines.len(), fit::ROW);
         println!("R3_DEFAULT_ACTUAL {:?}", actual.lines.iter().map(|s| &s.text).collect::<Vec<_>>());
         println!("R3_DEFAULT_FROZEN {:?}", frozen.lines.iter().map(|s| &s.text).collect::<Vec<_>>());
-        assert!(frozen_height <= fit::ROW as f32);
-        assert!(actual_height <= fit::ROW as f32, "default refusal exceeds its fixed row because FIX2 reserves a chevron and extra gap that the frozen wrapped-caption width does not subtract");
+        assert!(frozen_height <= fit::Metrics::default().row_height(true) as f32);
+        assert!(actual_height <= fit::Metrics::default().row_height(true) as f32, "default refusal exceeds its fixed row because FIX2 reserves a chevron and extra gap that the frozen wrapped-caption width does not subtract");
     }).unwrap();
 }
 
@@ -205,7 +205,7 @@ fn rev_u06_r4_default_wrapped_refusal_is_not_reported_as_elided() {
     .unwrap();
     let held = menu.borrow();
     let card = held.card.as_ref().unwrap();
-    assert_eq!(card.frame.w, 257.);
+    assert_eq!(card.frame.w, 162.);
     let line = &card.built.lines[0];
     let label = line.label.as_ref().unwrap().width();
     let room = line.label_room(card.frame.w - 2.);
@@ -232,5 +232,5 @@ fn rev_u06_r4_default_wrapped_refusal_is_not_reported_as_elided() {
     println!("R4_STATE {state}");
     let doc = jsondoc::parse(state.trim()).unwrap();
     let rows = doc.get("rows").and_then(Json::as_array).unwrap();
-    assert!(!rows.iter().any(|row| matches!(row.get("labelTruncated"), Some(Json::Bool(true)))), "tests/ui-card-layout.sh:234-236 rejects labelTruncated=true when frame 257 is below work area 1100");
+    assert!(!rows.iter().any(|row| matches!(row.get("labelTruncated"), Some(Json::Bool(true)))), "tests/ui-card-layout.sh:234-236 rejects labelTruncated=true when frame 162 is below work area 1100");
 }

@@ -192,7 +192,7 @@ fn glass_rail_highlight_fills_keep_the_original_palette(cx: &mut TestAppContext)
                 let laid = producer.laid.borrow();
                 let row = &laid.rows[0];
                 assert_ne!(laid.palette.unwrap().foreground, theme.foreground, "glyph ink must remain strengthened");
-                let expected = theme.foreground.opacity(if hovered { crate::list::HOVER } else { crate::list::GREY_CURSOR });
+                let expected = if hovered { theme.foreground.opacity(crate::list::HOVER) } else { theme.accent.opacity(crate::list::CURSOR_WASH) };
                 let scale = window.scale_factor();
                 // Rail grounds stop short of the divider hair.
                 let hairline = crate::list::Metrics::for_typeface(&crate::list::Typeface::omarchy_default()).hairline;

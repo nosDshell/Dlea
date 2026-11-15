@@ -6,7 +6,7 @@ use gpui::AppContext;
 fn ey380_trash_rail_menu_rows_and_width_follow_the_text_size(cx: &mut TestAppContext) {
     cx.update(|cx| cx.set_reduce_motion(true));
     let (handle, shared) = window(cx);
-    for (body, row_pitch, width) in [(14, 47., 257.), (20, 67., 367.)] {
+    for (body, row_pitch, width) in [(14, 32., 162.), (20, 46., 231.)] {
         let mut fixture = Fixture::new();
         fixture.typeface = fixture.typeface.at_base(body);
         cx.update_window(handle.into(), |_, window, _| {
@@ -34,7 +34,7 @@ fn ey380_trash_rail_menu_rows_and_width_follow_the_text_size(cx: &mut TestAppCon
                 "Trash menu row and separator pitch at {body}"
             );
             assert_eq!(card.frame.w, width, "Trash menu width at {body}");
-            let centre = if body == 14 { 71.5 } else { 102.5 };
+            let centre = if body == 14 { 53. } else { 75.5 };
             assert_eq!(
                 card.row_at(card.frame.x + width / 2., card.frame.y + centre),
                 Some(rows[1]),

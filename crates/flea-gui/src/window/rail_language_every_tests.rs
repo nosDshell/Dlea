@@ -69,33 +69,26 @@ fn snapshot(updates: &async_channel::Receiver<Snapshot>) -> Snapshot {
 
 // Languages whose catalogs once kept the English XDG place words, as upstream xdg-user-dirs leaves them untranslated.
 const SEVEN: [&str; 7] = ["bn", "fil", "ms", "si", "sw", "ur", "uz"];
-const XDG_ENGLISH: [(&str, &str); 9] = [
+const XDG_ENGLISH: [(&str, &str); 6] = [
     ("places.row.desktop", "Desktop"),
     ("places.row.documents", "Documents"),
     ("places.row.downloads", "Downloads"),
     ("places.row.music", "Music"),
     ("places.row.pictures", "Pictures"),
     ("places.row.videos", "Videos"),
-    ("places.row.templates", "Templates"),
-    ("places.row.public", "Public"),
-    ("places.row.projects", "Projects"),
 ];
 
 // The drawn order the fixture below produces, each row with the key it reads or the data name it keeps.
 fn expected() -> Vec<(&'static str, Result<&'static str, &'static str>)> {
     let mut rows = vec![
-        ("home", Ok("places.row.home")),
         ("recent", Ok("places.row.recent")),
+        ("home", Ok("places.row.home")),
         ("desktop", Ok("places.row.desktop")),
-        ("documents", Ok("places.row.documents")),
-        ("downloads", Ok("places.row.downloads")),
+        ("videos", Ok("places.row.videos")),
         ("music", Ok("places.row.music")),
         ("pictures", Ok("places.row.pictures")),
-        ("videos", Ok("places.row.videos")),
-        ("templates", Ok("places.row.templates")),
-        ("public", Ok("places.row.public")),
-        ("projects", Ok("places.row.projects")),
-        ("custom folder", Err("Office records")),
+        ("documents", Ok("places.row.documents")),
+        ("downloads", Ok("places.row.downloads")),
         ("trash", Ok("places.row.trash")),
         ("favourite", Err("Projects")),
         ("invalid favourite", Ok("places.favorite.invalid_label")),

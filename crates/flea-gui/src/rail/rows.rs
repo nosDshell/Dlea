@@ -11,12 +11,16 @@ use gpui::{
 use std::cell::RefCell;
 use std::rc::Rc;
 
-// ui/Theme.qml: the rail row is 29 px at body 14, its mark 15 px, the labels start at 14 + 15 + 9.
-pub const PAD_X: f32 = 14.;
-pub const GAP: f32 = 9.;
-pub const ICON: f32 = 15.;
+// gxde-file-manager's dfmsidebar.cpp: the rail row is 30 px, its mark 16 px at x 13, the label 8 px right of it.
+pub const PAD_X: f32 = 13.;
+pub const GAP: f32 = 8.;
+pub const ICON: f32 = 16.;
+pub const ROW: f32 = 30.;
 pub const PANEL_GAP: f32 = 14.;
 pub const TOP: f32 = 14.;
+// dfmsidebar.cpp: a group separator is a 5 px band holding a one-pixel rule; the NETWORK band widens for its plus.
+pub const SEPARATOR: f32 = 5.;
+pub const SEPARATOR_ADD: f32 = 14.;
 // ui/RailHeading.qml: caption 12, tracking 1, lead 0.15 rounded up, bottom rowGap 9.
 pub const HEADING_LEAD: f32 = 0.15;
 pub const HEADING_TRACKING: f32 = 1.;
@@ -27,16 +31,39 @@ pub const DOT: f32 = 6.;
 pub const SLOT: f32 = 12.;
 // SidebarRow.qml: railIconSize is 15, the tag swatch is 14 and the dot is 6 inside a caption slot.
 pub const TAG: f32 = 14.;
-// f64, as Theme.qml computes, so flea.tokens reports the QML value; `as f32` yields the same f32 literal.
-pub(crate) const RAIL_ROW_SCALE: f64 = 0.78;
 pub(crate) const TEXT_LINE_HEIGHT_FACTOR: f64 = 1.8;
 const OEM_BASE: f32 = 12.;
+
+/// The compressed board's two-point interpolation: `at14` at body 14, `at20` at 20, linearly beyond.
+fn anchor_scale(base: f32, at14: f32, at20: f32) -> f32 {
+    if base <= 20. {
+        (at14 + (at20 - at14) * (base - BODY) / (20. - BODY)).round()
+    } else {
+        (at20 * base / 20.).round()
+    }
+}
+
+/// GXDE pins the row at 30 px and the mark at 16; Flea's larger faces still scale both.
+pub(crate) fn rail_row(base: f32) -> f32 {
+    if base <= BODY {
+        ROW
+    } else {
+        anchor_scale(base, ROW, 41.)
+    }
+}
+
+pub(crate) fn rail_icon(base: f32) -> f32 {
+    if base <= BODY {
+        ICON
+    } else {
+        anchor_scale(base, ICON, 22.)
+    }
+}
 
 /// Preserve the body-14 recipe; larger text follows the two HIG rail anchors (rulings 170 and 173).
 struct RailMetrics {
     row: f32,
     top: f32,
-    heading: Option<f32>,
     pad: f32,
     gap: f32,
     panel_gap: f32,
@@ -58,33 +85,18 @@ impl RailMetrics {
                 (at20 * base / 20.).round()
             }
         };
-        let row = if compressed {
-            anchor(29., 41.)
-        } else {
-            (list.nominal_row * RAIL_ROW_SCALE as f32).round()
-        };
-        let line = (f32::from(face.body_small) * TEXT_LINE_HEIGHT_FACTOR as f32).round();
         let board = |value: f32| (value * f32::from(face.base) / BODY).round();
         Self {
-            row,
+            row: rail_row(base),
             top: if compressed { anchor(9., 8.) } else { list.pad },
-            heading: compressed.then(|| anchor(33., 42.)),
-            pad: if compressed {
-                anchor(PAD_X, 14.)
-            } else {
-                list.pad
-            },
-            gap: if compressed {
-                anchor(GAP, 9.)
-            } else {
-                list.gap
-            },
+            pad: if compressed { anchor(PAD_X, 15.) } else { PAD_X },
+            gap: if compressed { anchor(GAP, 9.) } else { GAP },
             panel_gap: if compressed {
                 anchor(11., 10.)
             } else {
                 (PANEL_GAP * base / OEM_BASE).round()
             },
-            icon: (row - (list.nominal_row - line)).max(1.),
+            icon: rail_icon(base),
             tag: board(TAG),
             dot: board(DOT),
             slot: f32::from(face.caption),
@@ -106,6 +118,8 @@ pub(crate) fn i18n_fit_widths(face: &Typeface) -> (f32, f32) {
 #[derive(Clone, Debug, PartialEq)]
 pub struct LaidHeader {
     pub text: String,
+    /// GXDE draws a group parting rule instead of the heading's caps text.
+    pub separator: bool,
     pub rect: Rect,
     pub top_padding: f32,
     pub text_height: f32,

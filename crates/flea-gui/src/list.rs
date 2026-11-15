@@ -78,6 +78,10 @@ pub const GREY_CURSOR: f32 = 0.18;
 pub const TRACK: f32 = 0.06;
 // The cursor/checked rung is accent 20% (#332ca7f8), a match run accent 14%, and a cut row draws at Omarchy's disabled opacity.
 pub const CURSOR_WASH: f32 = 0.20;
+// DStyledItemDelegate::paintSelectionBox: the selection box is accent 76/255 with a 150/255 1px edge, rounded 2 px in list mode.
+pub const SEL_FILL: f32 = 76. / 255.;
+pub const SEL_EDGE: f32 = 150. / 255.;
+pub const SEL_RADIUS: f32 = 2.;
 pub const MATCH_WASH: f32 = 0.14;
 pub const CUT_DIM: f32 = 0.55;
 // Omarchy's selection plate is the foreground at 0.35, which the theme tokens ease per palette for 4.5:1 text.

@@ -172,7 +172,7 @@ fn fx_eject_s1a_4_ctrl_e_on_a_place_names_the_row(cx: &mut TestAppContext) {
         if producer.read_with(cx, |p, _| p.cursor()) == Some(home.index) {
             break;
         }
-        cx.simulate_keystrokes("up");
+        cx.simulate_keystrokes("down");
         frame(cx);
     }
     assert_eq!(producer.read_with(cx, |p, _| p.cursor()), Some(home.index));

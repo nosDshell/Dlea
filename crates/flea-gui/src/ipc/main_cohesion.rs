@@ -6,8 +6,8 @@ use crate::{
 };
 use flea::{ipc::wire::Reply, jsondoc::Json};
 
-/// Toolbar names in GLYPHS order: ChromeBar.qml's untranslated v0.3.12 names, followed by the copy mark's.
-const NAMES: [&str; 11] = [
+/// Toolbar names in GLYPHS order: ChromeBar.qml's untranslated v0.3.12 names, then the copy mark's, sidebar's and forward's.
+const NAMES: [&str; 13] = [
     "Back",
     "Parent folder",
     "Search",
@@ -19,6 +19,8 @@ const NAMES: [&str; 11] = [
     "dual",
     "sliders",
     "Copy path",
+    "Sidebar",
+    "Forward",
 ];
 
 pub(crate) struct MainCohesion<'a> {

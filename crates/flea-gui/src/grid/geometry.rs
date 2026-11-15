@@ -40,6 +40,14 @@ impl ThumbSize {
     pub fn stepped(self, steps: i32) -> Self {
         Self((self.0 as i64 + steps as i64).clamp(0, THUMB_STOPS.len() as i64 - 1) as usize)
     }
+    /// The stop a slider position names, clamped at the last as stepped() clamps its steps.
+    pub fn at(index: usize) -> Self {
+        Self(index.min(THUMB_STOPS.len() - 1))
+    }
+    /// Where in THUMB_STOPS this size sits, the status slider's handle position.
+    pub fn index(self) -> usize {
+        self.0
+    }
 }
 
 /// The four density stops, Density.STOPS.

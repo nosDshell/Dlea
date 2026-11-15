@@ -187,7 +187,7 @@ fn fix1_row_parts_sum_to_each_painted_row_for_every_trailing_mix(cx: &mut TestAp
         let mark = num(row.get("markLeft")) + num(row.get("slot")) + num(row.get("labelLeft"));
         assert_eq!(
             mark,
-            if wrap { 14. + 18. + 9. } else { 15. + 18. + 9. },
+            if wrap { 8. + 18. + 9. } else { 9. + 18. + 9. },
             "the painter's label starts after its mark"
         );
     }

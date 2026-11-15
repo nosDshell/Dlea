@@ -164,7 +164,13 @@ fn r1_wheel_over_the_card_steps_the_card_not_the_flyout(cx: &mut TestAppContext)
             hidden: Vec::new(),
             ..Context::default()
         });
-        menu.open(Face::File, rows, (40., 40.), WIDE, "a", env, window);
+        let fold = Rect {
+            x: 0.,
+            y: 0.,
+            w: WIDE.w,
+            h: 400.,
+        };
+        menu.open(Face::File, rows, (40., 40.), fold, "a", env, window);
         menu.open_submenu_for("copyAs", false, env, window);
         assert!(menu.flyout.is_some());
         let card = menu.card.as_ref().unwrap();
@@ -228,14 +234,14 @@ fn r1_touchpad_travel_never_carries_from_the_card_into_its_flyout(cx: &mut TestA
         });
         menu.open(Face::File, rows, (40., 40.), WIDE, "a", env, window);
         let card = menu.card.as_ref().unwrap();
-        menu.touchpad(card.frame.x + 20., card.row_screen_top(0) + 10., -30., true);
+        menu.touchpad(card.frame.x + 20., card.row_screen_top(0) + 10., -16., true);
         menu.open_submenu_for("copyAs", false, env, window);
         let f = menu.flyout.as_ref().unwrap().card.frame;
         let (x, y) = (f.x + f.w - 10., f.y + 20.);
         let start = menu.flyout.as_ref().unwrap().card.cursor;
         menu.touchpad(x, y, -10., false);
-        assert_eq!(menu.flyout.as_ref().unwrap().card.cursor, start, "v0.3.12 keeps one remainder per card: 30 px on the menu and 10 px on its flyout step neither");
-        menu.touchpad(x, y, -30., true);
+        assert_eq!(menu.flyout.as_ref().unwrap().card.cursor, start, "v0.3.12 keeps one remainder per card: 16 px on the menu and 10 px on its flyout step neither");
+        menu.touchpad(x, y, -16., true);
         assert_eq!(
             menu.flyout.as_ref().unwrap().card.cursor,
             start,

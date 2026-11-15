@@ -118,7 +118,7 @@ fn catalog_overflows(native: bool, heading_probe: Option<&str>) -> Vec<String> {
     let column = (super::SHEET_W - 2. * PAD - 2. - COL_GAP) / 2.;
     let caption = fit::caption_width(card);
     let (rail, heading) = i18n_fit_widths(&face);
-    assert_eq!((caption, rail, heading), (166., 140., 164.));
+    assert_eq!((caption, rail, heading), (166., 142., 166.));
     assert_eq!((f32::from(face.body), f32::from(face.caption)), (14., 12.));
     let actions: BTreeSet<_> = SHEET_GROUPS
         .iter()

@@ -105,6 +105,8 @@ fn a_still_strip_shapes_once_and_a_key_reshapes_once() {
     );
     frame(&mut cx, window, Some(words("repo", "in ~/Work")));
     assert_eq!(state.borrow().shapings, 2);
+    // The longer query grows the scene's glyph buffer once; that settle frame is not a still frame.
+    frame(&mut cx, window, None);
     let heap = allocations();
     for _ in 0..10 {
         frame(&mut cx, window, None);

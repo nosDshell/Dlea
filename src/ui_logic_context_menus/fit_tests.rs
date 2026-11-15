@@ -264,7 +264,7 @@ fn placement() {
         4.,
     );
     let parent = Rect {
-        x: 200.,
+        x: 160.,
         y: 4.,
         w: MENU_W,
         h: 200.,

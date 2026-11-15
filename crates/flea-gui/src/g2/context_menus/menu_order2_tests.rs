@@ -95,14 +95,14 @@ fn sol_menu_order2_ey597_long_menu_clamps_vertically_without_changing_width(
             let mut menu = Menu::default();
             menu.open(Face::File, rows(), (206., 300.), work, "item", &env, window);
             let frame = menu.card.as_ref().unwrap().frame;
-            assert_eq!((frame.x, frame.y, frame.w), (206., 5., 257.));
+            assert_eq!((frame.x, frame.y, frame.w), (206., 5., 226.));
             assert!(
                 frame.y + frame.h <= 695.,
                 "the fold cue stays inside the bottom inset"
             );
             menu.refresh(rows(), &env, window);
             let frame = menu.card.as_ref().unwrap().frame;
-            assert_eq!((frame.x, frame.y, frame.w), (206., 5., 257.));
+            assert_eq!((frame.x, frame.y, frame.w), (206., 5., 226.));
             assert!(
                 frame.y + frame.h <= 695.,
                 "refresh uses the same vertical clamp"
@@ -131,7 +131,7 @@ fn sol_menu_order2_ey597_flyout_preserves_horizontal_slide(cx: &mut TestAppConte
             let frame = menu.flyout.as_ref().unwrap().card.frame;
             assert_eq!(
                 (frame.x, frame.w),
-                (219., 257.),
+                (14., 230.),
                 "the existing horizontal slide and width stay fixed"
             );
             assert!(

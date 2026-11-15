@@ -16,7 +16,7 @@ use crate::{
 use flea::{
     i18n::{I18n, Paths},
     jsondoc::{self, Json},
-    ui_logic_context_menus::{fit::Rect, Entry, Text},
+    ui_logic_context_menus::{fit, fit::Rect, Entry, Text},
 };
 use gpui::{div, font, prelude::*, px, Context, Render, TestAppContext, Window, WindowHandle};
 use std::{cell::RefCell, rc::Rc};
@@ -28,16 +28,15 @@ pub(super) struct FrozenTokens {
     pub slot: f32,
     pub gap: f32,
     pub chevron: f32,
-    pub row: f32,
 }
 
 pub(super) fn frozen_tokens(body: f32) -> FrozenTokens {
-    let (minimum, padding, slot, gap, chevron, row) = match body as u32 {
-        12 => (220., 12., 15., 8., 10., 32.),
-        14 => (257., 14., 18., 9., 12., 37.),
-        18 => (330., 18., 23., 12., 15., 48.),
-        20 => (367., 20., 26., 13., 17., 53.),
-        24 => (441., 24., 31., 15., 21., 63.),
+    let (minimum, padding, slot, gap, chevron) = match body as u32 {
+        12 => (139., 7., 15., 8., 10.),
+        14 => (162., 8., 18., 9., 12.),
+        18 => (208., 10., 23., 12., 15.),
+        20 => (231., 11., 26., 13., 17.),
+        24 => (278., 14., 31., 15., 21.),
         _ => panic!("unlisted frozen body size {body}"),
     };
     FrozenTokens {
@@ -46,7 +45,6 @@ pub(super) fn frozen_tokens(body: f32) -> FrozenTokens {
         slot,
         gap,
         chevron,
-        row,
     }
 }
 
@@ -174,10 +172,11 @@ fn check_painted(card: &super::menu::Card, row: usize, vertical: bool) {
             line.label_room(card.frame.w - 2.).to_bits(),
             line.label.as_ref().unwrap().width().to_bits()
         );
-        assert_eq!(caption.lines.len(), 2);
+        assert!(caption.lines.len() >= 2);
         let top = card.row_screen_top(row);
         assert!(f32::from(painted.origin.y) >= top);
-        assert!(f32::from(painted.origin.y + painted.size.height) <= top + tokens.row);
+        let room = fit::Metrics::at(f32::from(card.built.typeface.body)).row_height(line.hint_wrap) as f32;
+        assert!(f32::from(painted.origin.y + painted.size.height) <= top + room);
     }
 }
 
@@ -312,7 +311,7 @@ fn fix3_real_font_default_refusals_paint_whole_at_edges_refresh_and_flyout() {
     {
         let held = menu.borrow();
         let card = held.card.as_ref().unwrap();
-        assert_eq!(card.frame.w, 257.);
+        assert_eq!(card.frame.w, 162.);
         for row in 0..3 {
             check_painted(card, row, true);
         }

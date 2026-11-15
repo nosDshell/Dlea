@@ -73,14 +73,28 @@ impl Element for RailElement {
             cx,
         );
         window.with_content_mask(Some(ContentMask { bounds }), |window| {
+            let hairline = crate::list::Metrics::for_typeface(&self.typeface).hairline;
             for (header, text) in laid.headers.iter().zip(&ready.headers) {
-                text.paint(
-                    header.rect.x,
-                    header.rect.y + header.top_padding,
-                    header.text_height,
-                    heading_ink(&palette),
-                    window,
-                );
+                if header.separator {
+                    // dfmsidebar.cpp: the rule is a one-pixel line centred in its band, a foreground hairline.
+                    let top = header.rect.y + header.top_padding;
+                    let mid = top + (header.rect.y + header.rect.height - top) / 2.;
+                    window.paint_quad(fill(
+                        Bounds::new(
+                            point(px(header.rect.x), px(mid - hairline / 2.)),
+                            size(px(header.rect.width), px(hairline)),
+                        ),
+                        palette.foreground.opacity(crate::list::HAIRLINE),
+                    ));
+                } else {
+                    text.paint(
+                        header.rect.x,
+                        header.rect.y + header.top_padding,
+                        header.text_height,
+                        heading_ink(&palette),
+                        window,
+                    );
+                }
                 if let Some((add, (key, data))) = header.add.zip(super::glyph::svg("plus")) {
                     let at = box_of(add);
                     if !model.cover.hides(at) {
@@ -96,7 +110,6 @@ impl Element for RailElement {
                     self.listen_add(add, window);
                 }
             }
-            let hairline = crate::list::Metrics::for_typeface(&self.typeface).hairline;
             for (at, row) in laid.rows.iter().enumerate() {
                 if row.rect.y + metrics.row <= f32::from(bounds.top())
                     || row.rect.y >= f32::from(bounds.bottom())
@@ -117,11 +130,13 @@ impl Element for RailElement {
                 } else {
                     grounds
                 };
+                let checked = super::paint::checked(&model, row.index);
                 super::paint::paint_ground(row, &model, &grounds, hairline, hover_wash, window);
                 if !model.cover.hides(super::paint::mark_slot(row, &metrics)) {
                     super::paint::paint_mark(
                         row,
                         &palette,
+                        checked,
                         ready.digits[at].as_deref(),
                         &metrics,
                         window,
@@ -131,9 +146,15 @@ impl Element for RailElement {
                 let label = &ready.labels[at];
                 let rect = row.editor.unwrap_or(row.label_rect);
                 if row.editor.is_some() {
+                    // Small fields halve the corner; a 24px-or-taller field is a full frame.
+                    let radius = if rect.height < 24. {
+                        model.corner / 2.
+                    } else {
+                        model.corner
+                    };
                     window.paint_quad(gpui::quad(
                         box_of(rect),
-                        px(model.corner / 2.),
+                        px(radius),
                         palette.background,
                         px(1.),
                         palette.accent_frame,
@@ -184,13 +205,13 @@ impl Element for RailElement {
                                     ));
                                 }
                             }
-                            label.paint(
-                                origin,
-                                rect.y,
-                                rect.height,
-                                super::label_ink(row.error, &palette),
-                                window,
-                            );
+                            // GXDE inks the checked row's label in the accent; a record error still wins.
+                            let ink = if checked && !row.error {
+                                palette.accent
+                            } else {
+                                super::label_ink(row.error, &palette)
+                            };
+                            label.paint(origin, rect.y, rect.height, ink, window);
                         },
                     )
                 };

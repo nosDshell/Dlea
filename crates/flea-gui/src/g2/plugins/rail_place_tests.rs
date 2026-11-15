@@ -51,8 +51,8 @@ fn plugin_runtime_rail_example_paints_after_devices_polls_and_disappears(cx: &mu
         let row = laid
             .row(photos)
             .expect("real rail lays out the contributed row");
-        assert_eq!(row.rect.height, 29.);
-        assert_eq!(row.label_rect.x, 38.);
+        assert_eq!(row.rect.height, 30.);
+        assert_eq!(row.label_rect.x, 37.);
         assert!(producer
             .sections
             .iter()

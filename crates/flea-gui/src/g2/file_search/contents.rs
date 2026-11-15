@@ -28,9 +28,9 @@ pub const BLOCK_PAD: f32 = 4.;
 pub const BLOCK_H: f32 = ROW_H + LINE_H + BLOCK_PAD;
 // The line number sits right-aligned in the 23 mark column, the line on the label column.
 const NUMBER_W: f32 = 23.;
-const CURSOR_WASH: f32 = 0.18;
-// ui.py .row.hover: the pointer's row is the foreground at 8%, and its mark lifts to the foreground.
-const HOVER: f32 = 0.08;
+const CURSOR_WASH: f32 = crate::list::CURSOR_WASH;
+// The pointer's row takes the shared list hover wash, and its mark lifts to the foreground.
+const HOVER: f32 = crate::list::HOVER;
 const EDGE_W: f32 = 2.;
 const ELLIPSIS: char = '\u{2026}';
 // The run's wash is its inline box, the board's 1.2 line height at caption size.

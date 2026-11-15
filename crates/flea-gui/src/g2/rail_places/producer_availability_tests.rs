@@ -87,7 +87,7 @@ fn fx462_a_returned_favourite_retries_in_each_window_and_pane(cx: &mut gpui::Tes
 
 #[gpui::test]
 fn fx462_invalid_records_still_cannot_activate(cx: &mut gpui::TestAppContext) {
-    let state = flea::jsondoc::parse(r#"{"places":{"showHome":false,"showTrash":false,"favourites":[{"label":"","path":"/missing"}]}}"#).unwrap();
+    let state = flea::jsondoc::parse(r#"{"places":{"showHome":false,"showRecent":false,"showTrash":false,"favourites":[{"label":"","path":"/missing"}]}}"#).unwrap();
     let producer = cx.new(|cx| {
         let mut producer = Producer::new(
             Arc::new(crate::test_catalogs::english()),

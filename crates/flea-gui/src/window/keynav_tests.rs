@@ -30,11 +30,11 @@ fn ey142_forward_tab_enters_the_first_live_chrome_glyph(cx: &mut TestAppContext)
     key(cx, handle, "tab");
     assert_eq!(
         call(cx, handle, "focusStop"),
-        Reply::value("chrome:arrow-up")
+        Reply::value("chrome:sidebar")
     );
     edit(cx, handle, |shell, _, cx| {
         let chrome = shell.chrome.view.as_ref().unwrap().read(cx);
-        assert!(chrome.frame.borrow().controls[1].focused);
+        assert!(chrome.frame.borrow().controls[11].focused);
         assert!(
             !shell
                 .rail

@@ -6,18 +6,20 @@ mod metrics;
 pub use metrics::Metrics;
 
 // The board's menu rows: 37 tall, separators 10, 6 between the frame's outer edge and the first row.
-pub const ROW: i32 = 37;
-pub const SEP: i32 = 10;
-pub const PAD: i32 = 6;
-pub const MENU_W: f32 = 257.;
-pub const PAD_X: f32 = 14.;
+// ChameleonStyle (dde-qt5integration): menu rows size from text height to ~26, separators 2,
+// the card pads 8 top and bottom, menus open at least 162 wide, and items inset 6 from the card.
+pub const ROW: i32 = 26;
+pub const SEP: i32 = 6;
+pub const PAD: i32 = 8;
+pub const MENU_W: f32 = 162.;
+pub const PAD_X: f32 = 8.;
 pub const GAP: f32 = 9.;
 pub const SLOT: f32 = 18.;
 pub const CHEVRON: f32 = 12.;
-// A fade reaches round(37 x 0.7) past the padding, and a cursor row keeps that much clear of it.
-pub const CLEAR: i32 = 26;
+// A fade reaches round(ROW x 0.7) past the padding, and a cursor row keeps that much clear of it.
+pub const CLEAR: i32 = 18;
 // The most of that clearance a scroll cue may take, so the cursor's label stays clear of the fade.
-pub const CUE_GIVE: i32 = CLEAR / 2;
+pub const CUE_GIVE: i32 = 9;
 // One wheel notch in raw angleDelta units.
 pub const NOTCH_UNITS: i32 = 120;
 

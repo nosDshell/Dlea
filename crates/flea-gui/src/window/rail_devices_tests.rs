@@ -153,6 +153,7 @@ fn rail_devices_mounts_exact_shipped_group_and_flat_row_order(cx: &mut TestAppCo
     assert_eq!(
         labels(&shell, cx),
         [
+            "Recent",
             "Home",
             "Downloads",
             "Trash",
@@ -211,6 +212,7 @@ fn rail_devices_mounts_exact_shipped_group_and_flat_row_order(cx: &mut TestAppCo
                 .map(|r| r.label.as_str())
                 .collect::<Vec<_>>(),
             [
+                "Recent",
                 "Home",
                 "Downloads",
                 "Trash",
@@ -224,7 +226,7 @@ fn rail_devices_mounts_exact_shipped_group_and_flat_row_order(cx: &mut TestAppCo
                 "Pixel 8"
             ]
         );
-        assert!(laid.rows.iter().all(|row| row.rect.height == 29.));
+        assert!(laid.rows.iter().all(|row| row.rect.height == 30.));
     });
 }
 
@@ -232,7 +234,7 @@ fn rail_devices_mounts_exact_shipped_group_and_flat_row_order(cx: &mut TestAppCo
 fn rail_devices_show_devices_false_removes_rows_and_heading(cx: &mut TestAppContext) {
     let (shell, service, cx) = open(r#"{"places":{"showDevices":false}}"#, cx);
     ready(&service, cx);
-    assert_eq!(labels(&shell, cx), ["Home", "Downloads", "Trash"]);
+    assert_eq!(labels(&shell, cx), ["Recent", "Home", "Downloads", "Trash"]);
     producer(&shell, cx).read_with(cx, |producer, _| {
         assert_eq!(
             producer
@@ -250,6 +252,7 @@ fn rail_devices_show_devices_false_removes_rows_and_heading(cx: &mut TestAppCont
     assert_eq!(
         labels(&shell, cx),
         [
+            "Recent",
             "Home",
             "Downloads",
             "Trash",
@@ -283,6 +286,7 @@ fn rail_devices_periodic_disappearance_is_gone_in_next_frame(cx: &mut TestAppCon
     assert_eq!(
         labels(&shell, cx),
         [
+            "Recent",
             "Home",
             "Downloads",
             "Trash",

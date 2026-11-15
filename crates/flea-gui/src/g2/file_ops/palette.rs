@@ -52,8 +52,8 @@ impl CardPalette {
         match ink {
             Ink::MutedFrame => Some(self.muted_frame),
             Ink::Accent => Some(self.accent),
-            Ink::AccentFrame => Some(self.accent_frame),
             Ink::Foreground => Some(self.foreground),
+            Ink::OnAccent => Some(Hsla::white()),
             Ink::Error => Some(self.error),
             Ink::ErrorOnSurface => Some(self.error_on_surface),
             Ink::None => None,

@@ -11,13 +11,15 @@ fn only_standard_xdg_role_names_use_catalog_keys() {
         "XDG_DESKTOP_DIR=\"$HOME\"\n",
     );
     let rows = user_dirs(dirs, "/fixture");
-    assert_eq!(rows.len(), 4, "a disabled desktop adds no place");
-    assert_eq!(rows[0].label_key, "places.row.downloads");
-    for row in &rows[1..] {
-        assert_eq!(row.label_key, "", "custom names are real names");
+    assert_eq!(rows.len(), 3, "a disabled desktop and an unknown role add no place");
+    assert_eq!(rows[2].label_key, "places.row.downloads");
+    for (at, row) in rows.iter().enumerate() {
+        if at != 2 {
+            assert_eq!(row.label_key, "", "custom names are real names");
+        }
     }
     let home = home_entries("/fixture", dirs, |_| "folder");
-    assert_eq!(home[1].label_key, "places.row.downloads");
+    assert_eq!(home[3].label_key, "places.row.downloads");
     assert_eq!(home[2].label, "Office records");
     let merged = favorites(
         "/fixture",
@@ -25,8 +27,8 @@ fn only_standard_xdg_role_names_use_catalog_keys() {
         "file:///saved/Downloads Downloads\nfile:///saved/Desktop Desktop",
         |_| "folder",
     );
-    assert_eq!(merged[1].label_key, "places.row.downloads");
-    for row in &merged[2..] {
+    assert_eq!(merged[3].label_key, "places.row.downloads");
+    for row in &merged[4..] {
         assert_eq!(
             row.label_key, "",
             "bookmark names never become product copy"
@@ -35,8 +37,8 @@ fn only_standard_xdg_role_names_use_catalog_keys() {
 }
 
 #[test]
-fn every_xdg_user_dirs_default_role_uses_a_catalog_key() {
-    // xdg-user-dirs 0.20's user-dirs.defaults: DESKTOP to VIDEOS, then PROJECTS.
+fn every_gxde_place_role_uses_a_catalog_key() {
+    // gxde-file-manager lists only these six roles; the rest of user-dirs.dirs is not a place.
     let dirs = concat!(
         "XDG_DESKTOP_DIR=\"$HOME/Desktop\"\n",
         "XDG_DOWNLOAD_DIR=\"$HOME/Downloads\"\n",
@@ -57,21 +59,17 @@ fn every_xdg_user_dirs_default_role_uses_a_catalog_key() {
         keys,
         [
             "places.row.desktop",
-            "places.row.downloads",
-            "places.row.templates",
-            "places.row.public",
-            "places.row.documents",
+            "places.row.videos",
             "places.row.music",
             "places.row.pictures",
-            "places.row.videos",
-            "places.row.projects",
-            "",
+            "places.row.documents",
+            "places.row.downloads",
         ]
     );
-    let renamed = user_dirs("XDG_PROJECTS_DIR=\"$HOME/Work\"\n", "/fixture");
+    let renamed = user_dirs("XDG_DOCUMENTS_DIR=\"$HOME/Work\"\n", "/fixture");
     assert_eq!(
         (renamed[0].label.as_str(), renamed[0].label_key),
         ("Work", ""),
-        "a renamed Projects folder keeps its name"
+        "a renamed Documents folder keeps its name"
     );
 }

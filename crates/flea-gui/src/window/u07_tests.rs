@@ -149,7 +149,7 @@ fn u07_pointer_and_keyboard_edit_the_mounted_path_and_escape_cancels(cx: &mut Te
     let (backend, _requests) = Backend::test_channel();
     let (shell, cx) = open_backend(backend, cx);
     assert_eq!(read(&shell, cx, "crumbText", &[]), "/files");
-    assert_eq!(read(&shell, cx, "pathCentre", &[]), "474 13");
+    assert_eq!(read(&shell, cx, "pathCentre", &[]), "496 13");
     assert_eq!(read(&shell, cx, "pathFrameRect", &[]), "");
     let leaf = read(&shell, cx, "crumbCentre", &["1"]);
     press(cx, &leaf, 1);
@@ -157,7 +157,7 @@ fn u07_pointer_and_keyboard_edit_the_mounted_path_and_escape_cancels(cx: &mut Te
     assert_eq!(read(&shell, cx, "pathBarText", &[]), "/files/");
     let frame = read(&shell, cx, "pathFrameRect", &[]);
     assert_eq!(
-        frame, "80 2 788 23",
+        frame, "123 2 745 23",
         "the real field matches the 1100 px board"
     );
     assert_eq!(

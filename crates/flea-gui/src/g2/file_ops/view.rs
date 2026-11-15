@@ -62,7 +62,7 @@ pub fn button(scene: &Scene, press: Press, label: String, mut state: ButtonState
     // A held press shows only while the pointer stays over its button, since only a release there activates.
     state.hovered = pointer.hovered == Some(press);
     state.pressed = state.hovered && pointer.pressed == Some(press);
-    state.rest_is_foreground = palette.accent_frame == palette.foreground;
+    state.rest_is_foreground = palette.accent == palette.foreground;
     let look = card::look(state);
     let tint = |ink, alpha: f32| palette.ink(ink).map(|c: Hsla| c.opacity(alpha));
     let chrome = Chrome {
@@ -376,7 +376,12 @@ pub(super) fn dialog_snapshot(
                         scene,
                         Press::Delete(*b),
                         catalog.tr(b.label_key(review.all)),
-                        state(*b == trash::PRIMARY, b == focus, false, disabled),
+                        state(
+                            *b == trash::PRIMARY,
+                            b == focus,
+                            *b == trash::Button::Delete,
+                            disabled,
+                        ),
                     )
                 })
                 .collect();

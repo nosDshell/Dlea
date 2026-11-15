@@ -605,7 +605,13 @@ fn marks_and_a_trimmed_flyout_follow_the_boards(cx: &mut TestAppContext) {
             hidden: Vec::new(),
             ..Context::default()
         });
-        menu.open(Face::File, rows, (4., 4.), SMALL, "a", env, window);
+        let short = Rect {
+            x: 0.,
+            y: 0.,
+            w: SMALL.w,
+            h: 170.,
+        };
+        menu.open(Face::File, rows, (4., 4.), short, "a", env, window);
         let copy_as = menu
             .card
             .as_ref()

@@ -164,8 +164,8 @@ fn addrcopy_the_keyboard_reaches_the_mark_after_the_path(cx: &mut TestAppContext
     cx.update(|window, cx| shell.update(cx, |shell, cx| shell.enter_chrome(true, window, cx)));
     draw(cx);
     let start = read(&shell, cx, "focusStop", &[]);
-    assert_eq!(start, "chrome:arrow-left");
-    cx.simulate_keystrokes("right right");
+    assert_eq!(start, "chrome:sidebar");
+    cx.simulate_keystrokes("right right right");
     draw(cx);
     assert_eq!(read(&shell, cx, "focusStop", &[]), "chrome:copy");
     assert!(shown(&shell, cx), "a focused mark draws with its ring");
