@@ -96,6 +96,14 @@ dark-theme recipe on top of the wallpaper-derived palette:
 - hairlines under `foreground @ 0.10`; menus hover accent @ 0.20;
 - `font.base-size = 12`.
 
+The toolbar follows `gxde-file-manager`'s `DFileManagerWindow.theme` on top of
+that recipe: a joined back/forward/up group, a 4 px crumb well, and a view
+tray. Dark plates use foreground at 15% / 30% / 10% (rest / hover / press).
+Row and menu washes stay on the bookmark recipe above. With no Omarchy palette
+and no `~/.config/flea/colors.toml`, the window ground is the GXDE dark
+`#202020` / accent `#2ca7f8`. What matches, and what does not, is listed in
+[gxde-fidelity.md](gxde-fidelity.md).
+
 Set only the keys a template owns; the rest fall through to Flea's defaults or
 the packaged theme.
 

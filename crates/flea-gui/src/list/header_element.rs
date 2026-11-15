@@ -128,7 +128,10 @@ impl Element for HeaderElement {
         };
         let left = bounds.origin.x;
         let top = bounds.origin.y;
-        window.paint_quad(fill(bounds, palette.foreground.opacity(NORMAL)));
+        // QHeaderView: a black 10% ground, the same on the light and dark GXDE themes.
+        let mut header_ground: gpui::Hsla = gpui::rgb(0x000000).into();
+        header_ground.a = 0.10;
+        window.paint_quad(fill(bounds, header_ground));
         let rule = Bounds::new(
             point(left, top + bounds.size.height - px(metrics.hairline)),
             size(bounds.size.width, px(metrics.hairline)),

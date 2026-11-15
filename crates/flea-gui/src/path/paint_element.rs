@@ -186,14 +186,22 @@ impl Element for CrumbElement {
                             ink.accent_frame,
                         ));
                     }
-                    paint_run(
-                        run,
-                        x,
-                        bounds.origin.y,
-                        height,
-                        if lit { ink.foreground } else { rest },
-                        window,
-                    );
+                    // DCrumbButton:checked fills the current segment with the accent and white ink.
+                    let mut crumb_ink = if lit { ink.foreground } else { rest };
+                    if !pane && crumb.last && !held {
+                        if let Some((_, width)) = extent {
+                            window.paint_quad(gpui::quad(
+                                Bounds::new(point(x, bounds.top()), size(px(width), height)),
+                                px(4.),
+                                ink.accent,
+                                px(0.),
+                                ink.accent,
+                                gpui::BorderStyle::Solid,
+                            ));
+                            crumb_ink = gpui::Hsla::white();
+                        }
+                    }
+                    paint_run(run, x, bounds.origin.y, height, crumb_ink, window);
                 }
                 if let Some(run) = &git {
                     paint_run(

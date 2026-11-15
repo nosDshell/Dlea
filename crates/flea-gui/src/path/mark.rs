@@ -1,6 +1,5 @@
 //! The toolbar's drawn marks: the SVG glyph, the focused ink and the press tween.
 use super::chrome::Frame;
-use crate::g2::settings_pages::cover::Cover;
 use gpui::{canvas, div, prelude::*, px, Div};
 use std::{cell::RefCell, rc::Rc, time::Instant};
 
@@ -58,21 +57,6 @@ pub fn press_scale(press: Option<Press>, now: Instant, reduced: bool) -> (f32, b
     let t = (now.saturating_duration_since(since).as_secs_f32() * 1000. / PRESS_MS).min(1.);
     let eased = 1. - (1. - t).powi(3);
     (from + (target - from) * eased, from != target && t < 1.)
-}
-
-/// ui/ChromeModes.qml: a hairline one pixel shorter than the mark.
-pub fn divider(ink: gpui::Hsla, mark: f32, cover: Cover) -> Div {
-    div().w(px(1.)).h(px(mark - 1.)).flex_none().child(
-        canvas(
-            |_, _, _| {},
-            move |bounds, _, window, _| {
-                if !cover.hides(bounds) {
-                    window.paint_quad(gpui::fill(bounds, ink.opacity(0.12)));
-                }
-            },
-        )
-        .size_full(),
-    )
 }
 
 /// Theme.chromeMarkSize at text size 14.

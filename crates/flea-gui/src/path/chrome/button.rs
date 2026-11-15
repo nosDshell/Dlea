@@ -1,6 +1,9 @@
 //! The toolbar button owns pointer capture, its sized mark and its focus frame.
-use super::{ChromeView, Sizes, ACTIONS, GLYPHS};
-use crate::path::mark::{mark_ink, mark_sized};
+use super::plate::{self, Kind};
+use super::{ChromeView, Sizes, ACTIONS, COPY, FORWARD, GLYPHS, SIDEBAR};
+use crate::list::Palette;
+use crate::path::mark::{mark_ink, mark_sized, resting_ink};
+use crate::window::startup::View;
 use gpui::{canvas, div, prelude::*, px, Context, MouseButton};
 
 impl ChromeView {
@@ -9,8 +12,11 @@ impl ChromeView {
         sizes: Sizes,
         index: usize,
         enabled: bool,
-        resting: gpui::Hsla,
-        foreground: gpui::Hsla,
+        icon_on: bool,
+        filled: bool,
+        kind: Kind,
+        palette: &Palette,
+        ink_override: Option<gpui::Hsla>,
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
         let frame = self.frame.clone();
@@ -22,25 +28,32 @@ impl ChromeView {
             frame.controls[index].enabled = enabled;
         }
         let focused = self.frame.borrow().controls[index].focused && enabled;
-        let ink = mark_ink(enabled, focused, resting, foreground);
-        // The gxde recipe: a hovered control rests on foreground at 0.10, a pressed one at 0.15.
+        let resting = ink_override.unwrap_or_else(|| resting_ink(enabled, icon_on, palette));
+        let ink = mark_ink(enabled, focused, resting, palette.foreground);
         let (hovered, pressed) = {
             let control = self.frame.borrow().controls[index];
             (control.hovered, control.pressed)
         };
-        let plate = if pressed {
-            foreground.opacity(0.15)
-        } else if hovered {
-            foreground.opacity(0.10)
+        // The copy mark draws nothing at rest; its plate appears with the glyph.
+        let show_plate = index != COPY || resting.a > 0. || hovered || pressed || focused;
+        let recipe = plate::recipe(palette, kind, enabled, filled, hovered, pressed, show_plate);
+        let plate_h = sizes.slot.min(sizes.band);
+        let outer_h = if kind == Kind::Solo {
+            sizes.band
         } else {
-            foreground.opacity(0.)
+            plate_h
+        };
+        let plate_top = if kind == Kind::Solo {
+            ((sizes.band - plate_h) / 2.).round()
+        } else {
+            0.
         };
         let hoverable = self.inputs.live;
         let live = enabled && hoverable;
         div()
             .id(("chrome-button", index))
             .w(px(sizes.slot))
-            .h(px(sizes.band))
+            .h(px(outer_h))
             .flex_none()
             .cursor_pointer()
             .relative()
@@ -127,13 +140,19 @@ impl ChromeView {
             )
             .child(
                 div()
-                    .h(px(sizes.inner()))
+                    .mt(px(plate_top))
+                    .h(px(plate_h))
                     .w_full()
                     .flex()
                     .items_center()
                     .justify_center()
-                    .rounded(px(self.inputs.corner / 2.))
-                    .bg(plate)
+                    .when(kind == Kind::Solo, |plate| plate.rounded(px(plate::RADIUS)))
+                    .bg(recipe.fill)
+                    .when(recipe.border.is_some(), |plate| {
+                        plate
+                            .border_1()
+                            .border_color(recipe.border.expect("border ink"))
+                    })
                     .child(mark_sized(
                         glyph,
                         sizes.mark,
@@ -157,10 +176,189 @@ impl ChromeView {
                         .left(px(((sizes.slot - sizes.ring) / 2.).round()))
                         .top(px(((sizes.inner() - sizes.ring) / 2.).round()))
                         .size(px(sizes.ring))
-                        .rounded(px(self.inputs.corner / 2.))
+                        .rounded(px(plate::RADIUS))
                         .border_1()
-                        .border_color(foreground),
+                        .border_color(palette.foreground),
                 )
             })
+    }
+
+    /// DToolBar: sidebar, a joined back/forward/up group, the crumb, search, the view tray, settings.
+    pub(super) fn band(
+        &mut self,
+        theme: crate::palette::Theme,
+        palette: &Palette,
+        sizes: Sizes,
+        cx: &mut Context<Self>,
+    ) -> impl IntoElement {
+        let light = plate::light(palette.background);
+        let mut nav = div()
+            .flex()
+            .flex_none()
+            .h(px(sizes.slot))
+            .rounded(px(plate::RADIUS))
+            .overflow_hidden();
+        if light {
+            nav = nav
+                .bg(palette.background)
+                .border_1()
+                .border_color(palette.foreground.opacity(0.10));
+        }
+        nav = nav
+            .child(self.button(
+                sizes,
+                0,
+                self.inputs.back,
+                true,
+                false,
+                Kind::Nav,
+                palette,
+                None,
+                cx,
+            ))
+            .child(self.button(
+                sizes,
+                FORWARD,
+                self.inputs.forward,
+                true,
+                false,
+                Kind::Nav,
+                palette,
+                None,
+                cx,
+            ))
+            .child(self.button(
+                sizes,
+                1,
+                self.inputs.up,
+                true,
+                false,
+                Kind::Nav,
+                palette,
+                None,
+                cx,
+            ));
+        let mut tools = div().h_full().flex().items_center().flex_none();
+        if self.inputs.view == View::Grid {
+            tools = tools
+                .child(self.button(
+                    sizes,
+                    3,
+                    self.inputs.filter,
+                    true,
+                    false,
+                    Kind::Solo,
+                    palette,
+                    None,
+                    cx,
+                ))
+                .child(div().w(px(6.)).flex_none())
+                .child(self.button(
+                    sizes,
+                    4,
+                    self.inputs.sort,
+                    true,
+                    false,
+                    Kind::Solo,
+                    palette,
+                    None,
+                    cx,
+                ));
+        } else {
+            tools = tools.child(self.button(
+                sizes,
+                2,
+                true,
+                true,
+                false,
+                Kind::Solo,
+                palette,
+                None,
+                cx,
+            ));
+        }
+        let mut tray = div()
+            .flex()
+            .flex_none()
+            .items_center()
+            .h(px(sizes.slot + 2.))
+            .px(px(1.))
+            .rounded(px(plate::RADIUS))
+            .overflow_hidden()
+            .bg(plate::tray_ground());
+        for (index, mode) in [
+            (5, View::List),
+            (6, View::Columns),
+            (7, View::Grid),
+            (8, View::Dual),
+        ] {
+            let on = self.inputs.view == mode;
+            tray =
+                tray.child(self.button(sizes, index, true, on, on, Kind::View, palette, None, cx));
+        }
+        let frame = self.frame.clone();
+        let pointer_frame = self.frame.clone();
+        let toolbar = div()
+            .size_full()
+            .relative()
+            .child(crate::window::glass::producers::backdrop(
+                crate::window::glass::producers::Producer::Chrome,
+                theme.chrome(),
+            ))
+            .child(
+                div()
+                    .size_full()
+                    .flex()
+                    .items_center()
+                    .px(px(sizes.pad))
+                    .child(self.button(
+                        sizes,
+                        SIDEBAR,
+                        self.inputs.sidebar,
+                        self.inputs.rail_shown,
+                        self.inputs.rail_shown,
+                        Kind::Solo,
+                        palette,
+                        None,
+                        cx,
+                    ))
+                    .child(div().w(px(6.)).flex_none())
+                    .child(nav)
+                    .child(div().w(px(10.)).flex_none())
+                    .child(self.address(sizes, palette, cx))
+                    .child(div().w(px(10.)).flex_none())
+                    .child(tools)
+                    .child(div().w(px(3.)).flex_none())
+                    .child(tray)
+                    .child(div().w(px(3.)).flex_none())
+                    .child(self.button(sizes, 9, true, true, false, Kind::Solo, palette, None, cx)),
+            );
+        for control in &mut self.frame.borrow_mut().controls {
+            control.hovered =
+                control.pointer_over && control.visible && control.enabled && self.inputs.live;
+            if !control.visible || !control.enabled || !self.inputs.live {
+                control.pointer_down = false;
+                control.set_pressed(false, cx.background_executor().now(), cx.reduce_motion());
+            }
+        }
+        toolbar
+            .child(
+                div()
+                    .absolute()
+                    .bottom_0()
+                    .w_full()
+                    .h(px(1.))
+                    .bg(palette.foreground.opacity(0.05)),
+            )
+            .child(
+                canvas(
+                    move |bounds, _, _| frame.borrow_mut().bounds = Some(bounds),
+                    move |_, _, window, _| {
+                        super::super::tap::observe(pointer_frame.clone(), window)
+                    },
+                )
+                .absolute()
+                .size_full(),
+            )
     }
 }

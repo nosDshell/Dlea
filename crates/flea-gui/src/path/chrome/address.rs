@@ -27,7 +27,17 @@ impl ChromeView {
                 palette.foreground.opacity(0.)
             };
             let button = self
-                .button(sizes, COPY, true, resting, palette.foreground, cx)
+                .button(
+                    sizes,
+                    COPY,
+                    true,
+                    true,
+                    false,
+                    super::plate::Kind::Solo,
+                    palette,
+                    Some(resting),
+                    cx,
+                )
                 .into_any_element();
             self.frame.borrow_mut().controls[COPY].visible = shown;
             Follow {
@@ -36,14 +46,24 @@ impl ChromeView {
                 sizes,
             }
         });
+        let light = super::plate::light(palette.background);
+        let well = if light {
+            palette.background
+        } else {
+            palette.foreground.opacity(0.15)
+        };
         div()
             .id("chrome-address")
             .h(px(sizes.inner()))
             .flex_1()
             .min_w_0()
             .relative()
-            .rounded(px(self.inputs.corner / 2.))
-            .bg(palette.foreground.opacity(0.10))
+            .rounded(px(super::plate::RADIUS))
+            .bg(well)
+            .when(light, |well| {
+                well.border_1()
+                    .border_color(palette.foreground.opacity(0.10))
+            })
             .hover_listener_mode(gpui::HoverListenerMode::InputModalityIndependent)
             .on_hover(cx.listener(|view, hovered: &bool, _, cx| {
                 let mut frame = view.frame.borrow_mut();

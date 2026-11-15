@@ -25,6 +25,27 @@ impl Snapshot {
 pub(super) type Inputs = [Option<String>; 9];
 /// The most bytes one input may hold; a larger file is refused, never cut.
 pub(super) const INPUT_CAP: usize = 65536;
+
+/// gxde-file-manager's dark `QMainWindow` (`#202020`) and accent (`#2ca7f8`),
+/// with the sidebar plane and the status/crumb ink from `themes/dark`.
+const GXDE_COLORS: &str = "\
+background = '#202020'\n\
+foreground = '#ffffff'\n\
+bright_foreground = '#ffffff'\n\
+accent = '#2ca7f8'\n\
+blue = '#2ca7f8'\n\
+dark_background = '#252525'\n\
+muted = '#bdbdbd'\n\
+";
+
+/// Packaged colors, then the flea overlay. Both empty means the GXDE dark window.
+pub(super) fn palette_text(packaged: &str, overlay: &str) -> String {
+    if packaged.trim().is_empty() && overlay.trim().is_empty() {
+        GXDE_COLORS.to_string()
+    } else {
+        format!("{packaged}\n{overlay}")
+    }
+}
 pub(super) type Stamps = [Option<(u64, u64, u64, i64, i64, i64, i64, u32)>; 9];
 
 /// The nine files a presentation reads, and where the resolved font family is cached.
@@ -169,7 +190,9 @@ impl Sources {
         let text = |at: usize| input[at].as_deref().unwrap_or("");
         // ~/.config/flea/* overlays the packaged theme files key by key: keys it
         // does not set keep the Omarchy values, so a partial override works too.
-        let colors = format!("{}\n{}", text(0), text(7));
+        // A machine with neither file takes the GXDE dark window, so a bare
+        // nosDshell install matches gxde-file-manager before any overlay.
+        let colors = palette_text(text(0), text(7));
         let shell = format!("{}\n{}", text(1), text(8));
         let (mut theme, parsed) = Theme::from_text_observed(&colors);
         theme.glass = crate::window::glass::Inputs::resolve(
@@ -197,6 +220,17 @@ impl Sources {
 mod tests {
     use super::*;
     use std::process::Command;
+
+    #[test]
+    fn a_bare_machine_takes_the_gxde_dark_window_and_an_overlay_still_wins() {
+        let bare = super::palette_text("", "  ");
+        assert!(bare.contains("#202020"), "{bare}");
+        assert!(bare.contains("#2ca7f8"), "{bare}");
+        let themed = super::palette_text("background = '#111111'\n", "accent = '#ff00aa'\n");
+        assert!(themed.contains("#111111"));
+        assert!(themed.contains("#ff00aa"));
+        assert!(!themed.contains("#202020"));
+    }
 
     fn sources(inputs: [PathBuf; 9]) -> Sources {
         Sources {
