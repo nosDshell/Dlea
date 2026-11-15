@@ -19,7 +19,7 @@ const CURSOR_WASH: f32 = 0.18;
 const HOVER: f32 = 16. / 255.;
 const MATCH_WASH: f32 = 0.14;
 const CUT: f32 = 0.55;
-// DStyledItemDelegate::paintSelectionBox: the selection box is the accent at 76/255 fill and 150/255 edge, radius 3.
+// DStyledItemDelegate::paintSelectionBox, used when a tile has no filename plate.
 const SEL_FILL: f32 = 76. / 255.;
 const SEL_EDGE: f32 = 150. / 255.;
 const SEL_RADIUS: f32 = 3.;
@@ -27,23 +27,7 @@ const SEL_RADIUS: f32 = 3.;
 #[path = "ground.rs"]
 mod ground;
 pub(super) use ground::bounds_of;
-use ground::{baseline, caption_baseline, label_run, plate};
-
-pub(super) fn caption_line<'a>(
-    state: &'a GridState,
-    drawn: &'a Drawn,
-    at: usize,
-) -> Option<&'a tile::Line> {
-    let plain = drawn.tile.as_ref()?.lines.get(at)?;
-    Some(
-        state
-            .bold
-            .as_ref()
-            .filter(|_| drawn.bold)
-            .and_then(|bold| bold.lines[at].as_ref())
-            .unwrap_or(plain),
-    )
-}
+use ground::{baseline, caption_baseline, caption_line, label_run, plate};
 
 impl GridElement {
     fn prepare(&self, state: &mut GridState, bounds: Bounds<Pixels>, window: &Window) {
@@ -285,7 +269,11 @@ impl GridElement {
                 let _ = window.paint_glyph_run(
                     point(x, caption_baseline(run, top, window)),
                     run,
-                    crate::window::glass::producers::text_ink(ink.foreground, window, cx),
+                    crate::window::glass::producers::text_ink(
+                        ground::caption_ink(drawn, self.focus.focused(), &ink),
+                        window,
+                        cx,
+                    ),
                 );
             }
         });
@@ -393,23 +381,16 @@ impl Element for GridElement {
                         .as_ref()
                         .map_or(drawn.cell, |layout| layout.frame(drawn.cell)),
                 );
-                if let Some(ground) = plate(
+                ground::paint_plate(
+                    window,
+                    frame,
+                    origin,
                     drawn,
                     &ink,
                     self.focus.focused(),
                     self.focus.selection_fill(),
-                ) {
-                    // GXDE's selection box rounds at 3 px and inks its 1 px edge in the dimmed accent; the compositor's square mode still wins.
-                    let edged = self.focus.focused() && (drawn.cursor || drawn.selected);
-                    window.paint_quad(gpui::quad(
-                        frame,
-                        px(SEL_RADIUS.min(crate::compositor::corner(cx))),
-                        ground,
-                        px(if edged { 1. } else { 0. }),
-                        ink.accent.opacity(SEL_EDGE),
-                        BorderStyle::Solid,
-                    ));
-                }
+                    crate::compositor::corner(cx),
+                );
                 if drawn.drop.is_some() {
                     let cell = bounds_of(origin, drawn.cell);
                     super::drop::paint(cell, &ink, window);

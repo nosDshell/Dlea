@@ -81,6 +81,8 @@ pub(crate) mod fixchrome_tests;
 #[cfg(test)]
 mod fixreaders_cohesion_tests;
 #[cfg(test)]
+mod gxde_shot_tests;
+#[cfg(test)]
 mod u07_chrome_tests;
 #[cfg(test)]
 mod u07_motion_tests;

@@ -26,7 +26,7 @@ QtObject {
 
     // Mirrors "columns" in src/uischema.rs, and is the only default this front end needs before the
     // first frame: it is what a first launch draws, when there is no file to settle and none to read.
-    readonly property var defaultColumns: ["name", "size", "date"]
+    readonly property var defaultColumns: ["name", "size", "date", "kind"]
 
     // Mirrors "menu"."hidden" in src/uischema.rs, for the same first launch: six ids this release's
     // menu cannot build, plus Copy as and Open in terminal, which the SettingsMenus board ships

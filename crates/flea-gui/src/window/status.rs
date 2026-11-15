@@ -426,8 +426,7 @@ impl Render for Footer {
         let count_width = measure(&self.counts).min(self.zone_width);
         // DStatusBar anchors its 120 px scale slider 20 px off the right edge; the disk facts step in before it.
         let disk_x = SLIDER_MARGIN + SLIDER_W + 14.;
-        let room =
-            (self.width - 28. - disk_width - disk_x - (14. + count_width + 14.)).max(0.);
+        let room = (self.width - 28. - disk_width - disk_x - (14. + count_width + 14.)).max(0.);
         let counts_text = counts::elided(&self.counts, self.zone_width, measure);
         self.counts_text = counts_text.layout().clone();
         // A block zone, not a flex row: only a text given its zone's width is cut with the ellipsis StatusBar.qml draws.
@@ -469,7 +468,7 @@ impl Render for Footer {
             .child(super::glass::producers::status_backdrop(theme.surface))
             .font_family(typeface.font.family)
             .text_size(typeface.caption)
-            .text_color(ink.foreground)
+            .text_color(ink.muted)
             .child(
                 div()
                     .absolute()
@@ -485,7 +484,7 @@ impl Render for Footer {
                     counts_text.into_any_element(),
                 )
                 .absolute()
-                .left(px(14.)),
+                .left(px(((self.width - self.zone_width) / 2.).max(14.))),
             )
             .child(
                 text(

@@ -35,13 +35,14 @@ impl Column {
     }
 }
 
-/// The columns the user switched on, ui.json "columns"; a fresh install shows the name, size and date.
+/// The columns the user switched on, ui.json "columns". A fresh install shows name, size,
+/// date and kind: Deepin 15's list is Name, Time modified, Size and Type, and kind is that Type column.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Switched([bool; 4]);
 
 impl Default for Switched {
     fn default() -> Self {
-        Self([false, true, true, false])
+        Self([false, true, true, true])
     }
 }
 
@@ -233,7 +234,7 @@ impl Layout {
         self.cell(column).is_some()
     }
 
-    /// Columns.names(): the drawn set left to right, "name,size,date" on a fresh install.
+    /// Columns.names(): the drawn set left to right, "name,size,date,kind" on a fresh install.
     pub fn names(&self) -> String {
         let mut out = String::from("name");
         for column in Column::ALL.into_iter().filter(|column| self.shown(*column)) {

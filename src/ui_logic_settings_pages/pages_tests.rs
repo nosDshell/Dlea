@@ -159,7 +159,7 @@ fn view_rows_read_every_stored_value() {
     let rows = view(state);
     assert_eq!(find(&rows, "view").selected, "grid");
     assert_eq!(say(&find(&rows, "columns").value), "Name, Kind");
-    assert_eq!(say(&find(&view("{}"), "columns").value), "Name, Size, Modified");
+    assert_eq!(say(&find(&view("{}"), "columns").value), "Name, Size, Modified, Kind");
     assert_eq!(say(&find(&view(r#"{"columns":["name","owner"]}"#), "columns").value), "Name, Owner");
     assert_eq!(find(&rows, "density").selected, "comfortable");
     assert_eq!(find(&view("{}"), "density").selected, "compact");

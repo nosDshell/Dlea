@@ -1,0 +1,123 @@
+# GXDE 文件管理器外观对照
+
+Dlea 的界面目标是 [gxde-file-manager](https://github.com/GXDE-OS/gxde-file-manager)（`char/qt6_migration`，Deepin 文件管理器 V4 的 GXDE 分支）的日常窗口。实现留在现有 GPUI 结构里，不改列表模型、视口统计和后端协议。
+
+颜色和尺寸来自该仓库的：
+
+- `gxde-file-manager-lib/themes/dark/DFileManagerWindow.theme`
+- `gxde-file-manager-lib/themes/light/DFileManagerWindow.theme`
+- `gxde-file-manager-lib/themes/dark/config.ini`（侧栏 `BookmarkItem`）
+- `gxde-file-manager-lib/themes/*/DFileView.theme`、`DStatusBar.theme`
+- `gxde-file-manager-lib/views/dtoolbar.cpp`、`dstatusbar.cpp`
+
+没有把 GPL 的 SVG、PNG 或 QSS 文件拷进本仓库。按钮字形仍是 Dlea 自己的描边图标。主题色走现有 `colors.toml` / `shell.toml` 合同；两边都没有时，窗口使用 GXDE 深色底 `#202020` 和强调色 `#2ca7f8`。
+
+## 已对齐（相对源码，不是并排像素）
+
+| 区域 | GXDE | Dlea |
+|---|---|---|
+| 工具栏顺序 | 侧栏、6 px、后退\|前进\|向上贴在一起、10 px、面包屑、10 px、搜索、3 px、视图托盘、3 px、设置 | 同序。网格视图仍把搜索换成筛选和排序，这是原有行为 |
+| 按钮尺寸 | 24×24，圆角 4 | 默认字号下命中盒宽 24。顶栏高度仍是现有 27 px（GXDE 地址条高 40），圆角 4 |
+| 深色按钮 | 静止白 15%、悬停 30%、按下 10%、禁用 6%；选中为实色强调色 | 同 alpha。选中图标仍用主题前景色，以保持原有标记对比度测试 |
+| 浅色按钮 | 白底、10% 描边，悬停为蓝色渐变 | 白底和描边。悬停是强调色 16% 淡洗，而不是 `#8CCFFF→#4BB8FF` 渐变，这样深色图标仍可读 |
+| 面包屑 | 深色井 `rgba(255,255,255,0.15)`，浅色白底描边，当前段实色强调色、白字、圆角 4 | 同井和当前段。分隔符仍是 `/`，不是 GXDE 的箭头 |
+| 视图托盘 | `rgba(0,0,0,0.1)`，内边距 1，按钮贴齐 | 同。托盘里保留列表、分栏、图标、双栏四个模式 |
+| 侧栏行 | 高 30、图标 16、左边距 13；选中 `#332ca7f8`，悬停 `#1Affffff` | 已按这组数字和 alpha |
+| 列表选中 | 强调色 76/255 填充、150/255 描边 | 列表圆角 2，图标视图圆角 3 |
+| 列头 | `QHeaderView` 黑 10% | 同 |
+| 状态栏 | 项数居中，右侧 120 px 缩放滑块、右边距 20 | 项数居中，滑块保留。磁盘余量仍在滑块左侧，GXDE 默认状态栏没有这一项 |
+| 标签页 | 方角、约 8% 底 | 沿用已落地的 GXDE 标签底色 |
+| 菜单 | 强调色 20% 高亮，圆角约 6 | 沿用已落地的菜单高亮 |
+
+## 未对齐
+
+- 窗口装饰不是 DTK `DTitlebar`。最小化、最大化和关闭仍由 GPUI / 合成器绘制，没有 GXDE 那种标题栏右侧的红悬停关闭按钮。
+- 顶栏高度是 27 px（正文字号 14），不是地址条的 40 px。把顶栏加高会改动整窗几何和大量既有测试。
+- 图标不是 `themes/dark/icons` 里的那套彩色侧栏和工具栏 SVG。那些资源是 GPL-3.0，没有并入 MIT 的 Dlea。
+- 浅色悬停不是 QSS 里的蓝渐变，选中工具栏图标也不是强制白色。
+- 面包屑分隔是 `/`，当前段圆角是四角而不是仅右侧。
+- 视图托盘比 GXDE 多出分栏和双栏。列表和分栏里搜索在地址槽右端；网格模式的筛选、排序仍在托盘左边。
+- 状态栏仍显示磁盘余量和操作消息；项数字体颜色改为次级色。
+- 对话框、滚动条和拖放跟手动画没有逐控件对照到 DTK。对话框圆角继续跟合成器的 `decoration.rounding`。
+
+## 真实安装（2026-11-15）——不能当视觉对照
+
+这次 chroot 里的 `gxde-file-manager` 6.4.21 没有画出 DTK 标题栏。地址栏只在 `isDXcbPlatform()` 为真时放进 `DTitlebar`，而 `dde-qt6xcb-plugin` 没有装上（见下）。窗口只有侧栏和内容区，外加 Openbox 的框。**那些截图和“按这个残缺窗口改 Dlea”的结论作废**，不作为布局、工具栏或图标的依据。下面留下安装记录，是为了说明阻塞点，不是为了对照像素。
+
+行为记录仍然只描述那个缺插件的进程实际做了什么，不能外推成完整文件管理器的外观：
+
+- 点侧栏 Documents：行变成浅蓝、文字变蓝，标题变成 `Documents — Deepin File Manager`，空目录显示 Folder is empty。
+- 空白处右键：New folder、New document、Display as、Sort by、Refresh、Open in new window as admin、Open in terminal、Copy Path、Paste（灰）、Select all、Properties。
+- Ctrl+2：详情列 Name / Time changed / Size / Type；选中行是整行浅蓝。目录的 Size 是 `-`。
+- 右键 readme.md：Open、Open with、Cut、Copy、Rename、Delete、Compress、Create link、Send to desktop、Properties。
+- Properties 对话框能打开，路径文字挤成了 `optfixturereadme.md`，这是该环境自己的显示问题。
+- Alt+Left 没有回到上一级，因为工具栏不在树上。
+
+同一时刻的 Dlea 点击落在列表上，选中了 Desktop，当时没有切到图标视图。后来在客户区里对准图标按钮的中心再点一次，视图切过去了。那一次失败是点到了工具栏下面，不是按钮把事件吞掉。
+
+镜像：`https://mirrors.hit.edu.cn/GXDE/gxde-os/`。主机是 Ubuntu 24.04 amd64，不能直接装这些包：它们要求 `libqt6core6t64 >= 6.8.2`，以及 `qt6-base-private-abi (= 6.8.2)`。Noble 的 Qt 更旧，没有替换主机的 Qt。
+
+用的是一次性 Debian 13（trixie）chroot：`/var/tmp/gxde-chroot`，`mmdebstrap --variant=minbase`，源是 `http://deb.debian.org/debian`。chroot 里的 `libqt6core6t64` 是 `6.8.2+dfsg-9+deb13u2`，Provides `qt6-base-private-abi (= 6.8.2)`。
+
+签名：
+
+- `zhuangzhuang/InRelease` 和 `hetao/InRelease` 都由 `BCC6 D7F0 7130 C0FA 3266 9066 FD6E EA1F 20CD 4B27`（`gfdgd_xi <3025613752@qq.com>`，从 Ubuntu keyserver 导入）签过，`gpg --verify` 为 Good signature。这把钥匙没有 web-of-trust 认证。
+- 已下载的 `zhuangzhuang/Packages.xz` SHA256 等于签名的 Release：`1918d98e94b25388adfd50a206a0c7247778b18f4cdaf1e73e8eed38027417e4`。
+- `hetao/Packages.xz` SHA256 等于签名的 Release：`f98efc795e86eeaec3ac23f602b5877a75fdf30f69c32cb82f3c90f9c28cc00b`。
+
+chroot 的 apt 源（signed-by，没有 `trusted=yes`）：
+
+```
+deb [signed-by=/etc/apt/keyrings/gxde-archive.gpg] https://mirrors.hit.edu.cn/GXDE/gxde-os/zhuangzhuang/ ./
+```
+
+实际装上的版本（`apt-get install --no-install-recommends`）：
+
+| 包 | 版本 | 来源 |
+|---|---|---|
+| gxde-file-manager | 6.4.21 amd64 | zhuangzhuang |
+| libgxde-file-manager | 6.4.21 amd64 | zhuangzhuang |
+| libdtk2widget6 | 6:6.3.9 amd64 | zhuangzhuang |
+| libdtk6core | 6.0.48 amd64 | zhuangzhuang |
+| libgxde-bernese-qt6-0 | 1.0.3-gxde5 amd64 | zhuangzhuang |
+| gxde-compressor | 1.6.0 all | zhuangzhuang |
+| gxde-icon-theme | 2026.03.20 all | zhuangzhuang |
+| libqt6core6t64 | 6.8.2+dfsg-9+deb13u2 | Debian 13 |
+
+另外装了 `fonts-noto-core`、`fonts-noto-cjk`、`xvfb`、`openbox`、`xdotool`、`imagemagick`、`libxcb-cursor0`。没有装完整桌面。
+
+没装上的关键包：
+
+- `dde-qt6integration`（zhuangzhuang `6.0.35-gxde2`）依赖 `dde-qt6xcb-plugin`，而 zhuangzhuang 的索引里没有这个包。
+- hetao 有 `dde-qt6xcb-plugin_6.0.48-2_amd64.deb`，SHA256 `70d2175e7c1d603748a8e6d4f0a34168a1bab94304d80965abca0896313d7647` 与签名索引一致，但依赖 `qt6-base-private-abi (= 6.8.0)`。trixie 只提供 `6.8.2`。没有用 `--force-depends`。
+
+## DDE 15 公开截图（视觉依据）
+
+这些图是下载后看过的，不是凭记忆画的。截图只说明当时屏幕上有什么，不证明点击、菜单或快捷键。
+
+| 来源 | 版本上下文 | 图 | 画面上能确认的 |
+|---|---|---|---|
+| [linuxdeepin/developer-center#416](https://github.com/linuxdeepin/developer-center/issues/416) | heck82，2017-11-24。正文写 Deepin Desktop 15.5 beta，Arch。deepin 的 hualet 当天回复。控制中心里日期是 Friday, November 24, 2017 | [15:50:55](https://user-images.githubusercontent.com/17931180/33214102-2d62d9b2-d133-11e7-90cc-0287ce0034fc.jpg)、[15:51:26](https://user-images.githubusercontent.com/17931180/33214103-2d7efebc-d133-11e7-9cf5-5351ee4ec7b7.jpg)、[15:52:07](https://user-images.githubusercontent.com/17931180/33214104-2d9a93b6-d133-11e7-8d5d-09f384b06146.jpg)、[15:55:19](https://user-images.githubusercontent.com/17931180/33214105-2db52b54-d133-11e7-902f-26cac95f330e.jpg) | 浅色窗口。工具栏在标题栏里：侧栏按钮（打开时蓝底）、后退和前进合成一个描边组、计算机按钮（在“计算机”页是蓝底白显示器图标）、长地址槽、搜索在地址槽右端。主目录那张的视图按钮是图标\|列表两半，当前一半为蓝。侧栏顺序 Home、Desktop、Videos、Music、Pictures、Documents、Downloads、Trash，再是 Computer（整行浅蓝、蓝字）、磁盘、Computers in LAN。图标视图里选中的是名字上的实心蓝底白字，图标本身没有框。状态栏居中写 `8 items` 或 `1 folder selected (contains 0 item)`，右侧是蓝色滑块 |
+| [Deepin Wiki：Deepin File Manager](https://wiki.deepin.org/en/Software/Offical_Project/Deepin_File_Manager) | 页面描述的是经典深度文件管理器的导航栏、地址栏、视图、设置和状态栏。正文写列表显示图标、名字、修改时间、大小和类型。这次没有把页面里的图下成功（抓取超时），所以只用这段文字，不用没看到的图 | — | 列表有类型列。交互步骤（新建、复制、视图切换）只作文字，不当成已验证的运行时行为 |
+| [ORDINATECHNIC：Deepin 15.4 Review](https://www.ordinatechnic.com/distribution-reviews/Deepin/deepin-154-review) | 2017-05-01，Deepin 15.4。文中写文件管理器列表只有 Name、Time Modified、Size、Type | 文中配图没有一张被确认是文件管理器列表，因此没有拿来当布局依据 | 列名和 15.5 截图的窗口是同一代产品；列顺序来自文字，不是来自一张列表截图 |
+
+没有采用的图：`https://www.deepin.org/zh/original/dde-file-manager/` 上的四张预览是 2024-05 上传的（`计算机-无投影.png` 等），是现行文件管理器的宣传图，不是 Deepin 15。
+
+## 按这些截图改过的，以及还没对齐的
+
+已在 Dlea 里改、并用真窗口复核的：
+
+- 搜索按钮放进地址槽右端（网格视图仍把这个位置留给筛选和排序）。
+- 图标视图的选中态改成文件名上的实心强调色底、白字，不再给整个图标铺一块选中框。
+- 新安装的列表多出 Kind 列，对应截图和 15.4 评论里的 Type。表头文案仍是现有的 Name / Size / Modified / Kind，不是 Time modified / Type。列从左到右仍是名字、大小、修改时间、类型，15.4 评论里的顺序是名字、修改时间、大小、类型。
+- 视图按钮：在 1100×700 的 X11 窗口里，点客户区图标按钮中心会从列表切到图标视图。Ctrl+1 是列表，Ctrl+3 是图标视图。
+
+仍然不是 1:1：
+
+- 工具栏在客户区里，高 27 px（正文字号 14），上面还有 GPUI / 窗口管理器的标题。DDE 15 把同一排控件和最小化、最大化、关闭画在同一条标题栏里。
+- 没有“计算机”按钮。15.5 截图里后退/前进右边是计算机，不是向上。Dlea 保留向上，因为 V4 工具栏有这一项，拿掉会丢掉现有导航。
+- 侧栏地点取决于本机目录。对照机这次只有 Home、Trash 和一个名为 cursor 的地点，没有截图里的 Desktop、Videos 那一串和磁盘行。
+- 图标是 Dlea 自己的描边字形，不是深度的彩色文件夹。那些 SVG 是 GPL，没有并入。
+- 浅色选中工具栏图标仍是深色字形加淡蓝底，不是截图里的白字蓝底。字形对比度测试要求当前标记用主题前景色。
+- 右键菜单项和 DDE 的 New folder / Display as / Compress 不是同一组。没有为了凑菜单去造没有后端的项。
+- 无头 GPUI 截图只证明 Dlea 自己的绘制。上面的 X11 点击才是这次的运行时结果。

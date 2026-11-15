@@ -3,7 +3,7 @@ use super::{
     columns::{self, Cell, Column, Layout},
     element::paint_line,
     pane::Held,
-    ListState, ListView, Metrics, Palette, HAIRLINE, NORMAL,
+    ListState, ListView, Metrics, Palette, HAIRLINE,
 };
 use crate::{navigation::folder_state::Order, palette::Theme};
 use gpui::{

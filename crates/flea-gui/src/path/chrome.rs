@@ -1,6 +1,6 @@
 //! The native toolbar owns its painted controls and hosts the existing path surface.
 use super::{
-    mark::{divider, press_scale, resting_ink, Press, MARK},
+    mark::{press_scale, Press, MARK},
     view::PathView,
 };
 use crate::{
@@ -8,13 +8,13 @@ use crate::{
     window::startup::View,
 };
 use gpui::{
-    canvas, div, prelude::*, px, Bounds, Context, Entity, EventEmitter, FocusHandle, Pixels, Point,
-    Window,
+    div, prelude::*, Bounds, Context, Entity, EventEmitter, FocusHandle, Pixels, Point, Window,
 };
 use std::{cell::RefCell, rc::Rc, time::Instant};
 
 mod address;
 mod button;
+mod plate;
 
 /// The copy mark after the path is the last control, so every earlier index keeps its place.
 pub const COPY: usize = 10;
@@ -211,142 +211,7 @@ impl Render for ChromeView {
             self.frame.borrow_mut().controls[index].focused = focus.is_focused(window);
         }
         let sizes = Sizes::at(&Typeface::for_window(window, cx));
-        let ink = |enabled| resting_ink(enabled, true, &palette);
-        let mut right = div()
-            .h_full()
-            .flex()
-            .items_center()
-            .gap(px(sizes.gap))
-            .flex_none();
-        if self.inputs.view == View::Grid {
-            right = right
-                .child(self.button(
-                    sizes,
-                    3,
-                    self.inputs.filter,
-                    ink(self.inputs.filter),
-                    palette.foreground,
-                    cx,
-                ))
-                .child(self.button(
-                    sizes,
-                    4,
-                    self.inputs.sort,
-                    ink(self.inputs.sort),
-                    palette.foreground,
-                    cx,
-                ));
-        } else {
-            right = right.child(self.button(
-                sizes,
-                2,
-                true,
-                palette.foreground,
-                palette.foreground,
-                cx,
-            ));
-        }
-        let cover = self.frame.borrow().cover.clone();
-        right = right.child(divider(palette.foreground, sizes.mark, cover.clone()));
-        for (index, mode) in [
-            (5, View::List),
-            (6, View::Columns),
-            (7, View::Grid),
-            (8, View::Dual),
-        ] {
-            right = right.child(self.button(
-                sizes,
-                index,
-                true,
-                resting_ink(true, self.inputs.view == mode, &palette),
-                palette.foreground,
-                cx,
-            ));
-        }
-        right = right
-            .child(divider(palette.foreground, sizes.mark, cover))
-            .child(self.button(sizes, 9, true, palette.foreground, palette.foreground, cx));
-        let frame = self.frame.clone();
-        let pointer_frame = self.frame.clone();
-        let toolbar = div()
-            .size_full()
-            .relative()
-            .child(crate::window::glass::producers::backdrop(
-                crate::window::glass::producers::Producer::Chrome,
-                theme.chrome(),
-            ))
-            .child(
-                div()
-                    .size_full()
-                    .flex()
-                    .gap(px(sizes.gap))
-                    .px(px(sizes.pad))
-                    .child(
-                        div()
-                            .flex()
-                            .flex_none()
-                            .child(self.button(
-                                sizes,
-                                SIDEBAR,
-                                self.inputs.sidebar,
-                                resting_ink(self.inputs.sidebar, self.inputs.rail_shown, &palette),
-                                palette.foreground,
-                                cx,
-                            ))
-                            .child(div().w(px(6. * sizes.band / 40.)))
-                            .child(self.button(
-                                sizes,
-                                0,
-                                self.inputs.back,
-                                ink(self.inputs.back),
-                                palette.foreground,
-                                cx,
-                            ))
-                            .child(self.button(
-                                sizes,
-                                FORWARD,
-                                self.inputs.forward,
-                                ink(self.inputs.forward),
-                                palette.foreground,
-                                cx,
-                            ))
-                            .child(self.button(
-                                sizes,
-                                1,
-                                self.inputs.up,
-                                ink(self.inputs.up),
-                                palette.foreground,
-                                cx,
-                            )),
-                    )
-                    .child(self.address(sizes, &palette, cx))
-                    .child(right),
-            );
-        for control in &mut self.frame.borrow_mut().controls {
-            control.hovered =
-                control.pointer_over && control.visible && control.enabled && self.inputs.live;
-            if !control.visible || !control.enabled || !self.inputs.live {
-                control.pointer_down = false;
-                control.set_pressed(false, cx.background_executor().now(), cx.reduce_motion());
-            }
-        }
-        toolbar
-            .child(
-                div()
-                    .absolute()
-                    .bottom_0()
-                    .w_full()
-                    .h(px(1.))
-                    .bg(palette.foreground.opacity(0.12)),
-            )
-            .child(
-                canvas(
-                    move |bounds, _, _| frame.borrow_mut().bounds = Some(bounds),
-                    move |_, _, window, _| super::tap::observe(pointer_frame.clone(), window),
-                )
-                .absolute()
-                .size_full(),
-            )
+        self.band(theme, &palette, sizes, cx)
     }
 }
 
