@@ -2,10 +2,10 @@
 use crate::jsondoc::{self, Json};
 
 // The st2 built-in ids carrying send targets, as st2 builtin.rs writes them.
-pub const PLUGIN_TAILSCALE: &str = "flea.tailscale";
-pub const PLUGIN_LOCALSEND: &str = "flea.localsend";
-pub const PLUGIN_DROPBOX: &str = "flea.dropbox";
-pub const PLUGIN_AIRDROP: &str = "flea.airdrop";
+pub const PLUGIN_TAILSCALE: &str = "dlea.tailscale";
+pub const PLUGIN_LOCALSEND: &str = "dlea.localsend";
+pub const PLUGIN_DROPBOX: &str = "dlea.dropbox";
+pub const PLUGIN_AIRDROP: &str = "dlea.airdrop";
 
 // The menu rows this unit gates, as mn1 inventory.rs spells their stored ids.
 pub const MENU_TAILDROP: &str = "taildrop";
@@ -145,13 +145,13 @@ mod tests {
 
     #[test]
     fn roles_name_their_plugin_and_menu_ids() {
-        assert_eq!(Role::Tailscale.plugin_id(), "flea.tailscale");
-        assert_eq!(Role::LocalSend.plugin_id(), "flea.localsend");
-        assert_eq!(Role::Dropbox.plugin_id(), "flea.dropbox");
+        assert_eq!(Role::Tailscale.plugin_id(), "dlea.tailscale");
+        assert_eq!(Role::LocalSend.plugin_id(), "dlea.localsend");
+        assert_eq!(Role::Dropbox.plugin_id(), "dlea.dropbox");
         assert_eq!(Role::Tailscale.menu_id(), "taildrop");
         assert_eq!(Role::LocalSend.menu_id(), "localsend");
         assert_eq!(Role::Dropbox.menu_id(), "dropbox");
-        assert_eq!(Role::AirDrop.plugin_id(), "flea.airdrop");
+        assert_eq!(Role::AirDrop.plugin_id(), "dlea.airdrop");
         assert_eq!(Role::AirDrop.menu_id(), "airdrop");
     }
 

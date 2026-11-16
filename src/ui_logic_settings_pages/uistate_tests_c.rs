@@ -1,4 +1,4 @@
-// Ports tests/js/uistate.js (Flea 0.3.12) lines 279-365: window keys, applying another window's save, and the parse guard.
+// Ports tests/js/uistate.js (Dlea 0.3.12) lines 279-365: window keys, applying another window's save, and the parse guard.
 use super::*;
 use crate::jsondoc::{parse, render, Json};
 
@@ -78,7 +78,7 @@ fn an_owed_map_entry_keeps_the_window_value_and_another_entry_applies() {
 }
 
 #[test]
-fn a_key_a_newer_flea_wrote_is_kept_verbatim() {
+fn a_key_a_newer_dlea_wrote_is_kept_verbatim() {
     let applied = apply_external(&j("{}"), &j("{}"), r#"{"aKeyThisBuildHasNeverHeardOf":true}"#);
     assert_eq!(at(&applied.state, &["aKeyThisBuildHasNeverHeardOf"]), Some(&Json::Bool(true)));
 }

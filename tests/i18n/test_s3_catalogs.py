@@ -40,7 +40,7 @@ BROKEN_FROM_DRAFT = {
 
 
 def catalogs():
-    for path in sorted((ROOT / "i18n").glob("*/flea.json")):
+    for path in sorted((ROOT / "i18n").glob("*/dlea.json")):
         yield path.parent.name, json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -79,7 +79,7 @@ class S3CatalogTests(unittest.TestCase):
                             self.assertNotIn(form, forms(english[key]))
 
     def test_s3_12_the_german_wrap_caption_has_no_english_word(self):
-        caption = json.loads((ROOT / "i18n/de/flea.json").read_text(encoding="utf-8"))["settings.caption.wrap"]
+        caption = json.loads((ROOT / "i18n/de/dlea.json").read_text(encoding="utf-8"))["settings.caption.wrap"]
         self.assertEqual(caption, "Pfeil hoch ganz oben")
 
     def test_airdrop_adapter_states_are_recorded_against_current_english(self):
@@ -92,7 +92,7 @@ class S3CatalogTests(unittest.TestCase):
             current = hashlib.sha256(english[key].encode("utf-8")).hexdigest()[:12]
             for language, catalog in translated.items():
                 with self.subTest(language=language, key=key):
-                    self.assertEqual(manifest[language][f"flea:{key}"], current)
+                    self.assertEqual(manifest[language][f"dlea:{key}"], current)
                     self.assertNotEqual(catalog[key], english[key])
         for language, catalog in translated.items():
             with self.subTest(language=language, wording="current English"):

@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-emptybeats-test
+//@ pragma ShellId dlea-emptybeats-test
 
 import QtQuick
 import Quickshell
 import qs.Commons
-import "flea" as Flea
+import "dlea" as Dlea
 
 // tests/emptybeats.sh's harness: the real ui/EmptyState.qml plays three beats after each appearance, then rests on the third.
 ShellRoot {
@@ -40,12 +40,12 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 400
         implicitHeight: 300
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
         Item {
             id: host
             anchors.fill: parent
-            Flea.EmptyState { id: empty; anchors.fill: parent }
+            Dlea.EmptyState { id: empty; anchors.fill: parent }
         }
     }
 

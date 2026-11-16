@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Flash.js" as Flash
 import "js/Format.js" as Format
 
@@ -59,7 +59,7 @@ Column {
                     anchors.leftMargin: Theme.spacing.rowPaddingX
                     anchors.rightMargin: Theme.spacing.rowPaddingX
                     spacing: Theme.spacing.gap
-                    Flea.Glyph { width: Theme.markSize; height: parent.height; name: "drive"; color: Theme.color.foreground }
+                    Dlea.Glyph { width: Theme.markSize; height: parent.height; name: "drive"; color: Theme.color.foreground }
                     Text {
                         width: Math.max(0, parent.width - Theme.markSize - driveDetail.width - driveSize.width - 3 * parent.spacing)
                         anchors.verticalCenter: parent.verticalCenter
@@ -123,7 +123,7 @@ Column {
             anchors.leftMargin: Theme.spacing.rowPaddingX
             anchors.rightMargin: Theme.spacing.rowPaddingX
             spacing: Theme.spacing.gap
-            Flea.Glyph { width: Theme.markSize; height: parent.height; name: "drive"; color: Theme.color.mutedFrame }
+            Dlea.Glyph { width: Theme.markSize; height: parent.height; name: "drive"; color: Theme.color.mutedFrame }
             Text {
                 anchors.verticalCenter: parent.verticalCenter
                 text: "Plug in a USB drive or SD card"

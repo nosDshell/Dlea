@@ -239,7 +239,7 @@ fn redo_of_a_cross_device_move_writes_the_names_the_move_was_made_with() {
 // A name that is not text is asked about under its own bytes, never skipped and never matched to its U+FFFD twin.
 #[test]
 fn a_raw_named_source_asks_about_its_own_name_and_shows_its_display_spelling() {
-    use flea::bytename::ExactText as _;
+    use dlea::bytename::ExactText as _;
     use std::os::unix::ffi::OsStrExt;
     let d = TestDir::new("collide-raw-name");
     let to = d.dir("to");

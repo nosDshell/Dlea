@@ -103,9 +103,9 @@ fn lock_finds_the_container_behind_a_crypt_only() {
 
 // The QML-source checks below are behaviour now, in the GUI crate's tests:
 // a typed card keeps its name, the poller ends with its first listing, never starts on a touched card, latches past an erase,
-// retries a timeout and reads the remembered rail: crates/flea-gui/src/g2/device_rail/host_tests.rs.
+// retries a timeout and reads the remembered rail: crates/dlea-gui/src/g2/device_rail/host_tests.rs.
 // Tab order field, Cancel, Unlock; Cancel the one stop while unlocking; submit moves to Cancel; a refusal returns to the field;
-// an edit clears the error frame, the note and its role; submit holds only the length; open, close and success clear it: crates/flea-gui/src/g2/device_rail/unlock_tests.rs.
-// Return, Enter and Space press the focused button and a held repeat never does: crates/flea-gui/src/g2/device_rail/keys_tests.rs.
-// The held count is a usize and the mask a count of U+2022, so the QML regex guards have nothing left to guard: crates/flea-gui/src/g2/device_rail/field.rs.
-// The eject lock before the device clears, the one refused lock attempt, the judged listing's crypt, the unmount's own listing: crates/flea-gui/src/g2/device_rail/eject_tests.rs.
+// an edit clears the error frame, the note and its role; submit holds only the length; open, close and success clear it: crates/dlea-gui/src/g2/device_rail/unlock_tests.rs.
+// Return, Enter and Space press the focused button and a held repeat never does: crates/dlea-gui/src/g2/device_rail/keys_tests.rs.
+// The held count is a usize and the mask a count of U+2022, so the QML regex guards have nothing left to guard: crates/dlea-gui/src/g2/device_rail/field.rs.
+// The eject lock before the device clears, the one refused lock attempt, the judged listing's crypt, the unmount's own listing: crates/dlea-gui/src/g2/device_rail/eject_tests.rs.

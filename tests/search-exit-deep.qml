@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-search-exit-deep-test
+//@ pragma ShellId dlea-search-exit-deep-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // Escape out of a live search begun on a row past the folder's first window lands the cursor on that row in the first frame.
 ShellRoot {
@@ -158,7 +158,7 @@ ShellRoot {
         id: win
         implicitWidth: 1400
         implicitHeight: 800
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
         Item {
             id: frameProbe
             Connections {
@@ -167,10 +167,10 @@ ShellRoot {
             }
         }
     }
-    Flea.Backend { id: realBackend }
+    Dlea.Backend { id: realBackend }
     Component {
         id: paneComponent
-        Flea.Pane {
+        Dlea.Pane {
             width: 1400
             height: 800
             backend: realBackend
@@ -236,7 +236,7 @@ ShellRoot {
 
     function run(op) {
         if (op.open) {
-            Flea.ViewState.changeKey("view", "list")
+            Dlea.ViewState.changeKey("view", "list")
             root.pane = paneComponent.createObject(win.contentItem)
             root.keys = Qt.createQmlObject("import QtTest; TestEvent {}", root.pane.listArea)
             root.pane.open(root.fixture)

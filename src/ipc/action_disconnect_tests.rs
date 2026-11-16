@@ -64,7 +64,7 @@ fn a_window_closing_during_the_request_is_no_window() {
                 dropped_reply(listing, read_request, false),
                 Reply::error(
                     NO_WINDOW,
-                    "flea: no Flea window is running, so there is nothing to run the action in"
+                    "dlea: no Dlea window is running, so there is nothing to run the action in"
                 ),
                 "listing={listing}, read_request={read_request}"
             );
@@ -82,7 +82,7 @@ fn a_live_window_dropping_a_client_is_unavailable() {
                 || !reply.stdout.is_empty()
                 || !reply
                     .stderr
-                    .starts_with("flea: the window did not answer: ")
+                    .starts_with("dlea: the window did not answer: ")
             {
                 failures.push((listing, read_request, reply));
             }
@@ -131,7 +131,7 @@ fn broken_pipe_probes_live_refused_and_missing_listeners() {
                 reply,
                 Reply::error(
                     UNAVAILABLE,
-                    format!("flea: the window did not answer: {original}")
+                    format!("dlea: the window did not answer: {original}")
                 )
             );
             assert_bare_probe(&endpoint.listener);
@@ -140,7 +140,7 @@ fn broken_pipe_probes_live_refused_and_missing_listeners() {
                 reply,
                 Reply::error(
                     NO_WINDOW,
-                    "flea: no Flea window is running, so there is nothing to run the action in"
+                    "dlea: no Dlea window is running, so there is nothing to run the action in"
                 ),
                 "{state}"
             );
@@ -161,7 +161,7 @@ fn an_inconclusive_probe_preserves_the_original_error() {
         exchange_failed(&path, error),
         Reply::error(
             UNAVAILABLE,
-            format!("flea: the window did not answer: {original}")
+            format!("dlea: the window did not answer: {original}")
         )
     );
 }
@@ -192,5 +192,5 @@ fn malformed_window_replies_are_still_unavailable() {
     assert!(reply.stdout.is_empty());
     assert!(reply
         .stderr
-        .starts_with("flea: the window did not answer: "));
+        .starts_with("dlea: the window did not answer: "));
 }

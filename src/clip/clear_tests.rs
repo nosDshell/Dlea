@@ -22,7 +22,7 @@ fn queued_replacements_survive_token_and_cut_clear() {
         fake_hello(&mut conn, &[(wire::EXT_MANAGER, 1)]);
         expect(&mut conn, 2, REGISTRY_BIND);
         expect(&mut conn, 2, REGISTRY_BIND);
-        let mime = if cut { format::GNOME } else { format::FLEA };
+        let mime = if cut { format::GNOME } else { format::DLEA };
         fake_selection(&mut conn, 6, &[mime]);
         let request = conn.next_raw(TEST_WAIT_MS).unwrap().unwrap();
         assert_eq!((request.sender, request.opcode), (10, OFFER_RECEIVE));
@@ -32,7 +32,7 @@ fn queued_replacements_survive_token_and_cut_clear() {
         conn.send(6, 0, &payload, &[]).unwrap();
         conn.send(6, 1, &payload, &[]).unwrap();
         let bytes = if cut { format::build_gnome("cut", &["/tmp/a".into()]) }
-            else { format::build_flea("copy", "ab12cd34ab12cd34ab12cd34ab12cd34") };
+            else { format::build_dlea("copy", "ab12cd34ab12cd34ab12cd34ab12cd34") };
         std::fs::File::from(fd).write_all(&bytes).unwrap();
         let mut null_seen = false;
         while let Some(event) = conn.next_raw(TEST_WAIT_MS).unwrap() {

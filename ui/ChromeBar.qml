@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Crumbs.js" as Crumbs
 import "js/PathBar.js" as PathBar
 
@@ -136,7 +136,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         spacing: Theme.spacing.gap
 
-        Flea.ChromeButton {
+        Dlea.ChromeButton {
             inputLive: root.inputLive
             ruleRows: Theme.spacing.hairline
             glyph: "arrow-left"
@@ -145,7 +145,7 @@ Item {
             onActivated: root.backRequested()
         }
 
-        Flea.ChromeButton {
+        Dlea.ChromeButton {
             inputLive: root.inputLive
             ruleRows: Theme.spacing.hairline
             glyph: "arrow-up"
@@ -213,7 +213,7 @@ Item {
                     model: Crumbs.fitCrumbs(Crumbs.crumbs(root.path, root.home, root.pathAlias),
                                          Math.floor(crumbSlot.width / crumbMetrics.advanceWidth))
 
-                    delegate: Flea.Crumb {
+                    delegate: Dlea.Crumb {
                         inputLive: root.inputLive
                         dropPane: root.dropPane
                         // The strip's height with the glyphs centred, because the crumb's handlers are the path area's
@@ -279,7 +279,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         spacing: Theme.spacing.gap
 
-        Flea.ChromeButton {
+        Dlea.ChromeButton {
             inputLive: root.inputLive
             ruleRows: Theme.spacing.hairline
             visible: root.viewMode !== "grid"
@@ -288,7 +288,7 @@ Item {
             onActivated: root.searchRequested()
         }
 
-        Flea.ChromeButton {
+        Dlea.ChromeButton {
             inputLive: root.inputLive
             ruleRows: Theme.spacing.hairline
             visible: root.viewMode === "grid"
@@ -299,7 +299,7 @@ Item {
             onActivated: root.filterRequested()
         }
 
-        Flea.ChromeButton {
+        Dlea.ChromeButton {
             inputLive: root.inputLive
             ruleRows: Theme.spacing.hairline
             visible: root.viewMode === "grid"
@@ -310,7 +310,7 @@ Item {
             onActivated: root.sortRequested()
         }
 
-        Flea.ChromeModes {
+        Dlea.ChromeModes {
             id: modes
             inputLive: root.inputLive
             viewMode: root.viewMode
@@ -327,7 +327,7 @@ Item {
             opacity: 0.12
         }
 
-        Flea.ChromeButton {
+        Dlea.ChromeButton {
             inputLive: root.inputLive
             ruleRows: Theme.spacing.hairline
             glyph: "sliders"
@@ -348,5 +348,5 @@ Item {
     }
 
     // The pointer's title bar over the whole strip; the controls under it keep their own taps.
-    Flea.WindowDrag { anchors.fill: parent; editing: root.editing; inputLive: root.inputLive }
+    Dlea.WindowDrag { anchors.fill: parent; editing: root.editing; inputLive: root.inputLive }
 }

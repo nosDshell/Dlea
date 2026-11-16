@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-rowcost-test
+//@ pragma ShellId dlea-rowcost-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "langmark-count.js" as LangCost
 
 // Rowcost: one Row and one GridTile, built as ui/List.qml and ui/GridArea.qml build them, are counted against the measured objects.
@@ -21,7 +21,7 @@ ShellRoot {
     // The match wash a tile builds with the strip: its holder, the face it measures by and one box per caption line.
     readonly property int gridArmedMax: 17
 
-    Flea.Row {
+    Dlea.Row {
         id: probeRow
         width: 800
         row: root.sampleRow
@@ -30,7 +30,7 @@ ShellRoot {
         clipMark: ""
     }
 
-    Flea.GridTile {
+    Dlea.GridTile {
         id: probeTile
         width: 160
         height: 120
@@ -136,7 +136,7 @@ ShellRoot {
         if (probeRow.dropBuilt())
             failures.push("a row at rest builds its drop frame")
         // Initial marks and drop targets must build their cue without a later active change.
-        var bornComponent = Qt.createComponent(Qt.resolvedUrl("flea/Row.qml"))
+        var bornComponent = Qt.createComponent(Qt.resolvedUrl("dlea/Row.qml"))
         if (bornComponent.status !== Component.Ready) {
             failures.push("the construction probe cannot load Row.qml: " + bornComponent.errorString())
         } else {
@@ -219,10 +219,10 @@ ShellRoot {
 
     // Cut dims drawn colours, copy stays bright, and clearing restores idle objects and ink.
     function checkDrawnDim(wantDim) {
-        var want = wantDim ? Flea.Theme.disabledOpacity : 1
+        var want = wantDim ? Dlea.Theme.disabledOpacity : 1
         // A trivial token makes every dim check vacuous, so the baseline must stay a real dim.
-        if (Flea.Theme.disabledOpacity <= 0.05 || Flea.Theme.disabledOpacity >= 0.95)
-            failures.push("disabledOpacity reads " + Flea.Theme.disabledOpacity + ", want a real dim")
+        if (Dlea.Theme.disabledOpacity <= 0.05 || Dlea.Theme.disabledOpacity >= 0.95)
+            failures.push("disabledOpacity reads " + Dlea.Theme.disabledOpacity + ", want a real dim")
         var nameA = root.effectiveAlpha(probeRow.nameItem())
         if (Math.abs(nameA - want) > 0.01)
             failures.push("a row draws its name at " + nameA + ", want " + want)
@@ -240,9 +240,9 @@ ShellRoot {
         var right = probeRow.clipRight()
         var left = right - probeRow.clipPx
         var textRight = label.x + Math.min(label.width, label.implicitWidth)
-        if (!isFinite(textRight) || !isFinite(left) || left < textRight + Flea.Theme.spacing.gap - 0.01)
+        if (!isFinite(textRight) || !isFinite(left) || left < textRight + Dlea.Theme.spacing.gap - 0.01)
             failures.push("clipboard mark is before the filename's right edge")
-        if (!isFinite(right) || right > probeRow.width - Flea.Theme.spacing.rowPaddingX + 0.01)
+        if (!isFinite(right) || right > probeRow.width - Dlea.Theme.spacing.rowPaddingX + 0.01)
             failures.push("clipboard mark is clipped beyond the row")
     }
 
@@ -355,9 +355,9 @@ ShellRoot {
             failures.push("a fitting name re-elides on hover")
         probeRow.dropTarget = false
         probeRow.hiddenCols = []
-        root.todayFixture = Flea.ViewState.todayStart
-        Flea.ViewState.state = {}
-        Flea.ViewState.todayStart = root.todayFixture
+        root.todayFixture = Dlea.ViewState.todayStart
+        Dlea.ViewState.state = {}
+        Dlea.ViewState.todayStart = root.todayFixture
         probeRow.row = ({ n: "today.txt", i: "text-x-generic", p: 420, d: false, s: 13, m: root.todayFixture / 1000 + 3600, t: false, k: 0, v: 0 })
         root.datePhase = 0
         dateProbe.start()
@@ -366,18 +366,18 @@ ShellRoot {
     // The today lift reads the drawn date cell with the switch off, on, and on with a stale date.
     function measureDate() {
         if (root.datePhase === 0) {
-            if (String(probeRow.cellInk) === String(Flea.Theme.color.foreground))
+            if (String(probeRow.cellInk) === String(Dlea.Theme.color.foreground))
                 failures.push("cellInk matches foreground, so the today lift reads nothing")
             if (String(probeRow.cell("date").color) !== String(probeRow.cellInk))
                 failures.push("highlight off draws " + probeRow.cell("date").color + " on today, want cellInk")
-            Flea.ViewState.state = { highlightToday: true }
-            Flea.ViewState.todayStart = root.todayFixture
+            Dlea.ViewState.state = { highlightToday: true }
+            Dlea.ViewState.todayStart = root.todayFixture
             root.datePhase = 1
             dateProbe.start()
             return
         }
         if (root.datePhase === 1) {
-            if (String(probeRow.cell("date").color) !== String(Flea.Theme.color.foreground))
+            if (String(probeRow.cell("date").color) !== String(Dlea.Theme.color.foreground))
                 failures.push("highlight on draws " + probeRow.cell("date").color + " on today, want foreground")
             probeRow.row = ({ n: "old.txt", i: "text-x-generic", p: 420, d: false, s: 13, m: root.todayFixture / 1000 - 3600, t: false, k: 0, v: 0 })
             root.datePhase = 2
@@ -386,7 +386,7 @@ ShellRoot {
         }
         if (String(probeRow.cell("date").color) !== String(probeRow.cellInk))
             failures.push("highlight on draws " + probeRow.cell("date").color + " on a stale date, want cellInk")
-        Flea.ViewState.state = {}
+        Dlea.ViewState.state = {}
         root.measureLocating()
     }
 

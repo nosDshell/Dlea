@@ -35,7 +35,7 @@ def package(destination, content_type, parts, root_target, size):
         archive.writestr('_rels/.rels', relationship)
         for name, body in parts.items():
             archive.writestr(name, body)
-        archive.writestr('flea-padding.txt', b' ' * padding)
+        archive.writestr('dlea-padding.txt', b' ' * padding)
     with BytesIO() as template:
         with ZipFile(template, 'w', compression=ZIP_STORED) as archive:
             write_members(archive, 0)
@@ -76,6 +76,6 @@ def generate(root):
 
 if __name__ == '__main__':
     fixture_root = Path(sys.argv[1])
-    if not fixture_root.is_absolute() or not (fixture_root / '.flea-test-sandbox').is_file():
+    if not fixture_root.is_absolute() or not (fixture_root / '.dlea-test-sandbox').is_file():
         raise SystemExit('Office fixture requires an absolute marked root')
     generate(fixture_root)

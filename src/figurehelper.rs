@@ -1,4 +1,4 @@
-// `flea --figure-helper`: maths and diagrams through quickjs-ng, in a jail (AGENTS.md "Markdown figures").
+// `dlea --figure-helper`: maths and diagrams through quickjs-ng, in a jail (AGENTS.md "Markdown figures").
 use crate::backend::sandbox;
 use crate::figurebuild;
 use crate::figurecache;
@@ -10,7 +10,7 @@ use std::path::{Path, PathBuf};
 // Arch's extra/quickjs-ng, the only engine the vendored bundles run under.
 const SYSTEM_QJS: &str = "/usr/bin/qjs";
 // A test hook, and only a test hook: an absolute path to a qjs binary.
-const QJS_ENV: &str = "FLEA_QJS";
+const QJS_ENV: &str = "DLEA_QJS";
 // The helper lazy-loads vendor bundles and imports the shared post-processing module from the UI js directory.
 const HELPER_NAME: &str = "figure-helper.mjs";
 const WORKER_NAME: &str = "FigureWorker.mjs";
@@ -77,7 +77,7 @@ pub(crate) fn pin_utc(argv: &mut Vec<String>) {
 // The helper's own flag that prints one line per bundle it loads, saying whether it came from bytecode or from source.
 const REPORT_FLAG: &str = "--report";
 // A test hook, and only a test hook: "1" makes every start a reporting one.
-const REPORT_ENV: &str = "FLEA_FIGURE_REPORT";
+const REPORT_ENV: &str = "DLEA_FIGURE_REPORT";
 
 // The same argv, asking the helper to say where each bundle came from.
 pub(crate) fn reporting(mut argv: Vec<String>) -> Vec<String> {
@@ -153,7 +153,7 @@ fn resolve(warm: &[&str]) -> Result<Vec<String>, String> {
 }
 
 // `warm` is the optional `--warm=KINDS` argument: those bundles load before the first request.
-// Sample input: ["flea", "--figure-helper", "--warm=math"], "--figure-compile" or "--figure-store"; anything else is not ours.
+// Sample input: ["dlea", "--figure-helper", "--warm=math"], "--figure-compile" or "--figure-store"; anything else is not ours.
 pub fn dispatch(args: &[String]) -> Option<i32> {
     let mode = args.get(1)?.as_str();
     match (mode, args.len()) {
@@ -172,11 +172,11 @@ fn run(warm: Option<&str>) -> i32 {
             cmd.args(&argv[1..]);
             // Exec replaces us, so the caller's stdin and stdout pipes reach qjs direct.
             let error = cmd.exec();
-            eprintln!("flea: the figure helper could not start {}: {}", argv[0], error);
+            eprintln!("dlea: the figure helper could not start {}: {}", argv[0], error);
             REFUSED
         }
         Err(message) => {
-            eprintln!("flea: {}", message);
+            eprintln!("dlea: {}", message);
             REFUSED
         }
     }

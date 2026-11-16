@@ -14,8 +14,8 @@ use std::{
 
 const STUB: &str = r#"#!/bin/sh
 set -eu
-root=${FLEA_TUI_PRINT_ROOT:?}
-case "$root" in /*) test -f "$root/.flea-test-sandbox" ;; *) exit 98 ;; esac
+root=${DLEA_TUI_PRINT_ROOT:?}
+case "$root" in /*) test -f "$root/.dlea-test-sandbox" ;; *) exit 98 ;; esac
 case "${0##*/}" in
  prlimit) while [ "${1#--}" != "$1" ]; do shift; done; exec "$@" ;;
  bwrap)
@@ -79,7 +79,7 @@ fn model(root: &Path, w: &mut Wire, names: &[&str]) -> Model {
 #[test]
 #[ignore = "private backend process entry point"]
 fn tui_print_backend_helper() {
-    if std::env::var_os("FLEA_TUI_PRINT_BACKEND").is_some() {
+    if std::env::var_os("DLEA_TUI_PRINT_BACKEND").is_some() {
         std::process::exit(crate::backend::run::run());
     }
 }
@@ -87,11 +87,11 @@ fn tui_print_backend_helper() {
 #[test]
 #[ignore = "private clean-environment process entry point"]
 fn tui_print_process_helper() {
-    let Some(root) = std::env::var_os("FLEA_TUI_PRINT_ROOT") else {
+    let Some(root) = std::env::var_os("DLEA_TUI_PRINT_ROOT") else {
         return;
     };
     let root = std::path::PathBuf::from(root);
-    assert!(root.join(".flea-test-sandbox").is_file());
+    assert!(root.join(".dlea-test-sandbox").is_file());
     for state in ["/run/cups", "/var/lib/cups", "/var/cache/cups", "/var/spool/cups", "/etc/cups", "/etc/printcap"] {
         assert!(!Path::new(state).exists(), "host CUPS state must be hidden: {state}");
     }
@@ -113,12 +113,12 @@ fn tui_print_process_helper() {
     let namespace = std::fs::read_link("/proc/self/ns/net").unwrap();
     assert_ne!(
         namespace.to_str().unwrap(),
-        std::env::var("FLEA_HOST_NET_NS").unwrap()
+        std::env::var("DLEA_HOST_NET_NS").unwrap()
     );
     let command = || {
-        let mut c = Command::new(flea::testpath::tool("/bin/sh"));
+        let mut c = Command::new(dlea::testpath::tool("/bin/sh"));
         c.args(["-c", r#""$1" --exact tui::print_process_tests::tui_print_backend_helper --ignored --nocapture --format=terse --test-threads=1 | /usr/bin/sed -u -n '/^{/p'"#, "tui-print-backend"])
-            .arg(std::env::current_exe().unwrap()).env("FLEA_TUI_PRINT_BACKEND", "1");
+            .arg(std::env::current_exe().unwrap()).env("DLEA_TUI_PRINT_BACKEND", "1");
         c
     };
     let files = root.join("files");
@@ -275,7 +275,7 @@ fn tui_print_real_backend_and_private_setup_recorder() {
     }
     // The private /var must still expose this test's executable and English catalog.
     let executable = std::env::current_exe().unwrap();
-    let mut command = Command::new(flea::testpath::tool("/usr/bin/setsid"));
+    let mut command = Command::new(dlea::testpath::tool("/usr/bin/setsid"));
     command
         .args([
             "-w",
@@ -317,16 +317,16 @@ fn tui_print_real_backend_and_private_setup_recorder() {
             "--nocapture",
         ])
         .env_clear()
-        .env("FLEA_TUI_PRINT_ROOT", dir.path())
+        .env("DLEA_TUI_PRINT_ROOT", dir.path())
         .env(
-            "FLEA_HOST_NET_NS",
+            "DLEA_HOST_NET_NS",
             std::fs::read_link("/proc/self/ns/net").unwrap(),
         )
         .env("PATH", bin.as_os_str())
         .env("HOME", dir.dir("home"))
         .env("TMPDIR", dir.dir("tmp"))
         .env(
-            "FLEA_I18N",
+            "DLEA_I18N",
             crate::i18n::test_catalogs::english_only(),
         )
         .env("LC_ALL", "C.UTF-8")

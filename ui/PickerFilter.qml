@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Picker.js" as Picker
 
 // Picker040's filter dropdown: one trigger at the menu's width, its menu opening flush above it.
@@ -72,7 +72,7 @@ Item {
         elide: Text.ElideRight
     }
 
-    Flea.Glyph {
+    Dlea.Glyph {
         id: chevron
         anchors.right: parent.right
         anchors.rightMargin: Theme.spacing.gap

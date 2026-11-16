@@ -2,15 +2,15 @@
 . "$(dirname "$0")/headless-commons.sh"
 # The archive password threat suite: a canary travels every password flow and may reach only a tool's stdin (A real 7z, B cards, C static).
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
-BIN=./target/debug/flea
+BIN=./target/debug/dlea
 [ -x "$BIN" ] || { echo "archive-threat.sh: $BIN is missing, run cargo build" >&2; exit 1; }
 CANARY=S3cr3t-canary-1006
 WRONG=Not-The-Password-77
 # The checks a full green walk makes, pinned exactly so a walk that skips steps cannot pass.
 EXPECTED_CHECKS=42
-D="$FIXTURE_ROOT/flea-archive-threat-$$"
+D="$FIXTURE_ROOT/dlea-archive-threat-$$"
 fail=0
 
 check() {
@@ -201,7 +201,7 @@ fi
 echo "--- phase B: the offscreen card walk clears every terminal path ---"
 command -v qs >/dev/null || { echo "archive-threat.sh: qs is not installed, cannot walk the cards"; exit 1; }
 mkdir -p "$D/config" "$D/home" || exit 1
-ln -s "$PWD/ui" "$D/config/flea" || exit 1
+ln -s "$PWD/ui" "$D/config/dlea" || exit 1
 headless_commons "$D" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$D/config/Ui" || exit 1
 cp tests/archive-threat.qml "$D/config/shell.qml" || exit 1
@@ -209,7 +209,7 @@ run_timeout_s=60
 output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$D/home" XDG_STATE_HOME="$D" XDG_CACHE_HOME="$D" \
     XDG_DATA_HOME="$D" XDG_CONFIG_HOME="$D/home/.config" \
-    XDG_RUNTIME_DIR="$D" FLEA_BIN="$PWD/target/debug/flea" \
+    XDG_RUNTIME_DIR="$D" DLEA_BIN="$PWD/target/debug/dlea" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
     timeout "$run_timeout_s" qs -p "$D/config" 2>&1 ) 2>/dev/null )
 # Sample input: "  INFO qml: ARCHIVETHREAT ok <check name>" once per check, and "  INFO qml: ARCHIVETHREAT DONE checks=42 failed=0" once.
@@ -225,10 +225,10 @@ check "and it reads no secret field" "0" "$(sed -n '/function archiveCardsState/
 check "the cards' capture state reads a field's length, never its text" "0" "$(sed -n '/function captureState/,/^    }$/p' ui/ArchivePasswordDialog.qml ui/ArchiveCompressDialog.qml | grep -oiE '\.(text|secret|_secret|password|passphrase)\b(\.length)?' | grep -vc '\.length$' || true)"
 check "and both cards expose one" "2" "$(cat ui/ArchivePasswordDialog.qml ui/ArchiveCompressDialog.qml | grep -c 'function captureState()')"
 check "the host builds on first open only" "1" "$(grep -c 'Qt.createComponent("ArchiveCards.qml")' ui/WindowBody.qml)"
-check "and nothing instantiates it at startup" "0" "$(count_in 'Flea\.ArchiveCards {' ui/WindowBody.qml ui/ArchiveCards.qml)"
+check "and nothing instantiates it at startup" "0" "$(count_in 'Dlea\.ArchiveCards {' ui/WindowBody.qml ui/ArchiveCards.qml)"
 check "no new surface logs" "0" "$(count_in 'console\.log' ui/ArchiveCompressDialog.qml ui/ArchivePasswordDialog.qml ui/ArchiveCards.qml ui/js/Archive.js ui/js/ArchiveOps.js ui/js/Kinds.js)"
 check "no unkeyed extract slot survives anywhere in the ui" "0" "$(grep -r -h -E 'extractP(w|assword)Source' ui | wc -l | tr -d ' ')"
-check "phase B exports the backend seam" "1" "$(count_in 'FLEA_BIN="\$PWD/target/debug/flea"' tests/archive-threat.sh)"
+check "phase B exports the backend seam" "1" "$(count_in 'DLEA_BIN="\$PWD/target/debug/dlea"' tests/archive-threat.sh)"
 
 echo
 if [ "$fail" = 0 ]; then echo "archive-threat.sh: all checks passed"; else echo "archive-threat.sh: FAILURES above"; fi

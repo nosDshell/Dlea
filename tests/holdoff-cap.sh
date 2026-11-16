@@ -13,14 +13,14 @@ for tool in qs python3; do
     command -v "$tool" >/dev/null || { echo "holdoff-cap.sh: $tool is not installed"; exit 1; }
 done
 
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 sandbox_forbidden /tmp && sandbox_refuse "holdoff-cap: /tmp is inside a forbidden test target"
-cap_root=$(mktemp -d /tmp/flea-holdoff-cap.XXXXXXXX) || exit 1
+cap_root=$(mktemp -d /tmp/dlea-holdoff-cap.XXXXXXXX) || exit 1
 FIXTURE_ROOT=$cap_root
 sandbox_root_ok
 cap_root=$SANDBOX_ROOT
 readonly cap_root
-printf 'Flea hold-off cap sandbox\n' > "$cap_root/$SANDBOX_MARKER" || exit 1
+printf 'Dlea hold-off cap sandbox\n' > "$cap_root/$SANDBOX_MARKER" || exit 1
 cap_work="$cap_root/work"
 readonly cap_work
 cleanup() {
@@ -43,7 +43,7 @@ sandbox_scratch "$cap_work"
 mkdir -p "$cap_work"/{config,home,runtime,tmp} || exit 1
 chmod 700 "$cap_work/runtime" || exit 1
 ln -s "$PWD/tests/holdoff-cap.qml" "$cap_work/config/shell.qml" || exit 1
-ln -s "$PWD/ui" "$cap_work/config/flea" || exit 1
+ln -s "$PWD/ui" "$cap_work/config/dlea" || exit 1
 headless_commons "$cap_work" || exit 1
 ln -s /usr/share/omarchy/shell/Ui "$cap_work/config/Ui" || exit 1
 

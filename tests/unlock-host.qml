@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-unlock-host-test
+//@ pragma ShellId dlea-unlock-host-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Unlock.js" as Unlock
+import "dlea" as Dlea
+import "dlea/js/Unlock.js" as Unlock
 
 // tests/unlock-host.sh's harness: the real UnlockHost with no rail, proving an unlock opens the folder and says the note.
 ShellRoot {
@@ -60,7 +60,7 @@ ShellRoot {
         implicitHeight: 480
         color: "#303030"
 
-        Flea.UnlockHost {
+        Dlea.UnlockHost {
             id: host
             anchors.fill: parent
         }

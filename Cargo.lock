@@ -1172,6 +1172,36 @@ dependencies = [
 ]
 
 [[package]]
+name = "dlea"
+version = "0.4.3"
+dependencies = [
+ "foldhash 0.2.0",
+ "icu_properties",
+ "libc",
+ "regex",
+ "regex-syntax",
+ "unicode-bidi",
+ "unicode-normalization",
+]
+
+[[package]]
+name = "dlea-gui"
+version = "0.4.3"
+dependencies = [
+ "async-channel",
+ "dlea",
+ "flate2",
+ "gpui-pre",
+ "gpui-pre-platform",
+ "image",
+ "log",
+ "omi",
+ "png",
+ "unicode-bidi",
+ "unicode-segmentation",
+]
+
+[[package]]
 name = "dlib"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1430,36 +1460,6 @@ dependencies = [
  "crc32fast",
  "miniz_oxide 0.9.1",
  "zlib-rs",
-]
-
-[[package]]
-name = "flea"
-version = "0.4.3"
-dependencies = [
- "foldhash 0.2.0",
- "icu_properties",
- "libc",
- "regex",
- "regex-syntax",
- "unicode-bidi",
- "unicode-normalization",
-]
-
-[[package]]
-name = "flea-gui"
-version = "0.4.3"
-dependencies = [
- "async-channel",
- "flate2",
- "flea",
- "gpui-pre",
- "gpui-pre-platform",
- "image",
- "log",
- "omi",
- "png",
- "unicode-bidi",
- "unicode-segmentation",
 ]
 
 [[package]]

@@ -1,7 +1,7 @@
 .pragma library
 
 // Raw HTML spelled through character references: refused addresses stay refused and marks stay entity-escaped.
-.import "flea/js/MdBlocks.js" as Blocks
+.import "dlea/js/MdBlocks.js" as Blocks
 
 var CHROME_BACKGROUND = "#181825"
 var CHROME_INK = "#c0caf5"

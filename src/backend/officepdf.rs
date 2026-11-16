@@ -8,7 +8,7 @@ use crate::backend::opsdispatch::Ops;
 use crate::backend::opsreq::OpMsg;
 use crate::backend::sandbox;
 use crate::backend::thumbcache::uri_for;
-use crate::error::FleaError;
+use crate::error::DleaError;
 use crate::figurestore::{evict_leaf, Names};
 use std::io::{Read, Write};
 use std::os::unix::fs::{DirBuilderExt, MetadataExt, PermissionsExt};
@@ -31,14 +31,14 @@ const OFFICE_TYPES: [&str; 10] = [
     "application/vnd.ms-excel",
     "application/vnd.ms-powerpoint",
 ];
-const CACHE_LEAF: &str = "flea/office";
-// The failure markers keep the thumbnail cache's fail/flea/ shape, beside the PDFs and never in the shared thumbnails tree.
-const FAIL_LEAF: &str = "fail/flea";
+const CACHE_LEAF: &str = "dlea/office";
+// The failure markers keep the thumbnail cache's fail/dlea/ shape, beside the PDFs and never in the shared thumbnails tree.
+const FAIL_LEAF: &str = "fail/dlea";
 // Bump this version when the conversion argv or jail profile changes; cached PDFs stay reusable.
-const FAILURE_PROFILE: &str = "flea-office-profile-v4\n";
+const FAILURE_PROFILE: &str = "dlea-office-profile-v4\n";
 const PROGRAM: &str = "soffice";
 // The jail's own tmpfs, so the profile LibreOffice writes needs no bind.
-const PROFILE_URL: &str = "file:///tmp/flea-office-profile";
+const PROFILE_URL: &str = "file:///tmp/dlea-office-profile";
 pub const CONVERT_TIMEOUT: Duration = Duration::from_secs(60);
 const WATCH_STEP: Duration = Duration::from_millis(50);
 const ANY_EXECUTE_BIT: u32 = 0o111;
@@ -183,7 +183,7 @@ type Resolve = Box<dyn Fn() -> Option<String> + Send + Sync>;
 type Build = Box<dyn Fn(&str, &str, &Path, &Path) -> Vec<String> + Send + Sync>;
 type SheetBuild = Box<dyn Fn(&str, &Path, &Path, i32) -> Vec<String> + Send + Sync>;
 // The jail the argv runs in, a seam so a test can stand in a converter without bwrap.
-type Runner = Box<dyn Fn(Vec<String>, &Path, &mut Work, &AtomicBool) -> Result<(), FleaError> + Send + Sync>;
+type Runner = Box<dyn Fn(Vec<String>, &Path, &mut Work, &AtomicBool) -> Result<(), DleaError> + Send + Sync>;
 
 pub struct Service {
     store: Store,
@@ -343,7 +343,7 @@ fn answer(waiters: Vec<Waiter>, sheets: bool, outcome: Result<Done, String>) {
 }
 
 // The production runner: the convert jail with the office address-space cap.
-pub(crate) fn jail(argv: Vec<String>, input: &Path, work: &mut Work, stop: &AtomicBool) -> Result<(), FleaError> {
+pub(crate) fn jail(argv: Vec<String>, input: &Path, work: &mut Work, stop: &AtomicBool) -> Result<(), DleaError> {
     run_boxed_office(argv, input, work, stop)
 }
 
@@ -376,7 +376,7 @@ pub fn serve(out: &mut impl Write, ops: &mut Ops, mime: &Db, aliases: &Aliases, 
     service.start(
         id,
         reg,
-        flea::bytename::exact(path),
+        dlea::bytename::exact(path),
         sheets,
         head,
         ops.tx.clone(),

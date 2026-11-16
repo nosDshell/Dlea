@@ -174,7 +174,7 @@ pub fn plain_paths(plain: &str) -> Vec<String> {
         .collect()
 }
 
-/// The local paths a drop carries; plain text adds lines only to a drag without Flea's marker (DragOut.sources).
+/// The local paths a drop carries; plain text adds lines only to a drag without Dlea's marker (DragOut.sources).
 pub fn sources(urls: &[String], plain: Option<&str>, has_marker: bool) -> Vec<String> {
     let mut paths = file_paths(urls);
     if !has_marker {

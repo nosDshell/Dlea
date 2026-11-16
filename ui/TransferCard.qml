@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Ops.js" as Ops
 import "js/Transfer.js" as Transfer
 
@@ -120,7 +120,7 @@ Item {
 
             // The card is chrome, so its mark is the OEM icon token the chrome bar's own marks
             // take; the status bar's spiral is caption-sized because the bar's own text is.
-            Flea.Spinner {
+            Dlea.Spinner {
                 id: crawl
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
@@ -212,7 +212,7 @@ Item {
             height: cancelButton.implicitHeight
 
             // Variant A: the card's Cancel is the one control every dialog draws.
-            Flea.DialogButton {
+            Dlea.DialogButton {
                 id: cancelButton
                 anchors.right: parent.right
                 visible: !root.cancelling

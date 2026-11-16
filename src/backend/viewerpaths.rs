@@ -1,5 +1,5 @@
 // Image paths from the standing name arena, with the same MIME table as the listing's rows.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::{listing::Listing, mime::Db};
 use std::path::Path;
 

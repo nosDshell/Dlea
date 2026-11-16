@@ -1,14 +1,14 @@
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/Tabs.js" as Tabs
+import "dlea" as Dlea
+import "dlea/js/Tabs.js" as Tabs
 
 // Drive the real tab strip's pointer drags through WindowBody; each mode is one drag shape.
 ShellRoot {
     id: root
     readonly property string mode: Quickshell.env("PROBE_MODE")
-    readonly property string here: Quickshell.env("PROBE_BASE") || Quickshell.env("FLEA_PATH")
+    readonly property string here: Quickshell.env("PROBE_BASE") || Quickshell.env("DLEA_PATH")
     readonly property string other: Quickshell.env("PROBE_OTHER_PATH")
     readonly property var body: loader.item
     readonly property var pane: body ? body.currentPane : null
@@ -71,7 +71,7 @@ ShellRoot {
     }
     function step() {
         if (!pane || pane.listInFlight || ["ready", "empty"].indexOf(pane.listingState) < 0 || Date.now() - root.phaseAt < 150) return
-        if (Flea.ViewState.writeBook.inflight.length > 0 || Flea.ViewState.settler.running || Flea.ViewState.settleMode.length > 0) return
+        if (Dlea.ViewState.writeBook.inflight.length > 0 || Dlea.ViewState.settler.running || Dlea.ViewState.settleMode.length > 0) return
         if (root.mode === "dragpreview") {
             if (phase === 0) {
                 root.dragItem = tabStrip()
@@ -84,9 +84,9 @@ ShellRoot {
                 check("the preview drag is held at the far insertion point", [dragItem.dragFrom, dragItem.dropAt], [1, 3])
                 check("the held tab occupies its destination slot", held.x, 2 * dragItem.tabWidth)
                 check("the following tab closes the source slot", after.x, dragItem.tabWidth)
-                var bar = dragItem.children.filter(function (item) { return item.color === Flea.Theme.color.accent && item.width === 2 * Flea.Theme.spacing.hairline })[0]
-                check("the insertion bar borders the ghost's leading edge", bar ? bar.x : -1, held.mapToItem(dragItem, 0, 0).x - Flea.Theme.spacing.hairline)
-                check("the held tab draws at disabled opacity", held.opacity, Flea.Theme.disabledOpacity)
+                var bar = dragItem.children.filter(function (item) { return item.color === Dlea.Theme.color.accent && item.width === 2 * Dlea.Theme.spacing.hairline })[0]
+                check("the insertion bar borders the ghost's leading edge", bar ? bar.x : -1, held.mapToItem(dragItem, 0, 0).x - Dlea.Theme.spacing.hairline)
+                check("the held tab draws at disabled opacity", held.opacity, Dlea.Theme.disabledOpacity)
                 check("a preview keeps the committed order", Tabs.labels(pane), [Tabs.label(here, pane.home), Tabs.label(other, pane.home), "sub"])
                 dragItem.grabToImage(function (result) { check("the held preview capture saves", result.saveToFile(Quickshell.env("PROBE_SHOT")), true); root.previewGrabbed = true })
                 next()

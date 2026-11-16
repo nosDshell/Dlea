@@ -43,11 +43,11 @@ fn ey379_tag_write_keeps_the_validated_inode_when_its_path_is_replaced() {
 
 #[test]
 fn ey379_bulk_listing_tags_keep_working_below_the_selection_descriptor_count() {
-    const CHILD: &str = "FLEA_TAG_BULK_FD_CHILD";
+    const CHILD: &str = "DLEA_TAG_BULK_FD_CHILD";
     const FD_CAP: usize = 64;
     const FILES: usize = 1100;
     if std::env::var_os(CHILD).is_none() {
-        let status = std::process::Command::new(flea::testpath::tool("/bin/bash"))
+        let status = std::process::Command::new(dlea::testpath::tool("/bin/bash"))
             .args(["-c", "ulimit -n \"$3\" || exit $?; exec \"$1\" --exact \"$2\" --test-threads=1", "tag-fd-proof"])
             .arg(std::env::current_exe().unwrap())
             .arg("backend::tagsreq::menu_tests::ey379_bulk_listing_tags_keep_working_below_the_selection_descriptor_count")

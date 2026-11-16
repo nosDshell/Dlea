@@ -45,16 +45,16 @@ function run(check) {
     check("background menu includes real creation actions in order", actions(Menu.listingEntries(state({ hasRow: false }))),
           "newFolder,newFile,paste,selectAll,openTerminal,addFavourite,sort,toggleHidden,toggleLangMarks,settings")
     var background = Menu.listingEntries(state({ hasRow: false, updateVersion: "0.3.4" }))
-    check("a known newer build adds Update Flea under Settings, in the same group, with the download mark",
+    check("a known newer build adds Update Dlea under Settings, in the same group, with the download mark",
           background.slice(-2).map(function (r) { return (r.separator ? "|" : r.action) + ":" + r.glyph }).join(","),
-          "settings:sliders,updateFlea:download")
+          "settings:sliders,updateDlea:download")
     check("and its hint slot carries that version beside the status square",
-          entry(background, "updateFlea").hint + "|" + entry(background, "updateFlea").hintSquare, "0.3.4|true")
+          entry(background, "updateDlea").hint + "|" + entry(background, "updateDlea").hintSquare, "0.3.4|true")
     check("the Menus switch takes it away like any other row",
-          entry(Menu.listingEntries(state({ hasRow: false, updateVersion: "0.3.4", hiddenActions: ["updateFlea"] })), "updateFlea").action, undefined)
-    check("a file row's menu never offers it", entry(Menu.listingEntries(state({ updateVersion: "0.3.4" })), "updateFlea").action, undefined)
+          entry(Menu.listingEntries(state({ hasRow: false, updateVersion: "0.3.4", hiddenActions: ["updateDlea"] })), "updateDlea").action, undefined)
+    check("a file row's menu never offers it", entry(Menu.listingEntries(state({ updateVersion: "0.3.4" })), "updateDlea").action, undefined)
     check("and neither does an empty version, which is what every state but available gives",
-          entry(Menu.listingEntries(state({ hasRow: false, updateVersion: "" })), "updateFlea").action, undefined)
+          entry(Menu.listingEntries(state({ hasRow: false, updateVersion: "" })), "updateDlea").action, undefined)
     check("selected file cannot be pinned as a folder", entry(file, "addFavourite").disabled, true)
     check("Favorites menu uses the displayed spelling", entry(file, "addFavourite").label, "Add to Favorites")
     check("selected directory can be pinned", entry(Menu.listingEntries(state({ rowMode: 0o040755 })), "addFavourite").disabled, false)
@@ -72,7 +72,7 @@ function run(check) {
     function railLabels(rows) { return rows.filter(function (r) { return !r.separator }).map(function (r) { return r.label }).join("|") }
     function railGlyphs(rows) { return rows.filter(function (r) { return !r.separator }).map(function (r) { return r.glyph }).join("|") }
     var mountedShare = { group: "network", kind: "share", uri: "smb://h/data/", mounted: true }
-    check("a mounted saved place opens like every other Flea menu",
+    check("a mounted saved place opens like every other Dlea menu",
           railLabels(Menu.railEntries(mountedShare)), "Open|Unmount|Rename|Edit address|Remove from Network")
     check("and its marks are the main menu's own",
           railGlyphs(Menu.railEntries(mountedShare)), "folder-open|drive|rename|sliders|minus")
@@ -440,7 +440,7 @@ function providerRefresh(check) {
     check("a provider refresh keeps the lone highlight", loneKept.submenuCursor, 2)
     check("a provider refresh keeps no parent row", loneKept.openSubmenuRow, -1)
     // Flash to drive reads the name table, so the built context must carry what Pane binds.
-    var listingContext = eval("(function (root, MenuRefresh, Flea, ViewState, UpdateCheck, flyoutAction, includeHidden) {" + functionBody(contextSrc, "function listingContext(") + "})")
+    var listingContext = eval("(function (root, MenuRefresh, Dlea, ViewState, UpdateCheck, flyoutAction, includeHidden) {" + functionBody(contextSrc, "function listingContext(") + "})")
     function flashContextRoot() {
         return { lastProviderAnswer: null, showHidden: false, hasRow: true, rowInDropbox: false,
             dropboxPath: "", dropboxInstalled: false, dropboxReason: "",
@@ -525,10 +525,10 @@ function providerRefresh(check) {
     check("cold rail uses its supplied entries", cold.buildEntries() === cold.railEntries, true)
     check("cold rail validation ignores row identity", MenuContext.validateChoice(cold, "rename", ""), true)
     check("cold helper calls leave the visual absent", cold.item, null)
-    var flashFlea = { Scripts: { entries: [] } }
+    var flashDlea = { Scripts: { entries: [] } }
     var flashViewState = { menuHidden: ["delete", "openTerminal", "moveto", "copyto", "properties",
         "permissions", "copyAs", "pasteAs", "invertSelection"], preview: true }
-    var flashP = listingContext(flashContextRoot(), MenuRefresh, flashFlea, flashViewState, { menuVersion: "" })
+    var flashP = listingContext(flashContextRoot(), MenuRefresh, flashDlea, flashViewState, { menuVersion: "" })
     check("the listing context carries the flash fields", flashP.rowName + "|" + flashP.flashZipMember, "debian-13.iso|")
     check("Flash to drive shows on a disk image through the real context", actions(Menu.listingEntries(flashP)).indexOf("flashDrive") >= 0, true)
     check("and Pane binds no name for a directory row, so a folder called like an image offers none", paneSrc.indexOf('rowName: root.cursorRow !== null && !root.cursorRow.d ? root.cursorRow.n : ""') >= 0, true)

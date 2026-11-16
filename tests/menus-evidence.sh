@@ -2,7 +2,7 @@
 # The failure-evidence helper of tests/ui-menus.sh never changes a verdict: under set -eu it returns 0 whatever fails.
 set -u
 repo="$(cd "$(dirname "$0")/.." && pwd)"
-. "$repo/tools/flea-sandbox-guard"
+. "$repo/tools/dlea-sandbox-guard"
 
 fail() {
     printf 'FAIL menus-evidence: %s\n' "$*" >&2
@@ -14,7 +14,7 @@ helper=$(sed -n '/^menus_evidence() {/,/^}/p' "$repo/tests/ui-menus.sh")
 [[ -n "$helper" ]] || fail "could not extract menus_evidence from tests/ui-menus.sh"
 
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-menus-evidence-XXXXXXXX") || fail "mktemp under $SANDBOX_ROOT failed"
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-menus-evidence-XXXXXXXX") || fail "mktemp under $SANDBOX_ROOT failed"
 : > "$test_root/$SANDBOX_MARKER" || fail "could not mark $test_root"
 cleanup() { sandbox_remove "$test_root" 2>/dev/null || true; }
 trap cleanup EXIT
@@ -76,11 +76,11 @@ failure_control() {
     output=$(
         run_root="$test_root"
         evidence_dir="$path"
-        test_frontend=gpui ipc_pid=42 FLEA_TEST_PID=42 window_pid=42
-        [[ "$mode" != other-pid ]] || FLEA_TEST_PID=43
+        test_frontend=gpui ipc_pid=42 DLEA_TEST_PID=42 window_pid=42
+        [[ "$mode" != other-pid ]] || DLEA_TEST_PID=43
         [[ "$mode" != other-window ]] || window_pid=44
-        flea_test_call() { [[ "$mode" != foreign ]] && printf 'true\n'; }
-        hyprctl() { printf '[{"pid":%s,"class":"com.thisisgm.flea","address":"0x123"}]\n' "$window_pid"; }
+        dlea_test_call() { [[ "$mode" != foreign ]] && printf 'true\n'; }
+        hyprctl() { printf '[{"pid":%s,"class":"com.nosDshell.dlea","address":"0x123"}]\n' "$window_pid"; }
         omarchy-drive() { printf 'fixture image\n' > "$2"; }
         eval "$failure_helper"
         fail 'expected control failure' 2>&1
@@ -138,27 +138,27 @@ launcher_control() (
     set -eu
     menu_box="$test_root/launcher"
     mkdir -p "$menu_box/bin" "$menu_box/data/applications" "$menu_box/config" "$menu_box/list"
-    : > "$menu_box/.flea-test-sandbox"
-    menus_guard() { [[ "$1" == "$menu_box/"* && -f "$menu_box/.flea-test-sandbox" ]]; }
+    : > "$menu_box/.dlea-test-sandbox"
+    menus_guard() { [[ "$1" == "$menu_box/"* && -f "$menu_box/.dlea-test-sandbox" ]]; }
     trash_bus_address=fixture-private-bus
     eval "$launcher_helper"
     menus_launcher_fixture
     cat > "$menu_box/bin/record-gio" <<'SH'
 #!/bin/bash
-printf '%s\n' "$@" > "$FLEA_MENUS_RECORD"
+printf '%s\n' "$@" > "$DLEA_MENUS_RECORD"
 SH
     chmod +x "$menu_box/bin/record-gio"
-    export FLEA_MENUS_GIO="$menu_box/bin/record-gio" FLEA_MENUS_RECORD="$menu_box/arguments"
+    export DLEA_MENUS_GIO="$menu_box/bin/record-gio" DLEA_MENUS_RECORD="$menu_box/arguments"
     for flag in -l -li; do
         "$menu_box/bin/gio" mount "$flag"
-        [[ "$(cat "$FLEA_MENUS_RECORD")" == "$(printf 'mount\n%s' "$flag")" ]] || exit 1
+        [[ "$(cat "$DLEA_MENUS_RECORD")" == "$(printf 'mount\n%s' "$flag")" ]] || exit 1
     done
-    printf 'untouched\n' > "$FLEA_MENUS_RECORD"
+    printf 'untouched\n' > "$DLEA_MENUS_RECORD"
     for arguments in 'mount' 'mount -u /fixture' 'mount -e /fixture' 'mount -l extra' 'mount -li extra'; do
         read -r -a words <<< "$arguments"
         status=0
         "$menu_box/bin/gio" "${words[@]}" || status=$?
-        [[ "$status" == 92 && "$(cat "$FLEA_MENUS_RECORD")" == untouched ]] || exit 1
+        [[ "$status" == 92 && "$(cat "$DLEA_MENUS_RECORD")" == untouched ]] || exit 1
     done
 )
 launcher_control || fail 'GIO fixture changed its read-only mount boundary'
@@ -167,14 +167,14 @@ printf 'ok   GIO fixture passes both exact listing probes and refuses mount muta
 backend_helper=$(sed -n '/^backend_pids() {/,/^}/p' "$repo/tests/ui.sh")
 backend_control() (
     set -eu
-    flea_bin="$test_root/backend/flea"
+    dlea_bin="$test_root/backend/dlea"
     for pid in 41 42 43; do mkdir -p "$test_root/backend/$pid"; done
-    printf '%s\0%s\0' "$flea_bin" --backend > "$test_root/backend/41/cmdline"
-    printf '%s\0%s\0' "$flea_bin" --plugin-host > "$test_root/backend/42/cmdline"
-    printf '%s\0%s\0' "$flea_bin" --backend > "$test_root/backend/43/cmdline"
+    printf '%s\0%s\0' "$dlea_bin" --backend > "$test_root/backend/41/cmdline"
+    printf '%s\0%s\0' "$dlea_bin" --plugin-host > "$test_root/backend/42/cmdline"
+    printf '%s\0%s\0' "$dlea_bin" --backend > "$test_root/backend/43/cmdline"
     pgrep() { printf '41\n42\n43\n'; }
-    flea_process_dir() { printf '%s/backend/%s\n' "$test_root" "$1"; }
-    flea_process_owned() { [[ "$1" != 43 ]]; }
+    dlea_process_dir() { printf '%s/backend/%s\n' "$test_root" "$1"; }
+    dlea_process_owned() { [[ "$1" != 43 ]]; }
     eval "$backend_helper"
     [[ "$(backend_pids)" == 41 ]]
 )

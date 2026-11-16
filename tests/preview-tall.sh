@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # A tall kind's frame fills the Columns preview from its top down to the name over one compact facts line, and i swaps that line for the table through the real state writer, offscreen at 1200 x 760 and 760 x 560.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 # qs exits 128 + SIGTERM when the probe kills itself after its receipt.
 self_kill_exit=143
@@ -11,19 +11,19 @@ if ! command -v qs >/dev/null || ! command -v python3 >/dev/null; then
     echo "preview-tall.sh: qs and python3 are needed to build the column and its fixtures"
     exit 1
 fi
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [ -x "$bin" ] || { echo "preview-tall.sh: build the backend first: $bin"; exit 1; }
 
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-preview-tall.XXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-preview-tall.XXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER" || exit 1
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/runtime" "$test_root/fixture" "$test_root/state-wide" "$test_root/state-narrow" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/preview-tall.qml "$test_root/config/shell.qml" || exit 1
@@ -57,7 +57,7 @@ run() {
     env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
         HOME="$test_root/home" XDG_STATE_HOME="$2" XDG_CONFIG_HOME="$test_root/home/.config" XDG_RUNTIME_DIR="$test_root/runtime" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
-        FLEA_BIN="$bin" TALL_DIR="$test_root/fixture" TALL_W="$3" TALL_H="$4" TALL_PHASE="$5" timeout 90 qs -p "$test_root/config" 2>&1
+        DLEA_BIN="$bin" TALL_DIR="$test_root/fixture" TALL_W="$3" TALL_H="$4" TALL_PHASE="$5" timeout 90 qs -p "$test_root/config" 2>&1
 }
 
 verdict=0
@@ -84,10 +84,10 @@ done
 
 out=$(run wide "$test_root/state-wide" 1200 760 first); judge "1200x760" "$out" $? 68
 # The mode the first launch wrote is the file's own, so the writer, not the probe, kept it.
-python3 -c 'import json,sys; sys.exit(0 if json.load(open(sys.argv[1]))["previewFacts"] == "full" else 1)' "$test_root/state-wide/flea/ui.json" \
+python3 -c 'import json,sys; sys.exit(0 if json.load(open(sys.argv[1]))["previewFacts"] == "full" else 1)' "$test_root/state-wide/dlea/ui.json" \
     || { echo "FAIL i did not write previewFacts full to ui.json"; verdict=1; }
 out=$(run narrow "$test_root/state-narrow" 760 560 first); judge "760x560" "$out" $? 68
 out=$(run relaunch "$test_root/state-wide" 1200 760 relaunch); judge "relaunch" "$out" $? 4
-python3 -c 'import json,sys; sys.exit(0 if json.load(open(sys.argv[1]))["previewFacts"] == "compact" else 1)' "$test_root/state-wide/flea/ui.json" \
+python3 -c 'import json,sys; sys.exit(0 if json.load(open(sys.argv[1]))["previewFacts"] == "compact" else 1)' "$test_root/state-wide/dlea/ui.json" \
     || { echo "FAIL the relaunch's i did not write previewFacts compact to ui.json"; verdict=1; }
 exit $verdict

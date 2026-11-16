@@ -16,11 +16,11 @@ dirsortstale_wait_size() {
 
 dirsortstale_cleanup() {
     [[ -n "${dirsortstale_test_ui:-}" ]] || return 0
-    flea_ui="$dirsortstale_test_ui"
-    flea_bin="$dirsortstale_candidate_bin"
-    kill_flea
-    flea_ui="$dirsortstale_saved_ui"
-    flea_bin="$dirsortstale_saved_bin"
+    dlea_ui="$dirsortstale_test_ui"
+    dlea_bin="$dirsortstale_candidate_bin"
+    kill_dlea
+    dlea_ui="$dirsortstale_saved_ui"
+    dlea_bin="$dirsortstale_saved_bin"
 }
 
 # Hidden files last: the same six-entry folder at four depths, named in the order each view must draw it; name_order puts a dot before a letter, and a reversed sort reverses the hidden files too (.hidden .zeta becomes .zeta .hidden).
@@ -38,7 +38,7 @@ hiddenlast_rows() {
 # The chooser's six rows, read through its own IPC target.
 hiddenlast_picker_rows() {
     local row names=""
-    for row in 0 1 2 3 4 5; do names+="${names:+|}$(flea_ipc_call --pid "$1" call fleapicker rowAt "$row" 2>/dev/null || true)"; done
+    for row in 0 1 2 3 4 5; do names+="${names:+|}$(dlea_ipc_call --pid "$1" call dleapicker rowAt "$row" 2>/dev/null || true)"; done
     printf '%s' "$names"
 }
 
@@ -46,7 +46,7 @@ hiddenlast_picker_rows() {
 hiddenlast_picker_reversed() {
     local pid="$1" before="$2" seen="" deadline=$((SECONDS + 15))
     while (( SECONDS < deadline )); do
-        seen=$(flea_ipc_call --pid "$pid" call fleapicker snapshot 2>/dev/null | jq -r 'select(.sortDesc == true and .state == "ready") | [.rows[:6][].n] | join("|")' 2>/dev/null || true)
+        seen=$(dlea_ipc_call --pid "$pid" call dleapicker snapshot 2>/dev/null | jq -r 'select(.sortDesc == true and .state == "ready") | [.rows[:6][].n] | join("|")' 2>/dev/null || true)
         [[ -n "$seen" && "$seen" != "$before" ]] && return 0
         sleep 0.05
     done
@@ -149,7 +149,7 @@ case_hiddenlast() {
     shot hiddenlast-tab
 
     # The setting goes off in the running window: the plain order returns in the tab, the first tab and a column, with no relaunch.
-    env XDG_STATE_HOME="$state" "$flea_bin" --ui-state '{"hiddenLast":false}' >/dev/null || fail "hiddenlast: the state write failed"
+    env XDG_STATE_HOME="$state" "$dlea_bin" --ui-state '{"hiddenLast":false}' >/dev/null || fail "hiddenlast: the state write failed"
     hiddenlast_expect tab-off "$hiddenlast_off" hiddenlast_rows
     click_tab 0
     wait_path "$l2"
@@ -159,7 +159,7 @@ case_hiddenlast() {
     shot hiddenlast-off
 
     # Both dual panes, each from its own listing.
-    kill_flea
+    kill_dlea
     seed_ui_state "$state-dual" "$(jq -cn --arg l "$l1" --arg r "$l2" '{hidden:true,hiddenLast:true,rememberSort:false,sort:{key:"name",reverse:false},view:"dual",dual:{paths:[$l,$r],focus:0}}')"
     launch "$l1"
     menus_expect dualState '.active and .focused == 0 and all(.panes[]; .total == 6 and (.loading | not))' 'both dual listings landed'
@@ -170,16 +170,16 @@ case_hiddenlast() {
     shot hiddenlast-dual
 
     # The chooser: its list, then its header sort, which used to forget the setting.
-    kill_flea
-    FLEA_UI="$flea_ui" FLEA_BIN="$flea_bin" FLEA_PICKER="$(jq -cn --arg f "$l2" --arg t "$title" '{mode:"open",folder:$f,title:$t}')" FLEA_PICKER_REPLY="$reply" \
-        flea_test_exec qs -p "$flea_ui/boot/picker.qml" >"$fixture_root/hiddenlast-picker.log" 2>&1 </dev/null &
+    kill_dlea
+    DLEA_UI="$dlea_ui" DLEA_BIN="$dlea_bin" DLEA_PICKER="$(jq -cn --arg f "$l2" --arg t "$title" '{mode:"open",folder:$f,title:$t}')" DLEA_PICKER_REPLY="$reply" \
+        dlea_test_exec qs -p "$dlea_ui/boot/picker.qml" >"$fixture_root/hiddenlast-picker.log" 2>&1 </dev/null &
     for _attempt in $(seq 1 300); do
         omarchy-drive windows --json | jq -e --arg title "$title" '[.windows[] | select(.title == $title)] | length == 1' >/dev/null && break
         sleep 0.05
     done
     omarchy-drive focus "$title" >/dev/null || fail "hiddenlast: the chooser never opened"
     for _attempt in $(seq 1 100); do
-        picker_pid=$(flea_pids | head -1)
+        picker_pid=$(dlea_pids | head -1)
         [[ -n "$picker_pid" ]] && break
         sleep 0.05
     done
@@ -198,6 +198,6 @@ case_hiddenlast() {
     [[ ! -e "$shot_png" && ! -L "$shot_png" ]] || fail "hiddenlast: refusing existing evidence $shot_png"
     omarchy-drive shot "$shot_png" "$title" >/dev/null || fail "hiddenlast: the sorted chooser shot failed"
     printf 'SHOT %s\n' "$shot_png"
-    kill_flea
+    kill_dlea
     printf 'HIDDENLAST list=ok columns=ok grid=ok tab=ok off=ok dual=ok chooser=ok\n'
 }

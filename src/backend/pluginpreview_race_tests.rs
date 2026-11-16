@@ -56,7 +56,7 @@ fn plugin_preview_binds_the_open_selected_file_after_path_is_replaced_with_direc
     std::fs::rename(&path, dir.join("original.txt")).unwrap();
     let unselected = dir.dir("unselected");
     std::os::unix::fs::symlink(unselected, &path).unwrap();
-    let message = flea::jsondoc::parse(r#"{"op":"preview","path":"/in/file"}"#).unwrap();
+    let message = dlea::jsondoc::parse(r#"{"op":"preview","path":"/in/file"}"#).unwrap();
     let (answer, _work) = run(&env, &found, Some(&input), Some(message), &limits(&dir)).unwrap();
     assert_eq!(
         answer.unwrap().get("text").and_then(Json::as_str),

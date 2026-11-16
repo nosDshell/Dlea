@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Replays tools/flea-field-bench's own run_one on stubbed launches and checks which media rows may rank.
+"""Replays tools/dlea-field-bench's own run_one on stubbed launches and checks which media rows may rank.
 
 Only the process, clock, window and memory readers are stubbed; the watch, cache, format, helper and
 CPU code is the bench's own, cut out of the file by name. Each check also runs against a mutant of
@@ -16,8 +16,8 @@ import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-BENCH = Path(os.environ.get("FIELD_WORK_BENCH", REPO / "tools" / "flea-field-bench"))
-KEYS_TOOL = REPO / "tools" / "flea-bench-keys"
+BENCH = Path(os.environ.get("FIELD_WORK_BENCH", REPO / "tools" / "dlea-field-bench"))
+KEYS_TOOL = REPO / "tools" / "dlea-bench-keys"
 REAL = ("run_one", "watch_stop", "watch_kill", "watch_classify", "known_formats", "count_thumbs",
         "capture_keys", "settle_ticks", "find_helper", "cgroup_usage_usec", "mount_ticks_start",
         "mount_ticks_delta", "sys_seconds", "write_guard_ranked")
@@ -64,7 +64,7 @@ watch_start() {
 drop_thumbs() {
   [ "$DROP_THUMBS" = yes ] || return 0
   case $THUMBS in "$ROOT"/thumbnails) ;; *) fail "thumbnail cache $THUMBS is outside the marked root" ;; esac
-  [ -e "$ROOT/.flea-test-sandbox" ] || fail "the root has no sandbox marker"
+  [ -e "$ROOT/.dlea-test-sandbox" ] || fail "the root has no sandbox marker"
   rm -rf -- "$THUMBS"
   mkdir -p "$THUMBS/large" "$THUMBS/fail"
   cp -- "$SC_DIR"/cache/* "$THUMBS/large/" 2>/dev/null || :
@@ -97,7 +97,7 @@ ROOT=$1 SC_DIR=$2
 DROP_THUMBS=${SC_DROP:-yes} FIELD_PROFILE=field RUN_MODE=measure RERUN_N=0 RUN_INDEX=1 LAUNCH_POS=1
 BENCH_CG="$ROOT/cg" LAUNCH_TIMEOUT_MS=${SC_TIMEOUT:-100000} SETTLE_GAP_MS=200 POLL_SLEEP=0
 KEYS_DIR="$ROOT/keys" KEY_MAP="$ROOT/keys/fixture.map" THUMBS="$ROOT/thumbnails" FIXTURE="$ROOT/fixture"
-HARNESS_DIR=$HARNESS_DIR BENCH_TOKEN=t FLEA_PREFETCH_SLOT=s ANCHOR_PREFETCH_SLOT=s
+HARNESS_DIR=$HARNESS_DIR BENCH_TOKEN=t DLEA_PREFETCH_SLOT=s ANCHOR_PREFETCH_SLOT=s
 NET_IFACE="" MOUNT_PIDS=() TUI_TERM=kitty TUI_CLASS=c TUI_CONF="$ROOT" TUI_CONF_FS=tmpfs TUI_DUMP="$ROOT/dump" FIRST_ROWS_PROBE=-
 HELPER_SEARCH_POLLS=25 ENTRANT_FAKE=999999999 ENTRANT_SCOPE="" THUMBS_PARKED_OK=yes
 HELPER_A="" HELPER_B="" KEY_MAP_OK=$SC_KEYMAP
@@ -143,7 +143,7 @@ class Scenario:
 
 def replay(source, scen, base):
     root = Path(tempfile.mkdtemp(prefix="sc.", dir=base))
-    (root / ".flea-test-sandbox").write_text("")
+    (root / ".dlea-test-sandbox").write_text("")
     for d in ("cg", "keys", "fixture", "sc/cache"):
         (root / d).mkdir(parents=True)
     for name in FIXTURE_FILES:
@@ -320,7 +320,7 @@ def drm_readings(source, base, quiet=False):
 
 def capability_rows(source):
     """Every Strata row the field roster can name is a live-watch row in the capability pass too."""
-    cap = (REPO / "tools" / "flea-bench-capability").read_text()
+    cap = (REPO / "tools" / "dlea-bench-capability").read_text()
     # The stable row's id comes from a variable in the roster, so it is named here.
     ids = sorted(set(re.findall(r'"(strata[-a-z]*)\|gui\|', source)) | {"strata-stable"})
     funcs = ""
@@ -379,8 +379,8 @@ def companions(base):
     """A bench copied without the sibling tool a mode needs refuses that mode at once, naming the tool."""
     failures = []
     alone = Path(tempfile.mkdtemp(prefix="alone.", dir=base))
-    shutil.copy(BENCH, alone / "flea-field-bench")
-    gate = alone / "flea-bench-gate"
+    shutil.copy(BENCH, alone / "dlea-field-bench")
+    gate = alone / "dlea-bench-gate"
     # Nothing past the refusal may run: a stub scope launcher and sudo stop any bench that misses it.
     stubs = alone / "stubs"
     stubs.mkdir()
@@ -388,11 +388,11 @@ def companions(base):
         (stubs / name).write_text("#!/bin/sh\necho 'stub reached: no refusal before the scope' >&2\nexit 97\n")
         (stubs / name).chmod(0o755)
     path = str(stubs) + ":" + os.environ.get("PATH", "/usr/bin:/bin")
-    cases = [("--thumbs without flea-bench-thumbs", ["--thumbs", "x"], {}, "needs flea-bench-thumbs"),
-             ("the engine profile without flea-bench-gate", [], {"FIELD_PROFILE": "engine"}, "needs flea-bench-gate")]
+    cases = [("--thumbs without dlea-bench-thumbs", ["--thumbs", "x"], {}, "needs dlea-bench-thumbs"),
+             ("the engine profile without dlea-bench-gate", [], {"FIELD_PROFILE": "engine"}, "needs dlea-bench-gate")]
     for label, args, extra, wanted in cases:
-        env = {"PATH": path, "LC_ALL": "C.UTF-8", "FLEA_REPO": str(alone), **extra}
-        run = subprocess.run(["bash", str(alone / "flea-field-bench"), *args], capture_output=True, text=True,
+        env = {"PATH": path, "LC_ALL": "C.UTF-8", "DLEA_REPO": str(alone), **extra}
+        run = subprocess.run(["bash", str(alone / "dlea-field-bench"), *args], capture_output=True, text=True,
                              stdin=subprocess.DEVNULL, timeout=60, start_new_session=True, env=env)
         ok = run.returncode != 0 and wanted in run.stderr
         print(f"{'ok  ' if ok else 'FAIL'} {label} is refused naming {wanted}")
@@ -402,8 +402,8 @@ def companions(base):
     # A gate without map-event is the old gate, and the engine profile cannot arm its reader with it.
     gate.write_text("#!/usr/bin/env python3\nimport sys\nsys.exit(2)\n")
     gate.chmod(0o755)
-    env = {"PATH": path, "LC_ALL": "C.UTF-8", "FLEA_REPO": str(alone), "FIELD_PROFILE": "engine"}
-    run = subprocess.run(["bash", str(alone / "flea-field-bench")], capture_output=True, text=True,
+    env = {"PATH": path, "LC_ALL": "C.UTF-8", "DLEA_REPO": str(alone), "FIELD_PROFILE": "engine"}
+    run = subprocess.run(["bash", str(alone / "dlea-field-bench")], capture_output=True, text=True,
                          stdin=subprocess.DEVNULL, timeout=60, start_new_session=True, env=env)
     ok = run.returncode != 0 and "map-event" in run.stderr
     print(f"{'ok  ' if ok else 'FAIL'} the engine profile with a gate lacking map-event is refused")
@@ -418,7 +418,7 @@ def main():
     base = Path(tempfile.mkdtemp(prefix="bench-field-work."))
     if not base.is_absolute() or len(base.parts) < 3:
         raise SystemExit(f"FAIL: mktemp gave {base}")
-    (base / ".flea-test-sandbox").write_text("")
+    (base / ".dlea-test-sandbox").write_text("")
     try:
         fail = 0
         print(f"{'ok  ' if len(names) == 30 else 'FAIL'} the CSV header keeps its 30 columns")
@@ -441,7 +441,7 @@ def main():
                 fail |= not caught
         return 1 if fail else 0
     finally:
-        if (base / ".flea-test-sandbox").exists() and base.is_absolute() and len(base.parts) >= 3:
+        if (base / ".dlea-test-sandbox").exists() and base.is_absolute() and len(base.parts) >= 3:
             shutil.rmtree(base)
 
 

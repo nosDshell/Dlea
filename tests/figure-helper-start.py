@@ -11,14 +11,14 @@ HELPER_EXIT_BOUND_SECONDS = 5
 # Print only the first bounded excerpt from each captured stream after failure.
 HELPER_DIAGNOSTIC_LIMIT_CHARS = 4096
 # An interpreter path that exists nowhere, so exec of a tool naming it fails with ENOENT and no shell fallback.
-MISSING_INTERPRETER = "/nonexistent/flea-test-interpreter"
+MISSING_INTERPRETER = "/nonexistent/dlea-test-interpreter"
 # Stand-in file bodies: a tool that starts and exits 0, one whose exec fails with ENOENT, and one that is not executable.
 STARTS = ("#!/bin/sh\nexit 0\n", 0o755)
 CANNOT_START = (f"#!{MISSING_INTERPRETER}\n", 0o755)
 NOT_EXECUTABLE = ("present but not executable\n", 0o644)
-REFUSAL = "flea: the figure helper needs bwrap and prlimit, and one of them is missing"
-# Sample line: "flea: the figure helper could not start prlimit: No such file or directory (os error 2)"; the text between is the locale's.
-EXEC_FAILURE = re.compile(r"^flea: the figure helper could not start prlimit: .*\(os error 2\)$", re.M)
+REFUSAL = "dlea: the figure helper needs bwrap and prlimit, and one of them is missing"
+# Sample line: "dlea: the figure helper could not start prlimit: No such file or directory (os error 2)"; the text between is the locale's.
+EXEC_FAILURE = re.compile(r"^dlea: the figure helper could not start prlimit: .*\(os error 2\)$", re.M)
 
 
 def diagnostics(result):
@@ -31,17 +31,17 @@ def diagnostics(result):
 
 def start(binary, tools):
     """One --figure-helper start against stand-in tool files named in tools; None when it did not exit in time."""
-    with tempfile.TemporaryDirectory(prefix="flea-figure-start-") as scratch:
+    with tempfile.TemporaryDirectory(prefix="dlea-figure-start-") as scratch:
         root = pathlib.Path(scratch)
         for name, (body, mode) in tools.items():
             tool = root / name
             tool.write_text(body)
             tool.chmod(mode)
-        env = dict(os.environ, PATH=str(root), FLEA_QJS=str(root / "qjs"))
+        env = dict(os.environ, PATH=str(root), DLEA_QJS=str(root / "qjs"))
         # No home and no cache dir, so the launcher starts no background build and writes nothing outside this scratch.
         env.pop("HOME", None)
         env.pop("XDG_CACHE_HOME", None)
-        env["FLEA_UI"] = env.get("FLEA_UI") or str(pathlib.Path(__file__).resolve().parents[1] / "ui")
+        env["DLEA_UI"] = env.get("DLEA_UI") or str(pathlib.Path(__file__).resolve().parents[1] / "ui")
         try:
             return subprocess.run([binary, "--figure-helper"], env=env, capture_output=True, text=True, timeout=HELPER_EXIT_BOUND_SECONDS)
         except subprocess.TimeoutExpired as error:

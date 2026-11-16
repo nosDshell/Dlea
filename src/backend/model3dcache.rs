@@ -9,7 +9,7 @@ const MAX_CACHE_FILES: usize = 128;
 const ORPHAN_MIN_AGE_SECS: u64 = 60;
 const READER_GRACE_SECS: u64 = 60;
 
-pub(super) fn root() -> PathBuf { thumbcache::default_root().join("flea-3d") }
+pub(super) fn root() -> PathBuf { thumbcache::default_root().join("dlea-3d") }
 
 pub(super) fn key(path: &Path, meta: &Metadata) -> String {
     super::md5::hex(format!("3d-v1\0{}\0{}\0{}\0{}\0{}\0{}",thumbcache::uri_for(path),meta.dev(),meta.ino(),meta.len(),meta.mtime(),meta.mtime_nsec()).as_bytes())
@@ -73,7 +73,7 @@ pub(super) fn evict(root: &Path) {
         let Ok(meta) = path.symlink_metadata() else { continue };
         if meta.is_dir() {
             let name = entry.file_name().to_string_lossy().into_owned();
-            let pid = name.strip_prefix(".flea-work-model3d-").and_then(|s| s.split('-').next()).and_then(|s| s.parse::<u32>().ok());
+            let pid = name.strip_prefix(".dlea-work-model3d-").and_then(|s| s.split('-').next()).and_then(|s| s.parse::<u32>().ok());
             if pid.is_some_and(|pid| pid > 1 && !Path::new(&format!("/proc/{pid}")).exists())
                 && meta.modified().is_ok_and(|time| time.elapsed().is_ok_and(|age| age.as_secs() > ORPHAN_MIN_AGE_SECS)) {
                 let _ = std::fs::remove_dir_all(path);

@@ -14,7 +14,7 @@ static const long poll_nanoseconds = 10000000;
 static _Thread_local int held;
 
 static void hold_copy(int fd) {
-    const char *root = getenv("FLEA_JOBS_BARRIER");
+    const char *root = getenv("DLEA_JOBS_BARRIER");
     char path[PATH_MAX], source[PATH_MAX], marker[PATH_MAX];
     struct stat metadata;
     if (held || !root || root[0] != '/' || fstat(fd, &metadata) || !S_ISREG(metadata.st_mode)) return;
@@ -25,7 +25,7 @@ static void hold_copy(int fd) {
     size_t root_size = strlen(root);
     const char *name = strrchr(source, '/');
     if (strncmp(source, root, root_size) || source[root_size] != '/' || !name || strcmp(name, "/hold-copy.txt")) return;
-    snprintf(marker, sizeof marker, "%s/.flea-test-sandbox", root);
+    snprintf(marker, sizeof marker, "%s/.dlea-test-sandbox", root);
     if (access(marker, F_OK)) return;
     held = 1;
     long thread = syscall(SYS_gettid);

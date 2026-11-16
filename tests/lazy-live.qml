@@ -1,4 +1,4 @@
-//@ pragma ShellId flea-lazy-objects-test
+//@ pragma ShellId dlea-lazy-objects-test
 import QtQuick
 import Quickshell
 // Live bridge gate: absent at launch, built on first ensure, local served on the same call.

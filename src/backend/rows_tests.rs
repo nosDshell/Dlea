@@ -14,7 +14,7 @@ fn rename_source_identity_uses_the_displayed_symlink_inode_without_following_it(
     let (mime, icons, aliases, thumbs, mut kinds) = dbs();
     let line = rows_line(root.path(), &listing, &metas, crate::backend::rows::Window { start: 0, ms }, crate::backend::rows::Services { mime: &mime, icons: &icons, aliases: &aliases, thumbs: &thumbs, kinds: &mut kinds });
     let line = super::super::rowguard::stamped(line, 1);
-    let flea::protocol::Reply::Rows { rows, .. } = flea::protocol::parse_reply(&line).unwrap() else { panic!("rows receipt") };
+    let dlea::protocol::Reply::Rows { rows, .. } = dlea::protocol::parse_reply(&line).unwrap() else { panic!("rows receipt") };
     let meta = link.symlink_metadata().unwrap();
     assert_eq!(rows[0].source, Some(format!("{}:{}:{}", meta.dev(), meta.ino(), meta.mode() & 0o170000)));
     assert_ne!(meta.ino(), target.symlink_metadata().unwrap().ino());

@@ -70,8 +70,8 @@ fn collision_sentences_fill_the_jointed_name_as_one_argument() {
 fn failure_and_location_sentences_are_whole_catalog_strings() {
     let i18n = english();
     assert_eq!(list_failed(&i18n, "failed"), "This folder could not be listed.");
-    assert_eq!(list_failed(&i18n, "dead"), "Flea stopped responding, so this folder could not be listed.");
-    assert_eq!(list_failed(&i18n, "unstarted"), "This folder could not be listed. Restart Flea.");
-    assert_eq!(save_stopped(&i18n), "Flea stopped responding. Cancel and reopen this request.");
+    assert_eq!(list_failed(&i18n, "dead"), "Dlea stopped responding, so this folder could not be listed.");
+    assert_eq!(list_failed(&i18n, "unstarted"), "This folder could not be listed. Restart Dlea.");
+    assert_eq!(save_stopped(&i18n), "Dlea stopped responding. Cancel and reopen this request.");
     assert_eq!(save_moved(&i18n), "The save location changed; review it again.");
 }

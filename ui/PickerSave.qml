@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Format.js" as Format
 import "js/Picker.js" as Picker
 
@@ -28,7 +28,7 @@ Item {
         height: Theme.spacing.hairline
         color: root.picker.edge
     }
-    Flea.CardScroll {
+    Dlea.CardScroll {
         id: body
         bleed: Theme.focusClearance
         anchors.fill: parent

@@ -26,7 +26,7 @@
 
 `ui/js/Format.js`'s `size()` is GLib's SI, one-decimal ladder (`g_format_size`), because storage
 capacity has no power-of-two basis and hard rule 2 picks the desktop's own convention over
-Flea's old IEC one. Finder renders 26,950,000,000 bytes as "26.95 GB". The design spec that
+Dlea's old IEC one. Finder renders 26,950,000,000 bytes as "26.95 GB". The design spec that
 named this fixture quotes that string as a value that "reproduces exactly" and assumed GLib
 rounds it up to "27.0 GB"; measured live on this box (glib 2.88.3, `python3 -c "from
 gi.repository import GLib; print(GLib.format_size(26950000000))"`, and cross-checked with
@@ -40,8 +40,8 @@ not the spec's quoted string.
 ### Transparent huge pages
 
 The GPUI launcher calls `thp::disable()` immediately before `Command::exec` replaces it with
-`flea-gui`; the chooser path does the same.
-Programs Flea opens regain huge pages through `thp::enable()` in the opener and terminal paths.
+`dlea-gui`; the chooser path does the same.
+Programs Dlea opens regain huge pages through `thp::enable()` in the opener and terminal paths.
 
 The Qt-specific measurements below belong to the retained QML reference, which the GPUI launcher does not load.
 
@@ -73,21 +73,21 @@ nothing: 42.08 MB against the shipped call's 42.12 MB, because nothing in the Qt
 advises huge pages. It also leaves `THP_enabled` reading 1, so the shipped test would not pin the
 mechanism under it. The simpler call is the right one.
 
-**// corner: the setting is inherited by every descendant, and that is fine only while Flea launches
+**// corner: the setting is inherited by every descendant, and that is fine only while Dlea launches
 nothing foreign.** The descendants that keep it are the backend and the helpers it runs, such as the
 `bwrap` thumbnailer children and the LocalSend CLI; the thumbnailer was measured to pay nothing for
 it: `ffmpegthumbnailer` on a fixture clip ran 88 to 94 ms with huge pages on against 89 to 92 ms off over five interleaved pairs, output byte-identical. A foreign program
-CAN now be launched from the window, because Enter on most files runs `flea --open`, and the undo the
+CAN now be launched from the window, because Enter on most files runs `dlea --open`, and the undo the
 corner asked for ships with it: `open::open` calls `thp::enable()`, which is
-`prctl(PR_SET_THP_DISABLE, 0, ...)`, in the `flea --open` process before it spawns `gio open`, so the
+`prctl(PR_SET_THP_DISABLE, 0, ...)`, in the `dlea --open` process before it spawns `gio open`, so the
 opened program inherits huge pages back on; an application a menu launches gets the same call in
-`src/backend/menu_registry.rs`'s `pre_exec`. The `flea --open` call lives in `src/open.rs`, after the
+`src/backend/menu_registry.rs`'s `pre_exec`. The `dlea --open` call lives in `src/open.rs`, after the
 `canonicalize` and after the directory refusal and immediately before the spawn, so a path that
 never reaches a handler never changes the setting, and `src/thp.rs` holds the `extern "C"`
-declaration used by the opener and by the GPUI launcher. Without it Flea would silently change a
+declaration used by the opener and by the GPUI launcher. Without it Dlea would silently change a
 system-wide performance setting for every application launched from it, for that
 application's whole life. `tests/modes.sh` pins it through a
-stub `flea-gui` that execs `flea --open` against a stub handler reporting its own `THP_enabled`, which is
+stub `dlea-gui` that execs `dlea --open` against a stub handler reporting its own `THP_enabled`, which is
 the only shape of check that can redden when the `thp::enable()` call is deleted. See "Opening a
 file" below.
 
@@ -106,7 +106,7 @@ so what is being paid for is page-walk work rather than allocation.
 
 ### Opening a file
 
-`flea --open <path>` is the one route that opens a file with the desktop's own handler, and both
+`dlea --open <path>` is the one route that opens a file with the desktop's own handler, and both
 front ends use it rather than launching anything themselves. It exists in Rust because the huge page
 setting above is inherited by every descendant, so a program launched from QML would run its whole
 life with transparent huge pages disabled without ever asking; `open::open` hands the setting back
@@ -124,17 +124,17 @@ makes `gio open` wait on the `org.freedesktop.Application.Open` reply instead, w
 archive default is 0.32 to 0.75 s, and the `ui/Opener.qml` paragraph below carries those numbers.
 Waiting is what makes the exit status mean
 anything, and the detached `xdg-open` spawn it replaced answered `0` for a handoff that had not
-happened. It is still a spawn and never an `exec`, because an `exec` would leave a Flea-descended
+happened. It is still a spawn and never an `exec`, because an `exec` would leave a Dlea-descended
 process alive for the application's whole life, as a child of the `qs` process, which Quickshell may
-kill when Flea quits. `Command::status` is argv-direct exec and never a shell, which is the binding
-requirement. The child gets `process_group(0)` so that nothing which later kills Flea's process group
+kill when Dlea quits. `Command::status` is argv-direct exec and never a shell, which is the binding
+requirement. The child gets `process_group(0)` so that nothing which later kills Dlea's process group
 reaches the opened application.
 
-The child also gets `/dev/null` on all three descriptors. Quickshell hands `flea --open` pipes and
+The child also gets `/dev/null` on all three descriptors. Quickshell hands `dlea --open` pipes and
 closes them the moment it exits, so a handler that inherited those pipes dies with `SIGPIPE` on its
 first write. Measured on this box: `imv` was spawned and gone inside 250 ms without ever mapping a
 window, and the same spawn with `Stdio::null()` opened normally. `tests/modes.sh` pins it by giving
-`flea --open` a pipe of its own and reading the stub handler's `/proc/$$/fd/1`.
+`dlea --open` a pipe of its own and reading the stub handler's `/proc/$$/fd/1`.
 
 The path is `std::fs::canonicalize`d, which does two jobs at once: a symlink opens its target rather
 than the link, and the absolute result cannot be read as a flag by the child, so a file named
@@ -151,13 +151,13 @@ all: a path that does not resolve gets `that file could not be opened, check tha
 it`, and a `gio` that could not be run at all gets `nothing on this system could be asked to open that
 file`, so the set tells a refused open from an unimplemented one and neither one blames the path. A directory is refused rather than handed on because
 the desktop default for `inode/directory` is a file manager either way, `org.gnome.Nautilus.desktop`
-on an unclaimed box and `com.thisisgm.flea.desktop` once `--default` has claimed it, so opening one
+on an unclaimed box and `com.nosDshell.dlea.desktop` once `--default` has claimed it, so opening one
 through the opener from inside a file manager opens a file manager; the caller navigates instead.
-`flea --open` with no path and `flea --open a b` both meet the usage error `--open takes one path`
+`dlea --open` with no path and `dlea --open a b` both meet the usage error `--open takes one path`
 and exit 2 (tests/modes.sh counts that sentence).
 
 `ui/Opener.qml` is the window side of that contract and the only component in the tree that runs
-`flea --open` or `flea --terminal`. It holds a `Process` for each of the three it runs, and the
+`dlea --open` or `dlea --terminal`. It holds a `Process` for each of the three it runs, and the
 opener's own `onExited` is the whole mapping for this half: `0` says nothing, `3` raises
 `isDirectory` and `Pane` navigates there, `4` hands the stdout line it collected to the card once the
 process has exited, and `5` opens Open with for that path, while anything else
@@ -187,7 +187,7 @@ guard exists for. `Pane.openCursor` sends a row with `d` true to `open()`, an ar
 and every other row to the opener, so a symlink to a directory reaches the opener, comes back 3 and
 navigates; `tests/ui.sh open` asserts all four answers on one listing.
 
-**Enter on an archive opens Flea's own view and launches nothing, as decided on
+**Enter on an archive opens Dlea's own view and launches nothing, as decided on
 2026-09-05.** `ui/js/Nav.js` `openCursor` carries one branch beside the directory branch: a row whose
 `Kinds.quickLookKind(row.i, path)` is `archive` goes to `pane.preview.open(path, row.i, row.s)`, the
 same call `ui/js/PreviewKeys.js` already makes for Space and `l`, so the three keys cannot disagree
@@ -201,7 +201,7 @@ and so do `.deb`, `.rpm`, `.jar`, `.cab`, `.gz` and `.xz`.
 
 **That one icon covers the whole Nautilus class on this box, derived rather than assumed.**
 `org.gnome.Nautilus.desktop` lists 26 `MimeType` entries; 25 resolve to it as the default and the
-26th is `inode/directory`, which `flea --default` has claimed. Of those 25, 20 carry
+26th is `inode/directory`, which `dlea --default` has claimed. Of those 25, 20 carry
 `package-x-generic` in `generic-icons`, and the other five have no glob at all in `globs2`, so
 `src/backend/mime.rs`, which classifies by glob and by nothing else, cannot produce them for any
 filename. 89 `generic-icons` rows carry `package-x-generic`: 20 default to Nautilus, 69 have no
@@ -209,9 +209,9 @@ default handler at all, and none defaults to anything else, so the branch takes 
 that used to open another file manager, plus rows `gio open` used to refuse.
 
 **The other half of that ruling was measured and then declined, and the expectation did not hold.**
-The candidate was resolving the handler in Flea and running `gio launch <desktop-file> <path>` in
+The candidate was resolving the handler in Dlea and running `gio launch <desktop-file> <path>` in
 place of `gio open <path>`, on the theory that the default-handler machinery was pulling something
-extra in. Measured under `flock /tmp/flea-display.lock` on one real `text/plain` file, two
+extra in. Measured under `flock /tmp/dlea-display.lock` on one real `text/plain` file, two
 repetitions of each arm plus a third pass with the whole session bus captured: both launchers
 produced the same process tree (`kitty -- nvim <path>` reparented to pid 1, with `nvim` and
 `nvim --embed` beneath it), both exited `0` in 8 to 10 ms, both made exactly one
@@ -224,7 +224,7 @@ text file, so `gio open` stays** and no desktop-entry parsing enters `src/open.r
 `Terminal` is `true`, and Enter on a text file mapped no window at all. Reproduced against an
 isolated `XDG_DATA_HOME` and `XDG_CONFIG_HOME` carrying one `Terminal=true` entry, so the operator's
 own MIME state was neither read nor written: `xdg-open` exited `3` with
-`no method available for opening`, the handler never ran, no terminal was reached, and `flea --open`
+`no method available for opening`, the handler never ran, no terminal was reached, and `dlea --open`
 still exited `0` over it. `gio open` on the same fixture ran the handler inside the stub
 `xdg-terminal-exec` and exited `0`. `src/terminal.rs` execs `xdg-terminal-exec` by name, which is
 why it is a `depends` entry and not an `optdepends` one; `/usr/lib/libgio-2.0.so` on `glib2
@@ -239,11 +239,11 @@ belonged to the operator and was `omarchy default editor`, which rewrites the as
 writer of. It chooses what `omarchy-launch-editor` runs and changes no MIME association at all, so
 it could not have fixed this and never could have.
 
-Flea still decides nothing about which programs are terminal programs. That judgement is the desktop
+Dlea still decides nothing about which programs are terminal programs. That judgement is the desktop
 database's, `gio open` is how it is asked, and there is no desktop-entry parsing anywhere in
 `src/open.rs`.
 
-**`flea --terminal <dir>` is the same shape for a terminal**, and the topbar's terminal button and
+**`dlea --terminal <dir>` is the same shape for a terminal**, and the topbar's terminal button and
 `Ctrl+T` are its only callers. `src/terminal.rs` canonicalizes the directory the same way, refuses
 anything that is not one, and hands the result to `xdg-terminal-exec` as a single `--dir=` argument
 built as an `OsString`, because `Path::display` would substitute U+FFFD for a byte that is not
@@ -259,12 +259,12 @@ guards the opener does: `/dev/null` on all three descriptors,
 `process_group(0)`, and `thp::enable()` before the spawn. Unlike `--open` it does not wait, because
 the terminal it starts lives as long as the user keeps it open: it returned with the stub's log
 still empty, against a stub that slept half a second before its first write. `xdg-terminal-exec` is
-the OEM route rather than a terminal name of Flea's own, and `omarchy default terminal` is what
+the OEM route rather than a terminal name of Dlea's own, and `omarchy default terminal` is what
 configures it: that command writes `~/.config/xdg-terminals.list`, one of the config files
 `xdg-terminal-exec` reads, so whatever the operator set is what opens.
 `tests/modes.sh` pins the argument, both refusals, the descriptors, the process group and the huge
 page restore against a stub on `PATH`, and `tests/ui.sh openterminal` drives the button and the
-chord from both views against a logging `FLEA_BIN`.
+chord from both views against a logging `DLEA_BIN`.
 
 **Opening an executable file asks once, on the run card.** `src/runfile.rs` classifies the
 canonical target from its first 4096 bytes before `gio open` runs: a `#!` head is a script, a
@@ -285,14 +285,14 @@ an AppImage (both empty when it names none or the name cannot be read), the R3 f
 resolved symlink target the card names; Run and Run in terminal re-stat and
 refuse with exit 6 when the file behind the path changed (the handler button answers 9 when the application
 it names was uninstalled since the ask), and both spawn argv-direct with no descriptor above
-2 (close-on-exec, never closed, so a failed exec still reports) and no `FLEA_` variable reaching the child. A `gio open` that fails on a file no application claims answers exit 5 instead of the
+2 (close-on-exec, never closed, so a failed exec still reports) and no `DLEA_` variable reaching the child. A `gio open` that fails on a file no application claims answers exit 5 instead of the
 refused sentence, which opens the approved Open with dialog. Both ride `ui/Opener.qml`, which
 reads the stdout Quickshell hands over before the exit, says a launch that never started as refused, and hands the raw line to the card to parse, and `ui/RunCard.qml` draws
 the board: Cancel, Open as text, Run and Run in terminal with the ring on the default, no text
 row for an ELF or an AppImage, and, where the desktop names a handler for an AppImage, a first row
 labelled with that application's own name that it focuses. Whether a file is claimed and which
 handler it has come from the type `gio info` names, the same lookup the Open with dialog makes.
-`flea --run`, `--run-terminal`, `--open-text` and `--open-handler` answer the card's four launches,
+`dlea --run`, `--run-terminal`, `--open-text` and `--open-handler` answer the card's four launches,
 each one argv-direct spawn with the detached guards `src/terminal.rs` owns and never a shell string;
 `--open-text` resolves the desktop id through the XDG data dirs to a file `gio launch` takes,
 `--open-handler <path> <desktop id>` with the card identity rechecks it (exit 6 on a change) and
@@ -322,15 +322,15 @@ sheet draws `dd`, and `tests/js/keymap.js` resolves a doubled cap as that one ch
 
 ### Theme roles and sources
 
-The QML paths in this section describe the retained reference components; the production GPUI window opens through `crates/flea-gui/src/window/mod.rs`.
+The QML paths in this section describe the retained reference components; the production GPUI window opens through `crates/dlea-gui/src/window/mod.rs`.
 
-`Theme.qml`'s `applyColors` assigns only Flea's eight palette roles and ignores unknown
-keys because Omarchy themes contain more roles than Flea uses. `color.surface` walks the
+`Theme.qml`'s `applyColors` assigns only Dlea's eight palette roles and ignores unknown
+keys because Omarchy themes contain more roles than Dlea uses. `color.surface` walks the
 ladder `ThemeRoles.html` specifies, `dark_background` then `background`, because background
 is the neutral fallback when the chrome plane is absent. Alacritty-derived palettes contain
 neither of those two, so the measured surface fallback for them is `selection`, the third rung.
-Shell parsing consumes `[font]`, `[spacing]` and `[flea] background-alpha`, and nothing else,
-because Flea has no bar, popups, tooltip or lock screen. The alpha is read through
+Shell parsing consumes `[font]`, `[spacing]` and `[dlea] background-alpha`, and nothing else,
+because Dlea has no bar, popups, tooltip or lock screen. The alpha is read through
 `Commons.Color.pickAlpha`, so a value in `~/.config/omarchy/shell.toml` wins over the theme's, a
 value that is not a number is the default 1, and a number outside 0 to 1 is clamped the way Omarchy
 clamps its own `-alpha` keys.
@@ -377,16 +377,16 @@ through the seam's `glass` reader, which exists once the first listing has answe
 **Window Transparency and config reloads.** Omarchy's Window Transparency mode (`omarchy-hyprland-window-transparency`) lives in
 `$XDG_STATE_HOME/omarchy/toggles/hypr/window-opaque.lua` or `window-glassy.lua`, neither meaning transparent, its default, and
 `ui/Glass.qml` reads it as a file test, because `OMARCHY_PATH` is missing over ssh and from some launchers. The ground alpha takes
-the first row that applies: the user's own `[flea] background-alpha` in `~/.config/omarchy/shell.toml` (a value that is not a
-number reads as 1, as before the mode existed); opaque, which is 1; glassy, the theme's own value, else `Glass.glassAlpha`, the translucent ground; transparent, the theme's value, else 1. Transparent with no value is Hyprland's to draw: when Hyprland opens a Flea window,
-`ui/Glass.qml` makes `ui/GlassTagger.qml`, after the first rows, and it gives each Flea window Hyprland leaves at opacity 1 the
+the first row that applies: the user's own `[dlea] background-alpha` in `~/.config/omarchy/shell.toml` (a value that is not a
+number reads as 1, as before the mode existed); opaque, which is 1; glassy, the theme's own value, else `Glass.glassAlpha`, the translucent ground; transparent, the theme's value, else 1. Transparent with no value is Hyprland's to draw: when Hyprland opens a Dlea window,
+`ui/Glass.qml` makes `ui/GlassTagger.qml`, after the first rows, and it gives each Dlea window Hyprland leaves at opacity 1 the
 `transparent` tag Omarchy's transparency hotkey sets, so Omarchy's own rule draws it at its Transparent opacity, as Omarchy draws
 Nautilus. A window Hyprland already draws below 1, which stable Omarchy's catch-all rule does to every window, keeps that rule,
-so Flea's alpha never stacks on Hyprland's. Glassy, Opaque and a `[flea]` value take Flea's own tag off, and a tag the user set
+so Dlea's alpha never stacks on Hyprland's. Glassy, Opaque and a `[dlea]` value take Dlea's own tag off, and a tag the user set
 with the hotkey is never touched; a recorded window Hyprland draws at 1 again, such as a new window on a closed one's address,
 is tagged again. `ui/boot/shell.qml` clears the window from `WindowBody.clearSurface`, not the body colour. Hyprland reloads its config for a Window Transparency, Window Corners or Window Gaps change with no theme
 switch, and `ui/Theme.qml` listens for the `configreloaded` raw event of `Quickshell.Hyprland` (only inside Hyprland): it runs
-`Style.scheduleRefresh()`, so the corner radius follows, and `Glass.reread()`, so the mode does. Every launch is made clear unless a `[flea]` value pins
+`Style.scheduleRefresh()`, so the corner radius follows, and `Glass.reread()`, so the mode does. Every launch is made clear unless a `[dlea]` value pins
 1, so a switch between Omarchy's three modes shows on a running window; a pinned launch holds 1 until the next. `tests/glass-mode.sh` runs every precedence row, a reload under a running window, the
 same reload through a socket speaking Hyprland's event protocol, and the tag through a stand-in hyprctl: tagged at 1, untagged
 in Glassy, tagged again in Transparent, and left alone at 0.985. `tests/theme-contrast.qml` holds muted and metadata text to 4.5 on
@@ -410,7 +410,7 @@ cap because those digits are the jump keys. `:` and `Ctrl+L` open the path bar, 
 `pathBar` rather than `palette` (the old name read as a command palette, and `ui/js/Palette.js` is
 the theme's colour file); `Focus.handleKey` opens it beside the keymap sheet as a global action and
 `ui/ChromeBar.qml` carries the field, answered by `keycase_pathBar` in
-`tools/flea-acceptance-drive`, which drives the key and reads `pathBarOpen` off the seam. The generic
+`tools/dlea-acceptance-drive`, which drives the key and reads `pathBarOpen` off the seam. The generic
 `<action> is not built yet.` fallback below those stays as the loud failure for a row the
 dispatcher does not answer, and should never be reachable from the shipped table. `Ctrl+Shift+N`
 was on this list for one afternoon and is not on it now: `295e757` routed the action through
@@ -423,7 +423,7 @@ Hyprland grabs every `SUPER` chord, so no app ever sees one; Omarchy's own unive
 (`/usr/share/omarchy/default/hypr/bindings/clipboard.lua`) works by injecting `CTRL+C`, `CTRL+V`
 and `CTRL+X` into the focused surface with `send_key_state`. So the Finder table lands in
 `keys.toml` as `[[ctrl]]` and `[[ctrlshift]]` rows, every one additive to the bare vim key it
-doubles, and `tools/flea-keymap-gen` checks the shifted rows first and falls through. Two Finder
+doubles, and `tools/dlea-keymap-gen` checks the shifted rows first and falls through. Two Finder
 conventions are refused on purpose and should not be reopened: Enter opens and does not rename
 (every Linux file manager and the vim table open on Enter, and the TUI is generated from this
 table), and `Cmd+D` is not duplicate because `Ctrl+D` already pages with `Ctrl+U` as its pair.
@@ -440,11 +440,11 @@ and costing nothing while idle. A shown auto-hide rail holds itself open on the 
 anyway mid-release (Ctrl+B on a docked rail) keeps its Sidebar loaded, undrawn, through `PaneRail.releaseHold`, a
 latch set on the Sidebar's `releasing` edge and cleared on its fall, never derived from `hidden`, which would loop. A
 folder no volume row holds answers from the pane's own facts, never from rail rows: "on a system volume" only
-when fsinfo's `system` flag says a system-path mount holds the listing's device, otherwise "not on a volume Flea can unmount".
+when fsinfo's `system` flag says a system-path mount holds the listing's device, otherwise "not on a volume Dlea can unmount".
 `XF86Eject` and the transport keys are not bound here
 and cannot be: `media.lua` binds them through `o.bind`, which is a consuming `hl.bind`, so a
 client never receives them; the play key runs `omarchy-shell media playPause` against the MPRIS
-player the shell tracks, and Flea's Quick Look (`ui/PreviewMedia.qml`, a plain QtMultimedia
+player the shell tracks, and Dlea's Quick Look (`ui/PreviewMedia.qml`, a plain QtMultimedia
 `MediaPlayer`) registers no MPRIS name, so it is untouched by it. On the sheet a chord is `^c`,
 `^N` with a capital is ctrl-shift, and two rows keep the bare key alone because `f ^f` beside
 `find in subtree` (155 px) and `a ^k` beside `add network place` (169 px) overrun the 154 px
@@ -454,7 +454,7 @@ column at base-size 14 in JetBrainsMono; the README carries those two chords.
 
 The two-line prewarm file's `listed` line names its directory, as every `listed` line does, but
 nothing in the file says whether that directory changed after it was written, so the UI cannot tell
-whether prewarmed content is stale. Production ignores `FLEA_PREWARM` until the file carries that
+whether prewarmed content is stale. Production ignores `DLEA_PREWARM` until the file carries that
 proof and a first-paint measurement proves a real win.
 
 ### MIME globs
@@ -540,7 +540,7 @@ names have twins carrying the same MIME type.
 - `main.rs`: `std::env::args_os()` is converted once above every mode, and since 0.4.2 an argument
   that is not UTF-8 is carried as its exact text, the form the entry above describes, where it used
   to be refused with status 2 (and `std::env::args()` before that panicked with 101). The window's
-  own `flea --open` passes a row's exact text, which the launcher turns back into the raw bytes, so
+  own `dlea --open` passes a row's exact text, which the launcher turns back into the raw bytes, so
   Open reaches such a file. A mode that does not decode the text fails on its NUL rather than
   reaching the lossy twin.
 - `open.rs`: between `canonicalize`, `is_dir` and `spawn` a path that vanishes or is swapped
@@ -563,14 +563,14 @@ names have twins carrying the same MIME type.
   rather than a step in an implementation plan.
 - `scan.rs`: `d` describes the link, not its target, so a symlink to a directory
   reports false. The UI still does not guess the target: only `d` navigates directly, and
-  every other row goes to `flea --open`, which canonicalises and answers 3 for a directory,
+  every other row goes to `dlea --open`, which canonicalises and answers 3 for a directory,
   so the pane navigates on that answer rather than on a guess of its own. The ICON does
   follow the target, see "Icons in the row".
 - `run.rs`: an unreadable stdin line stops the loop after an error line, because the
   stream's framing cannot be trusted past it.
-- `tools/flea-bench`: refuses to run against tmpfs, because `drop_caches` cannot evict
+- `tools/dlea-bench`: refuses to run against tmpfs, because `drop_caches` cannot evict
   pages that are already the filesystem.
-- `tools/flea-bench`: the directory-exists check it runs before a warm pass reads the
+- `tools/dlea-bench`: the directory-exists check it runs before a warm pass reads the
   directory and warms the cache, so a cold run must skip that check entirely; that is
   what `COLD=1` is for.
 
@@ -621,7 +621,7 @@ entry at all, so `mime::Db` can never produce them; `*.sh` is `text/x-shellscrip
 A name no glob claims has no type at all, and `mime::Db` never reads a file's bytes, so a PIE
 named with no extension never becomes `x-pie-executable` or `x-sharedlib` here. Before 0.3.11 that
 row answered `text-x-generic` whatever its mode, so an extensionless program drew the document
-mark in every listing and on the run card, while `flea --open` had already read its magic and asked.
+mark in every listing and on the run card, while `dlea --open` had already read its magic and asked.
 Now a row with no type and any execute bit on a non-symlink answers `application-x-executable`, the
 same rule an unlisted application type gets. A symlink's lstat mode is always `0777`, so its own bits
 never count. `peek.rs` passes mode 0 by design, so a neighbour column's extensionless program still
@@ -640,8 +640,8 @@ exports `QT_QPA_PLATFORMTHEME=gtk3` and the session republishes it, so a user la
 resolves icons; a bare ssh inherits neither, and `omarchy-drive env` does not emit it, so
 every name answers empty and every row draws nothing. `tests/ui.sh` imports it from
 `systemctl --user show-environment` rather than hardcoding it, and so does
-`tools/flea-field-bench`. The harness did not until Plan 5 Task 3, so every Flea row in
-`docs/baseline-2026-08-29.md` is a Flea with no icon theme. **Both corrections below come from
+`tools/dlea-field-bench`. The harness did not until Plan 5 Task 3, so every Dlea row in
+`docs/baseline-2026-08-29.md` is a Dlea with no icon theme. **Both corrections below come from
 Task 3's own A/B at `32a3e68`, three cold runs an arm, differing in nothing but whether Qt
 loaded the gtk3 platform theme. Neither is a subtraction across the two documents**, which
 would cross a unit boundary; what licenses applying the A/B to that document's rows is that its
@@ -649,10 +649,10 @@ theme-off arm reproduces them to within 0.02 MB, 45485 kB against a printed 45.5
 against a printed 44.8. **PSS: the theme is worth 3285 kB on the scale fixture and 3824 kB on
 the media fixture**, 45485 against 48770 and 44805 against 48629, that is 3.21 and 3.73 MiB, so
 the understatement is a pair and not the one number it was written as. **CPU: up to 0.08 s, and
-that is the scale figure alone**, medians 0.22 s against 0.30; media moved 0.26 to 0.29. **That document's Flea rows are not a valid before for
+that is the scale figure alone**, medians 0.22 s against 0.30; media moved 0.26 to 0.29. **That document's Dlea rows are not a valid before for
 anything in this plan**, and `docs/baseline-2026-08-30b.md` supersedes them. Of the rest
 of the compared apps only `dolphin` is Qt and can move at all; the GTK entrants and the terminal ones
-cannot see the variable. The same trap catches a launch by hand: `~/bench/flea-relaunch.sh`
+cannot see the variable. The same trap catches a launch by hand: `~/bench/dlea-relaunch.sh`
 does not publish the variable either, so a window started through it draws blank icon slots
 with thumbnails still working, which reads as a renderer bug and is not one. Export it from
 `systemctl --user show-environment` for any by-hand launch.
@@ -688,11 +688,11 @@ alone, so the query changes Qt's key and not the file that opens.
 
 **`cache: false` was the other candidate and it was measured, not argued about.** Five interleaved
 rounds, both fixtures, both a settled listing and one after ten scroll bursts, every arm launched
-through `flea --gui` so the launcher's `PR_SET_THP_DISABLE` is in the picture. `cache: false` cost
+through `dlea --gui` so the launcher's `PR_SET_THP_DISABLE` is in the picture. `cache: false` cost
 PSS in the settled column of both fixtures in 5 of 5 pairs, median +418 kB on scale and +292 kB on
 media, because it stops the whole icon column sharing one pixmap per name. The mtime query keyed only
 the thumbnail branch and came out inside the noise, medians -79 and -6 kB with the sign flipping
-across rounds. Memory is the one GUI column where Flea is not the lowest on the media fixture, so the arm that
+across rounds. Memory is the one GUI column where Dlea is not the lowest on the media fixture, so the arm that
 costs nothing is the arm that ships.
 
 **What the mtime query does NOT cover.** The row's `m` comes from the listing while the backend
@@ -787,7 +787,7 @@ change beyond corners: `music` note heads are squares, not circles, the set's br
 (`file-text`'s three rules are lucide's own, restored with the body). The AE compare
 above no longer applies to recut marks (they differ from source on purpose); the gate is the
 retained QML reference's montage eyeball plus a live `QSG_RHI_BACKEND=vulkan qs -p ui` look on the box, which names the
-renderer but not `FLEA_RENDERER_AUTOMATIC` and so leaves the QML fallback arm disarmed (bench
+renderer but not `DLEA_RENDERER_AUTOMATIC` and so leaves the QML fallback arm disarmed (bench
 numbers still come from the launcher path, hard rule 7). `rsvg-convert` only
 proves a `d` parses; librsvg renders through a bad tail and exits 0, so its exit status is
 not a gate.
@@ -1002,7 +1002,7 @@ file already carries, so a second activation reports nothing new instead of grow
 time), and the message names how many were added. One click on a real "NAS" bookmark
 now turns it into five separate, individually mountable rows: appdata, backups, data, isos,
 timemachine, each of which opens a real GVFS FUSE path once mounted, verified live against the
-real NAS both through gio directly and through Flea's own rail.
+real NAS both through gio directly and through Dlea's own rail.
 
 **Superseded, fix round 2:** the bookmark-expansion design above was replaced, because clicking
 the NAS in the sidebar should show all of its folders and let the user go into them, nothing more. The
@@ -1022,12 +1022,12 @@ the row's own muted role; the font is `Style.font.caption`, `font.bold: true`,
 `SequentialAnimation` of two `PropertyAnimation`s on opacity, 180 ms out (`Easing.OutQuad`) then
 260 ms in (`Easing.InQuad`), with the phrase index advanced by a `ScriptAction` in between, not a
 plain text swap. `ui/EmptyState.qml` keeps the order, the interval and the index swap, and its fades
-take Flea's OutCubic at `Motion.durMs` (140 ms out, 180 ms in), the curve every Flea transition uses; the file's own eight-phrase
+take Dlea's OutCubic at `Motion.durMs` (140 ms out, 180 ms in), the curve every Dlea transition uses; the file's own eight-phrase
 list stayed sentence case in its source, matching `activePhrases`' own authoring convention, with
 `.toUpperCase()` applied only at render time.
 
 The GPUI hero's rotation loops while shown: every 2800 ms, the first after a full interval, the phrase
-and FleaMark beat together and the phrase wraps from the last back to the first. A hide resets the count.
+and DleaMark beat together and the phrase wraps from the last back to the first. A hide resets the count.
 The GPUI hero waits on one timer between beats and requests frames only during the fade. The QML oracle
 still stops after three beats to save CPU (2.4 s per 20 s against 0.08 s still), and
 `tests/emptybeats.sh` gates that stop.
@@ -1068,7 +1068,7 @@ Applied this round: `ui/NetworkDialog.qml`'s two `PanelSectionHeader` texts, "Ad
 and "Dropbox", became "ADD NETWORK LOCATION" and "DROPBOX" (heading rule); `ui/EmptyState.qml`'s
 eight-phrase array was re-cased to sentence case in its source with `.toUpperCase()` at render
 (rotating-caption rule, above). Every button label, status sentence and error sentence already in
-Flea (`ui/js/Errors.js`, `ui/Pane.qml`'s inline messages, `ui/ContextMenu.qml`'s "Open", the
+Dlea (`ui/js/Errors.js`, `ui/Pane.qml`'s inline messages, `ui/ContextMenu.qml`'s "Open", the
 dialog's "Add"/"Cancel"/"Install Dropbox") already matched their registers and needed no change.
 `ui/Row.qml`'s column headers ("Name", "Mode", "Size", "Date Modified") are Title Case, a fourth
 register with no shipped-panel counterpart to check against since no OEM panel renders a data
@@ -1080,16 +1080,16 @@ The registered rule for this task was that wiring the row through `Glyph` must n
 media PSS, predicted instead to save memory by retiring `Quickshell.iconPath`'s URL-keyed
 pixmap cache. Nine interleaved pairs per fixture, alternated old (this tree at `cabcc0e`,
 `Image`-only) against new (this tree with the row swap), launched through the real product
-path `flea --gui <fixture>` with `FLEA_UI`/`FLEA_BIN` pointed at each arm so
+path `dlea --gui <fixture>` with `DLEA_UI`/`DLEA_BIN` pointed at each arm so
 `PR_SET_THP_DISABLE` stays in the picture, settled PSS read off `smaps_rollup` once three
 consecutive 300 ms samples sat within 256 kB. **Warm cache, not cold**: the sudo password
 `drop_caches` needs was not available during this
 run, so `drop_caches` was never run; the
 comparison is still relative and same-process, which is what this gate asks.
 
-Media fixture (`/home/flea-sandbox/flea-media-btrfs`), 9 pairs: old median 67,847 kB, new median 71,058 kB,
+Media fixture (`/home/dlea-sandbox/dlea-media-btrfs`), 9 pairs: old median 67,847 kB, new median 71,058 kB,
 every pair higher for new, spread inside each arm under 350 kB. Scale fixture
-(`/home/flea-sandbox/flea-bench-btrfs`), 9 pairs: old median 63,774 kB, new median 67,347 kB, same
+(`/home/dlea-sandbox/dlea-bench-btrfs`), 9 pairs: old median 63,774 kB, new median 67,347 kB, same
 direction, same magnitude. **The regression is a fixed roughly 3.2 to 3.6 MiB on both
 fixtures**, not proportional to row or file count, which points at `QtQuick.Shapes` and
 `Shape.CurveRenderer` module load rather than a per-row cost. A five-pair isolation swapping
@@ -1107,10 +1107,10 @@ pixmap cache; the measurement above says the opposite, 9 of 9 pairs on both fixt
 that prediction is recorded here as falsified rather than quietly dropped.
 
 **The comparison check**, run against `docs/baseline-2026-08-30b.md` before deciding on the numbers
-above. Media PSS, MiB: thunar 37.94, pcmanfm 38.74, nemo 53.41, flea 56.48, dolphin
-96.08, nautilus 134.47. Flea plus the measured 3.2 MiB is about 59.7, **still the fourth lowest**; the
+above. Media PSS, MiB: thunar 37.94, pcmanfm 38.74, nemo 53.41, dlea 56.48, dolphin
+96.08, nautilus 134.47. Dlea plus the measured 3.2 MiB is about 59.7, **still the fourth lowest**; the
 difference to nemo widens from 3.07 to about 6.3 MiB, and dolphin's 96.08 stays well
-above it. Scale fixture: flea 53.75 against dolphin 194.84; plus the measured 3.5 MiB is
+above it. Scale fixture: dlea 53.75 against dolphin 194.84; plus the measured 3.5 MiB is
 57.25, **still the lowest, 3.4x below dolphin**. The order does not change on either column.
 
 **Ruling: ship the swap as implemented, `Shape.CurveRenderer` included**, not the cheaper
@@ -1155,7 +1155,7 @@ gap grew to about 17 MB against 14.5 MB of decoded pixels, so it scales with pix
 not with row count.
 
 The rule was fixed before the numbers: take the `sourceSize` arm unless it costs more than
-twice the other arm's time to fill a screen, because memory is the one GUI column where Flea is
+twice the other arm's time to fill a screen, because memory is the one GUI column where Dlea is
 not the lowest on the media fixture, while a screen of thumbnails is not on the first paint path at
 all. The worst pair of the twenty put the sized arm at 1.25x and the pooled medians put it
 under 1x, so the threshold was never approached and the sized arm wins on both columns. Treat
@@ -1211,7 +1211,7 @@ like the empty state, and `ui/Pane.qml` gained a `shareBrowser` property wired t
 `preview` already was, so its own `Keys.onPressed` can route j/k/Enter/Escape to
 `Focus.shareBrowserAct` while it is active, ahead of the normal list/rail routing.
 
-Each share row is a real `Flea.Row` fed a synthetic row object
+Each share row is a real `Dlea.Row` fed a synthetic row object
 (`{ n: name, d: true, p: 0, s: 0, m: null, i: "folder" }`) rather than a hand-rolled second row
 visual: `Icons.glyphFor("folder")` already maps to the folder mark, `p: 0` renders as the mode
 column's own all-dashes string with no special-casing needed, and `d: true` already blanks the
@@ -1239,7 +1239,7 @@ the bare-root case. `mountProcess.onExited`'s old check, `exitCode !== 0 && !isB
 treated this as a hard failure for any non-bare-root uri, which is wrong: the location IS mounted,
 that is what the message says. This is reachable through the overlay in one ordinary sequence: pick
 a share, mount it, browse back to the bare root, pick the SAME share again (or a different overlay
-instance discovers a share Flea already mounted through some other route). The fix reads the
+instance discovers a share Dlea already mounted through some other route). The fix reads the
 process's own stderr instead of guessing from the uri's shape: `mountProcess` gained a
 `StdioCollector` on `stderr`, and `isAlreadyMountedQuirk(text)` (`/already mounted/i`) replaced the
 `isBareRoot()` check at that one call site. `isBareRoot()` itself stays, still used by
@@ -1271,7 +1271,7 @@ key. `openShare` gated the mount on `credentialed(uri)`, true for any `sftp://..
 password in the process map it set `result = "missing-credential"` and raised the dialog saying
 "Enter the password to mount this location." **before `gio` was ever run**: no key, no agent and no
 `~/.ssh` could get a hearing. Typing one did not rescue it either, because the credentialed leg runs
-`/usr/lib/flea/flea-gio-auth`, and that helper exits 1 when the mount succeeds without ever asking
+`/usr/lib/dlea/dlea-gio-auth`, and that helper exits 1 when the mount succeeds without ever asking
 (`if {!$password_sent && [lindex $result 3] == 0} { exit 1 }`), so a key that authenticated anyway
 came back as a refusal and `failMount` then forgot the password.
 
@@ -1279,7 +1279,7 @@ came back as a refusal and `failMount` then forgot the password.
 this box, `gvfsd-sftp` execs `ssh -oForwardX11 no -oForwardAgent no -oPermitLocalCommand no
 -oClearAllForwardings yes -oProtocol 2 -oNoHostAuthenticationForLocalhost yes -oControlMaster auto
 -oControlPath=/run/user/1000/gvfsd-sftp/%C -l tom -s nas.test sftp`, with a pty. So
-everything ssh can do without a password a Flea mount can do too: a key in `~/.ssh`, an agent, and
+everything ssh can do without a password a Dlea mount can do too: a key in `~/.ssh`, an agent, and
 `ssh_config`'s `User`, `HostName` and `IdentityFile`. smb, ftp and dav have no such source, which is
 why the split is on the scheme and not on a preference. `Mounts.keyless()` names it, and it sits
 beside `Mounts.credentialed()` in `ui/js/Mounts.js`, where both are pure URI predicates with
@@ -1617,7 +1617,7 @@ same way `ui/js/Mounts.js`'s `normalize()` already dedups the rail, so a live `g
 (trailing slash) still finds a bookmark line written without one (`ui/NetworkDialog.qml`'s own
 `appendBookmark()` strips it). Fix round 1 found two gaps: the function used to stop at the first
 matching line, so a hand-edited file carrying two bookmark lines for the same normalized uri
-(never produced by Flea's own writers, but not excluded either) left the second stale after a
+(never produced by Dlea's own writers, but not excluded either) left the second stale after a
 rename; `relabel` now rewrites every matching line in one pass and appends only when none match at
 all. Second, `name` reached the join with no defence against an embedded `\n` or `\r`; today's
 `qs.Ui` `TextField` cannot produce one, but the function is a trust boundary in its own right and
@@ -1633,7 +1633,7 @@ could drop and `Rename` could only ever duplicate, appending a second line for a
 already carried. `relabel` trims first now, the same way, and the line it rewrites loses its
 indentation along with its old label.
 
-### Flea ends when its last window closes, and a wedged listing no longer freezes the rail
+### Dlea ends when its last window closes, and a wedged listing no longer freezes the rail
 
 Three fixes on 2026-09-02, one on the way out and two on the rail. None of them had a line here.
 
@@ -1722,7 +1722,7 @@ control reached by a different gesture, and it is the only answer that holds the
 inventing a surface. Finishing the copy instead would run it for minutes inside a process with no
 window, no progress and no way to stop it, which is the resident-with-nothing-on-screen state the
 exit exists to prevent. A confirmation dialog would be the only one in the product: `Delete` trashes
-with no prompt, as `tools/flea-live-ops` asserts, and a cancelled copy destroys nothing, so the
+with no prompt, as `tools/dlea-live-ops` asserts, and a cancelled copy destroys nothing, so the
 dialog would guard the least destructive action of the set. A cancelled move keeps its source too,
 because `move_any` copies before it removes and the cancel path removes the partial destination.
 
@@ -1776,7 +1776,7 @@ w61 preserves the complete footer dismissal hint, each re-derived with wc -l: ui
 
 e68 R4 retires dismissed menu snapshot replies, re-derived with `wc -l`: `ui/PaneMenuActions.qml` 404 to 407 for the retire guard on the snapshot reply (a stale ok reply retires silently only with the menu and dialog closed and no action awaiting; an open menu, a waiting action or a backend refusal keeps its sentence); the probe is the new `tests/menu-snapshot-retire.qml` at 145 with `tests/menu-snapshot-retire.sh` at 72 carrying the offscreen gate, both inside their budgets and registered in `tests/run-all.sh` headless.
 
-k2-markdown renders Markdown previews (RenderedPreviews callouts 1, 2 and 4), each re-derived with `wc -l`: `ui/Preview.qml` 463 to 574 for the Markdown bar (mark, name, line count, close with the overlay tap policy; the settings segmented control the board drew there was ruled out on 2026-10-03) and the rendered/source pane under it; `ui/PreviewColumn.qml` 499 to 526 for the Markdown branch (tall frame to the name, always rendered, no toggle) with the swap reading its load through `textLoading`; `src/uischema.rs` 439 to 443 for `preview.markdownView` with its rule and default assert (the leaf was removed again on 2026-10-03); `ui/js/Keymap.js` 322 to 323 for the generated preview-context `r` row. The split lives in `ui/js/Markdown.js` at 527, recorded over the 300 hard cap (top-level blocks only: fenced code, quote groups, standalone-image paragraphs, top-level lists, GFM tables, runs of everything else; a quoted fence stays a quote, an unterminated fence runs to the end, whitespace-only runs never block, deeper markers nest into the open item; inline code spans pair by matching backtick runs with CommonMark space stripping and resolve against the chrome hex, inline links and autolinks wrap in a presentational font tag against the ink hex because the importer hardcodes its own link blue over QML linkColor), and the delegates in the new `ui/PreviewMarkdown.qml` at 473, recorded over the 400 hard cap (fence verbatim filled on the chrome surface with no border, quote behind a 2 px muted bar, remote as one dashed box with glyph and sentence on a single left-aligned line, same-folder as an async width-fitted Image, lists as marker rows at the text edge through a two-column grid, tables as a GridLayout with a bold header, muted rules and no verticals hugging content by measured column widths since Markdown tables carry no styling), rather than in `ui/js/Facts.js`, which stands at its 300 hard cap; `ui/js/PreviewKeys.js` takes the guarded toggle at 91, `ui/SettingsSegment.qml` a 20 px height override at 79 that the segment-free bar left without a caller (removed again, the component is back at 75), `ui/ViewState.qml` the one-line normalised reader at exactly 400 (removed with the leaf), `ui/SelectionPreview.qml` keeps 262 for the one-line readiness mapping, and `tests/js/markdown.js` at 167 with `tests/js/previewkeys.js` at 88 carry the URL, placeholder, toggle, keymap, block, code, link, table and list pins. No code colouring renderer exists on this head (Source and the code preview are verbatim text), so a fenced block keeps plain mono: colouring one by its info string would take a real syntax highlighter, new machinery, not a reuse. Three rendering facts were proved on CI Qt offscreen rather than assumed: `Text.Markdown` is undefined there and every delegate reads `Text.MarkdownText`, the importer keeps structural HTML (`<br>`, `<code>`, `<font>`) while dropping every style attribute, and thin markers antialias without a pure core pixel so the suite counts any ink, which `tests/markdown-render.sh` with `tests/markdown-render.qml` at 399 pins from a grab (chip, markers, rules, hug, fence, box, bar, no default link blue, PNG to `$FLEA_CI_SUITE_LOGS`). Headings render foreground bold at Qt's sizes (the board draws h1/h2 in the foreground, so that is exact), and inline code takes no side padding (the board's 4 px was declined without a capture reading it right). `tests/ui-captures-markdown.sh` carries the display-box capture (`case_cap_markdown`, out of the default wanted list).
+k2-markdown renders Markdown previews (RenderedPreviews callouts 1, 2 and 4), each re-derived with `wc -l`: `ui/Preview.qml` 463 to 574 for the Markdown bar (mark, name, line count, close with the overlay tap policy; the settings segmented control the board drew there was ruled out on 2026-10-03) and the rendered/source pane under it; `ui/PreviewColumn.qml` 499 to 526 for the Markdown branch (tall frame to the name, always rendered, no toggle) with the swap reading its load through `textLoading`; `src/uischema.rs` 439 to 443 for `preview.markdownView` with its rule and default assert (the leaf was removed again on 2026-10-03); `ui/js/Keymap.js` 322 to 323 for the generated preview-context `r` row. The split lives in `ui/js/Markdown.js` at 527, recorded over the 300 hard cap (top-level blocks only: fenced code, quote groups, standalone-image paragraphs, top-level lists, GFM tables, runs of everything else; a quoted fence stays a quote, an unterminated fence runs to the end, whitespace-only runs never block, deeper markers nest into the open item; inline code spans pair by matching backtick runs with CommonMark space stripping and resolve against the chrome hex, inline links and autolinks wrap in a presentational font tag against the ink hex because the importer hardcodes its own link blue over QML linkColor), and the delegates in the new `ui/PreviewMarkdown.qml` at 473, recorded over the 400 hard cap (fence verbatim filled on the chrome surface with no border, quote behind a 2 px muted bar, remote as one dashed box with glyph and sentence on a single left-aligned line, same-folder as an async width-fitted Image, lists as marker rows at the text edge through a two-column grid, tables as a GridLayout with a bold header, muted rules and no verticals hugging content by measured column widths since Markdown tables carry no styling), rather than in `ui/js/Facts.js`, which stands at its 300 hard cap; `ui/js/PreviewKeys.js` takes the guarded toggle at 91, `ui/SettingsSegment.qml` a 20 px height override at 79 that the segment-free bar left without a caller (removed again, the component is back at 75), `ui/ViewState.qml` the one-line normalised reader at exactly 400 (removed with the leaf), `ui/SelectionPreview.qml` keeps 262 for the one-line readiness mapping, and `tests/js/markdown.js` at 167 with `tests/js/previewkeys.js` at 88 carry the URL, placeholder, toggle, keymap, block, code, link, table and list pins. No code colouring renderer exists on this head (Source and the code preview are verbatim text), so a fenced block keeps plain mono: colouring one by its info string would take a real syntax highlighter, new machinery, not a reuse. Three rendering facts were proved on CI Qt offscreen rather than assumed: `Text.Markdown` is undefined there and every delegate reads `Text.MarkdownText`, the importer keeps structural HTML (`<br>`, `<code>`, `<font>`) while dropping every style attribute, and thin markers antialias without a pure core pixel so the suite counts any ink, which `tests/markdown-render.sh` with `tests/markdown-render.qml` at 399 pins from a grab (chip, markers, rules, hug, fence, box, bar, no default link blue, PNG to `$DLEA_CI_SUITE_LOGS`). Headings render foreground bold at Qt's sizes (the board draws h1/h2 in the foreground, so that is exact), and inline code takes no side padding (the board's 4 px was declined without a capture reading it right). `tests/ui-captures-markdown.sh` carries the display-box capture (`case_cap_markdown`, out of the default wanted list).
 
 Advfix-fs1 round 1 records one ceiling, re-derived with `wc -l`: `ui/NetworkMounts.qml` 838 to 849 for the kernel and outside-home network rows.
 
@@ -1794,7 +1794,7 @@ mg-stage3 records two over-cap ceilings, each re-derived with `wc -l`: `src/back
 
 xw4r2 records four ceilings, each re-derived with `wc -l`: `ui/ViewState.qml` 495 to 529 for the joined settler halves, the queued prune with its settleNext order, the failure-arm pruneFailed and the per-load favourites sync; `ui/js/UiState.js` 432 to 442 for invalidKeys, dropInvalid and the settle join and order helpers; `tests/js/uistate.js` 329 to 363 for the two-key prune, the owed-differing and the settle-order pins; `tests/js/watch.js` 307 to 334 for the .dot-insertion reorder, the partial-selection clear and the anchor-resolution pins. `ui/Pane.qml` keeps 999 with no added line and `ui/js/Anchor.js` keeps 178 inside the soft budget; `tests/xwsettings.sh` stands at 467 lines of shell the budget scan does not read.
 
-Pickfix records `tests/picker-grid.qml` 448 to 450 for the real grid stub's marking capability and range-reset method, each required by the live dispatch contract. Its temporary `src/backend/run.rs` ceiling increase from 662 to 663 for the startup limit raise returns to 662 when that raise moves to the picker budget path. The duplicate `src/backend/iomount.rs` entry is removed while its remaining ceiling stays 549. Each final count is re-derived with `wc -l`; these are all ceiling entries touched by `git diff fdfaa083..HEAD -- tools/flea-file-budget`. Product selection is extracted to `ui/PickerSelection.qml` and the unchanged Rust picker tests move to `src/backend/picker_tests.rs`.
+Pickfix records `tests/picker-grid.qml` 448 to 450 for the real grid stub's marking capability and range-reset method, each required by the live dispatch contract. Its temporary `src/backend/run.rs` ceiling increase from 662 to 663 for the startup limit raise returns to 662 when that raise moves to the picker budget path. The duplicate `src/backend/iomount.rs` entry is removed while its remaining ceiling stays 549. Each final count is re-derived with `wc -l`; these are all ceiling entries touched by `git diff fdfaa083..HEAD -- tools/dlea-file-budget`. Product selection is extracted to `ui/PickerSelection.qml` and the unchanged Rust picker tests move to `src/backend/picker_tests.rs`.
 
 038-usbrca confirms held files before closing their originals and drops the clone while its original remains open, retaining the 64-file cap and sticky failures; ceilings re-derived with `wc -l`: `src/backend/copyfile.rs` 694 to 730 for test-only open/write/mtime counts and partial-write faults, `src/backend/durable.rs` 662 to 678 for errno faults and confirm-before-close ordering, `src/backend/movebatch.rs` 470 to 474 for the new 216-line `usbrca_tests.rs` module, `src/backend/durable_tests.rs` 1248 to 1249 and `src/backend/movebatch_tests.rs` 751 to 752 for stronger confirm/clone/close ordering pins; `src/backend/copyfile_tests.rs` keeps 607 and all global limits stay unchanged.
 
@@ -1806,7 +1806,7 @@ Pickfix records `tests/picker-grid.qml` 448 to 450 for the real grid stub's mark
 
 038-stage7 then joins sweep038, the capture sweep and its readers, and three ceilings are the merged files' `wc -l`: `ui/Ipc.qml` 861 to 855 because sweep038 moves the preview readers into `ui/IpcPreviewState.qml`, `ui/Preview.qml` 723 to 724 for the `markdownView` reader, and `ui/PickerWindow.qml` 781 to 779, where pickfix had already shortened the file under its row and the sweep's theme fields add one line.
 
-038-mdstage joins the Markdown stack onto the stage, and ten ceilings are the merged files' `wc -l`: `ui/Ipc.qml` 857 (the stage's 855 plus one-line wrappers for `columnMarkdownView` and `previewFigures`, whose bodies sit in `ui/IpcPreviewState.qml` with the other preview readers), `ui/Preview.qml` 646, `ui/PreviewColumn.qml` 585, `ui/Theme.qml` 416, `ui/js/Filter.js` 257, `tests/js/mounts.js` 262, `src/backend/jump_tests.rs` 408, `src/backend/proto.rs` 378, `src/backend/opsdispatch.rs` 2204, and `ui/PreviewMarkdown.qml` 784, the stack's 782 plus the Source measurement the stage's height loop fix needs in the stack's structure. The stack's `ListView` body has no `Column`, but `sourceFlick` still read `sourceText.implicitHeight` inside its `contentHeight`, so the stage's `measuredHeight` copy (updated on `onImplicitHeightChanged` and `onVisibleChanged` while the view is Source) feeds `contentHeight` there. The stage's named bar literals (`ui/Preview.qml`'s inline `markdownBar`) went with that bar, which the stack moved into `ui/MarkdownPane.qml`, where its one remaining literal is now `ruleOpacity`, `segmentHeight` having gone with the segment (2026-10-03). `packaging/flea-bin-tarball` and the root `PKGBUILD` now install the same ui set as the three `package()` functions: `ui/js/*.mjs`, `ui/vendor/*.mjs`, its licences and the four boot files. `tests/figure-package.sh` holds the tarball script to that: every path flea-bin's `package()` installs must be a path `packaging/flea-bin-tarball` stages, which the Release workflow checks only once a tag is being built. The check parses each `install` statement (continuations joined, comments skipped) and stages a source at the `-t` directory plus its basename pattern, or at the last argument when there is no `-t`, so a path installed into the wrong directory, named only in a comment or left out fails by name, the binary included, and three doctored copies of the script prove it. `ui/ViewportScrollBar.qml` measures a flickable's content plus its leading and trailing margins and its origin less the leading one, which is the span `Scroll.limits` lets the view travel: a list with margins (the rendered Markdown list, the grid) otherwise showed no bar for a document inside the margin window and a knob pinned at both ends for a longer one, and `tests/scroll-bounds.qml` pins the knob at the top, a third, the end and after a drag on a short, a long and a marginless list.
+038-mdstage joins the Markdown stack onto the stage, and ten ceilings are the merged files' `wc -l`: `ui/Ipc.qml` 857 (the stage's 855 plus one-line wrappers for `columnMarkdownView` and `previewFigures`, whose bodies sit in `ui/IpcPreviewState.qml` with the other preview readers), `ui/Preview.qml` 646, `ui/PreviewColumn.qml` 585, `ui/Theme.qml` 416, `ui/js/Filter.js` 257, `tests/js/mounts.js` 262, `src/backend/jump_tests.rs` 408, `src/backend/proto.rs` 378, `src/backend/opsdispatch.rs` 2204, and `ui/PreviewMarkdown.qml` 784, the stack's 782 plus the Source measurement the stage's height loop fix needs in the stack's structure. The stack's `ListView` body has no `Column`, but `sourceFlick` still read `sourceText.implicitHeight` inside its `contentHeight`, so the stage's `measuredHeight` copy (updated on `onImplicitHeightChanged` and `onVisibleChanged` while the view is Source) feeds `contentHeight` there. The stage's named bar literals (`ui/Preview.qml`'s inline `markdownBar`) went with that bar, which the stack moved into `ui/MarkdownPane.qml`, where its one remaining literal is now `ruleOpacity`, `segmentHeight` having gone with the segment (2026-10-03). `packaging/dlea-bin-tarball` and the root `PKGBUILD` now install the same ui set as the three `package()` functions: `ui/js/*.mjs`, `ui/vendor/*.mjs`, its licences and the four boot files. `tests/figure-package.sh` holds the tarball script to that: every path dlea-bin's `package()` installs must be a path `packaging/dlea-bin-tarball` stages, which the Release workflow checks only once a tag is being built. The check parses each `install` statement (continuations joined, comments skipped) and stages a source at the `-t` directory plus its basename pattern, or at the last argument when there is no `-t`, so a path installed into the wrong directory, named only in a comment or left out fails by name, the binary included, and three doctored copies of the script prove it. `ui/ViewportScrollBar.qml` measures a flickable's content plus its leading and trailing margins and its origin less the leading one, which is the span `Scroll.limits` lets the view travel: a list with margins (the rendered Markdown list, the grid) otherwise showed no bar for a document inside the margin window and a knob pinned at both ends for a longer one, and `tests/scroll-bounds.qml` pins the knob at the top, a third, the end and after a drag on a short, a long and a marginless list.
 
 038-mdauto 2026-10-03 (the Markdown bar has no Rendered or Source control and no stored view) moves six ceilings, each re-derived with `wc -l`: `src/uistate.rs` 659 to 674 for the test that a state file still carrying `preview.markdownView` loads, keeps the key as read and refuses a patch for it; `tests/markdown-render.qml` 628 to 643 for the long-name pane and the `Bar.nameRoomError` check, with the bar geometry assertions in the new `tests/markdown-bar.js` at 60 (within the JS budget, copied by `tests/markdown-render.sh`); and four lowered with the code they lose: `ui/Preview.qml` 646 to 645, `ui/PreviewColumn.qml` 585 to 582 (the column no longer binds a view), `ui/ViewState.qml` 538 to 536 (the normalised reader) and `src/uischema.rs` 501 to 499 (the leaf and its rule). The 038-mdstage line above records its own day's counts and stays as written.
 
@@ -1819,7 +1819,7 @@ Pickfix records `tests/picker-grid.qml` 448 to 450 for the real grid stub's mark
 
 038-mdhtml 2026-10-04 (raw HTML and pathological Markdown never render blank) moves two ceilings, each re-derived with `wc -l`: `ui/PreviewMarkdown.qml` 844 to 864 for the nesting-depth Source fallback (`tooDeep`, `shownView`, the notice) and the width and centring of a local image, and `ui/js/MdBlocks.js` 361 to 369 for `NESTING_LIMIT` and the sentinel. The root causes: Qt's Markdown importer drops everything after a raw `<img>` tag in a run (so the GitHub header idiom blanked the whole document after its heading), which is why `ui/js/MdHtml.js` now holds a local picture as a Markdown image and the new `ui/js/MdHtmlImage.js` turns a raw image alone in its `<p>` or `<div>`, on one line or three, into an `image` block carrying its `width` attribute and `align: "center"`; and a document nesting containers deeper than 32 (`Markdown.NESTING_LIMIT`) parsed to one 482,691-character quote Text and 80,052 characters of brackets, so `blockPass` now answers one `{ type: "deep" }` sentinel the moment its container stack passes 32 (the parse stays linear and takes 47 ms where it took 825 ms) and the pane shows the plain Source behind the one-line notice `Markdown.deepNotice()`. Source over the rendered tree was chosen over capping the nesting because the cap needs the deeper levels flattened inside the parser and the sentinel needs no parse at all. `kbd` and `code` raw tags draw as the inline code chip, `<summary>` as a bold line led by the open disclosure mark `\u25be` with the body drawn open (the pane takes no focus and its delegates are one Text per block, so a hidden body would need a new block model), each block-level raw tag after a blank line starts its own run because the importer joins an HTML block onto the paragraph above it, and `tests/markdown-html.sh` with `tests/markdown-html.qml` at 220, `tests/markdown-html.js` at 176 and `tests/js/mdhtmlgh.js` at 92 hold the never-blank check over all fifteen head-to-head fixtures (`tests/md-fixtures.py`) and each element's pixel recipe.
 
-038-mdhtml round 2 2026-10-04 (a run of images in one HTML block is one row, the logo keeps its block gap) moves two ceilings, each re-derived with `wc -l`: `ui/PreviewMarkdown.qml` 868 to 880 for the `Flea.MarkdownImages` instance and the block gap under a picture block, and `tests/markdown-linearity.qml` 555 to 573 for the `htmlBlocks`, `htmlLines` and `htmlRow` inputs. The GitHub badge row (several `<a><img></a>` side by side in one HTML block, the idiom every README header uses) was drawn as stacked image blocks; `ui/js/MdHtmlBlock.js` now answers one `{ type: "images", items, align }` block per run of images with nothing visible between them (a `<br>` starts the next row, at most 64 pictures to a block), and the new `ui/MarkdownImages.qml` places the items in a wrapping row, centred line by line when the block is, each picture keeping its own link and its HTML `width`. A picture block keeps the pane's block gap under it, so the heading after a logo no longer touches it. The new `htmlRow` input (one line of thousands of linked images) measured 62 times the work at 8 times the size: `findImage` lowered and cut the whole line for every image, and the work meter charges a whole-line regex call per image, so the splitter now walks each line by position over one `asciiLower` copy (ASCII only, since `toLowerCase` of U+0130 grows the string and shifted every cut) and holds the ratio at 8. `tests/markdown-html-pictures.js` holds the picture verdicts split from `tests/markdown-html.js`, which stood at 299 lines against a 300 cap.
+038-mdhtml round 2 2026-10-04 (a run of images in one HTML block is one row, the logo keeps its block gap) moves two ceilings, each re-derived with `wc -l`: `ui/PreviewMarkdown.qml` 868 to 880 for the `Dlea.MarkdownImages` instance and the block gap under a picture block, and `tests/markdown-linearity.qml` 555 to 573 for the `htmlBlocks`, `htmlLines` and `htmlRow` inputs. The GitHub badge row (several `<a><img></a>` side by side in one HTML block, the idiom every README header uses) was drawn as stacked image blocks; `ui/js/MdHtmlBlock.js` now answers one `{ type: "images", items, align }` block per run of images with nothing visible between them (a `<br>` starts the next row, at most 64 pictures to a block), and the new `ui/MarkdownImages.qml` places the items in a wrapping row, centred line by line when the block is, each picture keeping its own link and its HTML `width`. A picture block keeps the pane's block gap under it, so the heading after a logo no longer touches it. The new `htmlRow` input (one line of thousands of linked images) measured 62 times the work at 8 times the size: `findImage` lowered and cut the whole line for every image, and the work meter charges a whole-line regex call per image, so the splitter now walks each line by position over one `asciiLower` copy (ASCII only, since `toLowerCase` of U+0130 grows the string and shifted every cut) and holds the ratio at 8. `tests/markdown-html-pictures.js` holds the picture verdicts split from `tests/markdown-html.js`, which stood at 299 lines against a 300 cap.
 
 038-mdhtml round 3 2026-10-04 (one picture size rule, paragraphs stay stacked) moves one ceiling, re-derived with `wc -l`: `tests/markdown-linearity.qml` 573 to 580 for the `htmlNested` input (image wrappers nested k deep, which made `imageUnit` scan to every opener's closer and then decline, O(k^2); `wrapperTail` now answers null at the next line holding an image, so each opener's scan ends there and the work holds at 8 times for 8 times the size). `HtmlImage.pictureSize` is the one size rule of the lone picture and the badge row: a `width` or `height` attribute is honoured past the natural size, both attributes draw their box stretched as a browser does, none draws the natural size, and the pane width caps every case with the ratio kept; `ui/PreviewMarkdown.qml` stays at 880 because the import and the `fit` and `height` lines replace the old `wantWidth` and alignment lines. A `</p><p>` or `<div>` between two pictures of one HTML block now starts the next row (`BLOCK_BOUNDARY`), as GitHub stacks one paragraph per line.
 
@@ -1873,7 +1873,7 @@ The mx2 merge into the stack keeps one deferred ask in `ui/MarkdownFigure.qml`: 
 `askTimer` once the figure is `created` (entering the viewport is the one direct ask, for a placed figure that holds nothing), so a burst sends one request and one equal to the last sent is dropped, and
 the timer still outlasts ListView's placement so `inView` reads the placed position. The figure cache key
 `FigureService.cacheKeyOf` carries every theme role the diagram paints (muted, line, surface, border), and the unexpected-exit
-log fires only when a figure fails its second strike. `ui/js/FigureWorker.mjs` records 513 lines at that merge (its `tools/flea-file-budget` row holds the current count), `ui/FigureService.qml` 298. The md2 merge
+log fires only when a figure fails its second strike. `ui/js/FigureWorker.mjs` records 513 lines at that merge (its `tools/dlea-file-budget` row holds the current count), `ui/FigureService.qml` 298. The md2 merge
 leaves `tests/markdown-linearity.qml` at 543 lines, the merged `wc -l` where both sides added cases (399 on the stack,
 529 on md2), and its budget row was that number at that merge.
 
@@ -2041,7 +2041,7 @@ a phone folder, or a re-read of it), and a gvfs listing answers `stat_range`/`st
 store with no lstat, so a phone folder's default name order pays none of them. They are named here
 rather than quietly fixed.
 
-The regression is `tests/mtp-scan.sh`: a `FLEA_GIO_BIN` fake that blocks until the script releases
+The regression is `tests/mtp-scan.sh`: a `DLEA_GIO_BIN` fake that blocks until the script releases
 it makes the scan provably out and blocked, then a copy of a folder of four 1 GiB sparse files is
 started and cancelled while it is out (four files, not one, because a lane may cap file size at
 2 GiB). Progress and the cancelled `transferdone` must be written before the scan's `listed`
@@ -2049,7 +2049,7 @@ line, which an inline scan cannot do. The script does not lean on the size: a fo
 `total` 0, so it requires a progress line with `bytes` below `scanned` before the cancel, a
 `transferdone` for that id after it
 with `cancelled` true, and nothing left at the destination, and it gives the backend its own
-`FLEA_UNDO_DIR` so the run never writes the operator's undo journal. A `paths` request sent while
+`DLEA_UNDO_DIR` so the run never writes the operator's undo journal. A `paths` request sent while
 the scan is out must be answered after its `listed` line and name the phone listing's row, the
 replay seen through the real binary. `listwork_tests.rs` drives
 `start` and the real `list_dir` with the test-only `scanhold` seam holding a path's directory read
@@ -2063,7 +2063,7 @@ said for the folder left, and the loop leaves. A burst in the folder being scann
 `changed` line after its rows. Answering a request while the scan is out, dropping the `is_current`
 filter or every kept burst, replaying one request only, leaving at once on a closed stdin, or
 answering a burst before the scan lands each fails one of its assertions.
-`tools/flea-file-budget` records `src/backend/run.rs` 719 to 735 for the gate and the two extra
+`tools/dlea-file-budget` records `src/backend/run.rs` 719 to 735 for the gate and the two extra
 `handle_line` call sites; `src/backend/listwork.rs` is inside the soft budget.
 
 The retained QML launch history records these former ceilings; the GPUI launch policy now lives in `src/gui/gpui_renderer.rs`.
@@ -2187,7 +2187,7 @@ The newest-navigation line moves the `bytes` line of `tests/startup-units.txt` f
 
 The Network Tab ring moves three ceilings, each re-derived with `wc -l`: `ui/NetworkDialog.qml` 447 to 457 for the ids, `tabHandle` and `onTabbed` lines that put Cancel, the primary and Install Dropbox in the form's walk after the TLS box, with Escape moved from the form to the card's content so a focused button closes the dialog too, and `ui/NetworkForm.qml` 406 to 413 for the `trailing` prop, the joined ring, the pass-over step and the button labels in `focusName`, and `tests/button-members.qml` 445 to 485 for the trailing-walk checks that Tab from TLS reaches each button and wraps to the first chip, Backtab returns, an unavailable button is passed over and `focusName` names the focused button.
 
-The OutCubic and surface-safe frame line keeps `tests/startup-units.txt` at its 170 units while its `bytes` line moves from 1596965 to 1597129, the sum the probe's tool takes over them with the press easing in `ui/ChromeButton.qml` and `ui/DialogButton.qml`, the `Motion.durMs` fades in `ui/EmptyState.qml` and `ui/FleaMark.qml`, and the accent frame role and reduced-motion switch in `ui/TransferCard.qml`.
+The OutCubic and surface-safe frame line keeps `tests/startup-units.txt` at its 170 units while its `bytes` line moves from 1596965 to 1597129, the sum the probe's tool takes over them with the press easing in `ui/ChromeButton.qml` and `ui/DialogButton.qml`, the `Motion.durMs` fades in `ui/EmptyState.qml` and `ui/DleaMark.qml`, and the accent frame role and reduced-motion switch in `ui/TransferCard.qml`.
 
 Quick Look's warm kind units keep `tests/startup-units.txt` at its 170 units while its `bytes` line moves from 1596965 to 1597222, the sum the probe's tool takes over them with the warm `Loader` in `ui/WindowBody.qml` that replaces the `createObject` of `QuickLookWarm.qml`.
 
@@ -2205,14 +2205,14 @@ The rail heading adds one first-frame unit to `tests/startup-units.txt`, `ui/Rai
 
 The stage join of the fix, tag, drop, rail, guidance and contributor lines re-derives the one ceiling it moves past the hard cap with `wc -l` on the merged tree: `src/backend/thumbspec.rs` 410, where two thumbnailer fixes meet, the user thumbnailer outside `/usr` with the failure marker per table (399 lines on its own side) and the link chain bound hop by hop with the PATH search that skips empty and relative entries (372 on its own side). `tests/startup-units.txt` gains `js/DropDev.js` (the drop guard's device map, which `Backend.qml` and `js/Messages.js` import) and `js/FolderViews.js` (the per-folder view, which `Pane.qml` imports), 173 units, while its `bytes` line moves from 1596985 to 1614048, the sum the probe's tool takes over them.
 
-The stagereds fixes move two ceilings, each re-derived with `wc -l`: `tests/rename-grid-bottom.js` 344 to 345 for the `PrebuildDriver` fixture file and the Theme stub's `clipMarkSize` (the fixture list stops at the files `ui/GridArea.qml` imports, and the `SelectionBand` stub gains the `rowAt` it is handed), and `tests/rename-grid-bottom.qml` 438 to 439 for the stub pane's `rows`, which Grid tiles now draw from through the held snapshot (`GridGeometry.heldRow`) instead of `pane.rowFor`. `tests/poolpark.qml` counts its grid leg's past reads on that same seam, since a Grid tile no longer calls `pane.rowFor`: a read of the rows array from a tile's `row` binding while the view holds no count, or of a row at or past the landed count. The control pulls the bound to 1 and counts 239; removing both `live` guards in `ui/GridArea.qml` fails the leg. The rename-grid-bottom suite needs node, which the flea-ci image lacks, and the host's qml6 is Qt 6.8.2, where a `DelegateModel` handed to a view reports no delegate, so its cases are read with the image's qml6 as `QML_BIN` and node on the host. The advloop round 1 fixes move a third ceiling, `tests/poolpark.qml` 388 to 409 (recorded in `tools/flea-file-budget`, re-derived with `wc -l`), for `pastHeld`, the one predicate behind the grid leg's count (any read while the view holds no count, an index at or past the landed count after), the sample frame of the stack it matches, and `emptyWindowControl`, which reads a key through `pastHeld` while the view holds no count and fails the leg when it is not counted; reverting `pastHeld` to the length-only form turns that control red in all three views. `GridGeometry.heldRow` tests the length before any index (`ui/js/GridGeometry.js:82`), so a real tile reads only the length of an empty array, and moving `counts.empty = true` after `p.total = 0` leaves the leg green; the order is kept so that a read the `p.total = 0` assignment itself sets off already counts as a read while the view holds no count. The rename-grid-bottom stub's `rows` now counts to `shownTotal`, not a second `1202`.
+The stagereds fixes move two ceilings, each re-derived with `wc -l`: `tests/rename-grid-bottom.js` 344 to 345 for the `PrebuildDriver` fixture file and the Theme stub's `clipMarkSize` (the fixture list stops at the files `ui/GridArea.qml` imports, and the `SelectionBand` stub gains the `rowAt` it is handed), and `tests/rename-grid-bottom.qml` 438 to 439 for the stub pane's `rows`, which Grid tiles now draw from through the held snapshot (`GridGeometry.heldRow`) instead of `pane.rowFor`. `tests/poolpark.qml` counts its grid leg's past reads on that same seam, since a Grid tile no longer calls `pane.rowFor`: a read of the rows array from a tile's `row` binding while the view holds no count, or of a row at or past the landed count. The control pulls the bound to 1 and counts 239; removing both `live` guards in `ui/GridArea.qml` fails the leg. The rename-grid-bottom suite needs node, which the dlea-ci image lacks, and the host's qml6 is Qt 6.8.2, where a `DelegateModel` handed to a view reports no delegate, so its cases are read with the image's qml6 as `QML_BIN` and node on the host. The advloop round 1 fixes move a third ceiling, `tests/poolpark.qml` 388 to 409 (recorded in `tools/dlea-file-budget`, re-derived with `wc -l`), for `pastHeld`, the one predicate behind the grid leg's count (any read while the view holds no count, an index at or past the landed count after), the sample frame of the stack it matches, and `emptyWindowControl`, which reads a key through `pastHeld` while the view holds no count and fails the leg when it is not counted; reverting `pastHeld` to the length-only form turns that control red in all three views. `GridGeometry.heldRow` tests the length before any index (`ui/js/GridGeometry.js:82`), so a real tile reads only the length of an empty array, and moving `counts.empty = true` after `p.total = 0` leaves the leg green; the order is kept so that a read the `p.total = 0` assignment itself sets off already counts as a read while the view holds no count. The rename-grid-bottom stub's `rows` now counts to `shownTotal`, not a second `1202`.
 
 Two signals on the `tests/columnsfilter.qml` backend stub, `changed(string path)` and `shebang(string path, bool hasShebang, int id)`, which `ui/Backend.qml` declares and the Connections in `ui/ColumnsArea.qml` and `ui/IpcMenuState.qml` target, keep the suite free of the two Connections warnings its noise check rejects, and move one ceiling, re-derived with `wc -l`: `tests/columnsfilter.qml` 400 to 402.
 
 A drop on a Columns neighbour row reads its device from the backend (DRP5, 2026-10-12). A peek row is `{n,d,i}` and a carried one keeps that shape, so `row.v` was undefined and `Drag.js` `verbFor` copied a plain drop onto `deep` where the case expects the Move line. `ui/RowDrag.qml` now takes `destDev` as `row.v` when present, else `DropDev.devFor` of the backend's `pathDevs` for the row's full path, at the entry, the pointer motion, the recorded destination and the landing; an answer landing while the folder is hovered says its line again once. `ui/Backend.qml` `askDropDevs` sends one `devs` request for the visible folder rows with no `v` of the drawn neighbour columns (`ui/ColumnsArea.qml` `askDropDevs`, `ui/ColumnPane.qml` `dropAsks`, `ui/js/DropDev.js` `folderAsks`) when a drag enters a row, once per drag and set, never from a chooser's backend; a known answer stands until its new one lands, and a path nobody answered still copies. `tests/columns-peekdrag.qml` drives a real peek folder row (red at `67d55d0c`) and a real folder row that carries `v`, which drops on its own device while the backend answers its path with the source's device (red with `destDev` ignoring `row.v`), and `tests/js/dropsflow.js` the asks. Ceilings from `wc -l`: `ui/Backend.qml` 567 to 576, `ui/ColumnsArea.qml` 539 to 547, `ui/ColumnPane.qml` 438 to 446. `tests/startup-units.txt` keeps its units and its `bytes` line moves from 1614048 to 1615935, the sum `tests/startup-objects.sh` takes over them.
 
 The Dual divider moves four ceilings, each re-derived with `wc -l`: `src/uischema.rs` 502 to 504 for the `dual.split` default and its rule in `DUAL`, `src/uistate.rs` 674 to 701 for the one test that holds the leaf to a whole share from 0 to 10000 and keeps the pane's `{focus, paths}` save from touching it, `ui/Theme.qml` 443 to 446 for the `dualMinWidth` token, and `ui/WindowBody.qml` 739 to 795 for the share and its clamp, the left pane's width and the divider's Loader, which holds the resting hairline, the drag and the double click. `tests/startup-units.txt` keeps its 170 units and its `bytes` line moves from 1596965 to 1600480, the sum `tests/startup-objects.sh` takes over them, for those `ui/WindowBody.qml` lines, the Dual minimum in `ui/Theme.qml` and the accent line's `lineX` in `ui/ResizeHandle.qml`, which the divider's handle sets to its first pixel where a column edge keeps the centre; `tests/staticgates-unqualified.tsv` moves the `ui/WindowBody.qml` rows the new lines shift or add.
-The Dual divider's cancel moves no file ceiling (`ui/WindowBody.qml` stays 798: the three resets of `end()` became one `reset()` that `onCanceled` also calls) and one `tests/startup-units.txt` byte line, 1600480 to 1601388, the sum `tests/startup-objects.sh` takes, for the `canceled()` signal, the `FLEA_TRACE_RESIZE` log and its `Quickshell` import in `ui/ResizeHandle.qml` and the `reset()` and `onCanceled` lines in `ui/WindowBody.qml`. A grab the compositor takes mid-drag now aborts the divider's drag and writes no split; a column edge still commits on a cancel as before.
+The Dual divider's cancel moves no file ceiling (`ui/WindowBody.qml` stays 798: the three resets of `end()` became one `reset()` that `onCanceled` also calls) and one `tests/startup-units.txt` byte line, 1600480 to 1601388, the sum `tests/startup-objects.sh` takes, for the `canceled()` signal, the `DLEA_TRACE_RESIZE` log and its `Quickshell` import in `ui/ResizeHandle.qml` and the `reset()` and `onCanceled` lines in `ui/WindowBody.qml`. A grab the compositor takes mid-drag now aborts the divider's drag and writes no split; a column edge still commits on a cancel as before.
 
 The Dual divider keeps its grab through a real drag: the divider zone overlays the second listing's row padding, where each row's `DragHandler` in `ui/RowDrag.qml` takes over from an item grab after its threshold, so the handle's `MouseArea` in `ui/ResizeHandle.qml` sets `preventStealing` (the Columns edges, above any row, are unaffected). `tests/dualdivider.qml` drives a real press and two moves through `TestEvent` and fails on a canceled grab. No file ceiling moves; the `tests/startup-units.txt` byte line goes from 1601388 to 1601521 for the comment and property in `ui/ResizeHandle.qml`.
 
@@ -2220,7 +2220,7 @@ The dual pane Quick Look fix qualifies the right pane's `previewLoader` binding 
 
 The Contents walk's mount charge moves one ceiling, re-derived with `wc -l`: `src/backend/dirsize.rs` 400 to 412, for the lines in `list_into` that look up a directory entry's device from the mount table before its metadata call, tell `entering` when it crosses onto another device and hand the walk back to the listed folder once that stat returns, so a hang in the stat that crosses into a mount is charged to that mount and a later sibling's is not. The remote walk's test seams (its pace and the silence that marks a mount) live in `src/backend/menucontents_seams.rs`.
 
-The minor-fix pass adds `a_frame_held_for_the_preview_body_swallows_a_trash_key` to `src/tui/hold_tests.rs`, the case where the hold comes from the first preview body with the parent peek already landed, so `src/tui/hold_tests.rs` goes from 393 to 426 lines (`wc -l`) and its recorded ceiling in `tools/flea-file-budget` is 426.
+The minor-fix pass adds `a_frame_held_for_the_preview_body_swallows_a_trash_key` to `src/tui/hold_tests.rs`, the case where the hold comes from the first preview body with the parent peek already landed, so `src/tui/hold_tests.rs` goes from 393 to 426 lines (`wc -l`) and its recorded ceiling in `tools/dlea-file-budget` is 426.
 
 The Tags flyout that stays open through a choice and redraws from the re-asked answer, and the queue that keeps a second tag choice made before the menu snapshot answers, add bytes to `ui/ContextMenu.qml`, `ui/Pane.qml` and `ui/PaneMenuActions.qml`, which moves `tests/startup-units.txt`'s `bytes` line from 1596965 to 1598119, the sum the probe's tool takes over the same 170 units. The same change takes `ui/PaneMenuActions.qml`'s recorded ceiling from 491 to 507, `wc -l` on the file, for the queue, the one-shot gate that now lets a tag toggle repeat, and the queue's resets wherever a pending action is cleared. The queue then drains one choice per activate reply, because the backend's menu slot holds one job and a second activate sent at once was refused as busy and lost: `tagInFlight`, `sendNextTag` and the resets take the `bytes` line to 1598752 and the ceiling from 507 to 519, each re-derived (the probe's tool sum, `wc -l`).
 
@@ -2234,9 +2234,9 @@ The Q8 copy pass of 0.3.10 moves the first-frame `bytes` line in `tests/startup-
 
 The shared reveal and the pinned dialog frame move eight ceilings, each re-derived with `wc -l`: `ui/ContextMenu.qml` 751 to 775 for the lazily built fade, the held flyout rows and the root's input gate, `ui/KeymapSheet.qml` 549 to 551, `ui/SettingsPanel.qml` 543 to 547, `ui/UnlockDialog.qml` 439 to 446 and `ui/ConvertDialog.qml` 446 to 452 for the card frame's title and button slots, `tests/dialog-board.qml` at 548 for the geometry, pinned-title and pinned-button legs over fourteen cards, their pinned rows and the Network scroller's own height, `ui/Ipc.qml` 966 to 976 for the card rect read that adds the open rise back out, and `tests/ring-bounds.qml` 678 to 680 for the wait on the fade end. `ui/Reveal.qml`, `ui/CardFrame.qml`, `ui/FlyoutFade.qml` and `tests/reveal.sh` stay under the soft budgets; `tests/reveal.qml` is 320 lines, over the 250 soft budget, for its rise, flyout (open, close and empty) and Network legs. `tests/startup-units.txt` keeps its 170 units while its `bytes` line moves from 1596965 to 1598588, the sum the probe's tool takes over them with the menu's lazily built fade in `ui/ContextMenu.qml` and the rest-rect read in `ui/Ipc.qml`; no unit joins, because `ui/Reveal.qml` and `ui/CardFrame.qml` load with the first card, not the first frame. `tests/staticgates-unqualified.tsv` moves the rows of the ten files whose lines moved, in both import profiles.
 
-An errored menu row says its state in its hint slot (Q13, MOTION-01): `ui/js/StateWords.js` is the one table of words (files only, signed out, no devices, offline, not running, symlink, special file, not yours), keyed by trigger and never a provider's reason, and `ui/js/Menu.js` and `ui/js/LockedMenu.js` set the entry's `hint` beside `errored`; a dead row still draws its hint muted and its label stays red. The word is part of its row's wanted width, so a menu holding an errored row may grow past `Theme.menuWidth` but never elides a label or passes its work area; `tests/menu-fit.qml` adds an errored scene per file kind at every text stop that reads each word drawn whole and counted in `wantedWidth`, and keeps its rows-all-fit check for every scene without one. Logic never reads a sentence: `ui/js/Taildrop.js status` and `ui/js/Dropbox.js account` and `status` return a `code` beside the `reason`, it rides as `taildropCode` and `dropboxCode` from `ui/Taildrop.qml` and `ui/NetworkMounts.qml` through `ui/Pane.qml` and `ui/ContextMenu.qml`, `StateWords` keys its words by it, and an empty or unknown code reads as offline (Taildrop) or not running (Dropbox); `files only` follows `rowIsFile`, the fact that empties the peers, never `rowMode`, so a linked folder and a folder row whose mode was never read say it too; Permissions with no selection, or with a mode never read, names no kind and carries no word. `tests/startup-units.txt` takes `js/StateWords.js` as its 171st unit and its `bytes` line moves from 1598588 to 1602983, the sum the probe's tool takes over them. `tools/flea-file-budget` records `ui/js/Menu.js` at 487, `tests/js/menu.js` at 589, `tests/menu-fit.qml` at 411, `ui/ContextMenu.qml` at 778, `ui/NetworkMounts.qml` at 909, `ui/Pane.qml` at 1182 and `ui/PaneMenuActions.qml` at 493, each re-derived with `wc -l`.
+An errored menu row says its state in its hint slot (Q13, MOTION-01): `ui/js/StateWords.js` is the one table of words (files only, signed out, no devices, offline, not running, symlink, special file, not yours), keyed by trigger and never a provider's reason, and `ui/js/Menu.js` and `ui/js/LockedMenu.js` set the entry's `hint` beside `errored`; a dead row still draws its hint muted and its label stays red. The word is part of its row's wanted width, so a menu holding an errored row may grow past `Theme.menuWidth` but never elides a label or passes its work area; `tests/menu-fit.qml` adds an errored scene per file kind at every text stop that reads each word drawn whole and counted in `wantedWidth`, and keeps its rows-all-fit check for every scene without one. Logic never reads a sentence: `ui/js/Taildrop.js status` and `ui/js/Dropbox.js account` and `status` return a `code` beside the `reason`, it rides as `taildropCode` and `dropboxCode` from `ui/Taildrop.qml` and `ui/NetworkMounts.qml` through `ui/Pane.qml` and `ui/ContextMenu.qml`, `StateWords` keys its words by it, and an empty or unknown code reads as offline (Taildrop) or not running (Dropbox); `files only` follows `rowIsFile`, the fact that empties the peers, never `rowMode`, so a linked folder and a folder row whose mode was never read say it too; Permissions with no selection, or with a mode never read, names no kind and carries no word. `tests/startup-units.txt` takes `js/StateWords.js` as its 171st unit and its `bytes` line moves from 1598588 to 1602983, the sum the probe's tool takes over them. `tools/dlea-file-budget` records `ui/js/Menu.js` at 487, `tests/js/menu.js` at 589, `tests/menu-fit.qml` at 411, `ui/ContextMenu.qml` at 778, `ui/NetworkMounts.qml` at 909, `ui/Pane.qml` at 1182 and `ui/PaneMenuActions.qml` at 493, each re-derived with `wc -l`.
 
-A flyout is at least its parent frame's width and wider where its own widest peer needs more, never past the work area (the Open with board's rule 2 once a state word widens the menu); `tests/menu-fit.qml` reads the flyout against both, and `tools/flea-file-budget` records `ui/ContextMenu.qml` at 781, re-derived with `wc -l`.
+A flyout is at least its parent frame's width and wider where its own widest peer needs more, never past the work area (the Open with board's rule 2 once a state word widens the menu); `tests/menu-fit.qml` reads the flyout against both, and `tools/dlea-file-budget` records `ui/ContextMenu.qml` at 781, re-derived with `wc -l`.
 
 The cardsizes menu check sums what each row laid out for itself, never `widestRow`: `ui/MenuRow.qml` `parts()` states a row's label, hint, status and chevron widths with its paddings as drawn and whether its label elides, `ui/IpcMenuState.qml` states them as `rows`, `tests/ui-card-layout.sh` expects the frame at min(work area, max(token, the widest row's sum under `wantedWidth`'s rule)) and no elided label under the cap, and `tests/menu-fit.qml` runs the same sum headless on every scene. `tests/startup-units.txt` keeps its units while its `bytes` line moves from 1653005 to 1653627, the sum the probe's tool takes over them (+779 `ui/MenuRow.qml`, -157 `ui/IpcMenuState.qml`). Ceilings, re-derived with `wc -l`: `tests/menu-fit.qml` 411 to 446 for the probe stub, the parts checks and their sample input.
 

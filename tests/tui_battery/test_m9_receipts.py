@@ -10,7 +10,7 @@ from .evidence import Blocked, MARKER
 
 class ReceiptIntegrationTests(unittest.TestCase):
     def setUp(self):
-        self.root = Path(tempfile.mkdtemp(prefix="m9-receipts.", dir=os.environ["FLEA_BATTERY_TEST_ROOT"]))
+        self.root = Path(tempfile.mkdtemp(prefix="m9-receipts.", dir=os.environ["DLEA_BATTERY_TEST_ROOT"]))
         (self.root / MARKER).write_text("owned receipt regression\n")
 
     def test_control_validator_cannot_be_bypassed_by_passing_assertions(self):

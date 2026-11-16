@@ -2,10 +2,10 @@
 # Runs cap_drops up to its launch with stat doubles, and pins the GLib trash rule the case's HOME and preflight rest on.
 set -uo pipefail
 repo="$(cd "$(dirname "$0")/.." && pwd)" || exit 1
-. "$repo/tools/flea-sandbox-guard"
+. "$repo/tools/dlea-sandbox-guard"
 . "$repo/tests/ui-captures-drops.sh"
 sandbox_root_ok
-scratch=$(mktemp -d "$SANDBOX_ROOT/flea-capdrops-trash.XXXXXX") || exit 1
+scratch=$(mktemp -d "$SANDBOX_ROOT/dlea-capdrops-trash.XXXXXX") || exit 1
 : > "$scratch/$SANDBOX_MARKER"
 trap 'sandbox_remove "$scratch"' EXIT
 
@@ -38,22 +38,22 @@ fixture_home_make() {
     printf '%s\n' "$1" > "$fixture_root/home-seen"
 }
 
-# The real launch and the launch_window it calls from tests/ui.sh, launch renamed: the case's flea_launch_wrap goes through the code that consumes it.
+# The real launch and the launch_window it calls from tests/ui.sh, launch renamed: the case's dlea_launch_wrap goes through the code that consumes it.
 real_launch_src=$(sed -n '/^launch_window() {$/,/^}$/p;/^launch() {$/,/^}$/{s/^launch()/real_launch()/;p}' "$repo/tests/ui.sh")
 [[ "$real_launch_src" == launch_window\(\)* && "$real_launch_src" == *$'\n'real_launch\(\)* ]] || fail "tests/ui.sh has no launch and launch_window functions to run"
 eval "$real_launch_src"
 eval "$(sed -n '/^case_homes() {$/,/^}$/p' "$repo/tests/ui.sh")"
 declare -F launch_window >/dev/null || fail "the launch_window of tests/ui.sh did not load"
-kill_flea() { :; }
+kill_dlea() { :; }
 assert_window() { :; }
-flea_pid() { printf stub; }
+dlea_pid() { printf stub; }
 omarchy-drive() { :; }
 
-# The case stops here: what Flea would be launched with is the whole question.
+# The case stops here: what Dlea would be launched with is the whole question.
 launch() {
     local i seen=""
     real_launch "$1"
-    printf 'LAUNCH_WRAP %s\n' "${flea_launch_wrap[*]-}"
+    printf 'LAUNCH_WRAP %s\n' "${dlea_launch_wrap[*]-}"
     printf 'LAUNCH_HOME %s\n' "$HOME"
     printf 'LAUNCH_DATA %s\n' "${XDG_DATA_HOME-unset}"
     for i in $(seq 1 "$qs_wait_tries"); do [[ -s "$fixture_root/qs-saw" ]] && break; sleep "$qs_wait_step"; done
@@ -63,7 +63,7 @@ launch() {
     exit 0
 }
 
-# Sample input: stat -c %d /home/flea-sandbox/flea-capdrops-trash.AbCdEf/same/cap-drops, answered by which of the three paths it names.
+# Sample input: stat -c %d /home/dlea-sandbox/dlea-capdrops-trash.AbCdEf/same/cap-drops, answered by which of the three paths it names.
 stat() {
     if [[ "$1" == -c && "$2" == %d ]]; then
         case "$3" in
@@ -92,18 +92,18 @@ run_case() {
     local scenario="$1" dev_of_home="$2" dev_of_data="$3" case_dir="$scratch/$1"
     mkdir -p -- "$case_dir/bin"
     : > "$case_dir/$SANDBOX_MARKER"
-    # flea hands its environment to qs, and qs here records the HOME and XDG_DATA_HOME it was started with.
-    printf '#!/bin/sh\nexec qs "$@"\n' > "$case_dir/bin/flea"
+    # dlea hands its environment to qs, and qs here records the HOME and XDG_DATA_HOME it was started with.
+    printf '#!/bin/sh\nexec qs "$@"\n' > "$case_dir/bin/dlea"
     printf '#!/bin/sh\nprintf "HOME=%%s\\nXDG_DATA_HOME=%%s\\n" "$HOME" "${XDG_DATA_HOME-unset}" > "%s.tmp" && mv "%s.tmp" "%s"\n' \
         "$case_dir/qs-saw" "$case_dir/qs-saw" "$case_dir/qs-saw" > "$case_dir/bin/qs"
-    chmod +x "$case_dir/bin/flea" "$case_dir/bin/qs"
+    chmod +x "$case_dir/bin/dlea" "$case_dir/bin/qs"
     (
         fixture_root="$case_dir"
-        flea_ui="$case_dir/ui"
-        flea_bin="$case_dir/bin/flea"
-        flea_log="$case_dir/flea.log"
+        dlea_ui="$case_dir/ui"
+        dlea_bin="$case_dir/bin/dlea"
+        dlea_log="$case_dir/dlea.log"
         run_log="$case_dir/run.log"
-        FLEA_UNDO_DIR="$case_dir/undo"
+        DLEA_UNDO_DIR="$case_dir/undo"
         PATH="$case_dir/bin:$PATH"
         seen_home=""
         case_cap_drops
@@ -111,18 +111,18 @@ run_case() {
     printf '%s\n' "$?" > "$case_dir/rc"
 }
 
-# Sample input: the case's folder, the Flea HOME and the data home all on device 11.
+# Sample input: the case's folder, the Dlea HOME and the data home all on device 11.
 same_device() {
     local case_dir="$scratch/same" log wrap home data
     run_case same "$dev_of_folder" "$dev_of_folder"
     log="$case_dir/log"
     [[ "$(cat "$case_dir/rc")" == 0 ]] || { check bad "same: the case stopped before its launch: $(tr '\n' ' ' < "$log")"; return; }
     wrap=$(sed -n 's/^LAUNCH_WRAP //p' "$log")
-    # Sample input: env HOME=/home/flea-sandbox/x/cap-drops-home XDG_DATA_HOME=/home/flea-sandbox/x/cap-drops-data
+    # Sample input: env HOME=/home/dlea-sandbox/x/cap-drops-home XDG_DATA_HOME=/home/dlea-sandbox/x/cap-drops-data
     home=$(grep -o '\bHOME=[^ ]*' <<< "$wrap" | head -n 1)
     data=$(grep -o 'XDG_DATA_HOME=[^ ]*' <<< "$wrap" | head -n 1)
     [[ "$wrap" == env\ * && -n "$home" && -n "$data" ]] \
-        && check ok "same: Flea launches under env with a HOME and an XDG_DATA_HOME" \
+        && check ok "same: Dlea launches under env with a HOME and an XDG_DATA_HOME" \
         || check bad "same: the launch wrap is '$wrap', not env with a HOME and an XDG_DATA_HOME"
     [[ "${home#HOME=}" == "$case_dir"/* && "${data#XDG_DATA_HOME=}" == "$case_dir"/* ]] \
         && check ok "same: both live inside the case's fixture root" \
@@ -131,7 +131,7 @@ same_device() {
         && check ok "same: the data home is a directory of its own, made before the launch" \
         || check bad "same: the data home '${data#XDG_DATA_HOME=}' is missing or is the HOME"
     [[ -n "${home#HOME=}" && "${home#HOME=}" == "$(cat "$case_dir/home-seen" 2>/dev/null)" ]] \
-        && check ok "same: the HOME Flea gets is the one fixture_home_make built" \
+        && check ok "same: the HOME Dlea gets is the one fixture_home_make built" \
         || check bad "same: the HOME '${home#HOME=}' is not the fixture home the case built"
     [[ -n "${home#HOME=}" && "$(sed -n 's/^LAUNCH_SAW_HOME //p' "$log")" == "${home#HOME=}" ]] \
         && check ok "same: the real launch starts qs with the fixture HOME" \
@@ -147,14 +147,14 @@ same_device() {
         || check bad "same: the harness XDG_DATA_HOME at the launch is '$(sed -n 's/^LAUNCH_DATA //p' "$log")'"
 }
 
-# Sample input: a Flea HOME on device 22 while the folder is on device 11, so GLib would use the folder's mount.
+# Sample input: a Dlea HOME on device 22 while the folder is on device 11, so GLib would use the folder's mount.
 other_device() {
     local scenario="$1" dev_of_home="$2" dev_of_data="$3" diagnostic="$4" case_dir="$scratch/$1"
     run_case "$scenario" "$dev_of_home" "$dev_of_data"
     if [[ "$(cat "$case_dir/rc")" != 1 ]]; then
         check bad "$scenario: the case exited $(cat "$case_dir/rc"), not 1, on devices folder=$dev_of_folder home=$dev_of_home data=$dev_of_data"
     elif grep -q '^LAUNCH' "$case_dir/log"; then
-        check bad "$scenario: the case launched Flea over devices that GLib would split"
+        check bad "$scenario: the case launched Dlea over devices that GLib would split"
     elif ! grep -Eq -- "$diagnostic" "$case_dir/log"; then
         check bad "$scenario: no message matching $diagnostic in: $(tr '\n' ' ' < "$case_dir/log")"
     else
@@ -166,7 +166,7 @@ other_device() {
 trash_rule() {
     local root="$scratch/rule" out
     mkdir -p "$root/other" "$root/own"
-    # East and the flea-ci unit container both allow it, so a refusal is a broken environment and fails, never skips.
+    # East and the dlea-ci unit container both allow it, so a refusal is a broken environment and fails, never skips.
     if ! unshare -Urm true 2>/dev/null; then
         check bad "rule: this environment refuses a user namespace, so the GLib trash rule was not probed"
         return
@@ -193,7 +193,7 @@ trash_rule() {
 }
 
 same_device
-other_device home-elsewhere 22 "$dev_of_folder" 'the Flea HOME .* is on device 22 and the folder .* on device 11'
+other_device home-elsewhere 22 "$dev_of_folder" 'the Dlea HOME .* is on device 22 and the folder .* on device 11'
 other_device data-elsewhere "$dev_of_folder" 33 'the data home .* is on device 33 and the folder .* on device 11'
 trash_rule
 printf 'cap-drops-trash: %s checks, %s failed\n' "$checks" "$failed"

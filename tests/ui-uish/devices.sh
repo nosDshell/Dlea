@@ -3,7 +3,7 @@ case_unmounted() (
     local rail_box="$fixture_root/unmounted" rail_dir="$fixture_root/unmounted/home"
     local index before stamp
     sandbox_scratch "$rail_box"
-    : > "$rail_box/.flea-test-sandbox" || fail 'rail: sandbox marker write failed'
+    : > "$rail_box/.dlea-test-sandbox" || fail 'rail: sandbox marker write failed'
     mkdir -p "$rail_box/state" "$rail_box/config" "$rail_box/cache" "$rail_box/data" || fail 'rail: private directories failed'
     fixture_home_make "$rail_dir"
     : > "$rail_box/calls.jsonl"
@@ -11,27 +11,27 @@ case_unmounted() (
     rail_path_box
     export HOME="$rail_dir" XDG_STATE_HOME="$rail_box/state" XDG_CONFIG_HOME="$rail_box/config"
     export XDG_CACHE_HOME="$rail_box/cache" XDG_DATA_HOME="$rail_box/data"
-    export PATH="$rail_box/bin" FLEA_RAIL_BOX="$rail_box"
+    export PATH="$rail_box/bin" DLEA_RAIL_BOX="$rail_box"
 
     echo "-- a 0.3.2 state file that stored the switch off reads on from the first 0.3.3 launch --"
-    # Written raw, because any write through flea --ui-state already carries 0.3.3's stamp.
-    local stored="$rail_box/state/flea/ui.json"
-    mkdir -m 700 "$rail_box/state/flea" || fail 'rail: private state directory failed'
+    # Written raw, because any write through dlea --ui-state already carries 0.3.3's stamp.
+    local stored="$rail_box/state/dlea/ui.json"
+    mkdir -m 700 "$rail_box/state/dlea" || fail 'rail: private state directory failed'
     # A key off its default beside the switch, so a migration that reset the file reads differently from one that did not.
     printf '{"view":"list","keys":"default","density":"comfortable","places":{"showUnmounted":false}}\n' > "$stored" \
         || fail 'rail: the 0.3.2 state file could not be written'
     # The stamp this binary ships: a read prints it and writes nothing, so the launch still owes the migration.
-    stamp=$("$flea_bin" --ui-state | jq -r '.stateVersion') || fail 'rail: the shipped stamp could not be read'
+    stamp=$("$dlea_bin" --ui-state | jq -r '.stateVersion') || fail 'rail: the shipped stamp could not be read'
     [[ "$stamp" =~ ^[0-9]+$ ]] || fail "rail: the shipped stamp reads as $stamp"
     launch "$rail_dir"
     rail_wait_entry false
     [[ "$(jq -c '[.places.showUnmounted, .stateVersion, .density]' "$stored")" == "[true,$stamp,\"comfortable\"]" ]] \
         || fail "rail: the launch did not write the migration down beside the file's own choice, ui.json holds $(jq -c '[.places.showUnmounted, .stateVersion, .density]' "$stored")"
     printf 'RAIL migrated=%s\n' "$(ipc deviceEntries | tr '\n' ' ')"
-    kill_flea
+    kill_dlea
 
     echo "-- switched off after the migration, unmounted rows stay off the rail --"
-    "$flea_bin" --ui-state '{"places":{"showUnmounted":false}}' >/dev/null || fail 'rail: switch-off seed failed'
+    "$dlea_bin" --ui-state '{"places":{"showUnmounted":false}}' >/dev/null || fail 'rail: switch-off seed failed'
     launch "$rail_dir"
     wait_rail 2
     settle
@@ -67,11 +67,11 @@ case_unmounted() (
     printf 'RAIL off-ctrl-e calls=%s\n' "$(rail_calls)"
     [[ "$(rail_calls)" == '["mount -u '"$rail_box"'/mnt/Archive"]' ]] \
         || fail "rail: Ctrl+E ran $(rail_calls)"
-    kill_flea
+    kill_dlea
 
     echo "-- and with the rail hidden, Ctrl+E from a listing inside the volume releases it through its own host --"
     # The double's 0.3 s stands in for gio's latency: a host unloaded at once would kill the unmount before it finished.
-    "$flea_bin" --ui-state '{"places":{"showUnmounted":false,"rail":"hidden"}}' >/dev/null || fail 'rail: hidden-rail seed failed'
+    "$dlea_bin" --ui-state '{"places":{"showUnmounted":false,"rail":"hidden"}}' >/dev/null || fail 'rail: hidden-rail seed failed'
     rail_listing "$rail_box/mnt/Archive"
     launch "$rail_box/mnt/Archive"
     wait_path "$rail_box/mnt/Archive"
@@ -86,13 +86,13 @@ case_unmounted() (
     printf 'RAIL hidden-ctrl-e calls=%s\n' "$(rail_calls)"
     [[ "$(rail_calls)" == '["mount -u '"$rail_box"'/mnt/Archive","mount -u '"$rail_box"'/mnt/Archive"]' ]] \
         || fail "rail: Ctrl+E with the rail hidden ran $(rail_calls)"
-    kill_flea
-    "$flea_bin" --ui-state '{"places":{"rail":"shown"}}' >/dev/null || fail 'rail: shown-rail seed failed'
+    kill_dlea
+    "$dlea_bin" --ui-state '{"places":{"rail":"shown"}}' >/dev/null || fail 'rail: shown-rail seed failed'
     # The Mount and Unmount checks below count only their own calls.
     : > "$rail_box/calls.jsonl"
 
     echo "-- switched on, the volume nothing mounted is a row of its own --"
-    "$flea_bin" --ui-state '{"places":{"showUnmounted":true}}' >/dev/null || fail 'rail: switch seed failed'
+    "$dlea_bin" --ui-state '{"places":{"showUnmounted":true}}' >/dev/null || fail 'rail: switch seed failed'
     launch "$rail_dir"
     rail_wait_entry false
     printf 'RAIL on=%s\n' "$(ipc deviceEntries | tr '\n' ' ')"
@@ -145,7 +145,7 @@ case_unmounted() (
     # The board's second theme is not this harness's to shoot: launch() refuses a window painting
     # anything but the live theme, which is the guard that keeps a colour claim honest. The rail's
     # own squares are Theme.color.executable and muted, which tests/themes.sh sweeps on all 22.
-    kill_flea
+    kill_dlea
 )
 
 case_optical() {
@@ -153,7 +153,7 @@ case_optical() {
     local label='MATSHITA DVD+/-RW UJ8FB' payload='optical-payload-143' gio_log="$dir/gio.log"
     sandbox_scratch "$dir"
     sandbox_scratch "$state"
-    mkdir -p "$dir/bin" "$dir/files" "$dir/mnt/DVD" "$state/flea"
+    mkdir -p "$dir/bin" "$dir/files" "$dir/mnt/DVD" "$state/dlea"
     printf 'keep\n' > "$dir/files/keep.txt"
     printf '%s' "$payload" > "$dir/mnt/DVD/disc-bytes.txt"
     : > "$gio_log"
@@ -274,7 +274,7 @@ EOS
     rm -f "$dir/malformed"
     printf 'OPTICAL empty-hidden=ok usb-retained=ok inserted=ok refusal=observable mounted=ok bytes=exact malformed=clears\n'
     if [[ -n "$old_state" ]]; then export XDG_STATE_HOME="$old_state"; else unset XDG_STATE_HOME; fi
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
 }
 
@@ -282,23 +282,23 @@ case_phones() {
     local dir="$fixture_root/phones" state="$fixture_root/phones-state"
     sandbox_scratch "$dir"
     sandbox_scratch "$state"
-    mkdir -p "$state/flea"
+    mkdir -p "$state/dlea"
     phones_gio_stub "$dir"
     local fuse="$phones_fuse" mtp_uri="$phones_mtp_uri" afc_fuse="$phones_afc_fuse" unmount_log="$phones_unmount_log"
     local gvfs_parent="$dir/gvfs" gvfs_count=1
-    local -a flea_launch_wrap=()
+    local -a dlea_launch_wrap=()
     if [[ "$test_frontend" == gpui ]]; then
         gvfs_parent="/run/user/$(id -u)/gvfs"
         [[ -d "$gvfs_parent" ]] || fail 'phones: canonical GVFS mountpoint is unavailable'
         cp -a "$afc_fuse" "$dir/gvfs/"
-        : > "$dir/gvfs/.flea-test-sandbox"
+        : > "$dir/gvfs/.dlea-test-sandbox"
         local virtual_fuse="$gvfs_parent/${fuse##*/}" virtual_afc="$gvfs_parent/${afc_fuse##*/}"
-        python3 "$repo/tests/lib/flea_phone_paths.py" "$dir/bin/gio" "$fuse" "$virtual_fuse" "$afc_fuse" "$virtual_afc" \
+        python3 "$repo/tests/lib/dlea_phone_paths.py" "$dir/bin/gio" "$fuse" "$virtual_fuse" "$afc_fuse" "$virtual_afc" \
             || fail 'phones: private GIO paths could not be mapped'
         fuse=$virtual_fuse
         afc_fuse=$virtual_afc
         gvfs_count=2
-        flea_launch_wrap=(/bin/bash "$repo/tests/lib/flea-gvfs-namespace.sh" --enter "$dir/gvfs" "$gvfs_parent"
+        dlea_launch_wrap=(/bin/bash "$repo/tests/lib/dlea-gvfs-namespace.sh" --enter "$dir/gvfs" "$gvfs_parent"
             "$(readlink /proc/self/ns/user)" "$(readlink /proc/self/ns/mnt)")
     fi
 
@@ -306,7 +306,7 @@ case_phones() {
     fixture_home_make "$fixture_home"
     # Drive size on is what makes a phone row's detail reachable: a device row draws one when its
     # size is not null, and a row carrying no size at all wrote a type error into this run's log.
-    printf '{"view":"list","places":{"driveSize":true,"trashCount":true}}\n' > "$state/flea/ui.json"
+    printf '{"view":"list","places":{"driveSize":true,"trashCount":true}}\n' > "$state/dlea/ui.json"
     local real_home="$HOME" saved_path="$PATH" old_state="${XDG_STATE_HOME:-}"
     export PATH="$dir/bin:$PATH"
     export XDG_STATE_HOME="$state"
@@ -509,14 +509,14 @@ case_phones() {
     printf 'PHONES rows=ok marks=ok mount=ok trash-guard=ok unmount=ok iphone=ok\n'
     export PATH="$saved_path"
     if [[ -n "$old_state" ]]; then export XDG_STATE_HOME="$old_state"; else unset XDG_STATE_HOME; fi
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
 }
 
 case_eject() {
     local dir="$fixture_root/eject"
     sandbox_scratch "$dir"
-    mkdir -p "$dir/bin" "$dir/mnt/FLEASTICK"
+    mkdir -p "$dir/bin" "$dir/mnt/DLEASTICK"
     : > "$dir/0-one.txt"
     : > "$dir/0-two.txt"
 
@@ -530,14 +530,14 @@ case_eject() {
 if [ -f "$dir/ejected" ]; then
   mp=null
 else
-  mp='"$dir/mnt/FLEASTICK"'
+  mp='"$dir/mnt/DLEASTICK"'
 fi
 cat <<JSON
 {"blockdevices":[
 {"name":"nvme0n1","path":"/dev/nvme0n1","label":null,"mountpoints":[null],"rm":false,"size":"238.5G","type":"disk","model":"KBG40ZNS256G",
 "children":[{"name":"nvme0n1p1","path":"/dev/nvme0n1p1","label":null,"mountpoints":["/"],"rm":false,"size":"238.5G","type":"part","model":null}]},
 {"name":"sda","path":"/dev/sda","label":null,"mountpoints":[null],"rm":true,"size":"116.1G","type":"disk","model":"USB Flash Disk",
-"children":[{"name":"sda1","path":"/dev/sda1","label":"FLEASTICK","mountpoints":[\$mp],"rm":true,"size":"116.1G","type":"part","model":null,"fstype":"vfat"}]}]}
+"children":[{"name":"sda1","path":"/dev/sda1","label":"DLEASTICK","mountpoints":[\$mp],"rm":true,"size":"116.1G","type":"part","model":null,"fstype":"vfat"}]}]}
 JSON
 EOS
     chmod +x "$dir/bin/lsblk"
@@ -567,10 +567,10 @@ EOS
     # bin/, mnt/ and gio.log are the stubs' own fixture entries beside the two files under test.
     wait_listing 5
     for _attempt in $(seq 1 100); do
-        [[ "$(ipc deviceEntries)" == *"FLEASTICK|device|volume|true" ]] && break
+        [[ "$(ipc deviceEntries)" == *"DLEASTICK|device|volume|true" ]] && break
         sleep 0.05
     done
-    [[ "$(ipc deviceEntries)" == *"FLEASTICK|device|volume|true" ]] \
+    [[ "$(ipc deviceEntries)" == *"DLEASTICK|device|volume|true" ]] \
         || fail "eject: the stub volume never appeared live, got $(ipc deviceEntries)"
     # The hostname prefix makes the disk row's label the box's own, so the shape is asserted, not the text.
     [[ "$(ipc deviceEntries | grep -c '|device|disk|true')" == "1" ]] \
@@ -611,9 +611,9 @@ EOS
     # mounted, so the sentence must refuse. A verdict read off the exit code would say safe here.
     key -k Return >/dev/null
     settle
-    grep -q "^mount -e $dir/mnt/FLEASTICK\$" "$gio_log" \
+    grep -q "^mount -e $dir/mnt/DLEASTICK\$" "$gio_log" \
         || fail "eject: the menu row did not run gio mount -e on the mount point, log is: $(cat "$gio_log")"
-    local refusal="FLEASTICK is still mounted; close what is using it."
+    local refusal="DLEASTICK is still mounted; close what is using it."
     local seen=""
     for _attempt in $(seq 1 250); do
         seen=$(ipc lastMessage)
@@ -635,7 +635,7 @@ EOS
     settle
     menu_seek Eject
     key -k Return >/dev/null
-    wait_message "Ejected FLEASTICK. It is safe to unplug."
+    wait_message "Ejected DLEASTICK. It is safe to unplug."
     printf 'EJECT really entries=%q\n' "$(ipc deviceEntries)"
     shot eject-safe
 
@@ -662,7 +662,7 @@ EOS
         || fail "eject: expected exactly two ejects, log is: $(cat "$gio_log")"
 
     printf 'EJECT menu=ok internal-disk-offers-nothing=ok exit-code-is-not-the-verdict=ok listing-is=ok no-force=ok\n'
-    kill_flea
+    kill_dlea
     if [[ -n "$real_state" ]]; then export XDG_STATE_HOME="$real_state"; else unset XDG_STATE_HOME; fi
     sandbox_remove "$fixture_home"
 }
@@ -671,7 +671,7 @@ case_poweroff() {
     local dir="$fixture_root/poweroff"
     sandbox_scratch "$dir"
     # The fixture disk name must not exist on the host, or the eject chain watches a real disk.
-    [[ ! -e /sys/block/sdflea ]] || fail "poweroff: fixture disk sdflea exists on this host"
+    [[ ! -e /sys/block/sddlea ]] || fail "poweroff: fixture disk sddlea exists on this host"
     mkdir -p "$dir/bin" "$dir/mnt/DATA1" "$dir/mnt/DATA2"
     : > "$dir/0-one.txt"
 
@@ -681,17 +681,17 @@ case_poweroff() {
 #!/bin/sh
 mp1="$dir/mnt/DATA1"
 mp2="$dir/mnt/DATA2"
-[ -f "$dir/un-sdflea1" ] && mp1=""
-[ -f "$dir/un-sdflea2" ] && mp2=""
+[ -f "$dir/un-sddlea1" ] && mp1=""
+[ -f "$dir/un-sddlea2" ] && mp2=""
 if [ -n "\$mp1" ]; then j1="\"\$mp1\""; else j1=null; fi
 if [ -n "\$mp2" ]; then j2="\"\$mp2\""; else j2=null; fi
 cat <<JSON
 {"blockdevices":[
 {"name":"nvme0n1","path":"/dev/nvme0n1","label":null,"mountpoints":[null],"rm":false,"size":"238.5G","type":"disk","model":"KBG40ZNS256G",
 "children":[{"name":"nvme0n1p1","path":"/dev/nvme0n1p1","label":null,"mountpoints":["/"],"rm":false,"size":"238.5G","type":"part","model":null}]},
-{"name":"sdflea","path":"/dev/sdflea","label":null,"mountpoints":[null],"rm":false,"tran":"usb","size":"1000.2G","type":"disk","model":"USB HDD",
-"children":[{"name":"sdflea1","path":"/dev/sdflea1","label":"DATA1","mountpoints":[\$j1],"rm":false,"size":"500.1G","type":"part","model":null,"fstype":"ext4"},
-{"name":"sdflea2","path":"/dev/sdflea2","label":"DATA2","mountpoints":[\$j2],"rm":false,"size":"500.1G","type":"part","model":null,"fstype":"ext4"}]}]}
+{"name":"sddlea","path":"/dev/sddlea","label":null,"mountpoints":[null],"rm":false,"tran":"usb","size":"1000.2G","type":"disk","model":"USB HDD",
+"children":[{"name":"sddlea1","path":"/dev/sddlea1","label":"DATA1","mountpoints":[\$j1],"rm":false,"size":"500.1G","type":"part","model":null,"fstype":"ext4"},
+{"name":"sddlea2","path":"/dev/sddlea2","label":"DATA2","mountpoints":[\$j2],"rm":false,"size":"500.1G","type":"part","model":null,"fstype":"ext4"}]}]}
 JSON
 EOS
     chmod +x "$dir/bin/lsblk"
@@ -704,14 +704,14 @@ case "\$1 \$2" in
   if [ -f "$dir/hang-unmount" ] && [ "\$3" = "$dir/mnt/DATA1" ]; then sleep 30; fi
   if [ -f "$dir/slowlegs" ]; then sleep 8; fi
   case "\$3" in
-  "$dir/mnt/DATA1") : > "$dir/un-sdflea1" ;;
-  "$dir/mnt/DATA2") : > "$dir/un-sdflea2" ;;
+  "$dir/mnt/DATA1") : > "$dir/un-sddlea1" ;;
+  "$dir/mnt/DATA2") : > "$dir/un-sddlea2" ;;
   esac
   exit 0 ;;
 "mount -d")
   case "\$3" in
-  /dev/sdflea1) rm -f "$dir/un-sdflea1" ;;
-  /dev/sdflea2) rm -f "$dir/un-sdflea2" ;;
+  /dev/sddlea1) rm -f "$dir/un-sddlea1" ;;
+  /dev/sddlea2) rm -f "$dir/un-sddlea2" ;;
   esac
   exit 0 ;;
 *) exit 0 ;;
@@ -802,7 +802,7 @@ EOS
     fi
 
     printf 'POWEROFF deadline=ok still-ejecting-refused=ok slow-legs-safe=ok later-mount=ok later-unmount=ok no-force=ok\n'
-    kill_flea
+    kill_dlea
     if [[ -n "$real_state" ]]; then export XDG_STATE_HOME="$real_state"; else unset XDG_STATE_HOME; fi
     sandbox_remove "$fixture_home"
 }

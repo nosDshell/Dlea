@@ -75,11 +75,11 @@ fn a_reconnected_identical_selection_still_watches_its_owner() {
     let mut conn = over(crate::clip::testutil::accept(&watching.listener, watchdog()).unwrap());
     hello(&mut conn);
     let answers = HashMap::from([
-        (format::FLEA.into(), format!("cut {} {}", TOKEN, owner.0.as_ref().unwrap().id()).into_bytes()),
+        (format::DLEA.into(), format!("cut {} {}", TOKEN, owner.0.as_ref().unwrap().id()).into_bytes()),
         (format::GNOME.into(), format::build_gnome("cut", &["/tmp/a".into()])),
     ]);
-    offer(&mut conn, INITIAL_OFFER, &[format::FLEA, format::GNOME]);
-    serve_n(&mut conn, &answers, FLEA_RECEIVES);
+    offer(&mut conn, INITIAL_OFFER, &[format::DLEA, format::GNOME]);
+    serve_n(&mut conn, &answers, DLEA_RECEIVES);
     // A primary-offer retirement proves the preceding selection read and tracking completed.
     let mut payload = Vec::new();
     wire::put_u32(&mut payload, PRIMARY_BARRIER_OFFER);

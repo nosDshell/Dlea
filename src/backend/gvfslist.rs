@@ -2,7 +2,7 @@
 use crate::backend::child::{wait_for_exit, Woke};
 use crate::backend::extclass;
 use crate::backend::listing::{GioMeta, GioTarget, Listing};
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::os::unix::fs::MetadataExt;
 use std::path::Path;
 use std::sync::mpsc;
@@ -40,9 +40,9 @@ pub fn is_gvfs(path: &Path) -> bool {
     }
 }
 
-// The test seam for the gio binary: FLEA_GIO_BIN names a fake in tests, "gio" otherwise.
+// The test seam for the gio binary: DLEA_GIO_BIN names a fake in tests, "gio" otherwise.
 pub fn gio_bin() -> String {
-    std::env::var("FLEA_GIO_BIN").ok().filter(|v| !v.is_empty()).unwrap_or_else(|| "gio".to_string())
+    std::env::var("DLEA_GIO_BIN").ok().filter(|v| !v.is_empty()).unwrap_or_else(|| "gio".to_string())
 }
 
 pub fn mode_for(is_dir: bool, is_symlink: bool) -> u32 {
@@ -97,7 +97,7 @@ fn unescape_target(raw: &str) -> String {
     String::from_utf8_lossy(&out).into_owned()
 }
 
-// Sample input: "smb://192.168.21.25/isos/flea-b036-nas-1790537810/fix-10k/file-00001.txt\t10\t(regular)\ttime::modified=1790537811"
+// Sample input: "smb://192.168.21.25/isos/dlea-b036-nas-1790537810/fix-10k/file-00001.txt\t10\t(regular)\ttime::modified=1790537811"
 pub fn parse_line(line: &str, hidden: bool) -> Result<Option<GvfsRow>, String> {
     let mut parts = line.splitn(4, '\t');
     let uri = parts.next().ok_or_else(|| "gio line has no uri".to_string())?;
@@ -190,7 +190,7 @@ pub(crate) fn raw_output(path: &str, gio: &str, timeout: Duration) -> Result<Vec
     let mut argv = vec!["list".to_string(), "-u".to_string(), "-a".to_string(), GIO_ATTRS.to_string(), "--nofollow-symlinks".to_string(), "-h".to_string()];
     argv.push(path.to_string());
     let mut child = crate::backend::locale::command(gio)
-        .args(flea::bytename::args(&argv))
+        .args(dlea::bytename::args(&argv))
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::null())
@@ -287,7 +287,7 @@ mod tests {
     use super::*;
     use crate::backend::testdir::TestDir;
 
-    const NAS: &str = "smb://192.168.21.25/isos/flea-b036-nas-1790537810/fix-10k";
+    const NAS: &str = "smb://192.168.21.25/isos/dlea-b036-nas-1790537810/fix-10k";
 
     #[test]
     fn a_regular_row_parses_with_size_and_mtime() {

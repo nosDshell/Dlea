@@ -281,7 +281,7 @@ def candidate_settings(preset):
 
 
 def strings(repo=REPO):
-    catalog = json.loads((repo / "i18n/en/flea.json").read_text())
+    catalog = json.loads((repo / "i18n/en/dlea.json").read_text())
     missing = [key for key in STRINGS if not isinstance(catalog.get(key), str)]
     if missing:
         raise Blocked("English catalog lacks calendar strings: " + ", ".join(missing))
@@ -894,7 +894,7 @@ def argv_environment(argv, key):
 def build_fx(case):
     """A marked tmpfs root holding the candidate's private /fx, as the battery's fixture builder lays it out."""
     Owned(case)
-    root = Path(tempfile.mkdtemp(prefix="flea-calendar-fx.", dir=fixture_tree.TMPFS))
+    root = Path(tempfile.mkdtemp(prefix="dlea-calendar-fx.", dir=fixture_tree.TMPFS))
     (root / MARKER).write_text(f"calendar fixture {os.getpid()}\n")
     fx = Owned(root).directory("fx")
     (fx / "v").mkdir()
@@ -1134,7 +1134,7 @@ def session(args, root, display, name, colors, identity, plan, strings_, inks, k
             fixtures = context["fixtures"] = build_fixtures(fx / CWD.removeprefix("/fx/"), zone, plan)
             save(case / "calendar-fixtures.json", {"zone": zone, "fixtures": fixtures})
             theme = private_theme(fx, colors)
-            settings = fx / "state/flea/ui.json"
+            settings = fx / "state/dlea/ui.json"
             settings.parent.mkdir(parents=True, exist_ok=True)
             settings.write_text(json.dumps(candidate_settings(args.preset)) + "\n")
         with stages("launch"):

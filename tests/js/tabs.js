@@ -604,12 +604,12 @@ function run(check) {
     var stubToken = stubBar.outToken
     stubBar.tearOffAt()
     check("spawn without ack keeps source pair", Tabs.count(stubPane), 2)
-    check("tearoff passes source pid", stubBar.spawns[0].indexOf("FLEA_TAB_SOURCE_PID=111") >= 0, true)
-    check("tearoff passes captured token", stubToken !== "" && stubBar.spawns[0].indexOf("FLEA_TAB_TOKEN=" + stubToken) >= 0, true)
+    check("tearoff passes source pid", stubBar.spawns[0].indexOf("DLEA_TAB_SOURCE_PID=111") >= 0, true)
+    check("tearoff passes captured token", stubToken !== "" && stubBar.spawns[0].indexOf("DLEA_TAB_TOKEN=" + stubToken) >= 0, true)
 
-    check("tearoff passes captured cursor filename", stubBar.spawns[0].indexOf("FLEA_TAB_CURSOR=tear-4") >= 0, true)
-    // Sample input: "FLEA_TAB_TOKEN=abc" in the launch gives FLEA_TAB_TOKEN.
-    var setByBar = stubBar.spawns[0].filter(function (word) { return /^FLEA_TAB_[A-Z_]+=/.test(word) }).map(function (word) { return word.split("=")[0] })
+    check("tearoff passes captured cursor filename", stubBar.spawns[0].indexOf("DLEA_TAB_CURSOR=tear-4") >= 0, true)
+    // Sample input: "DLEA_TAB_TOKEN=abc" in the launch gives DLEA_TAB_TOKEN.
+    var setByBar = stubBar.spawns[0].filter(function (word) { return /^DLEA_TAB_[A-Z_]+=/.test(word) }).map(function (word) { return word.split("=")[0] })
     check("tearoff sets exactly the names a fresh launch drops", setByBar.join(" "), Tabs.TEAR_OFF_ENV.join(" "))
     var launchCursor = Fixture.pane("/tmp/tear")
     launchCursor.rowFor = function (i) { return { n: "tear-" + i } }
@@ -619,10 +619,10 @@ function run(check) {
 
     // A new window is not a tear-off, so its launch strips the hand-off the torn-off window it runs in carries.
     var windowSpawns = []
-    var windowShell = { env: function () { return "/stub/flea" }, execDetached: function (argv) { windowSpawns.push(argv) } }
+    var windowShell = { env: function () { return "/stub/dlea" }, execDetached: function (argv) { windowSpawns.push(argv) } }
     BarFixture.method(BarFixture.source("../../ui/Pane.qml"), "newWindow", { path: "/tmp/elsewhere" }, windowShell)()
     var windowArgv = windowSpawns[0] || []
-    check("a new window still opens the folder it was asked for", windowArgv.slice(-2).join(" "), "/stub/flea /tmp/elsewhere")
+    check("a new window still opens the folder it was asked for", windowArgv.slice(-2).join(" "), "/stub/dlea /tmp/elsewhere")
     var handOff = Tabs.TEAR_OFF_ENV
     for (var h = 0; h < handOff.length; h++)
         check("a new window drops " + handOff[h], windowArgv[0] === "env" && windowArgv[windowArgv.indexOf(handOff[h]) - 1] === "-u", true)

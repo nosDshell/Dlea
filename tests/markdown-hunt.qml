@@ -1,15 +1,15 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
-import "flea/js/MdLeaf.js" as Leaf
+import "dlea" as Dlea
+import "dlea/js/MdLeaf.js" as Leaf
 import "qml-probe.js" as QmlProbe
 
 // Exercise live preview objects, native link clicks and a real file rewrite without changing product code.
 ShellRoot {
     id: root
-    property string scenario: Quickshell.env("FLEA_PREVIEW_HUNT_CASE")
-    property string fixture: Quickshell.env("FLEA_PREVIEW_HUNT_DIR") + "/" + scenario + ".md"
+    property string scenario: Quickshell.env("DLEA_PREVIEW_HUNT_CASE")
+    property string fixture: Quickshell.env("DLEA_PREVIEW_HUNT_DIR") + "/" + scenario + ".md"
     property int stage: 0
     property double stamp: Date.now()
     property int failures: 0
@@ -17,7 +17,7 @@ ShellRoot {
     property var keys: null
     property var clicked: []
     property string initialInk: ""
-    property string otherFixture: Quickshell.env("FLEA_PREVIEW_HUNT_DIR") + "/disk-stale-b.md"
+    property string otherFixture: Quickshell.env("DLEA_PREVIEW_HUNT_DIR") + "/disk-stale-b.md"
     property real scrolledY: 0
     property int settleTicks: 0
     property var lastPlaces: null
@@ -136,14 +136,14 @@ ShellRoot {
 
     Component.onCompleted: {
         if (scenario === "theme")
-            Flea.Theme.applyColors('background = "#101315"\nforeground = "#eeeeee"')
+            Dlea.Theme.applyColors('background = "#101315"\nforeground = "#eeeeee"')
     }
     FloatingWindow {
         id: window
         implicitWidth: 760
         implicitHeight: 700
-        color: Flea.Theme.color.background
-        Flea.PreviewMarkdown {
+        color: Dlea.Theme.color.background
+        Dlea.PreviewMarkdown {
             id: md
             width: 600
             height: 580
@@ -151,14 +151,14 @@ ShellRoot {
             path: root.fixture
             size: 2000
         }
-        Flea.Preview {
+        Dlea.Preview {
             id: quick
             active: root.scenario === "disk"
             kind: "text"
             path: root.fixture
             size: 100
         }
-        Flea.PreviewColumn {
+        Dlea.PreviewColumn {
             id: column
             width: 300
             height: 600
@@ -173,7 +173,7 @@ ShellRoot {
     // Read only on an explicit reload: a watcher-started read racing a click would count one launch late.
     FileView {
         id: openLog
-        path: Quickshell.env("FLEA_MARKDOWN_OPEN_LOG")
+        path: Quickshell.env("DLEA_MARKDOWN_OPEN_LOG")
         printErrors: false
     }
     FileView {
@@ -331,7 +331,7 @@ ShellRoot {
                     md.bodyItem.contentY = root.scrollTargetY
                     root.scrolledY = md.bodyItem.contentY
                     root.check("scrolled into the document", root.scrolledY, root.scrollTargetY)
-                    Flea.Theme.applyColors('background = "#ffffff"\nforeground = "#202020"')
+                    Dlea.Theme.applyColors('background = "#ffffff"\nforeground = "#202020"')
                     root.stage = 1
                     root.stamp = Date.now()
                     return

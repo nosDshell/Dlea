@@ -74,7 +74,7 @@ fn a_zip_member_named_with_brackets_streams_itself() {
     if status.success() {
         assert_eq!(out, body, "the bracketed member streams itself, not a pattern miss");
     } else {
-        eprintln!("flea: the jail did not run here ({status}), so only the escaped argv was proven");
+        eprintln!("dlea: the jail did not run here ({status}), so only the escaped argv was proven");
     }
 }
 
@@ -98,6 +98,6 @@ fn the_production_arm_keeps_the_producers_stdout() {
     if status.success() {
         assert_eq!(out, body, "the unpacked bytes come through the pipe");
     } else {
-        eprintln!("flea: the jail did not run here ({status}), so only the pipe's presence was proven");
+        eprintln!("dlea: the jail did not run here ({status}), so only the pipe's presence was proven");
     }
 }

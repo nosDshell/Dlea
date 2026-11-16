@@ -97,7 +97,7 @@ fn hex(s: &str) -> Color {
 }
 
 impl Theme {
-    // Pass None to follow Commons, or Some(12)/Some(14) to pin a Flea size stop.
+    // Pass None to follow Commons, or Some(12)/Some(14) to pin a Dlea size stop.
     pub fn resolve(
         colors: &str,
         shell: &str,

@@ -1,4 +1,4 @@
-# Defines the native Make Flea the default case; tests/ui.sh supplies the guarded fixture and IPC helpers.
+# Defines the native Make Dlea the default case; tests/ui.sh supplies the guarded fixture and IPC helpers.
 
 # The row and the line under it as on|inert|note|role, the last two empty when off says nothing.
 makedefault_state() {
@@ -62,17 +62,17 @@ makedefault_wait_event() {
 # The stub speaks the binary's own sentences and guards the binary's own desktop-writing modes, all read from the source.
 makedefault_from_source() {
     local box="$1" id refusal status skipped guarded
-    # Sample input: pub const DESKTOP_ID: &str = "com.thisisgm.flea.desktop";
+    # Sample input: pub const DESKTOP_ID: &str = "com.nosDshell.dlea.desktop";
     id=$(grep -o 'pub const DESKTOP_ID: &str = "[^"]*"' "$repo/src/defaults.rs" | cut -d'"' -f2)
-    [[ "$id" == com.thisisgm.flea.desktop ]] || fail "makedefault: src/defaults.rs claims '$id', which this case's fixture entry does not name"
-    # Sample input: "flea: {} is not installed in any applications folder, so nothing was made the default. Install the package first.",
-    refusal=$(sed -n '/^fn claim_from(entry: Option<PathBuf>) -> i32 {$/,/^}$/p' "$repo/src/defaults.rs" | grep -o '"flea: [^"]*"' | cut -d'"' -f2)
+    [[ "$id" == com.nosDshell.dlea.desktop ]] || fail "makedefault: src/defaults.rs claims '$id', which this case's fixture entry does not name"
+    # Sample input: "dlea: {} is not installed in any applications folder, so nothing was made the default. Install the package first.",
+    refusal=$(sed -n '/^fn claim_from(entry: Option<PathBuf>) -> i32 {$/,/^}$/p' "$repo/src/defaults.rs" | grep -o '"dlea: [^"]*"' | cut -d'"' -f2)
     [[ "$refusal" == *"{}"* && "$refusal" != *$'\n'* ]] || fail "makedefault: defaults::claim_from() has no one refusal to stub, found '$refusal'"
     # Sample input: pub const EXIT_UNINSTALLED: i32 = 3;
     status=$(grep -o 'pub const EXIT_UNINSTALLED: i32 = [0-9]*' "$repo/src/defaults.rs" | grep -o '[0-9]*$')
     [[ "$status" =~ ^[1-9][0-9]*$ ]] || fail "makedefault: src/defaults.rs names no EXIT_UNINSTALLED status, found '$status'"
-    # Sample input: eprintln!("flea: no file chooser service is installed, so Flea could not become the file chooser");
-    skipped=$(sed -n '/^pub(super) fn claim_both() -> i32 {$/,/^}$/p' "$repo/src/claims.rs" | grep -o 'eprintln!("flea: [^"]*")' | cut -d'"' -f2)
+    # Sample input: eprintln!("dlea: no file chooser service is installed, so Dlea could not become the file chooser");
+    skipped=$(sed -n '/^pub(super) fn claim_both() -> i32 {$/,/^}$/p' "$repo/src/claims.rs" | grep -o 'eprintln!("dlea: [^"]*")' | cut -d'"' -f2)
     [[ -n "$skipped" && "$skipped" != *$'\n'* ]] || fail "makedefault: claim_both() has no one skipped-chooser line to stub, found '$skipped'"
     # Sample input: if args.len() == 3 && args[1] == "--default" && args[2] == "off" {
     guarded=$(grep -B1 -E 'exit\((claim_both|release_both|claim_picker|chooser::release)\(\)\)' "$repo/src/main.rs" \
@@ -87,15 +87,15 @@ makedefault_from_source() {
 # Launches over the stubs, or on the PATH given fourth, then hands the suite its own PATH and data dirs back.
 makedefault_launch() {
     local dir="$1" box="$2" real_bin="$3" path="${4:-$2/bin:$PATH}" saved_path="$PATH" saved_dirs="${XDG_DATA_DIRS-}"
-    export PATH="$path" FLEA_MAKEDEFAULT_BOX="$box" FLEA_MAKEDEFAULT_REAL="$real_bin"
-    # Prepended, so the fixture entry is found whether or not a Flea package is installed on this box.
+    export PATH="$path" DLEA_MAKEDEFAULT_BOX="$box" DLEA_MAKEDEFAULT_REAL="$real_bin"
+    # Prepended, so the fixture entry is found whether or not a Dlea package is installed on this box.
     export XDG_DATA_DIRS="$box/data:${XDG_DATA_DIRS:-/usr/local/share:/usr/share}"
-    # The transport launches only this worktree's build, so the stub reaches the window as its backend through FLEA_BIN.
-    local -a flea_launch_wrap=(env "FLEA_BIN=$box/bin/flea")
+    # The transport launches only this worktree's build, so the stub reaches the window as its backend through DLEA_BIN.
+    local -a dlea_launch_wrap=(env "DLEA_BIN=$box/bin/dlea")
     launch "$dir"
     export PATH="$saved_path"
     if [[ -n "$saved_dirs" ]]; then export XDG_DATA_DIRS="$saved_dirs"; else unset XDG_DATA_DIRS; fi
-    unset FLEA_MAKEDEFAULT_BOX FLEA_MAKEDEFAULT_REAL
+    unset DLEA_MAKEDEFAULT_BOX DLEA_MAKEDEFAULT_REAL
     wait_listing 1
 }
 
@@ -103,7 +103,7 @@ makedefault_launch() {
 makedefault_path_without_mime() {
     local out="$1/nomime" dir dirs
     mkdir -p "$out"
-    cp "$1/bin/flea" "$1/bin/systemctl" "$out/"
+    cp "$1/bin/dlea" "$1/bin/systemctl" "$out/"
     IFS=: read -r -a dirs <<< "$PATH"
     for dir in "${dirs[@]}"; do
         [[ "$dir" == /* && -d "$dir" ]] || continue

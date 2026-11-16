@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Flash.js" as Flash
 import "js/Transfer.js" as Transfer
 
@@ -55,20 +55,20 @@ Column {
             anchors.leftMargin: Theme.spacing.rowPaddingX
             anchors.rightMargin: Theme.spacing.rowPaddingX
             spacing: Theme.spacing.gap
-            Flea.Glyph {
+            Dlea.Glyph {
                 width: Theme.markSize
                 height: parent.height
                 visible: !root.running && root.ending === null
                 name: "alert"
                 color: Theme.color.error
             }
-            Flea.Spinner {
+            Dlea.Spinner {
                 width: Theme.markSize
                 height: parent.height
                 visible: root.running
                 color: Theme.color.mutedFrame
             }
-            Flea.Glyph {
+            Dlea.Glyph {
                 width: Theme.markSize
                 height: parent.height
                 visible: root.ending !== null
@@ -90,7 +90,7 @@ Column {
                 id: flashControl
                 width: Math.max(flashButton.implicitWidth, cancelButton.implicitWidth, endButton.implicitWidth)
                 height: parent.height
-                Flea.DialogButton {
+                Dlea.DialogButton {
                     id: flashButton
                     anchors.verticalCenter: parent.verticalCenter
                     visible: !root.running && root.ending === null
@@ -99,7 +99,7 @@ Column {
                     available: root.live
                     onActivated: root.pressFlash()
                 }
-                Flea.DialogButton {
+                Dlea.DialogButton {
                     id: cancelButton
                     anchors.verticalCenter: parent.verticalCenter
                     visible: root.running
@@ -107,7 +107,7 @@ Column {
                     available: Transfer.cancelEnabled(root.transfer)
                     onActivated: root.pressCancel()
                 }
-                Flea.DialogButton {
+                Dlea.DialogButton {
                     id: endButton
                     anchors.verticalCenter: parent.verticalCenter
                     visible: !root.running && root.ending !== null && (root.ending.eject || root.ending.flashBack) && !root.ejected

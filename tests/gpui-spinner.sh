@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p "$PWD/.superpowers/gpui-spinner"
 unit_root=$(mktemp -d "$PWD/.superpowers/gpui-spinner/ci.XXXXXXXX")
-: > "$unit_root/.flea-test-sandbox"
+: > "$unit_root/.dlea-test-sandbox"
 mkdir -p "$unit_root/home" "$unit_root/config" "$unit_root/cache" "$unit_root/state" "$unit_root/runtime" "$unit_root/specimens"
 log="$unit_root/test.log"
 set +e
@@ -14,8 +14,8 @@ setsid -w env -i PATH="$PATH" HOME="$unit_root/home" \
     CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}" RUSTUP_HOME="${RUSTUP_HOME:-$HOME/.rustup}" \
     CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$PWD/target}" \
     CARGO_PROFILE_TEST_DEBUG=line-tables-only CARGO_PROFILE_DEV_DEBUG=line-tables-only \
-    FLEA_SPINNER_SPECIMENS="$unit_root/specimens" \
-    cargo test --locked -p flea-gui --lib feedback:: -- --nocapture < /dev/null > "$log" 2>&1
+    DLEA_SPINNER_SPECIMENS="$unit_root/specimens" \
+    cargo test --locked -p dlea-gui --lib feedback:: -- --nocapture < /dev/null > "$log" 2>&1
 rc=$?
 set -e
 grep -E '^(SPINNER_BOARD|SPINNER_ALLOCS|test |test result)' "$log" || true
@@ -28,6 +28,6 @@ shots=$(find "$unit_root/specimens" -name 'spinner-*.pgm' | wc -l)
 [ "$shots" -eq 12 ] || { printf 'gpui-spinner: FAIL %s Omi specimens, want 12\n' "$shots"; exit 1; }
 printf 'gpui-spinner: specimens in %s\n' "$unit_root/specimens"
 clippy_root=$(mktemp -d "$PWD/.superpowers/gpui-spinner/clippy.XXXXXXXX")
-: > "$clippy_root/.flea-test-sandbox"
-tools/flea-clippy tools/clippy-baseline.txt "$clippy_root"
+: > "$clippy_root/.dlea-test-sandbox"
+tools/dlea-clippy tools/clippy-baseline.txt "$clippy_root"
 printf 'GPUISPINNER PASS %s checks\n' "$checks"

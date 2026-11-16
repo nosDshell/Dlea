@@ -123,7 +123,7 @@ fn a_list_entry_launches_once_and_a_file_entry_once_per_file() {
     assert_eq!(named(&[a, b, c]), "3 items");
 }
 
-// Sample /proc/PID/cmdline fields: "/bin/sh\0/tmp/flea-test-.../record\0..."; recorder children retain paths inside this test's marked root.
+// Sample /proc/PID/cmdline fields: "/bin/sh\0/tmp/dlea-test-.../record\0..."; recorder children retain paths inside this test's marked root.
 fn recorders_pending(dir: &Path) -> bool {
     use std::os::unix::ffi::OsStrExt;
     let root = dir.parent().unwrap();

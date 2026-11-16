@@ -66,7 +66,7 @@ mod tests {
     use std::path::PathBuf;
 
     fn english() -> I18n {
-        let none = PathBuf::from("/nonexistent/flea-sd1");
+        let none = PathBuf::from("/nonexistent/dlea-sd1");
         I18n::load(Paths { omarchy: none.clone(), language_file: none, catalogs: Vec::new() })
     }
 

@@ -27,9 +27,9 @@ fn env_path(key: &str) -> Option<PathBuf> {
 fn catalog_dirs(override_dir: Option<PathBuf>, exe: Option<&Path>, source: &Path, debug: bool) -> Vec<PathBuf> {
     let mut catalogs: Vec<PathBuf> = override_dir.into_iter().collect();
     if let Some(prefix) = exe.and_then(Path::parent).and_then(Path::parent) {
-        catalogs.push(prefix.join("share/flea/i18n"));
+        catalogs.push(prefix.join("share/dlea/i18n"));
     }
-    catalogs.extend([PathBuf::from("/usr/share/flea/i18n"), PathBuf::from("/usr/local/share/flea/i18n")]);
+    catalogs.extend([PathBuf::from("/usr/share/dlea/i18n"), PathBuf::from("/usr/local/share/dlea/i18n")]);
     if debug || exe.is_some_and(|path| path.starts_with(source.join("target"))) {
         catalogs.push(source.join("i18n"));
     }
@@ -49,7 +49,7 @@ impl Default for Paths {
             config.unwrap_or_else(|| PathBuf::from("/nonexistent")).join("omarchy/language")
         });
         let exe = std::env::current_exe().ok();
-        let catalogs = catalog_dirs(env_path("FLEA_I18N"), exe.as_deref(), Path::new(env!("CARGO_MANIFEST_DIR")), cfg!(debug_assertions));
+        let catalogs = catalog_dirs(env_path("DLEA_I18N"), exe.as_deref(), Path::new(env!("CARGO_MANIFEST_DIR")), cfg!(debug_assertions));
         Self {
             omarchy: env_path("OMARCHY_PATH").unwrap_or_else(|| PathBuf::from("/usr/share/omarchy")),
             language_file, catalogs,
@@ -71,7 +71,7 @@ fn stamp(path: &Path) -> Option<Stamp> {
     })
 }
 
-// Omarchy's English word for each omarchy: reference in en/flea.json, drawn when Omarchy ships no catalog for it (4.0.x has no shell strings).
+// Omarchy's English word for each omarchy: reference in en/dlea.json, drawn when Omarchy ships no catalog for it (4.0.x has no shell strings).
 const OMARCHY_ENGLISH: [(&str, &str); 6] = [
     ("shell.common.cancel", "Cancel"),
     ("shell.common.apply", "Apply"),
@@ -149,7 +149,7 @@ impl I18n {
     /// The GUI shapes each line as one bidi paragraph and asks for the locale's direction; the TUI never does.
     pub fn mark_paragraphs(&mut self) { self.paragraphs = true; }
 
-    // An RTL line opening in Latin outside its placeholders ("Flea نے %1") reads right to left, as an RLM sets.
+    // An RTL line opening in Latin outside its placeholders ("Dlea نے %1") reads right to left, as an RLM sets.
     fn paragraph(&self, template: &str, line: String) -> String {
         if self.paragraphs && self.locale.right_to_left && opens_latin(template) { format!("\u{200f}{line}") } else { line }
     }
@@ -239,9 +239,9 @@ impl I18n {
         path
     }
 
-    fn flea_catalog(&mut self, code: &str, mut base: Catalog) -> Catalog {
+    fn dlea_catalog(&mut self, code: &str, mut base: Catalog) -> Catalog {
         for root in self.paths.catalogs.clone().iter().rev() {
-            let file = self.watch(root.join(code).join("flea.json"));
+            let file = self.watch(root.join(code).join("dlea.json"));
             base.extend(catalog::load(&file, false));
         }
         base
@@ -258,8 +258,8 @@ impl I18n {
         self.locale = self.roster.iter().find(|l| l.code == code).cloned()
             .unwrap_or_else(|| self.roster.iter().find(|l| l.code == "en").unwrap().clone());
         let code = self.locale.code.clone();
-        self.english = self.flea_catalog("en", catalog::parse(include_str!("../../i18n/en/flea.json"), false));
-        self.translated = self.flea_catalog(&code, Catalog::new());
+        self.english = self.dlea_catalog("en", catalog::parse(include_str!("../../i18n/en/dlea.json"), false));
+        self.translated = self.dlea_catalog(&code, Catalog::new());
         self.omarchy_english.clear();
         self.omarchy_translated.clear();
         for kind in catalog::KINDS {

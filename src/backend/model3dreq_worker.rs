@@ -35,7 +35,7 @@ pub(super) fn entry() -> Option<i32> {
         {
             return Err("invalid 3D helper arguments".into());
         }
-        let file = regfile::open_if_regular(&flea::bytename::view(&args[5]), 0)
+        let file = regfile::open_if_regular(&dlea::bytename::view(&args[5]), 0)
             .map_err(|e| e.to_string())?;
         let mut bytes = Vec::new();
         file.take(model3d::MAX_INPUT as u64 + 1)
@@ -47,7 +47,7 @@ pub(super) fn entry() -> Option<i32> {
         model3d::wire::write(&model, std::io::BufWriter::new(std::io::stdout())).map_err(Into::into)
     })();
     if let Err(failure) = &result {
-        eprintln!("flea: {}", failure.reason);
+        eprintln!("dlea: {}", failure.reason);
     }
     Some(result_code(&result))
 }

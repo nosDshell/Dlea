@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Icons.js" as Icons
 import "js/Kinds.js" as Kinds
 import "js/Search.js" as Search
@@ -13,7 +13,7 @@ import "js/PreviewSwap.js" as PreviewSwap
 import "js/Swap.js" as Swap
 import "js/QuickLookRect.js" as QuickLookRect
 
-// The overlay lives inside the Flea window, Finder's Quick Look shape: a second window breaks omarchy-drive focus flea and every test that narrows on it.
+// The overlay lives inside the Dlea window, Finder's Quick Look shape: a second window breaks omarchy-drive focus dlea and every test that narrows on it.
 Item {
     id: root
     anchors.fill: parent
@@ -86,8 +86,8 @@ Item {
     readonly property alias stripVisible: mediaStrip.visible
     // The strip's own mute mark and the flag it draws from, so a test reads and clicks what is there.
     readonly property var muteMark: mediaStrip.muteItem
-    readonly property bool muted: Flea.MediaSound.muted
-    // fleaWindow.itemRect needs the real Item, the same seam rowCentre already reads through pane.
+    readonly property bool muted: Dlea.MediaSound.muted
+    // dleaWindow.itemRect needs the real Item, the same seam rowCentre already reads through pane.
     readonly property var seekSlider: mediaStrip.seekItem
     readonly property var volumeSlider: mediaStrip.volumeItem
     readonly property string status: {
@@ -306,7 +306,7 @@ Item {
     function togglePlay() { if (root.isMedia && mediaLoader.item) mediaLoader.item.togglePlay() }
 
     // MediaMute rule 3: one session flag, so the column's strip and this one always agree.
-    function toggleMute() { if (root.isMedia) Flea.MediaSound.toggle() }
+    function toggleMute() { if (root.isMedia) Dlea.MediaSound.toggle() }
 
     // Absolute seek in ms, clamped by PreviewMedia's own seekTo; the slider's onReleased calls this directly.
     function seekTo(ms) { if (root.isMedia && mediaLoader.item) mediaLoader.item.seekTo(ms) }
@@ -759,7 +759,7 @@ Item {
             width: Theme.cardSpan(root.nextRect.w, root.width)
             height: Theme.cardSpan(root.nextRect.h, root.height)
 
-            Flea.PreviewText {
+            Dlea.PreviewText {
                 id: textPane
                 anchors.fill: parent
                 anchors.margins: Theme.spacing.hairline
@@ -896,7 +896,7 @@ Item {
             }
 
             // The canvas's Archive tile at Quick Look size, its own component so this file stays inside its ceiling.
-            Flea.QuickLookArchive {
+            Dlea.QuickLookArchive {
                 id: archivePane
                 anchors.fill: parent
                 anchors.margins: Theme.spacing.rowPaddingX
@@ -912,7 +912,7 @@ Item {
                 spacing: Theme.spacing.gap
                 visible: root.kind === "unsupported" || root.archiveFailed || root.fontFailed
 
-                Flea.Glyph {
+                Dlea.Glyph {
                     anchors.horizontalCenter: parent.horizontalCenter
                     // The overlay declining is a pane state standing alone, which States.dc.html draws at 40.
                     maxSize: Theme.stateMarkSize
@@ -935,14 +935,14 @@ Item {
             }
 
             // Media still buffering or an image still decoding shows the crawl; LoadingState's hold-off keeps a fast local open from flashing it.
-            Flea.LoadingState {
+            Dlea.LoadingState {
                 anchors.fill: parent
                 visible: root.loadingEarly || (root.isMedia || root.isImage || root.isArchive || root.isFont) && root.status === "loading"
                 heldOff: root.loadingEarly || root.swap !== null && root.swap.fellBack
             }
 
             // MediaStrip unframed: quiet over the video, permanent on audio, and the column draws the framed form of the same file.
-            Flea.MediaStrip {
+            Dlea.MediaStrip {
                 id: mediaStrip
                 visible: root.isMedia && (root.kind === "audio" || root.stripShown)
                 anchors.left: parent.left

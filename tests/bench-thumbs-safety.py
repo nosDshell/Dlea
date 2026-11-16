@@ -9,10 +9,10 @@ import subprocess
 import unittest
 
 REPO = Path(__file__).resolve().parent.parent
-spec = importlib.util.spec_from_file_location("wayland_safety", REPO / "tools/flea-bench-thumbs-lib/wayland.py")
+spec = importlib.util.spec_from_file_location("wayland_safety", REPO / "tools/dlea-bench-thumbs-lib/wayland.py")
 wayland = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(wayland)
-ROOT = Path(os.environ["FLEA_B7_TEST_ROOT"])
+ROOT = Path(os.environ["DLEA_B7_TEST_ROOT"])
 FOCUS = 'hl.dsp.focus({ window = "address:0xb700" })'
 CLOSE = 'hl.dsp.window.close({ window = "address:0xb700" })'
 
@@ -155,7 +155,7 @@ class Dispatch(unittest.TestCase):
 class Sweep(unittest.TestCase):
     def test_no_benchmark_tool_uses_a_legacy_hyprland_dispatcher_or_keyword(self):
         legacy = re.compile(r"\b(focuswindow|sendshortcut|tagwindow|movewindow|resizewindow|resizewindowpixel|setfloating|togglefloating|movecursor|centerwindow|movefocus|workspace)\b")
-        files = [*REPO.glob("tools/flea-bench-thumbs*"), *REPO.glob("tools/flea-bench-thumbs-lib/*.py"), REPO / "tools/flea-bench-keys", REPO / "tools/flea-field-bench"]
+        files = [*REPO.glob("tools/dlea-bench-thumbs*"), *REPO.glob("tools/dlea-bench-thumbs-lib/*.py"), REPO / "tools/dlea-bench-keys", REPO / "tools/dlea-field-bench"]
         scanned = 0
         for path in files:
             if not path.is_file():
@@ -208,7 +208,7 @@ class Discovery(unittest.TestCase):
 
     def test_the_marker_alone_does_not_own_a_window_outside_the_launched_tree(self):
         token = "tree-token"
-        child = self.sleeper(env={**os.environ, "FLEA_B7_BENCH": token})
+        child = self.sleeper(env={**os.environ, "DLEA_B7_BENCH": token})
         client = dict(address="0xb701", pid=child.pid, xwayland=False)
         display = wayland.Display(ROOT)
         display.roots[token] = os.getpid()
@@ -226,7 +226,7 @@ class Discovery(unittest.TestCase):
 
     def test_xwayland_is_rejected_by_production_ownership(self):
         token = "native-only-token"
-        child = self.sleeper(env={**os.environ, "FLEA_B7_BENCH": token})
+        child = self.sleeper(env={**os.environ, "DLEA_B7_BENCH": token})
         client = dict(address="0xb702", pid=child.pid, xwayland=False)
         display = wayland.Display(ROOT)
         display.roots[token] = os.getpid()

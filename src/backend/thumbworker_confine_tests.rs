@@ -5,8 +5,8 @@ use std::os::unix::process::CommandExt;
 use std::process::Command;
 
 // The probe confines a second copy of this test binary, so nothing it locks down can reach the harness running every other test.
-const CONFINE_PROBE: &str = "FLEA_CONFINE_PROBE";
-const CONFINE_BUSY: &str = "FLEA_CONFINE_BUSY";
+const CONFINE_PROBE: &str = "DLEA_CONFINE_PROBE";
+const CONFINE_BUSY: &str = "DLEA_CONFINE_BUSY";
 const THIS_TEST: &str = "backend::thumbworker::tests::a_confined_child_holds_only_its_job_and_can_write_or_signal_nothing";
 // Every descriptor below this is looked at, which covers PARK_FD and anything a leak could leave.
 const FD_CEILING: c_int = 1024;
@@ -157,7 +157,7 @@ fn probe(dir: &str, busy: bool) -> ! {
     let xattr = errno_of(unsafe {
         fsetxattr(
             INPUT_FD,
-            c"user.flea_probe".as_ptr(),
+            c"user.dlea_probe".as_ptr(),
             b"1".as_ptr() as *const c_void,
             1,
             0,
@@ -271,7 +271,7 @@ fn a_confined_child_holds_only_its_job_and_can_write_or_signal_nothing() {
 
 #[test]
 fn a_library_that_is_not_there_is_refused() {
-    assert!(Decoder::load(c"libflea-definitely-not-here.so.9").is_none());
+    assert!(Decoder::load(c"libdlea-definitely-not-here.so.9").is_none());
 }
 
 #[test]

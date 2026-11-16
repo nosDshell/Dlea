@@ -12,8 +12,8 @@ import time
 
 root = Path(sys.argv[1]).resolve()
 binary = str(Path(sys.argv[2]).resolve())
-assert root.is_absolute() and root.name.startswith("flea-properties-multi-")
-assert (root / ".flea-test-sandbox").is_file()
+assert root.is_absolute() and root.name.startswith("dlea-properties-multi-")
+assert (root / ".dlea-test-sandbox").is_file()
 assert not root.is_relative_to(Path.home().resolve())
 assert os.geteuid() != 0, "unreadable-folder proof must run without root privileges"
 timings = []
@@ -23,7 +23,7 @@ def owned(path):
     path = Path(os.path.abspath(path))
     assert str(path) and path.is_absolute() and path.is_relative_to(root) and path != root
     assert path.parent.resolve().is_relative_to(root)
-    assert (root / ".flea-test-sandbox").is_file()
+    assert (root / ".dlea-test-sandbox").is_file()
     return path
 
 
@@ -62,8 +62,8 @@ class Backend:
                    XDG_STATE_HOME=str(root / "state"), XDG_CONFIG_HOME=str(root / "config"),
                    XDG_RUNTIME_DIR=str(root / "runtime"))
         if blocked is not None:
-            env.update(LD_PRELOAD=str(library), FLEA_TEST_SIZE_PATH=str(blocked),
-                       FLEA_TEST_SIZE_ENTERED=str(self.entered), FLEA_TEST_SIZE_RELEASE=str(self.release))
+            env.update(LD_PRELOAD=str(library), DLEA_TEST_SIZE_PATH=str(blocked),
+                       DLEA_TEST_SIZE_ENTERED=str(self.entered), DLEA_TEST_SIZE_RELEASE=str(self.release))
         self.proc = subprocess.Popen([binary, "--backend"], env=env, text=True,
                                      stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         self.reader = threading.Thread(target=self.read, daemon=True)

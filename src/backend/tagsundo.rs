@@ -1,9 +1,9 @@
 // The Tags journal step's codec and replay, so undo.rs, redo.rs and undocodec.rs each carry it with one call.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::undocodec::{arr, checked_path, get, n, obj, parse_u32, parse_u64, s};
 use super::filegen::Birth;
 use super::undo::Step;
-use crate::error::FleaError;
+use crate::error::DleaError;
 use crate::jsondoc::Json;
 use std::os::unix::fs::MetadataExt;
 use std::path::Path;
@@ -56,7 +56,7 @@ pub(crate) fn decode(pairs: &[(String, Json)]) -> Option<Step> {
     })
 }
 
-// Anything else is a foreign record; the cap is read_raw's own, so every value Flea journals decodes.
+// Anything else is a foreign record; the cap is read_raw's own, so every value Dlea journals decodes.
 fn decode_raw(value: &Json) -> Option<Option<Vec<u8>>> {
     match value {
         Json::Null => Some(None),
@@ -79,7 +79,7 @@ fn decode_raw(value: &Json) -> Option<Option<Vec<u8>>> {
 }
 
 // The file's own dev and inode, read without following a link, as the step recorded them.
-pub(crate) fn identity(path: &Path) -> Result<(u64, u64), FleaError> {
+pub(crate) fn identity(path: &Path) -> Result<(u64, u64), DleaError> {
     let meta = std::fs::symlink_metadata(path).map_err(|e| crate::error::from_io("settags", &path.to_string_lossy(), &e))?;
     Ok((meta.dev(), meta.ino()))
 }
@@ -92,8 +92,8 @@ const REDO_REFUSALS: (&str, &str) = ("the file was replaced, so redo left its ta
 
 // Writes `to` only onto the same file still holding `expect`, so a replaced file or a newer change is left alone.
 fn pinned(where_: &str, path: &Path, id: (u64, u64), (born, generation): Birth, expect: &Option<Vec<u8>>, to: &Option<Vec<u8>>,
-    refusals: (&str, &str)) -> Result<(), FleaError> {
-    let refuse = |msg: String| FleaError { where_: where_.into(), path: path.to_string_lossy().into(), msg };
+    refusals: (&str, &str)) -> Result<(), DleaError> {
+    let refuse = |msg: String| DleaError { where_: where_.into(), path: path.to_string_lossy().into(), msg };
     if identity(path).ok() != Some(id) {
         return Err(refuse(refusals.0.to_string()));
     }
@@ -113,13 +113,13 @@ fn pinned(where_: &str, path: &Path, id: (u64, u64), (born, generation): Birth, 
 
 // Undo restores the exact attribute the file carried, absent included, only onto what the operation left.
 pub(crate) fn reverse(path: &Path, before: &Option<Vec<u8>>, after: &Option<Vec<u8>>, id: (u64, u64), born: Birth)
-    -> Result<(), FleaError> {
+    -> Result<(), DleaError> {
     pinned("undo", path, id, born, after, before, UNDO_REFUSALS)
 }
 
 // Redo re-applies only onto what undo left, or it would overwrite a newer change.
 pub(crate) fn replay(path: &Path, before: &Option<Vec<u8>>, after: &Option<Vec<u8>>, id: (u64, u64), born: Birth,
-    saved: &Step, steps: &mut Vec<Step>) -> Result<(), FleaError> {
+    saved: &Step, steps: &mut Vec<Step>) -> Result<(), DleaError> {
     pinned("redo", path, id, born, before, after, REDO_REFUSALS)?;
     steps.push(saved.clone());
     Ok(())
@@ -158,7 +158,7 @@ mod tests {
         let file = dir.file("a.txt", "body");
         let (dev, ino) = identity(&file).unwrap();
         let held = Some(b"held".to_vec());
-        let msg = |r: Result<(), FleaError>| r.expect_err("the write is refused").msg;
+        let msg = |r: Result<(), DleaError>| r.expect_err("the write is refused").msg;
         // The file carries no attribute, so a recorded one has changed since; a wrong inode is a replaced file.
         assert_eq!(msg(reverse(&file, &None, &held, (dev, ino), (None, None))), "the tags changed since then, so undo left them in place");
         assert_eq!(msg(reverse(&file, &None, &held, (dev, ino + 1), (None, None))), "the file was replaced, so undo left its tags in place");

@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-menu-contents-test
+//@ pragma ShellId dlea-menu-contents-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // tests/menu-contents.sh's harness: Properties on a folder counts in place under fed replies, whole from its first frame.
 ShellRoot {
@@ -114,13 +114,13 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 1000
         implicitHeight: 900
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
         Item {
             anchors.fill: parent
-            Flea.MenuActionDialog { id: dialog }
+            Dlea.MenuActionDialog { id: dialog }
             Item { id: parking; focus: true; width: 10; height: 10 }
             // The same visible string as plain text, so the styled run's width shows whether the tail's spaces survived.
-            Text { id: plain; visible: false; textFormat: Text.PlainText; font { family: Flea.Theme.font.family; pixelSize: Flea.Theme.font.body } }
+            Text { id: plain; visible: false; textFormat: Text.PlainText; font { family: Dlea.Theme.font.family; pixelSize: Dlea.Theme.font.body } }
         }
     }
 
@@ -144,13 +144,13 @@ ShellRoot {
                 shell.check("laid out, the pairs run top to bottom as the board has them", shell.drawn(), shell.fullFolder)
                 shell.cardHeight = dialog.cardItem.height
                 shell.check("the tail is the muted colour on the value's own line", [shell.mutedRun("Size"), shell.mutedRun("Contains")],
-                    [{color: String(Flea.Theme.color.muted), text: shell.tail}, {color: String(Flea.Theme.color.muted), text: shell.tail}])
+                    [{color: String(Dlea.Theme.color.muted), text: shell.tail}, {color: String(Dlea.Theme.color.muted), text: shell.tail}])
                 shell.check("the value is foreground at the body size and drawn as one run",
                     [shell.pair("Size").color, shell.pair("Size").font.pixelSize, shell.pair("Size").textFormat === Text.StyledText],
-                    [Flea.Theme.color.foreground, Flea.Theme.font.body, true])
+                    [Dlea.Theme.color.foreground, Dlea.Theme.font.body, true])
                 plain.text = shell.line("Size")
                 shell.check("the styled run is as wide as the same string in plain text, so the tail keeps its spaces", Math.abs(shell.pair("Size").contentWidth - plain.contentWidth) <= 1, true)
-                shell.check("the label stays muted at the caption size", [shell.labelOf("Size").color, shell.labelOf("Size").font.pixelSize], [Flea.Theme.color.muted, Flea.Theme.font.caption])
+                shell.check("the label stays muted at the caption size", [shell.labelOf("Size").color, shell.labelOf("Size").font.pixelSize], [Dlea.Theme.color.muted, Dlea.Theme.font.caption])
             },
             function () {
                 shell.before = shell.pairs().map(function (p) { return p.value })
@@ -219,12 +219,12 @@ ShellRoot {
             },
             function () {
                 // The harness fills no theme tags, so the menu colours are set here and told apart from the listing's.
-                Flea.Theme.tag = {colors: {Red: "#ff0000", Blue: "#0000ff"}, menuColors: {Red: "#aa0000", Blue: "#0000aa"}, fallback: false}
+                Dlea.Theme.tag = {colors: {Red: "#ff0000", Blue: "#0000ff"}, menuColors: {Red: "#aa0000", Blue: "#0000aa"}, fallback: false}
                 dialog.open("properties", 12, "/fixture", parking)
                 shell.feed(shell.reply({id: 12, path: "/fixture/notes.md", kind: "File", directory: false, bytes: 4096, tags: ["Red", "Blue", "work"]}))
             },
             function () {
-                var colors = Flea.Theme.tag.menuColors
+                var colors = Dlea.Theme.tag.menuColors
                 var marks = shell.under(dialog.cardItem, function (o) { return o.tagColors !== undefined && o.visible })
                 var words = shell.under(dialog.cardItem, function (o) { return shell.isText(o) && o.visible && ["Red", "Blue", "work"].indexOf(o.text) >= 0 })
                 shell.check("a tagged file draws Tags right after Size, as the board's Tagged file does", shell.drawn(), ["Path", "Type", "Size", "Tags", "Modified", "Permissions", "Owner", "Group"])
@@ -232,13 +232,13 @@ ShellRoot {
                 shell.check("each own tag draws one swatch in the menu colour, a foreign word draws none", marks.map(function (o) { return [o.swatch, String(o.color)] }),
                     [["Red", String(colors.Red)], ["Blue", String(colors.Blue)]])
                 shell.check("every name is foreground at the body size, in the tag's order", words.map(function (o) { return [o.text, String(o.color), o.font.pixelSize] }),
-                    [["Red", String(Flea.Theme.color.foreground), Flea.Theme.font.body], ["Blue", String(Flea.Theme.color.foreground), Flea.Theme.font.body], ["work", String(Flea.Theme.color.foreground), Flea.Theme.font.body]])
+                    [["Red", String(Dlea.Theme.color.foreground), Dlea.Theme.font.body], ["Blue", String(Dlea.Theme.color.foreground), Dlea.Theme.font.body], ["work", String(Dlea.Theme.color.foreground), Dlea.Theme.font.body]])
                 shell.check("the tags run left to right on one line", words.map(function (o) { return o.mapToItem(null, 0, 0).x }).every(function (x, i, all) { return i === 0 || x > all[i - 1] }), true)
                 if (marks.length === 2 && words.length === 3) shell.check("a swatch sits 6 px left of its name at text size 14 and the next tag starts 16 px on, as Properties040 draws",
                     [words[0].mapToItem(null, 0, 0).x - marks[0].mapToItem(null, 0, 0).x - marks[0].width,
                      marks[1].mapToItem(null, 0, 0).x - words[0].mapToItem(null, 0, 0).x - words[0].width,
                      words[2].mapToItem(null, 0, 0).x - words[1].mapToItem(null, 0, 0).x - words[1].width],
-                    [Flea.Theme.space(5), Flea.Theme.space(14), Flea.Theme.space(14)])
+                    [Dlea.Theme.space(5), Dlea.Theme.space(14), Dlea.Theme.space(14)])
                 if (marks.length > 0) shell.check("the Properties swatch is the board's 10 px square, smaller than the 14 px rail swatch", [marks[0].width, marks[0].height], [10, 10])
                 if (marks.length > 0) shell.check("the Tags value starts at the label's left edge", Math.round(marks[0].mapToItem(null, 0, 0).x - shell.labelOf("Tags").mapToItem(null, 0, 0).x), 0)
                 dialog.close()
@@ -256,7 +256,7 @@ ShellRoot {
                 shell.check("its facts add Codecs and Bit rate between Size and Modified", shell.names(), shell.videoFile)
                 shell.check("Codecs is the board's string", shell.line("Codecs"), "H.264 · AAC")
                 shell.check("Bit rate is the board's string", shell.line("Bit rate"), "8.1 Mb/s")
-                shell.check("they are plain foreground values like every other pair", [shell.pair("Codecs").color, shell.pair("Bit rate").textFormat === Text.PlainText], [Flea.Theme.color.foreground, true])
+                shell.check("they are plain foreground values like every other pair", [shell.pair("Codecs").color, shell.pair("Bit rate").textFormat === Text.PlainText], [Dlea.Theme.color.foreground, true])
             },
             function () {
                 shell.check("laid out, the video pairs run top to bottom as the board has them", shell.drawn(), shell.videoFile)
@@ -321,7 +321,7 @@ ShellRoot {
                     ["Canon EOS R6", "RF35mm F1.8 MACRO IS STM", "1/250 s \u00b7 f/2.8 \u00b7 ISO 400", "2026-09-12 18:31"])
                 shell.check("the photo value is foreground at the body size on a muted caption label",
                     [shell.pair("Camera").color, shell.pair("Camera").font.pixelSize, shell.labelOf("Camera").color, shell.labelOf("Camera").font.pixelSize],
-                    [Flea.Theme.color.foreground, Flea.Theme.font.body, Flea.Theme.color.muted, Flea.Theme.font.caption])
+                    [Dlea.Theme.color.foreground, Dlea.Theme.font.body, Dlea.Theme.color.muted, Dlea.Theme.font.caption])
                 shell.feed(shell.factsReply(12, {make: shell.photo.make, model: shell.photo.model, lens: shell.photo.lens, shutter: shell.photo.exp, fnumber: shell.photo.fnum, iso: shell.photo.iso, taken: shell.photo.taken}))
                 shell.check("a deferred facts reply keeps each photo pair once", shell.names(), shell.photoFile)
                 shell.check("equal immediate and deferred facts keep every approved value once", ["Camera", "Lens", "Exposure", "Taken"].map(shell.line),

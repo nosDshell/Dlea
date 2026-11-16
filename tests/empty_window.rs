@@ -57,21 +57,21 @@ impl Backend {
     }
 
     fn spawn(dir: &TestDir, observer: Option<(&Path, &Path)>, prefetch: bool) -> Self {
-        let mut command = Command::new(env!("CARGO_BIN_EXE_flea"));
+        let mut command = Command::new(env!("CARGO_BIN_EXE_dlea"));
         command.arg("--backend")
             .env("HOME", dir.path()).env("XDG_CACHE_HOME", dir.path())
-            .env_remove("XDG_RUNTIME_DIR").env_remove("FLEA_UNDO_DIR")
-            .env_remove("FLEA_PREFETCH").env_remove("LD_PRELOAD")
+            .env_remove("XDG_RUNTIME_DIR").env_remove("DLEA_UNDO_DIR")
+            .env_remove("DLEA_PREFETCH").env_remove("LD_PRELOAD")
             .stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::null());
         if prefetch {
-            command.env("FLEA_PREFETCH", dir.join("prefetch"))
-                .env("FLEA_PREFETCH_SHELL", std::process::id().to_string());
+            command.env("DLEA_PREFETCH", dir.join("prefetch"))
+                .env("DLEA_PREFETCH_SHELL", std::process::id().to_string());
         }
         if let Some((library, counters)) = observer {
             let runtime = dir.join("runtime");
             std::fs::create_dir_all(&runtime).unwrap();
             command.env("XDG_RUNTIME_DIR", runtime);
-            command.env("LD_PRELOAD", library).env("FLEA_TEST_COUNTS", counters);
+            command.env("LD_PRELOAD", library).env("DLEA_TEST_COUNTS", counters);
         }
         let mut child = command.spawn().unwrap();
         let input = child.stdin.take().unwrap();
@@ -137,10 +137,10 @@ impl TestDir {
         let root = std::env::temp_dir().canonicalize().unwrap();
         let home = std::env::var_os("HOME").map(std::path::PathBuf::from).unwrap().canonicalize().unwrap();
         assert!(root.is_absolute() && !root.starts_with(home));
-        let output = Command::new("mktemp").arg("-d").arg(root.join(format!("flea-test-{tag}.XXXXXXXX"))).output().unwrap();
+        let output = Command::new("mktemp").arg("-d").arg(root.join(format!("dlea-test-{tag}.XXXXXXXX"))).output().unwrap();
         assert!(output.status.success());
         let path = std::path::PathBuf::from(String::from_utf8(output.stdout).unwrap().trim());
-        std::fs::write(path.join(".flea-test-sandbox"), "empty window test\n").unwrap();
+        std::fs::write(path.join(".dlea-test-sandbox"), "empty window test\n").unwrap();
         Self { path }
     }
     fn path(&self) -> &Path { &self.path }
@@ -161,8 +161,8 @@ impl Drop for TestDir {
     fn drop(&mut self) {
         assert!(self.path.is_absolute() && !self.path.as_os_str().is_empty());
         assert_eq!(self.path.parent().unwrap(), std::env::temp_dir().canonicalize().unwrap());
-        assert!(self.path.file_name().unwrap().to_str().unwrap().starts_with("flea-test-"));
-        assert!(self.path.join(".flea-test-sandbox").is_file());
+        assert!(self.path.file_name().unwrap().to_str().unwrap().starts_with("dlea-test-"));
+        assert!(self.path.join(".dlea-test-sandbox").is_file());
         std::fs::remove_dir_all(&self.path).unwrap();
     }
 }
@@ -216,7 +216,7 @@ fn empty_window_protocol() {
     assert!(refused.contains("stale"), "rowguard still refuses an old listing: {refused}");
     let made = backend.ask(&format!(r#"{{"c":"mkdir","path":"{}","name":"made"}}"#, wire_path(d.path())));
     assert!(made.contains(r#""t":"made","ok":true"#), "{made}");
-    assert!(d.join("runtime/flea/undo-journal").is_file(), "the first journal use attaches shared history");
+    assert!(d.join("runtime/dlea/undo-journal").is_file(), "the first journal use attaches shared history");
     let undone = backend.ask(r#"{"c":"undo"}"#);
     assert!(undone.contains(r#""t":"undone","op":"mkdir","ok":true"#), "{undone}");
     assert!(!d.join("made").exists());
@@ -310,7 +310,7 @@ fn empty_window_prefetch_protocol() {
     assert_eq!(counters(&counts), reader_only_counts(), "prefetch recorder waits for a listing's rows");
     backend.quit();
     assert_eq!(counters(&counts), reader_only_counts(), "idle drain starts no unused service");
-    assert!(!d.join("runtime/flea").exists(), "an unused journal creates no session directory");
+    assert!(!d.join("runtime/dlea").exists(), "an unused journal creates no session directory");
 }
 
 #[path = "empty_window/transport.rs"]

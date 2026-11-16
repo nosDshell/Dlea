@@ -14,8 +14,8 @@ mod real;
 mod advloop;
 const STUB: &str = r#"#!/bin/sh
 set -eu
-root=${FLEA_PRINT_TEST_ROOT:?}
-case "$root" in /*) test -f "$root/.flea-test-sandbox" ;; *) exit 98 ;; esac
+root=${DLEA_PRINT_TEST_ROOT:?}
+case "$root" in /*) test -f "$root/.dlea-test-sandbox" ;; *) exit 98 ;; esac
 tool=${0##*/}
 printf '%s\0' "$tool" "$@" >> "$root/calls"
 printf '\n' >> "$root/calls"
@@ -70,7 +70,7 @@ esac
 
 #[test]
 fn print_protocol_helper() {
-    let Some(root) = std::env::var_os("FLEA_PRINT_TEST_ROOT") else { return; };
+    let Some(root) = std::env::var_os("DLEA_PRINT_TEST_ROOT") else { return; };
     let root = PathBuf::from(root);
     assert!(crate::backend::testdir::removable(&root));
     std::process::exit(crate::backend::run::run());
@@ -102,8 +102,8 @@ impl Rig {
             std::os::unix::fs::symlink("/usr/bin/true", bin.join("soffice")).unwrap();
         }
         let mut command = Command::new(std::env::current_exe().unwrap());
-        command.args(["--exact", HELPER, "--nocapture"]).env("FLEA_PRINT_TEST_ROOT", dir.path());
-        for (key, leaf) in [("XDG_CONFIG_HOME", "config"), ("XDG_CACHE_HOME", "cache"), ("XDG_STATE_HOME", "state"), ("XDG_RUNTIME_DIR", "runtime"), ("XDG_DATA_HOME", "data"), ("FLEA_UNDO_DIR", "undo")] {
+        command.args(["--exact", HELPER, "--nocapture"]).env("DLEA_PRINT_TEST_ROOT", dir.path());
+        for (key, leaf) in [("XDG_CONFIG_HOME", "config"), ("XDG_CACHE_HOME", "cache"), ("XDG_STATE_HOME", "state"), ("XDG_RUNTIME_DIR", "runtime"), ("XDG_DATA_HOME", "data"), ("DLEA_UNDO_DIR", "undo")] {
             command.env(key, dir.dir(leaf));
         }
         if stubs { command.env("PATH", if magick.is_some() { bin.display().to_string() } else { format!("{}:/usr/bin:/bin", bin.display()) }); }
@@ -299,7 +299,7 @@ fn print_protocol_combines_layouts_and_exports_office_from_the_preview_cache() {
         assert!(rig.dir.join(&format!("{layout}.png")).is_file());
     }
     let document = rig.dir.file("letter.docx", "office");
-    let cache_dir = rig.dir.dir("cache/flea/office");
+    let cache_dir = rig.dir.dir("cache/dlea/office");
     let cache = cache_dir.join(format!("{}.pdf", super::super::officepdf::Store::key(&document)));
     rig.dir.assert_contains(&cache);
     let file = std::fs::File::create(&cache).unwrap();

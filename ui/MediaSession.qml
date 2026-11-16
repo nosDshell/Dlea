@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// One preview's MPRIS player (tools/flea-mpris): the helper starts when `active` first turns true, off the first frame.
+// One preview's MPRIS player (tools/dlea-mpris): the helper starts when `active` first turns true, off the first frame.
 QtObject {
     id: root
 
@@ -23,7 +23,7 @@ QtObject {
     // Destroying the preview destroys this Process, which kills the helper; a UI that died instead closes its stdin.
     property Process helper: Process {
         id: helper
-        command: [Quickshell.env("FLEA_MPRIS") || "/usr/lib/flea/flea-mpris"]
+        command: [Quickshell.env("DLEA_MPRIS") || "/usr/lib/dlea/dlea-mpris"]
         stdinEnabled: true
         stdout: SplitParser {
             splitMarker: "\n"

@@ -218,12 +218,12 @@ fn the_jail_tells_a_non_archive_from_a_crash() {
 
 #[test]
 fn a_work_folder_that_cannot_be_made_takes_its_temp_with_it() {
-    fn full(_dir: &Path, _tag: &str) -> Result<Work, FleaError> {
+    fn full(_dir: &Path, _tag: &str) -> Result<Work, DleaError> {
         Err(crate::backend::opsreq::op_err("archive", "", "no space left on device"))
     }
     let d = TestDir::new("appicon-begin");
     assert!(begin(d.path(), full).is_none());
-    let left: Vec<_> = std::fs::read_dir(d.path()).unwrap().flatten().map(|e| e.file_name()).filter(|n| n != ".flea-test-sandbox").collect();
+    let left: Vec<_> = std::fs::read_dir(d.path()).unwrap().flatten().map(|e| e.file_name()).filter(|n| n != ".dlea-test-sandbox").collect();
     assert!(left.is_empty(), "an exclusive temp survived a failed work folder: {:?}", left);
     assert!(begin(d.path(), Work::new).is_some());
 }

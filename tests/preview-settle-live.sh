@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Drive production previews offscreen with the real 120ms timer, then repeat in seeded manual mode.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 # qs exits 128 + SIGTERM when the probe kills itself after its receipt.
 self_kill_exit=143
@@ -20,9 +20,9 @@ fi
 run_phase() {
     local seed="$1" label="$2" attempt="${3:-1}" output code pass_count fail_count done_count clean_count expected warnings index
     sandbox_root_ok
-    test_root=$(mktemp -d "$SANDBOX_ROOT/flea-preview-settle.XXXXXX") || exit 1
+    test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-preview-settle.XXXXXX") || exit 1
     : > "$test_root/$SANDBOX_MARKER" || exit 1
-    mkdir -p "$test_root"/{config,home,state/flea,runtime,tmp,images} || exit 1
+    mkdir -p "$test_root"/{config,home,state/dlea,runtime,tmp,images} || exit 1
     chmod 700 "$test_root/runtime" || exit 1
     : > "$test_root/images/$SANDBOX_MARKER" || exit 1
     if ! ffmpeg -nostdin -hide_banner -loglevel error -f lavfi -i color=c=white:s=16x16 \
@@ -33,22 +33,22 @@ run_phase() {
     for index in {1..7}; do
         cp -- "$test_root/images/img0.jpg" "$test_root/images/img$index.jpg" || exit 1
     done
-    ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+    ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
     headless_commons "$test_root" || exit 1
     ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
     cp tests/preview-settle-live.qml "$test_root/config/shell.qml" || exit 1
     if [ -n "$seed" ]; then
-        printf '%s' "$seed" > "$test_root/state/flea/ui.json" || exit 1
+        printf '%s' "$seed" > "$test_root/state/dlea/ui.json" || exit 1
     fi
     if [ "$label" = manual ]; then
-        output=$(FLEA_PREVIEWSETTLE_MANUAL=1 FLEA_PREVIEWSETTLE_DIR="$test_root/images" FLEA_PREVIEWSETTLE_ATTEMPT="$attempt" \
+        output=$(DLEA_PREVIEWSETTLE_MANUAL=1 DLEA_PREVIEWSETTLE_DIR="$test_root/images" DLEA_PREVIEWSETTLE_ATTEMPT="$attempt" \
             env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
             HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_RUNTIME_DIR="$test_root/runtime" \
             XDG_CONFIG_HOME="$test_root/home/.config" XDG_CACHE_HOME="$test_root/home/.cache" TMPDIR="$test_root/tmp" \
             QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
             timeout 60 qs -p "$test_root/config" 2>&1)
     else
-        output=$(FLEA_PREVIEWSETTLE_DIR="$test_root/images" FLEA_PREVIEWSETTLE_ATTEMPT="$attempt" \
+        output=$(DLEA_PREVIEWSETTLE_DIR="$test_root/images" DLEA_PREVIEWSETTLE_ATTEMPT="$attempt" \
             env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
             HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_RUNTIME_DIR="$test_root/runtime" \
             XDG_CONFIG_HOME="$test_root/home/.config" XDG_CACHE_HOME="$test_root/home/.cache" TMPDIR="$test_root/tmp" \

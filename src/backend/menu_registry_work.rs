@@ -16,7 +16,7 @@ impl Work {
         let cause = crate::error::io_message(cause);
         match self {
             Work::List => format!("The application list could not be read: {}.", cause),
-            Work::Launch => format!("Flea could not tell whether the application started: {}.", cause),
+            Work::Launch => format!("Dlea could not tell whether the application started: {}.", cause),
         }
     }
     pub(super) fn unstopped(self, cause: &std::io::Error) -> String {

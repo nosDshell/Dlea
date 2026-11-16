@@ -65,7 +65,7 @@ pub struct Extracted {
 }
 
 pub fn cache_dir() -> PathBuf {
-    crate::userfile::cache_home().join("flea").join("raw")
+    crate::userfile::cache_home().join("dlea").join("raw")
 }
 
 // Named by the RAW's URI, the key the thumbnail cache uses for the same file.

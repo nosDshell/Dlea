@@ -113,7 +113,7 @@ pub fn start(
         forget_rows(st, pool);
     }
     let body = super::iomount::mount_body();
-    if !threaded(&flea::bytename::view(&job.path), &job.line, &body) {
+    if !threaded(&dlea::bytename::view(&job.path), &job.line, &body) {
         // A local scan runs inline and a panic ends the process, as v0.3.8 did.
         let fd = watch.raw_fd();
         let tx = gate.answers();
@@ -135,7 +135,7 @@ pub fn start(
     // Read here, because the watch lives on the loop and the worker only carries the number.
     let fd = watch.raw_fd();
     let (path, line, hidden, first) = (job.path.clone(), job.line.clone(), job.hidden, job.first);
-    let mount = super::iomount::mount_key(&flea::bytename::exact(&path), &body);
+    let mount = super::iomount::mount_key(&dlea::bytename::exact(&path), &body);
     gate.begin(job);
     gate.scan(path.clone(), mount.clone(), move |tx| {
         let result = super::iomount::scan_dir(path, hidden, first, line, mime, fd, tx);

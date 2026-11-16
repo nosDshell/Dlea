@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Columns.js" as Columns
 import "js/Facts.js" as Facts
 import "js/Thumbs.js" as Thumbs
@@ -12,7 +12,7 @@ import "js/PreviewAsk.js" as PreviewAsk
 import "js/PreviewSwap.js" as PreviewSwap
 
 // Selection loading is independent of column visibility and the separate Quick Look overlay.
-Flea.PreviewColumn {
+Dlea.PreviewColumn {
     id: root
     property var pane: null
     property int loadedIndex: -1

@@ -5,12 +5,12 @@ use std::os::unix::fs::symlink;
 // A short root of its own: a socket path over SUN_LEN fails to bind, so it must not depend on where the source lives.
 fn root() -> PathBuf {
     let output = std::process::Command::new("mktemp")
-        .args(["-d", "/tmp/flea-ep.XXXXXX"])
+        .args(["-d", "/tmp/dlea-ep.XXXXXX"])
         .output()
         .unwrap();
     assert!(output.status.success());
     let root = PathBuf::from(String::from_utf8(output.stdout).unwrap().trim());
-    fs::write(root.join(".flea-test-sandbox"), "IPC tests\n").unwrap();
+    fs::write(root.join(".dlea-test-sandbox"), "IPC tests\n").unwrap();
     root
 }
 
@@ -19,7 +19,7 @@ fn socket_and_directory_are_private_and_symlinks_are_refused() {
     let root = root();
     let endpoint = Endpoint::bind(&root).unwrap();
     assert_eq!(
-        fs::metadata(root.join("flea-ipc")).unwrap().mode() & 0o777,
+        fs::metadata(root.join("dlea-ipc")).unwrap().mode() & 0o777,
         0o700
     );
     assert_eq!(fs::metadata(&endpoint.path).unwrap().mode() & 0o777, 0o600);
@@ -39,9 +39,9 @@ fn socket_and_directory_are_private_and_symlinks_are_refused() {
     let linked = root.join("linked");
     fs::create_dir(&linked).unwrap();
     fs::set_permissions(&linked, fs::Permissions::from_mode(0o700)).unwrap();
-    symlink(&other, linked.join("flea-ipc")).unwrap();
+    symlink(&other, linked.join("dlea-ipc")).unwrap();
     assert!(directory(&linked).is_err());
-    fs::set_permissions(root.join("flea-ipc"), fs::Permissions::from_mode(0o755)).unwrap();
+    fs::set_permissions(root.join("dlea-ipc"), fs::Permissions::from_mode(0o755)).unwrap();
     assert!(directory(&root).is_err());
 }
 
@@ -133,7 +133,7 @@ fn a_picker_socket_is_listed_apart_and_skipped_by_default_routing() {
     let call = |pid| Options {
         pid,
         request: Request::Call {
-            target: "fleapicker".into(),
+            target: "dleapicker".into(),
             function: "ready".into(),
             arguments: Vec::new(),
         },

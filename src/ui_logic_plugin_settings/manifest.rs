@@ -1,9 +1,9 @@
-//! A plugin's manifest.json, schemaVersion 1, read and checked the way `flea plugin validate` reports it.
+//! A plugin's manifest.json, schemaVersion 1, read and checked the way `dlea plugin validate` reports it.
 use super::schema::{self, Field};
 use crate::jsondoc::{self, Json};
 
 pub const SCHEMA_VERSION: f64 = 1.0;
-// Each kind is a place Flea already draws, paired with the block that describes it.
+// Each kind is a place Dlea already draws, paired with the block that describes it.
 pub const KINDS: [(&str, &str); 6] = [
     ("send-target", "sendTargets"),
     ("menu-action", "menuActions"),
@@ -12,7 +12,7 @@ pub const KINDS: [(&str, &str); 6] = [
     ("previewer", "previewer"),
     ("shelf", "shelf"),
 ];
-pub const RESERVED_PREFIX: &str = "flea.";
+pub const RESERVED_PREFIX: &str = "dlea.";
 const MAX_ID: usize = 64;
 const MAX_VERSION: usize = 64;
 const MAX_TEXT: usize = 512;
@@ -88,7 +88,7 @@ fn strings(doc: &Json, key: &'static str) -> Result<Vec<String>, Invalid> {
     }
 }
 
-// builtin marks a manifest Flea ships: its id may take the reserved prefix and it runs inside Flea, so it names no executable.
+// builtin marks a manifest Dlea ships: its id may take the reserved prefix and it runs inside Dlea, so it names no executable.
 pub fn parse(text_in: &str, builtin: bool) -> Result<Manifest, Invalid> {
     if text_in.len() > MAX_BYTES {
         return Err(Invalid::new("json", "manifest.json"));

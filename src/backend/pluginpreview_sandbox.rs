@@ -1,5 +1,5 @@
 //! The preview jail's existing fixed binds and resource limits, assembled in one place.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::super::sandbox;
 use super::{ADDRESS_SPACE_BYTES, CPU_SECONDS, FILE_BYTES, INPUT, OPEN_FILES, OUTPUT};
 use std::path::Path;

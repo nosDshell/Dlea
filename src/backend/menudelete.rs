@@ -1,5 +1,5 @@
 // Permanent deletion reuses the disk-backed tree review and durable recovery path used by Trash.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::menu_actions::Selected;
 use super::trashdelete::PathReview;
 use super::trashmanifest::{Cancellation, Manifest};
@@ -118,7 +118,7 @@ mod tests {
     fn selected(path: &Path) -> Selected { Selected::inspect(path.to_str().unwrap()).unwrap() }
     fn deletion_sandbox(d: &TestDir, paths: &[&Path]) {
         assert!(!d.path().as_os_str().is_empty() && d.path().is_absolute());
-        assert!(d.path().join(".flea-test-sandbox").is_file());
+        assert!(d.path().join(".dlea-test-sandbox").is_file());
         for path in paths { assert!(!path.as_os_str().is_empty() && path.is_absolute() && path.starts_with(d.path())); }
     }
 

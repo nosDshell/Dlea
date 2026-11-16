@@ -55,7 +55,7 @@ CHORD_QUITS = {"krusader", "dolphin", "nautilus"}
 KIO_ONLY_WITH_ROOT = {"krusader", "dolphin"}
 # Nemo declines an image over its thumbnail-limit default, 1048576 bytes.
 NEMO_LIMIT = 1048576
-# Rivals that write the freedesktop "normal" 128 px flavor; Strata, Flea and Nemo write "large" 256 px (Nemo as the FIX4 run showed).
+# Rivals that write the freedesktop "normal" 128 px flavor; Strata, Dlea and Nemo write "large" 256 px (Nemo as the FIX4 run showed).
 NORMAL_WRITERS = {"krusader", "dolphin", "thunar", "pcmanfm"}
 
 
@@ -65,7 +65,7 @@ def event(kind):
 
 
 log(NAME)
-if NAME == "flea-field-bench":
+if NAME == "dlea-field-bench":
     assert ARGS[0] == "--thumbs"
     command = ARGS[1]
     loader = importlib.machinery.SourceFileLoader("offline_driver", META["driver"])
@@ -89,7 +89,7 @@ elif NAME == "bwrap":
         if flag in ("--ro-bind", "--bind", "--dev-bind"):
             source, target = ARGS[:2]
             del ARGS[:2]
-            if target == "/run/flea-b7":
+            if target == "/run/dlea-b7":
                 env["XDG_RUNTIME_DIR"] = source
         elif flag in ("--tmpfs", "--proc", "--dev"):
             ARGS.pop(0)
@@ -181,10 +181,10 @@ else:
         raise SystemExit(0)
     ident = details["id"]
     if ARGS == ["--backend"]:
-        # The Flea 0.3.12 backend: one trace line per reported job on stderr, as AGENTS.md "Thumbnail trace" describes.
-        assert ident == "flea-0312" and os.environ.get("FLEA_THUMB_TRACE") == "1"
+        # The Dlea 0.3.12 backend: one trace line per reported job on stderr, as AGENTS.md "Thumbnail trace" describes.
+        assert ident == "dlea-0312" and os.environ.get("DLEA_THUMB_TRACE") == "1"
         for row in range(16):
-            print(f"flea: trace row={row} depth=2 queued=0.5 setup=1.0 child=20.0 after=0.5 total={22.0 + row}", file=sys.stderr, flush=True)
+            print(f"dlea: trace row={row} depth=2 queued=0.5 setup=1.0 child=20.0 after=0.5 total={22.0 + row}", file=sys.stderr, flush=True)
             time.sleep(0.004)
         raise SystemExit(0)
     assert os.environ["XDG_SESSION_TYPE"] == "wayland"
@@ -192,7 +192,7 @@ else:
     home = Path(os.environ["HOME"])
     sample = home.parent
     quit_file = sample / "quit"
-    token = os.environ["FLEA_B7_BENCH"]
+    token = os.environ["DLEA_B7_BENCH"]
     current = dict(address="0xb700", pid=os.getpid(), token=token, quit_file=str(quit_file),
                    at=[10, 20], size=[1200, 900], title=fixture.name, xwayland=False, **{"class": ident})
     publish_window(current)
@@ -204,9 +204,9 @@ else:
     cache = root / ("normal" if normal else "large")
     if saves:
         cache.mkdir(parents=True, exist_ok=True)
-    if ident == "flea-0312":
-        seam = os.environ["FLEA_BIN"]
-        assert Path(seam).name == "flea-bin" and os.environ["FLEA_THUMB_TRACE"] == "1", seam
+    if ident == "dlea-0312":
+        seam = os.environ["DLEA_BIN"]
+        assert Path(seam).name == "dlea-bin" and os.environ["DLEA_THUMB_TRACE"] == "1", seam
         backend = subprocess.Popen([seam, "--backend"])
     for path in sorted(fixture.iterdir()):
         if not saves or (ident == "nemo" and path.stat().st_size > NEMO_LIMIT):

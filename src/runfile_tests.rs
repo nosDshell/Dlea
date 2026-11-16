@@ -120,7 +120,7 @@ fn hostile_names_run_as_the_literal_file() {
         let mut names: Vec<String> = std::fs::read_dir(dir.path()).expect("the root reads")
             .flatten().map(|e| e.file_name().to_string_lossy().into_owned()).collect();
         names.sort();
-        names.retain(|name| name != ".flea-test-sandbox");
+        names.retain(|name| name != ".dlea-test-sandbox");
         let mut want = vec![nasty.to_string(), "marker.fifo".to_string()];
         want.sort();
         assert_eq!(names, want, "nothing else was created");
@@ -240,13 +240,13 @@ fn ra10_an_other_only_execute_bit_still_offers_make_executable() {
     }
 }
 
-// A program the card starts keeps none of Flea's private variables: launch hardens what open prepares. Two halves: the child half runs only inside a dir the parent armed (FLEA_MN03_LAUNCH_REPORT), reports through a file there, and the process env is never touched.
+// A program the card starts keeps none of Dlea's private variables: launch hardens what open prepares. Two halves: the child half runs only inside a dir the parent armed (DLEA_MN03_LAUNCH_REPORT), reports through a file there, and the process env is never touched.
 #[test]
 fn launch_strips_private_variables_off_the_card_child() {
-    let armed = std::env::var_os("FLEA_MN03_LAUNCH_REPORT").map(std::path::PathBuf::from).filter(|dir| dir.join("armed").is_file());
+    let armed = std::env::var_os("DLEA_MN03_LAUNCH_REPORT").map(std::path::PathBuf::from).filter(|dir| dir.join("armed").is_file());
     if let Some(dir) = armed {
         let command = super::launcher(std::path::Path::new("/app.desktop"), std::path::Path::new("/doc.txt"));
-        let stripped = command.get_envs().any(|(key, value)| value.is_none() && key == "FLEA_MN03_LAUNCH_PROBE");
+        let stripped = command.get_envs().any(|(key, value)| value.is_none() && key == "DLEA_MN03_LAUNCH_PROBE");
         std::fs::write(dir.join("report"), if stripped { "stripped" } else { "kept" }).expect("the report lands");
         return;
     }
@@ -255,8 +255,8 @@ fn launch_strips_private_variables_off_the_card_child() {
     let exe = std::env::current_exe().expect("the test binary");
     let out = std::process::Command::new(&exe)
         .args(["--exact", "runfile::tests::launch_strips_private_variables_off_the_card_child", "--nocapture"])
-        .env("FLEA_MN03_LAUNCH_PROBE", "stale")
-        .env("FLEA_MN03_LAUNCH_REPORT", dir.path())
+        .env("DLEA_MN03_LAUNCH_PROBE", "stale")
+        .env("DLEA_MN03_LAUNCH_REPORT", dir.path())
         .output()
         .expect("the probe process runs");
     assert!(out.status.success(), "the probe process ran: {}", String::from_utf8_lossy(&out.stderr));
@@ -304,22 +304,22 @@ fn ra9_an_executable_is_refused_for_in_process_callers() {
     assert_eq!(crate::open::open(tool.to_str().unwrap()), crate::open::FAILED);
 }
 
-// The inherited branch of harden, pinned without touching the process env: every FLEA_ key goes, inherited or set, and nothing else.
+// The inherited branch of harden, pinned without touching the process env: every DLEA_ key goes, inherited or set, and nothing else.
 #[test]
 fn private_keys_takes_inherited_and_explicit_private_names_only() {
     use std::ffi::OsString;
-    let inherited = vec![OsString::from("FLEA_RUNFILE_SECRET"), OsString::from("HOME")];
-    let explicit = vec![OsString::from("FLEA_RUNFILE_TOKEN"), OsString::from("LANG")];
+    let inherited = vec![OsString::from("DLEA_RUNFILE_SECRET"), OsString::from("HOME")];
+    let explicit = vec![OsString::from("DLEA_RUNFILE_TOKEN"), OsString::from("LANG")];
     let keys = super::runharden::private_keys(inherited.into_iter(), explicit);
-    assert_eq!(keys, vec![OsString::from("FLEA_RUNFILE_SECRET"), OsString::from("FLEA_RUNFILE_TOKEN")]);
+    assert_eq!(keys, vec![OsString::from("DLEA_RUNFILE_SECRET"), OsString::from("DLEA_RUNFILE_TOKEN")]);
 }
 
-// The inherited branch end to end: the middle process holds FLEA_RUNFILE_INHERITED in its own env, never on the command, so only vars_os can strip it.
+// The inherited branch end to end: the middle process holds DLEA_RUNFILE_INHERITED in its own env, never on the command, so only vars_os can strip it.
 #[test]
 fn harden_strips_a_private_variable_the_process_itself_inherited() {
-    if std::env::var_os("FLEA_RUNFILE_HOP").is_some() {
-        let mut probe = std::process::Command::new(flea::testpath::tool("/bin/sh"));
-        probe.arg("-c").arg("echo inherited=${FLEA_RUNFILE_INHERITED:-absent}");
+    if std::env::var_os("DLEA_RUNFILE_HOP").is_some() {
+        let mut probe = std::process::Command::new(dlea::testpath::tool("/bin/sh"));
+        probe.arg("-c").arg("echo inherited=${DLEA_RUNFILE_INHERITED:-absent}");
         super::runharden::harden(&mut probe);
         let out = probe.output().expect("the probe runs");
         println!("{}", String::from_utf8_lossy(&out.stdout).trim());
@@ -328,8 +328,8 @@ fn harden_strips_a_private_variable_the_process_itself_inherited() {
     let exe = std::env::current_exe().expect("the test binary");
     let out = std::process::Command::new(&exe)
         .args(["--exact", "runfile::tests::harden_strips_a_private_variable_the_process_itself_inherited", "--nocapture"])
-        .env("FLEA_RUNFILE_HOP", "1")
-        .env("FLEA_RUNFILE_INHERITED", "stale")
+        .env("DLEA_RUNFILE_HOP", "1")
+        .env("DLEA_RUNFILE_INHERITED", "stale")
         .output()
         .expect("the middle process runs");
     assert!(out.status.success(), "the middle process ran");
@@ -339,12 +339,12 @@ fn harden_strips_a_private_variable_the_process_itself_inherited() {
 
 #[test]
 fn spawned_child_sees_no_fd_above_2_and_no_private_env() {
-    // The R6 probe: the child half reports and the parent half judges, re-running this test behind FLEA_RUNFILE_PROBE.
-    if std::env::var_os("FLEA_RUNFILE_PROBE").is_some() {
+    // The R6 probe: the child half reports and the parent half judges, re-running this test behind DLEA_RUNFILE_PROBE.
+    if std::env::var_os("DLEA_RUNFILE_PROBE").is_some() {
         probe_report();
         return;
     }
-    assert!(std::env::var_os("FLEA_RUNFILE_DEPTH").is_none(), "the probe never re-spawns");
+    assert!(std::env::var_os("DLEA_RUNFILE_DEPTH").is_none(), "the probe never re-spawns");
     let dir = crate::backend::testdir::TestDir::new("runfile-probe");
     // A raw open with no O_CLOEXEC, which Rust's own files never are: only the R6 close keeps it from the child.
     extern "C" { fn open(path: *const std::os::raw::c_char, flags: std::os::raw::c_int, ...) -> std::os::raw::c_int; }
@@ -354,14 +354,14 @@ fn spawned_child_sees_no_fd_above_2_and_no_private_env() {
     let exe = std::env::current_exe().expect("the test binary");
     let mut child = std::process::Command::new(&exe);
     // Per-child env, never the process one, so no other test thread can observe the mutation.
-    child.env("FLEA_RUNFILE_SECRET", "stale");
+    child.env("DLEA_RUNFILE_SECRET", "stale");
     child.arg("--exact").arg("runfile::tests::spawned_child_sees_no_fd_above_2_and_no_private_env");
     child.arg("--nocapture");
     child.current_dir(dir.path());
     crate::terminal::detach(&mut child);
     super::runharden::harden(&mut child);
-    child.env("FLEA_RUNFILE_PROBE", "1");
-    child.env("FLEA_RUNFILE_DEPTH", "1");
+    child.env("DLEA_RUNFILE_PROBE", "1");
+    child.env("DLEA_RUNFILE_DEPTH", "1");
     child.stdout(std::process::Stdio::piped());
     let spawned = child.spawn().expect("the probe starts");
     let out = spawned.wait_with_output().expect("the probe is reaped");
@@ -386,7 +386,7 @@ fn probe_report() {
     }
     fds.sort();
     println!("fds={}", fds.join(","));
-    let secret = std::env::vars_os().any(|(key, _)| key.to_string_lossy() == "FLEA_RUNFILE_SECRET");
+    let secret = std::env::vars_os().any(|(key, _)| key.to_string_lossy() == "DLEA_RUNFILE_SECRET");
     println!("secret={}", if secret { "present" } else { "absent" });
 }
 

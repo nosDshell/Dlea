@@ -16,13 +16,13 @@ pub(super) fn configure(cmd: &mut Command) {
     let idle = crate::icdexclude::exclude_absent_vendors();
     // GPUI reads compositor dmabuf/DRI3 feedback and tests adapters against its real surface.
     // A Qt connector pin would hide adapters from that selection and its GL fallback.
-    if std::env::var_os("FLEA_GPU_REPORT").as_deref() == Some(OsStr::new("1")) {
+    if std::env::var_os("DLEA_GPU_REPORT").as_deref() == Some(OsStr::new("1")) {
         let filter = std::env::var("VK_LOADER_DRIVERS_DISABLE").unwrap_or_default();
         let operator = ["VK_DRIVER_FILES", "VK_ICD_FILENAMES"]
             .iter()
             .any(|key| std::env::var_os(key).is_some_and(|value| !value.is_empty()));
         eprintln!(
-            "flea-gpu-policy: excluded={filter:?} operator_icd={operator} nvidia_idle_disabled={idle} selection=compositor-feedback"
+            "dlea-gpu-policy: excluded={filter:?} operator_icd={operator} nvidia_idle_disabled={idle} selection=compositor-feedback"
         );
     }
 }
@@ -30,7 +30,7 @@ pub(super) fn configure(cmd: &mut Command) {
 fn clear_qt_renderer(cmd: &mut Command) {
     for key in [
         "QSG_RHI_BACKEND",
-        "FLEA_RENDERER_AUTOMATIC",
+        "DLEA_RENDERER_AUTOMATIC",
         "QT_VK_PHYSICAL_DEVICE_INDEX",
     ] {
         cmd.env_remove(key);

@@ -1,8 +1,8 @@
-// `flea plugin <verb>`, Omarchy's plugin verbs over the backend's own plugins request.
+// `dlea plugin <verb>`, Omarchy's plugin verbs over the backend's own plugins request.
 use crate::backend::plugins::{handle, Env};
-use flea::i18n::I18n;
-use flea::ui_logic_plugin_settings::wire::{self, Reply};
-use flea::ui_logic_plugin_settings::sentence_key;
+use dlea::i18n::I18n;
+use dlea::ui_logic_plugin_settings::wire::{self, Reply};
+use dlea::ui_logic_plugin_settings::sentence_key;
 
 const VERBS: [&str; 7] = ["list", "add", "enable", "disable", "update", "remove", "validate"];
 
@@ -13,7 +13,7 @@ pub fn is_command(args: &[String]) -> bool {
 
 fn request(verb: &str, arg: &str) -> String {
     let (plugin, extra) = match verb {
-        "add" | "validate" => ("", vec![("source", flea::jsondoc::Json::Str(arg.into()))]),
+        "add" | "validate" => ("", vec![("source", dlea::jsondoc::Json::Str(arg.into()))]),
         _ => (arg, Vec::new()),
     };
     wire::request_line(0, verb, plugin, extra)
@@ -33,7 +33,7 @@ pub fn command(args: &[String]) -> i32 {
     let env = match Env::user() {
         Ok(env) => env,
         Err(e) => {
-            eprintln!("flea: {e}");
+            eprintln!("dlea: {e}");
             return 2;
         }
     };
@@ -43,7 +43,7 @@ pub fn command(args: &[String]) -> i32 {
         match wire::parse(&line) {
             Ok(Reply::Outcome(o)) => {
                 if let Some(e) = o.error {
-                    eprintln!("flea: {}", i18n.tr_args(&sentence_key(e.code), &[&e.detail]));
+                    eprintln!("dlea: {}", i18n.tr_args(&sentence_key(e.code), &[&e.detail]));
                     code = 1;
                 }
             }

@@ -9,7 +9,7 @@ use crate::tui::{
     render::{self, frame_tests::model, menu_layout},
     wire,
 };
-use flea::ui_logic_print_convert::composition::Layout;
+use dlea::ui_logic_print_convert::composition::Layout;
 use std::time::Duration;
 
 #[path = "mono_test_support.rs"]
@@ -212,7 +212,7 @@ fn mono_quick_look_plate_selection_moves_without_marking_other_plates() {
     let mut m = model();
     m.quicklook = true;
     m.rows.get_mut(&7).unwrap().name = "plates.3mf".into();
-    m.model3d.data = Some(Box::new(flea::ui_logic_model_preview::wire::Data {
+    m.model3d.data = Some(Box::new(dlea::ui_logic_model_preview::wire::Data {
         plates: vec![Default::default(), Default::default()],
         ..Default::default()
     }));

@@ -1,4 +1,4 @@
-//! Launch the real Flea binary against a signal/relaunch shim, without a display or a GPU failure.
+//! Launch the real Dlea binary against a signal/relaunch shim, without a display or a GPU failure.
 use std::fs;
 use std::io::Write;
 use std::os::unix::fs::PermissionsExt;
@@ -12,7 +12,7 @@ struct Sandbox(PathBuf);
 
 // A sibling fork inherits any descriptor held open for writing, and exec then fails with ETXTBSY.
 fn executable(path: &Path, contents: &[u8]) {
-    let mut writer = Command::new(flea::testpath::tool("/bin/sh"))
+    let mut writer = Command::new(dlea::testpath::tool("/bin/sh"))
         .args(["-c", "/bin/cat > \"$1\"", "write-fixture"])
         .arg(path)
         .stdin(Stdio::piped())
@@ -20,7 +20,7 @@ fn executable(path: &Path, contents: &[u8]) {
         .unwrap();
     writer.stdin.take().unwrap().write_all(contents).unwrap();
     assert!(writer.wait().unwrap().success());
-    flea::executable_file::write(path, &std::fs::read(path).unwrap(), 0o755).unwrap();
+    dlea::executable_file::write(path, &std::fs::read(path).unwrap(), 0o755).unwrap();
 }
 
 impl Sandbox {
@@ -29,7 +29,7 @@ impl Sandbox {
         assert!(output.status.success());
         let root = PathBuf::from(String::from_utf8(output.stdout).unwrap().trim());
         assert!(root.is_absolute());
-        fs::write(root.join(".flea-test-sandbox"), "qs-crash-policy\n").unwrap();
+        fs::write(root.join(".dlea-test-sandbox"), "qs-crash-policy\n").unwrap();
         for dir in ["bin", "ui/boot", "user", "runtime"] {
             fs::create_dir_all(root.join(dir)).unwrap();
         }
@@ -38,23 +38,23 @@ impl Sandbox {
         fs::write(root.join("ui/boot/picker.qml"), "// picker fixture\n").unwrap();
         fs::write(root.join("notes.txt"), "plain text\n").unwrap();
         executable(
-            &root.join("bin/flea"),
-            &fs::read(env!("CARGO_BIN_EXE_flea")).unwrap(),
+            &root.join("bin/dlea"),
+            &fs::read(env!("CARGO_BIN_EXE_dlea")).unwrap(),
         );
         let sandbox = Self(root);
         sandbox.script(
-            "flea-gui",
+            "dlea-gui",
             r#"ulimit -c 0
-case "$FLEA_TEST_QS_MODE" in
+case "$DLEA_TEST_QS_MODE" in
   crash) printf 'frontend-pid=%s\n' "$$"; kill -ABRT "$$";;
-  open) exec "$FLEA_BIN" --open "$FLEA_TEST_TARGET";;
-  *) printf '%s|%s|%s\n' "${QS_DISABLE_CRASH_HANDLER+x}" "${QS_DISABLE_CRASH_HANDLER-}" "${FLEA_QS_CRASH_POLICY-}";;
+  open) exec "$DLEA_BIN" --open "$DLEA_TEST_TARGET";;
+  *) printf '%s|%s|%s\n' "${QS_DISABLE_CRASH_HANDLER+x}" "${QS_DISABLE_CRASH_HANDLER-}" "${DLEA_QS_CRASH_POLICY-}";;
 esac
 "#,
         );
         sandbox.script(
             "gio",
-            "printf '%s|%s|%s\\n' \"${QS_DISABLE_CRASH_HANDLER+x}\" \"${QS_DISABLE_CRASH_HANDLER-}\" \"${FLEA_QS_CRASH_POLICY-}\" > \"$FLEA_TEST_OPEN_LOG\"\n",
+            "printf '%s|%s|%s\\n' \"${QS_DISABLE_CRASH_HANDLER+x}\" \"${QS_DISABLE_CRASH_HANDLER-}\" \"${DLEA_QS_CRASH_POLICY-}\" > \"$DLEA_TEST_OPEN_LOG\"\n",
         );
         sandbox
     }
@@ -65,7 +65,7 @@ esac
     }
 
     fn command(&self) -> Command {
-        let mut command = Command::new(self.0.join("bin/flea"));
+        let mut command = Command::new(self.0.join("bin/dlea"));
         command
             .env_clear()
             .env("PATH", self.0.join("bin"))
@@ -75,11 +75,11 @@ esac
             .env("XDG_CONFIG_HOME", self.0.join("config"))
             .env("XDG_STATE_HOME", self.0.join("state"))
             .env("WAYLAND_DISPLAY", "fixture")
-            .env("FLEA_UI", self.0.join("ui"))
-            .env("FLEA_BIN", self.0.join("bin/flea"))
-            .env("FLEA_TEST_TARGET", self.0.join("notes.txt"))
-            .env("FLEA_TEST_OPEN_LOG", self.0.join("opened.env"))
-            .env("FLEA_TEST_QS_MODE", "inspect")
+            .env("DLEA_UI", self.0.join("ui"))
+            .env("DLEA_BIN", self.0.join("bin/dlea"))
+            .env("DLEA_TEST_TARGET", self.0.join("notes.txt"))
+            .env("DLEA_TEST_OPEN_LOG", self.0.join("opened.env"))
+            .env("DLEA_TEST_QS_MODE", "inspect")
             .env("QSG_RHI_BACKEND", "opengl")
             .env("VK_LOADER_DRIVERS_DISABLE", "*");
         command
@@ -90,7 +90,7 @@ impl Drop for Sandbox {
     fn drop(&mut self) {
         if self.0.is_absolute()
             && fs::symlink_metadata(&self.0).is_ok_and(|m| m.is_dir())
-            && fs::read(self.0.join(".flea-test-sandbox")).ok().as_deref()
+            && fs::read(self.0.join(".dlea-test-sandbox")).ok().as_deref()
                 == Some(b"qs-crash-policy\n")
         {
             fs::remove_dir_all(&self.0).unwrap();
@@ -101,11 +101,11 @@ impl Drop for Sandbox {
 fn fatal_signal(picker: bool) {
     let sandbox = Sandbox::new();
     let mut command = sandbox.command();
-    command.env("FLEA_TEST_QS_MODE", "crash");
+    command.env("DLEA_TEST_QS_MODE", "crash");
     if picker {
         command
             .args(["--pick", sandbox.0.join("reply.json").to_str().unwrap()])
-            .env("FLEA_PICKER", "{}");
+            .env("DLEA_PICKER", "{}");
     } else {
         command.arg("--gui");
     }
@@ -146,7 +146,7 @@ fn a_gpui_launch_does_not_install_a_quickshell_crash_policy() {
         .command()
         .arg("--gui")
         .env("QS_DISABLE_CRASH_HANDLER", "1")
-        .env("FLEA_QS_CRASH_POLICY", "1")
+        .env("DLEA_QS_CRASH_POLICY", "1")
         .output()
         .unwrap();
     assert!(output.status.success());
@@ -156,7 +156,7 @@ fn a_gpui_launch_does_not_install_a_quickshell_crash_policy() {
             .command()
             .arg("--gui")
             .env("QS_DISABLE_CRASH_HANDLER", chosen)
-            .env("FLEA_QS_CRASH_POLICY", "stale")
+            .env("DLEA_QS_CRASH_POLICY", "stale")
             .output()
             .unwrap();
         assert!(output.status.success());
@@ -168,14 +168,14 @@ fn a_gpui_launch_does_not_install_a_quickshell_crash_policy() {
 }
 
 #[test]
-fn opening_a_program_or_gpui_drops_only_fleas_crash_policy() {
+fn opening_a_program_or_gpui_drops_only_dleas_crash_policy() {
     let sandbox = Sandbox::new();
     let output = sandbox
         .command()
         .arg("--open")
         .arg(sandbox.0.join("notes.txt"))
         .env("QS_DISABLE_CRASH_HANDLER", "1")
-        .env("FLEA_QS_CRASH_POLICY", "1")
+        .env("DLEA_QS_CRASH_POLICY", "1")
         .output()
         .unwrap();
     assert!(output.status.success());
@@ -192,9 +192,9 @@ fn opening_a_program_or_gpui_drops_only_fleas_crash_policy() {
         let output = sandbox
             .command()
             .arg("--gui")
-            .env("FLEA_FRONTEND", "gpui")
+            .env("DLEA_FRONTEND", "gpui")
             .env("QS_DISABLE_CRASH_HANDLER", disabled)
-            .env("FLEA_QS_CRASH_POLICY", marker)
+            .env("DLEA_QS_CRASH_POLICY", marker)
             .output()
             .unwrap();
         assert!(

@@ -7,7 +7,7 @@ mkdir -p "$scratch"
 roots() { find "$scratch" -mindepth 1 -maxdepth 1 -type d \( -name 'test.*' -o -name 'ci.*' -o -name 'clippy.*' \) | wc -l; }
 before=$(roots)
 unit_root=$(mktemp -d "$scratch/ci.XXXXXXXX")
-: > "$unit_root/.flea-test-sandbox"
+: > "$unit_root/.dlea-test-sandbox"
 mkdir -p "$unit_root"/{home,config,state,cache,runtime}
 setsid -w env -i PATH="$PATH" HOME="$unit_root/home" \
     XDG_CONFIG_HOME="$unit_root/config" XDG_STATE_HOME="$unit_root/state" \
@@ -15,7 +15,7 @@ setsid -w env -i PATH="$PATH" HOME="$unit_root/home" \
     CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}" RUSTUP_HOME="${RUSTUP_HOME:-$HOME/.rustup}" \
     CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$PWD/target}" G1_04_VECTORS="$unit_root/vectors.jsonl" \
     CARGO_PROFILE_TEST_DEBUG=line-tables-only CARGO_PROFILE_DEV_DEBUG=line-tables-only \
-    cargo test --locked -p flea-gui --test g1_04 < /dev/null
+    cargo test --locked -p dlea-gui --test g1_04 < /dev/null
 oracle() {
     setsid -w env -i PATH="$PATH" HOME="$unit_root/home" \
         XDG_CONFIG_HOME="$unit_root/config" XDG_STATE_HOME="$unit_root/state" \
@@ -38,12 +38,12 @@ for mutation in drop swap; do
     printf 'G1_04 sheet control %s rejected: %s\n' "$mutation" "${rejected#native/oracle sheet }"
 done
 clippy_root=$(mktemp -d "$scratch/clippy.XXXXXXXX")
-: > "$clippy_root/.flea-test-sandbox"
-printf 'tools/flea-clippy tools/clippy-baseline.txt %s\n' "$clippy_root"
-tools/flea-clippy tools/clippy-baseline.txt "$clippy_root"
+: > "$clippy_root/.dlea-test-sandbox"
+printf 'tools/dlea-clippy tools/clippy-baseline.txt %s\n' "$clippy_root"
+tools/dlea-clippy tools/clippy-baseline.txt "$clippy_root"
 # Remove a passing run's root only when it is absolute, non-empty, marked and directly inside this unit's scratch.
 drop_root() {
-    [[ -n "$1" && "$1" == "$scratch"/?* && "$(dirname "$1")" == "$scratch" && -f "$1/.flea-test-sandbox" ]] && rm -rf -- "$1"
+    [[ -n "$1" && "$1" == "$scratch"/?* && "$(dirname "$1")" == "$scratch" && -f "$1/.dlea-test-sandbox" ]] && rm -rf -- "$1"
 }
 drop_root "$unit_root"
 drop_root "$clippy_root"

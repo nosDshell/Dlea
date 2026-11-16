@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 
 // A dialog card's inner layout: the title and the button row stay pinned, and only the body between them scrolls (ui/CardScroll.qml).
 Item {
@@ -45,7 +45,7 @@ Item {
         height: root.titleHeight
     }
 
-    Flea.CardScroll {
+    Dlea.CardScroll {
         id: scroll
         x: 0
         y: root.titleHeight + root.gapAfterTitle

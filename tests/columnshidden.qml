@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-columnshidden-test
+//@ pragma ShellId dlea-columnshidden-test
 
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 
 // A Columns view kept behind the list or the grid keeps its rows until a new row count reaches it, and its return is whole in one frame.
 ShellRoot {
@@ -154,7 +154,7 @@ ShellRoot {
     function columnWhole(col, name) {
         if (!col.visible) return ""
         var want = col.pane !== null ? col.pane.shownTotal : col.rows.length
-        var v = col.viewport, rowH = Flea.Theme.fileRowHeight
+        var v = col.viewport, rowH = Dlea.Theme.fileRowHeight
         if (v.count !== want) return name + " holds " + v.count + " of " + want + " rows"
         var top = v.contentY - v.originY
         var last = Math.min(want - 1, Math.floor((top + v.height - 1) / rowH))
@@ -180,7 +180,7 @@ ShellRoot {
         id: win
         implicitWidth: 1400
         implicitHeight: 800
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
         Item { id: frameProbe }
     }
     // Emitted on the GUI thread just before the scene is synced, so what is read here is what that frame draws.
@@ -205,12 +205,12 @@ ShellRoot {
             if (root.columns().active.scrollBar.shown) w.bar += 1
         }
     }
-    Flea.Backend { id: realBackend }
+    Dlea.Backend { id: realBackend }
     Process { id: touch }
 
     Component {
         id: paneComponent
-        Flea.Pane {
+        Dlea.Pane {
             width: 1400
             height: 800
             backend: realBackend
@@ -268,7 +268,7 @@ ShellRoot {
     function run(op) {
         if (op.open !== undefined) {
             if (root.pane === null) {
-                Flea.ViewState.changeKey("view", "list")
+                Dlea.ViewState.changeKey("view", "list")
                 root.pane = paneComponent.createObject(win.contentItem)
                 root.keys = Qt.createQmlObject("import QtTest; TestEvent {}", root.pane.listArea)
             }
@@ -298,8 +298,8 @@ ShellRoot {
                 if (root.drawnAt(op.cursor).length === 0) return root.calm(false)
                 // Scrolled by hand so the cursor stands mid-column, the place a plain return must keep.
                 var col = root.pane.viewMode === "columns" ? root.columns().active : null
-                if (op.scroll === true && col && root.offsetOf(col) !== (op.cursor - 6) * Flea.Theme.fileRowHeight)
-                    col.viewport.contentY = col.viewport.originY + (op.cursor - 6) * Flea.Theme.fileRowHeight
+                if (op.scroll === true && col && root.offsetOf(col) !== (op.cursor - 6) * Dlea.Theme.fileRowHeight)
+                    col.viewport.contentY = col.viewport.originY + (op.cursor - 6) * Dlea.Theme.fileRowHeight
                 if (!root.calm(true)) return false
                 if (root.land !== null) console.log("COLHID STEP " + root.pane.viewMode + " " + op.cursor + " ms=" + root.land.ms)
                 root.land = null
@@ -390,7 +390,7 @@ ShellRoot {
                 root.check(label + " return builds no rows and lands where the hidden column followed the cursor", [w.built, w.firstY], [0, root.hiddenFrom.backY])
             else if (label === "moved-count") {
                 // A re-read re-selects the cursor's row, so the dropped column returns with that row inside its first frame.
-                var rowH = Flea.Theme.fileRowHeight, top = root.pane.cursorIndex * rowH, h = root.columns().active.viewport.height
+                var rowH = Dlea.Theme.fileRowHeight, top = root.pane.cursorIndex * rowH, h = root.columns().active.viewport.height
                 root.check(label + " return shows the cursor row", top >= w.firstY && top + rowH <= w.firstY + h, true)
             }
             root.watch = null

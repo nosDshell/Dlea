@@ -78,7 +78,7 @@ fn root_of(path: &Path) -> Option<&Path> {
     let files = path.parent()?;
     let root = files.parent()?;
     let swept = path.is_absolute()
-        && !name.as_bytes().starts_with(b".flea-delete-")
+        && !name.as_bytes().starts_with(b".dlea-delete-")
         && files.file_name() == Some(OsStr::new("files"));
     (swept && root.join("info").is_dir()).then_some(root)
 }
@@ -93,7 +93,7 @@ fn claimed(root: &Path) -> Option<&'static str> {
     };
     entries
         .flatten()
-        .any(|entry| entry.file_name().as_bytes().starts_with(b".flea-delete-"))
+        .any(|entry| entry.file_name().as_bytes().starts_with(b".dlea-delete-"))
         .then_some("a claim's quarantine is in its Trash")
 }
 fn skipped(what: &Path, why: impl std::fmt::Display) {

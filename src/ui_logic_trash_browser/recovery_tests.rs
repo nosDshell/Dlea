@@ -150,7 +150,7 @@ fn noscene_a_recovered_journal_says_its_count_and_a_failed_one_says_why() {
     assert_eq!(
         results(&signals),
         [(
-            "Flea could not finish an interrupted file action".to_string(),
+            "Dlea could not finish an interrupted file action".to_string(),
             "one failed\ntwo failed".to_string(),
             true
         )],

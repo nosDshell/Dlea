@@ -13,14 +13,14 @@ for tool in qs magick; do
     command -v "$tool" >/dev/null || { echo "pdf-first.sh: $tool is not installed"; exit 1; }
 done
 
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 sandbox_forbidden /tmp && sandbox_refuse "pdf-first: /tmp is inside a forbidden test target"
-first_root=$(mktemp -d /tmp/flea-pdf-first.XXXXXXXX) || exit 1
+first_root=$(mktemp -d /tmp/dlea-pdf-first.XXXXXXXX) || exit 1
 FIXTURE_ROOT=$first_root
 sandbox_root_ok
 first_root=$SANDBOX_ROOT
 readonly first_root
-printf 'Flea PDF first sandbox\n' > "$first_root/$SANDBOX_MARKER" || exit 1
+printf 'Dlea PDF first sandbox\n' > "$first_root/$SANDBOX_MARKER" || exit 1
 first_work="$first_root/work"
 readonly first_work
 cleanup() {

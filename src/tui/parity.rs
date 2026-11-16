@@ -12,12 +12,12 @@ pub fn refusal_text(action: &str) -> super::words::Text {
         return reason.into();
     }
     let key = match action {
-        "viewList" | "viewColumns" | "viewGrid" | "viewDual" => "tui.parity.alternate_listing_views_are_available_in_the_flea_window",
+        "viewList" | "viewColumns" | "viewGrid" | "viewDual" => "tui.parity.alternate_listing_views_are_available_in_the_dlea_window",
         "sidebar" => "tui.parity.the_terminal_interface_has_no_sidebar",
         "textSizeUp" | "textSizeDown" | "textSizeReset" => "tui.parity.change_text_size_in_your_terminal_settings",
-        "settings" => "tui.parity.settings_are_available_in_the_flea_window",
-        "addNetwork" => "tui.parity.add_network_places_in_the_flea_window",
-        "eject" => "tui.parity.unmount_volumes_in_the_flea_window",
+        "settings" => "tui.parity.settings_are_available_in_the_dlea_window",
+        "addNetwork" => "tui.parity.add_network_places_in_the_dlea_window",
+        "eject" => "tui.parity.unmount_volumes_in_the_dlea_window",
         "tags" => "tui.parity.tags_are_unavailable_in_this_terminal_build",
         "copyAs" => "tui.parity.copy_as_text_is_unavailable_in_this_terminal_build",
         "pasteAs" | "pasteLink" | "pasteAbsoluteLink" | "pasteHardLink" => "tui.parity.paste_links_are_unavailable_in_this_terminal_build",

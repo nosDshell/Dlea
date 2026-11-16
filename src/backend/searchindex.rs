@@ -114,7 +114,7 @@ impl Index {
 
     // Owned bridges make reconstruction visible to callers; no hidden full-path cache exists.
     pub(crate) fn path(&self, row: usize) -> String {
-        flea::bytename::path_text(Path::new(OsStr::from_bytes(&self.raw(row)))).into_owned()
+        dlea::bytename::path_text(Path::new(OsStr::from_bytes(&self.raw(row)))).into_owned()
     }
 
     pub(crate) fn raw(&self, row: usize) -> Vec<u8> {
@@ -247,7 +247,7 @@ pub(crate) use scoring::score_all;
 pub(crate) use scoring::CLASSES;
 
 // A patch distinguishes a vanished directory from a refused or incomplete read.
-fn read_bounded(dir: &Path, body: &str, follow: bool) -> Result<Option<super::searchread::Directory>, crate::error::FleaError> {
+fn read_bounded(dir: &Path, body: &str, follow: bool) -> Result<Option<super::searchread::Directory>, crate::error::DleaError> {
     match super::searchread::bounded(dir, body, follow)? {
         Ok(read) => Ok(Some(read)),
         Err(error) if matches!(error.raw_os_error(), Some(2 | 20 | 40)) => Ok(None),

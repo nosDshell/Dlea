@@ -2,7 +2,7 @@ import Quickshell
 import QtQuick
 import qs.Commons
 import "."
-import "." as Flea
+import "." as Dlea
 import "js/Focus.js" as Focus
 import "js/MarkdownPrepared.js" as Prepared
 import "js/TextSize.js" as TextSize
@@ -22,7 +22,7 @@ Rectangle {
     anchors.fill: parent
     // On glass each plane draws its own ground, so this one would put a second plane under every pixel.
     color: Glass.on ? "transparent" : Theme.color.background
-    // The window this body was loaded into. Named host, not fleaWindow: a root property of
+    // The window this body was loaded into. Named host, not dleaWindow: a root property of
     // that name would bind to itself through Ipc and read null.
     property var host
     readonly property bool dualMode: ViewState.state.view === "dual"
@@ -93,8 +93,8 @@ Rectangle {
     }
     // Strip changes coalesce; an in-flight navigation waits for its path and rows to land before saving.
     property bool tabStripQueued: false
-    // Stage trace, on only with FLEA_TRACE_TABDRAG=1; read once, silent otherwise.
-    readonly property bool tabTrace: Quickshell.env("FLEA_TRACE_TABDRAG") === "1"
+    // Stage trace, on only with DLEA_TRACE_TABDRAG=1; read once, silent otherwise.
+    readonly property bool tabTrace: Quickshell.env("DLEA_TRACE_TABDRAG") === "1"
     function traceTab(stage, detail) { if (view.tabTrace) console.log("TABDRAG " + stage + " pid=" + Quickshell.processId + " " + detail) }
     function queueTabStrip() {
         if (view.tabStripQueued)
@@ -159,7 +159,7 @@ Rectangle {
     }
 
     // Built with the window and outliving the rail, so hiding the rail mid-mount kills no wait.
-    Flea.NetworkMounts {
+    Dlea.NetworkMounts {
         id: networkHost
         backend: primaryPane.backend
         origin: primaryPane
@@ -172,7 +172,7 @@ Rectangle {
 
     // The canvas's own top chrome: where you are on the left, how you are looking at it on
     // the right. The path lives here, which is why the status bar below carries counts instead.
-    Flea.ChromeBar {
+    Dlea.ChromeBar {
         id: chrome
         inputLive: !view.quickLookActive
         visible: view.dualMode || (!view.currentPane.trash.opened && !view.currentPane.flashActive)
@@ -239,7 +239,7 @@ Rectangle {
         function onJumped(id, favourites, zoxide, recent, frecency) { if (chrome.jump !== null) chrome.jump.take(id, favourites, zoxide, recent, frecency) }
     }
 
-    Flea.TabBar {
+    Dlea.TabBar {
         id: tabBar
         anchors.left: parent.left
         anchors.right: parent.right
@@ -252,7 +252,7 @@ Rectangle {
     Loader {
         id: tabAck
         active: true
-        source: "file://" + Quickshell.shellDir + "/fleatab.qml"
+        source: "file://" + Quickshell.shellDir + "/dleatab.qml"
         onLoaded: {
             item.tabBar = tabBar
             item.view = view
@@ -296,7 +296,7 @@ Rectangle {
         }
     }
 
-    Flea.Pane {
+    Dlea.Pane {
         id: primaryPane
         anchors.left: parent.left
         width: view.dualMode ? railInset + (view.width - railInset - Theme.spacing.hairline) * view.dualShare : view.width
@@ -364,7 +364,7 @@ Rectangle {
                 preserveSort: true
                 onQuitReady: view.backendDrained(1)
             }
-            Flea.Pane {
+            Dlea.Pane {
                 id: otherPane
                 anchors.fill: parent
                 backend: otherBackend
@@ -411,12 +411,12 @@ Rectangle {
         onLoaded: {
             built = true
             // Before initialized this is the launch, the only time a command-line folder applies.
-            var named = view.initialized ? "" : (Quickshell.env("FLEA_PATH") || "")
+            var named = view.initialized ? "" : (Quickshell.env("DLEA_PATH") || "")
             var pair = Startup.dualPaths(ViewState.state.dual, primaryPane.path || primaryPane.home, named)
             item.pane.clipboard = primaryPane.clipboard
             if (pair.launchSide === 1) {
-                item.pane.pendingSelect = Quickshell.env("FLEA_SELECT") || ""
-                Tabs.prepareCursor(item.pane, named ? Quickshell.env("FLEA_TAB_CURSOR") : "")
+                item.pane.pendingSelect = Quickshell.env("DLEA_SELECT") || ""
+                Tabs.prepareCursor(item.pane, named ? Quickshell.env("DLEA_TAB_CURSOR") : "")
             }
             item.pane.open(pair.paths[1])
             if (view.initialized && view.dualMode) view.focusPane(view.focusSide)
@@ -464,7 +464,7 @@ Rectangle {
                 height: parent.height
                 color: Theme.color.mutedFrame
             }
-            Flea.ResizeHandle {
+            Dlea.ResizeHandle {
                 id: handle
                 height: parent.height
                 lineX: divider.dx
@@ -478,7 +478,7 @@ Rectangle {
         }
     }
 
-    Flea.StatusBar {
+    Dlea.StatusBar {
         id: bar
         anchors.left: parent.left
         anchors.right: parent.right
@@ -751,13 +751,13 @@ Rectangle {
 
     Component.onCompleted: {
         var home = Quickshell.env("HOME")
-        var named = Quickshell.env("FLEA_PATH") || ""
+        var named = Quickshell.env("DLEA_PATH") || ""
         var start = Startup.startPath(ViewState.state, home, named)
         var pair = Startup.dualPaths(ViewState.state.dual, start, named)
         // Read once, and only on the side that took the named folder; Pane.applyPendingSelect() forgets it after the first rows.
         if (!view.dualMode || pair.launchSide !== 1) {
-            primaryPane.pendingSelect = Quickshell.env("FLEA_SELECT") || ""
-            Tabs.prepareCursor(primaryPane, named ? Quickshell.env("FLEA_TAB_CURSOR") : "")
+            primaryPane.pendingSelect = Quickshell.env("DLEA_SELECT") || ""
+            Tabs.prepareCursor(primaryPane, named ? Quickshell.env("DLEA_TAB_CURSOR") : "")
         }
         // Tabs040 callout 2: Last folder reopens every remembered tab in order at its folder.
         // Dual startup keeps its own pair, and a named path outranks the strip either way.
@@ -766,8 +766,8 @@ Rectangle {
             primaryPane.tabs = Tabs.pack(Tabs.restoreItems(primaryPane, plan.paths), plan.index)
         primaryPane.open(plan ? plan.paths[plan.index] : (view.dualMode ? pair.paths[0] : start))
         view.initialized = true
-        // flea --unlock opens the same dialog a rail row opens, for scripts and a udev rule.
-        var unlockDevice = Quickshell.env("FLEA_UNLOCK") || ""
+        // dlea --unlock opens the same dialog a rail row opens, for scripts and a udev rule.
+        var unlockDevice = Quickshell.env("DLEA_UNLOCK") || ""
         if (unlockDevice.length > 0)
             view.ensureUnlockHost().openForDevice(unlockDevice, view.currentPane.sidebar)
         if (view.dualMode) view.focusPane(view.focusSide)
@@ -794,7 +794,7 @@ Rectangle {
         active: false
         asynchronous: true
         Component.onCompleted: setSource("Ipc.qml", {
-            fleaWindow: Qt.binding(function () { return view.host }),
+            dleaWindow: Qt.binding(function () { return view.host }),
             pane: Qt.binding(function () { return view.currentPane }),
             panes: Qt.binding(function () { return [primaryPane, secondPane.item ? secondPane.item.pane : null] }),
             bar: Qt.binding(function () { return bar }),

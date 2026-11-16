@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Ok item lines through the real ui/PaneWire.qml handlers: held, folded on the beat, and flushed before a failure, a sample or the done line; offscreen.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -11,7 +11,7 @@ if ! command -v qs >/dev/null; then
 fi
 
 # A marked sandbox of its own under the fixture root, so cleanup deletes only what this run owns.
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-transferhold-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-transferhold-XXXXXX") || exit 1
 case $test_root in
   /*/*) ;;
   *) echo "FAIL: mktemp -d gave '$test_root', which is not an absolute path two components deep"; exit 1 ;;
@@ -23,7 +23,7 @@ trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/transferhold.qml "$test_root/config/shell.qml" || exit 1

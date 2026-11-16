@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-transferhold-test
+//@ pragma ShellId dlea-transferhold-test
 
 import Quickshell
 import QtQuick
-import "flea/js/Ops.js" as Ops
+import "dlea/js/Ops.js" as Ops
 
 // tests/transferhold.sh's harness: ok item lines through the real ui/PaneWire.qml, its Connections, its flush and its beat.
 ShellRoot {

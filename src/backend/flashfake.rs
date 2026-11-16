@@ -104,8 +104,8 @@ pub(crate) fn system(sys: &Path) {
 
 
 // The marker and name prefix a direct root carries, the same guard TestDir applies to its own.
-const DIRECT_MARKER: &str = ".flea-test-sandbox";
-const DIRECT_PREFIX: &str = "flea-test-direct-";
+const DIRECT_MARKER: &str = ".dlea-test-sandbox";
+const DIRECT_PREFIX: &str = "dlea-test-direct-";
 // The flag the code under test checks, so the fixture opens targets the same way.
 pub(crate) use crate::backend::flashio::O_DIRECT;
 
@@ -124,10 +124,10 @@ impl DirectDir {
         let n = NEXT_DIRECT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         let path = base.join(format!("{DIRECT_PREFIX}{tag}-{}-{n}", std::process::id()));
         std::fs::create_dir(&path).expect("a fresh direct root");
-        std::fs::write(path.join(DIRECT_MARKER), "flea test sandbox\n").expect("the direct root's marker");
+        std::fs::write(path.join(DIRECT_MARKER), "dlea test sandbox\n").expect("the direct root's marker");
         let dir = DirectDir { path };
         if !dir.enforces_alignment() {
-            eprintln!("flea test: {} does not report usable O_DIRECT alignment, so this test proves nothing here", base.display());
+            eprintln!("dlea test: {} does not report usable O_DIRECT alignment, so this test proves nothing here", base.display());
             return None;
         }
         Some(dir)

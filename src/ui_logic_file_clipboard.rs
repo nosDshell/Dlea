@@ -17,8 +17,8 @@ pub use paste::{
     Stamp,
 };
 pub use payload::{
-    build_flea, build_gnome, build_kde_cut, build_plain, build_urilist, choose, is_op, is_token,
-    parse_flea, parse_gnome, parse_kde_cut, parse_urilist, ForeignSel, Offer, FLEA, GNOME, KDE_CUT,
+    build_dlea, build_gnome, build_kde_cut, build_plain, build_urilist, choose, is_op, is_token,
+    parse_dlea, parse_gnome, parse_kde_cut, parse_urilist, ForeignSel, Offer, DLEA, GNOME, KDE_CUT,
     PLAIN, PLAIN_UTF8, URILIST, UTF8_STRING,
 };
 pub use selection::{Publish, Queue, TakeOut, View};

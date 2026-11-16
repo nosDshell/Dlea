@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell.Io
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Buttons.js" as Buttons
 import "js/Format.js" as Format
 import "js/Unlock.js" as Unlock
@@ -61,7 +61,7 @@ FocusScope {
         field.takeFocus()
     }
 
-    // The name row and every sentence name the drive through this, so a later rail row can name it for flea --unlock.
+    // The name row and every sentence name the drive through this, so a later rail row can name it for dlea --unlock.
     function describe(label, size, fstype, fsver) {
         root.driveLabel = String(label || root.device)
         root.driveSize = Number(size) || 0
@@ -188,7 +188,7 @@ FocusScope {
         unlockTimeout.restart()
     }
 
-    Flea.Reveal { target: root; shown: root.opened; lift: card }
+    Dlea.Reveal { target: root; shown: root.opened; lift: card }
     Keys.onTabPressed: function (event) { root.stepTab((event.modifiers & Qt.ShiftModifier) !== 0); event.accepted = true }
     Keys.onBacktabPressed: function (event) { root.stepTab(true); event.accepted = true }
     Keys.onPressed: function(event) {
@@ -223,7 +223,7 @@ FocusScope {
         }
     }
 
-    Flea.DialogScrim {
+    Dlea.DialogScrim {
         onDismissed: root.close()
     }
 
@@ -250,14 +250,14 @@ FocusScope {
             onClicked: {}
             onWheel: function(wheel) { wheel.accepted = true }
         }
-        Flea.CardFrame {
+        Dlea.CardFrame {
             id: body
             anchors.fill: parent
             anchors.leftMargin: card.cardPadding
             anchors.rightMargin: card.cardPadding
             anchors.topMargin: card.cardPadding
             anchors.bottomMargin: card.cardBottomPadding
-            title: Flea.DialogHeader {
+            title: Dlea.DialogHeader {
                 width: parent.width
                 text: Unlock.title(root.driveLabel)
             }
@@ -267,7 +267,7 @@ FocusScope {
                 Row {
                     width: parent.width
                     spacing: Theme.spacing.gap
-                    Flea.Glyph {
+                    Dlea.Glyph {
                         width: Theme.markSize
                         height: Theme.fileRowHeight
                         name: "drive"
@@ -283,7 +283,7 @@ FocusScope {
                         font { family: Theme.font.family; pixelSize: Theme.font.body }
                     }
                 }
-                Flea.DialogField {
+                Dlea.DialogField {
                     id: field
                     width: parent.width
                     label: "Passphrase"
@@ -319,13 +319,13 @@ FocusScope {
                     anchors.right: parent.right
                     topPadding: card.buttonsAir
                     spacing: Theme.spacing.gap
-                    Flea.DialogButton {
+                    Dlea.DialogButton {
                         id: cancelButton
                         label: "Cancel"
                         focused: activeFocus
                         onActivated: root.close()
                     }
-                    Flea.DialogButton {
+                    Dlea.DialogButton {
                         id: unlockButton
                         label: "Unlock"
                         primary: true

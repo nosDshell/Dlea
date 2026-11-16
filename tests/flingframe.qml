@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-flingframe-test
+//@ pragma ShellId dlea-flingframe-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // flingframe: a fling scrolls List, Grid and Columns by a few rows a frame, and each frame is counted (delegates built, rebound, texts changed, row reads, backend asks), never timed.
 ShellRoot {
@@ -170,9 +170,9 @@ ShellRoot {
         color: "black"
         Loader { id: viewLoader; width: 2536; height: 1381 }
     }
-    Component { id: listView; Flea.List { width: 2536; height: 1381; pane: root.stubPane; menu: menuStub.createObject(root) } }
-    Component { id: gridView; Flea.GridArea { width: 2536; height: 1381; pane: root.stubPane; menu: menuStub.createObject(root) } }
-    Component { id: columnsView; Flea.ColumnsArea { width: 2536; height: 1381; pane: root.stubPane; menu: menuStub.createObject(root) } }
+    Component { id: listView; Dlea.List { width: 2536; height: 1381; pane: root.stubPane; menu: menuStub.createObject(root) } }
+    Component { id: gridView; Dlea.GridArea { width: 2536; height: 1381; pane: root.stubPane; menu: menuStub.createObject(root) } }
+    Component { id: columnsView; Dlea.ColumnsArea { width: 2536; height: 1381; pane: root.stubPane; menu: menuStub.createObject(root) } }
 
     // The flickable that scrolls and the object that owns its prebuild driver.
     function view() {
@@ -216,7 +216,7 @@ ShellRoot {
 
     function go(next) { root.phase = next; root.phaseAt = Date.now() }
     function elapsed() { return Date.now() - root.phaseAt }
-    function rowH() { return root.kind === "grid" ? root.view().cellHeight : Flea.Theme.fileRowHeight }
+    function rowH() { return root.kind === "grid" ? root.view().cellHeight : Dlea.Theme.fileRowHeight }
     function columnsOf() { return root.kind === "grid" ? root.view().columns : 1 }
     function stepPx() { return root.speeds[root.speedAt] * root.rowH() }
     function midY(v) { return v.originY - v.topMargin + (root.kind === "grid" ? root.midRowsGrid : root.midRowsList) * root.rowH() }
@@ -281,7 +281,7 @@ ShellRoot {
 
     function wheelStroke(v) {
         var hand = null, kids = v.children
-        for (var w = 0; w < kids.length; w++) if (kids[w].objectName === "fleaScroll") hand = kids[w]
+        for (var w = 0; w < kids.length; w++) if (kids[w].objectName === "dleaScroll") hand = kids[w]
         if (!hand) { root.fail("wheel: no handler in " + root.kind); return false }
         var update = { phase: Qt.ScrollUpdate, pixelDelta: Qt.point(0, -root.wheelUpdatePx), angleDelta: Qt.point(0, 0), modifiers: 0, accepted: false }
         var y0 = v.contentY, t1 = Date.now()
@@ -392,5 +392,5 @@ ShellRoot {
         running: true
         onTriggered: { root.fail("timeout in " + root.kind + " phase " + root.phase); root.finish() }
     }
-    Component.onCompleted: Flea.ViewState.setTextSize({ mode: 14 })
+    Component.onCompleted: Dlea.ViewState.setTextSize({ mode: 14 })
 }

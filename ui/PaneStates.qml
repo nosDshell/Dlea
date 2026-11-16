@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Swap.js" as Swap
 import "js/Search.js" as Search
 import "js/KeyName.js" as KeyName
@@ -25,7 +25,7 @@ Item {
     readonly property real heroX: root.pane.listSlot.x + (root.overActive ? root.columns.activeX : 0)
     readonly property real heroSpan: root.overActive ? root.pane.listSlot.width - root.columns.activeX : root.pane.listSlot.width
 
-    Flea.EmptyState {
+    Dlea.EmptyState {
         id: emptyState
         x: root.heroX
         y: root.pane.listSlot.y
@@ -38,7 +38,7 @@ Item {
             : ViewState.keyHints ? KeyName.hinted("Press %1 for a new folder.", "newFolder") : ""
     }
 
-    Flea.LoadingState {
+    Dlea.LoadingState {
         id: loadingState
         x: root.heroX
         y: root.pane.listSlot.y
@@ -71,7 +71,7 @@ Item {
         }
     }
 
-    Flea.StateMessage {
+    Dlea.StateMessage {
         id: paneMessage
         active: !root.trashOpen
         x: root.heroX + Theme.spacing.rowPaddingX

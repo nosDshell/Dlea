@@ -3,7 +3,7 @@
 .import "Format.js" as Format
 .import "Status.js" as Status
 
-// Flea's seven tag names in menu order, which is also the 1 to 7 key order; src/backend/tags.rs NAMES is the same list.
+// Dlea's seven tag names in menu order, which is also the 1 to 7 key order; src/backend/tags.rs NAMES is the same list.
 var NAMES = ["Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Gray"]
 
 // The board's tag swatch square, in px.

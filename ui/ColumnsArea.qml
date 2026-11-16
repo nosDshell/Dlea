@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Columns.js" as Columns
 import "js/ColumnsCarry.js" as Carry
 import "js/ColumnMenu.js" as ColumnMenu
@@ -38,7 +38,7 @@ Item {
     readonly property var keep: ({ drawn: [] })
     // A navigation's plan from its request to its flight's end, ui/js/ColumnsCarry.js plan.
     property var carry: null
-    Flea.ColumnsLanding { id: neighbourLanding; area: root }
+    Dlea.ColumnsLanding { id: neighbourLanding; area: root }
     readonly property var landing: neighbourLanding
 
     readonly property string parentPath: Nav.parentOf(root.pane.path)
@@ -414,7 +414,7 @@ Item {
             active: root.showGreatGrandparent
             width: root.showGreatGrandparent ? root.columnWidth : 0
             height: parent.height
-            sourceComponent: Flea.ColumnPane {
+            sourceComponent: Dlea.ColumnPane {
                 anchors.fill: parent
                 rows: root.greatGrandparentShown ? root.rowsFor(root.greatGrandparentPath) : []
                 enabled: !neighbourLanding.waiting(root.greatGrandparentPath)
@@ -443,7 +443,7 @@ Item {
             active: root.showGrandparent
             width: root.showGrandparent ? root.columnWidth : 0
             height: parent.height
-            sourceComponent: Flea.ColumnPane {
+            sourceComponent: Dlea.ColumnPane {
                 anchors.fill: parent
                 rows: root.grandparentShown ? root.rowsFor(root.grandparentPath) : []
                 enabled: !neighbourLanding.waiting(root.grandparentPath)
@@ -467,7 +467,7 @@ Item {
         }
 
         // The parent shows the current directory among its siblings; below 900 px it hides.
-        Flea.ColumnPane {
+        Dlea.ColumnPane {
             id: parentColumn
             visible: root.showParent
             width: root.showParent ? root.columnWidth : 0
@@ -493,7 +493,7 @@ Item {
         }
 
         // The pane's own listing, which is why this column and only this one takes the accent.
-        Flea.ColumnPane {
+        Dlea.ColumnPane {
             id: active
             width: root.columnWidth
             height: parent.height
@@ -520,7 +520,7 @@ Item {
         }
 
         // The cursor row: what is inside it when it is a directory, what it is when it is a file.
-        Flea.PreviewSwap {
+        Dlea.PreviewSwap {
             id: thirdSwap
             width: root.thirdWidth
             height: parent.height
@@ -530,7 +530,7 @@ Item {
             // On glass the pane's ground is already under the picture, so a second would stack; see ui/Glass.qml.
             ground: Glass.on ? "transparent" : Theme.color.background
 
-            Flea.ColumnPane {
+            Dlea.ColumnPane {
                 id: childColumn
                 anchors.fill: parent
                 visible: root.shownIsDir
@@ -548,7 +548,7 @@ Item {
                 onTabRequested: function (row) { Tap.tappedTab(row, root.shownChildPath, root.pane) }
             }
 
-            Flea.SelectionPreview {
+            Dlea.SelectionPreview {
                 id: preview
                 anchors.fill: parent
                 visible: root.shownHasRow && !root.shownIsDir && ViewState.previewColumn

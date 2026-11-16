@@ -12,7 +12,7 @@ pub(super) struct Target {
 pub(super) fn capture(
     paths: Vec<PathBuf>,
     selected: Option<Vec<Selected>>,
-) -> Result<Vec<Target>, FleaError> {
+) -> Result<Vec<Target>, DleaError> {
     let Some(selected) = selected else {
         return Ok(paths
             .into_iter()
@@ -20,7 +20,7 @@ pub(super) fn capture(
             .collect());
     };
     if paths.len() != selected.len() {
-        return Err(FleaError {
+        return Err(DleaError {
             where_: "settags".into(),
             path: String::new(),
             msg: super::super::menu_actions::SELECTION_CHANGED.into(),
@@ -30,7 +30,7 @@ pub(super) fn capture(
         .into_iter()
         .zip(selected)
         .map(|(path, item)| {
-            let failure = |msg| FleaError {
+            let failure = |msg| DleaError {
                 where_: "settags".into(),
                 path: path.to_string_lossy().into_owned(),
                 msg,
@@ -57,21 +57,21 @@ impl Target {
         }
     }
 
-    fn read(&self) -> Result<Option<Vec<u8>>, FleaError> {
+    fn read(&self) -> Result<Option<Vec<u8>>, DleaError> {
         match &self.pin {
             Some(pin) => pin.read_raw(),
             None => tags::read_raw(&self.path),
         }
     }
 
-    fn write(&self, names: &[String]) -> Result<(), FleaError> {
+    fn write(&self, names: &[String]) -> Result<(), DleaError> {
         match &self.pin {
             Some(pin) => pin.write_names(names),
             None => tags::write_names(&self.path, names),
         }
     }
 
-    fn restore(&self, raw: &Option<Vec<u8>>) -> Result<(), FleaError> {
+    fn restore(&self, raw: &Option<Vec<u8>>) -> Result<(), DleaError> {
         match &self.pin {
             Some(pin) => pin.restore(raw),
             None => tags::restore(&self.path, raw),
@@ -104,7 +104,7 @@ pub(super) fn write(base: &Path, targets: Vec<Target>, op: &str, tag: &str) -> W
     let mut devs = HashSet::new();
     let mut befores = Vec::with_capacity(targets.len());
     for target in &targets {
-        let missing = |error: FleaError| FleaError {
+        let missing = |error: DleaError| DleaError {
             where_: "settags".into(),
             path: target.path.to_string_lossy().into_owned(),
             msg: error.msg,
@@ -146,7 +146,7 @@ pub(super) fn write(base: &Path, targets: Vec<Target>, op: &str, tag: &str) -> W
         }
         if let Err(error) = target.write(&after) {
             rollback(&targets, &steps);
-            return Err(FleaError {
+            return Err(DleaError {
                 where_: "settags".into(),
                 path: target.path.to_string_lossy().into_owned(),
                 msg: error.msg,

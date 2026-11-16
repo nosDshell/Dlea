@@ -1,11 +1,11 @@
-//@ pragma ShellId flea-button-members-test
+//@ pragma ShellId dlea-button-members-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/Protocols.js" as Protocols
-import "flea/js/TextSize.js" as TextSize
+import "dlea" as Dlea
+import "dlea/js/Protocols.js" as Protocols
+import "dlea/js/TextSize.js" as TextSize
 import "button-probe.js" as Probe
 import "qml-probe.js" as QmlProbe
 
@@ -88,16 +88,16 @@ ShellRoot {
     // A is one ladder (hover 8% and press 14% inside the frame, only the frame and wash shrink, disabled dims); focus is the control's own frame, no control holds a ring, and focus moves nothing. A picker answer keeps the control height and body size, its frame inside the answer row's insets.
     function ladder(key, ink, frame, focusFrame, sizes) {
         var r = shell.readings[key]
-        var wantSizes = sizes || [shell.rulingHeight, shell.rulingHeight, Flea.Theme.font.body]
+        var wantSizes = sizes || [shell.rulingHeight, shell.rulingHeight, Dlea.Theme.font.body]
         for (var i = 0; i < shell.states.length; i++) {
             var state = shell.states[i]
             var drawnSizes = wantSizes.slice()
             if (state === "pressed") drawnSizes[1] -= 2 * Math.round(drawnSizes[1] * (1 - shell.rulingPressScale) / 2)
             shell.check(key + " " + state + ": outer height, frame height and label size", [r[state].outerHeight, r[state].frameHeight, r[state].labelSize], drawnSizes)
             var off = state === "disabled"
-            var want = off ? Probe.rgba(Flea.Theme.color.mutedFrame) : state === "focus" ? focusFrame : frame
-            shell.check(key + " " + state + ": the frame is one hairline in " + (off ? "muted" : state === "focus" ? "the focus frame" : frame), [r[state].frameColor, r[state].frameWidth], [want, Flea.Theme.spacing.hairline])
-            shell.check(key + " " + state + ": the label inks " + (off ? "muted" : ink), r[state].ink, off ? Probe.rgba(Flea.Theme.color.muted) : ink)
+            var want = off ? Probe.rgba(Dlea.Theme.color.mutedFrame) : state === "focus" ? focusFrame : frame
+            shell.check(key + " " + state + ": the frame is one hairline in " + (off ? "muted" : state === "focus" ? "the focus frame" : frame), [r[state].frameColor, r[state].frameWidth], [want, Dlea.Theme.spacing.hairline])
+            shell.check(key + " " + state + ": the label inks " + (off ? "muted" : ink), r[state].ink, off ? Probe.rgba(Dlea.Theme.color.muted) : ink)
             shell.check(key + " " + state + ": the wash lies inside the frame at its width, so the frame never changes",
                         [r[state].washInsetX, r[state].washInsetY, r[state].washShrink], [r[state].frameWidth, r[state].frameWidth, 2 * r[state].frameWidth])
         }
@@ -120,7 +120,7 @@ ShellRoot {
             id: formHost
             width: 460
             height: 700
-            Flea.NetworkForm { id: form; width: parent.width }
+            Dlea.NetworkForm { id: form; width: parent.width }
         }
 
         Item {
@@ -128,7 +128,7 @@ ShellRoot {
             y: 720
             width: 460
             height: 80
-            Flea.DialogField { id: referenceField; width: parent.width; label: "Reference" }
+            Dlea.DialogField { id: referenceField; width: parent.width; label: "Reference" }
         }
 
         Item {
@@ -136,14 +136,14 @@ ShellRoot {
             y: 820
             width: 800
             height: 160
-            Flea.PickerChrome {
+            Dlea.PickerChrome {
                 id: chrome
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.top: parent.top
                 picker: picker
             }
-            Flea.PickerAnswers {
+            Dlea.PickerAnswers {
                 id: answerRow
                 anchors.top: chrome.bottom
                 picker: picker
@@ -156,10 +156,10 @@ ShellRoot {
             y: 1000
             width: 460
             height: 60
-            Flea.DialogButton { id: plain; x: 20; y: 10; label: "Plain"; primary: true; onActivated: shell.plains += 1 }
-            Flea.ProtocolChip { id: spare; x: 200; y: 10; label: "Spare" }
-            Flea.CheckBox { id: emptyBox; x: 320; y: 10; value: "off" }
-            Flea.CheckBox { id: fullBox; x: 360; y: 10; value: "on" }
+            Dlea.DialogButton { id: plain; x: 20; y: 10; label: "Plain"; primary: true; onActivated: shell.plains += 1 }
+            Dlea.ProtocolChip { id: spare; x: 200; y: 10; label: "Spare" }
+            Dlea.CheckBox { id: emptyBox; x: 320; y: 10; value: "off" }
+            Dlea.CheckBox { id: fullBox; x: 360; y: 10; value: "on" }
         }
 
         // The Copy to dialog fills this host while it is open, and is shut when the pointer series run.
@@ -167,7 +167,7 @@ ShellRoot {
             id: dialogHost
             width: 800
             height: 700
-            Flea.MenuActionDialog { id: copyTo }
+            Dlea.MenuActionDialog { id: copyTo }
         }
 
         // Two trailing dialog buttons for the form's Tab walk, held out of every other check.
@@ -176,8 +176,8 @@ ShellRoot {
             y: 1080
             width: 460
             height: 60
-            Flea.DialogButton { id: trailA; x: 20; y: 10; label: "TrailA" }
-            Flea.DialogButton { id: trailB; x: 200; y: 10; label: "TrailB" }
+            Dlea.DialogButton { id: trailA; x: 20; y: 10; label: "TrailA" }
+            Dlea.DialogButton { id: trailB; x: 200; y: 10; label: "TrailB" }
         }
 
         Item { id: parking; y: 1190; width: 10; height: 10; focus: true }
@@ -232,15 +232,15 @@ ShellRoot {
         shell.check("the form draws every protocol as a member", items.every(function (i) { return i !== null }), true)
         shell.check("every member is 30 tall at body 14",
                     items.map(function (i) { var r = Probe.read(i); return [r.outerHeight, r.frameHeight, r.labelSize] }),
-                    names.map(function () { return [shell.rulingHeight, shell.rulingHeight, Flea.Theme.font.body] }))
+                    names.map(function () { return [shell.rulingHeight, shell.rulingHeight, Dlea.Theme.font.body] }))
         var gaps = []
         for (var i = 1; i < items.length; i++) gaps.push(items[i].x - (items[i - 1].x + items[i - 1].width))
         shell.check("members sit 4 apart", gaps, gaps.map(function () { return shell.rulingSetGap }))
         var picked = Probe.read(items[0])
-        var foreground = Probe.rgba(Flea.Theme.color.foreground)
+        var foreground = Probe.rgba(Dlea.Theme.color.foreground)
         shell.check("the picked member keeps a foreground frame and label", [picked.frameColor, picked.ink, picked.washAlpha], [foreground, foreground, 0])
         shell.check("an unpicked member rests in a muted frame and label", [Probe.read(items[1]).frameColor, Probe.read(items[1]).ink],
-                    [Probe.rgba(Flea.Theme.color.mutedFrame), Probe.rgba(Flea.Theme.color.muted)])
+                    [Probe.rgba(Dlea.Theme.color.mutedFrame), Probe.rgba(Dlea.Theme.color.muted)])
         shell.focusFrames(items)
         items[1].takeFocus()
         driver.keyClick(Qt.Key_Return, Qt.NoModifier, shell.noDelay)
@@ -275,25 +275,25 @@ ShellRoot {
 
     // A focused set member, picked or not, is its own accent hairline frame where the accent has hue; a focused plain button is its foreground hairline frame; a disabled one never draws either.
     function focusFrames(items) {
-        var c = Flea.Theme.color, rgba = Probe.rgba
+        var c = Dlea.Theme.color, rgba = Probe.rgba
         parking.forceActiveFocus()
         shell.check("an unfocused unpicked member's frame is muted and an unfocused picked one's is foreground", [Probe.read(items[1]).frameColor, Probe.read(items[0]).frameColor], [rgba(c.mutedFrame), rgba(c.foreground)])
         // The borders a resting control draws; focus adds none.
         var rest = [items[1], items[0], plain].map(Probe.shownBordered)
         var seen = [items[1], items[0], plain].map(Probe.focusRead)
-        var h = Flea.Theme.spacing.hairline
+        var h = Dlea.Theme.spacing.hairline
         shell.check("a focused member draws the accent hairline frame and its own label; a focused plain button draws the foreground hairline frame; neither adds a border",
                     seen.map(function (r) { return [r.frameColor, r.frameWidth, r.ink, r.ringItem, r.borders] }),
                     [[rgba(c.accent), h, rgba(c.muted), false, rest[0]], [rgba(c.accent), h, rgba(c.foreground), false, rest[1]], [rgba(c.foreground), h, rgba(c.foreground), false, rest[2]]])
         spare.forceActiveFocus(); spare.available = false; spare.focused = true
-        shell.check("a focused disabled member draws no accent and no thick frame", [Probe.read(spare).frameColor, Probe.read(spare).frameWidth], [rgba(c.mutedFrame), Flea.Theme.spacing.hairline])
+        shell.check("a focused disabled member draws no accent and no thick frame", [Probe.read(spare).frameColor, Probe.read(spare).frameWidth], [rgba(c.mutedFrame), Dlea.Theme.spacing.hairline])
         spare.focused = Qt.binding(function () { return spare.activeFocus }); spare.available = true
         parking.forceActiveFocus()
     }
 
     // A focused empty box draws its own foreground frame with no keyline; a focused filled box keeps its frame and shows a hairline keyline past a one-hairline gap; neither moves its outer size.
     function boxes() {
-        var rgba = Probe.rgba, c = Flea.Theme.color
+        var rgba = Probe.rgba, c = Dlea.Theme.color
         parking.forceActiveFocus()
         emptyBox.focused = false; fullBox.focused = false
         var restEmpty = [emptyBox.width, emptyBox.height]
@@ -309,7 +309,7 @@ ShellRoot {
         var fRing = Probe.find(fullBox, "checkRing")
         shell.check("a focused filled box keeps its foreground frame", Probe.rgba(fullBox.frameItem.border.color), rgba(c.foreground))
         shell.check("a focused filled box shows the keyline", fRing !== null && fRing.visible, true)
-        var h = Flea.Theme.spacing.hairline
+        var h = Dlea.Theme.spacing.hairline
         shell.check("the keyline is one hairline past a one-hairline gap", fRing ? [fRing.border.width, fRing.x, fRing.y, fRing.width - fullBox.width] : null, [h, -2 * h, -2 * h, 4 * h])
         shell.check("a focused filled box keeps its outer size", [fullBox.width, fullBox.height], restFull)
         fullBox.focused = false
@@ -317,41 +317,41 @@ ShellRoot {
     }
     // A primary whose rest frame is already the foreground (stock kanagawa) draws its own frame 2 px wide on focus, inward, so focus stays visible and nothing grows or moves.
     function huePrimary() {
-        var c = Flea.Theme.color, rgba = Probe.rgba
+        var c = Dlea.Theme.color, rgba = Probe.rgba
         parking.forceActiveFocus()
-        Flea.Theme.applyColors(Probe.KANAGAWA_THEME)
+        Dlea.Theme.applyColors(Probe.KANAGAWA_THEME)
         shell.check("kanagawa's accent frame is the foreground", rgba(c.accentFrame), rgba(c.foreground))
         var cool = Probe.read(plain)
         var coolBorders = Probe.shownBordered(plain)
-        shell.check("a resting primary frames itself in one foreground hairline", [cool.frameColor, cool.frameWidth], [rgba(c.foreground), Flea.Theme.spacing.hairline])
+        shell.check("a resting primary frames itself in one foreground hairline", [cool.frameColor, cool.frameWidth], [rgba(c.foreground), Dlea.Theme.spacing.hairline])
         var warm = Probe.focusRead(plain)
         shell.check("a focused primary draws its own frame 2 px in the foreground, with no ring item and no added border",
                     [warm.frameColor, warm.frameWidth, warm.ringItem, warm.borders], [rgba(c.foreground), shell.rulingThick, false, coolBorders])
         shell.check("a focused primary sits exactly where it rests: control, frame and label", [warm.box, warm.frameBox, warm.labelBox], [cool.box, cool.frameBox, cool.labelBox])
         shell.check("a focused primary's wash lies inside the 2 px frame", [warm.washInsetX, warm.washInsetY, warm.washShrink], [shell.rulingThick, shell.rulingThick, 2 * shell.rulingThick])
-        Flea.Theme.applyColors(Probe.COLOURED_THEME)
+        Dlea.Theme.applyColors(Probe.COLOURED_THEME)
         parking.forceActiveFocus()
     }
     // The picker's answers are A's control; its marks wear no frame.
     function answers() {
         var cancel = answerRow.focusItems()[1]
         var accept = answerRow.focusItems()[2]
-        var accentFrame = Probe.rgba(Flea.Theme.color.accentFrame)
-        var muted = Probe.rgba(Flea.Theme.color.muted)
-        var mutedFrame = Probe.rgba(Flea.Theme.color.mutedFrame)
-        var foreground = Probe.rgba(Flea.Theme.color.foreground)
+        var accentFrame = Probe.rgba(Dlea.Theme.color.accentFrame)
+        var muted = Probe.rgba(Dlea.Theme.color.muted)
+        var mutedFrame = Probe.rgba(Dlea.Theme.color.mutedFrame)
+        var foreground = Probe.rgba(Dlea.Theme.color.foreground)
         shell.check("Cancel and Open are the one control", [cancel.label, accept.label, cancel.primary, accept.primary], ["Cancel", "Open", false, true])
         shell.check("the answers sit inside the answer row", [cancel.height <= answerRow.height, accept.height <= answerRow.height], [true, true])
-        shell.check("the answer row is a hairline, the row padding twice and the 30 px control", answerRow.height, Flea.Theme.spacing.hairline + 2 * Flea.Theme.spacing.rowPaddingX + shell.rulingHeight)
+        shell.check("the answer row is a hairline, the row padding twice and the 30 px control", answerRow.height, Dlea.Theme.spacing.hairline + 2 * Dlea.Theme.spacing.rowPaddingX + shell.rulingHeight)
         var focused = shell.readings.accept.focus
         var frame = Probe.find(accept, "buttonFrame")
         var box = frame ? frame.mapToItem(answerRow, 0, 0) : null
-        if (box) shell.log("info answer row " + answerRow.height + " tall, frame from " + box.y + " to " + (box.y + frame.height) + ", the row's rule above " + Flea.Theme.spacing.hairline)
-        shell.check("the focus frame stays inside the answer row, under its rule", box !== null && box.y >= Flea.Theme.spacing.hairline && box.y + frame.height <= answerRow.height, true)
+        if (box) shell.log("info answer row " + answerRow.height + " tall, frame from " + box.y + " to " + (box.y + frame.height) + ", the row's rule above " + Dlea.Theme.spacing.hairline)
+        shell.check("the focus frame stays inside the answer row, under its rule", box !== null && box.y >= Dlea.Theme.spacing.hairline && box.y + frame.height <= answerRow.height, true)
         shell.check("the enabled primary is the accent frame, the secondary the muted one", [shell.readings.accept.rest.frameColor, shell.readings.cancel.rest.frameColor], [accentFrame, mutedFrame])
         var off = shell.readings.accept.disabled
         shell.check("a disabled Open is the muted frame and label at 0.55, with no wash", [off.frameColor, off.ink, off.opacity, off.frameFill], [mutedFrame, muted, shell.rulingDisabled, 0])
-        shell.check("keyboard focus on Open is the foreground hairline frame with no ring item", [focused.ringItem, focused.frameColor, focused.frameWidth], [false, foreground, Flea.Theme.spacing.hairline])
+        shell.check("keyboard focus on Open is the foreground hairline frame with no ring item", [focused.ringItem, focused.frameColor, focused.frameWidth], [false, foreground, Dlea.Theme.spacing.hairline])
         shell.check("the primary's resting wash is the 14% accent", shell.near(shell.readings.accept.rest.frameFill, shell.rulingPress), true)
         parking.forceActiveFocus()
         driver.mouseClick(cancel, cancel.width / 2, cancel.height / 2, Qt.LeftButton, Qt.NoModifier, shell.noDelay)
@@ -368,13 +368,13 @@ ShellRoot {
         shell.check("Back, Up and both view marks are chrome marks", all.every(function (m) { return !!m }), true)
         if (!all.every(function (m) { return !!m })) return
         shell.check("Back, Up and both view marks draw no frame", all.map(Probe.shownBordered), all.map(function () { return 0 }))
-        shell.check("a mark's hit box is the strip's height and never under 24", all.map(function (m) { return m.height >= Flea.Theme.hitMin && m.height === Flea.Theme.chromeHeight }), all.map(function () { return true }))
+        shell.check("a mark's hit box is the strip's height and never under 24", all.map(function (m) { return m.height >= Dlea.Theme.hitMin && m.height === Dlea.Theme.chromeHeight }), all.map(function () { return true }))
         var back = chrome.focusItems()[0]
         var dim = all[3]
         shell.check("Back and Up rest in the foreground and name themselves", [shell.markInk(back), back.name, chrome.focusItems()[1].name], [foreground, "Back", "Parent folder"])
         shell.check("the unlit view mark rests muted before the keyboard reaches it", shell.markInk(dim), muted)
         dim.forceActiveFocus()
-        shell.check("the keyboard lifts a muted mark to the foreground and frames it in the foreground", [shell.markInk(dim), Probe.shownBordered(dim), dim.ringItem.visible, dim.ringItem.border.width, Probe.rgba(dim.ringItem.border.color)], [foreground, 1, true, Flea.Theme.spacing.hairline, Probe.rgba(Flea.Theme.color.foreground)])
+        shell.check("the keyboard lifts a muted mark to the foreground and frames it in the foreground", [shell.markInk(dim), Probe.shownBordered(dim), dim.ringItem.visible, dim.ringItem.border.width, Probe.rgba(dim.ringItem.border.color)], [foreground, 1, true, Dlea.Theme.spacing.hairline, Probe.rgba(Dlea.Theme.color.foreground)])
         parking.forceActiveFocus()
         picker.history = []
         shell.check("a mark with nowhere to go is disabled and out of the Tab walk", [back.enabled, back.available, back.activeFocusOnTab], [false, false, false])
@@ -471,14 +471,14 @@ ShellRoot {
         steps = steps.concat(shell.seriesFor("accept", accept, function (on) { picker.canAccept = on }, function () { return shell.accepts }))
         steps = steps.concat(shell.seriesFor("plain", plain, function (on) { plain.available = on }, function () { return shell.plains }))
         steps.push({ item: parking, name: "check", act: function () {}, record: function () {
-            shell.check("the harness draws at the reference text size", Flea.Theme.baseSize, shell.pinnedSize)
-            shell.check("the harness runs with motion on, so the frame shrink is drawn", Flea.Theme.reducedMotion, false)
-            var muted = Probe.rgba(Flea.Theme.color.muted)
-            var mutedFrame = Probe.rgba(Flea.Theme.color.mutedFrame)
-            shell.ladder("member", muted, mutedFrame, Probe.rgba(Flea.Theme.color.accent))
-            shell.ladder("cancel", Probe.rgba(Flea.Theme.color.foreground), mutedFrame, Probe.rgba(Flea.Theme.color.foreground))
-            shell.ladder("plain", Probe.rgba(Flea.Theme.color.foreground), Probe.rgba(Flea.Theme.color.accentFrame), Probe.rgba(Flea.Theme.color.foreground))
-            shell.ladder("accept", Probe.rgba(Flea.Theme.color.foreground), Probe.rgba(Flea.Theme.color.accentFrame), Probe.rgba(Flea.Theme.color.foreground))
+            shell.check("the harness draws at the reference text size", Dlea.Theme.baseSize, shell.pinnedSize)
+            shell.check("the harness runs with motion on, so the frame shrink is drawn", Dlea.Theme.reducedMotion, false)
+            var muted = Probe.rgba(Dlea.Theme.color.muted)
+            var mutedFrame = Probe.rgba(Dlea.Theme.color.mutedFrame)
+            shell.ladder("member", muted, mutedFrame, Probe.rgba(Dlea.Theme.color.accent))
+            shell.ladder("cancel", Probe.rgba(Dlea.Theme.color.foreground), mutedFrame, Probe.rgba(Dlea.Theme.color.foreground))
+            shell.ladder("plain", Probe.rgba(Dlea.Theme.color.foreground), Probe.rgba(Dlea.Theme.color.accentFrame), Probe.rgba(Dlea.Theme.color.foreground))
+            shell.ladder("accept", Probe.rgba(Dlea.Theme.color.foreground), Probe.rgba(Dlea.Theme.color.accentFrame), Probe.rgba(Dlea.Theme.color.foreground))
             shell.members()
             shell.passwordHint()
             shell.trailingWalk()
@@ -500,11 +500,11 @@ ShellRoot {
         if (shell.step > shell.script.length) return
         if (shell.script.length === 0) {
             // Assigned only once the store lies under the root, because it may write on assignment.
-            var inside = shell.underRoot(Flea.ViewState.store.path) && shell.underRoot(Quickshell.env("HOME") || "")
+            var inside = shell.underRoot(Dlea.ViewState.store.path) && shell.underRoot(Quickshell.env("HOME") || "")
             shell.check("sandbox: the state file and HOME lie under the harness root", inside, true)
             if (!inside) { shell.finish(); return }
-            Flea.ViewState.state = { display: { textSize: { mode: TextSize.nearest(shell.pinnedSize) } } }
-            Flea.Theme.applyColors(Probe.COLOURED_THEME)
+            Dlea.ViewState.state = { display: { textSize: { mode: TextSize.nearest(shell.pinnedSize) } } }
+            Dlea.Theme.applyColors(Probe.COLOURED_THEME)
             shell.buildScript()
             return
         }

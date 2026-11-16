@@ -3,15 +3,15 @@ case_pdffocus() {
     local dir="$fixture_root/pdffocus" state="$fixture_root/pdffocus-state" preset mode last_row selected_row cx cy wx wy ww wh addr
     sandbox_scratch "$dir"
     sandbox_scratch "$state"
-    mkdir -p "$state/flea"
+    mkdir -p "$state/dlea"
     printf 'listing cursor guard\n' > "$dir/a.txt"
-    magick \( -size 440x1100 xc:white -fill black "${flea_magick_font_args[@]}" -pointsize 24 -annotate +30+45 PAGEONE \) \
-           \( -size 440x1100 xc:white -fill black "${flea_magick_font_args[@]}" -pointsize 24 -annotate +30+45 PAGETWO \) \
-           \( -size 440x1100 xc:white -fill black "${flea_magick_font_args[@]}" -pointsize 24 -annotate +30+45 PAGETHREE \) "$dir/manual.pdf"
+    magick \( -size 440x1100 xc:white -fill black "${dlea_magick_font_args[@]}" -pointsize 24 -annotate +30+45 PAGEONE \) \
+           \( -size 440x1100 xc:white -fill black "${dlea_magick_font_args[@]}" -pointsize 24 -annotate +30+45 PAGETWO \) \
+           \( -size 440x1100 xc:white -fill black "${dlea_magick_font_args[@]}" -pointsize 24 -annotate +30+45 PAGETHREE \) "$dir/manual.pdf"
     [[ -s "$dir/manual.pdf" ]] || fail "PDF fixture generation failed"
     export XDG_STATE_HOME="$state"
     for preset in default vim mac windows; do
-        jq -n --arg preset "$preset" '{view:"list",keys:$preset,preview:{column:true,loadOn:"automatic"}}' > "$state/flea/ui.json"
+        jq -n --arg preset "$preset" '{view:"list",keys:$preset,preview:{column:true,loadOn:"automatic"}}' > "$state/dlea/ui.json"
         launch "$dir"
         wait_listing 2
         [[ "$(ipc keymapPreset)" == "$preset" ]] || fail "PDF preset did not load: $preset"
@@ -62,11 +62,11 @@ case_pdffocus() {
         key -M ctrl -k Tab -m ctrl >/dev/null
         pdf_expect false '(.focused | not)' "Ctrl+Tab exits inline PDF"
         printf 'PDF preset=%s overlay=ok inline=ok focus=ok activation=ok disabled=ok pages=ok zoom=ok scroll=ok isolation=ok\n' "$preset"
-        kill_flea
+        kill_dlea
     done
     # All three listing views use the same overlay; prove their native entry paths separately.
     for mode in list grid columns; do
-        jq -n --arg mode "$mode" '{view:$mode,keys:"default",preview:{column:true,loadOn:"automatic"}}' > "$state/flea/ui.json"
+        jq -n --arg mode "$mode" '{view:$mode,keys:"default",preview:{column:true,loadOn:"automatic"}}' > "$state/dlea/ui.json"
         launch "$dir"
         wait_listing 2
         if [[ "$mode" == grid ]]; then
@@ -89,12 +89,12 @@ case_pdffocus() {
         key e >/dev/null
         [[ "$(ipc previewExpanded)" == true ]] || fail "PDF e did not expand in $mode"
         # Reuse cardsizes.sh's addressed Hyprland resize, with exact owned PID and geometry checks.
-        addr=$(hyprctl -j clients | jq -er --argjson pid "$(flea_pid)" '.[] | select(.pid == $pid) | .address')
+        addr=$(hyprctl -j clients | jq -er --argjson pid "$(dlea_pid)" '.[] | select(.pid == $pid) | .address')
         [[ "$addr" =~ ^0x[0-9a-fA-F]+$ ]] || fail "PDF cannot identify owned window"
-        omarchy-drive window float flea >/dev/null
+        omarchy-drive window float dlea >/dev/null
         local resize_width=800 resize_height=480
         hypr_window_resize "$addr" "$resize_width" "$resize_height" || fail "PDF could not resize owned window"
-        omarchy-drive window center flea >/dev/null
+        omarchy-drive window center dlea >/dev/null
         settle
         read -r wx wy ww wh < <(window_box) || fail "native window coordinates unavailable"
         [[ "$ww $wh" == '800 480' ]] || fail "PDF specimen viewport is $ww $wh"
@@ -127,7 +127,7 @@ case_pdffocus() {
             [[ "$(ipc pdfState false)" == null ]] || fail "PDF $mode unexpectedly has an inline preview"
             shot "pdf-listing-$mode-800x480"
             printf 'PDF view=%s native_entry=ok pointer=ok no_inline=ok viewport=800x480\n' "$mode"
-            kill_flea
+            kill_dlea
             continue
         fi
         pdf_expect false '.pages == 3' "$mode inline document"
@@ -138,7 +138,7 @@ case_pdffocus() {
         key -k Escape >/dev/null
         pdf_expect false '(.focused | not)' "$mode inline focus return"
         printf 'PDF view=%s native_entry=ok pointer=ok viewport=%sx%s\n' "$mode" "$ww" "$wh"
-        kill_flea
+        kill_dlea
     done
 }
 
@@ -318,7 +318,7 @@ case_columns() {
     click_chrome list
     settle
     [[ "$(ipc viewMode)" == "list" ]] || fail "columns: the list button did not switch back"
-    kill_flea
+    kill_dlea
 }
 
 case_views() {
@@ -510,7 +510,7 @@ case_views() {
         || fail "columns: with 5 columns the hero's box is $(ipc emptyStateRect), not the free area $ex $sy $ew $sh"
     printf 'VIEWS columns5 hero=free area %s %s\n' "$ex" "$ew"
     export XDG_STATE_HOME="$suite_state"
-    kill_flea
+    kill_dlea
 }
 
 case_formats() {
@@ -573,8 +573,8 @@ case_formats() {
     column_expect broken.pdf error
     [[ "$(ipc columnFailure)" == "This file could not be read." ]] || fail "formats: broken.pdf's sentence is '$(ipc columnFailure)'"
     column_expect sample.txt text
-    for _attempt in $(seq 1 40); do [[ "$(ipc columnTextLines)" == "hello from flea|"* ]] && break; sleep 0.1; done
-    [[ "$(ipc columnTextLines)" == "hello from flea|second line"* ]] || fail "formats: sample.txt's lines read '$(ipc columnTextLines)'"
+    for _attempt in $(seq 1 40); do [[ "$(ipc columnTextLines)" == "hello from dlea|"* ]] && break; sleep 0.1; done
+    [[ "$(ipc columnTextLines)" == "hello from dlea|second line"* ]] || fail "formats: sample.txt's lines read '$(ipc columnTextLines)'"
     shot formats-sample-lines
     lit=$(lit_in_rect "$evidence_dir/formats-sample-lines.png" $(ipc columnLinesRect))
     (( lit > 50 )) || fail "formats: sample.txt's lines box painted $lit lit pixels"
@@ -616,5 +616,5 @@ case_formats() {
     key -k Escape >/dev/null
     settle
     printf 'FORMATS images=4 videos=3 audio=1 pdf=2 text=4 code=2 archives=4 links=3 error=1 unsupported=1 multi=1\n'
-    kill_flea
+    kill_dlea
 }

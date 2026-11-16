@@ -1,5 +1,5 @@
 {
-  "schema": "flea-i18n-native-contract/1",
+  "schema": "dlea-i18n-native-contract/1",
   "cases": ["catalog", "fit", "ime", "fonts", "rtl", "live"],
   "frontends": ["gui", "tui"],
   "fit_languages": ["de", "ar", "ja", "zh-CN", "th", "hi"],

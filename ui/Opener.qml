@@ -2,7 +2,7 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 
-// The one component that runs Flea's own opening modes, so the huge page corner has one owner; see AGENTS.md "Opening a file".
+// The one component that runs Dlea's own opening modes, so the huge page corner has one owner; see AGENTS.md "Opening a file".
 Item {
     id: root
 
@@ -12,7 +12,7 @@ Item {
     // Raised where the two single-flight guards below drop a request, so a swallowed press says so.
     signal busy(string path)
     signal terminalBusy(string path)
-    // flea --open answers 4 with the run card's own ask line on stdout, and 5 where no application claims the file.
+    // dlea --open answers 4 with the run card's own ask line on stdout, and 5 where no application claims the file.
     signal askRunRaw(string path, string text)
     signal askOpenWith(string path)
 
@@ -31,7 +31,7 @@ Item {
     property bool pending: false
     property string askText: ""
 
-    // flea --open waits for gio open and not for the application it starts, and that wait is 11 to 15 ms
+    // dlea --open waits for gio open and not for the application it starts, and that wait is 11 to 15 ms
     // for an Exec= handler but 0.32 to 0.75 s for a DBusActivatable one, which is what this box's
     // twenty-five archive types default to, so this guard drops a second Enter for that long and says so.
     function open(path) {
@@ -42,7 +42,7 @@ Item {
         root.current = path
         root.pending = true
         root.askText = ""
-        child.command = [Quickshell.env("FLEA_BIN") || "flea", "--open", path]
+        child.command = [Quickshell.env("DLEA_BIN") || "dlea", "--open", path]
         child.running = true
     }
 
@@ -76,7 +76,7 @@ Item {
         }
     }
 
-    // A terminal in the current directory, through flea --terminal so the huge page,
+    // A terminal in the current directory, through dlea --terminal so the huge page,
     // process-group and stdio guards in src/terminal.rs apply. Its own Process, so a terminal
     // launch and a file open in flight cannot take each other's exit status.
     function openTerminal(path) {
@@ -85,7 +85,7 @@ Item {
             return
         }
         root.terminalCurrent = path
-        terminalChild.command = [Quickshell.env("FLEA_BIN") || "flea", "--terminal", path]
+        terminalChild.command = [Quickshell.env("DLEA_BIN") || "dlea", "--terminal", path]
         terminalChild.running = true
     }
 
@@ -101,7 +101,7 @@ Item {
     }
 
     // The system clipboard, for the listing menu's Copy Path row. wl-copy reads the text on stdin,
-    // so the one-liner hands it over; flea's own copy clipboard (Ops.clip) is a different thing
+    // so the one-liner hands it over; dlea's own copy clipboard (Ops.clip) is a different thing
     // and must stay a different thing.
     function copyText(text) {
         if (copier.running) {
@@ -115,8 +115,8 @@ Item {
         id: copier
     }
 
-    // A library cannot name a singleton, so the menu's Update Flea row comes through here, and the pane's footer says what it did.
-    function updateFlea(pane) {
+    // A library cannot name a singleton, so the menu's Update Dlea row comes through here, and the pane's footer says what it did.
+    function updateDlea(pane) {
         UpdateCheck.launch(pane)
     }
 

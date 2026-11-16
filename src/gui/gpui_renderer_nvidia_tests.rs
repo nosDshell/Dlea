@@ -143,7 +143,7 @@ fn l_nvidia_render_node_only_nvidia_is_present_but_idle() {
         (Some("nvidia_icd.json,nvk.json,radeon.json".into()), true)
     );
     // Present all the same: asking for the dGPU keeps its drivers and disables only the absent vendor's.
-    let keep = |name: &str| (name == "FLEA_VK_KEEP_NVIDIA").then(|| "1".into());
+    let keep = |name: &str| (name == "DLEA_VK_KEEP_NVIDIA").then(|| "1".into());
     let filter = crate::icdexclude::decide_exclusion(keep, &pci, &drm, &data);
     assert_eq!(filter, (Some("radeon.json".into()), false));
 }
@@ -167,11 +167,11 @@ fn l_nvidia_idle_nvidia_keeps_its_drivers_when_the_display_gpu_has_none() {
 
 #[test]
 fn l_nvidia_gpui_removes_qt_renderer_choices_and_retry_markers() {
-    let mut command = Command::new("flea-gui");
+    let mut command = Command::new("dlea-gui");
     clear_qt_renderer(&mut command);
     for key in [
         "QSG_RHI_BACKEND",
-        "FLEA_RENDERER_AUTOMATIC",
+        "DLEA_RENDERER_AUTOMATIC",
         "QT_VK_PHYSICAL_DEVICE_INDEX",
     ] {
         assert!(command
@@ -195,7 +195,7 @@ fn configured_pin(root: &TestDir, operator: bool) -> String {
         .env("XDG_DATA_HOME", root.path().join("data"))
         .env("XDG_CACHE_HOME", root.dir("cache"))
         .env("TMPDIR", root.dir("tmp"))
-        .env("FLEA_NVIDIA_CHILD", "1");
+        .env("DLEA_NVIDIA_CHILD", "1");
     if operator {
         child.env("VK_DRIVER_FILES", "/operator/driver.json");
     }
@@ -218,17 +218,17 @@ fn configured_pin(root: &TestDir, operator: bool) -> String {
     );
     stdout
         .lines()
-        .find_map(|line| line.strip_prefix("FLEA_NVIDIA_PIN="))
+        .find_map(|line| line.strip_prefix("DLEA_NVIDIA_PIN="))
         .expect("configured pin")
         .to_owned()
 }
 
 #[test]
 fn l_nvidia_configure_child() {
-    if std::env::var("FLEA_NVIDIA_CHILD").as_deref() != Ok("1") {
+    if std::env::var("DLEA_NVIDIA_CHILD").as_deref() != Ok("1") {
         return;
     }
-    let mut cmd = Command::new("flea-gui");
+    let mut cmd = Command::new("dlea-gui");
     configure(&mut cmd);
     let pin = cmd
         .get_envs()
@@ -236,7 +236,7 @@ fn l_nvidia_configure_child() {
         .map(|(_, value)| value.map(OsStr::to_os_string))
         .unwrap_or_else(|| std::env::var_os("VK_DRIVER_FILES"));
     println!(
-        "FLEA_NVIDIA_PIN={}",
+        "DLEA_NVIDIA_PIN={}",
         pin.unwrap_or_default().to_string_lossy()
     );
 }
@@ -249,9 +249,9 @@ fn l_nvidia_operator_driver_selection_survives() {
 }
 
 #[test]
-fn l_nvidia_inherited_flea_pin_is_reconsidered() {
+fn l_nvidia_inherited_dlea_pin_is_reconsidered() {
     let root = TestDir::new("nvidia-inherited");
     manifests(&root);
-    root.file("inherit", "inherited Flea pin fixture");
+    root.file("inherit", "inherited Dlea pin fixture");
     assert!(configured_pin(&root, false).is_empty());
 }

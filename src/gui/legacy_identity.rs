@@ -1,4 +1,4 @@
-// A locked Quickshell registry entry identifies a Flea shell without matching process names.
+// A locked Quickshell registry entry identifies a Dlea shell without matching process names.
 use std::ffi::OsString;
 use std::fs;
 use std::os::fd::AsRawFd;
@@ -76,7 +76,7 @@ fn owned(path: &Path, uid: u32) -> bool {
 pub(super) fn find(runtime: &Path) -> Result<Vec<Instance>, String> {
     let base = runtime.join("quickshell");
     let uid = crate::backend::manifestdir::current_uid();
-    let shell = base.join("by-shell/flea");
+    let shell = base.join("by-shell/dlea");
     let entries = match fs::read_dir(&shell) {
         Ok(entries) => entries,
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => return Ok(Vec::new()),
@@ -132,17 +132,17 @@ pub(super) fn find(runtime: &Path) -> Result<Vec<Instance>, String> {
         let env: Vec<&[u8]> = env.split(|b| *b == 0).collect();
         let ui = env
             .iter()
-            .find_map(|s| s.strip_prefix(b"FLEA_UI=" as &[u8]))
+            .find_map(|s| s.strip_prefix(b"DLEA_UI=" as &[u8]))
             .filter(|s| !s.is_empty())
-            .unwrap_or(b"/usr/share/flea/ui");
+            .unwrap_or(b"/usr/share/dlea/ui");
         let mut entry = ui.to_vec();
         entry.extend_from_slice(b"/boot/shell.qml");
         let backend = env
             .iter()
-            .any(|s| s.starts_with(b"FLEA_BIN=") && s.len() > 9);
+            .any(|s| s.starts_with(b"DLEA_BIN=") && s.len() > 9);
         let position = args.windows(2).position(|a| a[0] == b"-p" && a[1] == entry);
         if !backend || position.is_none() || position == Some(0) {
-            return Err("a live Flea registry entry has an unsupported process identity".into());
+            return Err("a live Dlea registry entry has an unsupported process identity".into());
         }
         let instance = Instance {
             id,

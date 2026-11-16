@@ -22,7 +22,7 @@ SPECIMENS = {
 # Both sort before every specimen; the launch cursor takes the first row, so the control and every logo rest unmarked.
 # The headless lane has no keyboard (send_shortcut: no keyboard), so selected and cut inks are proven natively.
 CURSOR, CONTROL = '.0-cursor.ini', '.1-ink.ini'
-# Columns has no row rectangle reader under GPUI yet (FLEA_IPC_NOT_PORTED flea.rowRect); its marks are proven natively.
+# Columns has no row rectangle reader under GPUI yet (DLEA_IPC_NOT_PORTED dlea.rowRect); its marks are proven natively.
 VIEWS = ('list', 'grid')
 # Grid answers empty row names until its first paint, so the rows are judged once, from that first painted frame.
 FIRST_PAINT_POLLS, FIRST_PAINT_STEP = 100, .05
@@ -54,7 +54,7 @@ def run(root, logs, Window, call, wait, grab, command, windows):
     for view in VIEWS:
         state = dict(view=view, density='compact', langMarks=True, hidden=True,
                      display=dict(textSize=dict(mode=14)), preview=dict(thumbnails='off', thumbSize='large', column=False))
-        command(os.environ['FLEA_BIN'], '--ui-state', json.dumps(state))
+        command(os.environ['DLEA_BIN'], '--ui-state', json.dumps(state))
         command(*dispatch, 'cursor_move', '2559', '1439')
         for offset, group in zip(range(0, 35, 7), groups):
             directory = root / 'codeicons' / str(offset)
@@ -91,7 +91,7 @@ def run(root, logs, Window, call, wait, grab, command, windows):
             window.stop()
             windows.remove(window)
     # Hand the later scenes the stock state these cases changed.
-    command(os.environ['FLEA_BIN'], '--ui-state', json.dumps(dict(hidden=False, preview=dict(thumbnails='media', thumbSize='medium', column=True))))
+    command(os.environ['DLEA_BIN'], '--ui-state', json.dumps(dict(hidden=False, preview=dict(thumbnails='media', thumbSize='medium', column=True))))
     codeicons.distinct(receipts)
     (logs / 'codeicons-pixels.json').write_text(json.dumps([{k: v for k, v in r.items() if k != 'shape'} for r in receipts], indent=2) + '\n')
     codeicons.require(len(receipts) == 35 * len(VIEWS), 'missing language pixel receipts')

@@ -1,4 +1,4 @@
-"""tools/flea-slop-ratchet: growth fails and names the offender, equal passes, a raise is refused, tests are excluded."""
+"""tools/dlea-slop-ratchet: growth fails and names the offender, equal passes, a raise is refused, tests are excluded."""
 import shutil
 import subprocess
 import tempfile
@@ -6,7 +6,7 @@ import unittest
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-TOOL = REPO / "tools/flea-slop-ratchet"
+TOOL = REPO / "tools/dlea-slop-ratchet"
 FLAGS = "pub struct Flags {\n    a: bool,\n    b: bool,\n    c: bool,\n    d: bool,\n}\n"
 BLOCK = "".join(f"let v{i} = call_{i}(x, y);\n" for i in range(9))
 UNIQUE = "".join(f"let u{i} = only_{i}();\n" for i in range(40))
@@ -20,7 +20,7 @@ class Ratchet(unittest.TestCase):
         self.root = Path(self.tmp.name)
         subprocess.run(["git", "init", "-q", str(self.root)], check=True)
         self.put("src/backend/a.rs", FLAGS + "fn f() { g().unwrap(); }\n")
-        self.put("crates/flea-gui/src/b.rs", "use flea::backend::regfile;\n")
+        self.put("crates/dlea-gui/src/b.rs", "use dlea::backend::regfile;\n")
         self.put("src/c.rs", "fn one() {\n" + BLOCK + "}\nfn two() {\n" + BLOCK + "}\n")
         self.assertEqual(self.run_tool("--write-baseline").returncode, 0)
         self.baseline = (self.root / "tools/slop-ratchet-baseline.txt").read_text()
@@ -65,23 +65,23 @@ class Ratchet(unittest.TestCase):
         self.assert_grew("bool_structs", "src/d.rs Doc 1, baseline 0")
 
     def test_backend_import_grows(self):
-        self.put("crates/flea-gui/src/e.rs", "use flea::backend::ops;\n")
-        self.assert_grew("backend_imports", "crates/flea-gui/src/e.rs flea::backend::ops 1")
-        self.put("crates/flea-gui/src/e.rs", "")
+        self.put("crates/dlea-gui/src/e.rs", "use dlea::backend::ops;\n")
+        self.assert_grew("backend_imports", "crates/dlea-gui/src/e.rs dlea::backend::ops 1")
+        self.put("crates/dlea-gui/src/e.rs", "")
         self.put("src/backend/f.rs", "use crate::gui::Thing;\n")
         self.assert_grew("backend_imports", "src/backend/f.rs crate::gui 1")
 
     def test_grouped_and_aliased_backend_imports_grow(self):
         for text, edge in (
-            ("use flea::backend::{ops, regfile};\n", "flea::backend::ops"),
-            ("use flea::{backend::{self, trash}, keys};\n", "flea::backend::trash"),
-            ("use flea::backend;\nfn f() { backend::events::send(); }\n", "flea::backend::events"),
-            ("use flea as core;\nfn f() { core::backend::listing::open(); }\n", "flea::backend::listing"),
-            ("fn f() { ::flea::backend::run::go(); }\n", "flea::backend::run"),
+            ("use dlea::backend::{ops, regfile};\n", "dlea::backend::ops"),
+            ("use dlea::{backend::{self, trash}, keys};\n", "dlea::backend::trash"),
+            ("use dlea::backend;\nfn f() { backend::events::send(); }\n", "dlea::backend::events"),
+            ("use dlea as core;\nfn f() { core::backend::listing::open(); }\n", "dlea::backend::listing"),
+            ("fn f() { ::dlea::backend::run::go(); }\n", "dlea::backend::run"),
         ):
-            self.put("crates/flea-gui/src/e.rs", text)
-            self.assert_grew("backend_imports", f"crates/flea-gui/src/e.rs {edge} 1")
-        self.put("crates/flea-gui/src/e.rs", "")
+            self.put("crates/dlea-gui/src/e.rs", text)
+            self.assert_grew("backend_imports", f"crates/dlea-gui/src/e.rs {edge} 1")
+        self.put("crates/dlea-gui/src/e.rs", "")
         for text, edge in (
             ("use crate::{gui::Thing, keys};\n", "crate::gui"),
             ("fn f() { super::super::tui::draw(); }\n", "crate::tui"),
@@ -91,7 +91,7 @@ class Ratchet(unittest.TestCase):
             self.assert_grew("backend_imports", f"src/backend/f.rs {edge} 1")
 
     def test_backend_paths_that_cross_nothing_pass(self):
-        self.put("crates/flea-gui/src/e.rs", "use crate::backend::Client;\nfn f() { crate::backend::send(); }\n// flea::backend::ops\n")
+        self.put("crates/dlea-gui/src/e.rs", "use crate::backend::Client;\nfn f() { crate::backend::send(); }\n// dlea::backend::ops\n")
         self.put("src/backend/f.rs", "use super::*;\nuse crate::backend::listing;\nfn f() { super::ops::run(); }\n")
         self.put("src/tui/g.rs", "use crate::backend::listing;\n")
         self.assert_passes()
@@ -181,7 +181,7 @@ class Ratchet(unittest.TestCase):
     def test_test_code_excluded(self):
         self.put("src/backend/a.rs", FLAGS + "fn f() { g().unwrap(); }\n#[cfg(test)]\nmod t {\n    fn x() { y().unwrap(); }\n" + FLAGS.replace("Flags", "T") + "}\n")
         self.put("src/backend/a_tests.rs", FLAGS + "fn z() { q().unwrap(); }\n")
-        self.put("crates/flea-gui/tests/i.rs", "use flea::backend::ops;\n" + FLAGS)
+        self.put("crates/dlea-gui/tests/i.rs", "use dlea::backend::ops;\n" + FLAGS)
         self.put("src/m_fixture.rs", "fn three() {\n" + BLOCK + "}\n")
         self.put("src/n.rs", "//! Only built for tests.\n#![cfg(test)]\nfn z() { q().unwrap(); }\n")
         self.put("src/o.rs", "#![cfg(all(test, unix))]\nfn z() { q().unwrap(); }\n")

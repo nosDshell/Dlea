@@ -9,15 +9,15 @@ import sys
 import tempfile
 import time
 
-root = Path(tempfile.mkdtemp(prefix="flea-search-remap."))
-(root / ".flea-test-sandbox").write_text("Search remap protocol\n")
+root = Path(tempfile.mkdtemp(prefix="dlea-search-remap."))
+(root / ".dlea-test-sandbox").write_text("Search remap protocol\n")
 scope = root / "files"
 scope.mkdir()
 for folder in ("a", "b", "c"):
     (scope / folder).mkdir()
     (scope / folder / "same.txt").write_text(folder)
 process = subprocess.Popen([sys.argv[1], "--backend"], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                           env=dict(os.environ, FLEA_UNDO_DIR=str(root / "undo")), bufsize=0)
+                           env=dict(os.environ, DLEA_UNDO_DIR=str(root / "undo")), bufsize=0)
 selector = selectors.DefaultSelector()
 selector.register(process.stdout, selectors.EVENT_READ)
 pending = b""
@@ -139,5 +139,5 @@ finally:
         process.kill()
         process.wait()
     assert root.is_absolute() and root.parent == Path(tempfile.gettempdir()) and root.resolve() == root
-    assert (root / ".flea-test-sandbox").is_file()
+    assert (root / ".dlea-test-sandbox").is_file()
     shutil.rmtree(root)

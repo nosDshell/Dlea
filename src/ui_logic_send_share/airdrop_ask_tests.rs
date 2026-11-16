@@ -3,7 +3,7 @@ use crate::i18n::Paths;
 use std::path::PathBuf;
 
 fn english() -> I18n {
-    let none = PathBuf::from("/nonexistent/flea-airdrop-ask");
+    let none = PathBuf::from("/nonexistent/dlea-airdrop-ask");
     I18n::load(Paths {
         omarchy: none.clone(),
         language_file: none,
@@ -209,7 +209,7 @@ fn the_notification_names_the_sender_and_files_escaped_and_carries_accept_and_de
             "timeout",
             "12",
             "notify-send",
-            "--app-name=Flea",
+            "--app-name=Dlea",
             "--print-id",
             "--expire-time=12000",
             "--action=accept=Accept",

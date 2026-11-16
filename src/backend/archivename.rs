@@ -1,7 +1,7 @@
 // A taken compress or extract output lands under Duplicate's next free " copy" name, never refused or merged into.
 use crate::backend::ops::NAME_TRIES;
 use crate::backend::opsreq::op_err;
-use crate::error::FleaError;
+use crate::error::DleaError;
 use std::ffi::{OsStr, OsString};
 use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
@@ -49,8 +49,8 @@ pub(crate) fn publish(
     dest: &Path,
     format: Option<&str>,
     cancel: &AtomicBool,
-    rename: impl Fn(&Path, &Path, &AtomicBool) -> Result<(), FleaError>,
-) -> Result<PathBuf, FleaError> {
+    rename: impl Fn(&Path, &Path, &AtomicBool) -> Result<(), DleaError>,
+) -> Result<PathBuf, DleaError> {
     for n in 0..=NAME_TRIES {
         let target = match n {
             0 => dest.to_path_buf(),

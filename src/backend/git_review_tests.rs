@@ -58,7 +58,7 @@ fn git_snapshot_child_assertions_reject_missing_execution_witnesses() {
     ] {
         let output = std::process::Command::new(std::env::current_exe().unwrap())
             .args(["--exact", filter, "--nocapture"])
-            .env_remove("FLEA_REVIEW_STATUS_INPUT")
+            .env_remove("DLEA_REVIEW_STATUS_INPUT")
             .output()
             .unwrap();
         assert!(output.status.success());
@@ -101,7 +101,7 @@ fn review_git_status_with_deep_index_path() {
 
 #[test]
 fn review_git_status_large_snapshot_child() {
-    let Some(path) = std::env::var_os("FLEA_REVIEW_STATUS_INPUT") else {
+    let Some(path) = std::env::var_os("DLEA_REVIEW_STATUS_INPUT") else {
         return;
     };
     let bytes = std::fs::read(path).unwrap();
@@ -140,7 +140,7 @@ fn review_git_status_deep_index_exhausts_parent_memory() {
     let bytes = gitprobe::capture(&gitprobe::argv(&repo), gitprobe::DEADLINE).unwrap();
     println!("REVIEW_OOM valid_git_stdout_bytes={}", bytes.len());
     d.write("status-output", &bytes);
-    let output = std::process::Command::new(flea::testpath::tool("/usr/bin/prlimit"))
+    let output = std::process::Command::new(dlea::testpath::tool("/usr/bin/prlimit"))
         .arg(format!("--as={CHILD_ADDRESS_SPACE_BYTES}"))
         .arg("--core=0")
         .arg("--")
@@ -150,7 +150,7 @@ fn review_git_status_deep_index_exhausts_parent_memory() {
             "backend::gitreq::review_tests::review_git_status_large_snapshot_child",
             "--nocapture",
         ])
-        .env("FLEA_REVIEW_STATUS_INPUT", d.path("status-output"))
+        .env("DLEA_REVIEW_STATUS_INPUT", d.path("status-output"))
         .output()
         .unwrap();
     println!(
@@ -182,7 +182,7 @@ fn review_git_status_many_normal_length_paths_exhaust_parent_memory() {
         ));
     }
     d.write(".git/review-index-input", input.as_bytes());
-    let output = Command::new(flea::testpath::tool("/usr/bin/git"))
+    let output = Command::new(dlea::testpath::tool("/usr/bin/git"))
         .current_dir(&d.0)
         .args([
             "-c",
@@ -227,7 +227,7 @@ fn review_git_status_many_normal_length_paths_exhaust_parent_memory() {
         ("large-output", bytes.as_slice()),
     ] {
         d.write(name, bytes);
-        let output = Command::new(flea::testpath::tool("/usr/bin/prlimit"))
+        let output = Command::new(dlea::testpath::tool("/usr/bin/prlimit"))
             .arg(format!("--as={CHILD_ADDRESS_SPACE_BYTES}"))
             .arg("--core=0")
             .arg("--")
@@ -237,7 +237,7 @@ fn review_git_status_many_normal_length_paths_exhaust_parent_memory() {
                 "backend::gitreq::review_tests::review_git_status_large_snapshot_child",
                 "--nocapture",
             ])
-            .env("FLEA_REVIEW_STATUS_INPUT", d.path(name))
+            .env("DLEA_REVIEW_STATUS_INPUT", d.path(name))
             .output()
             .unwrap();
         println!(

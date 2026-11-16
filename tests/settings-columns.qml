@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-settings-columns-test
+//@ pragma ShellId dlea-settings-columns-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Settings.js" as Settings
-import "flea/js/TextSize.js" as TextSize
+import "dlea" as Dlea
+import "dlea/js/Settings.js" as Settings
+import "dlea/js/TextSize.js" as TextSize
 
 // Every row each settings section builds, drawn by the real ui/SettingsRow.qml: columns, hint bands and caption baselines against the boards at text size 14, driven by tests/settings-columns.sh.
 ShellRoot {
@@ -17,7 +17,7 @@ ShellRoot {
 
     // The size the boards are drawn at, the reference size, which Omarchy's stock 12 is not.
     readonly property int boardTextSize: 14
-    // Tabs040.html data-flea="hint": padding 4px 14px 2px 42px, 12px type, line-height 1.5, so 4 + 18 + 2 and one 18 px line.
+    // Tabs040.html data-dlea="hint": padding 4px 14px 2px 42px, 12px type, line-height 1.5, so 4 + 18 + 2 and one 18 px line.
     readonly property int boardHintTop: 4
     readonly property int boardHintLine: 18
     readonly property int boardHintBottom: 2
@@ -36,17 +36,17 @@ ShellRoot {
     readonly property int footerBand: 49
     readonly property int footerTop: 21
 
-    FontMetrics { id: bodyMetrics; font.family: Flea.Theme.font.family; font.pixelSize: Flea.Theme.font.body }
-    FontMetrics { id: captionMetrics; font.family: Flea.Theme.font.family; font.pixelSize: Flea.Theme.font.caption }
+    FontMetrics { id: bodyMetrics; font.family: Dlea.Theme.font.family; font.pixelSize: Dlea.Theme.font.body }
+    FontMetrics { id: captionMetrics; font.family: Dlea.Theme.font.family; font.pixelSize: Dlea.Theme.font.caption }
 
     Item {
         id: holder
-        width: Flea.Theme.settings.paneWidth
+        width: Dlea.Theme.settings.paneWidth
     }
 
     Component {
         id: rowComponent
-        Flea.SettingsRow {}
+        Dlea.SettingsRow {}
     }
 
     // The x a row's text starts at: its label, a hint's own line, or the ruler; null when nothing drawn matches.
@@ -200,14 +200,14 @@ ShellRoot {
         var failures = []
         // Assigned only once the state file is proved under the harness state home, because the store may write on assignment.
         var state = Quickshell.env("XDG_STATE_HOME") || ""
-        if (state === "" || Flea.ViewState.store.path.indexOf(state + "/") !== 0)
-            failures.push("the state file " + Flea.ViewState.store.path + " is not under the harness state home " + state)
+        if (state === "" || Dlea.ViewState.store.path.indexOf(state + "/") !== 0)
+            failures.push("the state file " + Dlea.ViewState.store.path + " is not under the harness state home " + state)
         else
-            Flea.ViewState.state = { display: { textSize: { mode: TextSize.nearest(root.boardTextSize) } } }
-        if (Flea.Theme.font.family !== "monospace")
-            failures.push("Theme.font.family is " + JSON.stringify(Flea.Theme.font.family) + ", not the monospace alias the harness's fonts.conf pins to the board's face")
-        if (Flea.Theme.baseSize !== root.boardTextSize)
-            failures.push("the probe draws at " + Flea.Theme.baseSize + ", the boards at " + root.boardTextSize)
+            Dlea.ViewState.state = { display: { textSize: { mode: TextSize.nearest(root.boardTextSize) } } }
+        if (Dlea.Theme.font.family !== "monospace")
+            failures.push("Theme.font.family is " + JSON.stringify(Dlea.Theme.font.family) + ", not the monospace alias the harness's fonts.conf pins to the board's face")
+        if (Dlea.Theme.baseSize !== root.boardTextSize)
+            failures.push("the probe draws at " + Dlea.Theme.baseSize + ", the boards at " + root.boardTextSize)
         var found = root.measure()
         root.checkBands(found, failures)
         root.checkCaptions(found, failures)
@@ -224,8 +224,8 @@ ShellRoot {
         expect(found.hint, labelX, "the label column")
         expect(found.ruler, labelX, "the label column")
         // The control that proves the reader tells two columns apart: the footer sits at the row's edge.
-        expect(found.footer, Flea.Theme.spacing.rowPaddingX, "the row edge")
-        if (labelX === null || labelX === Flea.Theme.spacing.rowPaddingX || found.hint.length === 0
+        expect(found.footer, Dlea.Theme.spacing.rowPaddingX, "the row edge")
+        if (labelX === null || labelX === Dlea.Theme.spacing.rowPaddingX || found.hint.length === 0
                 || found.ruler.length === 0 || found.footer.length === 0)
             failures.push("nothing to compare: label " + labelX + ", " + found.hint.length + " hints, "
                           + found.ruler.length + " rulers, " + found.footer.length + " footers")

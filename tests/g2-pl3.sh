@@ -7,7 +7,7 @@ mkdir -p "$scratch"
 roots() { find "$scratch" -mindepth 1 -maxdepth 1 -type d \( -name 'ci.*' -o -name 'clippy.*' \) | wc -l; }
 before=$(roots)
 unit_root=$(mktemp -d "$scratch/ci.XXXXXXXX")
-: > "$unit_root/.flea-test-sandbox"
+: > "$unit_root/.dlea-test-sandbox"
 mkdir -p "$unit_root"/{home,config,state,cache,runtime}
 lane() {
     setsid -w env -i PATH="$PATH" HOME="$unit_root/home" \
@@ -17,15 +17,15 @@ lane() {
         CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$PWD/target}" \
         CARGO_PROFILE_TEST_DEBUG=line-tables-only CARGO_PROFILE_DEV_DEBUG=line-tables-only "$@" < /dev/null
 }
-lane cargo test --locked -p flea --lib -- ui_logic_trash_browser
-lane cargo test --locked -p flea-gui --lib -- g2::trash_browser
+lane cargo test --locked -p dlea --lib -- ui_logic_trash_browser
+lane cargo test --locked -p dlea-gui --lib -- g2::trash_browser
 clippy_root=$(mktemp -d "$scratch/clippy.XXXXXXXX")
-: > "$clippy_root/.flea-test-sandbox"
-printf 'tools/flea-clippy tools/clippy-baseline.txt %s\n' "$clippy_root"
-tools/flea-clippy tools/clippy-baseline.txt "$clippy_root"
+: > "$clippy_root/.dlea-test-sandbox"
+printf 'tools/dlea-clippy tools/clippy-baseline.txt %s\n' "$clippy_root"
+tools/dlea-clippy tools/clippy-baseline.txt "$clippy_root"
 # Remove a passing run's root only when it is absolute, non-empty, marked and directly inside this unit's scratch.
 drop_root() {
-    [[ -n "$1" && "$1" == "$scratch"/?* && "$(dirname "$1")" == "$scratch" && -f "$1/.flea-test-sandbox" ]] && rm -rf -- "$1"
+    [[ -n "$1" && "$1" == "$scratch"/?* && "$(dirname "$1")" == "$scratch" && -f "$1/.dlea-test-sandbox" ]] && rm -rf -- "$1"
 }
 drop_root "$unit_root"
 drop_root "$clippy_root"

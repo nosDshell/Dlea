@@ -1,11 +1,11 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Icons.js" as Icons
 import "js/Picker.js" as Picker
 import "js/Places.js" as Places
 import "js/Keymap.js" as Keymap
 
-// The chooser shares Flea's favourites and home locations without importing legacy GTK bookmarks.
+// The chooser shares Dlea's favourites and home locations without importing legacy GTK bookmarks.
 Item {
     id: root
 
@@ -23,14 +23,14 @@ Item {
     // mode that cannot use the location does not offer it.
     property bool offerRecent: true
 
-    readonly property string dirsText: Flea.UserDirs.body
+    readonly property string dirsText: Dlea.UserDirs.body
     // Recent is a location and not a path, so its row carries the token ui/js/Picker.js names; the
     // rail's own cursor and activation then work on it exactly as they do on a favourite.
     readonly property var recentRow: [{
         path: Picker.RECENT, label: Picker.RECENT_LABEL, group: "favorite", kind: "favorite", glyph: "history"
     }]
     readonly property var placeEntries: (root.offerRecent ? root.recentRow : [])
-        .concat(Places.storedEntries(Flea.Favourites.records, root.home), Places.homeEntries(root.home, root.dirsText, Icons.sidebarGlyphFor))
+        .concat(Places.storedEntries(Dlea.Favourites.records, root.home), Places.homeEntries(root.home, root.dirsText, Icons.sidebarGlyphFor))
     // Directive 55, from a user's report: a dialog that cannot reach a disk or a share is a
     // dialog that makes you type the path, so the chooser draws the window's own NETWORK and DEVICES
     // groups from the same listings. Rows only: nothing here trashes, ejects or renames.
@@ -63,7 +63,7 @@ Item {
         activeFocusOnTab: true
         currentIndex: 0
         onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
-        Flea.FastScrollHandler { flickable: rail }
+        Dlea.FastScrollHandler { flickable: rail }
         // No bar and no lane: rows fill the rail and still scroll by wheel, touchpad and keys.
         Keys.onTabPressed: function(event) { root.picker.stepFocus(rail, (event.modifiers & Qt.ShiftModifier) !== 0) }
         Keys.onBacktabPressed: root.picker.stepFocus(rail, true)
@@ -78,7 +78,7 @@ Item {
 
         // index and modelData are required on ui/SidebarRow.qml itself, so the view fills them;
         // redeclaring them here left the delegate uninitialised and the rail drew nothing.
-        delegate: Flea.SidebarRow {
+        delegate: Dlea.SidebarRow {
             lit: rail.activeFocus ? index === rail.currentIndex : modelData.path === root.current
             focused: rail.activeFocus
             onActivated: function (at) { root.choose(at) }
@@ -113,7 +113,7 @@ Item {
                 var path = decodeURIComponent(entry.path.substring(7))
                 if (path.charAt(0) !== "/" || path.indexOf("\0") >= 0) throw new Error("not a local file URI")
                 root.chosen(path)
-            } catch (error) { root.picker.say("This favorite points to a location Flea cannot open.", true) }
+            } catch (error) { root.picker.say("This favorite points to a location Dlea cannot open.", true) }
         } else if (entry.path.indexOf("://") >= 0) {
             root.awaitingNetwork = true
             network.openShare(entry.path, false, entry.label, false)
@@ -155,9 +155,9 @@ Item {
     }
     // Standing, not loaded on demand: its own listing is what the NETWORK rows are, and the window
     // pays the same five-second rhythm for them.
-    Flea.NetworkMounts {
+    Dlea.NetworkMounts {
         id: network
-        savedFavourites: Flea.Favourites.records
+        savedFavourites: Dlea.Favourites.records
         onCompleted: function(requestId, uri, success, reason, connectFailed) { root.networkCompleted(requestId, uri, success, reason, connectFailed) }
         onOpened: function(path) { if (root.awaitingNetwork) root.chosen(path) }
         // A FUSE path that is a file: the chooser selects it, the way a favourite file resolves.
@@ -171,7 +171,7 @@ Item {
         }
     }
 
-    Flea.DeviceMounts {
+    Dlea.DeviceMounts {
         id: devices
         onOpened: function (path) { root.deviceOpened(path) }
         // A message carries no device, so it cannot end a wait: only the awaited device's own open does.
@@ -181,7 +181,7 @@ Item {
     }
 
     // The phone rows the window draws, read off the same gio listing; their mount is the share leg.
-    Flea.PhoneMounts {
+    Dlea.PhoneMounts {
         id: phones
         listingText: network.mountListing
         onMessage: function (text, error) { root.picker.say(text, error) }

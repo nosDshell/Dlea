@@ -1,15 +1,15 @@
-//@ pragma ShellId flea-permissions-focus-test
+//@ pragma ShellId dlea-permissions-focus-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "permissions-layout.js" as Layout
 
 // Real menu dispatch, Permissions and row input, with no focus repair before the tested input.
 ShellRoot {
     id: root
     readonly property var pane: body.currentPane
-    readonly property string fixture: Quickshell.env("FLEA_PATH")
+    readonly property string fixture: Quickshell.env("DLEA_PATH")
     readonly property int fixtureRows: 4
     readonly property string draftMode: "0777"
     readonly property int pollMs: 20
@@ -260,7 +260,7 @@ ShellRoot {
         } else if (stage === "dialog") {
             var card = dialog()
             if (!card || !card.opened || card.busy) return
-            Layout.checkLayout(root, card, Flea.Theme)
+            Layout.checkLayout(root, card, Dlea.Theme)
             check("menu closes before dialog", pane.contextMenu().opened, false)
             check("fixture editability", card.editable, current.dismiss !== "Cancel")
             check("open dialog refuses input readiness", JSON.parse(ipcObject().seam.permissionsState()).inputReady, false)
@@ -297,7 +297,7 @@ ShellRoot {
             if (caseIndex === cases.length) next("refreshView")
             else next("ready")
         } else if (stage === "refreshView") {
-            Flea.ViewState.changeKey("view", refreshCases[refreshIndex].view)
+            Dlea.ViewState.changeKey("view", refreshCases[refreshIndex].view)
             next("refreshPane")
         } else if (stage === "refreshPane") {
             body.focusPane(refreshCases[refreshIndex].side)
@@ -314,8 +314,8 @@ ShellRoot {
         } else if (stage === "refreshDialog") {
             if (!dialog() || !dialog().opened || dialog().busy) return
             check("dialog takes both marked files", dialog().multiPaths.length, markedRows.length)
-            Layout.checkLayout(root, dialog(), Flea.Theme)
-            if (refreshIndex === 0) Layout.checkStatuses(root, dialog(), Flea.Theme)
+            Layout.checkLayout(root, dialog(), Dlea.Theme)
+            if (refreshIndex === 0) Layout.checkStatuses(root, dialog(), Dlea.Theme)
             undoPaths = dialog().multiPaths.slice()
             expectedModes = dialog().multiModes.slice()
             dialog().multiToggle(ownerExecuteBit)
@@ -410,7 +410,7 @@ ShellRoot {
             var left = Math.round(rect.x), top = Math.round(rect.y)
             return left + " " + top + " " + (Math.round(rect.x + rect.width) - left) + " " + (Math.round(rect.y + rect.height) - top)
         }
-        Flea.WindowBody { id: body; host: window }
+        Dlea.WindowBody { id: body; host: window }
         Item { anchors.fill: parent; TestEvent { id: driver } }
     }
     Timer { interval: root.pollMs; repeat: true; running: !root.finished; onTriggered: root.advance() }

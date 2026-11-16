@@ -28,7 +28,7 @@ use color::Palette;
 use raster::{Prepared, Raster, Style};
 use scene::Scene;
 
-/// Flea's own isometric picture of plate `plate`, `w` by `h` RGBA on a transparent ground, for a file without an embedded one, `None` for a scene that fails its check; it draws in the two shades of the foreground role, so it follows the palette it is given.
+/// Dlea's own isometric picture of plate `plate`, `w` by `h` RGBA on a transparent ground, for a file without an embedded one, `None` for a scene that fails its check; it draws in the two shades of the foreground role, so it follows the palette it is given.
 pub fn render_thumbnail(
     scene: &Scene,
     plate: usize,

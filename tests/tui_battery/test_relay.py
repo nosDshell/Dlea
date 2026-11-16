@@ -17,7 +17,7 @@ LITERAL_BUDGETS = ("65536", "1024 * 1024", "8 * 1024 * 1024", ".05", ".15", ".02
 
 class RelayTests(unittest.TestCase):
     def setUp(self):
-        parent = Path(os.environ.get("FLEA_BATTERY_TEST_ROOT", Path(__file__).resolve().parents[2] / ".superpowers/t12a"))
+        parent = Path(os.environ.get("DLEA_BATTERY_TEST_ROOT", Path(__file__).resolve().parents[2] / ".superpowers/t12a"))
         parent.mkdir(parents=True, exist_ok=True)
         self.root = Path(tempfile.mkdtemp(prefix="relay.", dir=parent))
         (self.root / MARKER).write_text("relay regression\n")

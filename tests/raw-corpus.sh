@@ -5,13 +5,13 @@ repo=$(cd "$(dirname "$0")/.." && pwd -P)
 mkdir -p "$repo/.superpowers/rawcorpus"
 scratch=$(mktemp -d "$repo/.superpowers/rawcorpus/test.XXXXXXXX")
 [[ -n "$scratch" && "$scratch" == /* ]] || exit 1
-: > "$scratch/.flea-test-sandbox"
+: > "$scratch/.dlea-test-sandbox"
 cleanup() {
-    [[ -n "$scratch" && "$scratch" == "$repo"/.superpowers/rawcorpus/test.* && "$scratch" == /* && -f "$scratch/.flea-test-sandbox" ]] || exit 1
+    [[ -n "$scratch" && "$scratch" == "$repo"/.superpowers/rawcorpus/test.* && "$scratch" == /* && -f "$scratch/.dlea-test-sandbox" ]] || exit 1
     rm -rf -- "$scratch"
 }
 trap cleanup EXIT
-python3 -B - "$repo" "$scratch" "${RAW_CORPUS_MANIFEST:-$repo/tools/flea-raw-corpus.tsv}" <<'PY'
+python3 -B - "$repo" "$scratch" "${RAW_CORPUS_MANIFEST:-$repo/tools/dlea-raw-corpus.tsv}" <<'PY'
 import contextlib
 import csv
 import hashlib
@@ -26,7 +26,7 @@ from unittest.mock import patch
 from urllib.request import Request
 
 repo, scratch, manifest = map(Path, sys.argv[1:])
-tool = repo / 'tools/flea-raw-corpus'
+tool = repo / 'tools/dlea-raw-corpus'
 module = runpy.run_path(str(tool))
 fields = module['FIELDS']
 with manifest.open(newline='') as stream:
@@ -59,7 +59,7 @@ def write_manifest(path, data):
 
 def owned(path):
     assert path.is_absolute() and path.is_relative_to(scratch)
-    assert (scratch / '.flea-test-sandbox').is_file()
+    assert (scratch / '.dlea-test-sandbox').is_file()
     return path
 
 

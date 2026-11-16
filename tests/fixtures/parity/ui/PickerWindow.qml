@@ -1,7 +1,7 @@
 import QtQuick
 Item {
     IpcHandler {
-        target: "fleapicker"
+        target: "dleapicker"
         function ready(): bool { return true }
     }
 }

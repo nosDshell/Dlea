@@ -9,12 +9,12 @@ fn publisher_keeps_its_history_after_a_diagnostic_write_failure() {
     use std::io::{Read, Write};
     use std::os::unix::fs::PermissionsExt;
     use std::process::{Command, Stdio};
-    const CHILD: &str = "FLEA_JOURNAL_DIAGNOSTIC_CHILD";
+    const CHILD: &str = "DLEA_JOURNAL_DIAGNOSTIC_CHILD";
     const TEST: &str =
         "backend::renamework::tests::publisher_keeps_its_history_after_a_diagnostic_write_failure";
     if std::env::var_os(CHILD).is_none() {
         for broken in [false, true] {
-            let mut child = Command::new(flea::testpath::tool("/usr/bin/setsid"))
+            let mut child = Command::new(dlea::testpath::tool("/usr/bin/setsid"))
                 .arg("-w")
                 .arg(std::env::current_exe().unwrap())
                 .env_clear()
@@ -45,7 +45,7 @@ fn publisher_keeps_its_history_after_a_diagnostic_write_failure() {
             if !broken {
                 let stderr = String::from_utf8_lossy(&output.stderr);
                 assert!(
-                    stderr.contains("flea: the shared undo lock could not be opened"),
+                    stderr.contains("dlea: the shared undo lock could not be opened"),
                     "the intact run must write the diagnostic the broken run cannot: {stderr}"
                 );
             }

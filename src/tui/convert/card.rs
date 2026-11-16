@@ -5,7 +5,7 @@ use crate::tui::{
     render::cards::{self, Button, Card},
     theme::Theme,
 };
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 
 pub fn title(m: &Model) -> String {
     let f = m.converting.card.as_ref().unwrap();

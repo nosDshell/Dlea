@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 
 // One labelled field, as the canvas's Network board draws it: a small uppercase label above a
 // bordered box that takes the accent while it has the caret.
@@ -127,7 +127,7 @@ Item {
             Accessible.name: "Show password"
             Accessible.ignored: !root.secret
 
-            Flea.Glyph {
+            Dlea.Glyph {
                 anchors.centerIn: parent
                 width: Theme.font.bodySmall
                 height: Theme.font.bodySmall

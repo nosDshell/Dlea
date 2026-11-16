@@ -34,7 +34,7 @@ pub struct SavedPlaces {
     pub width: i64,
 }
 
-// Sample input: the whole `flea --ui-state` document; only a literal false hides Home, Recent or Trash, only a literal true shows Tags.
+// Sample input: the whole `dlea --ui-state` document; only a literal false hides Home, Recent or Trash, only a literal true shows Tags.
 pub fn saved_places(state: &Json) -> SavedPlaces {
     let places = state.get("places");
     let key = |name: &str| places.and_then(|p| p.get(name)).and_then(Json::as_bool);
@@ -77,7 +77,7 @@ pub fn recent_entry() -> RailEntry {
         group: Group::Recent,
         kind: Kind::Recent,
         label_key: "places.row.recent",
-        path: "flea:recent".into(),
+        path: "dlea:recent".into(),
         glyph: "history",
         ..RailEntry::default()
     }

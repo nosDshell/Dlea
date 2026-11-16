@@ -8,7 +8,7 @@ use crate::uistore;
 use std::fs;
 use std::path::{Path, PathBuf};
 
-const DIR: &str = "omarchy/flea-shelf";
+const DIR: &str = "omarchy/dlea-shelf";
 const PILES: &str = "piles.json";
 const SUMMON: &str = "summon.json";
 const LOCK: &str = "summon.lock";
@@ -54,7 +54,7 @@ impl Summon {
     // is not the answer to that question. The lock goes when this process does, either way.
     fn give_back(&self, lock: fs::File) {
         if let Err(e) = uistore::unlock(&lock) {
-            eprintln!("flea: {} could not be unlocked: {}", self.lock.display(), io_message(&e));
+            eprintln!("dlea: {} could not be unlocked: {}", self.lock.display(), io_message(&e));
         }
     }
 
@@ -120,7 +120,7 @@ fn read_doc(path: &Path, shape: crate::persistdoc::Shape) -> Json {
     crate::persistdoc::read(path, shape).unwrap_or_else(|_| crate::persistdoc::empty())
 }
 
-// flea shelf clear: the pile becomes the last pile, which is the whole of rule 6 on the Keys board.
+// dlea shelf clear: the pile becomes the last pile, which is the whole of rule 6 on the Keys board.
 pub fn clear() -> i32 {
     let (shelf, summon) = match pair() {
         Ok(pair) => pair,
@@ -138,10 +138,10 @@ pub fn clear() -> i32 {
             // The pile lock was given up between the two writes, so anything added in that window
             // is named rather than quietly replaced by the pile going back.
             Ok(added) if !added.is_empty() => {
-                eprintln!("flea: the pile went back over {} the shelf had taken since", added.len());
+                eprintln!("dlea: the pile went back over {} the shelf had taken since", added.len());
             }
             Ok(_) => {}
-            Err(back) => eprintln!("flea: the pile could not be kept and could not be put back ({})", back),
+            Err(back) => eprintln!("dlea: the pile could not be kept and could not be put back ({})", back),
         }
         return failed(&e);
     }
@@ -149,12 +149,12 @@ pub fn clear() -> i32 {
     0
 }
 
-// flea shelf restore [n]: the newest kept pile by default, or the nth the card's menu offered.
+// dlea shelf restore [n]: the newest kept pile by default, or the nth the card's menu offered.
 pub fn restore(rest: &[String]) -> i32 {
     let index = match chosen_index(rest) {
         Ok(index) => index,
         Err(e) => {
-            eprintln!("flea: {}", e);
+            eprintln!("dlea: {}", e);
             return 2;
         }
     };
@@ -167,7 +167,7 @@ pub fn restore(rest: &[String]) -> i32 {
     }
 }
 
-// The restore itself, which `flea shelf undo` also reaches when a clear is the newer of the two
+// The restore itself, which `dlea shelf undo` also reaches when a clear is the newer of the two
 // things it could reverse. It answers with the count rather than printing it, because the two verbs
 // do not say the same sentence about it.
 pub fn restore_at(index: usize) -> Result<usize, String> {
@@ -183,7 +183,7 @@ pub fn restore_at(index: usize) -> Result<usize, String> {
         Ok(was) => was,
         Err(e) => {
             if let Err(back) = summon.keep(pile, now_ms()) {
-                eprintln!("flea: {}", pile_lost(&back));
+                eprintln!("dlea: {}", pile_lost(&back));
             }
             return Err(e);
         }
@@ -208,7 +208,7 @@ pub fn chosen_index(rest: &[String]) -> Result<usize, String> {
     }
 }
 
-// flea shelf piles: what the card's Recent piles rows say, the time then how many it held.
+// dlea shelf piles: what the card's Recent piles rows say, the time then how many it held.
 pub fn piles() -> i32 {
     let summon = match Summon::user() {
         Ok(summon) => summon,
@@ -229,7 +229,7 @@ pub fn toggle() -> i32 {
     }
 }
 
-// flea shelf bind: the chord that opens the shelf, so the empty card names the bind only once it is
+// dlea shelf bind: the chord that opens the shelf, so the empty card names the bind only once it is
 // installed. The user's own hypr config owns that line; this only reads it. Under Omarchy's Lua
 // config `hyprctl binds` reports every bind as `dispatcher: __lua` with a number for its argument,
 // so the command a bind runs is not in the compositor's own answer at all: the config text is.
@@ -245,7 +245,7 @@ pub fn bind() -> i32 {
 }
 
 // Sample input, one line of ~/.config/hypr/bindings.lua in Omarchy's own house syntax:
-// o.bind("SUPER + D", "Drop shelf", "flea shelf toggle")
+// o.bind("SUPER + D", "Drop shelf", "dlea shelf toggle")
 pub fn summon_chord(config: &str) -> Option<String> {
     for line in config.lines() {
         let line = line.trim();
@@ -269,7 +269,7 @@ fn pair() -> Result<(Shelf, Summon), i32> {
 }
 
 fn failed(why: &str) -> i32 {
-    eprintln!("flea: {}", why);
+    eprintln!("dlea: {}", why);
     2
 }
 

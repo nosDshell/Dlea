@@ -1,4 +1,4 @@
-//! The persistent figure cache's client: one JSON line per request to `flea --figure-store`, every failure a miss.
+//! The persistent figure cache's client: one JSON line per request to `dlea --figure-store`, every failure a miss.
 
 use super::markdown_figure_service::Command;
 use crate::json::escape;

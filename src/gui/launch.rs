@@ -15,8 +15,8 @@ mod legacy_command;
 mod legacy_identity;
 
 pub(crate) fn reject_legacy_frontend() -> bool {
-    if std::env::var_os("FLEA_FRONTEND").as_deref() == Some(OsStr::new("qml")) {
-        eprintln!("flea: the QML frontend is no longer available; unset FLEA_FRONTEND to open the GPUI window");
+    if std::env::var_os("DLEA_FRONTEND").as_deref() == Some(OsStr::new("qml")) {
+        eprintln!("dlea: the QML frontend is no longer available; unset DLEA_FRONTEND to open the GPUI window");
         true
     } else {
         false
@@ -25,24 +25,24 @@ pub(crate) fn reject_legacy_frontend() -> bool {
 
 fn gpui_binary(executable: Option<&Path>, is_file: impl Fn(&Path) -> bool) -> PathBuf {
     if let Some(parent) = executable.and_then(Path::parent) {
-        let sibling = parent.join("flea-gui");
+        let sibling = parent.join("dlea-gui");
         if is_file(&sibling) {
             return sibling;
         }
     }
-    PathBuf::from("flea-gui")
+    PathBuf::from("dlea-gui")
 }
 
 fn gpui_argv(binary: &Path, start: Option<&str>, select: Option<&str>) -> Command {
     let mut cmd = Command::new(binary);
-    cmd.env_remove("FLEA_PATH").env_remove("FLEA_SELECT");
+    cmd.env_remove("DLEA_PATH").env_remove("DLEA_SELECT");
     if let Some(target) = select {
         cmd.arg("--select")
-            .arg(flea::bytename::text_path(target).as_os_str());
+            .arg(dlea::bytename::text_path(target).as_os_str());
     }
     if let Some(path) = start {
         cmd.arg("--")
-            .arg(flea::bytename::text_path(path).as_os_str());
+            .arg(dlea::bytename::text_path(path).as_os_str());
     }
     cmd
 }
@@ -51,12 +51,12 @@ pub(crate) fn settle_state() {
     // Settle state before the first paint; a refusal still opens on the original file.
     match uistore::Store::user().and_then(|store| store.settle()) {
         Ok(()) => {}
-        Err(e) => eprintln!("flea: the view state was not settled ({})", e),
+        Err(e) => eprintln!("dlea: the view state was not settled ({})", e),
     }
     // Refresh an enabled shelf's installed plugin before the window opens.
     if let Ok(store) = uistore::Store::user() {
         if let Err(e) = shelfplugin::refresh(uistatecli::shelf_enabled(&store.read())) {
-            eprintln!("flea: the shelf plugin was not refreshed ({})", e);
+            eprintln!("dlea: the shelf plugin was not refreshed ({})", e);
         }
     }
 }
@@ -105,7 +105,7 @@ fn exec_window(start: Option<&str>, select: Option<&str>, special: Option<(&str,
     let binary = gpui_binary(executable.as_deref(), |path| path.is_file());
     if let Err(error) = binary_usable(&binary) {
         eprintln!(
-            "flea: the window could not start: {}: {error}",
+            "dlea: the window could not start: {}: {error}",
             binary.display()
         );
         return 1;
@@ -114,7 +114,7 @@ fn exec_window(start: Option<&str>, select: Option<&str>, special: Option<(&str,
     let carry = match special.map_or_else(legacy::replace, |_| Ok(Default::default())) {
         Ok(carry) => carry,
         Err(reason) => {
-            eprintln!("flea: {reason}");
+            eprintln!("dlea: {reason}");
             return 2;
         }
     };
@@ -139,9 +139,9 @@ fn exec_window(start: Option<&str>, select: Option<&str>, special: Option<(&str,
             .map(crate::jsondoc::Json::Str)
             .collect(),
     );
-    cmd.env("FLEA_UPGRADE_SELECTION", crate::jsondoc::render(&selection));
+    cmd.env("DLEA_UPGRADE_SELECTION", crate::jsondoc::render(&selection));
     cmd.env(
-        "FLEA_UPGRADE_WINDOWS",
+        "DLEA_UPGRADE_WINDOWS",
         crate::jsondoc::render(&crate::jsondoc::Json::Arr(carry.windows)),
     );
     configure_gpui(&mut cmd);
@@ -152,7 +152,7 @@ fn exec_window(start: Option<&str>, select: Option<&str>, special: Option<(&str,
     thp::disable();
     let error = cmd.exec();
     eprintln!(
-        "flea: the window could not start: {}: {error}",
+        "dlea: the window could not start: {}: {error}",
         binary.display()
     );
     1
@@ -202,11 +202,11 @@ fn gpui_pick_argv(binary: &Path, reply: &str) -> Command {
     cmd
 }
 
-// flea --pick under the GPUI frontend: FLEA_PICKER rides the environment, the reply path the argument.
+// dlea --pick under the GPUI frontend: DLEA_PICKER rides the environment, the reply path the argument.
 pub(super) fn exec_gpui_pick(reply: &str) -> i32 {
     if reject_legacy_frontend() { return 2; }
     if !crate::paths::has_display() {
-        eprintln!("flea: there is no graphical session to open a file chooser in");
+        eprintln!("dlea: there is no graphical session to open a file chooser in");
         return 2;
     }
     let executable = std::env::current_exe().ok();
@@ -215,7 +215,7 @@ pub(super) fn exec_gpui_pick(reply: &str) -> i32 {
     configure_gpui(&mut cmd);
     thp::disable();
     let error = cmd.exec();
-    eprintln!("flea: the file chooser could not start: {}: {error}", binary.display());
+    eprintln!("dlea: the file chooser could not start: {}: {error}", binary.display());
     1
 }
 
@@ -226,8 +226,8 @@ fn configure_gpui(cmd: &mut Command) {
 }
 
 fn configure_child(cmd: &mut Command) {
-    flea::qscrash::restore(cmd);
-    // Only the main window records a prefetch list; a chooser started from a Flea terminal must not overwrite it.
+    dlea::qscrash::restore(cmd);
+    // Only the main window records a prefetch list; a chooser started from a Dlea terminal must not overwrite it.
     cmd.env_remove(prefetch::LIST_ENV);
     cmd.env_remove(prefetch::SHELL_ENV);
     // The gvfs head start belongs to the window that was opened on its path, never to a chooser.
@@ -240,9 +240,9 @@ fn configure_child(cmd: &mut Command) {
 
 fn set_backend_binary(cmd: &mut Command) {
     // An explicit choice is the operator's.
-    if std::env::var_os("FLEA_BIN").is_none_or(|value| value.is_empty()) {
+    if std::env::var_os("DLEA_BIN").is_none_or(|value| value.is_empty()) {
         if let Ok(binary) = std::env::current_exe() {
-            cmd.env("FLEA_BIN", binary);
+            cmd.env("DLEA_BIN", binary);
         }
     }
 }
@@ -253,32 +253,32 @@ mod tests {
 
     #[test]
     fn a_gpui_pick_hands_the_reply_path_as_its_one_argument() {
-        let cmd = gpui_pick_argv(Path::new("/usr/bin/flea-gui"), "/run/user/1/flea-picker-x/reply.json");
-        assert_eq!(cmd.get_program(), "/usr/bin/flea-gui");
+        let cmd = gpui_pick_argv(Path::new("/usr/bin/dlea-gui"), "/run/user/1/dlea-picker-x/reply.json");
+        assert_eq!(cmd.get_program(), "/usr/bin/dlea-gui");
         let args: Vec<_> = cmd.get_args().collect();
-        assert_eq!(args, ["--pick", "/run/user/1/flea-picker-x/reply.json"]);
+        assert_eq!(args, ["--pick", "/run/user/1/dlea-picker-x/reply.json"]);
     }
 
     #[test]
     fn gpui_prefers_the_sibling_binary_then_path() {
-        let executable = Some(Path::new("/opt/flea/bin/flea"));
+        let executable = Some(Path::new("/opt/dlea/bin/dlea"));
         assert_eq!(
             gpui_binary(executable, |path| path
-                == Path::new("/opt/flea/bin/flea-gui")),
-            Path::new("/opt/flea/bin/flea-gui")
+                == Path::new("/opt/dlea/bin/dlea-gui")),
+            Path::new("/opt/dlea/bin/dlea-gui")
         );
-        assert_eq!(gpui_binary(executable, |_| false), Path::new("flea-gui"));
-        assert_eq!(gpui_binary(None, |_| true), Path::new("flea-gui"));
+        assert_eq!(gpui_binary(executable, |_| false), Path::new("dlea-gui"));
+        assert_eq!(gpui_binary(None, |_| true), Path::new("dlea-gui"));
     }
 
     #[test]
     fn gpui_launch_environment_does_not_choose_a_qt_renderer() {
-        let mut cmd = Command::new("flea-gui");
+        let mut cmd = Command::new("dlea-gui");
         configure_child(&mut cmd);
         set_backend_binary(&mut cmd);
         for key in [
             "QSG_RHI_BACKEND",
-            "FLEA_RENDERER_AUTOMATIC",
+            "DLEA_RENDERER_AUTOMATIC",
             "QT_QPA_PLATFORMTHEME",
         ] {
             assert!(!cmd.get_envs().any(|(name, _)| name == key));
@@ -288,21 +288,21 @@ mod tests {
     #[test]
     fn gpui_carries_start_and_select_only_as_literal_arguments() {
         let cmd = gpui_argv(
-            Path::new("/opt/flea-gui"),
+            Path::new("/opt/dlea-gui"),
             Some("/files/a b"),
             Some("/files/a b/\"selected\""),
         );
-        assert_eq!(cmd.get_program(), OsStr::new("/opt/flea-gui"));
+        assert_eq!(cmd.get_program(), OsStr::new("/opt/dlea-gui"));
         assert_eq!(
             argv_of(&cmd),
             ["--select", "/files/a b/\"selected\"", "--", "/files/a b"]
         );
-        for key in ["FLEA_PATH", "FLEA_SELECT"] {
+        for key in ["DLEA_PATH", "DLEA_SELECT"] {
             assert!(cmd
                 .get_envs()
                 .any(|(name, value)| name == OsStr::new(key) && value.is_none()));
         }
-        let bare = gpui_argv(Path::new("flea-gui"), None, None);
+        let bare = gpui_argv(Path::new("dlea-gui"), None, None);
         assert_eq!(bare.get_args().count(), 0);
     }
 
@@ -310,9 +310,9 @@ mod tests {
     fn a_raw_start_and_selection_reach_the_child_as_their_own_bytes() {
         use std::os::unix::ffi::OsStrExt;
         let folder =
-            flea::bytename::path_text(Path::new(OsStr::from_bytes(b"/d/r\xff"))).into_owned();
-        let target = format!("{folder}/{}", flea::bytename::name_text(b"f\xfe.txt"));
-        let cmd = gpui_argv(Path::new("flea-gui"), Some(&folder), Some(&target));
+            dlea::bytename::path_text(Path::new(OsStr::from_bytes(b"/d/r\xff"))).into_owned();
+        let target = format!("{folder}/{}", dlea::bytename::name_text(b"f\xfe.txt"));
+        let cmd = gpui_argv(Path::new("dlea-gui"), Some(&folder), Some(&target));
         let argv: Vec<&[u8]> = cmd.get_args().map(OsStr::as_bytes).collect();
         assert_eq!(
             argv,

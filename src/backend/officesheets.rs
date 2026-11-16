@@ -6,7 +6,7 @@ const CSV_FILTER: &str =
     "csv:Text - txt - csv (StarCalc):44,34,76,1,,0,false,true,true,false,false";
 // A sheets entry is its own cache key, so a workbook's PDF and its sheets never answer for each other.
 pub const SHEETS_SUFFIX: &str = ".sheets";
-const MANIFEST_HEADER: &str = "flea-office-sheets-v1\n";
+const MANIFEST_HEADER: &str = "dlea-office-sheets-v1\n";
 // The order runs stop here, about 1.4 s each in the jail, so a larger workbook shows its first sheets inside CONVERT_TIMEOUT.
 pub(super) const MAX_SHEETS: usize = 24;
 const SPREADSHEET_TYPES: [&str; 3] = [OFFICE_TYPES[2], OFFICE_TYPES[3], OFFICE_TYPES[8]];
@@ -32,7 +32,7 @@ impl Store {
         self.dir.join(format!("{key}.txt"))
     }
 
-    // Sample input, <key>.txt: flea-office-sheets-v1\n{"names":["Monthly","Savings"]}; every CSV must carry the workbook's mtime.
+    // Sample input, <key>.txt: dlea-office-sheets-v1\n{"names":["Monthly","Savings"]}; every CSV must carry the workbook's mtime.
     pub(super) fn lookup_sheets(&self, key: &str, mtime: SystemTime) -> Hit<Sheets> {
         // The sheets key has no PDF beside it, so lookup answers only its failure marker or a miss.
         if let Hit::Failed(message) = self.lookup(key, mtime) {

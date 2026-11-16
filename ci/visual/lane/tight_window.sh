@@ -22,7 +22,7 @@ tight_window() (
     local view=$1 root=$C/tight-window/files last=469 tight_pitch=23 compact_pitch=31 index density pitch
     local last_name; last_name=file-$(printf %03d "$last").txt
     mkdir -p "$root" || return 1
-    : > "$root/.flea-test-sandbox" || return 1
+    : > "$root/.dlea-test-sandbox" || return 1
     for index in $(seq -f %03g 0 "$last"); do
         printf 'Tight window fixture\n' > "$root/file-$index.txt" || return 1
     done
@@ -32,7 +32,7 @@ tight_window() (
     wait_ipc state ready || return 1
     wait_ipc fileRowHeight "$tight_pitch" || return 1
     for density in compact tight; do
-        "$flea_bin" --ui-state "{\"density\":\"$density\"}" > /dev/null 2>> "$case_notes" || return 1
+        "$dlea_bin" --ui-state "{\"density\":\"$density\"}" > /dev/null 2>> "$case_notes" || return 1
         pitch=$tight_pitch
         [ "$density" != compact ] || pitch=$compact_pitch
         wait_ipc fileRowHeight "$pitch" || return 1

@@ -1,4 +1,4 @@
-// Generated from keys.toml by tools/flea-keymap-gen. Do not edit.
+// Generated from keys.toml by tools/dlea-keymap-gen. Do not edit.
 use super::{Binding, Digit, PointerBinding, SequenceBinding, SheetBinding, SheetGroup};
 
 #[rustfmt::skip]

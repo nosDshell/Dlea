@@ -10,7 +10,7 @@ import tomllib
 import traceback
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
-from flea_ipc import Client
+from dlea_ipc import Client
 IPC = Client("qs")
 IPC.export()
 
@@ -19,7 +19,7 @@ def backend_request(native, name, folder, hidden):
     # The public frontend drops show_hidden, so explicit overrides use the real implementation interface.
     class BackendRequest(native["Request"]):
         def __init__(self):
-            self.name, self.title = name, f"Flea picker {os.getpid()} {name}"
+            self.name, self.title = name, f"Dlea picker {os.getpid()} {name}"
             self.result, self.responses, self.pid = None, 0, None
             self.handle = f"{native['OBJECT']}/request/issue313/{name.replace('-', '_')}"
             self.subscription = native["bus"].signal_subscribe(native["BACKEND"], "org.freedesktop.impl.portal.Request",
@@ -111,12 +111,12 @@ def test_issue313(native):
               and state["bodySmall"] == 13 and state["preset"] == "windows", state)
         check(f"{request.name}: {stage} current theme", state["themeLoaded"]
               and state["themeForeground"].lower() == foreground and theme_path.read_bytes() == theme_bytes, state)
-        # Sample environ entry: FLEA_PICKER={"hidden":true}\0
+        # Sample environ entry: DLEA_PICKER={"hidden":true}\0
         environment = dict(item.split(b"=", 1) for item in Path(f"/proc/{request.pid}/environ").read_bytes().split(b"\0") if b"=" in item)
-        payload = json.loads(environment[b"FLEA_PICKER"])
+        payload = json.loads(environment[b"DLEA_PICKER"])
         check(f"{request.name}: {stage} exact portal override presence", ("hidden" in payload) == (override is not None)
               and (override is None or payload["hidden"] is override), payload)
-        centres = [run([*IPC.command(), "--pid", request.pid, "call", "fleapicker", "rowCentre", index],
+        centres = [run([*IPC.command(), "--pid", request.pid, "call", "dleapicker", "rowCentre", index],
                        native["picker_env"]) for index in range(len(expected_names))]
         check(f"{request.name}: {stage} rows have live delegates", all(re.fullmatch(r"[0-9]+ [0-9]+", value)
               and 0 < int(value.split()[0]) < state["width"] and 0 < int(value.split()[1]) < state["height"] for value in centres), centres)

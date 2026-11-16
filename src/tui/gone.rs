@@ -17,8 +17,8 @@ pub fn receive(m: &mut Model, value: &Json, w: &mut Wire) -> io::Result<bool> {
         _ => return Ok(false),
     };
     let (path, parent) = (
-        flea::bytename::view(text(value, "path")),
-        flea::bytename::exact(text(value, "parent")),
+        dlea::bytename::view(text(value, "path")),
+        dlea::bytename::exact(text(value, "parent")),
     );
     let path = &*path;
     if !path.is_absolute() || !parent.is_absolute() {

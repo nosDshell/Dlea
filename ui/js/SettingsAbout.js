@@ -4,15 +4,15 @@
 
 // The Settings panel's About section: what is installed, the one updater, and where help lives; it came out of ui/js/Settings.js whole when the Updates group grew.
 
-// The two rows that leave Flea for a web page carry their destination, so ui/SettingsPanel.qml opens whatever a row names.
-var ISSUES_URL = "https://github.com/thisisgm/flea/issues"
+// The two rows that leave Dlea for a web page carry their destination, so ui/SettingsPanel.qml opens whatever a row names.
+var ISSUES_URL = "https://github.com/nosDshell/Dlea/issues"
 var SPONSORS_URL = "https://github.com/sponsors/thisisgm"
 
 // state.about is ui/AboutFacts.qml's facts, the updater's status and the default's claim among them; state.data is ui.json.
 function rows(state) {
     var facts = state.about || {}
     var out = [
-        { kind: "hero", label: "Flea", value: "A file manager for Omarchy" },
+        { kind: "hero", label: "Dlea", value: "A file manager for Omarchy" },
         { kind: "fact", label: "Version", value: facts.version || "Not reported" },
         { kind: "fact", label: "Built", value: facts.built || "Not recorded in this build" },
         { kind: "fact", label: "Installed from", value: facts.source || "Not reported" },
@@ -30,14 +30,14 @@ function rows(state) {
     out.push({ kind: "action", id: "keyboardSheet", label: "Keyboard sheet", glyph: "keyboard", value: "?" })
     out.push({ kind: "action", id: "reportIssue", label: "Report an issue", glyph: "network", value: "Open", url: ISSUES_URL })
     // SettingsGrammar rule 6: a brand is never given a generic glyph, and the mark set holds no GitHub reproduction.
-    out.push({ kind: "action", id: "support", label: "Support Flea", value: "GitHub Sponsors", url: SPONSORS_URL })
+    out.push({ kind: "action", id: "support", label: "Support Dlea", value: "GitHub Sponsors", url: SPONSORS_URL })
     return out
 }
 
-// Omarchy installs and Flea may check and launch: the row's value is the check, its chevron says Enter acts, and the note explains the states that need it.
+// Omarchy installs and Dlea may check and launch: the row's value is the check, its chevron says Enter acts, and the note explains the states that need it.
 function updateRows(update, data) {
     var out = [
-        { kind: Update.isFact(update) ? "fact" : "action", id: "updateFlea", label: "Update Flea", glyph: "download",
+        { kind: Update.isFact(update) ? "fact" : "action", id: "updateDlea", label: "Update Dlea", glyph: "download",
           value: Update.value(update), role: Update.role(update), inert: !Update.acts(update) },
         { kind: "check", id: "updates.autoCheck", label: "Check automatically", caption: "when About opens, every 6 h",
           on: autoCheck(data) }
@@ -54,13 +54,13 @@ function autoCheck(data) {
 }
 
 // The package names src/update.rs keys its kinds on, OPR_PACKAGE and RELEASE_PACKAGE.
-var PACKAGES = { opr: "flea", release: "flea-bin" }
+var PACKAGES = { opr: "dlea", release: "dlea-bin" }
 
-// Installed from, one sentence per kind src/update.rs derives, so this row and the Update Flea row name one source.
+// Installed from, one sentence per kind src/update.rs derives, so this row and the Update Dlea row name one source.
 var SOURCES = { opr: "Omarchy Package Repository",
                 local: "Local package", release: "Local package", unowned: "Not from a package" }
 
-// src/update.rs kind_for, over pacman -Qqo's owner ("" when no package owns Flea).
+// src/update.rs kind_for, over pacman -Qqo's owner ("" when no package owns Dlea).
 function installKind(owner, signed) {
     if (!owner)
         return "unowned"
@@ -76,7 +76,7 @@ function installedFrom(owner, signed) {
 }
 
 // pacman -Qi under LC_ALL=C, read the way src/update.rs package_info reads it; "" for a query that failed.
-// Sample input: "Name            : flea\nVersion         : 0.3.4-1\nBuild Date      : Wed Sep 23 12:40:50 2026\nValidated By    : None\n"
+// Sample input: "Name            : dlea\nVersion         : 0.3.4-1\nBuild Date      : Wed Sep 23 12:40:50 2026\nValidated By    : None\n"
 function packageFacts(text) {
     var facts = { package: "", built: "", signed: false }
     var lines = String(text || "").split("\n")

@@ -11,7 +11,7 @@ pub use reply::{
 pub(crate) use reply::{say_listed, with_anchor, with_changed};
 
 #[cfg(test)]
-use crate::error::FleaError;
+use crate::error::DleaError;
 
 // The one spelling of the token the stdin reading path also matches; see src/backend/events.rs.
 pub const TRANSFER_CANCEL: &str = "transfercancel";
@@ -102,7 +102,7 @@ pub enum Request {
     Compare(super::compare::Ask),
     // One tag change across rows of the listing in force: add, remove, toggle or clear.
     SetTags { rows: Vec<usize>, op: String, tag: String },
-    // Which of Flea's seven tags those rows all carry or some carry, read only; see docs/protocol.md "tagstates".
+    // Which of Dlea's seven tags those rows all carry or some carry, read only; see docs/protocol.md "tagstates".
     TagStates { rows: Vec<usize>, id: usize },
     // The status bar's filesystem line for the directory the pane is on.
     FsInfo,

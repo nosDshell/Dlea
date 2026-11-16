@@ -3,7 +3,7 @@ use std::process::Command;
 
 #[test]
 fn xml_fits_beside_the_existing_archive_bounds() {
-    const CHILD: &str = "FLEA_FX467_ATTRIBUTES_CHILD";
+    const CHILD: &str = "DLEA_FX467_ATTRIBUTES_CHILD";
     if std::env::var_os(CHILD).is_none() {
         let output = Command::new("prlimit")
             .arg(format!(
@@ -49,7 +49,7 @@ fn xml_fits_beside_the_existing_archive_bounds() {
 
 #[test]
 fn a_single_part_at_the_document_bound_still_previews() {
-    const CHILD: &str = "FLEA_FX467_SINGLE_CHILD";
+    const CHILD: &str = "DLEA_FX467_SINGLE_CHILD";
     if std::env::var_os(CHILD).is_none() {
         let output = Command::new("prlimit")
             .arg(format!("--as={}", crate::backend::sandbox::ADDRESS_SPACE_BYTES))

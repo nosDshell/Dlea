@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-markdown-code-test
+//@ pragma ShellId dlea-markdown-code-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/CodeRuns.js" as CodeRuns
+import "dlea" as Dlea
+import "dlea/js/CodeRuns.js" as CodeRuns
 
 // tests/markdown-code.sh's harness: Markdown Source and fenced blocks over the real backend and bat, in Quick Look and in the column.
 ShellRoot {
@@ -39,7 +39,7 @@ ShellRoot {
     property var fenceHeights: ({})
     property int wrapTop: 0
     // The inks the engine's roles take, as the panes compute them: role 3 is yellow.
-    readonly property var inks: CodeRuns.inks(Flea.Theme.palette, Flea.Theme.fallbackColor, String(Flea.Theme.color.foreground))
+    readonly property var inks: CodeRuns.inks(Dlea.Theme.palette, Dlea.Theme.fallbackColor, String(Dlea.Theme.color.foreground))
 
     function log(line) { console.log("MARKDOWN_CODE " + line) }
     function check(ok, label) {
@@ -120,11 +120,11 @@ ShellRoot {
         visible: false
         textFormat: Text.StyledText
         wrapMode: Text.Wrap
-        font.family: Flea.Theme.font.family
-        font.pixelSize: Flea.Theme.font.body
+        font.family: Dlea.Theme.font.family
+        font.pixelSize: Dlea.Theme.font.body
     }
 
-    Flea.Backend { id: realBackend }
+    Dlea.Backend { id: realBackend }
 
     // The backend a pane asks through: the real one, with the colour asks for fences counted by their slot.
     component CountingBackend: Item {
@@ -158,7 +158,7 @@ ShellRoot {
                 if (languages[message.token] === "toml") {
                     pending = pending.concat([{ message: message, after: Date.now() + 250 }])
                     shell.log("toml reply " + JSON.stringify(message))
-                } else if (languages[message.token] === "flea-unknown-language") {
+                } else if (languages[message.token] === "dlea-unknown-language") {
                     pending = pending.concat([{ message: message, after: Date.now() + shell.unknownReplyDelayMs }])
                     shell.log("unknown reply delayed token=" + message.token)
                 } else deliver(message)
@@ -185,7 +185,7 @@ ShellRoot {
         implicitHeight: 760
         color: "#101315"
 
-        Flea.MarkdownPane {
+        Dlea.MarkdownPane {
             id: quick
             anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
             width: 560
@@ -196,7 +196,7 @@ ShellRoot {
             backend: quickAsks
         }
 
-        Flea.PreviewMarkdown {
+        Dlea.PreviewMarkdown {
             id: column
             anchors { right: parent.right; top: parent.top; bottom: parent.bottom }
             width: 400
@@ -352,7 +352,7 @@ ShellRoot {
             if (!cdoc || !cdoc.firstScreen || cdoc.rawText.indexOf("<img") < 0) return
             var html = shell.fenceWith(column, "html")
             if (!html || !shell.settled(html)) return
-            var unknown = shell.fenceWith(column, "flea-unknown-language")
+            var unknown = shell.fenceWith(column, "dlea-unknown-language")
             if (!unknown || (!shell.settled(unknown) && !unknown.refused)) return
             var htext = html.children[0].text
             shell.check(shell.readBack(htext) === html.fenceLines.join("\n"), "a fence holding an img tag draws literally")

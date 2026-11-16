@@ -6,12 +6,12 @@ use crate::jsondoc::{self, Json};
 
 pub const LISTING: &str = "plugins";
 pub const RESULT: &str = "pluginop";
-// Every verb the request takes; the CLI's `flea plugin <verb>` uses the same words.
+// Every verb the request takes; the CLI's `dlea plugin <verb>` uses the same words.
 pub const OPS: [&str; 8] = ["list", "enable", "disable", "set", "add", "update", "remove", "validate"];
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Source {
-    // Ships inside Flea's package: no Update and no Remove.
+    // Ships inside Dlea's package: no Update and no Remove.
     Builtin,
     Git(String),
     Folder(String),

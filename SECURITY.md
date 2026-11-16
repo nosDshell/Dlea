@@ -6,10 +6,10 @@ Only the latest release receives security fixes. Each fix ships in a new patch r
 
 ## Reporting a vulnerability
 
-Report it privately with [Report a vulnerability](https://github.com/thisisgm/flea/security/advisories/new)
+Report it privately with [Report a vulnerability](https://github.com/nosDshell/Dlea/security/advisories/new)
 on the Security tab. Please do not open a public issue.
 
-Include the Flea version, what an attacker can do, and the steps or a file that shows it. Previews,
+Include the Dlea version, what an attacker can do, and the steps or a file that shows it. Previews,
 thumbnails, archives, disk images, network shares and the file chooser all handle untrusted data, and
 problems in any of them are in scope.
 

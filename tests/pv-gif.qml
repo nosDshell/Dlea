@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-pv-gif-test
+//@ pragma ShellId dlea-pv-gif-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // An animated GIF in the Columns preview frame and in Quick Look's image pane: the still draws first, the moving layer exists only for an animated GIF after that, plays only while shown and uncovered, and goes with the file.
 ShellRoot {
@@ -34,13 +34,13 @@ ShellRoot {
         implicitHeight: 700
         color: "black"
 
-        Flea.PreviewColumn {
+        Dlea.PreviewColumn {
             id: column
             width: 400
             height: 500
         }
 
-        Flea.PreviewImage {
+        Dlea.PreviewImage {
             id: look
             x: 400
             width: 600

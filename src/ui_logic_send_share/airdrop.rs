@@ -344,7 +344,7 @@ pub fn doctor_argv(owly: &str) -> Vec<String> {
     argv
 }
 
-// The radio gives itself back after the window even if Flea is gone, so Wi-Fi never stays taken.
+// The radio gives itself back after the window even if Dlea is gone, so Wi-Fi never stays taken.
 pub fn radio_argv(owly: &str) -> Vec<String> {
     vec![
         owly.into(),

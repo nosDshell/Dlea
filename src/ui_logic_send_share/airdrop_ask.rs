@@ -1,4 +1,4 @@
-//! Receiving's answer to each request: owly asks `accept? [y/N]` on stderr, and Flea asks the user in a notification.
+//! Receiving's answer to each request: owly asks `accept? [y/N]` on stderr, and Dlea asks the user in a notification.
 use super::airdrop::quoted;
 use crate::i18n::I18n;
 use std::io::{Read, Write};
@@ -6,7 +6,7 @@ use std::process::{Command, Stdio};
 
 // owly prints its prompt alone at a line start with no newline; a name quoting it never starts a line.
 pub const PROMPT: &str = "accept? [y/N] ";
-// owly declines by itself 15 s after its prompt; Flea answers inside that, so no late answer lands on the next request.
+// owly declines by itself 15 s after its prompt; Dlea answers inside that, so no late answer lands on the next request.
 pub const ASK_SECS: u64 = 12;
 const READ_CHUNK: usize = 4096;
 // owly receive's stderr when a transfer it accepted stops, and when the sender takes a request back.
@@ -149,7 +149,7 @@ pub fn ask_argv(body: &str, accept: &str, decline: &str) -> Vec<String> {
         "timeout".into(),
         ASK_SECS.to_string(),
         "notify-send".into(),
-        "--app-name=Flea".into(),
+        "--app-name=Dlea".into(),
         "--print-id".into(),
         format!("--expire-time={}", ASK_SECS * 1000),
         format!("--action=accept={accept}"),

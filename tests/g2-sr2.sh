@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p "$PWD/.superpowers/g2-sr2"
 unit_root=$(mktemp -d "$PWD/.superpowers/g2-sr2/ci.XXXXXXXX")
-: > "$unit_root/.flea-test-sandbox"
+: > "$unit_root/.dlea-test-sandbox"
 mkdir -p "$unit_root/home" "$unit_root/config" "$unit_root/cache" "$unit_root/state" "$unit_root/runtime"
 run() {
     setsid -w env -i PATH="$PATH" HOME="$unit_root/home" \
@@ -17,15 +17,15 @@ run() {
 }
 # A filter matching nothing passes with zero, so the largest "test result: ok. 24 passed; 0 failed" count must reach this unit's cases.
 count() { sed -n 's/^test result: ok\. \([0-9]*\) passed; 0 failed.*/\1/p' "$1" | sort -n | tail -1; }
-run -p flea-gui --lib g2::listing_filter > "$unit_root/gui.log" 2>&1 || { tail -40 "$unit_root/gui.log" >&2; exit 1; }
-run -p flea --lib -- ui_logic_listing_filter > "$unit_root/core.log" 2>&1 || { tail -40 "$unit_root/core.log" >&2; exit 1; }
-run -p flea-gui --lib window::filter > "$unit_root/consumer.log" 2>&1 || { tail -40 "$unit_root/consumer.log" >&2; exit 1; }
-run -p flea --bin flea -- backend::filter > "$unit_root/producer.log" 2>&1 || { tail -40 "$unit_root/producer.log" >&2; exit 1; }
+run -p dlea-gui --lib g2::listing_filter > "$unit_root/gui.log" 2>&1 || { tail -40 "$unit_root/gui.log" >&2; exit 1; }
+run -p dlea --lib -- ui_logic_listing_filter > "$unit_root/core.log" 2>&1 || { tail -40 "$unit_root/core.log" >&2; exit 1; }
+run -p dlea-gui --lib window::filter > "$unit_root/consumer.log" 2>&1 || { tail -40 "$unit_root/consumer.log" >&2; exit 1; }
+run -p dlea --bin dlea -- backend::filter > "$unit_root/producer.log" 2>&1 || { tail -40 "$unit_root/producer.log" >&2; exit 1; }
 gui=$(count "$unit_root/gui.log"); core=$(count "$unit_root/core.log")
 consumer=$(count "$unit_root/consumer.log"); producer=$(count "$unit_root/producer.log")
 [ "${gui:-0}" -ge 27 ] && [ "${core:-0}" -ge 36 ] && [ "${consumer:-0}" -ge 1 ] && [ "${producer:-0}" -ge 4 ] || {
     printf 'g2-sr2: FAIL gui=%s core=%s consumer=%s producer=%s checks ran\n' "${gui:-0}" "${core:-0}" "${consumer:-0}" "${producer:-0}"; exit 1; }
 clippy_root=$(mktemp -d "$PWD/.superpowers/g2-sr2/clippy.XXXXXXXX")
-: > "$clippy_root/.flea-test-sandbox"
-tools/flea-clippy tools/clippy-baseline.txt "$clippy_root"
+: > "$clippy_root/.dlea-test-sandbox"
+tools/dlea-clippy tools/clippy-baseline.txt "$clippy_root"
 printf 'G2_SR2 PASS gui=%s core=%s consumer=%s producer=%s filter controller, strip, matcher, window consumer, backend producer and clippy\n' "$gui" "$core" "$consumer" "$producer"

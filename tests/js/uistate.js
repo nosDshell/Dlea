@@ -160,10 +160,10 @@ function run(check) {
           '{"display":{"textSize":{"mode":16},"hidden":["paste"]}}')
 
     // The two documents differ, and that is the point of running the rebuild over both. A sub-key a
-    // newer Flea left in `display` stays in what this window DRAWS, and never enters the patch: this
-    // Flea has no rule for it, and src/uistate.rs refuses a whole patch that names one.
+    // newer Dlea left in `display` stays in what this window DRAWS, and never enters the patch: this
+    // Dlea has no rule for it, and src/uistate.rs refuses a whole patch that names one.
     var read = { display: { textSize: { mode: "system" }, aKeyThisBuildHasNeverHeardOf: true } }
-    check("the document keeps a newer Flea's own sub-key",
+    check("the document keeps a newer Dlea's own sub-key",
           JSON.stringify(UiState.withGroup(read, "display", { textSize: { mode: 16 } })),
           '{"display":{"textSize":{"mode":16},"aKeyThisBuildHasNeverHeardOf":true}}')
     check("and the patch beside it never carries one", JSON.stringify(owed).indexOf("NeverHeardOf"), -1)
@@ -320,7 +320,7 @@ function run(check) {
         '{"folderSorts":{"/a":{"key":"name","reverse":false},"/b":{"key":"name","reverse":false}}}')
     check("an owed map entry keeps the window's own", mapped.state.folderSorts["/a"].key, "size")
     check("while another window's entry applies", mapped.state.folderSorts["/b"].key, "name")
-    check("a key a newer Flea wrote is kept verbatim",
+    check("a key a newer Dlea wrote is kept verbatim",
           UiState.applyExternal({}, {}, '{"aKeyThisBuildHasNeverHeardOf":true}').state.aKeyThisBuildHasNeverHeardOf, true)
 
     // xw4-r2 finding 2: a window's sort is its own, the file still records the last one for new windows.

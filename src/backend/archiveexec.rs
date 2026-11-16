@@ -1,5 +1,5 @@
 // Archive and conversion workers execute off the backend loop and return existing protocol lines.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::{archivedone_line, collision_message, convertdone_line};
 use crate::backend::archive::Formats;
 use crate::backend::archiveops::{self, compress_leaving, convert_leaving, split_paths};
@@ -58,7 +58,7 @@ pub(crate) fn archive_line(
 ) -> String {
     let ArchiveRequest { compressing, paths, format, archive, dest, password, encrypt_names } = request;
     let sources: Vec<PathBuf> = if compressing {
-        paths.iter().map(flea::bytename::exact).collect()
+        paths.iter().map(dlea::bytename::exact).collect()
     } else {
         vec![archive.clone()]
     };
@@ -116,7 +116,7 @@ pub(crate) fn archive_line(
 }
 
 // Issue 370: the result landed whole, so a work folder the drive kept is named beside the success, never as a failure.
-// Sample output: {"t":"archivedone","id":4,"ok":true,"verified":true,"err":"","left":"/mnt/gdrive/.flea-work-ext-81-0"}
+// Sample output: {"t":"archivedone","id":4,"ok":true,"verified":true,"err":"","left":"/mnt/gdrive/.dlea-work-ext-81-0"}
 fn with_left(line: String, left: Option<&str>) -> String {
     match left {
         None => line,
@@ -187,13 +187,13 @@ mod tests {
         let done = archivedone_line(4, true, true, "");
         assert_eq!(with_left(done.clone(), None), done);
         assert_eq!(
-            with_left(done, Some("/mnt/g/.flea-work-ext-8-0")),
-            r#"{"t":"archivedone","id":4,"ok":true,"verified":true,"err":"","left":"/mnt/g/.flea-work-ext-8-0"}"#
+            with_left(done, Some("/mnt/g/.dlea-work-ext-8-0")),
+            r#"{"t":"archivedone","id":4,"ok":true,"verified":true,"err":"","left":"/mnt/g/.dlea-work-ext-8-0"}"#
         );
         let converted = convertdone_line(5, 9, "/p/a.heic", true, "/p/a.jpg", "", false);
         assert_eq!(
-            with_left(converted, Some("/p/.flea-work-cvt-8-0")),
-            r#"{"t":"convertdone","id":5,"requestId":9,"source":"/p/a.heic","ok":true,"path":"/p/a.jpg","err":"","collision":false,"left":"/p/.flea-work-cvt-8-0"}"#
+            with_left(converted, Some("/p/.dlea-work-cvt-8-0")),
+            r#"{"t":"convertdone","id":5,"requestId":9,"source":"/p/a.heic","ok":true,"path":"/p/a.jpg","err":"","collision":false,"left":"/p/.dlea-work-cvt-8-0"}"#
         );
     }
 

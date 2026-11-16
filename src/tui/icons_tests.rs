@@ -24,7 +24,7 @@ fn t3_probe_success_refusal_missing_tool_timeout_and_output_are_bounded() {
     let cancel = AtomicBool::new(false);
     assert_eq!(output(Command::new("sh").args(["-c", "printf covered"]), &cancel).as_deref(), Some("covered"));
     assert_eq!(collect_output(Command::new("sh").args(["-c", "exit 1"]), &cancel), Err(Stop::Refused));
-    assert_eq!(collect_output(&mut Command::new("/nonexistent-flea-font-probe"), &cancel), Err(Stop::Failed));
+    assert_eq!(collect_output(&mut Command::new("/nonexistent-dlea-font-probe"), &cancel), Err(Stop::Failed));
     assert_eq!(collect_output(Command::new("sh").args(["-c", "while :; do printf aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa; done"]), &cancel), Err(Stop::OutputLimit));
     let start = Instant::now();
     assert_eq!(collect_output(Command::new("sh").args(["-c", "sleep 2"]), &cancel), Err(Stop::Deadline));

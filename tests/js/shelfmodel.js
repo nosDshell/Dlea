@@ -30,7 +30,7 @@ function run(check) {
 
     // Main rule 4: a size nobody has answered yet is one dot, and a walk cut short keeps its prefix.
     check("a size not yet answered is a dot", Shelf.sizeText(folder.items[0]), "\u00b7")
-    check("a size that is known reads as Flea's own", Shelf.sizeText({ bytes: 4600000 }), "4.6 MB")
+    check("a size that is known reads as Dlea's own", Shelf.sizeText({ bytes: 4600000 }), "4.6 MB")
     check("and a walk cut short keeps its own prefix", Shelf.sizeText({ bytes: 138, partial: true }), ">138 B")
 
   // Main rule 4's budget: one request per drawn path, never twice, and never for a path off the card.
@@ -67,7 +67,7 @@ function run(check) {
         "/home/gm/50%.png|/home/gm/two.txt")
   check("the bar's tooltip counts the pile alone, the way the card does",
         Shelf.tooltip(Shelf.parse('{"items":[{"path":"/p/a"},{"path":"/p/b","pinned":true}]}')),
-        "Flea shelf is holding 1 item")
+        "Dlea shelf is holding 1 item")
   check("a bell that cannot be read is no reading, not a count of zero",
         Shelf.ringsOf("") + "|" + Shelf.ringsOf("{oh no") + "|" + Shelf.ringsOf('{"summon":0}'),
         "-1|-1|0")
@@ -142,17 +142,17 @@ function run(check) {
          Shelf.dragMoves(["/p/one"], list, false)].join("|"),
         "true|false|false|false|false")
 
-  // Rule 11 and directive 59: Flea's own settings, read and never written.
-  check("the shelf's own settings come from Flea's file, with its defaults when they do not",
+  // Rule 11 and directive 59: Dlea's own settings, read and never written.
+  check("the shelf's own settings come from Dlea's file, with its defaults when they do not",
         JSON.stringify(Shelf.shelfOf("")) + "|" + JSON.stringify(Shelf.shelfDefaults()),
         JSON.stringify(Shelf.shelfDefaults()) + "|" + JSON.stringify(Shelf.shelfDefaults()))
   check("and a stored value this build cannot honour falls back to its default",
         JSON.stringify(Shelf.shelfOf('{"shelf":{"enabled":false,"bar":false,"rail":"diagonal","recent":2}}')),
         '{"enabled":false,"bar":false,"rail":"off","screenshots":true,"recordings":true,"recent":2}')
-  check("an action's tooltip takes its key only while Flea's hints are on",
+  check("an action's tooltip takes its key only while Dlea's hints are on",
         Shelf.actionTip("Move", "m", false) + "|" + Shelf.actionTip("Move", "m", true),
         "Move|Move  m")
-  check("key hints are off until Flea's own file says otherwise",
+  check("key hints are off until Dlea's own file says otherwise",
         Shelf.keyHintsOf("") + "|" + Shelf.keyHintsOf('{"keyHints":true}'), "false|true")
   var settings = Shelf.shelfOf('{"shelf":{"screenshots":false,"recent":1}}')
   check("a Shelf section that names one key leaves the others at their defaults",
@@ -264,7 +264,7 @@ function run(check) {
 
     check("the tooltip says what is held, because the bar itself never draws a count",
           Shelf.tooltip(Shelf.empty()) + " / " + Shelf.tooltip(one) + " / " + Shelf.tooltip(mixed),
-          "Flea shelf is empty / Flea shelf is holding 1 item / Flea shelf is holding 2 items")
+          "Dlea shelf is empty / Dlea shelf is holding 1 item / Dlea shelf is holding 2 items")
     // The shelf's counts group the way the window's do, through its own helper: it cannot import
     // up to ui/js/Format.js, because it moves with shelf/ into its own repository.
     check("counts group in thousands", Shelf.grouped(1204), "1,204")

@@ -43,10 +43,10 @@ check "slow legs diagnose a failure with rail and chain" 1 "$(grep -c 'deviceEje
 if [ "$fail" -ne 0 ]; then
   exit 1
 fi
-. tools/flea-sandbox-guard
-sandbox_require "$FIXTURE_ROOT/flea-loop-eject"
+. tools/dlea-sandbox-guard
+sandbox_require "$FIXTURE_ROOT/dlea-loop-eject"
 mkdir -p "$SANDBOX_ROOT" || exit 1
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-loop-eject.XXXXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-loop-eject.XXXXXXXX") || exit 1
 printf 'loop eject regression\n' > "$test_root/$SANDBOX_MARKER"
 trap 'sandbox_remove "$test_root"' EXIT
 if ! XDG_CACHE_HOME="$test_root/cache" QML_XHR_ALLOW_FILE_READ=1 \

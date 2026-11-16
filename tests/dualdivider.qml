@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-dualdivider-test
+//@ pragma ShellId dlea-dualdivider-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // The Dual divider in the real WindowBody: its default split, its drag, its click, its double click, its clamp and the rail states.
 ShellRoot {
@@ -55,9 +55,9 @@ ShellRoot {
     function handles() { return root.walk(body, "ResizeHandle").filter(function (h) { return h.columnKey === "" }) }
     function leftWidth() { return root.panes().left.width - root.panes().left.railInset }
     function rightWidth() { return root.panes().right.width - root.panes().right.railInset }
-    function room() { return body.width - root.panes().left.railInset - Flea.Theme.spacing.hairline }
-    function owed() { return JSON.stringify(Flea.ViewState.unsaved) }
-    function split() { return (Flea.ViewState.state.dual || {}).split }
+    function room() { return body.width - root.panes().left.railInset - Dlea.Theme.spacing.hairline }
+    function owed() { return JSON.stringify(Dlea.ViewState.unsaved) }
+    function split() { return (Dlea.ViewState.state.dual || {}).split }
 
     // The handle's own MouseArea, the item the compositor cancels; its canceled signal is what a stolen grab emits.
     function zoneOf(h) {
@@ -81,19 +81,19 @@ ShellRoot {
 
     // The rail is built before auto-hide takes it away, so its delayed host call never lands on a torn-down rail.
     function railStep(r) {
-        return function () { Flea.ViewState.changeLeaf("places", {rail: r.rail, autoHide: false}) }
+        return function () { Dlea.ViewState.changeLeaf("places", {rail: r.rail, autoHide: false}) }
     }
     function autoStep(r) {
         return function () {
-            Flea.ViewState.changeLeaf("places", {autoHide: r.autoHide})
-            Flea.ViewState.changeLeaf("dual", {split: 5000})
+            Dlea.ViewState.changeLeaf("places", {autoHide: r.autoHide})
+            Dlea.ViewState.changeLeaf("dual", {split: 5000})
         }
     }
 
     function defaults(r) {
         return function () {
             var p = root.panes()
-            var formula = p.left.railInset + (body.width - p.left.railInset - Flea.Theme.spacing.hairline) / 2
+            var formula = p.left.railInset + (body.width - p.left.railInset - Dlea.Theme.spacing.hairline) / 2
             root.check(r.name === "shown" ? p.left.railInset > 0 : p.left.railInset === 0, r.name + " rail inset")
             root.check(root.near(p.left.width, formula), r.name + " default left pane is the 0.3.9 pane " + p.left.width + " vs " + formula)
             root.check(root.near(root.leftWidth(), root.rightWidth()), r.name + " default listings equal")
@@ -104,7 +104,7 @@ ShellRoot {
             var zone1 = zone0 + h[0].width
             var lane = root.walk(body, "ViewportScrollBar").filter(function (b) { return b.mapToItem(body, 0, 0).x < zone0 })
             var laneRight = lane.length > 0 ? lane[0].mapToItem(body, 0, 0).x + lane[0].width : -1
-            var first = p.right.mapToItem(body, 0, 0).x + Flea.Theme.spacing.rowPaddingX
+            var first = p.right.mapToItem(body, 0, 0).x + Dlea.Theme.spacing.rowPaddingX
             root.check(lane.length > 0 && lane[0].visible, r.name + " the left listing shows a scroll lane")
             root.check(zone0 >= laneRight, r.name + " zone starts at or right of the lane edge " + zone0 + " vs " + laneRight)
             root.check(zone1 <= first, r.name + " zone ends at or left of the right listing's first content pixel")
@@ -166,7 +166,7 @@ ShellRoot {
             keys.mouseRelease(h, 4 + root.handleDrag, y, Qt.LeftButton, Qt.NoModifier, -1)
             zone.canceled.disconnect(count)
             root.check(root.near(root.leftWidth(), leftBefore + root.handleDrag), r.name + " the real drag grew the left listing " + root.leftWidth() + " from " + leftBefore)
-            Flea.ViewState.changeLeaf("dual", {split: 5000})
+            Dlea.ViewState.changeLeaf("dual", {split: 5000})
         }
     }
 
@@ -188,7 +188,7 @@ ShellRoot {
             root.check(root.counts.left === 1 && root.counts.right === 1, r.name + " both panes re-lay once, " + root.counts.left + "/" + root.counts.right)
             var want = Math.round(10000 * (leftBefore + root.handleDrag) / root.room())
             root.check(root.split() === want, r.name + " split " + root.split() + " vs " + want)
-            var patch = (Flea.ViewState.unsaved.dual || {}).split
+            var patch = (Dlea.ViewState.unsaved.dual || {}).split
             root.check(patch === want, r.name + " one split leaf is owed, " + patch)
         }
     }
@@ -196,7 +196,7 @@ ShellRoot {
     function clampStep(r, direction) {
         return function () {
             var h = root.handles()[0]
-            var low = Flea.Theme.dualMinWidth
+            var low = Dlea.Theme.dualMinWidth
             root.drag(h, direction * root.farDrag)
             var left = root.leftWidth() + h.lineX
             root.check(root.near(direction > 0 ? root.room() - left : left, low), r.name + " the accent line stops at the minimum " + left)
@@ -219,15 +219,15 @@ ShellRoot {
 
     function storedStep(r) {
         return function () {
-            Flea.ViewState.changeLeaf("dual", {split: 100})
+            Dlea.ViewState.changeLeaf("dual", {split: 100})
         }
     }
 
     function storedCheck(r) {
         return function () {
             root.check(root.split() === 100, r.name + " the stored split is never rewritten by the clamp")
-            root.check(root.near(root.leftWidth(), Flea.Theme.dualMinWidth), r.name + " a stored 100 lays the left listing at the minimum")
-            Flea.ViewState.changeLeaf("dual", {split: 6500})
+            root.check(root.near(root.leftWidth(), Dlea.Theme.dualMinWidth), r.name + " a stored 100 lays the left listing at the minimum")
+            Dlea.ViewState.changeLeaf("dual", {split: 6500})
         }
     }
 
@@ -235,37 +235,37 @@ ShellRoot {
         return function () {
             root.check(root.near(root.leftWidth(), root.room() * 0.65), r.name + " a stored 6500 lays the left listing at 65 percent")
             root.check(root.near(root.panes().left.width, root.panes().left.railInset + root.room() * 0.65), r.name + " the rail keeps narrowing the left pane")
-            Flea.ViewState.changeLeaf("dual", {split: 5000})
+            Dlea.ViewState.changeLeaf("dual", {split: 5000})
         }
     }
 
     // The pane's own focus save carries {focus, paths} and must leave the stored split alone.
     function focusStep(r) {
         return function () {
-            Flea.ViewState.changeLeaf("dual", {split: 6500})
+            Dlea.ViewState.changeLeaf("dual", {split: 6500})
             body.focusPane(1)
         }
     }
 
     function focusCheck(r) {
         return function () {
-            root.check((Flea.ViewState.state.dual || {}).focus === 1, r.name + " the focus save landed")
+            root.check((Dlea.ViewState.state.dual || {}).focus === 1, r.name + " the focus save landed")
             root.check(root.split() === 6500, r.name + " switching the focused side keeps the stored split, got " + root.split())
             root.check(root.near(root.leftWidth(), root.room() * 0.65), r.name + " the listings keep the 65 percent split after the switch")
             body.focusPane(0)
-            Flea.ViewState.changeLeaf("dual", {split: 5000})
+            Dlea.ViewState.changeLeaf("dual", {split: 5000})
         }
     }
 
     // A window too narrow for two narrowest listings: nothing can move, so a drag leaves the stored split alone.
     function narrowStep() {
-        Flea.ViewState.changeLeaf("dual", {split: 6500})
-        frame.width = 2 * Flea.Theme.dualMinWidth + root.panes().left.railInset + Flea.Theme.spacing.hairline - root.narrowBy
+        Dlea.ViewState.changeLeaf("dual", {split: 6500})
+        frame.width = 2 * Dlea.Theme.dualMinWidth + root.panes().left.railInset + Dlea.Theme.spacing.hairline - root.narrowBy
     }
 
     function narrowCheck() {
         var h = root.handles()[0]
-        root.check(Flea.Theme.dualMinWidth / root.room() > 0.5, "the window is too narrow for two minimum listings, room " + root.room())
+        root.check(Dlea.Theme.dualMinWidth / root.room() > 0.5, "the window is too narrow for two minimum listings, room " + root.room())
         root.check(root.near(root.leftWidth(), root.rightWidth()), "a narrow window lays the listings equal")
         var before = root.owed()
         root.drag(h, root.handleDrag)
@@ -296,7 +296,7 @@ ShellRoot {
 
     function advance() {
         if (root.steps.length === 0) {
-            if (Flea.ViewState.state.view !== "dual") {
+            if (Dlea.ViewState.state.view !== "dual") {
                 root.panes().left.chooseView("dual")
                 return
             }
@@ -327,7 +327,7 @@ ShellRoot {
             id: frame
             height: parent.height
             width: parent.width
-            Flea.WindowBody { id: body; host: window }
+            Dlea.WindowBody { id: body; host: window }
         }
     }
 }

@@ -135,7 +135,7 @@ fn trash_leftover_footer_is_filled_and_formats_in_all_shipped_locales() {
     let catalogs = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("i18n");
     let mut checked = 0;
     for entry in std::fs::read_dir(&catalogs).unwrap().flatten() {
-        let catalog = entry.path().join("flea.json");
+        let catalog = entry.path().join("dlea.json");
         if !catalog.is_file() {
             continue;
         }

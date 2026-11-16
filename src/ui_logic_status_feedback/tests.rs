@@ -50,7 +50,7 @@ impl Drop for Root {
         let parent = scratch().canonicalize().unwrap();
         let ours = self.0.is_absolute()
             && self.0.file_name().is_some()
-            && self.0.join(".flea-test-sandbox").is_file()
+            && self.0.join(".dlea-test-sandbox").is_file()
             && self.0.parent().and_then(|path| path.canonicalize().ok()) == Some(parent);
         if ours && !std::thread::panicking() {
             std::fs::remove_dir_all(&self.0).unwrap();
@@ -70,6 +70,6 @@ pub(super) fn root() -> Root {
     assert!(output.status.success());
     let root = PathBuf::from(String::from_utf8(output.stdout).unwrap().trim());
     assert!(root.is_absolute());
-    std::fs::write(root.join(".flea-test-sandbox"), "g2-fb1\n").unwrap();
+    std::fs::write(root.join(".dlea-test-sandbox"), "g2-fb1\n").unwrap();
     Root(root)
 }

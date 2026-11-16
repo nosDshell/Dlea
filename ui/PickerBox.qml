@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/MarkBox.js" as MarkBox
 
 // The picker's mark box, one copy for the list and the grid; js/MarkBox.js holds its sizes.
@@ -16,7 +16,7 @@ Rectangle {
     border.width: root.borderWidth
     border.color: root.marked ? Theme.color.accent : Theme.color.mutedFrame
 
-    Flea.Glyph {
+    Dlea.Glyph {
         anchors.fill: parent
         visible: root.marked
         name: "check"

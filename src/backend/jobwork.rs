@@ -1,5 +1,5 @@
 // Work descriptions stay beside their jobs so a retry retains the original arguments and selection.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::archive::Formats;
 use super::collide::Policy;
 use super::menu_actions::Selected;
@@ -103,7 +103,7 @@ impl Work {
             _ => self
                 .paths()
                 .first()
-                .map(flea::bytename::exact)
+                .map(dlea::bytename::exact)
                 .unwrap_or_default(),
         };
         path.file_name()
@@ -325,7 +325,7 @@ impl Work {
                     (peer.clone(), paths.clone(), *request, selection.clone());
                 std::thread::spawn(move || {
                     let items = selection.unwrap_or_else(|| capture(&paths));
-                    let source_paths: Vec<_> = paths.iter().map(flea::bytename::exact).collect();
+                    let source_paths: Vec<_> = paths.iter().map(dlea::bytename::exact).collect();
                     let result = super::menu_actions::validate_sources(Some(&items), &source_paths)
                         .and_then(|()| super::localsend::send_cancelled(&peer, &paths, &cancel));
                     let error = result.err().unwrap_or_default();
@@ -370,9 +370,9 @@ pub(crate) fn capture(paths: &[String]) -> Vec<Selected> {
     paths
         .iter()
         .filter_map(|path| {
-            ItemIdentity::inspect_in(&flea::bytename::view(path), &body)
+            ItemIdentity::inspect_in(&dlea::bytename::view(path), &body)
                 .ok()
-                .map(|identity| Selected::retry_item(flea::bytename::exact(path), identity))
+                .map(|identity| Selected::retry_item(dlea::bytename::exact(path), identity))
         })
         .collect()
 }

@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parent
 ROSTER = ROOT.parents[1] / 'src/i18n/fixtures/locales.json'
 # The fields only a language scene carries, checked against schema.json's language_scenes.
 LANGUAGE_FIELDS = {'language', 'surface', 'state'}
-# Board columns.png sizes only the active track; the id's last field is Slot::Active.index() in crates/flea-gui/src/columns/geometry.rs.
+# Board columns.png sizes only the active track; the id's last field is Slot::Active.index() in crates/dlea-gui/src/columns/geometry.rs.
 COLUMNS_ACTIVE_TRACK = re.compile(r'columns-[01]-3')
 # The card scenes that carry no reference pair, each bound to the board ci/visual/g2/op1.json names for it.
 CARD_BOARDS = {'g2.op1.copyto.r8': 'copyto', 'g2.op1.copyto.r0': 'copyto',
@@ -154,7 +154,7 @@ def wrapper(sidecar, receipt, png, output):
         x, y, w, h = node['rect']
         role = node['role']
         tag = 'img' if role == 'ink' else 'div'
-        attr = '' if role == 'ink' else f' data-flea="{role}"'
+        attr = '' if role == 'ink' else f' data-dlea="{role}"'
         style = f'position:absolute;left:{x-origin[0]}px;top:{y-origin[1]}px;width:{w}px;height:{h}px;'
         content = ''.join(element(child, (x, y)) for child in children.get(node['id'], []))
         if tag == 'img':
@@ -171,7 +171,7 @@ def wrapper(sidecar, receipt, png, output):
 
 
 def controls(path):
-    require((Path(path).parent / ".flea-test-sandbox").is_file(), "unmarked control root")
+    require((Path(path).parent / ".dlea-test-sandbox").is_file(), "unmarked control root")
     original = json.loads(Path(path).read_text())
     for name, mutate in [('absolute-path', lambda s: s.update(board='/outside')),
                          ('unknown-id', lambda s: s.update(id='unknown')),

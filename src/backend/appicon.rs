@@ -8,8 +8,8 @@ use crate::backend::thumbcache::uri_for;
 use crate::backend::thumbspec::{is_runnable, Spec};
 use crate::backend::thumbs::{discard, publish, record_failure, records_marker, wrote_something, Job, Outcome, Tables, JOB_TIMEOUT, THUMB_SIZE};
 use crate::backend::thumbwrite::{exclusive_temp, WORK_TAG};
-use crate::error::FleaError;
-use flea::bytename::ExactText as _;
+use crate::error::DleaError;
+use dlea::bytename::ExactText as _;
 use std::collections::HashMap;
 use std::io::Read;
 use std::path::{Path, PathBuf};
@@ -116,7 +116,7 @@ fn usable(tool: &[String], sandbox_ready: bool) -> bool {
 }
 
 // The exclusive temp and the work folder, or neither: a temp whose folder could not be made is removed here.
-fn begin(dir: &Path, new_work: fn(&Path, &str) -> Result<Work, FleaError>) -> Option<(Work, PathBuf)> {
+fn begin(dir: &Path, new_work: fn(&Path, &str) -> Result<Work, DleaError>) -> Option<(Work, PathBuf)> {
     let temp = exclusive_temp(dir)?;
     match new_work(dir, WORK_TAG) {
         Ok(work) => Some((work, temp)),
@@ -233,7 +233,7 @@ fn within(inner: Vec<String>, image: &Path, work: &mut Work, limit: Duration) ->
 }
 
 // Only 7z saying the file is not an archive, or that its data is damaged, judges the file; a jail that would not start, a signal and a bad exit are the machine's.
-fn stop_for(err: &FleaError, timed_out: bool) -> Stop {
+fn stop_for(err: &DleaError, timed_out: bool) -> Stop {
     if timed_out {
         Stop::TimedOut
     } else if NOT_AN_ARCHIVE.iter().chain(&DATA_ERROR).any(|words| err.msg.contains(words)) {

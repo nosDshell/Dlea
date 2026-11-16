@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-columnrow-geom-test
+//@ pragma ShellId dlea-columnrow-geom-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Format.js" as Format
+import "dlea" as Dlea
+import "dlea/js/Format.js" as Format
 
 // Column-row geometry through a real ColumnPane: the handed budget fits, a clip fits, and a short name draws whole.
 ShellRoot {
@@ -21,7 +21,7 @@ ShellRoot {
         width: 280
         height: 200
 
-        Flea.ColumnRow {
+        Dlea.ColumnRow {
             id: probeFile
             width: parent.width
             row: ({ n: "columnrow-geom.txt", d: false, i: "text-x-generic", p: 420, s: 13 })
@@ -31,7 +31,7 @@ ShellRoot {
             nameBudget: 40
         }
 
-        Flea.ColumnRow {
+        Dlea.ColumnRow {
             id: probeDir
             y: 40
             width: parent.width
@@ -43,7 +43,7 @@ ShellRoot {
             nameBudget: 40
         }
 
-        Flea.ColumnRow {
+        Dlea.ColumnRow {
             id: probeScissors
             y: 80
             width: parent.width
@@ -54,7 +54,7 @@ ShellRoot {
             nameBudget: 40
         }
 
-        Flea.ColumnRow {
+        Dlea.ColumnRow {
             id: probePlainClip
             y: 120
             width: parent.width
@@ -117,7 +117,7 @@ ShellRoot {
     property var stubPaneClipped: paneComponent.createObject(root, { backend: root.stubBackend, rows: root.activeRows, clipboard: ({ paths: ["/probe/" + root.longName], moving: false }) })
 
     // Realistic column widths: 366 is an 1100 px window at 3 columns, 853 a 2560 px window at 3 columns.
-    Flea.ColumnPane {
+    Dlea.ColumnPane {
         id: activeNarrow
         y: 200
         width: 366
@@ -126,7 +126,7 @@ ShellRoot {
         selectedIndex: 2
     }
 
-    Flea.ColumnPane {
+    Dlea.ColumnPane {
         id: activeWide
         y: 410
         width: 853
@@ -135,7 +135,7 @@ ShellRoot {
         selectedIndex: 2
     }
 
-    Flea.ColumnPane {
+    Dlea.ColumnPane {
         id: clippedNarrow
         y: 620
         width: 366
@@ -143,7 +143,7 @@ ShellRoot {
         pane: root.stubPaneClipped
     }
 
-    Flea.ColumnPane {
+    Dlea.ColumnPane {
         id: peekNarrow
         y: 830
         width: 366
@@ -152,7 +152,7 @@ ShellRoot {
         selectedIndex: 2
     }
 
-    Flea.ColumnPane {
+    Dlea.ColumnPane {
         id: peekWide
         y: 1040
         width: 853
@@ -165,8 +165,8 @@ ShellRoot {
     Text {
         id: budgetProbe
         visible: false
-        font.family: Flea.Theme.font.family
-        font.pixelSize: Flea.Theme.font.body
+        font.family: Dlea.Theme.font.family
+        font.pixelSize: Dlea.Theme.font.body
         textFormat: Text.PlainText
     }
 
@@ -179,7 +179,7 @@ ShellRoot {
 
     Component {
         id: dynamicRowComponent
-        Flea.ColumnRow {
+        Dlea.ColumnRow {
             thumb: ""
             clipMark: ""
             showSize: true
@@ -246,7 +246,7 @@ ShellRoot {
                 root.fail(label + " carries no clip mark, want one")
                 return
             }
-            adjust = Math.ceil((Flea.Theme.spacing.gap + delegate.clipPx) / Flea.Theme.bodyAdvance)
+            adjust = Math.ceil((Dlea.Theme.spacing.gap + delegate.clipPx) / Dlea.Theme.bodyAdvance)
         }
         var want = Format.middleElide(name, Math.max(0, budget - adjust))
         var got = delegate.displayText()
@@ -290,7 +290,7 @@ ShellRoot {
 
     // The dim lives in the drawn colours, so deleting the fold reddens these three lines.
     function checkDrawnDim(probe, label, wantDim) {
-        var want = wantDim ? Flea.Theme.disabledOpacity : 1
+        var want = wantDim ? Dlea.Theme.disabledOpacity : 1
         var nameA = probe.nameItem().color.a
         if (Math.abs(nameA - want) > 0.01)
             root.fail(label + " draws its name at " + nameA + ", want " + want)
@@ -303,8 +303,8 @@ ShellRoot {
     }
 
     function checkDim() {
-        if (probeScissors.dimOpacity !== Flea.Theme.disabledOpacity)
-            root.fail("a scissors row dims at " + probeScissors.dimOpacity + ", want " + Flea.Theme.disabledOpacity)
+        if (probeScissors.dimOpacity !== Dlea.Theme.disabledOpacity)
+            root.fail("a scissors row dims at " + probeScissors.dimOpacity + ", want " + Dlea.Theme.disabledOpacity)
         if (probePlainClip.dimOpacity !== 1)
             root.fail("an unmarked row dims at " + probePlainClip.dimOpacity + ", want 1")
         root.checkDrawnDim(probeScissors, "a scissors row", true)
@@ -313,7 +313,7 @@ ShellRoot {
 
     // The column list keeps the pane's cache rows of unseen rows, and a column with no pane keeps the named bare count: Qt's 320 px default builds about 12.
     function checkCacheBuffer() {
-        var rowH = Flea.Theme.fileRowHeight
+        var rowH = Dlea.Theme.fileRowHeight
         if (activeNarrow.pane.cacheRows !== 4)
             root.fail("the pane stub carries cacheRows " + activeNarrow.pane.cacheRows + ", want 4")
         if (activeNarrow.bareCacheRows !== 2)

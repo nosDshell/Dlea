@@ -6,7 +6,7 @@ use crate::backend::opscancel::Live;
 use crate::backend::opsreq::OpMsg;
 use crate::backend::proto::{parse_request, Request, TRANSFER_CANCEL};
 use crate::backend::thumbs::Done;
-use crate::error::{from_io, FleaError};
+use crate::error::{from_io, DleaError};
 use std::io;
 use std::path::PathBuf;
 use std::sync::mpsc::Receiver;
@@ -55,7 +55,7 @@ pub enum Event {
     SearchHeld,
     SearchReady,
     SearchRefresh,
-    ReadError(FleaError),
+    ReadError(DleaError),
     Closed,
 }
 

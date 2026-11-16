@@ -22,7 +22,7 @@ use crate::backend::listpaths;
 use crate::backend::listwork::{self, Gate};
 use crate::backend::proto::{error_line, listed_line, parse_request, paths_line, thumbed_line, Request};
 use crate::backend::proto::with_anchor;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 pub use super::windowreq::{write_window, write_window_gen};
 pub(crate) use super::windowreq::window_metas;
 use super::windowreq::window_line;
@@ -41,7 +41,7 @@ use crate::backend::thumbs::Done;
 use crate::backend::thumbwrite::sweep_own_temps;
 use crate::backend::unmount::leave_mount;
 use crate::backend::watch::{changed_line, Watch};
-use crate::error::FleaError;
+use crate::error::DleaError;
 use crate::heap;
 use std::collections::VecDeque;
 use std::io::{self, BufWriter, Write};
@@ -235,7 +235,7 @@ fn dispatch_inner<W: Write>(event: Event, out: &mut W, st: &mut State, tb: &Tabl
         Event::FsInfo(d) if gate.holds() => gate.hold(Event::FsInfo(d)),
         Event::FsInfo(d) => {
             if let Some(info) = fsinfo.finish(d, &st.base) {
-                say(out, &fsinfo_line(&info, &flea::bytename::path_text(&st.base), crate::backend::fsinforeq::slow_class(&st.base), fsinfo.tagable_shown(&st.base), false));
+                say(out, &fsinfo_line(&info, &dlea::bytename::path_text(&st.base), crate::backend::fsinforeq::slow_class(&st.base), fsinfo.tagable_shown(&st.base), false));
             }
         }
         // The open folder itself went or moved: the follower decides by its path, off the loop; an expanded child's re-lists.
@@ -339,10 +339,10 @@ fn land<W: Write>(out: &mut W, st: &mut State, tb: &Tables, pool: &Pool, watch: 
     let path = landed.job.path.clone();
     if listwork::finish(out, st, tb, pool, watch, poller, landed) {
         // After the rows, because a statfs beside gio's own listing slows it on the share.
-        fsinfo.list_arrived(&flea::bytename::view(&path), &st.listing);
+        fsinfo.list_arrived(&dlea::bytename::view(&path), &st.listing);
         // Every open outline folder uses the same remote poll path as its root.
-        poller.set(flea::bytename::exact(path));
-        poller.set_children(st.listing.outline_open.iter().map(|name| st.base.join(flea::bytename::view(name))));
+        poller.set(dlea::bytename::exact(path));
+        poller.set_children(st.listing.outline_open.iter().map(|name| st.base.join(dlea::bytename::view(name))));
     }
 }
 
@@ -492,12 +492,12 @@ fn handle_line(
             }
             match super::outline::request(st, &rows, anchor, open, enabled, first) {
                 Ok(line) => return handle_line(&line, out, st, RequestContext { tb, pool, cache, ops, flash, watch, peeks, fsinfo, poller, loop_tx, gate }),
-                Err(msg) => say(out, &error_line(&FleaError { where_: "outline".into(), path: flea::bytename::path_text(&st.base).into_owned(), msg })),
+                Err(msg) => say(out, &error_line(&DleaError { where_: "outline".into(), path: dlea::bytename::path_text(&st.base).into_owned(), msg })),
             }
         }
         // A local list lands inline here, a remote one as Event::List; both land through finish.
         Request::List { path, first, hidden, want_changed, keep } => {
-            let tabs = keep.into_iter().map(flea::bytename::exact).collect();
+            let tabs = keep.into_iter().map(dlea::bytename::exact).collect();
             st.settled.keep(tabs);
             #[cfg(test)]
             super::renametiming::mark("dispatch_list");
@@ -546,7 +546,7 @@ fn handle_line(
             if finish_search(out, st, true) {
                 forget_rows(st, pool);
             }
-            st.base = flea::bytename::text_path(&path).into_owned();
+            st.base = dlea::bytename::text_path(&path).into_owned();
             st.listing = Listing::new();
             // A walk holds no directory listing, so neither re-read counts over it.
             st.held = Held::Walk;
@@ -559,7 +559,7 @@ fn handle_line(
                 // A root that answers nothing starts no walk, so no terminal line can strand it.
                 Err(e) => { writeln!(out, "{}", error_line(&e)).ok(); }
                 Ok((dev, writable)) => {
-                    writeln!(out, "{}", listed_line(0, 0.0, 0.0, dev, &flea::bytename::path_text(&st.base), writable)).ok();
+                    writeln!(out, "{}", listed_line(0, 0.0, 0.0, dev, &dlea::bytename::path_text(&st.base), writable)).ok();
                     st.search = Some(Search::new(&path, &query, hidden));
                     st.search_reported = Instant::now();
                 }
@@ -669,7 +669,7 @@ fn handle_line(
                     writeln!(out, "{}", error_line(&e)).ok();
                 }
                 Ok(Err(msg)) => {
-                    let e = FleaError { where_: "sort".to_string(), path: by.clone(), msg };
+                    let e = DleaError { where_: "sort".to_string(), path: by.clone(), msg };
                     writeln!(out, "{}", error_line(&e)).ok();
                 }
                 Ok(Ok((l, pass_ms, sort_ms, sized, dev, writable))) => {
@@ -681,11 +681,11 @@ fn handle_line(
                         // The listing is a snapshot, so only a path it never held answers -1.
                         Some(anchor) => {
                             let base = listed_line(st.listing.len(), pass_ms, sort_ms, dev,
-                                &flea::bytename::path_text(&st.base), writable);
+                                &dlea::bytename::path_text(&st.base), writable);
                             with_anchor(&base, anchor,
-                                st.listing.index_of(&st.base, &flea::bytename::view(anchor)).map(|index| index as isize).unwrap_or(-1))
+                                st.listing.index_of(&st.base, &dlea::bytename::view(anchor)).map(|index| index as isize).unwrap_or(-1))
                         }
-                        None => listed_line(st.listing.len(), pass_ms, sort_ms, dev, &flea::bytename::path_text(&st.base), writable),
+                        None => listed_line(st.listing.len(), pass_ms, sort_ms, dev, &dlea::bytename::path_text(&st.base), writable),
                     };
                     writeln!(out, "{}", line).ok();
                 }
@@ -778,11 +778,11 @@ fn handle_line(
         Request::Redo => start_redo(out, ops),
         // Never touches st.listing, which is the whole point: a column is not the pane's own listing.
         Request::Peek { path, first, details, hidden, hidden_last, focus, watch, keep, by, desc } => {
-            if watch && !keep.is_empty() { peeks.keep(keep.into_iter().map(flea::bytename::exact).collect()) }
+            if watch && !keep.is_empty() { peeks.keep(keep.into_iter().map(dlea::bytename::exact).collect()) }
             let order = match super::peek::Order::wire(hidden_last, by.as_deref(), desc) {
                 Ok(order) => order,
                 // A key this wire never defined answers the sort's own error, never a name-order column.
-                Err(msg) => { say(out, &error_line(&FleaError { where_: "sort".to_string(), path: by.unwrap_or_default(), msg: msg.to_string() })); return Control::Continue }
+                Err(msg) => { say(out, &error_line(&DleaError { where_: "sort".to_string(), path: by.unwrap_or_default(), msg: msg.to_string() })); return Control::Continue }
             };
             let line = super::peek::answer(&path, (first, details), hidden, order, focus, watch.then(|| (peeks.raw_fd(), loop_tx.clone())), tb);
             say(out, &line)
@@ -791,9 +791,9 @@ fn handle_line(
         // The password leaves this wire only on the tool's own stdin pipe, never in argv or a log.
         Request::Archive { op, paths, path, dest, format, menu_id, password, encrypt_names } => start_archive(
             out, ops, Arc::clone(&tb.formats), &op,
-            crate::backend::archivereq::ArchiveRequest { compressing: op == "compress", paths, format, archive: flea::bytename::exact(&path), dest: flea::bytename::exact(&dest), password, encrypt_names }, menu_id),
+            crate::backend::archivereq::ArchiveRequest { compressing: op == "compress", paths, format, archive: dlea::bytename::exact(&path), dest: dlea::bytename::exact(&dest), password, encrypt_names }, menu_id),
         Request::Convert { path, dest, strip, menu_id, request_id, check } =>
-            start_convert(out, ops, crate::backend::archivereq::ConvertRequest { input: flea::bytename::exact(&path), dest: flea::bytename::exact(&dest), strip, request_id }, menu_id, check),
+            start_convert(out, ops, crate::backend::archivereq::ConvertRequest { input: dlea::bytename::exact(&path), dest: dlea::bytename::exact(&dest), strip, request_id }, menu_id, check),
         Request::PrintConvert(ask) => super::printreq::serve(out, ops, ask, Arc::clone(&tb.mime), Arc::clone(&tb.aliases)),
         Request::Formats { id } => {
             let mut line = formats_line(&tb.formats, convert::available());
@@ -804,10 +804,10 @@ fn handle_line(
         Request::FsInfo => {
             let (info, class, system) = fsinfo.answer(&st.base);
             let tagable = fsinfo.tagable(&st.base, class);
-            say(out, &fsinfo_line(&info, &flea::bytename::path_text(&st.base), class, tagable, system));
+            say(out, &fsinfo_line(&info, &dlea::bytename::path_text(&st.base), class, tagable, system));
         }
         Request::PdfCopy { id, slot, path } => {
-            super::pdfcopy::spawn(id, slot, flea::bytename::exact(&path), ops.tx.clone());
+            super::pdfcopy::spawn(id, slot, dlea::bytename::exact(&path), ops.tx.clone());
         }
         Request::OfficePdf { id, path, sheets } => super::officepdf::serve(out, ops, &tb.mime, &tb.aliases, id, &path, sheets),
         Request::FontLook(ask) => super::fontinfo::render::spawn(ask, Arc::clone(&tb.mime), Arc::clone(&tb.aliases), ops.tx.clone()),
@@ -824,7 +824,7 @@ fn handle_line(
         }
         // The Make executable row's own probe, answered on a thread: an open on a hung mount never returns.
         Request::Shebang { path, id } => {
-            super::shebang::spawn(flea::bytename::exact(&path), id, ops.tx.clone())
+            super::shebang::spawn(dlea::bytename::exact(&path), id, ops.tx.clone())
         }
         // Answered on a thread, since bat runs in a jail and a read on a hung mount never returns.
         Request::Code(ask) => super::codereq::spawn(ask, ops.tx.clone()),
@@ -854,8 +854,8 @@ fn handle_line(
             )),
         ),
         Request::Locate { path } => {
-            let index = st.listing.index_of(&st.base, &flea::bytename::view(&path));
-            say(out, &super::proto::located_line(&flea::bytename::path_text(&st.base), &path, index));
+            let index = st.listing.index_of(&st.base, &dlea::bytename::view(&path));
+            say(out, &super::proto::located_line(&dlea::bytename::path_text(&st.base), &path, index));
         }
         Request::LocateMany { paths, id, menu_id, transfer_id } => {
             let mut matches = st.listing.indices_of(&st.base, &paths);
@@ -871,7 +871,7 @@ fn handle_line(
                     .and_then(|menu| menu.retain_survivors(menu_id, &mut matches)).err()
             };
             if error.is_some() { matches.clear(); }
-            say(out, &super::proto::located_many_line(&flea::bytename::path_text(&st.base), id, transfer_id, &matches, error.as_deref()));
+            say(out, &super::proto::located_many_line(&dlea::bytename::path_text(&st.base), id, transfer_id, &matches, error.as_deref()));
         }
         Request::Jump { id, ranking, favourites, recent } => super::jump::request(id, ranking, favourites, recent, ops.tx.clone()),
         Request::Devs { paths, id } => super::devsreq::request(paths, id, ops.tx.clone()),
@@ -975,7 +975,7 @@ enum Adopt { Listing { want_changed: bool }, Session(usize) }
 fn adopt_listed_as(out: &mut impl Write, st: &mut State, pool: &Pool, tb: &Tables, path: &str, done: super::iomount::ListOut, how: Adopt) {
     let (want_changed, gen) = match how { Adopt::Listing { want_changed } => (want_changed, None), Adopt::Session(gen) => (false, Some(gen)) };
     // A same-path re-list names added plus removed rows, so a rename counts 2 against a net delta of 0.
-    let exact = flea::bytename::text_path(path);
+    let exact = dlea::bytename::text_path(path);
     let same = st.held == Held::List && exact == st.base.as_path();
     let changed = if same && want_changed { crate::backend::listing::changed_count(&st.listing, &done.listing) } else { 0 };
     st.base = exact.into_owned();
@@ -988,7 +988,7 @@ fn adopt_listed_as(out: &mut impl Write, st: &mut State, pool: &Pool, tb: &Table
     if gen.is_some() {
         super::answersizes::fill(st, done.first_start, done.first_metas.len());
     }
-    let base = flea::bytename::path_text(&st.base).into_owned();
+    let base = dlea::bytename::path_text(&st.base).into_owned();
     let listed = match gen {
         Some(gen) => super::proto::listed_gen_line(st.listing.len(), done.read_ms, done.sort_ms, done.dev, &base, done.writable, gen),
         None => super::proto::say_listed(st.listing.len(), done.read_ms, done.sort_ms, done.dev, &base, done.writable),
@@ -1079,7 +1079,7 @@ pub(crate) fn drain(
 }
 
 // The walk root's figures, statted through the bound so a dead server answers instead of hanging.
-pub(crate) fn search_root_info(base: &Path) -> Result<(u64, bool), FleaError> {
+pub(crate) fn search_root_info(base: &Path) -> Result<(u64, bool), DleaError> {
     let body = std::fs::read_to_string("/proc/self/mountinfo").unwrap_or_default();
     let owned = base.to_path_buf();
     let key = owned.clone();
@@ -1104,13 +1104,13 @@ mod tests {
 
     #[test]
     fn a_remote_window_error_names_window_and_the_exact_listed_path() {
-        const REMOTE_PATH: &str = "/run/user/flea-window-test/gvfs/smb-share:server=test,share=wire/folder \"café\"\\name/../";
+        const REMOTE_PATH: &str = "/run/user/dlea-window-test/gvfs/smb-share:server=test,share=wire/folder \"café\"\\name/../";
         const NO_WATCH: i32 = -1;
         let tb = Tables::load();
         let (events, _events_rx) = crate::backend::events::channel();
         let mut st = State::new(super::super::dirsizeworker::Worker::new(events.clone()));
         let (results, _done) = channel();
-        let cache_root = std::env::temp_dir().join("flea-window-error-cache");
+        let cache_root = std::env::temp_dir().join("dlea-window-error-cache");
         let pool = Pool::new(THUMB_TEST_WORKERS, results, cache_root.clone(), Arc::clone(&tb.aliases), Arc::clone(&tb.thumbs));
         let cache = Cache::at(cache_root);
         let (tx, _rx) = channel();

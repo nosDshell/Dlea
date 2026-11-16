@@ -11,7 +11,7 @@ from .fixtures import namespace
 
 class NamespaceExecutionTests(unittest.TestCase):
     def test_no_chafa_policy_and_auxiliary_arguments_reach_the_real_owned_child(self):
-        root = Path(tempfile.mkdtemp(prefix="m9-namespace.", dir=os.environ["FLEA_BATTERY_TEST_ROOT"]))
+        root = Path(tempfile.mkdtemp(prefix="m9-namespace.", dir=os.environ["DLEA_BATTERY_TEST_ROOT"]))
         (root / MARKER).write_text("owned actual auxiliary child namespace\n")
         fx = root / "fx"
         for name in ("tmp", "home", "config", "cache", "state", "runtime", "data", "tools"):

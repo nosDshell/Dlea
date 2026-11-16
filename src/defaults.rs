@@ -1,4 +1,4 @@
-// flea --default: the per-user steps pacman cannot own, see docs/install.md "Make Flea the default".
+// dlea --default: the per-user steps pacman cannot own, see docs/install.md "Make Dlea the default".
 use crate::error::io_message;
 use crate::hyprkeys;
 use crate::userfile::{config_home, create_file, data_file, data_home, replace_file};
@@ -7,15 +7,15 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
 // The entry packaging/ installs; the desktop resolves the id to that file, so a missing file is a claim on nothing.
-pub const DESKTOP_ID: &str = "com.thisisgm.flea.desktop";
+pub const DESKTOP_ID: &str = "com.nosDshell.dlea.desktop";
 // Directories only: the entry registers nothing else, and a file manager that takes image or archive types is a bad citizen.
 const MIME: &str = "inode/directory";
 // The bus name a desktop's "Show in folder" calls, which nautilus, dolphin, thunar and nemo each register for too.
 const BUS_NAME: &str = "org.freedesktop.FileManager1";
-// Flea's own packaged registration, read for its Exec so this never invents an install path.
-const PACKAGED_SERVICE: &str = "dbus-1/services/com.thisisgm.flea.FileManager1.service";
-// The provenance line, and the test for whether a file already there is Flea's to rewrite or remove.
-const MARK: &str = "# Written by `flea --default`; `flea --default off` removes it.";
+// Dlea's own packaged registration, read for its Exec so this never invents an install path.
+const PACKAGED_SERVICE: &str = "dbus-1/services/com.nosDshell.dlea.FileManager1.service";
+// The provenance line, and the test for whether a file already there is Dlea's to rewrite or remove.
+const MARK: &str = "# Written by `dlea --default`; `dlea --default off` removes it.";
 
 // Exit statuses: 2 is usage and 1 any other refusal; ui/js/MakeDefault.js finished() reads only 3, and 4 keeps an xdg-mime refusal apart from the rest.
 pub const REFUSED: i32 = 1;
@@ -35,7 +35,7 @@ impl From<String> for Refusal {
     }
 }
 
-// flea --default
+// dlea --default
 pub fn claim() -> i32 {
     claim_from(installed_entry())
 }
@@ -44,7 +44,7 @@ pub fn claim() -> i32 {
 fn claim_from(entry: Option<PathBuf>) -> i32 {
     if entry.is_none() {
         eprintln!(
-            "flea: {} is not installed in any applications folder, so nothing was made the default. Install the package first.",
+            "dlea: {} is not installed in any applications folder, so nothing was made the default. Install the package first.",
             DESKTOP_ID
         );
         return EXIT_UNINSTALLED;
@@ -52,7 +52,7 @@ fn claim_from(entry: Option<PathBuf>) -> i32 {
     report(claim_mime(), claim_service(), hyprkeys::claim())
 }
 
-// flea --default off
+// dlea --default off
 pub fn release() -> i32 {
     report(release_mime(), release_service(), hyprkeys::release())
 }
@@ -64,7 +64,7 @@ fn report(mime: Result<String, Refusal>, reveal: Result<String, String>, keys: R
         match half {
             Ok(line) => println!("{}", line),
             Err(refusal) => {
-                eprintln!("flea: {}", refusal.text);
+                eprintln!("dlea: {}", refusal.text);
                 // The first refusal names the kind, since the halves run in order and the first is the one the user fixes first.
                 if status == 0 {
                     status = refusal.status;
@@ -85,7 +85,7 @@ fn claim_mime() -> Result<String, Refusal> {
     let now = query_default()?;
     if now != DESKTOP_ID {
         return Err(format!(
-            "xdg-mime default exited 0 but {} still resolves to {}; the desktop skips an entry whose Exec is not on PATH, so check that flea is",
+            "xdg-mime default exited 0 but {} still resolves to {}; the desktop skips an entry whose Exec is not on PATH, so check that dlea is",
             MIME,
             handler_name(&now)
         )
@@ -114,7 +114,7 @@ fn release_mime() -> Result<String, Refusal> {
     };
     replace_file(&path, &without)?;
     let now = query_default()?;
-    Ok(format!("{}: now {}, Flea's line removed from {}", MIME, handler_name(&now), path.display()))
+    Ok(format!("{}: now {}, Dlea's line removed from {}", MIME, handler_name(&now), path.display()))
 }
 
 // D-Bus keeps the FIRST registration for a name it reads, and it reads the data home before every
@@ -127,13 +127,13 @@ fn claim_service() -> Result<String, String> {
     };
     let want = service_text(&packaged_exec(&packaged)?);
     match fs::read_to_string(&path) {
-        Ok(held) if held == want => Ok(format!("{}: already Flea's, in {}", BUS_NAME, path.display())),
+        Ok(held) if held == want => Ok(format!("{}: already Dlea's, in {}", BUS_NAME, path.display())),
         Ok(held) if held.starts_with(MARK) => {
             replace_file(&path, &want)?;
-            Ok(format!("{}: Flea's, {} rewritten because the packaged registration changed", BUS_NAME, path.display()))
+            Ok(format!("{}: Dlea's, {} rewritten because the packaged registration changed", BUS_NAME, path.display()))
         }
         Ok(_) => Err(format!(
-            "{} is already there and Flea did not write it, so it was left alone; remove it yourself to let Flea answer {}",
+            "{} is already there and Dlea did not write it, so it was left alone; remove it yourself to let Dlea answer {}",
             path.display(),
             BUS_NAME
         )),
@@ -142,7 +142,7 @@ fn claim_service() -> Result<String, String> {
             fs::create_dir_all(&dir).map_err(|e| format!("{} could not be created: {}", dir.display(), io_message(&e)))?;
             create_file(&path, &want)?;
             Ok(format!(
-                "{}: Flea, written to {}, which is read before every system folder",
+                "{}: Dlea, written to {}, which is read before every system folder",
                 BUS_NAME,
                 path.display()
             ))
@@ -161,7 +161,7 @@ fn release_service() -> Result<String, String> {
         Err(e) => return Err(format!("{} could not be read: {}", path.display(), io_message(&e))),
     };
     if !text.starts_with(MARK) {
-        return Ok(format!("{}: nothing to undo, Flea did not write {}", BUS_NAME, path.display()));
+        return Ok(format!("{}: nothing to undo, Dlea did not write {}", BUS_NAME, path.display()));
     }
     fs::remove_file(&path).map_err(|e| format!("{} could not be removed: {}", path.display(), io_message(&e)))?;
     // Only the two directories the claim itself may have created: remove_dir refuses a directory
@@ -169,9 +169,9 @@ fn release_service() -> Result<String, String> {
     let dir = service_dir()?;
     let pruned = fs::remove_dir(&dir).is_ok() && dir.parent().is_some_and(|up| fs::remove_dir(up).is_ok());
     if pruned {
-        return Ok(format!("{}: Flea's registration and the folders it created removed from {}", BUS_NAME, path.display()));
+        return Ok(format!("{}: Dlea's registration and the folders it created removed from {}", BUS_NAME, path.display()));
     }
-    Ok(format!("{}: Flea's registration removed from {}", BUS_NAME, path.display()))
+    Ok(format!("{}: Dlea's registration removed from {}", BUS_NAME, path.display()))
 }
 
 // Whatever the installed registration names, never a path written down here.
@@ -185,7 +185,7 @@ fn packaged_exec(packaged: &Path) -> Result<String, String> {
 // The packaged registration, of which only the Exec is copied:
 //   [D-BUS Service]
 //   Name=org.freedesktop.FileManager1
-//   Exec=/usr/lib/flea/flea-filemanager1
+//   Exec=/usr/lib/dlea/dlea-filemanager1
 fn exec_line(text: &str) -> Option<&str> {
     text.lines()
         .find_map(|line| line.strip_prefix("Exec="))
@@ -258,9 +258,9 @@ fn installed_entry() -> Option<PathBuf> {
 
 // The per-user file xdg-mime writes, of which only the [Default Applications] section is ours to touch:
 //   [Default Applications]
-//   inode/directory=com.thisisgm.flea.desktop
+//   inode/directory=com.nosDshell.dlea.desktop
 //   image/png=imv.desktop
-// Returns the file without Flea's claim on `mime`, or None when the file makes no such claim.
+// Returns the file without Dlea's claim on `mime`, or None when the file makes no such claim.
 pub fn drop_default(text: &str, mime: &str, id: &str) -> Option<String> {
     let mut out = String::with_capacity(text.len());
     let mut in_defaults = false;
@@ -300,9 +300,9 @@ pub fn drop_default(text: &str, mime: &str, id: &str) -> Option<String> {
 mod tests {
     use super::*;
 
-    const OMARCHY_SHAPE: &str = "[Default Applications]\ninode/directory=com.thisisgm.flea.desktop\nimage/png=imv.desktop\n\n[Added Associations]\ninode/directory=com.thisisgm.flea.desktop;\n";
+    const OMARCHY_SHAPE: &str = "[Default Applications]\ninode/directory=com.nosDshell.dlea.desktop\nimage/png=imv.desktop\n\n[Added Associations]\ninode/directory=com.nosDshell.dlea.desktop;\n";
 
-    const PACKAGED: &str = "[D-BUS Service]\nName=org.freedesktop.FileManager1\nExec=/usr/lib/flea/flea-filemanager1\n";
+    const PACKAGED: &str = "[D-BUS Service]\nName=org.freedesktop.FileManager1\nExec=/usr/lib/dlea/dlea-filemanager1\n";
 
     // ui/js/MakeDefault.js finished() reads these statuses, so a sentence can change without the row losing its state.
     #[test]
@@ -314,7 +314,7 @@ mod tests {
     #[test]
     fn an_xdg_mime_that_could_not_run_or_finish_exits_with_its_own_status() {
         let finished = exited(&["default", DESKTOP_ID, MIME], Some(3));
-        assert_eq!(finished.text, "xdg-mime default com.thisisgm.flea.desktop inode/directory could not finish (exit status 3)");
+        assert_eq!(finished.text, "xdg-mime default com.nosDshell.dlea.desktop inode/directory could not finish (exit status 3)");
         assert_eq!(finished.status, EXIT_XDG_MIME);
         let missing = missing_xdg_mime();
         assert_eq!(missing.text, "xdg-mime is not installed. Install xdg-utils.");
@@ -339,7 +339,7 @@ mod tests {
 
     #[test]
     fn the_exec_is_copied_from_the_packaged_registration_and_never_written_down_here() {
-        assert_eq!(exec_line(PACKAGED), Some("/usr/lib/flea/flea-filemanager1"));
+        assert_eq!(exec_line(PACKAGED), Some("/usr/lib/dlea/dlea-filemanager1"));
         // A registration this cannot read an Exec out of is refused rather than guessed at.
         assert_eq!(exec_line("[D-BUS Service]\nName=org.freedesktop.FileManager1\n"), None);
         assert_eq!(exec_line("[D-BUS Service]\nExec=\n"), None);
@@ -351,39 +351,39 @@ mod tests {
         let text = service_text(exec_line(PACKAGED).expect("the packaged Exec"));
         assert_eq!(
             text,
-            "# Written by `flea --default`; `flea --default off` removes it.\n[D-BUS Service]\nName=org.freedesktop.FileManager1\nExec=/usr/lib/flea/flea-filemanager1\n"
+            "# Written by `dlea --default`; `dlea --default off` removes it.\n[D-BUS Service]\nName=org.freedesktop.FileManager1\nExec=/usr/lib/dlea/dlea-filemanager1\n"
         );
-        // The first line is what tells Flea's file from somebody else's, so release reads it too.
+        // The first line is what tells Dlea's file from somebody else's, so release reads it too.
         assert!(text.starts_with(MARK));
         assert!(!PACKAGED.starts_with(MARK));
     }
 
     #[test]
-    fn drop_default_removes_only_fleas_line_in_the_default_section() {
-        let out = drop_default(OMARCHY_SHAPE, MIME, DESKTOP_ID).expect("the file names Flea");
-        assert_eq!(out, "[Default Applications]\nimage/png=imv.desktop\n\n[Added Associations]\ninode/directory=com.thisisgm.flea.desktop;\n");
+    fn drop_default_removes_only_dleas_line_in_the_default_section() {
+        let out = drop_default(OMARCHY_SHAPE, MIME, DESKTOP_ID).expect("the file names Dlea");
+        assert_eq!(out, "[Default Applications]\nimage/png=imv.desktop\n\n[Added Associations]\ninode/directory=com.nosDshell.dlea.desktop;\n");
     }
 
     #[test]
-    fn drop_default_leaves_a_file_that_does_not_name_flea_alone() {
+    fn drop_default_leaves_a_file_that_does_not_name_dlea_alone() {
         assert_eq!(drop_default("[Default Applications]\ninode/directory=thunar.desktop\n", MIME, DESKTOP_ID), None);
-        assert_eq!(drop_default("inode/directory=com.thisisgm.flea.desktop\n", MIME, DESKTOP_ID), None);
+        assert_eq!(drop_default("inode/directory=com.nosDshell.dlea.desktop\n", MIME, DESKTOP_ID), None);
         assert_eq!(drop_default("", MIME, DESKTOP_ID), None);
     }
 
     #[test]
     fn drop_default_keeps_the_rest_of_a_list_value() {
         // gio writes a trailing semicolon where xdg-mime writes none; both are one claim.
-        assert_eq!(drop_default("[Default Applications]\ninode/directory=com.thisisgm.flea.desktop;\n", MIME, DESKTOP_ID), Some("[Default Applications]\n".to_string()));
+        assert_eq!(drop_default("[Default Applications]\ninode/directory=com.nosDshell.dlea.desktop;\n", MIME, DESKTOP_ID), Some("[Default Applications]\n".to_string()));
         assert_eq!(
-            drop_default("[Default Applications]\ninode/directory=com.thisisgm.flea.desktop;thunar.desktop;\n", MIME, DESKTOP_ID),
+            drop_default("[Default Applications]\ninode/directory=com.nosDshell.dlea.desktop;thunar.desktop;\n", MIME, DESKTOP_ID),
             Some("[Default Applications]\ninode/directory=thunar.desktop\n".to_string())
         );
     }
 
     #[test]
     fn drop_default_keeps_a_last_line_with_no_newline_intact() {
-        let out = drop_default("[Default Applications]\ninode/directory=com.thisisgm.flea.desktop\nimage/png=imv.desktop", MIME, DESKTOP_ID);
+        let out = drop_default("[Default Applications]\ninode/directory=com.nosDshell.dlea.desktop\nimage/png=imv.desktop", MIME, DESKTOP_ID);
         assert_eq!(out, Some("[Default Applications]\nimage/png=imv.desktop".to_string()));
     }
 }

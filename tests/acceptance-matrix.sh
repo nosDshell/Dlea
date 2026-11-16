@@ -2,13 +2,13 @@
 # Display-free derivation, guard and accounting check; GNU coreutils matches the native guard.
 set -euo pipefail
 REPO=$(cd "$(dirname "$0")/.." && pwd)
-FLEA_FIXTURE_ROOT=$(mktemp -d /tmp/flea-acceptance-check.XXXXXXXX)
-export FLEA_FIXTURE_ROOT
-. "$REPO/tools/flea-sandbox-guard"
-. "$REPO/tools/flea-acceptance-drive"
+DLEA_FIXTURE_ROOT=$(mktemp -d /tmp/dlea-acceptance-check.XXXXXXXX)
+export DLEA_FIXTURE_ROOT
+. "$REPO/tools/dlea-sandbox-guard"
+. "$REPO/tools/dlea-acceptance-drive"
 die() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
-SB="$FLEA_FIXTURE_ROOT/case"
-printf 'acceptance derivation self-check\n' > "$FLEA_FIXTURE_ROOT/$SANDBOX_MARKER"
+SB="$DLEA_FIXTURE_ROOT/case"
+printf 'acceptance derivation self-check\n' > "$DLEA_FIXTURE_ROOT/$SANDBOX_MARKER"
 sandbox_make "$SB"
 SB=$(realpath -e "$SB")
 trap 'drive_guard "$SB/work"; sandbox_remove "$SB"' EXIT
@@ -16,7 +16,7 @@ DRIVE_FIXTURE="$SB/work"
 DRIVE_EVIDENCE="$SB/evidence"
 drive_guard "$DRIVE_FIXTURE"
 mkdir "$DRIVE_FIXTURE" "$DRIVE_EVIDENCE"
-python3 "$REPO/tools/flea-keymap-gen" "$SB/generated.js" "$REPO/keys.toml"
+python3 "$REPO/tools/dlea-keymap-gen" "$SB/generated.js" "$REPO/keys.toml"
 cmp "$SB/generated.js" "$REPO/ui/js/Keymap.js"
 BINDINGS="$SB/bindings"
 derive_bindings > "$BINDINGS"
@@ -54,8 +54,8 @@ for preset in ('default', 'vim', 'mac', 'windows'):
 print('ACCEPTANCE_MATRIX rows=' + str(len(rows)) + ' frontends=' + str(dict(collections.Counter(row[2] for row in rows))))
 PY
 if command -v node >/dev/null && command -v qml6 >/dev/null; then
-  FLEA_MATRIX_ENGINE=node derive_bindings > "$SB/node-bindings"
-  FLEA_MATRIX_ENGINE=qml6 derive_bindings > "$SB/qt-bindings"
+  DLEA_MATRIX_ENGINE=node derive_bindings > "$SB/node-bindings"
+  DLEA_MATRIX_ENGINE=qml6 derive_bindings > "$SB/qt-bindings"
   cmp "$SB/node-bindings" "$SB/qt-bindings"
   printf 'ACCEPTANCE_MATRIX engines=node,qml6 identical\n'
 else
@@ -79,7 +79,7 @@ assert {row[3] for row in rows if row[0] == 'open'} == {'file', 'places', 'trash
 assert ['openTab', 'openTab', 'New tab', 'places'] in rows
 assert ['removeFavourite', 'removeFavourite', 'Remove from Favorites', 'places'] in rows
 assert {row[3] for row in rows if row[0] == 'paste'} == {'file', 'background'}
-assert ['updateFlea', 'updateFlea', 'Update Flea', 'background'] in rows
+assert ['updateDlea', 'updateDlea', 'Update Dlea', 'background'] in rows
 # The storage-class thumbnail switch is a background row only; ui/js/ExtThumbs.js relabels it per class.
 assert {row[3] for row in rows if row[0] == 'extThumbs'} == {'background'}
 assert ['extThumbs', 'extThumbs', 'Show thumbnails', 'background'] in rows
@@ -96,7 +96,7 @@ fi
 [[ ! -s "$SB/partial-menu" ]] || die "invalid menu inventory left a partial checklist"
 
 status=0
-output=$(FLEA_BIN=/missing/acceptance-candidate bash "$REPO/tools/flea-acceptance" --drive typo 2>&1) || status=$?
+output=$(DLEA_BIN=/missing/acceptance-candidate bash "$REPO/tools/dlea-acceptance" --drive typo 2>&1) || status=$?
 [[ "$status" == 2 && "$output" == 'unknown --drive group: typo' ]] \
   || die "unknown group reached setup or returned a successful result: $status $output"
 if (DRIVE_GROUPS=typo; drive_all) >/dev/null 2>&1; then die "direct driver accepted an unknown group"; fi
@@ -120,10 +120,10 @@ printf 'pair|vim|gui|listing|text|g|cursorFirstArm\n' > "$BINDINGS"
 [[ "$(first_chord cursorFirst)" == $'g\ng' ]] || die "sequence-only setup did not deliver the required pair"
 BINDINGS="$all_bindings"
 
-for path in '' relative "$SB" "$FLEA_FIXTURE_ROOT/foreign" "$SB/work/../../outside"; do
+for path in '' relative "$SB" "$DLEA_FIXTURE_ROOT/foreign" "$SB/work/../../outside"; do
   if (drive_guard "$path") >/dev/null 2>&1; then die "guard accepted unsafe path: $path"; fi
 done
-ln -s "$FLEA_FIXTURE_ROOT/foreign" "$SB/escape"
+ln -s "$DLEA_FIXTURE_ROOT/foreign" "$SB/escape"
 if (drive_guard "$SB/escape/file") >/dev/null 2>&1; then die "guard followed an escaping symlink"; fi
 drive_mutation_guard "$DRIVE_FIXTURE/child"
 if drive_mutation_guard "$SB/escape/file"; then die "native operation escaped the listing"; fi
@@ -194,7 +194,7 @@ if drive_mutation_guard "$SB/escape/file"; then die "native operation escaped th
 mkdir "$SB/matrix-bin"
 printf '#!/bin/sh\nprintf "qml: ReferenceError: missing matrix\\n"\nexit 0\n' > "$SB/matrix-bin/qml6"
 chmod +x "$SB/matrix-bin/qml6"
-if (PATH="$SB/matrix-bin:$PATH" FLEA_MATRIX_ENGINE=qml6 derive_bindings) > "$SB/failed-qt.log" 2>&1; then
+if (PATH="$SB/matrix-bin:$PATH" DLEA_MATRIX_ENGINE=qml6 derive_bindings) > "$SB/failed-qt.log" 2>&1; then
   die "Qt derivation accepted exit zero without its execution tally"
 fi
 
@@ -217,7 +217,7 @@ if (
 
 # These stubs exercise result accounting only; they never masquerade as native evidence.
 PASSED=0 FAILED=0 UNDRIVEN=0
-FLEA_SOURCE_SHA=self-check FLEA_BINARY_SHA256=self-check
+DLEA_SOURCE_SHA=self-check DLEA_BINARY_SHA256=self-check
 pass() { PASSED=$((PASSED + 1)); }
 bad() { FAILED=$((FAILED + 1)); }
 skip() { UNDRIVEN=$((UNDRIVEN + 1)); }

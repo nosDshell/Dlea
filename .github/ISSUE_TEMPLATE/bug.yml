@@ -1,5 +1,5 @@
 name: Bug report
-description: Something in Flea does not work as it should.
+description: Something in Dlea does not work as it should.
 labels: [bug]
 body:
   - type: checkboxes
@@ -7,9 +7,9 @@ body:
     attributes:
       label: Before you file
       options:
-        - label: I can reproduce this on the [latest release](https://github.com/thisisgm/flea/releases/latest) or on `main`.
+        - label: I can reproduce this on the [latest release](https://github.com/nosDshell/Dlea/releases/latest) or on `main`.
           required: true
-        - label: The steps below reproduce it from a fresh Flea window.
+        - label: The steps below reproduce it from a fresh Dlea window.
           required: true
         - label: I searched the open issues and this is not already reported.
           required: true
@@ -33,7 +33,7 @@ body:
       description: Exact keys and clicks. If the bug needs certain files, add the shell lines that create them.
       placeholder: |
         mkdir -p /tmp/repro && touch /tmp/repro/a.txt
-        1. Run flea /tmp/repro
+        1. Run dlea /tmp/repro
         2. Press ...
         3. ...
     validations:
@@ -48,7 +48,7 @@ body:
   - type: dropdown
     id: where
     attributes:
-      label: Where in Flea
+      label: Where in Dlea
       multiple: true
       options:
         - List view
@@ -80,7 +80,7 @@ body:
     id: versions
     attributes:
       label: Versions
-      description: Run `flea --version; omarchy-version; omarchy-theme-current` and paste the output.
+      description: Run `dlea --version; omarchy-version; omarchy-theme-current` and paste the output.
       render: text
     validations:
       required: true
@@ -88,5 +88,5 @@ body:
     id: logs
     attributes:
       label: Logs
-      description: For a crash, the output of `coredumpctl info` for it. For an error, Flea's lines from `journalctl --user -b`.
+      description: For a crash, the output of `coredumpctl info` for it. For an error, Dlea's lines from `journalctl --user -b`.
       render: text

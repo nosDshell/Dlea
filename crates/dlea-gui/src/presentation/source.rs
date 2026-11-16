@@ -1,0 +1,308 @@
+use super::Fonts;
+use crate::palette::{ParsedTheme, Theme};
+use gpui::App;
+use std::{
+    io::{self, Read},
+    os::unix::fs::MetadataExt,
+    path::{Path, PathBuf},
+};
+
+#[derive(Clone, PartialEq)]
+pub struct Snapshot {
+    pub theme: Theme,
+    pub parsed: ParsedTheme,
+    pub fonts: Fonts,
+}
+
+impl Snapshot {
+    pub fn install(&self, cx: &mut App) {
+        cx.set_global(self.theme);
+        cx.set_global(self.parsed);
+        cx.set_global(self.fonts.clone());
+    }
+}
+
+pub(super) type Inputs = [Option<String>; 9];
+/// The most bytes one input may hold; a larger file is refused, never cut.
+pub(super) const INPUT_CAP: usize = 65536;
+
+/// gxde-file-manager's dark `QMainWindow` (`#202020`) and accent (`#2ca7f8`),
+/// with the sidebar plane and the status/crumb ink from `themes/dark`.
+const GXDE_COLORS: &str = "\
+background = '#202020'\n\
+foreground = '#ffffff'\n\
+bright_foreground = '#ffffff'\n\
+accent = '#2ca7f8'\n\
+blue = '#2ca7f8'\n\
+dark_background = '#252525'\n\
+muted = '#bdbdbd'\n\
+";
+
+/// Packaged colors, then the dlea overlay. Both empty means the GXDE dark window.
+pub(super) fn palette_text(packaged: &str, overlay: &str) -> String {
+    if packaged.trim().is_empty() && overlay.trim().is_empty() {
+        GXDE_COLORS.to_string()
+    } else {
+        format!("{packaged}\n{overlay}")
+    }
+}
+pub(super) type Stamps = [Option<(u64, u64, u64, i64, i64, i64, i64, u32)>; 9];
+
+/// The nine files a presentation reads, and where the resolved font family is cached.
+/// Slots 7 and 8 hold `~/.config/dlea/colors.toml` and `~/.config/dlea/shell.toml`,
+/// the stable theme contract other shells (nosDshell templates) render into; each
+/// overlays the packaged Omarchy file key by key when present.
+pub(super) struct Sources {
+    inputs: [PathBuf; 9],
+    cache: PathBuf,
+}
+
+impl Sources {
+    #[cfg(test)]
+    pub fn at(inputs: [PathBuf; 9], cache: PathBuf) -> Self {
+        Self { inputs, cache }
+    }
+
+    pub fn current() -> Self {
+        let home = PathBuf::from(std::env::var_os("HOME").unwrap_or_default());
+        let config = std::env::var_os("XDG_CONFIG_HOME")
+            .filter(|v| !v.is_empty())
+            .map(PathBuf::from)
+            .unwrap_or_else(|| home.join(".config"));
+        let state = std::env::var_os("XDG_STATE_HOME")
+            .filter(|v| !v.is_empty())
+            .map(PathBuf::from)
+            .unwrap_or_else(|| home.join(".local/state"));
+        let theme = home.join(".local/state/omarchy/current/theme");
+        Self {
+            inputs: [
+                theme.join("colors.toml"),
+                theme.join("shell.toml"),
+                home.join(".config/omarchy/shell.toml"),
+                config.join("fontconfig/fonts.conf"),
+                config.join("fontconfig/conf.d/50-omarchy-input-method.conf"),
+                state.join("omarchy/toggles/hypr/window-opaque.lua"),
+                state.join("omarchy/toggles/hypr/window-glassy.lua"),
+                // Theme paths follow HOME like dlea::theme::ThemePaths, not XDG_CONFIG_HOME.
+                home.join(".config/dlea/colors.toml"),
+                home.join(".config/dlea/shell.toml"),
+            ],
+            cache: state.join("dlea/fc-match-monospace"),
+        }
+    }
+
+    /// The folders that hold the inputs, and the one the theme folder is swapped into, for the waker to watch.
+    pub fn dirs(&self) -> Vec<PathBuf> {
+        let mut dirs: Vec<PathBuf> = self
+            .inputs
+            .iter()
+            .filter_map(|input| input.parent())
+            .map(Path::to_path_buf)
+            .collect();
+        dirs.extend(
+            self.inputs[0]
+                .parent()
+                .and_then(Path::parent)
+                .map(Path::to_path_buf),
+        );
+        // Watch the config dir too so creating ~/.config/dlea itself is a theme change.
+        dirs.extend(
+            self.inputs[7]
+                .parent()
+                .and_then(Path::parent)
+                .map(Path::to_path_buf),
+        );
+        dirs.sort();
+        dirs.dedup();
+        dirs
+    }
+
+    fn read_one(path: &Path) -> io::Result<Option<String>> {
+        let mut text = String::new();
+        let file = match dlea::backend::regfile::open_if_regular(path, 0) {
+            Ok(file) => file,
+            Err(error) if error.kind() == io::ErrorKind::NotFound => return Ok(None),
+            Err(error) => return Err(error),
+        };
+        file.take(INPUT_CAP as u64 + 1).read_to_string(&mut text)?;
+        if text.len() > INPUT_CAP {
+            return Err(io::ErrorKind::InvalidData.into());
+        }
+        Ok(Some(text))
+    }
+
+    /// Every input or the first failure: a live change that cannot be read keeps the last complete snapshot.
+    pub fn read(&self) -> io::Result<Inputs> {
+        let mut inputs = std::array::from_fn(|_| None);
+        for (path, input) in self.inputs.iter().zip(&mut inputs) {
+            *input = Self::read_one(path)?;
+        }
+        Ok(inputs)
+    }
+
+    /// The launch read: an input that cannot be read counts as absent and is reported, never refused.
+    pub fn read_for_launch(&self) -> (Inputs, Vec<String>) {
+        let mut inputs = std::array::from_fn(|_| None);
+        let mut failures = Vec::new();
+        for (path, input) in self.inputs.iter().zip(&mut inputs) {
+            match Self::read_one(path) {
+                Ok(text) => *input = text,
+                Err(error) => failures.push(format!("{}: {error}", path.display())),
+            }
+        }
+        (inputs, failures)
+    }
+
+    /// What identifies each input without reading it, so an unchanged input costs one stat and no probe.
+    pub fn stamps(&self) -> Stamps {
+        std::array::from_fn(|at| {
+            let meta = std::fs::metadata(&self.inputs[at]).ok()?;
+            Some((
+                meta.dev(),
+                meta.ino(),
+                meta.size(),
+                meta.mtime(),
+                meta.mtime_nsec(),
+                meta.ctime(),
+                meta.ctime_nsec(),
+                meta.mode(),
+            ))
+        })
+    }
+
+    /// The snapshot for these inputs. A probe that fails keeps `fallback` for the family and is returned for the log.
+    pub fn resolve(&self, input: &Inputs, fallback: &str) -> (Snapshot, Option<io::Error>) {
+        self.resolve_with(input, fallback, super::face::fc_match, super::face::LAUNCH)
+    }
+
+    /// The retry's resolve after a quick probe timed out: the same inputs, with time for a cold fontconfig cache to answer.
+    pub fn resolve_patient(&self, input: &Inputs, fallback: &str) -> (Snapshot, Option<io::Error>) {
+        self.resolve_with(input, fallback, super::face::fc_match, super::face::PATIENT)
+    }
+
+    fn resolve_with(
+        &self,
+        input: &Inputs,
+        fallback: &str,
+        probe: impl FnOnce() -> std::process::Command,
+        deadline: std::time::Duration,
+    ) -> (Snapshot, Option<io::Error>) {
+        let text = |at: usize| input[at].as_deref().unwrap_or("");
+        // ~/.config/dlea/* overlays the packaged theme files key by key: keys it
+        // does not set keep the Omarchy values, so a partial override works too.
+        // A machine with neither file takes the GXDE dark window, so a bare
+        // nosDshell install matches gxde-file-manager before any overlay.
+        let colors = palette_text(text(0), text(7));
+        let shell = format!("{}\n{}", text(1), text(8));
+        let (mut theme, parsed) = Theme::from_text_observed(&colors);
+        theme.glass = crate::window::glass::Inputs::resolve(
+            &colors,
+            &shell,
+            text(2),
+            input[5].is_some(),
+            input[6].is_some(),
+        );
+        let (family, failure) =
+            match super::face_cache::family_within(&input[3..5], &self.cache, probe, deadline) {
+                Ok(family) => (family, None),
+                Err(error) => (fallback.to_owned(), Some(error)),
+            };
+        let snapshot = Snapshot {
+            theme,
+            parsed,
+            fonts: Fonts::from_sources(&shell, text(2), family),
+        };
+        (snapshot, failure)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::process::Command;
+
+    #[test]
+    fn a_bare_machine_takes_the_gxde_dark_window_and_an_overlay_still_wins() {
+        let bare = super::palette_text("", "  ");
+        assert!(bare.contains("#202020"), "{bare}");
+        assert!(bare.contains("#2ca7f8"), "{bare}");
+        let themed = super::palette_text("background = '#111111'\n", "accent = '#ff00aa'\n");
+        assert!(themed.contains("#111111"));
+        assert!(themed.contains("#ff00aa"));
+        assert!(!themed.contains("#202020"));
+    }
+
+    fn sources(inputs: [PathBuf; 9]) -> Sources {
+        Sources {
+            inputs,
+            cache: PathBuf::from("/proc/self/dlea-u01-no-cache/entry"),
+        }
+    }
+
+    #[test]
+    fn u01_source_read_failure_stays_distinct_from_absent_font_inputs() {
+        let absent = sources(std::array::from_fn(|_| {
+            PathBuf::from("/proc/self/dlea-u01-absent-input")
+        }));
+        assert_eq!(
+            absent.read().unwrap(),
+            [None, None, None, None, None, None, None, None, None]
+        );
+        let failed = sources(std::array::from_fn(|_| PathBuf::from("/proc/self")));
+        assert_eq!(
+            failed.read().unwrap_err().kind(),
+            io::ErrorKind::InvalidInput
+        );
+        let (launch, failures) = failed.read_for_launch();
+        assert_eq!(
+            launch,
+            [None, None, None, None, None, None, None, None, None]
+        );
+        assert_eq!(failures.len(), 9);
+        let valid = sources(std::array::from_fn(|_| PathBuf::from("/proc/self/status")));
+        assert!(valid
+            .read()
+            .unwrap()
+            .iter()
+            .all(|value| value.as_ref().is_some_and(|text| !text.is_empty())));
+    }
+
+    #[test]
+    fn u01_a_failed_probe_keeps_the_fallback_family_and_a_stamp_moves_only_with_the_input() {
+        let fixture = super::super::fixture::Fixture::new("stamp");
+        let dir = fixture.path();
+        let file = dir.join("fonts.conf");
+        let one = sources(std::array::from_fn(|at| {
+            if at == 3 {
+                file.clone()
+            } else {
+                dir.join("absent")
+            }
+        }));
+        assert_eq!(one.stamps()[3], None);
+        fixture.write(&file, "one");
+        let first = one.stamps();
+        assert!(first[3].is_some());
+        assert_eq!(first, one.stamps());
+        fixture.write(&file, "three");
+        assert_ne!(first, one.stamps());
+        let inputs = one.read().unwrap();
+        let (snapshot, failure) = one.resolve_with(
+            &inputs,
+            "monospace",
+            || {
+                let mut command = Command::new(dlea::testpath::tool("/bin/sh"));
+                command.args(["-c", "exit 1"]);
+                command
+            },
+            super::super::face::LAUNCH,
+        );
+        assert_eq!(snapshot.fonts.family, "monospace");
+        assert_eq!(failure.unwrap().kind(), io::ErrorKind::InvalidData);
+        fixture.cleanup();
+    }
+}
+
+#[cfg(test)]
+#[path = "../window/glass_test_bridge.rs"]
+mod glass_test_bridge;

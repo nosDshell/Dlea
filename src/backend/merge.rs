@@ -3,7 +3,7 @@ use crate::backend::collide::{MenuCapture, Place, Policy, Question, SHOWN};
 use crate::backend::fatnames::{self, Choice};
 use crate::backend::undo::ItemIdentity;
 use crate::json::escape;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::collections::{HashMap, HashSet};
 use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
@@ -50,7 +50,7 @@ pub(crate) fn mergeable(paths: &[String], dest: &str) -> bool {
         super::collide::Table::read(&dest_path),
     );
     for raw in paths {
-        let src = flea::bytename::view(raw);
+        let src = dlea::bytename::view(raw);
         let src = &*src;
         if !src.is_absolute() {
             continue;
@@ -101,11 +101,11 @@ pub fn walk(paths: &[String], dest: &Path, fat: Option<Choice>) -> Vec<Found> {
     // One merging folder shows its own relative names; several share the destination's.
     let single = paths
         .iter()
-        .filter(|raw| is_merging_folder(&flea::bytename::view(raw), &dest_path, &dest_real))
+        .filter(|raw| is_merging_folder(&dlea::bytename::view(raw), &dest_path, &dest_real))
         .count()
         == 1;
     for raw in paths {
-        let src = flea::bytename::view(raw);
+        let src = dlea::bytename::view(raw);
         let src = &*src;
         if !src.is_absolute() {
             continue;
@@ -210,7 +210,7 @@ pub(crate) fn ask_beside(
     let outer = ops
         .question
         .as_ref()
-        .filter(|q| q.dest == *flea::bytename::view(dest));
+        .filter(|q| q.dest == *dlea::bytename::view(dest));
     let paths = match (outer.and_then(menu_paths), menu_id) {
         (Some(captured), _) => captured,
         (None, 0) => named,
@@ -221,10 +221,10 @@ pub(crate) fn ask_beside(
     ops.asked += 1;
     let (turn, tx, dest, mime, icons) = (ops.asked, ops.tx.clone(), dest.to_string(), std::sync::Arc::clone(mime), std::sync::Arc::clone(icons));
     std::thread::spawn(move || {
-        let inner = walk(&paths, &flea::bytename::view(&dest), fat);
+        let inner = walk(&paths, &dlea::bytename::view(&dest), fat);
         let total = inner.len();
         let names = names_line(&inner, &mime, &icons);
-        let mut question = Question { id, dest: flea::bytename::exact(&dest), seen: HashMap::new(), twins: Default::default(), menu: None, fat };
+        let mut question = Question { id, dest: dlea::bytename::exact(&dest), seen: HashMap::new(), twins: Default::default(), menu: None, fat };
         if let Some((dest, seen, twins, menu)) = base {
             question.dest = dest;
             question.seen = seen;

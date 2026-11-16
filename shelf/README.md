@@ -1,4 +1,4 @@
-# Flea shelf
+# Dlea shelf
 
 A drop shelf for the [Omarchy](https://omarchy.org) bar. Files gathered from anywhere are held in
 one pile and taken out together, so a copy that spans five folders is one drag rather than five.
@@ -19,7 +19,7 @@ subset gesture, and the six actions.
 |---|---|
 | `manifest.json` | the plugin the shell loads, one bar widget and its settings |
 | `Panel.qml` | the bar presence, and the card hosted in the shell's own popup host |
-| `ShelfService.qml` | the only thing that touches the outside world: the pile's file and `flea shelf` |
+| `ShelfService.qml` | the only thing that touches the outside world: the pile's file and `dlea shelf` |
 | `Model.js` | pure functions, no QML imports: what the file's bytes mean |
 | `ShelfCard.qml` | the card: the pile, the pins and the captures as one list of OEM panel rows |
 | `ShelfMenu.qml` | the card's own menu: the last five piles, and the way back to one |
@@ -30,22 +30,22 @@ subset gesture, and the six actions.
 | `Run.js` | pure functions again: the running line, and the sentence each action lands with |
 | `ShelfActionButton.qml` | Ui/PanelActionButton's shape with a mark on the Omarchy cut as its ink |
 | `ShelfRow.qml` | one row of the card: its group's separator and header, then the row itself |
-| `ShelfGlyph.qml` | one mark on the Omarchy cut, the way Flea draws its own |
+| `ShelfGlyph.qml` | one mark on the Omarchy cut, the way Dlea draws its own |
 | `ShelfCheck.qml` | the box a row is marked with, filled rather than tinted |
 | `ShelfTailscaleMark.qml` | Tailscale's own mark, because Send is Taildrop |
-| `FleaShelfMark.qml` | Flea's own mark, reproduced rather than recut |
+| `DleaShelfMark.qml` | Dlea's own mark, reproduced rather than recut |
 
 ## Requirements
 
 - Omarchy with `omarchy-shell` (the plugin runs inside the shell, not as its own process).
-- [Flea](https://github.com/thisisgm/flea) 0.4.2 or newer, which writes the pile and owns the file clipboard.
+- [Dlea](https://github.com/nosDshell/Dlea) 0.4.2 or newer, which writes the pile and owns the file clipboard.
 
 ## Settings
 
 | Key | What it does | Default |
 |---|---|---|
 | `refreshIntervalSec` | how often the pile is re-read when no change has been signalled | 5 |
-| `fleaCommand` | the flea that owns the pile, a name on PATH or a path of its own | `flea` |
+| `dleaCommand` | the dlea that owns the pile, a name on PATH or a path of its own | `dlea` |
 
 The pile's file is watched, so a change is drawn as it happens; the interval is what finds the
 first item, because a watch cannot fire for a file that does not exist yet.
@@ -60,10 +60,10 @@ The card is an Omarchy panel, hosted the way every other panel is: a click outsi
 `Screenshots & recordings`, each a one-line row with its mark, its name and its size, and the six
 actions as icon buttons under the last separator, one of which, Send, is absent on a box with no
 Tailscale. A row whose file has a thumbnail in the
-freedesktop cache draws it in the mark slot instead of the kind mark; the cache is Flea's own, asked
-for by path through `flea shelf thumb`, only for the rows the card is drawing and never while it is
+freedesktop cache draws it in the mark slot instead of the kind mark; the cache is Dlea's own, asked
+for by path through `dlea shelf thumb`, only for the rows the card is drawing and never while it is
 closed. A row is also the handle it is carried out by: press it and drag, and the drag carries the marked
-rows, or that one row when none are marked. The pointer marks the way Flea's own listing does: a
+rows, or that one row when none are marked. The pointer marks the way Dlea's own listing does: a
 row's box appears under the pointer and while anything is marked, a click on the box toggles that
 row, ctrl and a click toggles it too, shift and a click takes the range from the last row clicked,
 and a plain click clears the marks. An empty shelf says one word, `Empty`.
@@ -75,18 +75,18 @@ frame and re-read every second while it is up. A capture row takes the actions a
 gesture like any other, and `p` pins one. A pinned row is always there: its drag out is a copy, a
 move takes the file and the pin follows it, and `x` is what takes it off the shelf.
 
-Every switch is Flea's own, in its Settings panel under Shelf: the master, `Show in bar`, the edge
+Every switch is Dlea's own, in its Settings panel under Shelf: the master, `Show in bar`, the edge
 rail, which capture kinds to list and how many, and the pinned rows. This plugin reads them from
-Flea's `ui.json` and never writes them, and its manifest keeps only the two technical values above.
-With the master off there is no bar mark, no rail and Super+D does nothing, and the pile is kept. An action's tooltip carries its key only while Flea's own
+Dlea's `ui.json` and never writes them, and its manifest keeps only the two technical values above.
+With the master off there is no bar mark, no rail and Super+D does nothing, and the pile is kept. An action's tooltip carries its key only while Dlea's own
 keyboard-hints setting is on.
 
 ## State
 
-`$XDG_STATE_HOME/omarchy/flea-shelf/`, or `~/.local/state/omarchy/flea-shelf/` when that is unset:
+`$XDG_STATE_HOME/omarchy/dlea-shelf/`, or `~/.local/state/omarchy/dlea-shelf/` when that is unset:
 `shelf.json` is the pile, `piles.json` the last five it has held, `drags.json` the tokens a drag out
 carries, `undo.json` the one move `z` can walk back, and `summon.json` the count the keybind writes.
-The plugin never writes any of them: `flea shelf` does, and the plugin watches.
+The plugin never writes any of them: `dlea shelf` does, and the plugin watches.
 
 ## Keyboard
 
@@ -99,7 +99,7 @@ The plugin never writes any of them: `flea shelf` does, and the plugin watches.
 | `shift + j` `shift + k` | extend the range |
 | `ctrl + a` | takes every row, and a second `ctrl + a` clears |
 | `x` | takes the cursor row off the shelf. The file is untouched |
-| `enter` | opens the file, or reveals the folder in Flea |
+| `enter` | opens the file, or reveals the folder in Dlea |
 | `tab` | jumps to the action buttons, and back; the arrows walk them and `enter` runs one |
 | `m` `c` | move or copy the chosen rows, or the whole pile, to a folder |
 | `a` | zip them into one archive, which lands on the shelf |
@@ -116,37 +116,37 @@ While an action runs, the card is its transfer surface and `esc` cancels it rath
 card. Every file action is chosen-or-whole: with rows chosen it takes those, with none chosen it takes
 the pile, and the card's own line says which while a subset is being chosen.
 
-An action's tooltip names its key, and only while Flea's keyboard-hints setting is on: the strip
+An action's tooltip names its key, and only while Dlea's keyboard-hints setting is on: the strip
 draws no legend of its own, and this table is the map.
 
 The bind is a line in your own Hyprland config, not one this plugin writes. Add it to
 `~/.config/hypr/bindings.lua`:
 
 ```lua
-o.bind("SUPER + D", "Drop shelf", "flea shelf toggle")
+o.bind("SUPER + D", "Drop shelf", "dlea shelf toggle")
 ```
 
 The empty card names that chord once the line is there, and says nothing about it while it is not.
 
 ## Install
 
-The shelf ships inside Flea, so there is nothing to clone. Install Flea, open its Settings, and turn
-on **Enable shelf**: Flea copies the plugin into `~/.config/omarchy/plugins/` and enables it, and the
+The shelf ships inside Dlea, so there is nothing to clone. Install Dlea, open its Settings, and turn
+on **Enable shelf**: Dlea copies the plugin into `~/.config/omarchy/plugins/` and enables it, and the
 mark appears on the bar. Turning the switch off disables it again and leaves the pile where it is.
 
-The shelf is bundled with Flea; enable it through Flea’s Settings. It is not a separate marketplace package.
+The shelf is bundled with Dlea; enable it through Dlea’s Settings. It is not a separate marketplace package.
 
 ## Uninstall
 
-Turn **Enable shelf** off in Flea's Settings. To remove the copy as well:
+Turn **Enable shelf** off in Dlea's Settings. To remove the copy as well:
 
 ```bash
-omarchy plugin remove io.github.thisisgm.flea-shelf
-rm -rf "${XDG_STATE_HOME:-$HOME/.local/state}/omarchy/flea-shelf"
+omarchy plugin remove io.github.thisisgm.dlea-shelf
+rm -rf "${XDG_STATE_HOME:-$HOME/.local/state}/omarchy/dlea-shelf"
 ```
 
-That directory is the pile itself and the drag tokens Flea mints for it, so removing it empties the
-shelf. Flea and the files the shelf was holding are untouched.
+That directory is the pile itself and the drag tokens Dlea mints for it, so removing it empties the
+shelf. Dlea and the files the shelf was holding are untouched.
 
 ## Support
 

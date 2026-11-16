@@ -1,15 +1,15 @@
-//@ pragma ShellId flea-cursor-swap-test
+//@ pragma ShellId dlea-cursor-swap-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Anchor.js" as Anchor
-import "flea/js/BackReturn.js" as BackReturn
-import "flea/js/Errors.js" as Errors
-import "flea/js/Nav.js" as Nav
-import "flea/js/Ops.js" as Ops
-import "flea/js/Startup.js" as Startup
-import "flea/js/Swap.js" as Swap
+import "dlea" as Dlea
+import "dlea/js/Anchor.js" as Anchor
+import "dlea/js/BackReturn.js" as BackReturn
+import "dlea/js/Errors.js" as Errors
+import "dlea/js/Nav.js" as Nav
+import "dlea/js/Ops.js" as Ops
+import "dlea/js/Startup.js" as Startup
+import "dlea/js/Swap.js" as Swap
 
 // tests/cursor-swap.sh's harness: Back and Forward land through the real ui/PaneSwap.qml and ui/PaneWire.qml's real onLocated and onFailed.
 ShellRoot {
@@ -84,7 +84,7 @@ ShellRoot {
     }
     function compileWire() {
         var request = new XMLHttpRequest()
-        request.open("GET", Qt.resolvedUrl("flea/PaneWire.qml"), false)
+        request.open("GET", Qt.resolvedUrl("dlea/PaneWire.qml"), false)
         request.send()
         shell.located = shell.handler(request.responseText, "onLocated", "root,pane,Anchor,Theme,Ops,message,Tabs,BackReturn")
         shell.failed = shell.handler(request.responseText, "onFailed", "root,pane,Anchor,Theme,Ops,Swap,Errors,Nav,where,input,message,mode")
@@ -194,7 +194,7 @@ ShellRoot {
         implicitHeight: 480
         color: "#303030"
 
-        Flea.PaneSwap {
+        Dlea.PaneSwap {
             id: swap
             pane: stubPane
             wire: stubWire

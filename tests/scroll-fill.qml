@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-scrollfill-test
+//@ pragma ShellId dlea-scrollfill-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Scroll.js" as Scroll
+import "dlea" as Dlea
+import "dlea/js/Scroll.js" as Scroll
 
 // e52 scroll-fill: state fills paint under the reserved lane while delegates keep contentWidth.
 ShellRoot {
@@ -137,7 +137,7 @@ ShellRoot {
     property var stubPane: paneStub.createObject(root, { backend: root.stubBackend, statusBar: root.stubStatusBar, rows: root.sampleRows })
     property var stubPicker: pickerStub.createObject(root, { rows: root.sampleRows.slice(0, 3) })
 
-    Flea.List {
+    Dlea.List {
         id: list
         width: 700
         height: 300
@@ -145,7 +145,7 @@ ShellRoot {
         menu: menuStub.createObject(root)
     }
 
-    Flea.ColumnPane {
+    Dlea.ColumnPane {
         id: col
         x: 0
         y: 310
@@ -156,7 +156,7 @@ ShellRoot {
         liftedName: "adir"
     }
 
-    Flea.PickerList {
+    Dlea.PickerList {
         id: pick
         x: 0
         y: 520
@@ -167,7 +167,7 @@ ShellRoot {
     }
 
     // Standalone drop probes: the wash shares the state fill's own extent object.
-    Flea.Row {
+    Dlea.Row {
         id: dropRow
         x: 0
         y: 730
@@ -179,7 +179,7 @@ ShellRoot {
         dropTarget: true
     }
 
-    Flea.ColumnRow {
+    Dlea.ColumnRow {
         id: dropCol
         x: 0
         y: 770
@@ -205,7 +205,7 @@ ShellRoot {
     function checkList(label) {
         if (list.count !== 4) { root.fail(label + " lists " + list.count + ", want 4"); return }
         if (!list.clip) root.fail(label + " loses viewport clipping")
-        var lane = Flea.Theme.spacing.rowPaddingX
+        var lane = Dlea.Theme.spacing.rowPaddingX
         var wantContent = Scroll.contentWidth(list.width, lane)
         if (!root.near(list.rowWidth, wantContent))
             root.fail(label + " rowWidth " + list.rowWidth + ", want content " + wantContent)
@@ -229,7 +229,7 @@ ShellRoot {
     }
 
     function checkCol(label) {
-        var lane = Flea.Theme.spacing.rowPaddingX
+        var lane = Dlea.Theme.spacing.rowPaddingX
         var wantContent = Scroll.contentWidth(col.width, lane)
         var d = null
         try { d = col.itemAtIndex(2) } catch (e) { d = null }
@@ -247,7 +247,7 @@ ShellRoot {
         root.stubPicker.marksAllowed = multiple
         if (pick.count !== 3) { root.fail(label + " picks " + pick.count + ", want 3"); return }
         if (!pick.clip) root.fail(label + " picker loses viewport clipping")
-        var lane = Flea.Theme.spacing.rowPaddingX
+        var lane = Dlea.Theme.spacing.rowPaddingX
         var wantContent = Scroll.contentWidth(pick.width, lane)
         for (var i = 0; i < 3; i++) {
             var cell = pick.itemAtIndex(i)
@@ -285,7 +285,7 @@ ShellRoot {
     }
 
     function phaseWide12() {
-        Flea.ViewState.state = { display: { textSize: { mode: 12 } } }
+        Dlea.ViewState.state = { display: { textSize: { mode: 12 } } }
         root.checkList("wide12")
         root.checkCol("wide12")
         root.checkPicker("wide12 single", false)
@@ -295,7 +295,7 @@ ShellRoot {
     }
 
     function phaseWide14() {
-        Flea.ViewState.state = { display: { textSize: { mode: 14 } } }
+        Dlea.ViewState.state = { display: { textSize: { mode: 14 } } }
         root.checkList("wide14")
         root.checkCol("wide14")
         root.checkPicker("wide14 single", false)
@@ -324,7 +324,7 @@ ShellRoot {
         root.checkList("inactive")
         root.checkDrop("drop", 700)
         if (root.failures.length > 0) { root.report(); return }
-        Flea.ViewState.state = {}
+        Dlea.ViewState.state = {}
         console.log("SCROLLFILL PASS list=" + list.width + " col=" + col.width + " pick=" + pick.width)
         root.report()
     }

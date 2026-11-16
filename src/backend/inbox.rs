@@ -2,7 +2,7 @@
 use super::events::{feed, Event};
 use super::opscancel::Live;
 use super::wake::{read, wait, waking, watch, Counter, Sender, Timer, Wake, EINTR};
-use crate::error::{from_io, FleaError};
+use crate::error::{from_io, DleaError};
 use std::io;
 use std::sync::atomic::{fence, AtomicBool, Ordering};
 use std::sync::mpsc::{Receiver, TryRecvError};
@@ -114,7 +114,7 @@ pub struct Pending {
     stop: Counter,
 }
 
-pub fn open() -> Result<(Sender<Event>, Receiver<Event>, Pending), FleaError> {
+pub fn open() -> Result<(Sender<Event>, Receiver<Event>, Pending), DleaError> {
     let wake = Wake::new(Counter::open().map_err(|error| from_io("open", "eventfd", &error))?);
     let timer = Timer::open().map_err(|error| from_io("open", "timerfd", &error))?;
     let stop = Counter::open().map_err(|error| from_io("open", "eventfd", &error))?;

@@ -40,17 +40,17 @@ fn assert_list_was_opened(mut watch: fs::File) {
 
 // The stub window reports its own pid and the page-cache handoff it inherited.
 fn prefetch_frontend(sandbox: &Sandbox) {
-    let path = sandbox.root.join("flea-gui");
+    let path = sandbox.root.join("dlea-gui");
     write_in_child(
         &path,
         r#"#!/usr/bin/python3
 import json,os,sys
-keys=('FLEA_PREFETCH','FLEA_PREFETCH_SHELL')
+keys=('DLEA_PREFETCH','DLEA_PREFETCH_SHELL')
 print(json.dumps({'pid':str(os.getpid()),'env':{key:os.environ.get(key) for key in keys}}))
 "#
         .as_bytes(),
     );
-    flea::executable_file::write(&path, &std::fs::read(&path).unwrap(), 0o755).unwrap();
+    dlea::executable_file::write(&path, &std::fs::read(&path).unwrap(), 0o755).unwrap();
 }
 
 fn handoff(output: &Output) -> (String, Option<String>, Option<String>) {
@@ -63,8 +63,8 @@ fn handoff(output: &Output) -> (String, Option<String>, Option<String>) {
             .and_then(Json::as_str)
             .unwrap()
             .to_owned(),
-        value("FLEA_PREFETCH"),
-        value("FLEA_PREFETCH_SHELL"),
+        value("DLEA_PREFETCH"),
+        value("DLEA_PREFETCH_SHELL"),
     )
 }
 
@@ -73,14 +73,14 @@ fn gpui_main_window_gets_the_prefetch_list_and_records_as_its_own_shell() {
     let _serial = EXECUTABLE_FIXTURES.lock().unwrap();
     let sandbox = Sandbox::new();
     prefetch_frontend(&sandbox);
-    let list = sandbox.root.join("cache/flea/prefetch");
+    let list = sandbox.root.join("cache/dlea/prefetch");
     for arguments in [vec![], vec!["files"]] {
         let output = sandbox
             .command()
             .current_dir(&sandbox.root)
             .args(&arguments)
-            .env("FLEA_PREFETCH", "/stale-parent/prefetch")
-            .env("FLEA_PREFETCH_SHELL", "1")
+            .env("DLEA_PREFETCH", "/stale-parent/prefetch")
+            .env("DLEA_PREFETCH_SHELL", "1")
             .output()
             .unwrap();
         let (pid, prefetch, shell) = handoff(&output);
@@ -93,8 +93,8 @@ fn gpui_main_window_gets_the_prefetch_list_and_records_as_its_own_shell() {
     fs::write(
         &list,
         format!(
-            "flea-prefetch 2\n0 4096 {}\n",
-            sandbox.root.join("flea").display()
+            "dlea-prefetch 2\n0 4096 {}\n",
+            sandbox.root.join("dlea").display()
         ),
     )
     .unwrap();
@@ -113,8 +113,8 @@ fn gpui_unlock_launch_neither_warms_nor_records_the_window_list() {
     let output = sandbox
         .launch_command()
         .args(["--unlock", "/dev/mapper/vault"])
-        .env("FLEA_PREFETCH", "/stale-parent/prefetch")
-        .env("FLEA_PREFETCH_SHELL", "1")
+        .env("DLEA_PREFETCH", "/stale-parent/prefetch")
+        .env("DLEA_PREFETCH_SHELL", "1")
         .output()
         .unwrap();
     let (_, prefetch, shell) = handoff(&output);

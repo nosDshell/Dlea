@@ -3,18 +3,18 @@
 # Pages and scrolls the Columns preview through the real Pane, preserving focus and each file's session position.
 set -u
 cd "$(dirname "$0")/.." || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-preview-scroll.XXXXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-preview-scroll.XXXXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER" || exit 1
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [ -x "$bin" ] || { echo "FAIL preview-scroll: backend missing at $bin"; exit 1; }
-tools/flea-qmllint-gate || exit 1
+tools/dlea-qmllint-gate || exit 1
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/runtime" "$test_root/fixture" "$test_root/shots" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/preview-scroll.qml "$test_root/config/shell.qml" || exit 1
@@ -42,13 +42,13 @@ env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CONFIG_HOME="$test_root/home/.config" \
     XDG_CACHE_HOME="$test_root/home/.cache" XDG_RUNTIME_DIR="$test_root/runtime" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
-    FLEA_BIN="$bin" PREVIEW_SCROLL_DIR="$test_root/fixture" PREVIEW_SCROLL_OUT="$test_root/shots" timeout 120 qs -p "$test_root/config" > "$test_root/probe.log" 2>&1
+    DLEA_BIN="$bin" PREVIEW_SCROLL_DIR="$test_root/fixture" PREVIEW_SCROLL_OUT="$test_root/shots" timeout 120 qs -p "$test_root/config" > "$test_root/probe.log" 2>&1
 status=$?
 cat "$test_root/probe.log" | grep -a 'PVSCROLL'
-if [ -n "${FLEA_CI_SUITE_LOGS:-}" ]; then
+if [ -n "${DLEA_CI_SUITE_LOGS:-}" ]; then
     for shot in "$test_root/shots"/capture-*.png; do
         [ -f "$shot" ] || continue
-        cp -- "$shot" "$FLEA_CI_SUITE_LOGS/preview-scroll-$(basename "$shot")" || exit 1
+        cp -- "$shot" "$DLEA_CI_SUITE_LOGS/preview-scroll-$(basename "$shot")" || exit 1
     done
 fi
 noisy=$(grep -aiE 'WARN|ERROR|TypeError|ReferenceError|Binding loop|Unable to assign|Cannot assign|is not a function' "$test_root/probe.log" \

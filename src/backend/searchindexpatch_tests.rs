@@ -61,7 +61,7 @@ fn search_a_permission_denied_local_subtree_stays_partial() {
         let d = TestDir::new("subtree-permission-denied");
         let denied = d.dir("denied");
         d.file("denied/needle", "");
-        assert!(d.join(".flea-test-sandbox").is_file());
+        assert!(d.join(".dlea-test-sandbox").is_file());
         d.assert_contains(&denied);
         std::fs::set_permissions(&denied, std::fs::Permissions::from_mode(0o000)).unwrap();
         if std::fs::read_dir(&denied).is_ok() {

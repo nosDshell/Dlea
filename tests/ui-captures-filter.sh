@@ -151,7 +151,7 @@ cap_filter_list() {
     cap_filter_escape
     cap_filter_search_nomatch filter-list drawn
     cap_filter_escape
-    kill_flea
+    kill_dlea
 }
 
 # The four states in Grid.
@@ -167,7 +167,7 @@ cap_filter_grid() {
     cap_filter_escape
     cap_filter_search_nomatch filter-grid drawn
     cap_filter_escape
-    kill_flea
+    kill_dlea
 }
 
 # The four states in Columns at one limit; drawnCount is skipped, the list delegate is unbuilt there.
@@ -184,7 +184,7 @@ cap_filter_columns() {
     cap_filter_escape
     cap_filter_search_nomatch "filter-columns$n" skip
     cap_filter_escape
-    kill_flea
+    kill_dlea
 }
 
 # The empty-folder hero at every column limit.
@@ -195,7 +195,7 @@ cap_filter_empties() {
         sweep_wait viewMode columns
         sweep_wait columnCount "$n"
         cap_filter_empty "filter-columns$n"
-        kill_flea
+        kill_dlea
     done
 }
 
@@ -233,7 +233,7 @@ cap_filter_preview() {
     after_path=$(ipc previewSelectionState | jq -er '[.inlineVisible, .path] | @tsv') || fail "cap_filter: the preview path could not be read"
     [[ "$after_path" == true$'\t'*apex.txt ]] || fail "cap_filter: the preview column is [$after_path] once the query is cleared, not apex.txt shown"
     printf 'CAP_FILTER columns2 preview back once the query is cleared: text %s\n' "${after_path#*$'\t'}"
-    kill_flea
+    kill_dlea
 }
 
 # Count top-level fixture names holding the candidate, case blind.
@@ -256,7 +256,7 @@ cap_filter_straddle() {
     caption=$(jq -er .name <<< "$state") || fail "cap_filter: the long tile has no caption"
     lines=$(jq -er .lines <<< "$state") || fail "cap_filter: the long tile has no line count"
     wrap=$(jq -er .wrapAt <<< "$state") || fail "cap_filter: the long tile has no wrap index"
-    [[ "$lines" == 2 && "$wrap" -gt 0 && $(jq -er .broken <<< "$state") == true ]] || fail "cap_filter: the long name is not a wrapped pair Flea broke itself: $state"
+    [[ "$lines" == 2 && "$wrap" -gt 0 && $(jq -er .broken <<< "$state") == true ]] || fail "cap_filter: the long name is not a wrapped pair Dlea broke itself: $state"
     shown=${caption//$'\n'/}
     [[ "$shown" == "$cap_filter_straddle_name" ]] || fail "cap_filter: the caption [$caption] drops letters, so it has none to straddle"
     line0=${shown:0:wrap}
@@ -278,7 +278,7 @@ cap_filter_straddle() {
     if (( best_n < 2 )); then
         holder="zz-$best-holder.txt"
         printf 'holder\n' > "$dir/$holder" || fail "cap_filter: the co-match holder could not be made"
-        kill_flea
+        kill_dlea
         launch "$dir"
         total=$((cap_filter_full_total + 1))
         wait_listing "$total"
@@ -314,7 +314,7 @@ cap_filter_straddle() {
     printf 'CAP_FILTER straddle query=%s cursor=%s\n' "$best" "$cur"
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
 }
 
 # Slash and search as you type in List, Grid and Columns, 30 shots, native only.
@@ -330,5 +330,5 @@ case_cap_filter() {
     cap_filter_preview "$dir"
     cap_filter_straddle "$dir"
     printf 'CAP_FILTER list=ok grid=ok columns=ok empties=ok preview=ok straddle=ok\n'
-    kill_flea
+    kill_dlea
 }

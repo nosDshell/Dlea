@@ -58,7 +58,7 @@ fn tui_convert_late_pdf_validation_cannot_keep_an_image_choice() {
 fn tui_convert_wide_output_label_preserves_every_path_character() {
     let dir = TestDir::new("tui-convert-wide-label");
     dir.dir("en");
-    dir.file("en/flea.json", r#"{"dialogs.output.output":"输出 "}"#);
+    dir.file("en/dlea.json", r#"{"dialogs.output.output":"输出 "}"#);
     let (mut w, reader) = wire::echo_wire();
     let mut m = opened(&mut w, "photo.png");
     m.i18n = I18n::load(Paths {

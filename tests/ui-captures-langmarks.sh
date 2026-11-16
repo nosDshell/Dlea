@@ -137,7 +137,7 @@ cap_langmarks_toggle_shots() {
 
 # List specimen files, Medium and Large Grid, and Columns, all at native 1x with main.rs under the cursor.
 case_cap_langmarks() {
-    local dir="$fixture_root/cap-langmarks" name view size main monitor thumb_size saved_ui="$flea_ui" mark_pixels code slug menus_checks=0
+    local dir="$fixture_root/cap-langmarks" name view size main monitor thumb_size saved_ui="$dlea_ui" mark_pixels code slug menus_checks=0
     command -v hyprctl >/dev/null || fail "langmarks: Hyprland is required for the 1x check"
     sandbox_scratch "$dir"
     mkdir -p "$dir/src" || fail "langmarks: src could not be created"
@@ -148,9 +148,9 @@ case_cap_langmarks() {
 from pathlib import Path
 import sys
 root = Path(sys.argv[1])
-(root / 'main.rs').write_text('fn main() {\n    let answer: i32 = 42;\n    let message = "Hello, Flea";\n    println!("{} {}", message, answer);\n}\n')
-(root / 'index.ts').write_text('interface Note { name: string; count: number; }\nconst note: Note = { name: "Flea", count: 42 };\nconsole.log(note.name, note.count);\n')
-(root / 'build.sh').write_text('#!/usr/bin/env bash\nset -euo pipefail\nname="Flea"\nprintf "Building %s\\n" "$name"\n')
+(root / 'main.rs').write_text('fn main() {\n    let answer: i32 = 42;\n    let message = "Hello, Dlea";\n    println!("{} {}", message, answer);\n}\n')
+(root / 'index.ts').write_text('interface Note { name: string; count: number; }\nconst note: Note = { name: "Dlea", count: 42 };\nconsole.log(note.name, note.count);\n')
+(root / 'build.sh').write_text('#!/usr/bin/env bash\nset -euo pipefail\nname="Dlea"\nprintf "Building %s\\n" "$name"\n')
 PY
     # Modified descending preserves the board's specimen order; directories still come first.
     python3 - "$dir" <<'PY' || fail "langmarks: specimen times could not be seeded"
@@ -163,7 +163,7 @@ for index, name in enumerate(names):
     stamp = 1790524800 - index * 86400
     os.utime(root / name, (stamp, stamp))
 PY
-    flea_ui=$(cap_langmarks_ui)
+    dlea_ui=$(cap_langmarks_ui)
     mkdir -p "$evidence_dir" || fail "langmarks: evidence directory could not be created"
     for size in list medium large columns; do
         view="$size"
@@ -213,7 +213,7 @@ PY
                 settle
             done
         fi
-        kill_flea
+        kill_dlea
     done
-    flea_ui="$saved_ui"
+    dlea_ui="$saved_ui"
 }

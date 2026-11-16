@@ -1,13 +1,13 @@
 // Names the operation and the input, so the UI's message is enough to act on.
 #[derive(Debug)]
-pub struct FleaError {
+pub struct DleaError {
     pub where_: String,
     pub path: String,
     pub msg: String,
 }
 
-pub fn from_io(where_: &str, path: &str, e: &std::io::Error) -> FleaError {
-    FleaError {
+pub fn from_io(where_: &str, path: &str, e: &std::io::Error) -> DleaError {
+    DleaError {
         where_: where_.to_string(),
         path: path.to_string(),
         msg: io_message(e),

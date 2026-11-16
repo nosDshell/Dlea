@@ -35,7 +35,7 @@ impl Session {
         let mut command = pty_test_command();
         command.args(["--exact", "tui::terminal::tests::review_suspend_child", "--nocapture"])
             .env("XDG_DATA_HOME", root.join("data")).env("XDG_CONFIG_HOME", root.join("config")).env("XDG_CACHE_HOME", root.join("cache"))
-            .env("FLEA_T1_REVIEW_SUSPEND_ROOT", root).env("FLEA_T1_REVIEW_SUSPEND_MODE", child_mode).env_remove("TMUX")
+            .env("DLEA_T1_REVIEW_SUSPEND_ROOT", root).env("DLEA_T1_REVIEW_SUSPEND_MODE", child_mode).env_remove("TMUX")
             .stdin(slave.try_clone().unwrap()).stdout(slave.try_clone().unwrap()).stderr(slave.try_clone().unwrap());
         // The PTY is the child's controlling terminal, as a shell's is, so the editor handoff can move its foreground.
         unsafe { command.pre_exec(|| {
@@ -43,7 +43,7 @@ impl Session {
             Ok(())
         }); }
         if let Some(call) = gate {
-            command.env("PATH", format!("{}:/usr/bin:/bin", root.display())).env("FLEA_T1_INTERRUPT_CALL", call);
+            command.env("PATH", format!("{}:/usr/bin:/bin", root.display())).env("DLEA_T1_INTERRUPT_CALL", call);
         }
         let child = command.spawn().unwrap();
         Self { master, slave, saved, child, transcript: Vec::new(), reaped: false }
@@ -119,7 +119,7 @@ impl Drop for Session {
 }
 
 pub(super) fn mode(slave: &std::fs::File) -> Vec<u8> {
-    let output = Command::new(flea::testpath::tool("/usr/bin/stty")).arg("-g").stdin(slave.try_clone().unwrap()).output().unwrap();
+    let output = Command::new(dlea::testpath::tool("/usr/bin/stty")).arg("-g").stdin(slave.try_clone().unwrap()).output().unwrap();
     assert!(output.status.success());
     output.stdout
 }

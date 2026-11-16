@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-markdown-memory-test
+//@ pragma ShellId dlea-markdown-memory-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // Prove both Markdown Loaders activate, then unload for the shell-provided plain-text fixture.
 ShellRoot {
@@ -13,7 +13,7 @@ ShellRoot {
 
     property bool done: false
     property bool plain: false
-    property string fixtureRoot: Quickshell.env("FLEA_MARKDOWN_MEMORY_ROOT")
+    property string fixtureRoot: Quickshell.env("DLEA_MARKDOWN_MEMORY_ROOT")
     readonly property string fixture: fixtureRoot + (plain ? "/note.txt" : "/note.md")
     readonly property bool ready: plain
         ? look.status === "ready" && look.surfaceItem() !== null
@@ -30,7 +30,7 @@ ShellRoot {
         implicitHeight: 800
         color: "#101315"
 
-        Flea.Preview {
+        Dlea.Preview {
             id: look
             anchors.top: parent.top
             anchors.left: parent.left
@@ -42,7 +42,7 @@ ShellRoot {
             size: 10
         }
 
-        Flea.PreviewColumn {
+        Dlea.PreviewColumn {
             id: column
             anchors.top: look.bottom
             anchors.left: parent.left

@@ -100,7 +100,7 @@ fn unowned_binary_is_built_from_source() {
     );
 }
 
-// S1A-1: flea-bin is the prebuilt release, which Omarchy's updater keeps current, never a checkout to rebuild.
+// S1A-1: dlea-bin is the prebuilt release, which Omarchy's updater keeps current, never a checkout to rebuild.
 #[test]
 fn a_release_package_is_a_release_build_that_omarchy_update_keeps_current() {
     let release = after("unchecked release 0.4.1-1 -");
@@ -142,7 +142,7 @@ fn rebuild_names_the_package_release() {
 #[test]
 fn unknown_line_is_a_failed_check() {
     assert_eq!(
-        say(&value(&after("flea: unknown flag --update"))),
+        say(&value(&after("dlea: unknown flag --update"))),
         "Could not check"
     );
 }
@@ -228,7 +228,7 @@ fn the_footer_says_what_a_launch_did() {
     let (text, is_error) = launch_sentence(true);
     assert_eq!(
         format!("{}|{}", say(&text), is_error),
-        "Opening Omarchy update · restart Flea when it finishes|false"
+        "Opening Omarchy update · restart Dlea when it finishes|false"
     );
 }
 
@@ -245,7 +245,7 @@ fn the_footer_says_a_refused_launch_as_an_error() {
 fn the_note_asks_for_a_restart_in_the_accent_after_a_launch() {
     assert_eq!(
         noted(&launched_from(&after(AVAILABLE), true)),
-        "Restart Flea when the update finishes|accent"
+        "Restart Dlea when the update finishes|accent"
     );
 }
 

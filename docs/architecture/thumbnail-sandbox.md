@@ -119,7 +119,7 @@ status N". The tool's own last non-empty line of stderr still wins over both, be
 better diagnosis for a genuinely bad archive, and a blank or whitespace-only stderr no longer becomes
 an empty message. **What this costs is accepted and stated.** The 30 s cap was incidentally a bound on
 how much of the disk one hostile archive could fill before it was killed. An extract now runs until
-the operator's Cancel reaches it, which is exactly what `7z x` on the same file outside Flea does.
+the operator's Cancel reaches it, which is exactly what `7z x` on the same file outside Dlea does.
 A compress runs until the tool finishes or a quit cancels it, with no UI cancel yet. A
 memory bomb is still refused, by the address-space cap.
 
@@ -221,7 +221,7 @@ answers the caller's `NotStarted`.
 
 Every pid signal goes through `src/procsignal.rs` (`signal_group`, `signal_process`), which refuses any pid <= 1 before the syscall so no computed pid can become `kill(0)` or `kill(-1)`; never declare `kill` anywhere else.
 **A video the worker takes is confined without this argv.** `sandbox::wrap_worker` runs
-`flea --thumb-worker` under the same flags minus the two binds and minus `prlimit`, and each child
+`dlea --thumb-worker` under the same flags minus the two binds and minus `prlimit`, and each child
 it forks sets the same two limits itself through an `extern "C"` `setrlimit` from the system libc
 that `std` already links, so no crate is taken and the zero-dependency rule above holds.
 "Thumbnail worker" has what stands in for the binds.

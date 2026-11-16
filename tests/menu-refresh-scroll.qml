@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-menu-refresh-scroll-test
+//@ pragma ShellId dlea-menu-refresh-scroll-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // tests/menu-refresh-scroll.sh's harness: a provider refresh that rebuilds the rows of a scrolled menu keeps the flyout's row, else the cursor's, in view.
 ShellRoot {
@@ -33,7 +33,7 @@ ShellRoot {
         implicitHeight: 480
         color: "#303030"
 
-        Flea.ContextMenu {
+        Dlea.ContextMenu {
             id: menu
             anchors.fill: parent
             rowIsFile: true
@@ -76,7 +76,7 @@ ShellRoot {
 
     property var steps: [
         // A flyout on Copy as while the cursor rests on another row, a Taildrop row inserted above Copy as.
-        function (main) { Flea.ViewState.state = { menu: { hidden: [] } }; shell.open(false, "") },
+        function (main) { Dlea.ViewState.state = { menu: { hidden: [] } }; shell.open(false, "") },
         function (main) {
             shell.before = shell.rowOf("copyAs")
             shell.check("copy-opens", menu.openSubmenuFor("copyAs") && menu.openSubmenuRow === shell.before, "no Copy as row")
@@ -89,7 +89,7 @@ ShellRoot {
             shell.check("flyout-row", menu.openSubmenuRow === shell.rowOf("copyAs"), String(menu.openSubmenuRow))
             var at = shell.inBand("flyout", main)
             // The flyout follows the row through heldOffset, so the two agree on where the row stands.
-            var off = menu.itemFor(shell.rowOf("copyAs")).mapToItem(menu.frameItem, 0, 0).y - Flea.Theme.spacing.rowPaddingY
+            var off = menu.itemFor(shell.rowOf("copyAs")).mapToItem(menu.frameItem, 0, 0).y - Dlea.Theme.spacing.rowPaddingY
             shell.check("flyout-beside", menu.heldOffset === off, menu.heldOffset + "/" + off)
             shell.rowY = at
         },

@@ -15,10 +15,10 @@ use crate::{
 
 fn fixture() -> Fixture {
     let f = Fixture::new();
-    f.write("catalog/en/flea.json", r#"{"preview.loading":"Loading","preview.loadHint":"%1 to load preview","preview.unreadable":"Unreadable","pane.unread":"Cannot read folder","media.play":"Play","media.pause":"Pause","properties.size":"Size","paste.nothing":"Nothing","tui.model.empty_folder":"Empty folder"}"#);
-    f.write("catalog/ja/flea.json", r#"{"preview.loading":"読み込み中","preview.loadHint":"%1 で読み込み","preview.unreadable":"読めません","pane.unread":"フォルダを読めません","media.play":"とても長い再生ボタン","media.pause":"一時停止ボタン","properties.size":"容量","paste.nothing":"空です","tui.model.empty_folder":"空のフォルダ"}"#);
+    f.write("catalog/en/dlea.json", r#"{"preview.loading":"Loading","preview.loadHint":"%1 to load preview","preview.unreadable":"Unreadable","pane.unread":"Cannot read folder","media.play":"Play","media.pause":"Pause","properties.size":"Size","paste.nothing":"Nothing","tui.model.empty_folder":"Empty folder"}"#);
+    f.write("catalog/ja/dlea.json", r#"{"preview.loading":"読み込み中","preview.loadHint":"%1 で読み込み","preview.unreadable":"読めません","pane.unread":"フォルダを読めません","media.play":"とても長い再生ボタン","media.pause":"一時停止ボタン","properties.size":"容量","paste.nothing":"空です","tui.model.empty_folder":"空のフォルダ"}"#);
     f.write(
-        "catalog/ar/flea.json",
+        "catalog/ar/dlea.json",
         r#"{"media.play":"تشغيل طويل جدا","media.pause":"إيقاف مؤقت طويل"}"#,
     );
     f
@@ -130,7 +130,7 @@ fn tui_words_preview_join_keycap_change_refreshes_held_load_hint() {
     let revision = m.locale_revision;
     let identity = (m.preview_generation, m.preview_path.clone());
     m.set_keycaps(
-        flea::keys::display::KeycapSnapshot::new("fr", None, Some(0), 17).unwrap(),
+        dlea::keys::display::KeycapSnapshot::new("fr", None, Some(0), 17).unwrap(),
         &map,
     )
     .unwrap();

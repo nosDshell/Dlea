@@ -12,7 +12,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / "tests/i18n/fixtures/xkb"
 MAIN = re.compile(r"(A[A-E]\d\d|TLDE|BKSL|LSGT):")
-LOADER = importlib.machinery.SourceFileLoader("flea_i18n_layouts", str(ROOT / "tools/flea-i18n-layouts"))
+LOADER = importlib.machinery.SourceFileLoader("dlea_i18n_layouts", str(ROOT / "tools/dlea-i18n-layouts"))
 SPEC = importlib.util.spec_from_loader(LOADER.name, LOADER)
 layouts = importlib.util.module_from_spec(SPEC)
 LOADER.exec_module(layouts)
@@ -54,11 +54,11 @@ class LayoutTests(unittest.TestCase):
         scratch.mkdir(parents=True, exist_ok=True)
         temporary = tempfile.TemporaryDirectory(prefix="check-fixture.", dir=scratch)
         root = Path(temporary.name).resolve()
-        (root / ".flea-test-sandbox").touch()
+        (root / ".dlea-test-sandbox").touch()
 
         def cleanup():
             assert root.is_absolute() and root.parent == scratch.resolve()
-            assert (root / ".flea-test-sandbox").is_file()
+            assert (root / ".dlea-test-sandbox").is_file()
             temporary.cleanup()
 
         self.addCleanup(cleanup)
@@ -91,7 +91,7 @@ class LayoutTests(unittest.TestCase):
                                      entries=[[entry["id"], entry["installer_row"]]]),
                       provenance={name: layouts.identity(path) for name, path in
                                   (("keys", keys), ("baseline", keys), ("policy", ROOT / "i18n/keyboard-policy.json"),
-                                   ("tool", ROOT / "tools/flea-i18n-layouts"), ("linter", layouts.LINTER))})
+                                   ("tool", ROOT / "tools/dlea-i18n-layouts"), ("linter", layouts.LINTER))})
         layout["lint"] = layouts.lint_layout(matrix, layout, root / "lint", layouts.LINTER)
         matrix["summary"] = layouts.summarize(matrix)
         self.assertEqual(layouts.check_matrix(matrix, 1), [])
@@ -410,7 +410,7 @@ class LayoutTests(unittest.TestCase):
 
     def test_i50_layout_unknown_keymap_fails(self):
         with self.assertRaisesRegex(ValueError, "Unknown or invalid XKB keymap"):
-            layouts.Xkb({"layout": "flea_unknown_layout_50"})
+            layouts.Xkb({"layout": "dlea_unknown_layout_50"})
         keymap = layouts.Xkb({"layout": "ru,us", "options": "grp:shifts_toggle"})
         try:
             self.assertEqual(keymap.keymap_num_layouts(keymap.keymap), 2)

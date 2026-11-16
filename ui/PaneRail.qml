@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Focus.js" as Focus
 import "js/Drag.js" as DragOps
 import "js/Eject.js" as Eject
@@ -52,7 +52,7 @@ Item {
     // The rail stays up while the pointer is on it, which is the other half of the reveal.
     readonly property bool over: railHover.hovered
     // A release in flight keeps a revealed overlay rail up; the hold below is what keeps the Sidebar when it hides anyway.
-    readonly property bool releasing: rail.item !== null && (rail.item as Flea.Sidebar).releasing === true
+    readonly property bool releasing: rail.item !== null && (rail.item as Dlea.Sidebar).releasing === true
     // Keeps the Sidebar and its gio, undrawn, through a hide mid-release; latched from the release's edges, as a binding through hidden would loop.
     property bool releaseHold: false
     readonly property bool held: root.releaseHold && root.hidden
@@ -142,7 +142,7 @@ Item {
                 && (root.overlay ? (root.built || root.releaseHold) : (!root.hidden || root.releaseHold))
         // A Sidebar that went for another reason took its release with it, so there is nothing left to hold.
         onItemChanged: if (item === null) root.releaseHold = false
-        sourceComponent: Flea.Sidebar {
+        sourceComponent: Dlea.Sidebar {
             id: sidebar
             backend: root.pane.backend
             navigationPane: root.pane.railPane
@@ -215,7 +215,7 @@ Item {
     Loader {
         id: hiddenEject
         active: false
-        sourceComponent: Flea.DeviceMounts {
+        sourceComponent: Dlea.DeviceMounts {
             showUnmounted: ((ViewState.state.places || {}).showUnmounted !== false)
             onOpened: function (path) { root.pane.open(path) }
             onMessage: function (text, isError) { root.pane.message(text, isError) }

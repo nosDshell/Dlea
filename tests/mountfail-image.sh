@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The cap_mountfail image: a filesystem blkid still names whose superblock the kernel rejects, written to the image file alone.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 repo=$PWD
 . tests/ui-captures-unlock.sh
@@ -13,7 +13,7 @@ for tool in blkid truncate od; do
 done
 command -v mkfs.btrfs >/dev/null || command -v mkfs.ext4 >/dev/null || { echo "mountfail-image: no mkfs.btrfs or mkfs.ext4 here, nothing to build"; exit 0; }
 
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-mountfail-image-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-mountfail-image-XXXXXX") || exit 1
 sandbox_require "$test_root" || exit 1
 : > "$test_root/$SANDBOX_MARKER" || exit 1
 cleanup() { sandbox_remove "$test_root"; }

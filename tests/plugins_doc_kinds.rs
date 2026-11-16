@@ -1,8 +1,8 @@
-//! PLUGINS.md's kind manifests, exchanges and menu marks match the examples and Flea's own plugin runtime.
-use flea::jsondoc::{self, Json};
-use flea::plugin_runtime::protocol;
-use flea::ui_logic_plugin_settings::manifest::{self, Manifest};
-use flea::ui_logic_plugin_settings::wire::compact;
+//! PLUGINS.md's kind manifests, exchanges and menu marks match the examples and Dlea's own plugin runtime.
+use dlea::jsondoc::{self, Json};
+use dlea::plugin_runtime::protocol;
+use dlea::ui_logic_plugin_settings::manifest::{self, Manifest};
+use dlea::ui_logic_plugin_settings::wire::compact;
 use std::io::{BufRead, BufReader, Write};
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
@@ -63,11 +63,11 @@ struct Sandbox(PathBuf);
 impl Sandbox {
     fn new(name: &str) -> Self {
         let path =
-            std::env::temp_dir().join(format!("flea-plugins-doc-{name}-{}", std::process::id()));
+            std::env::temp_dir().join(format!("dlea-plugins-doc-{name}-{}", std::process::id()));
         assert!(path.is_absolute() && !path.exists());
         std::fs::create_dir_all(path.join("home/me")).unwrap();
         std::fs::create_dir_all(path.join("in")).unwrap();
-        std::fs::write(path.join(".flea-test-sandbox"), "plugins doc\n").unwrap();
+        std::fs::write(path.join(".dlea-test-sandbox"), "plugins doc\n").unwrap();
         std::fs::write(path.join("home/me/notes.txt"), "test").unwrap();
         std::fs::write(path.join("home/me/photos.torrent"), TORRENT).unwrap();
         std::fs::write(path.join("in/file"), TORRENT).unwrap();
@@ -94,14 +94,14 @@ impl Sandbox {
             std::fs::create_dir_all(self.0.join(leaf)).unwrap();
             command.env(key, self.0.join(leaf));
         }
-        command.env_remove("FLEA_EXAMPLE_FOLDERS");
+        command.env_remove("DLEA_EXAMPLE_FOLDERS");
         command
     }
 }
 
 impl Drop for Sandbox {
     fn drop(&mut self) {
-        if self.0.is_absolute() && self.0.join(".flea-test-sandbox").is_file() {
+        if self.0.is_absolute() && self.0.join(".dlea-test-sandbox").is_file() {
             let _ = std::fs::remove_dir_all(&self.0);
         }
     }
@@ -234,7 +234,7 @@ fn plugins_doc_exchanges_are_what_the_examples_answer() {
 
 #[test]
 fn plugins_doc_examples_add_enable_and_answer_through_the_runtime() {
-    let flea = env!("CARGO_BIN_EXE_flea");
+    let dlea = env!("CARGO_BIN_EXE_dlea");
     let sandbox = Sandbox::new("runtime");
     let preview = preview_namespace::preview_supported();
     let mut ids = Vec::new();
@@ -248,7 +248,7 @@ fn plugins_doc_examples_add_enable_and_answer_through_the_runtime() {
             if args[1] == "enable" && name == "torrent-preview" && !preview {
                 continue;
             }
-            let out = sandbox.command(flea).args(&args).output().unwrap();
+            let out = sandbox.command(dlea).args(&args).output().unwrap();
             assert!(
                 out.status.success(),
                 "{args:?}: {}",
@@ -258,7 +258,7 @@ fn plugins_doc_examples_add_enable_and_answer_through_the_runtime() {
         ids.push((name, parsed.id));
     }
     let listing = sandbox
-        .command(flea)
+        .command(dlea)
         .args(["plugin", "list", "--json"])
         .output()
         .unwrap();
@@ -288,7 +288,7 @@ fn plugins_doc_examples_add_enable_and_answer_through_the_runtime() {
     }
     let mut host = sandbox
         .command("timeout")
-        .args(["--signal=KILL", "90s", flea, "--plugin-host"])
+        .args(["--signal=KILL", "90s", dlea, "--plugin-host"])
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()
@@ -302,7 +302,7 @@ fn plugins_doc_examples_add_enable_and_answer_through_the_runtime() {
         }
         for (request, answers) in exchange(&name, &sandbox.localize(&body)).unwrap() {
             next += 1;
-            // Flea asks a previewer with the selected path and maps it to /in/file inside the sandbox itself.
+            // Dlea asks a previewer with the selected path and maps it to /in/file inside the sandbox itself.
             let request = if name == "torrent-preview" {
                 let path = sandbox.0.join("home/me/photos.torrent");
                 jsondoc::parse(&format!(
@@ -373,8 +373,8 @@ fn plugins_doc_kind_checks_refuse_a_wrong_answer_and_an_undeclared_request() {
 // The menu-action marks are `hash`, mn2's one handed mark, and exactly the file menu's own marks.
 #[test]
 fn plugins_doc_menu_marks_are_the_drawable_marks() {
-    use flea::ui_logic_context_menus::entry::MARK_NAMES;
-    use flea::ui_logic_custom_actions::rows::{static_glyph, MARKS};
+    use dlea::ui_logic_context_menus::entry::MARK_NAMES;
+    use dlea::ui_logic_custom_actions::rows::{static_glyph, MARKS};
     // Sample input: "`hash`\nor one of the file menu's own marks (`app-window archive ... cloud-upload`)."
     let list = GUIDE
         .split("`hash`\nor one of the file menu's own marks (`")

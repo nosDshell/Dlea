@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-markdown-blockcost-test
+//@ pragma ShellId dlea-markdown-blockcost-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // Time the model assignment that builds a document's blocks and count the objects each block kind builds, over the real preview.
 ShellRoot {
@@ -12,7 +12,7 @@ ShellRoot {
     function quit() { Quickshell.execDetached(["kill", String(Quickshell.processId)]) }
 
     // Sample input: "/work/docs/a.md|/work/docs/b.md", the documents in the order they are measured.
-    property var docs: Quickshell.env("FLEA_BLOCKCOST_LIST").split("|").filter(function (d) { return d.length > 0 })
+    property var docs: Quickshell.env("DLEA_BLOCKCOST_LIST").split("|").filter(function (d) { return d.length > 0 })
     property int next: 0
     property int loadsSeen: 0
     property var times: []
@@ -28,7 +28,7 @@ ShellRoot {
         implicitHeight: 600
         color: "#101315"
 
-        Flea.PreviewMarkdown {
+        Dlea.PreviewMarkdown {
             id: md
             anchors.fill: parent
             active: true
@@ -156,7 +156,7 @@ ShellRoot {
     }
 
     Component.onCompleted: {
-        if (shell.docs.length === 0) shell.fail("no documents arrived in FLEA_BLOCKCOST_LIST")
+        if (shell.docs.length === 0) shell.fail("no documents arrived in DLEA_BLOCKCOST_LIST")
         else shell.advance()
     }
 

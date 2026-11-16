@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-gridgrowth-test
+//@ pragma ShellId dlea-gridgrowth-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // A Down during cache regrowth carries no growth step on its frame: steps advance only on quiet frames.
 ShellRoot {
@@ -81,7 +81,7 @@ ShellRoot {
             active: false
             width: 2344
             height: 1332
-            sourceComponent: Flea.GridArea { pane: root.stubPane; menu: menuStub.createObject(root) }
+            sourceComponent: Dlea.GridArea { pane: root.stubPane; menu: menuStub.createObject(root) }
         }
     }
 

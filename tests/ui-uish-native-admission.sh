@@ -3,6 +3,6 @@
 set -euo pipefail
 repo=$(cd "$(dirname "$0")/.." && pwd)
 cd "$repo"
-. "$repo/tests/lib/flea-transport-ci.sh"
-flea_transport_ci "$0" "$@"
-python3 -B "$repo/tests/lib/flea_native_envelope_controls.py"
+. "$repo/tests/lib/dlea-transport-ci.sh"
+dlea_transport_ci "$0" "$@"
+python3 -B "$repo/tests/lib/dlea_native_envelope_controls.py"

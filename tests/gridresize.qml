@@ -1,15 +1,15 @@
-//@ pragma ShellId flea-gridresize-test
+//@ pragma ShellId dlea-gridresize-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // A Grid resized while scrolled keeps every drawn tile's row, after a width reflow or a height grow.
 ShellRoot {
     id: root
-    readonly property string fixture: Quickshell.env("FLEA_GV_DIR") || ""
-    readonly property int entries: Number(Quickshell.env("FLEA_GV_ENTRIES") || "0")
-    readonly property string caseName: Quickshell.env("FLEA_GR_CASE") || "narrow-far"
+    readonly property string fixture: Quickshell.env("DLEA_GV_DIR") || ""
+    readonly property int entries: Number(Quickshell.env("DLEA_GV_ENTRIES") || "0")
+    readonly property string caseName: Quickshell.env("DLEA_GR_CASE") || "narrow-far"
     readonly property real wideWidth: 1200
     readonly property real narrowWidth: 800
     readonly property real oneColumnWidth: 300
@@ -104,10 +104,10 @@ ShellRoot {
         id: win
         implicitWidth: root.wideWidth
         implicitHeight: 800
-        Flea.Backend { id: probeBackend }
+        Dlea.Backend { id: probeBackend }
         Component {
             id: paneComponent
-            Flea.Pane {
+            Dlea.Pane {
                 width: win.width
                 height: win.height
                 backend: probeBackend
@@ -187,7 +187,7 @@ ShellRoot {
         ]
         var cases = { "narrow-far": narrowFar, "narrow-still": narrowStill, "widen-mid": widenMid, "height-mid": heightMid }
         var body = cases[root.caseName]
-        if (body === undefined) { fail("unknown FLEA_GR_CASE " + root.caseName); finish(); return }
+        if (body === undefined) { fail("unknown DLEA_GR_CASE " + root.caseName); finish(); return }
         steps = open.concat(body)
         steps.push(function () { finish() })
         deadline = Date.now() + 60000

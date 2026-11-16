@@ -1,12 +1,12 @@
 #!/bin/bash
-. "$(dirname "${BASH_SOURCE[0]}")/../tools/flea-ipc"
-flea_ipc_init qs
+. "$(dirname "${BASH_SOURCE[0]}")/../tools/dlea-ipc"
+dlea_ipc_init qs
 # Drives two shipped WindowBody instances offscreen through a test seam that exists only in a sandbox copy.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
-. tools/flea-sandbox-guard
+. tools/dlea-sandbox-guard
 sandbox_root_ok
-box=$(mktemp -d "$SANDBOX_ROOT/flea-xwstate.XXXXXXXX") || exit 1
+box=$(mktemp -d "$SANDBOX_ROOT/dlea-xwstate.XXXXXXXX") || exit 1
 : > "$box/$SANDBOX_MARKER" || exit 1
 # Poll budgets: state reads and file waits share one, window readiness has its own.
 STATE_POLLS=60
@@ -53,7 +53,7 @@ broken() {
     done
     exit 1
 }
-bin=$PWD/target/debug/flea
+bin=$PWD/target/debug/dlea
 [ -x "$bin" ] || broken "candidate backend missing"
 cp -a ui "$box/ui" || broken "could not copy shipped UI"
 cp tests/xwstate-control.qml "$box/ui/xwstate-control.qml" || broken "could not copy the test seam"
@@ -83,15 +83,15 @@ text = text.replace(anchor, anchor + seam, 1)
 path.write_text(text)
 PY
 launch() {
-    exec env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u FLEA_SELECT \
+    exec env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u DLEA_SELECT \
         HOME="$box/home" XDG_CONFIG_HOME="$box/config" XDG_STATE_HOME="$box/state" \
         XDG_DATA_HOME="$box/data" XDG_CACHE_HOME="$box/cache" XDG_RUNTIME_DIR="$box/runtime" \
-        FLEA_PATH="$box/$1" FLEA_BIN="$bin" FLEA_HUNT_ROOT="$box" QSG_RHI_BACKEND=opengl \
+        DLEA_PATH="$box/$1" DLEA_BIN="$bin" DLEA_HUNT_ROOT="$box" QSG_RHI_BACKEND=opengl \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
         timeout "$WINDOW_TIMEOUT_SECONDS" qs -p "$box/ui/boot" > "$box/$1.log" 2>&1
 }
 call() {
-    env XDG_RUNTIME_DIR="$box/runtime" timeout "$CALL_TIMEOUT_SECONDS" "$FLEA_IPC_HELPER" --pid "$1" call hunt "$2" "${@:3}"
+    env XDG_RUNTIME_DIR="$box/runtime" timeout "$CALL_TIMEOUT_SECONDS" "$DLEA_IPC_HELPER" --pid "$1" call hunt "$2" "${@:3}"
 }
 await_state() {
     local pid=$1 predicate=$2 attempt snapshot
@@ -150,7 +150,7 @@ call "$a_pid" changeFavourites >/dev/null \
     || broken "could not set Favorites control"
 await_state "$b_pid" '.favourites | length == 1' || broken "Favorites watcher control never landed"
 check "settings control applies keys in window A" windows "$(call "$a_pid" state | jq -r .keys)"
-check "settings control persists keys in the shared file" windows "$(jq -r .keys "$box/state/flea/ui.json")"
+check "settings control persists keys in the shared file" windows "$(jq -r .keys "$box/state/dlea/ui.json")"
 check "cross-window settings keys reach idle window B" windows "$(call "$b_pid" state | jq -r .keys)"
 
 call "$a_pid" selectSource >/dev/null || broken "could not retain A's source row for the mark check"

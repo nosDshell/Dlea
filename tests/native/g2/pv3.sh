@@ -1,8 +1,8 @@
 #!/bin/bash
-# Native media run: the bench-seam flea-gui drives its media kit from a FIFO and records presentation, CPU and PSS.
-# Usage: tests/native/g2/pv3.sh /absolute/flea-gui-bench-seam
+# Native media run: the bench-seam dlea-gui drives its media kit from a FIFO and records presentation, CPU and PSS.
+# Usage: tests/native/g2/pv3.sh /absolute/dlea-gui-bench-seam
 set -euo pipefail
-binary=${1:?absolute path to a bench-seam flea-gui}
+binary=${1:?absolute path to a bench-seam dlea-gui}
 case $binary in /*) ;; *) echo 'binary path must be absolute' >&2; exit 2 ;; esac
 [ -x "$binary" ] || { echo 'binary is not executable' >&2; exit 2; }
 for tool in ffmpeg mkfifo bwrap; do command -v "$tool" > /dev/null || { echo "missing $tool" >&2; exit 2; }; done
@@ -10,7 +10,7 @@ here=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../../.." && pwd -P)
 mkdir -p "$here/.superpowers/g2-pv3"
 root=$(mktemp -d "$here/.superpowers/g2-pv3/native.XXXXXX")
 case $root in "$here"/.superpowers/g2-pv3/native.?*) ;; *) echo 'invalid scratch root' >&2; exit 2 ;; esac
-printf 'pv3\n' > "$root/.flea-pv3-kit-root"
+printf 'pv3\n' > "$root/.dlea-pv3-kit-root"
 
 # The boards' Media fixture plus the performance clips; every file is made fresh inside the marked root.
 clip() {
@@ -33,7 +33,7 @@ printf 'not a clip\n' > "$root/unplayable.mp4"
 run_kit() {
     local out="$root/mpv"
     mkdir "$out"
-    printf 'pv3\n' > "$out/.flea-pv3-kit-root"
+    printf 'pv3\n' > "$out/.dlea-pv3-kit-root"
     mkfifo "$out/control"
     "$binary" --media-kit window --fifo "$out/control" --records "$out/records.jsonl" \
         > "$out/kit.log" 2>&1 &

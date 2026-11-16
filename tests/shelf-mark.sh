@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # The shelf mark's measured bounds match its ink; offscreen, no display or lock.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -10,7 +10,7 @@ if ! command -v qs >/dev/null; then
     exit 1
 fi
 
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-shelf-mark-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-shelf-mark-XXXXXX") || exit 1
 case $test_root in
     /*/*) ;;
     *) echo "FAIL shelf-mark.sh: mktemp returned a relative or empty path"; exit 1 ;;
@@ -22,13 +22,13 @@ trap cleanup EXIT
 
 mkdir -p "$test_root/config/shelf" "$test_root/home" "$test_root/state" "$test_root/cache" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-cp shelf/FleaShelfMark.qml "$test_root/config/shelf/" || exit 1
+cp shelf/DleaShelfMark.qml "$test_root/config/shelf/" || exit 1
 headless_commons "$test_root" || exit 1
 cp tests/shelf-mark.qml "$test_root/config/shell.qml" || exit 1
 
 output=$(env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_SHELF_MARK_DIR="$test_root" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_SHELF_MARK_DIR="$test_root" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 QT_SCALE_FACTOR=1 \
     timeout 20 qs -p "$test_root/config" 2>&1)
 qs_status=$?
@@ -58,9 +58,9 @@ if [ "$verdict" -ne 0 ]; then
     printf '%s\n' "$output"
     exit 1
 fi
-if [ -n "${FLEA_CI_SUITE_LOGS:-}" ]; then
-    mkdir -p "$FLEA_CI_SUITE_LOGS/shelf-mark-images" || exit 1
-    cp "$test_root/mark-12.png" "$test_root/mark-24.png" "$FLEA_CI_SUITE_LOGS/shelf-mark-images/" || exit 1
+if [ -n "${DLEA_CI_SUITE_LOGS:-}" ]; then
+    mkdir -p "$DLEA_CI_SUITE_LOGS/shelf-mark-images" || exit 1
+    cp "$test_root/mark-12.png" "$test_root/mark-24.png" "$DLEA_CI_SUITE_LOGS/shelf-mark-images/" || exit 1
 fi
 # Sample input: "SHELFMARK PASS 24px painted bounds equal box".
 printf '%s\n' "$output" | grep -o 'SHELFMARK \(PASS\|DONE\).*'

@@ -134,7 +134,7 @@ impl<'a> FifoProbe<'a> {
 
 // A failing FIFO check may leave its callback blocked, so it runs in a disposable test process.
 pub fn isolated(test: &str) -> bool {
-    const CHILD: &str = "FLEA_FIFO_TEST_CHILD";
+    const CHILD: &str = "DLEA_FIFO_TEST_CHILD";
     if std::env::var(CHILD).as_deref() == Ok(test) {
         return false;
     }

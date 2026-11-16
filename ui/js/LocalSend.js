@@ -10,7 +10,7 @@ var WORDS = {
 }
 
 // Directive 71's three sentences, kept out of the QML so the wording is tested rather than read off
-// a screenshot. The dispatch, the verdict the CLI came back with, and the one refusal Flea itself
+// a screenshot. The dispatch, the verdict the CLI came back with, and the one refusal Dlea itself
 // can hit: a row whose binary left between the menu opening and the peer being chosen.
 // The one call ui/Pane.qml makes: the service either took the send or the CLI is gone.
 function send(pane, service, provider, peer, paths) {
@@ -27,7 +27,7 @@ function sending(peer, paths) {
     return Format.fill(WORDS.sending, Ops.items(paths.length), peer)
 }
 
-// The CLI ends its own run when the transfer does, so this is the only result Flea ever knows.
+// The CLI ends its own run when the transfer does, so this is the only result Dlea ever knows.
 function verdict(ok, reason) {
     if (ok) return "LocalSend finished the transfer."
     return reason && reason.length > 0 ? Format.fill(WORDS.reason, reason) : "LocalSend could not finish the transfer."

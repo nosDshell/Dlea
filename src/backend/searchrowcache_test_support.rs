@@ -53,11 +53,11 @@ pub(crate) struct Fixture {
 impl Fixture {
     pub(crate) fn new() -> Self {
         let output = std::process::Command::new("mktemp")
-            .args(["-d", "/tmp/flea-test-fs3ra.XXXXXXXX"]).output().unwrap();
+            .args(["-d", "/tmp/dlea-test-fs3ra.XXXXXXXX"]).output().unwrap();
         assert!(output.status.success());
         let root = PathBuf::from(std::str::from_utf8(&output.stdout).unwrap().trim());
-        assert!(root.starts_with("/tmp") && root.file_name().unwrap().as_encoded_bytes().starts_with(b"flea-test-fs3ra."));
-        std::fs::write(root.join(".flea-test-sandbox"), "FS3-RA\n").unwrap();
+        assert!(root.starts_with("/tmp") && root.file_name().unwrap().as_encoded_bytes().starts_with(b"dlea-test-fs3ra."));
+        std::fs::write(root.join(".dlea-test-sandbox"), "FS3-RA\n").unwrap();
         let dir = TestDir::new_in("fs3ra", &root);
         Self { root, dir: Some(dir) }
     }
@@ -71,8 +71,8 @@ impl std::ops::Deref for Fixture {
 impl Drop for Fixture {
     fn drop(&mut self) {
         drop(self.dir.take());
-        assert_eq!(std::fs::read_to_string(self.root.join(".flea-test-sandbox")).unwrap(), "FS3-RA\n");
-        std::fs::remove_file(self.root.join(".flea-test-sandbox")).unwrap();
+        assert_eq!(std::fs::read_to_string(self.root.join(".dlea-test-sandbox")).unwrap(), "FS3-RA\n");
+        std::fs::remove_file(self.root.join(".dlea-test-sandbox")).unwrap();
         std::fs::remove_dir(&self.root).unwrap();
     }
 }

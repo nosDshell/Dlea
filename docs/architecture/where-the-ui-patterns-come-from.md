@@ -24,7 +24,7 @@ for Style and Color), so an `omarchy update` reshaping it is a standing, tracked
 than a rule any one file breaks.
 
 The Trash strip's Empty Trash is the one button, not a second recipe (decided 2026-10-03, after two Empty Trash
-buttons were found drawing differently). `ui/TrashView.qml` instantiates `Flea.DialogButton` with `destructive: true` and
+buttons were found drawing differently). `ui/TrashView.qml` instantiates `Dlea.DialogButton` with `destructive: true` and
 `inStrip: true`: the host's height (`Theme.chromeHeight` for the press area, `Theme.chromeControlHeight` for the frame,
 centred in the strip less its rule) at caption size, a muted frame that never changes, the error label, hover 8% and
 press 14% of the ink with whole pixel insets on frame and wash only, keyboard focus as its own frame in one foreground hairline, 0.55 when

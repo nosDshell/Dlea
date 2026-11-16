@@ -2,7 +2,7 @@
 # Drives every column move, no-carry navigation, superseding landing, and real cap and loading minimum offscreen.
 . "$(dirname "$0")/headless-commons.sh"
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 command -v qs >/dev/null || { echo 'FAIL columnsmoves: qs is missing'; exit 1; }
 sandbox_root_ok
@@ -11,14 +11,14 @@ root=$(mktemp -d "$SANDBOX_ROOT/columnsmoves-XXXXXXXX") || exit 1
 trap 'sandbox_remove "$root"' EXIT
 mkdir -p "$root/config" "$root/home" "$root/state" "$root/cache" "$root/runtime" || exit 1
 chmod 700 "$root/runtime" || exit 1
-ln -s "$PWD/ui" "$root/config/flea" || exit 1
+ln -s "$PWD/ui" "$root/config/dlea" || exit 1
 headless_commons "$root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$root/config/Ui" || exit 1
 cp tests/columnsmoves.qml "$root/config/shell.qml" || exit 1
 cp tests/columnsframes.js "$root/config/columnsframes.js" || exit 1
 env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$root/home" XDG_STATE_HOME="$root/state" XDG_CACHE_HOME="$root/cache" XDG_RUNTIME_DIR="$root/runtime" \
-    FLEA_BIN="$PWD/target/debug/flea" \
+    DLEA_BIN="$PWD/target/debug/dlea" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
     timeout 120 qs -p "$root/config" > "$root/moves.log" 2>&1
 status=$?
@@ -64,14 +64,14 @@ if mutant == 'expire-start':
 path.write_text(source)
 PY
     [ "$?" -eq 0 ] || exit 1
-    ln -s "$leg/ui" "$leg/config/flea" || exit 1
+    ln -s "$leg/ui" "$leg/config/dlea" || exit 1
     headless_commons "$leg" || exit 1
     ln -s "$(readlink -f ui/boot/Ui)" "$leg/config/Ui" || exit 1
     cp tests/columnsmoves.qml "$leg/config/shell.qml" || exit 1
     cp tests/columnsframes.js "$leg/config/columnsframes.js" || exit 1
     env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
         HOME="$leg/home" XDG_STATE_HOME="$leg/state" XDG_CACHE_HOME="$leg/cache" XDG_RUNTIME_DIR="$leg/runtime" \
-        FLEA_BIN="$PWD/target/debug/flea" \
+        DLEA_BIN="$PWD/target/debug/dlea" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
         timeout 120 qs -p "$leg/config" > "$leg/moves.log" 2>&1
     status=$?
@@ -83,8 +83,8 @@ PY
         loading-copy) expected='CONTROL FAIL superseding landing carries the shown reading state' ;;
         old-begin) expected='CONTROL FAIL hidden navigations keep no previous landing' ;;
     esac
-    if [ -n "${FLEA_CI_SUITE_LOGS:-}" ]; then
-        cp "$leg/moves.log" "$FLEA_CI_SUITE_LOGS/columnsmoves-$mutant.control.log" || exit 1
+    if [ -n "${DLEA_CI_SUITE_LOGS:-}" ]; then
+        cp "$leg/moves.log" "$DLEA_CI_SUITE_LOGS/columnsmoves-$mutant.control.log" || exit 1
     fi
     if [ "$status" -ne 0 ] || ! grep -qF "$expected" "$leg/moves.log" \
         || grep -qE 'TypeError|ReferenceError|Binding loop' "$leg/moves.log"; then

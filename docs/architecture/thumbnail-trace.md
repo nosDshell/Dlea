@@ -1,12 +1,12 @@
 ## Thumbnail trace
 
-`FLEA_THUMB_TRACE`, set and non-empty, makes the backend write one line per reported job to
+`DLEA_THUMB_TRACE`, set and non-empty, makes the backend write one line per reported job to
 **stderr**. Off by default, and off it costs a `None` on `Job` and nothing else: the environment
 is read once for the process behind a `OnceLock`, and an untraced job reads no clock and carries
 no marks.
 
 ```
-flea: trace row=12 depth=8 queued=182.41 setup=0.31 child=94.77 after=1.02 total=278.51
+dlea: trace row=12 depth=8 queued=182.41 setup=0.31 child=94.77 after=1.02 total=278.51
 ```
 
 `row` is the listing row the job answers and `depth` is the number of jobs already queued when

@@ -17,13 +17,13 @@ class Backend:
         self.trace = []
         self.stderr = []
         env = dict(os.environ)
-        for key in ("XDG_CONFIG_HOME", "XDG_STATE_HOME", "XDG_DATA_HOME", "XDG_CACHE_HOME", "XDG_RUNTIME_DIR", "FLEA_UNDO_DIR"):
+        for key in ("XDG_CONFIG_HOME", "XDG_STATE_HOME", "XDG_DATA_HOME", "XDG_CACHE_HOME", "XDG_RUNTIME_DIR", "DLEA_UNDO_DIR"):
             directory = root / key.lower()
             directory.mkdir(mode=0o700)
             env[key] = str(directory)
         command = [binary, "--backend"]
         if test_binary:
-            env["FLEA_RENAME_TIMING_CHILD"] = "1"
+            env["DLEA_RENAME_TIMING_CHILD"] = "1"
             command = [binary, "--exact", "backend::renametiming::tests::protocol_child", "--nocapture", "--quiet"]
         self.child = subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=env)
         self.reader = threading.Thread(target=self.read, daemon=True)
@@ -135,7 +135,7 @@ def run(binary, root, count, repeats, test_binary):
             source = folder / f"f{repeat:06}.txt"
             target = folder / f"renamed-{repeat}.txt"
             assert source.is_absolute() and target.is_absolute() and root in source.parents and root in target.parents
-            assert (root / ".flea-test-sandbox").is_file()
+            assert (root / ".dlea-test-sandbox").is_file()
             started = backend.send(dict(c="rename", path=str(source), to=target.name))
             rename, answer, seen = backend.until("renamed", started)
             assert answer["ok"] and answer["path"] == str(target), answer
@@ -170,7 +170,7 @@ def main():
     binary, directory = args.binary, args.directory
     root = Path(directory)
     assert directory and root.is_absolute() and root.resolve() == root
-    assert (root / ".flea-test-sandbox").is_file()
+    assert (root / ".dlea-test-sandbox").is_file()
     assert not root.is_relative_to(Path.home())
     assert 0 < args.runs <= min(args.files)
     for count in args.files:

@@ -2,21 +2,21 @@
 . "$(dirname "$0")/headless-commons.sh"
 # A slow network source draws its loading state on the first frame after the Timer that owns it fires: Enter on a folder whose listing is held, and Space on a file whose content is held or never lands, with the backend proxy reporting the NAS storage class.
 set -uo pipefail
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 . "$(dirname "$0")/qslog-gate.sh"
 cd "$(dirname "$0")/.." || exit 1
 for tool in qs dbus-run-session ffmpeg python3 mkfifo strace; do
     command -v "$tool" >/dev/null || { printf 'FAIL slowsource-nas: %s is required\n' "$tool"; exit 1; }
 done
-test_root="$FIXTURE_ROOT/flea-slowsource-nas-$$"
+test_root="$FIXTURE_ROOT/dlea-slowsource-nas-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 mkdir -p "$test_root"/{config,fixture/start/sub,fixture/look} || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -m ui/boot/Ui)" "$test_root/config/Ui" || exit 1
-ln -s "$test_root/config/flea/boot/fleatab.qml" "$test_root/config/fleatab.qml" || exit 1
-cp -a ui "$test_root/config/flea" || exit 1
+ln -s "$test_root/config/dlea/boot/dleatab.qml" "$test_root/config/dleatab.qml" || exit 1
+cp -a ui "$test_root/config/dlea" || exit 1
 cp tests/slowsource-nas.qml "$test_root/config/shell.qml" || exit 1
 # Enter: the folder the launch rests on, then the folder Return opens (its listing is the one held).
 for n in 1 2 3 4 5 6; do printf 'file %s\n' "$n" > "$test_root/fixture/start/sub/f$n.txt"; done
@@ -35,7 +35,7 @@ mkfifo "$look/h-never.jpg" || exit 1
 printf 'never read\n' > "$look/f-never.txt" || exit 1
 printf '# Never\n' > "$look/g-never.md" || exit 1
 # Sample input, one request line: {"c":"list","path":"/x/start/sub",...} is held when NAS_PROXY_SUB is "/start/sub" and NAS_PROXY_CMD is "list".
-cat > "$test_root/flea-proxy" <<'EOS'
+cat > "$test_root/dlea-proxy" <<'EOS'
 #!/usr/bin/env python3
 # Forwards a backend session to the real binary, rewrites the fsinfo line's storage class and holds the requests of one command.
 import os, subprocess, sys, threading
@@ -74,7 +74,7 @@ for line in sys.stdin:
     forward(line)
 child.stdin.close()
 EOS
-chmod +x "$test_root/flea-proxy" || exit 1
+chmod +x "$test_root/dlea-proxy" || exit 1
 # The GUI thread's file calls (no -f: the main thread is the GUI thread and the only one traced), so the audit reads what the Enter and Space turns touch on the browsed folder rather than what the code suggests.
 strace_prefix="strace -ttt -y -qq -s 96 -o @@LOG@@ -e trace=%file,read,pread64,readv,getdents64"
 failures=0
@@ -87,9 +87,9 @@ run_leg() {
     if [ "$openhold" = open ]; then
         tracer="strace -f --seccomp-bpf -qq -o @@LOG@@ -P $file -P $(readlink -f "$file") -e trace=openat -e inject=openat:delay_enter=$((hold > 8000 ? 8000 : hold))ms"
     fi
-    mkdir -p "$leg_root"/{home,state/flea,cache,runtime} || exit 1
+    mkdir -p "$leg_root"/{home,state/dlea,cache,runtime} || exit 1
     chmod 700 "$leg_root/runtime" || exit 1
-    printf '{}\n' > "$leg_root/state/flea/ui.json"
+    printf '{}\n' > "$leg_root/state/dlea/ui.json"
     # A named pipe the image loader is blocked on keeps qs from exiting: once the probe is done, open and close its write end so the reader sees an empty file.
     if [ -p "$fifo" ]; then
         ( until grep -aq 'NASPROBE DONE' "$log" 2>/dev/null; do sleep 0.3; done; timeout 10 bash -c ': > "$0"' "$fifo" ) &
@@ -97,15 +97,15 @@ run_leg() {
     fi
     ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u QML_DISABLE_DISK_CACHE \
         HOME="$leg_root/home" XDG_STATE_HOME="$leg_root/state" XDG_CACHE_HOME="$leg_root/cache" \
-        XDG_RUNTIME_DIR="$leg_root/runtime" FLEA_BIN="$test_root/flea-proxy" NAS_PROXY_REAL="${NAS_BIN:-$PWD/target/debug/flea}" FLEA_PATH="$test_root/fixture/$dir" \
+        XDG_RUNTIME_DIR="$leg_root/runtime" DLEA_BIN="$test_root/dlea-proxy" NAS_PROXY_REAL="${NAS_BIN:-$PWD/target/debug/dlea}" DLEA_PATH="$test_root/fixture/$dir" \
         NAS_PROXY_CLASS="$class" NAS_PROXY_HOLD_MS="$hold" NAS_PROXY_CMD="$cmd" NAS_PROXY_SUB="$sub" \
-        NAS_UI="$test_root/config/flea" NAS_LEG="$leg" NAS_TOTAL="$total" NAS_TARGET="$target" NAS_HOLD_MS="$hold" NAS_CLASS="$class" \
+        NAS_UI="$test_root/config/dlea" NAS_LEG="$leg" NAS_TOTAL="$total" NAS_TARGET="$target" NAS_HOLD_MS="$hold" NAS_CLASS="$class" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
         dbus-run-session -- bash -c 'timeout 120 ${3/@@LOG@@/$4} qs -p "$1" > "$2" 2>&1' _ "$test_root/config" "$log" "$tracer" "$leg_root/strace.log" 2> "$leg_root/bus.log" ) 2>/dev/null
     status=$?
     [ -z "$releaser" ] || kill "$releaser" 2>/dev/null
     legs=$((legs + 1))
-    [ -z "${FLEA_CI_SUITE_LOGS:-}" ] || cp "$log" "$FLEA_CI_SUITE_LOGS/slowsource-nas-$leg.log" 2>/dev/null
+    [ -z "${DLEA_CI_SUITE_LOGS:-}" ] || cp "$log" "$DLEA_CI_SUITE_LOGS/slowsource-nas-$leg.log" 2>/dev/null
     # Sample input, one probe line: "  INFO qml: NASPROBE ENTER hold=400 cap=1 capFrame=4 markFrame=5 markDelta=1 timer=swap-cap keyToCapMs=70 keyToMarkMs=82 landMs=401 shownMs=332".
     grep -a 'NASPROBE \(STORAGE\|ENTER\|LOOK\|WINDOW\|FAIL\|DONE\)' "$log" | sed 's/\x1b\[[0-9;]*m//g; s/^.*NASPROBE /NASPROBE /' | sed "s/^/$leg: /"
     [ "$openhold" = open ] || AUDIT_ALL=$([ "$leg" = enter-net-nohold ] && echo 1) audit_leg "$leg" "$log" "$leg_root/strace.log" "$test_root/fixture"
@@ -145,7 +145,7 @@ for raw in open(trace, errors="replace"):
     paths[key] = paths.get(key, 0) + 1
     if call in ("read", "pread64", "readv", "getdents64") or os.environ.get("AUDIT_ALL"):
         reads.append(key)
-dest = os.environ.get("FLEA_CI_SUITE_LOGS")
+dest = os.environ.get("DLEA_CI_SUITE_LOGS")
 if dest:
     open(os.path.join(dest, "slowsource-nas-" + os.path.basename(os.path.dirname(trace)) + ".strace"), "w").write("\n".join(window[:400]) + "\n")
 print("reads=%d all=%d" % (len(reads), len(window)))

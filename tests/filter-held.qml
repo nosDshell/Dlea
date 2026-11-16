@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-filter-held-test
+//@ pragma ShellId dlea-filter-held-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Filter.js" as Filter
+import "dlea" as Dlea
+import "dlea/js/Filter.js" as Filter
 
 // The first "/" key over a drawn window whose rows all still match, on the real Pane and backend in list, columns and grid: counts the delegates it creates and destroys, and each drawn one keeps its row.
 ShellRoot {
@@ -36,12 +36,12 @@ ShellRoot {
         id: win
         implicitWidth: 1400
         implicitHeight: 800
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
     }
-    Flea.Backend { id: realBackend }
+    Dlea.Backend { id: realBackend }
     Component {
         id: paneComponent
-        Flea.Pane {
+        Dlea.Pane {
             width: 1400
             height: 800
             backend: realBackend
@@ -109,7 +109,7 @@ ShellRoot {
 
     function run(op) {
         if (op.open) {
-            Flea.ViewState.changeKey("view", "list")
+            Dlea.ViewState.changeKey("view", "list")
             root.pane = paneComponent.createObject(win.contentItem)
             root.keys = Qt.createQmlObject("import QtTest; TestEvent {}", root.pane.listArea)
             root.pane.open(root.fixture)

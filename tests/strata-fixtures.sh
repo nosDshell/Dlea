@@ -5,8 +5,8 @@ repo=$(cd "$(dirname "$0")/.." && pwd -P)
 mkdir -p "$repo/.superpowers/m9-integ-07"
 scratch=$(mktemp -d "$repo/.superpowers/m9-integ-07/fixtures.XXXXXXXX")
 [[ -n "$scratch" && "$scratch" == /* ]] || exit 1
-touch "$scratch/.flea-test-sandbox"
-trap 'case $scratch in "$repo"/.superpowers/m9-integ-07/fixtures.?*) [ -f "$scratch/.flea-test-sandbox" ] && rm -rf -- "$scratch" ;; esac' EXIT
+touch "$scratch/.dlea-test-sandbox"
+trap 'case $scratch in "$repo"/.superpowers/m9-integ-07/fixtures.?*) [ -f "$scratch/.dlea-test-sandbox" ] && rm -rf -- "$scratch" ;; esac' EXIT
 python3 -B - "$repo" "$scratch" <<'PY'
 import importlib.machinery
 import importlib.util
@@ -17,7 +17,7 @@ import struct
 import sys
 
 repo, root = map(Path, sys.argv[1:])
-loader = importlib.machinery.SourceFileLoader('strata_fixtures', str(repo / 'tools/flea-strata-bench'))
+loader = importlib.machinery.SourceFileLoader('strata_fixtures', str(repo / 'tools/dlea-strata-bench'))
 spec = importlib.util.spec_from_loader(loader.name, loader)
 tool = importlib.util.module_from_spec(spec)
 loader.exec_module(tool)

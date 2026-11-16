@@ -1,9 +1,9 @@
 use std::os::unix::ffi::OsStrExt;
 use std::path::{Component, PathBuf};
 
-// An empty FLEA_UI would resolve the entry against the working directory, so it is no candidate.
+// An empty DLEA_UI would resolve the entry against the working directory, so it is no candidate.
 fn env_ui_dir() -> Option<PathBuf> {
-    ui_dir_from(std::env::var("FLEA_UI").ok())
+    ui_dir_from(std::env::var("DLEA_UI").ok())
 }
 
 // Split so a test names the value without writing this process's environment.
@@ -20,24 +20,24 @@ pub const ENTRY: &str = "boot/shell.qml";
 
 // The ShellId pragmas in ui/boot/shell.qml and ui/boot/picker.qml; qsregistry prunes only these.
 #[cfg(test)]
-pub const SHELL_ID: &str = "flea";
+pub const SHELL_ID: &str = "dlea";
 #[cfg(test)]
-pub const PICKER_SHELL_ID: &str = "fleapicker";
+pub const PICKER_SHELL_ID: &str = "dleapicker";
 
 // Issue 216: names the entry file sought, since a package missing ui/boot reads as a missing dir.
 #[cfg(test)]
 pub fn missing_ui_message() -> String {
-    format!("flea: Flea's interface files are missing (/usr/share/flea/ui/{}). Reinstall flea.", ENTRY)
+    format!("dlea: Dlea's interface files are missing (/usr/share/dlea/ui/{}). Reinstall dlea.", ENTRY)
 }
 
-// The UI ships as data, so it is found the same way FLEA_BIN finds the binary.
+// The UI ships as data, so it is found the same way DLEA_BIN finds the binary.
 pub fn ui_dir() -> Option<PathBuf> {
     if let Some(p) = env_ui_dir() {
         if p.join(ENTRY).is_file() {
             return Some(p);
         }
     }
-    let packaged = PathBuf::from("/usr/share/flea/ui");
+    let packaged = PathBuf::from("/usr/share/dlea/ui");
     if packaged.join(ENTRY).is_file() {
         return Some(packaged);
     }
@@ -122,15 +122,15 @@ mod tests {
     fn the_missing_ui_message_names_the_entry_file_it_looked_for() {
         assert_eq!(
             missing_ui_message(),
-            "flea: Flea's interface files are missing (/usr/share/flea/ui/boot/shell.qml). Reinstall flea."
+            "dlea: Dlea's interface files are missing (/usr/share/dlea/ui/boot/shell.qml). Reinstall dlea."
         );
     }
 
     #[test]
-    fn an_empty_flea_ui_is_not_a_candidate() {
+    fn an_empty_dlea_ui_is_not_a_candidate() {
         assert_eq!(ui_dir_from(Some(String::new())), None);
         assert_eq!(ui_dir_from(None), None);
-        assert_eq!(ui_dir_from(Some("/flea-test/ui".into())), Some(PathBuf::from("/flea-test/ui")));
+        assert_eq!(ui_dir_from(Some("/dlea-test/ui".into())), Some(PathBuf::from("/dlea-test/ui")));
     }
 
     #[test]
@@ -155,7 +155,7 @@ mod tests {
         assert_eq!(percent_decode("a%zzb"), "a%zzb");
     }
 
-    // Sample file line: `//@ pragma ShellId flea` in ui/boot/shell.qml.
+    // Sample file line: `//@ pragma ShellId dlea` in ui/boot/shell.qml.
     fn shell_id_of(text: &str) -> Option<&str> {
         text.lines().find_map(|line| line.trim_start().strip_prefix("//@ pragma ShellId "))
     }

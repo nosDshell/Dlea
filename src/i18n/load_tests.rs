@@ -7,7 +7,7 @@ fn i50_font_language_file_replace() {
     let f = Fixture::new();
     f.registry();
     f.write("config/omarchy/language", "de");
-    f.write("installed/i18n/de/flea.json", r#"{"folder.empty":"Leer"}"#);
+    f.write("installed/i18n/de/dlea.json", r#"{"folder.empty":"Leer"}"#);
     let held = I18n::load(f.paths());
     f.write("config/omarchy/replacement", "ja");
     std::fs::rename(
@@ -30,9 +30,9 @@ fn i50_font_snapshot_catalog_coherent() {
     let f = Fixture::new();
     f.registry();
     f.write("config/omarchy/language", "de");
-    f.write("installed/i18n/de/flea.json", r#"{"folder.empty":"Leer"}"#);
+    f.write("installed/i18n/de/dlea.json", r#"{"folder.empty":"Leer"}"#);
     let held = I18n::load(f.paths());
-    f.write("installed/i18n/de/flea.json", r#"{"folder.empty":"Neu"}"#);
+    f.write("installed/i18n/de/dlea.json", r#"{"folder.empty":"Neu"}"#);
     let prepared = held.prepare_changed().unwrap();
     assert_eq!(held.tr("folder.empty"), "Leer");
     assert_eq!(prepared.tr("folder.empty"), "Neu");
@@ -58,7 +58,7 @@ fn i50_font_held_text_covers_every_roster_script() {
     f.registry();
     f.write("config/omarchy/language", "de");
     f.write(
-        "installed/i18n/de/flea.json",
+        "installed/i18n/de/dlea.json",
         r#"{"folder.empty":"Leer","items.count":{"one":"%1 Ding","other":"%1 Dinge"}}"#,
     );
     let held = I18n::load(f.paths()).held_text();
@@ -162,15 +162,15 @@ fn runtime_load_refuses_entry_and_byte_limits_without_accepting_partial_catalogs
     f.registry();
     let text = wide_object(40_000, false);
     assert_eq!(text.len(), 560_001);
-    f.write("installed/i18n/en/flea.json", &text);
-    assert!(catalog::load(&f.path("installed/i18n/en/flea.json"), false).is_empty());
+    f.write("installed/i18n/en/dlea.json", &text);
+    assert!(catalog::load(&f.path("installed/i18n/en/dlea.json"), false).is_empty());
     let i = I18n::load(f.paths());
     assert_eq!(i.tr("k000000"), "k000000");
     assert_eq!(i.tr("folder.empty"), "This folder is empty");
     let text = wide_object(280_000, false);
     assert_eq!(text.len(), 3_920_001);
-    f.write("installed/i18n/en/flea.json", &text);
-    assert!(catalog::read(&f.path("installed/i18n/en/flea.json")).is_none());
+    f.write("installed/i18n/en/dlea.json", &text);
+    assert!(catalog::read(&f.path("installed/i18n/en/dlea.json")).is_none());
     let i = I18n::load(f.paths());
     assert_eq!(i.tr("k000000"), "k000000");
     assert_eq!(i.tr("folder.empty"), "This folder is empty");
@@ -203,8 +203,8 @@ fn release_realistic_catalog_public_load_stays_below_250ms_in_three_runs() {
     f.registry();
     f.write("config/omarchy/language", "de");
     let text = realistic_language_catalog();
-    f.write("installed/i18n/en/flea.json", &text);
-    f.write("installed/i18n/de/flea.json", &text);
+    f.write("installed/i18n/en/dlea.json", &text);
+    f.write("installed/i18n/de/dlea.json", &text);
     let mut elapsed = Vec::new();
     for _ in 0..3 {
         let start = Instant::now();
@@ -219,7 +219,7 @@ fn release_realistic_catalog_public_load_stays_below_250ms_in_three_runs() {
     elapsed.sort_by(f64::total_cmp);
     eprintln!("i18n release full-language public load: 4096 entries, {} bytes per catalog, two catalogs, 3 runs, {:.3}..{:.3} ms, bound 250 ms", text.len(), elapsed[0], elapsed[2]);
     let hostile = wide_object(280_000, false);
-    f.write("installed/i18n/de/flea.json", &hostile);
+    f.write("installed/i18n/de/dlea.json", &hostile);
     let mut elapsed = Vec::new();
     for _ in 0..3 {
         let start = Instant::now();

@@ -155,7 +155,7 @@ case_railpointer() {
     [[ "$(ipc focusView)" == "list" ]] || fail "railpointer: a row click on the other pane left the keyboard on $(ipc focusView)"
     printf 'RAILPOINTER dual=ok\n'
     export XDG_STATE_HOME="$suite_home"
-    kill_flea
+    kill_dlea
 }
 # Dual view with Auto-hide on: both listings stay equal and steady while the overlay rail is revealed (ui/WindowBody.qml).
 dual_list_width() {
@@ -210,7 +210,7 @@ case_dualtab() {
     dual_tab_at "Shift+Tab from the rail" 1 list
     key -M shift -k Tab -m shift >/dev/null
     dual_tab_at "Shift+Tab from the right list" 0 list
-    kill_flea
+    kill_dlea
     dual_tab_launch "$dir" "$fixture_root/dualtab-hide-state" '{"places":{"autoHide":true}}'
     local hid=false hid_json
     for _attempt in $(seq 1 60); do
@@ -232,7 +232,7 @@ case_dualtab() {
     [[ "$revealed" == true ]] || fail "dualtab: Tab from the right list never revealed the auto-hide rail (railState=$rail_json)"
     printf 'DUALTAB cycle=ok autohide=revealed\n'
     export XDG_STATE_HOME="$suite_home"
-    kill_flea
+    kill_dlea
 }
 # The divider's x in window pixels: the right edge of the left listing, where its hairline sits.
 dual_divider_x() {
@@ -281,13 +281,13 @@ railmotion_slack_ms=100
 railmotion_times() {
     local dwell settle open close
     # Motion.js line "var dwellMs = 120", the dwell in ms.
-    dwell=$(sed -nE 's/^var dwellMs = ([0-9]+).*/\1/p' "$flea_ui/js/Motion.js")
+    dwell=$(sed -nE 's/^var dwellMs = ([0-9]+).*/\1/p' "$dlea_ui/js/Motion.js")
     # Motion.js line "    open: 180,", the open slide in ms (a trailing comma).
-    open=$(sed -nE 's/^ *open: ([0-9]+),.*/\1/p' "$flea_ui/js/Motion.js")
+    open=$(sed -nE 's/^ *open: ([0-9]+),.*/\1/p' "$dlea_ui/js/Motion.js")
     # Motion.js line "    close: 140", the close slide in ms (the last key, no comma).
-    close=$(sed -nE 's/^ *close: ([0-9]+)$/\1/p' "$flea_ui/js/Motion.js")
+    close=$(sed -nE 's/^ *close: ([0-9]+)$/\1/p' "$dlea_ui/js/Motion.js")
     # PaneRail.qml line "    readonly property int settleMs: 220", the settle in ms.
-    settle=$(sed -nE 's/^ *readonly property int settleMs: ([0-9]+).*/\1/p' "$flea_ui/PaneRail.qml")
+    settle=$(sed -nE 's/^ *readonly property int settleMs: ([0-9]+).*/\1/p' "$dlea_ui/PaneRail.qml")
     [[ "$dwell" =~ ^[0-9]+$ && "$open" =~ ^[0-9]+$ && "$close" =~ ^[0-9]+$ && "$settle" =~ ^[0-9]+$ ]] \
         || fail "cap_railmotion: the rail times are not readable (dwell=$dwell open=$open close=$close settle=$settle)"
     # The reveal is the dwell then the open slide, the hide the settle then the close slide, each plus the slack.
@@ -346,5 +346,5 @@ case_cap_railmotion() {
     wait_listing 20
     railmotion_walk dual
     export XDG_STATE_HOME="$suite_home"
-    kill_flea
+    kill_dlea
 }

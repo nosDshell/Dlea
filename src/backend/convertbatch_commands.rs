@@ -2,7 +2,7 @@
 use super::{destination, PDF_DPI};
 use crate::backend::{opsreq::OpMsg, printconvert};
 use crate::json::{escape, field_bool, field_str, field_usize};
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::path::{Path, PathBuf};
 use std::sync::mpsc::Sender;
 

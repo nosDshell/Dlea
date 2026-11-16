@@ -1,5 +1,5 @@
 // Format protocol replies independently of request parsing.
-use crate::error::FleaError;
+use crate::error::DleaError;
 use crate::json::escape;
 
 pub fn located_line(directory: &str, path: &str, index: Option<usize>) -> String {
@@ -201,7 +201,7 @@ pub fn permissions_batch_line(id: usize, ok: bool, mode: &str, error: &str) -> S
     )
 }
 
-pub fn error_line(e: &FleaError) -> String {
+pub fn error_line(e: &DleaError) -> String {
     format!(
         r#"{{"t":"error","where":"{}","path":"{}","msg":"{}"}}"#,
         escape(&e.where_),
@@ -211,7 +211,7 @@ pub fn error_line(e: &FleaError) -> String {
 }
 
 // The mode field is written only when the mode is known, so every other error line keeps its three fields.
-pub fn error_line_with_mode(e: &FleaError, mode: u32) -> String {
+pub fn error_line_with_mode(e: &DleaError, mode: u32) -> String {
     if mode == 0 {
         return error_line(e);
     }
@@ -225,7 +225,7 @@ pub fn error_line_with_mode(e: &FleaError, mode: u32) -> String {
 }
 
 // A refusal the UI words itself: the code names the cause, and msg stays for a client that ignores it.
-pub fn error_line_with_code(e: &FleaError, code: &str) -> String {
+pub fn error_line_with_code(e: &DleaError, code: &str) -> String {
     format!(
         r#"{{"t":"error","where":"{}","path":"{}","msg":"{}","code":"{}"}}"#,
         escape(&e.where_),

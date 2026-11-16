@@ -1,8 +1,8 @@
 #!/bin/bash
-# Gates tools/flea-field-bench's TUI first rows: a probe launch's poll stamps the first time kitty's dump of the child's output names a fixture entry.
+# Gates tools/dlea-field-bench's TUI first rows: a probe launch's poll stamps the first time kitty's dump of the child's output names a fixture entry.
 set -u
 cd "$(dirname "$0")/.." || exit 1
-bench="$PWD/tools/flea-field-bench"
+bench="$PWD/tools/dlea-field-bench"
 
 bad=0
 check() {
@@ -20,9 +20,9 @@ case $scratch in
   /*/*) ;;
   *) echo "FAIL: mktemp -d gave '$scratch', which is not an absolute path two components deep"; exit 1 ;;
 esac
-: > "$scratch/.flea-test-sandbox"
+: > "$scratch/.dlea-test-sandbox"
 writer=""
-trap '[ -n "$writer" ] && kill "$writer" 2>/dev/null; case $scratch in /?*) [ -f "$scratch/.flea-test-sandbox" ] && rm -rf -- "$scratch" ;; esac' EXIT
+trap '[ -n "$writer" ] && kill "$writer" 2>/dev/null; case $scratch in /?*) [ -f "$scratch/.dlea-test-sandbox" ] && rm -rf -- "$scratch" ;; esac' EXIT
 
 block=$(sed -n '/^# tui frame begin$/,/^# tui frame end$/p' "$bench")
 [ -n "$block" ] || { echo "FAIL: no tui frame block in $bench"; exit 1; }
@@ -34,7 +34,7 @@ printf '%s\n' some_file_name_000001.txt some_file_name_000002.txt > "$TUI_NAMES"
 
 # A terminal setup and a chrome frame first, then the listing: only the listing's arrival may stamp the rows.
 : > "$TUI_DUMP"
-{ sleep 0.2; printf '\033[?1049h\033[1;1H Flea  /fixture\033[0m' >> "$TUI_DUMP"
+{ sleep 0.2; printf '\033[?1049h\033[1;1H Dlea  /fixture\033[0m' >> "$TUI_DUMP"
   sleep 0.3; printf '\033[3;1H\033[38;2;1;2;3msome_file_name_000001.txt\033[0m' >> "$TUI_DUMP"; } &
 writer=$!
 now_ms; t0=$NOW_MS
@@ -44,7 +44,7 @@ check "the listing's arrival stamps the rows" 0 "$rc"
 check "chrome before the listing does not count" yes "$([ "$FIRST_ROWS_MS" -ge 450 ] && [ "$FIRST_ROWS_MS" -lt 1500 ] && echo yes || echo no)"
 
 # A screen that never lists: no rows by the deadline.
-printf '\033[?1049h Flea  loading' > "$TUI_DUMP"
+printf '\033[?1049h Dlea  loading' > "$TUI_DUMP"
 now_ms; t0=$NOW_MS
 tui_first_rows "$t0" $(( t0 + 300 )); rc=$?
 check "output that names no entry gives no rows by the deadline" "1 -1" "$rc $FIRST_ROWS_MS"
@@ -81,7 +81,7 @@ check "a probe refuses a dump on disk" 1 "$(printf '%s\n' "$run_one" | grep -c '
 launched() {
   (
     set +u
-    TUI_TERM=fake_term TUI_CLASS=flea-bench-kitty TUI_CONF=$scratch FLEA_STATE=$scratch/state FLEA_BIN=/bin/flea-stub FIXTURE=/fixture
+    TUI_TERM=fake_term TUI_CLASS=dlea-bench-kitty TUI_CONF=$scratch DLEA_STATE=$scratch/state DLEA_BIN=/bin/dlea-stub FIXTURE=/fixture
     TUI_DUMP=$scratch/kitty.dump TUI_DUMP_FLAG=""
     eval "$(sed -n '/^build_entrants() {$/,/^}$/p' "$bench")"
     WITH_ANCHOR=no; build_entrants
@@ -96,17 +96,17 @@ launched() {
     done
   )
 }
-# Sample input, the two run_one lines read here: '    export FLEA_FIELD_BENCH=$BENCH_TOKEN', then the launch '    eval "$shift_cmd" >/dev/null 2>&1; } &'.
+# Sample input, the two run_one lines read here: '    export DLEA_FIELD_BENCH=$BENCH_TOKEN', then the launch '    eval "$shift_cmd" >/dev/null 2>&1; } &'.
 launch="" next=no
 while IFS= read -r line; do
   if [ "$next" = yes ]; then line=${line#"${line%%[! ]*}"}; launch=${line%"; } &"}; break; fi
-  [ "$line" = '    export FLEA_FIELD_BENCH=$BENCH_TOKEN' ] && next=yes
+  [ "$line" = '    export DLEA_FIELD_BENCH=$BENCH_TOKEN' ] && next=yes
 done <<< "$run_one"
 check "run_one launches the entrant from a background group of this shell" 'eval "$shift_cmd" >/dev/null 2>&1' "$launch"
 : > "$scratch/argv"; launched "--dump-bytes $scratch/kitty.dump"
-check "a probe's launch hands every TUI kitty the dump" "$tui_lines" "$(grep -c -- "--class flea-bench-kitty --dump-bytes $scratch/kitty.dump " "$scratch/argv")"
+check "a probe's launch hands every TUI kitty the dump" "$tui_lines" "$(grep -c -- "--class dlea-bench-kitty --dump-bytes $scratch/kitty.dump " "$scratch/argv")"
 : > "$scratch/argv"; launched ""
-check "a measured launch hands no TUI kitty a dump" "$tui_lines 0" "$(grep -c -- '--class flea-bench-kitty ' "$scratch/argv") $(grep -c -- '--dump-bytes' "$scratch/argv")"
+check "a measured launch hands no TUI kitty a dump" "$tui_lines 0" "$(grep -c -- '--class dlea-bench-kitty ' "$scratch/argv") $(grep -c -- '--dump-bytes' "$scratch/argv")"
 check "the header carries first_rows_ms after rerun, then the cold memory columns and launch_pos" 1 "$(grep -c '^echo "id,run,.*,rerun,first_rows_ms,cpu_main_s,cold_pss_kb,cold_drm_kb,cold_child_pss_kb,cold_sample_after_map_ms,launch_pos" >> "\$OUT"$' "$bench")"
 check "the row carries the first rows after the guard, then the cold memory values and the launch place" 1 "$(grep -c '"\$WG_CLEAN" "\$RERUN_N" "\$first_rows" "\$cpu_main_s" "\$cold_pss" "\$cold_drm" "\$cold_child_pss" "\$cold_sample_ms" "\$LAUNCH_POS"$' "$bench")"
 

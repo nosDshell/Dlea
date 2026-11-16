@@ -3,13 +3,13 @@
 # ipc cohesionControls answers sane boxes and states in the real WindowBody, offscreen.
 set -u
 cd "$(dirname "$0")/.." || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 command -v qs >/dev/null || { echo 'FAIL cohesion-reader needs qs'; exit 1; }
 command -v dbus-run-session >/dev/null || { echo 'FAIL cohesion-reader needs a private D-Bus session'; exit 1; }
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [[ -x "$bin" ]] || { echo 'FAIL cohesion-reader needs the built backend'; exit 1; }
 sandbox_root_ok
-probe=$(mktemp -d "$SANDBOX_ROOT/flea-cohesion-reader.XXXXXX") || exit 1
+probe=$(mktemp -d "$SANDBOX_ROOT/dlea-cohesion-reader.XXXXXX") || exit 1
 : > "$probe/$SANDBOX_MARKER" || exit 1
 qs_pid=""
 # The run and each teardown wait are polled ten times a second (poll_s is one over polls_per_s) up to these bounds.
@@ -89,17 +89,17 @@ leg() {
     local name="$1" receipt="$2" shell="$3" ui="$4" config="$probe/config-$1" log="$probe/$1.log" tick tally
     shift 4
     mkdir -p "$config" || return 1
-    ln -s "$ui" "$config/flea"
+    ln -s "$ui" "$config/dlea"
     headless_commons "$probe" "$config/Commons" || exit 1
     ln -s "$(readlink -f ui/boot/Ui)" "$config/Ui"
     # The window loads its tab catcher from the shell directory, so the probe ships it as the product does.
-    ln -s "$PWD/ui/boot/fleatab.qml" "$config/fleatab.qml"
+    ln -s "$PWD/ui/boot/dleatab.qml" "$config/dleatab.qml"
     cp "$shell" "$config/shell.qml"
     cp tests/button-probe.js "$config/button-probe.js" || return 1
-    env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u FLEA_SELECT \
+    env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u DLEA_SELECT \
         HOME="$probe/home" XDG_STATE_HOME="$probe/state" XDG_CONFIG_HOME="$config" \
         XDG_DATA_HOME="$probe/data" XDG_CACHE_HOME="$probe/cache" XDG_RUNTIME_DIR="$probe/runtime" \
-        FLEA_BIN="$bin" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
+        DLEA_BIN="$bin" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
         QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 "$@" setsid dbus-run-session -- qs -p "$config" >"$log" 2>&1 </dev/null &
     qs_pid=$!
     for ((tick = 0; tick < run_polls; tick++)); do
@@ -117,18 +117,18 @@ leg() {
         return 1
     fi
 }
-leg window COHREADER tests/cohesion-reader.qml "$PWD/ui" FLEA_PATH="$probe/home/fixture" || exit 1
+leg window COHREADER tests/cohesion-reader.qml "$PWD/ui" DLEA_PATH="$probe/home/fixture" || exit 1
 # The picker leg opens the portal's window on the same fixture, as a file request would.
 request=$(printf '{"mode":"open","multiple":true,"folder":"%s","name":"a.txt","title":"Cohesion picker","filters":[{"label":"Text","globs":["*.txt"],"mimes":[]}]}' "$probe/home/fixture")
-leg picker COHPICKER tests/cohesion-picker-reader.qml "$PWD/ui" FLEA_PICKER="$request" FLEA_PICKER_REPLY="$probe/reply.json" || exit 1
+leg picker COHPICKER tests/cohesion-picker-reader.qml "$PWD/ui" DLEA_PICKER="$request" DLEA_PICKER_REPLY="$probe/reply.json" || exit 1
 mkdir -p "$probe/capture-ui" || exit 1
 cp -a ui/. "$probe/capture-ui/" || exit 1
 cp tests/ui-captures-reader.qml "$probe/capture-ui/IpcControls.qml" || exit 1
-leg capture-window COHREADER tests/cohesion-reader.qml "$probe/capture-ui" FLEA_PATH="$probe/home/fixture" FLEA_COH_CAPTURE=true || exit 1
-leg capture-picker COHPICKER tests/cohesion-picker-reader.qml "$probe/capture-ui" FLEA_PICKER="$request" FLEA_PICKER_REPLY="$probe/capture-reply.json" FLEA_COH_CAPTURE=true || exit 1
+leg capture-window COHREADER tests/cohesion-reader.qml "$probe/capture-ui" DLEA_PATH="$probe/home/fixture" DLEA_COH_CAPTURE=true || exit 1
+leg capture-picker COHPICKER tests/cohesion-picker-reader.qml "$probe/capture-ui" DLEA_PICKER="$request" DLEA_PICKER_REPLY="$probe/capture-reply.json" DLEA_COH_CAPTURE=true || exit 1
 leg capture COHCAPTURE tests/cohesion-capture-reader.qml "$probe/capture-ui" || exit 1
 # Without the wheel, the same derived PDF stays asleep and must fail before any held press.
-if leg capture-no-wheel COHCAPTURE tests/cohesion-capture-reader.qml "$probe/capture-ui" FLEA_COH_SKIP_WHEEL=true > "$probe/no-wheel.log" 2>&1; then
+if leg capture-no-wheel COHCAPTURE tests/cohesion-capture-reader.qml "$probe/capture-ui" DLEA_COH_SKIP_WHEEL=true > "$probe/no-wheel.log" 2>&1; then
     printf 'FAIL cohesion-reader: the sleeping PDF passed without its wake wheel\n'
     exit 1
 fi
@@ -141,7 +141,7 @@ for mutant in root-scale no-inset; do
 from pathlib import Path
 import sys
 root = Path(sys.argv[1])
-assert root.is_absolute() and (root / '.flea-test-sandbox').is_file()
+assert root.is_absolute() and (root / '.dlea-test-sandbox').is_file()
 mutant = sys.argv[2]
 assert mutant in ('root-scale', 'no-inset')
 path = root / f'{mutant}-ui/DialogButton.qml'
@@ -161,8 +161,8 @@ PY
     control_log="$probe/$mutant.control.log"
     control_status=0
     leg "capture-$mutant" COHCAPTURE tests/cohesion-capture-reader.qml "$probe/$mutant-ui" > "$control_log" 2>&1 || control_status=$?
-    if [ -n "${FLEA_CI_SUITE_LOGS:-}" ]; then
-        cp "$control_log" "$FLEA_CI_SUITE_LOGS/cohesion-reader-$mutant.control.log" || exit 1
+    if [ -n "${DLEA_CI_SUITE_LOGS:-}" ]; then
+        cp "$control_log" "$DLEA_CI_SUITE_LOGS/cohesion-reader-$mutant.control.log" || exit 1
     fi
     root_failed=$(grep -cF 'COHCAPTURE FAIL press keeps the root unscaled and coordinate signature stable' "$control_log" || true)
     fixed_failed=$(grep -cF 'COHCAPTURE FAIL a press keeps the hit box and coordinate signature fixed' "$control_log" || true)

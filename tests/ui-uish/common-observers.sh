@@ -4,9 +4,9 @@
 
 assert_theme() {
     local loaded seen expected accent
-    local -a route=(-p "$flea_ui/boot")
+    local -a route=(-p "$dlea_ui/boot")
     [[ -z "$ipc_pid" ]] || route=(--pid "$ipc_pid")
-    flea_ipc_wait "${route[@]}" flea ready true --timeout 20 >/dev/null \
+    dlea_ipc_wait "${route[@]}" dlea ready true --timeout 20 >/dev/null \
         || fail "the IPC seam never answered ready, so no reader of this window can be trusted"
     for _attempt in $(seq 1 100); do
         # Sample input: foreground = "#c1c497"
@@ -135,7 +135,7 @@ case_settings() {
     local real_state="${XDG_STATE_HOME-}"
     export XDG_CONFIG_HOME="$config"
     export XDG_STATE_HOME="$state"
-    local stored="$state/flea/ui.json"
+    local stored="$state/dlea/ui.json"
 
     # Seeded through the window's own CLI, so src/uistate.rs's merge is what keeps the extra keys.
     settings_seed "$state" "$config" "$stored"
@@ -171,12 +171,12 @@ case_settings() {
     # An override stores a stop, never a free number or a multiplier.
     ! grep -q 'uiScale' "$stored" || fail "settings: the state file still carries an interface-scale multiplier"
     ! grep -q '"px"' "$stored" || fail "settings: the state file still carries 0.1.3's override shape"
-    [[ ! -e "$config/flea/view.json" ]] \
-        || fail "settings: a second settings file was written at $config/flea/view.json"
+    [[ ! -e "$config/dlea/view.json" ]] \
+        || fail "settings: a second settings file was written at $config/dlea/view.json"
 
     settings_assert_backend "$state" "$config" "$pinned_base"
 
-    kill_flea
+    kill_dlea
     launch "$dir"
     wait_listing 3
     [[ "$(token_of baseSize)" == "$pinned_base" ]] \
@@ -220,5 +220,5 @@ case_settings() {
     printf 'SETTINGS doors=ok view=ok places=ok preview=ok about=ok display=ok menus=ok keys=ok restart=ok backend=ok refused=ok unread=ok\n'
     if [[ -n "$real_config" ]]; then export XDG_CONFIG_HOME="$real_config"; else unset XDG_CONFIG_HOME; fi
     if [[ -n "$real_state" ]]; then export XDG_STATE_HOME="$real_state"; else unset XDG_STATE_HOME; fi
-    kill_flea
+    kill_dlea
 }

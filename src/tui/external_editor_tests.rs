@@ -38,16 +38,16 @@ fn a_missing_editor_program_is_named_by_its_first_word() {
         Some("Could not find the program /no where/ed")
     );
     assert_eq!(
-        named("/nonexistent/flea-ed").as_deref(),
-        Some("Could not find the program /nonexistent/flea-ed")
+        named("/nonexistent/dlea-ed").as_deref(),
+        Some("Could not find the program /nonexistent/dlea-ed")
     );
     assert_eq!(
         named("'bad").as_deref(),
         Some("Could not find the program 'bad")
     );
     assert_eq!(
-        named("flea-no-such-editor --wait").as_deref(),
-        Some("Could not find the program flea-no-such-editor")
+        named("dlea-no-such-editor --wait").as_deref(),
+        Some("Could not find the program dlea-no-such-editor")
     );
     assert!(
         named("/bin/sh -c 'exit 127'").is_none(),
@@ -55,7 +55,7 @@ fn a_missing_editor_program_is_named_by_its_first_word() {
     );
     assert!(named("sh").is_none(), "a program found on PATH ran");
     assert!(missing(
-        "/nonexistent/flea-ed",
+        "/nonexistent/dlea-ed",
         std::process::ExitStatus::from_raw(1 << 8)
     )
     .is_none());

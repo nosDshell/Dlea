@@ -49,7 +49,7 @@ fn display_is_text_size_then_scale_then_appearance() {
     assert_eq!(say(&display(r#"{"mode":"system"}"#, 14, 1.25)[6].value), "1.25x");
     assert_eq!(say(&display(r#"{"mode":"system"}"#, 14, 0.)[6].value), "not reported");
     assert_eq!(say(&display(r#"{"mode":"system"}"#, 14, f64::NAN)[6].value), "not reported");
-    assert_eq!(say(&rows[7].label), "Flea follows Hyprland's scale and does not change it.");
+    assert_eq!(say(&rows[7].label), "Dlea follows Hyprland's scale and does not change it.");
     assert_eq!((rows[9].id.as_str(), rows[9].on), ("display.hyprlandIcons", false));
 }
 

@@ -32,7 +32,7 @@ fn assert_logged(seen: usize, detail: &str) {
 }
 fn quarantine_in(parent: &Path) -> PathBuf {
     let found = std::fs::read_dir(parent).unwrap().flatten()
-        .find(|entry| entry.file_name().to_string_lossy().starts_with(".flea-delete-") && entry.path().is_dir());
+        .find(|entry| entry.file_name().to_string_lossy().starts_with(".dlea-delete-") && entry.path().is_dir());
     found.expect("the quarantine exists while the claim runs").path()
 }
 
@@ -202,8 +202,8 @@ fn a_record_that_cannot_be_kept_stops_the_step_before_it_starts() {
     let seen = logged().len();
     let deleted = reviewed.delete(Path::new("relative-recovery")).unwrap_err();
     let restored = reviewed.restore(&original, Path::new("relative-recovery")).unwrap_err();
-    assert_eq!(deleted.shown(), "Flea could not keep a record of this deletion, so nothing was deleted: the recovery folder is not valid.");
-    assert_eq!(restored.shown(), "Flea could not keep a record of this restore, so nothing was restored: the recovery folder is not valid.");
+    assert_eq!(deleted.shown(), "Dlea could not keep a record of this deletion, so nothing was deleted: the recovery folder is not valid.");
+    assert_eq!(restored.shown(), "Dlea could not keep a record of this restore, so nothing was restored: the recovery folder is not valid.");
     assert_logged(seen, "Recovery storage requires an absolute folder.");
     assert_eq!(std::fs::read_to_string(path).unwrap(), "payload");
 }
@@ -219,7 +219,7 @@ fn an_item_that_cannot_go_back_names_where_the_rest_is_kept() {
     }).unwrap_err();
     let shown = refused.shown();
     assert!(shown.starts_with("The deletion could not finish: the contents changed. The remaining items are kept at "), "{shown}");
-    assert!(shown.contains(".flea-delete-") && shown.ends_with('.'), "{shown}");
+    assert!(shown.contains(".dlea-delete-") && shown.ends_with('.'), "{shown}");
     assert_logged(seen, "forced");
     assert_eq!(std::fs::read_to_string(path).unwrap(), "squatter");
 }
@@ -252,15 +252,15 @@ fn a_leftover_in_the_quarantine_is_named_with_the_trash_or_the_original_place() 
 fn a_quarantine_that_still_holds_items_names_where_they_are_kept() {
     let d = TestDir::new("refusal-remains");
     let (path, reviewed) = fixture(&d, &d.join("restored"));
-    let quarantine = d.dir("files/.flea-delete-remains");
+    let quarantine = d.dir("files/.dlea-delete-remains");
     let (files, held) = (open_dir(&d.join("files")).unwrap(), open_dir(&quarantine).unwrap());
     let mut journal = Recovery::begin(&d.dir("recovery"), recovery::RecordInput {
         source: &path, parent: &files, payload: &reviewed.payload, paired: None,
         quarantine_path: &quarantine, quarantine: &held, tree: None, destination: None,
     }).unwrap();
-    d.file("files/.flea-delete-remains/stray", "x");
+    d.file("files/.dlea-delete-remains/stray", "x");
     let refused = journal.remove_empty(&quarantine, &held, &files).unwrap_err();
-    assert_eq!(refused.shown(), format!("Flea found an interrupted Trash operation; its items are kept at {}.", quarantine.display()));
+    assert_eq!(refused.shown(), format!("Dlea found an interrupted Trash operation; its items are kept at {}.", quarantine.display()));
 }
 
 #[test]
@@ -276,7 +276,7 @@ fn a_recovery_record_that_changed_is_named_after_the_item_was_deleted() {
         std::fs::write(&record, "replacement").unwrap();
         Ok(())
     }).unwrap_err();
-    assert_eq!(refused.shown(), "The item was deleted, but Flea could not remove its recovery record: the record changed.");
+    assert_eq!(refused.shown(), "The item was deleted, but Dlea could not remove its recovery record: the record changed.");
     assert_logged(seen, "Recovery record changed; it was preserved.");
     assert!(!path.exists());
 }
@@ -340,14 +340,14 @@ fn a_superseded_review_says_it_was_cancelled_and_logs_it() {
 // The outcomes no filesystem fixture here can reach have their sentences pinned and their detail still reaches the log.
 #[test]
 fn the_outcomes_a_fixture_cannot_reach_still_say_one_sentence_and_log_their_detail() {
-    let at = PathBuf::from("/trash/files/.flea-delete-1-1");
+    let at = PathBuf::from("/trash/files/.dlea-delete-1-1");
     let cases = [
-        (Refusal::new(Outcome::Kept(at.clone()), "rollback failed"), "The Trash changed, so nothing was done. Kept items are in /trash/files/.flea-delete-1-1."),
+        (Refusal::new(Outcome::Kept(at.clone()), "rollback failed"), "The Trash changed, so nothing was done. Kept items are in /trash/files/.dlea-delete-1-1."),
         (Refusal::new(Outcome::ChildChanged, "child changed"), "An item in the Trash changed, so the rest was kept."),
         (Refusal::new(Outcome::ChildLeft, "child left").because("permission denied"), "Some items in the Trash folder could not be deleted: permission denied."),
-        (Refusal::new(Outcome::RecordLeft(None), "record left").because("the record changed"), "The interrupted operation was recovered, but Flea could not remove its recovery record: the record changed."),
-        (Refusal::new(Outcome::Held(at.clone()), "held"), "Flea found an interrupted Trash operation; its items are kept at /trash/files/.flea-delete-1-1."),
-        (Refusal::new(Outcome::NothingMoved, "nothing moved"), "Flea found an interrupted Trash operation; nothing was moved."),
+        (Refusal::new(Outcome::RecordLeft(None), "record left").because("the record changed"), "The interrupted operation was recovered, but Dlea could not remove its recovery record: the record changed."),
+        (Refusal::new(Outcome::Held(at.clone()), "held"), "Dlea found an interrupted Trash operation; its items are kept at /trash/files/.dlea-delete-1-1."),
+        (Refusal::new(Outcome::NothingMoved, "nothing moved"), "Dlea found an interrupted Trash operation; nothing was moved."),
     ];
     for (refusal, sentence) in cases {
         let seen = logged().len();

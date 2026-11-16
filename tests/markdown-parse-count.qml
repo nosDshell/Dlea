@@ -1,14 +1,14 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 import "qml-probe.js" as QmlProbe
 
 // One event, one parse, in Quick Look and in the column; parse-fallback runs on tests/preview-hunt.sh's scratch ui (a silent worker, a parser that throws).
 ShellRoot {
     id: root
-    property string scenario: Quickshell.env("FLEA_PREVIEW_HUNT_CASE")
-    property string dir: Quickshell.env("FLEA_PREVIEW_HUNT_DIR")
+    property string scenario: Quickshell.env("DLEA_PREVIEW_HUNT_CASE")
+    property string dir: Quickshell.env("DLEA_PREVIEW_HUNT_DIR")
     readonly property bool quickCase: scenario === "parse-quick"
     readonly property bool columnCase: scenario === "parse-column"
     readonly property bool workerCase: scenario === "parse-worker"
@@ -49,7 +49,7 @@ ShellRoot {
     readonly property int scrollTargetY: 1200
     readonly property int scrollableScreens: 3
     readonly property string replaceScript: "from pathlib import Path; import sys; p = Path(sys.argv[1]); p.write_text(p.read_text().replace('fallback item 0 ', 'edited item 0 '))"
-    readonly property string throwScript: "from pathlib import Path; import sys; p = Path(sys.argv[1]); p.write_text('FLEA-SCRATCH-THROW\\n' + p.read_text())"
+    readonly property string throwScript: "from pathlib import Path; import sys; p = Path(sys.argv[1]); p.write_text('DLEA-SCRATCH-THROW\\n' + p.read_text())"
     readonly property string sameScript: "from pathlib import Path; import sys; p = Path(sys.argv[1]); p.write_text(p.read_text())"
     readonly property string plainScript: "from pathlib import Path; import sys; Path(sys.argv[1]).write_text(sys.argv[2])"
     // An editor's atomic save: write a sibling, then rename it over the shown file.
@@ -111,7 +111,7 @@ ShellRoot {
             parses: 0, reads: true, keeps: true },
         { name: "one theme switch", act: function () {
                 root.inkBefore = root.host().inkHex
-                Flea.Theme.applyColors('background = "#ffffff"\nforeground = "#202020"')
+                Dlea.Theme.applyColors('background = "#ffffff"\nforeground = "#202020"')
             }, landed: function (h) { return h.inkHex !== root.inkBefore && h.contentReady }, parses: 1, keeps: true }
     ]
 
@@ -238,8 +238,8 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 760
         implicitHeight: 700
-        color: Flea.Theme.color.background
-        Flea.PreviewMarkdown {
+        color: Dlea.Theme.color.background
+        Dlea.PreviewMarkdown {
             id: md
             width: 600
             height: 580
@@ -261,14 +261,14 @@ ShellRoot {
                 root.shownFirsts.push(item ? item[0] : "")
             }
         }
-        Flea.Preview {
+        Dlea.Preview {
             id: quick
             active: root.quickCase
             kind: "text"
             path: root.shownPath
             size: 100
         }
-        Flea.PreviewColumn {
+        Dlea.PreviewColumn {
             id: column
             width: 300
             height: 600

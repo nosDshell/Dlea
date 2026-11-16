@@ -2,26 +2,26 @@
 # Drives every write operation through the real binary and asserts both the wire lines and the filesystem.
 set -u
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete below.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 
 cd "$(dirname "$0")/.." || exit 1
-BIN=./target/debug/flea
+BIN=./target/debug/dlea
 # Without this every case below drives a missing binary and reports the result as a product failure.
 [ -x "$BIN" ] || { echo "ops.sh: $BIN is missing, run cargo build" >&2; exit 1; }
 # Trash runs on this run's own session bus, whose daemons take the sandbox's home, so no earlier suite's gvfsd answers and no real trash is touched.
-if [ "${FLEA_OPS_BUS:-}" != 1 ]; then
+if [ "${DLEA_OPS_BUS:-}" != 1 ]; then
   command -v dbus-run-session >/dev/null || { echo 'ops.sh: dbus-run-session is required for isolated Trash' >&2; exit 1; }
-  FLEA_OPS_BASE="$FIXTURE_ROOT/ops-bus-$$"
-  sandbox_make "$FLEA_OPS_BASE"
+  DLEA_OPS_BASE="$FIXTURE_ROOT/ops-bus-$$"
+  sandbox_make "$DLEA_OPS_BASE"
   # This outer pass owns the sandbox and removes it once the bus and its daemons have gone, however the cases ended.
-  trap 'sandbox_remove "$FLEA_OPS_BASE"' EXIT
-  mkdir -p "$FLEA_OPS_BASE/home" "$FLEA_OPS_BASE/data" || exit 1
+  trap 'sandbox_remove "$DLEA_OPS_BASE"' EXIT
+  mkdir -p "$DLEA_OPS_BASE/home" "$DLEA_OPS_BASE/data" || exit 1
   # The cases keep the real HOME, which the sandbox guard checks, and run from the repository root this script already entered.
-  env HOME="$FLEA_OPS_BASE/home" XDG_DATA_HOME="$FLEA_OPS_BASE/data" dbus-run-session -- \
-    env FLEA_OPS_BUS=1 FLEA_OPS_BASE="$FLEA_OPS_BASE" HOME="$HOME" bash "tests/$(basename "$0")" "$@"
+  env HOME="$DLEA_OPS_BASE/home" XDG_DATA_HOME="$DLEA_OPS_BASE/data" dbus-run-session -- \
+    env DLEA_OPS_BUS=1 DLEA_OPS_BASE="$DLEA_OPS_BASE" HOME="$HOME" bash "tests/$(basename "$0")" "$@"
   exit $?
 fi
-D="$FLEA_OPS_BASE/run"
+D="$DLEA_OPS_BASE/run"
 fail=0
 
 cleanup() {
@@ -48,7 +48,7 @@ start_backend() {
   rm -f "$D/out"; : > "$D/out"
   mkfifo "$D/in"
   sandbox_remove "$D/rt"; mkdir -p "$D/rt"
-  HOME="$FLEA_OPS_BASE/home" XDG_DATA_HOME="$FLEA_OPS_BASE/data" XDG_RUNTIME_DIR="$D/rt" $BIN --backend < "$D/in" > "$D/out" 2>/dev/null &
+  HOME="$DLEA_OPS_BASE/home" XDG_DATA_HOME="$DLEA_OPS_BASE/data" XDG_RUNTIME_DIR="$D/rt" $BIN --backend < "$D/in" > "$D/out" 2>/dev/null &
   BACKEND_PID=$!
   exec 3> "$D/in"
 }
@@ -208,7 +208,7 @@ check "the item after it still ran" "good" "$(cat "$D/dest/good.txt" 2>/dev/null
 check "done reports one of each" "1" "$(seen '"ok":1,"failed":1,"skipped":0')"
 stop_backend
 
-echo "--- a destination Flea will not create is refused before anything is touched ---"
+echo "--- a destination Dlea will not create is refused before anything is touched ---"
 start_backend
 printf 'x' > "$D/x.txt"
 send "{\"c\":\"transfer\",\"op\":\"copy\",\"paths\":[\"$D/x.txt\"],\"dest\":\"$D/no-such-dir\"}"

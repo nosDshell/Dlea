@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-markdown-figures-render-test
+//@ pragma ShellId dlea-markdown-figures-render-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "markdown-figures-render.js" as Checks
 
 // Render figure fixtures through PreviewMarkdown, checking live geometry, captured ink and every sent source.
@@ -12,7 +12,7 @@ ShellRoot {
     function log(line) { console.log("MARKDOWN_FIGRENDER " + line) }
     function quit() { Quickshell.execDetached(["kill", String(Quickshell.processId)]) }
 
-    property string fixture: Quickshell.env("FLEA_MARKDOWN_FIGURE_FIXTURE")
+    property string fixture: Quickshell.env("DLEA_MARKDOWN_FIGURE_FIXTURE")
     property string shotPath: Quickshell.env("XDG_RUNTIME_DIR") + "/markdown-figrender-" + Quickshell.processId + ".png"
     property bool done: false
     property bool armed: false
@@ -25,12 +25,12 @@ ShellRoot {
     property int failures: 0
     property int padding: 0
     property real paragraphHeight: 0
-    Component.onCompleted: Flea.ViewState.setTextSize({ mode: 14 })
+    Component.onCompleted: Dlea.ViewState.setTextSize({ mode: 14 })
     // The real helper and injected stubs share the width-fit and request-history checks.
-    property string figMode: Quickshell.env("FLEA_FIG_MODE") === "real" ? "real" : "stub"
+    property string figMode: Quickshell.env("DLEA_FIG_MODE") === "real" ? "real" : "stub"
 
     Connections {
-        target: Flea.FigureService
+        target: Dlea.FigureService
         function onSent(ticket, source) {
             shell.requestHistory.push({ id: ticket, source: source })
         }
@@ -49,7 +49,7 @@ ShellRoot {
             anchors.right: parent.right
             height: 1080
 
-            Flea.PreviewMarkdown {
+            Dlea.PreviewMarkdown {
                 id: md
                 anchors.top: parent.top
                 anchors.left: parent.left
@@ -63,7 +63,7 @@ ShellRoot {
         }
 
         // The seam's own component: Quick Look wraps the document in MarkdownPane, so the suite reads through it too.
-        Flea.MarkdownPane {
+        Dlea.MarkdownPane {
             id: seamPane
             width: 560
             height: 200
@@ -154,7 +154,7 @@ ShellRoot {
     }
 
     function checkHistory() {
-        var error = Checks.farRequestError(shell.requestHistory, md.blockList[shell.farIndex].source, Flea.FigureService.sends)
+        var error = Checks.farRequestError(shell.requestHistory, md.blockList[shell.farIndex].source, Dlea.FigureService.sends)
         if (error !== "") {
             shell.fail(error)
             return false
@@ -165,7 +165,7 @@ ShellRoot {
     function drive() {
         if (shell.step === 0) {
             if (shell.fixture.length === 0)
-                return shell.fail("no fixture arrived in FLEA_MARKDOWN_FIGURE_FIXTURE")
+                return shell.fail("no fixture arrived in DLEA_MARKDOWN_FIGURE_FIXTURE")
             if (!md.contentReady)
                 return
             if (!seamPane.contentReady)
@@ -232,7 +232,7 @@ ShellRoot {
                 var svg = Checks.figure(md, 1).svg
                 shell.check(Checks.labelError(svg, Checks.bodyFont(md), md.inkHex),
                     "Mermaid body typography and foreground")
-                shell.check(Checks.paletteError(svg, [md.hexOf(Flea.Theme.color.background), md.inkHex,
+                shell.check(Checks.paletteError(svg, [md.hexOf(Dlea.Theme.color.background), md.inkHex,
                     md.accentHex, md.borderHex, md.chromeHex]), "Mermaid theme edges and nodes")
             }
             // Current state and complete send history must both leave the far figure unasked.
@@ -241,7 +241,7 @@ ShellRoot {
                 return shell.fail("the far figure was asked for despite sitting past the cache")
             if (!shell.checkHistory())
                 return
-            shell.sendsMark = Flea.FigureService.sends
+            shell.sendsMark = Dlea.FigureService.sends
             shell.log("near figures drawn, far figure unasked, sends=" + shell.sendsMark)
             md.view = "source"
             shell.t0 = Date.now()
@@ -249,7 +249,7 @@ ShellRoot {
         } else if (shell.step === 2) {
             if (Date.now() - shell.t0 < 600)
                 return
-            if (Flea.FigureService.sends !== shell.sendsMark)
+            if (Dlea.FigureService.sends !== shell.sendsMark)
                 return shell.fail("the Source view sent a figure request")
             shell.log("source view asked for nothing")
             md.view = "rendered"

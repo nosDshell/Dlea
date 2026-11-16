@@ -181,5 +181,5 @@ case_cap_compare() {
     key -k Escape >/dev/null
     menus_expect compareState '.opened | not' "Escape closes Compare"
     printf 'CAP_COMPARE specimens=diff,identical,binary,large copy=rest,hover,focus,pressed,key close=rest,hover\n'
-    kill_flea
+    kill_dlea
 }

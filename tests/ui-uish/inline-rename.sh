@@ -277,7 +277,7 @@ case_clickedge() {
     key -k Escape >/dev/null || fail "clickedge: key Escape was rejected"
     settle
     [[ "$(ipc renameEditorLive)" == "false" ]] || fail "clickedge: $mode Escape left the rename open"
-    kill_flea
+    kill_dlea
 }
 
 case_renamefirst() {

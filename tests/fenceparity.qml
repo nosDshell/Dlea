@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-fenceparity-test
+//@ pragma ShellId dlea-fenceparity-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "fenceparity.js" as Probe
 
 // A real WindowBody lists the fixture, then opens Quick Look with Space or Columns with ctrl-2.
@@ -169,7 +169,7 @@ ShellRoot {
         }
         if (root.stage === 4) {
             if (!root.calm(f && !f.awaiting && f.width > 0 && f.height > 0 && root.ready())) return
-            root.record = Probe.record(d, f, root.host, root.fenceAt, root.indices[root.fenceAt], Flea.Theme)
+            root.record = Probe.record(d, f, root.host, root.fenceAt, root.indices[root.fenceAt], Dlea.Theme)
             if (root.fenceAt === 2) {
                 root.check(f.height > d.viewport.height, "the long fence fits inside the viewport")
                 root.wheelBefore = { scroll: d.viewport.contentY, y: f.mapToItem(d.viewport, 0, 0).y }

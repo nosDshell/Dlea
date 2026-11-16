@@ -1,4 +1,4 @@
-// flea --clip-own: the detached owner behind one copy; it prints ready, then serves sends until cancelled.
+// dlea --clip-own: the detached owner behind one copy; it prints ready, then serves sends until cancelled.
 use super::control;
 use super::format;
 use super::owner;
@@ -93,7 +93,7 @@ pub fn run() -> i32 {
     match run_inner() {
         Ok(()) => 0,
         Err(e) => {
-            eprintln!("flea: {}", e);
+            eprintln!("dlea: {}", e);
             2
         }
     }
@@ -216,9 +216,9 @@ pub(crate) fn spawn_owner_with(
                 use std::io::BufRead;
                 let mut line = String::new();
                 std::io::BufReader::new(stderr).read_line(&mut line).ok()?;
-                // Sample input: "flea: this compositor does not offer clipboard access\n".
+                // Sample input: "dlea: this compositor does not offer clipboard access\n".
                 let line = line.trim_end();
-                let error = line.strip_prefix("flea: ").unwrap_or(line);
+                let error = line.strip_prefix("dlea: ").unwrap_or(line);
                 (!error.is_empty()).then(|| error.to_string())
             });
             return Err(error.unwrap_or_else(|| "the clipboard owner did not answer".to_string()));

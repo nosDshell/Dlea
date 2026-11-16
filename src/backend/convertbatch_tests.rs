@@ -65,7 +65,7 @@ fn a_raw_named_page_source_keeps_its_bytes_beside_the_page_suffix() {
     let input = PathBuf::from(std::ffi::OsStr::from_bytes(b"/x/scan-\xff.png"));
     let args = image_argv(&[input], Path::new("/out.pdf"), false);
     assert_eq!(
-        flea::bytename::text_name(&args[4]).as_bytes(),
+        dlea::bytename::text_name(&args[4]).as_bytes(),
         b"/x/scan-\xff.png[0]"
     );
 }

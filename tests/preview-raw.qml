@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-preview-raw-test
+//@ pragma ShellId dlea-preview-raw-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Messages.js" as Messages
-import "flea/js/Thumbs.js" as Thumbs
+import "dlea" as Dlea
+import "dlea/js/Messages.js" as Messages
+import "dlea/js/Thumbs.js" as Thumbs
 
 // A camera RAW in Quick Look and in the column, on the real Preview and SelectionPreview over a stub pane whose backend answers with the meta line the backend writes.
 ShellRoot {
@@ -123,9 +123,9 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 1000
         implicitHeight: 800
-        color: Flea.Theme.color.background
-        Flea.Preview { id: look; anchors.fill: parent; pane: stub }
-        Flea.SelectionPreview { id: column; x: 0; y: 0; width: 300; height: 500; visible: false; pane: stub }
+        color: Dlea.Theme.color.background
+        Dlea.Preview { id: look; anchors.fill: parent; pane: stub }
+        Dlea.SelectionPreview { id: column; x: 0; y: 0; width: 300; height: 500; visible: false; pane: stub }
     }
 
     // Every frame: the band is drawn only over a RAW at fit, only once its picture is, and never over a JPEG.
@@ -178,9 +178,9 @@ ShellRoot {
         shell.check(String(it.pictureItem.source).indexOf("/preview.jpg") > 0, "the RAW drew " + it.pictureItem.source + ", want its embedded copy")
         shell.check(it.band.visible, "no caption band under the RAW")
         shell.check(shell.bandText(it) === "Embedded preview · 1620 × 1080", "caption read " + shell.bandText(it))
-        shell.check(shell.near(it.band.height, Flea.Theme.chromeHeight) && shell.near(it.band.y + it.band.height, it.height), "the band is not a chromeHeight strip at the bottom")
-        shell.check(shell.same(it.band.color, Flea.Theme.color.background) && shell.same(it.band.children[0].color, Flea.Theme.color.muted), "the band is not the frame ground with muted text")
-        shell.check(it.band.children[0].font.pixelSize === Flea.Theme.font.caption, "the caption is not caption size")
+        shell.check(shell.near(it.band.height, Dlea.Theme.chromeHeight) && shell.near(it.band.y + it.band.height, it.height), "the band is not a chromeHeight strip at the bottom")
+        shell.check(shell.same(it.band.color, Dlea.Theme.color.background) && shell.same(it.band.children[0].color, Dlea.Theme.color.muted), "the band is not the frame ground with muted text")
+        shell.check(it.band.children[0].font.pixelSize === Dlea.Theme.font.caption, "the caption is not caption size")
         var p = it.pictureItem
         shell.check(p.y >= -shell.tol && p.y + p.height <= it.band.y + shell.tol, "the picture runs into the band: " + p.y + "+" + p.height + " vs " + it.band.y)
         shell.check(shell.near(p.width / p.height, 1620 / 1080), "the picture is not drawn at the embedded aspect")
@@ -191,7 +191,7 @@ ShellRoot {
             shell.landscape(a)
             // The zoomed band is the zoom's own, with the surface colour and the zoom label.
             look.zoomBy(1)
-            shell.check(a.zoomed && a.band.visible && shell.bandText(a) === a.zoomLabel && shell.same(a.band.color, Flea.Theme.color.surface), "a zoomed RAW did not keep the zoom band")
+            shell.check(a.zoomed && a.band.visible && shell.bandText(a) === a.zoomLabel && shell.same(a.band.color, Dlea.Theme.color.surface), "a zoomed RAW did not keep the zoom band")
             look.zoomFit()
             shell.check(shell.bandText(a) === "Embedded preview · 1620 × 1080", "fit did not bring the caption back")
             shell.openRow(1, function (b) {

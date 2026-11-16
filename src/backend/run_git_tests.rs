@@ -79,7 +79,7 @@ fn git_wire_preserves_listing_rows_and_refreshes_after_the_existing_watch() {
         field_str(&first, "label").as_deref(),
         Some("main · 0 changed")
     );
-    d.write("tracked", b"changed outside Flea\n");
+    d.write("tracked", b"changed outside Dlea\n");
     let deadline = Instant::now() + Duration::from_secs(5);
     let notification = loop {
         let event = rx

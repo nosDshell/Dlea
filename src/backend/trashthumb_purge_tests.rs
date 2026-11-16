@@ -5,7 +5,7 @@ use std::path::Path;
 
 fn write(home: &Path, name: &str, body: &[u8]) -> PathBuf {
     let path = home.join(name);
-    assert!(home.is_absolute() && home.join(".flea-test-sandbox").is_file());
+    assert!(home.is_absolute() && home.join(".dlea-test-sandbox").is_file());
     assert!(
         path.is_absolute() && path.starts_with(home) && !name.split('/').any(|part| part == "..")
     );
@@ -94,7 +94,7 @@ fn fixture(home: &Path) -> (Vec<PathBuf>, Vec<Vec<PathBuf>>, Vec<PathBuf>) {
 }
 
 fn run_case(case: &str, test: &str) {
-    if std::env::var("FLEA_TRASH_PURGE_CASE").ok().as_deref() != Some(case) {
+    if std::env::var("DLEA_TRASH_PURGE_CASE").ok().as_deref() != Some(case) {
         let d = TestDir::new("trashthumb-purge-home");
         let made = std::process::Command::new("mktemp")
             .arg("-d")
@@ -104,12 +104,12 @@ fn run_case(case: &str, test: &str) {
         assert!(made.status.success());
         let home = PathBuf::from(String::from_utf8(made.stdout).unwrap().trim());
         d.assert_contains(&home);
-        std::fs::write(home.join(".flea-test-sandbox"), b"private test HOME\n").unwrap();
+        std::fs::write(home.join(".dlea-test-sandbox"), b"private test HOME\n").unwrap();
         let mut child = std::process::Command::new(std::env::current_exe().unwrap());
         let test = test.split_once("::").unwrap().1;
         child
             .args(["--exact", test, "--nocapture"])
-            .env("FLEA_TRASH_PURGE_CASE", case)
+            .env("DLEA_TRASH_PURGE_CASE", case)
             .env("HOME", &home)
             // Checked in, not written into HOME: package check() keeps TMPDIR on noexec /dev/shm.
             .env(
@@ -149,7 +149,7 @@ fn run_case(case: &str, test: &str) {
         return;
     }
     let home = PathBuf::from(std::env::var_os("HOME").unwrap());
-    assert!(home.is_absolute() && home.join(".flea-test-sandbox").is_file());
+    assert!(home.is_absolute() && home.join(".dlea-test-sandbox").is_file());
     let (payloads, owned, keep) = fixture(&home);
     // Beside the two listed items: a file with no record, one whose record has no Path, a record with no file and a file that is no record.
     let empty = case == "empty" || case == "sweep";
@@ -242,7 +242,7 @@ fn run_case(case: &str, test: &str) {
         } else if case == "partial-delete" {
             let kept = home.join("reviewed-payload");
             for path in [&payloads[0], &kept] {
-                assert!(home.is_absolute() && home.join(".flea-test-sandbox").is_file());
+                assert!(home.is_absolute() && home.join(".dlea-test-sandbox").is_file());
                 assert!(path.is_absolute() && path.starts_with(&home));
             }
             std::fs::rename(&payloads[0], &kept).unwrap();
@@ -333,7 +333,7 @@ fn run_case(case: &str, test: &str) {
         let mut once = vec![
             home.join("original"),
             std::fs::canonicalize(home.join("data/Trash/files")).unwrap(),
-            home.join("state/flea/recovery"),
+            home.join("state/dlea/recovery"),
         ];
         once.sort();
         assert_eq!(
@@ -346,7 +346,7 @@ fn run_case(case: &str, test: &str) {
         assert_eq!(
             crate::backend::trashthumbcache::DIRECTORY_READS.with(|reads| reads.get()),
             [1, 1],
-            "one request must read large and fail/flea exactly once"
+            "one request must read large and fail/dlea exactly once"
         );
     }
 }

@@ -1,4 +1,4 @@
-//! flea --terminal against a stand-in xdg-terminal-exec: the folder reaches the terminal it resolves.
+//! dlea --terminal against a stand-in xdg-terminal-exec: the folder reaches the terminal it resolves.
 use std::fs;
 use std::io::Write;
 use std::os::unix::fs::PermissionsExt;
@@ -10,15 +10,15 @@ use std::time::{Duration, Instant};
 const LAUNCHER: &str = r#"dir=
 print=
 for a; do case $a in --dir=*) dir=${a#--dir=};; '--print-cmd=\0') print=1;; --print-cmd*) exit 2;; esac; done
-[ -n "$print" ] && [ "$FLEA_TEST_PRINTS" != 1 ] && exit 1
-set -- "$FLEA_TEST_ROOT/bin/$FLEA_TEST_TERMINAL"
-if [ "$FLEA_TEST_TERMINAL" = ghostty ]; then set -- "$@" --gtk-single-instance=true "--working-directory=$dir"; fi
+[ -n "$print" ] && [ "$DLEA_TEST_PRINTS" != 1 ] && exit 1
+set -- "$DLEA_TEST_ROOT/bin/$DLEA_TEST_TERMINAL"
+if [ "$DLEA_TEST_TERMINAL" = ghostty ]; then set -- "$@" --gtk-single-instance=true "--working-directory=$dir"; fi
 if [ -n "$print" ]; then
   first=1
   for a; do [ -n "$first" ] || printf '\0'; first=; printf '%s' "$a"; done
   exit 0
 fi
-[ "$FLEA_TEST_TERMINAL" = ghostty ] || cd "$dir"
+[ "$DLEA_TEST_TERMINAL" = ghostty ] || cd "$dir"
 exec "$@"
 "#;
 
@@ -26,18 +26,18 @@ exec "$@"
 const GHOSTTY: &str = r#"single=false
 wd=$PWD
 for a; do case $a in --gtk-single-instance=*) single=${a#*=};; --working-directory=*) wd=${a#*=};; esac; done
-[ "$single" = true ] && wd=$(cat "$FLEA_TEST_ROOT/primary")
-printf '%s\n' "$wd" > "$FLEA_TEST_ROOT/opened.part" && mv "$FLEA_TEST_ROOT/opened.part" "$FLEA_TEST_ROOT/opened"
+[ "$single" = true ] && wd=$(cat "$DLEA_TEST_ROOT/primary")
+printf '%s\n' "$wd" > "$DLEA_TEST_ROOT/opened.part" && mv "$DLEA_TEST_ROOT/opened.part" "$DLEA_TEST_ROOT/opened"
 "#;
 
-const FOOT: &str = r#"printf '%s\n' "$PWD" > "$FLEA_TEST_ROOT/opened.part" && mv "$FLEA_TEST_ROOT/opened.part" "$FLEA_TEST_ROOT/opened"
+const FOOT: &str = r#"printf '%s\n' "$PWD" > "$DLEA_TEST_ROOT/opened.part" && mv "$DLEA_TEST_ROOT/opened.part" "$DLEA_TEST_ROOT/opened"
 "#;
 
 struct Sandbox(PathBuf);
 
 // A sibling fork inherits any descriptor held open for writing, and exec then fails with ETXTBSY.
 fn executable(path: &Path, body: &str) {
-    let mut writer = Command::new(flea::testpath::tool("/bin/sh"))
+    let mut writer = Command::new(dlea::testpath::tool("/bin/sh"))
         .args(["-c", "/bin/cat > \"$1\"", "write-fixture"])
         .arg(path)
         .stdin(Stdio::piped())
@@ -60,7 +60,7 @@ impl Sandbox {
         assert!(output.status.success());
         let root = PathBuf::from(String::from_utf8(output.stdout).unwrap().trim());
         assert!(root.is_absolute());
-        fs::write(root.join(".flea-test-sandbox"), "terminal-launch\n").unwrap();
+        fs::write(root.join(".dlea-test-sandbox"), "terminal-launch\n").unwrap();
         for dir in ["bin", "home", "target dir", "elsewhere"] {
             fs::create_dir_all(root.join(dir)).unwrap();
         }
@@ -87,7 +87,7 @@ impl Sandbox {
         self.launch(terminal, path, true, &self.0.join("home"))
     }
 
-    // The exit of flea --terminal and the folder the stand-in terminal opened in, if it opened.
+    // The exit of dlea --terminal and the folder the stand-in terminal opened in, if it opened.
     fn launch(
         &self,
         terminal: &str,
@@ -95,16 +95,16 @@ impl Sandbox {
         prints: bool,
         cwd: &Path,
     ) -> (Option<i32>, Option<String>) {
-        let status = Command::new(env!("CARGO_BIN_EXE_flea"))
+        let status = Command::new(env!("CARGO_BIN_EXE_dlea"))
             .arg("--terminal")
             .arg(path)
             .env(
                 "PATH",
                 format!("{}:/usr/bin:/bin", self.0.join("bin").display()),
             )
-            .env("FLEA_TEST_ROOT", &self.0)
-            .env("FLEA_TEST_TERMINAL", terminal)
-            .env("FLEA_TEST_PRINTS", if prints { "1" } else { "0" })
+            .env("DLEA_TEST_ROOT", &self.0)
+            .env("DLEA_TEST_TERMINAL", terminal)
+            .env("DLEA_TEST_PRINTS", if prints { "1" } else { "0" })
             .current_dir(cwd)
             .stdin(Stdio::null())
             .stderr(Stdio::null())
@@ -122,7 +122,7 @@ impl Sandbox {
         (status.code(), folder)
     }
 
-    // Canonical, the way flea --terminal hands the folder on.
+    // Canonical, the way dlea --terminal hands the folder on.
     fn target(&self) -> String {
         fs::canonicalize(self.0.join("target dir"))
             .unwrap()
@@ -133,7 +133,7 @@ impl Sandbox {
 
 impl Drop for Sandbox {
     fn drop(&mut self) {
-        if self.0.join(".flea-test-sandbox").is_file() {
+        if self.0.join(".dlea-test-sandbox").is_file() {
             let _ = fs::remove_dir_all(&self.0);
         }
     }
@@ -202,7 +202,7 @@ fn a_launcher_without_print_cmd_still_opens_in_the_folder() {
     );
 }
 
-// A bare file name on the command line is listed in the folder flea runs in.
+// A bare file name on the command line is listed in the folder dlea runs in.
 #[test]
 fn a_bare_file_name_opens_in_the_working_folder() {
     let sandbox = Sandbox::new();

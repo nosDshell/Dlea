@@ -1,4 +1,4 @@
-# Rust build output at any depth (root and nested tools like flea-walkbench)
+# Rust build output at any depth (root and nested tools like dlea-walkbench)
 target/
 **/*.rs.bk
 

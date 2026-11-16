@@ -122,7 +122,7 @@ fn rows_line_body(
         }
         let name = l.name(start + i);
         // Files are reached by the exact path; the kind is read off the lossy spelling, where the extension is.
-        let (path, shown) = (l.path(base, start + i), flea::bytename::display(name));
+        let (path, shown) = (l.path(base, start + i), dlea::bytename::display(name));
         if let Some((row, kind)) = cache.as_deref().and_then(|cache| cache.rendered(&path)) {
             let k = match kind_index.get(kind) {
                 Some(&idx) => idx,

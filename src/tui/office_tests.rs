@@ -10,7 +10,7 @@ use crate::{
         wire::{self, Wire},
     },
 };
-use flea::ui_logic_doc_preview::office::State as Subject;
+use dlea::ui_logic_doc_preview::office::State as Subject;
 use std::{
     path::{Path, PathBuf},
     time::{Duration, Instant},
@@ -46,7 +46,7 @@ impl Fixture {
         let path = PathBuf::from(String::from_utf8(output.stdout).unwrap().trim());
         assert!(path.is_absolute() && path.parent() == Some(parent.as_path()));
         std::fs::write(
-            path.join(".flea-test-sandbox"),
+            path.join(".dlea-test-sandbox"),
             b"owned m9 TUI office tests\n",
         )
         .unwrap();
@@ -61,7 +61,7 @@ impl Drop for Fixture {
         assert!(
             self.0.is_absolute()
                 && !self.0.as_os_str().is_empty()
-                && self.0.join(".flea-test-sandbox").is_file()
+                && self.0.join(".dlea-test-sandbox").is_file()
         );
         assert!(self
             .0

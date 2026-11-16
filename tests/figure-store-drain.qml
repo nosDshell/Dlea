@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-figure-store-drain-test
+//@ pragma ShellId dlea-figure-store-drain-test
 
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 
 // A line queued behind a drain is drawn by the helper within drainMs and the draining store is left alone; only a store still draining at drainHangMs is killed, and one that commits slowly keeps its put.
 ShellRoot {
@@ -21,7 +21,7 @@ ShellRoot {
     property bool released: false
     property int sendsMark: 0
     // "hang" is a store that answers every line and ignores EOF; "slow" commits its puts for longer than drainMs after EOF and then exits.
-    readonly property string mode: Quickshell.env("FLEA_DRAIN_MODE")
+    readonly property string mode: Quickshell.env("DLEA_DRAIN_MODE")
     // Short, so the bounds are quick ones; the checks are on what each bound does, so no duration is asserted.
     readonly property int drainMs: 300
     readonly property int drainHangMs: shell.mode === "hang" ? 4000 : 600000
@@ -29,10 +29,10 @@ ShellRoot {
     readonly property int watchdogMs: 90000
     readonly property var theme: ({ bg: "#101315", fg: "#c0caf5", accent: "#7aa2f7", font: "monospace", bodyPx: 14, exPx: 7 })
     Component.onCompleted: {
-        Flea.ViewState.setTextSize({ mode: 14 })
-        Flea.FigureService.idleExitMs = shell.idleExitMs
-        Flea.FigureService.persistent.drainMs = shell.drainMs
-        Flea.FigureService.persistent.drainHangMs = shell.drainHangMs
+        Dlea.ViewState.setTextSize({ mode: 14 })
+        Dlea.FigureService.idleExitMs = shell.idleExitMs
+        Dlea.FigureService.persistent.drainMs = shell.drainMs
+        Dlea.FigureService.persistent.drainHangMs = shell.drainHangMs
     }
 
     function check(passed, why) {
@@ -65,12 +65,12 @@ ShellRoot {
     }
 
     function askNext(source) {
-        shell.ticket = Flea.FigureService.ask("math", source, true, shell.theme)
+        shell.ticket = Dlea.FigureService.ask("math", source, true, shell.theme)
     }
 
     // The hung store is gone and the next one starts clean; the slow store has exited and its put reads back.
     function drainEnded() {
-        var disk = Flea.FigureService.persistent
+        var disk = Dlea.FigureService.persistent
         if (shell.step !== 4)
             return
         if (shell.mode === "hang" && disk.exits >= 1) {
@@ -79,19 +79,19 @@ ShellRoot {
             shell.askNext("x^4")
         } else if (shell.mode === "slow" && !disk.active) {
             shell.step = 6
-            shell.sendsMark = Flea.FigureService.sends
-            Flea.FigureService.answerCache = ({})
-            Flea.FigureService.answerOrder = []
+            shell.sendsMark = Dlea.FigureService.sends
+            Dlea.FigureService.answerCache = ({})
+            Dlea.FigureService.answerOrder = []
             shell.askNext("x^2")
         }
     }
 
     Connections {
-        target: Flea.FigureService
+        target: Dlea.FigureService
         function onDone(ticket, svg, error) {
             if (ticket !== shell.ticket)
                 return
-            var service = Flea.FigureService
+            var service = Dlea.FigureService
             var disk = service.persistent
             if (shell.step === 1) {
                 shell.check(shell.drew(svg, error), "a figure the stub store missed is drawn by the helper")
@@ -111,10 +111,10 @@ ShellRoot {
     }
 
     Connections {
-        target: Flea.FigureService.persistent
+        target: Dlea.FigureService.persistent
         // The idle stop closed stdin and the stub keeps draining: a get now queues behind the drain.
         function onStoppingChanged() {
-            var disk = Flea.FigureService.persistent
+            var disk = Dlea.FigureService.persistent
             if (!disk.stopping || shell.step !== 2)
                 return
             shell.hungPid = disk.pid
@@ -124,7 +124,7 @@ ShellRoot {
         }
         // The line behind the drain is answered a miss while the store is still draining, alive and not killed.
         function onAnswered(id, svg) {
-            var disk = Flea.FigureService.persistent
+            var disk = Dlea.FigureService.persistent
             if (id !== shell.ticket || shell.step !== 3 || shell.released)
                 return
             shell.released = true

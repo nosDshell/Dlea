@@ -4,7 +4,7 @@ use std::os::unix::fs::PermissionsExt;
 use std::os::unix::process::CommandExt;
 
 const UMASK_CHILD_TEST: &str = "backend::pasteimage::paste_tests::a_paste_under_umask_077_child";
-const UMASK_CHILD_DEST: &str = "FLEA_PASTE_UMASK_DEST";
+const UMASK_CHILD_DEST: &str = "DLEA_PASTE_UMASK_DEST";
 
 // libc is no dependency here, so umask is declared, not linked: it lives in the libc every Linux process links.
 extern "C" {
@@ -16,7 +16,7 @@ extern "C" {
 fn a_paste_leaves_another_pastes_temp_alone() {
     let d = TestDir::new("pasteimage-othertemp");
     let dest = d.dir("dest");
-    let old = dest.join(format!(".flea-paste-{}.tmp", std::process::id()));
+    let old = dest.join(format!(".dlea-paste-{}.tmp", std::process::id()));
     std::fs::write(&old, "other").unwrap();
     let argv = ["sh".to_string(), "-c".to_string(), "printf 'PNGDATA'".to_string()];
     let (line, _) = execute(&dest, "a.png", &argv);

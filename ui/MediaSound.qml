@@ -9,7 +9,7 @@ QtObject {
 
     // The level under a press, 0 to 100, or -1 with none down, when the stored level shows.
     property int held: -1
-    // Every Flea player plays at this, mute or not: 100 is the full-scale output a player had before the level existed.
+    // Every Dlea player plays at this, mute or not: 100 is the full-scale output a player had before the level existed.
     readonly property int volume: root.held >= 0 ? root.held : ViewState.mediaVolume
     // What the player takes: QtAudio.convertVolume(volume / 100, Logarithmic, Linear), which QML does not expose, as qtaudio.cpp computes it.
     readonly property real gain: root.volume > 99 ? 1 : -Math.log(1 - root.volume / 100) / Math.log(100)

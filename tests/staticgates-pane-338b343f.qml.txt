@@ -1,7 +1,7 @@
 // Excerpt of git show 338b343f:ui/Pane.qml (lines 1-3, 26-28, 173-177, 690-694): the repeated wire alias that kept int from loading.
 import QtQuick
 import Quickshell
-import "." as Flea
+import "." as Dlea
 FocusScope {
     id: root
     focus: true
@@ -11,7 +11,7 @@ FocusScope {
     readonly property alias swap: wire.swap
     readonly property alias wire: wire
 
-    Flea.PaneWire {
+    Dlea.PaneWire {
         id: wire
         pane: root
     }

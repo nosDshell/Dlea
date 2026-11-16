@@ -1,7 +1,7 @@
-//@ pragma AppId com.thisisgm.flea
-//@ pragma ShellId flea
+//@ pragma AppId com.nosDshell.dlea
+//@ pragma ShellId dlea
 //@ pragma NativeTextRendering
-//@ pragma CacheDir $BASE/flea
+//@ pragma CacheDir $BASE/dlea
 
 import Quickshell
 import QtQuick
@@ -10,8 +10,8 @@ import QtQuick
 // served through qs: URLs, which Qt's disk cache refuses; see AGENTS.md "The first window".
 ShellRoot {
     FloatingWindow {
-        id: fleaWindow
-        title: "Flea"
+        id: dleaWindow
+        title: "Dlea"
         implicitWidth: 900
         implicitHeight: 600
         // Never seen: the body covers it on the first frame. ui/Theme.qml's own fallback, for the record.
@@ -24,14 +24,14 @@ ShellRoot {
         function centreOf(item) {
             if (!item)
                 return ""
-            var rect = fleaWindow.itemRect(item)
+            var rect = dleaWindow.itemRect(item)
             return Math.round(rect.x + rect.width / 2) + " " + Math.round(rect.y + rect.height / 2)
         }
         // "x y width height" in window pixels, for a test that asserts a card stays inside the window.
         function rectOf(item) {
             if (!item)
                 return ""
-            var rect = fleaWindow.itemRect(item)
+            var rect = dleaWindow.itemRect(item)
             var left = Math.round(rect.x), top = Math.round(rect.y)
             return left + " " + top + " " + (Math.round(rect.x + rect.width) - left) + " " + (Math.round(rect.y + rect.height) - top)
         }
@@ -39,7 +39,7 @@ ShellRoot {
         function boxOf(item) {
             if (!item)
                 return ""
-            var rect = fleaWindow.itemRect(item)
+            var rect = dleaWindow.itemRect(item)
             return Math.round(rect.x) + " " + Math.round(rect.width) + " " + (rect.x + rect.width / 2).toFixed(3)
         }
 
@@ -52,17 +52,17 @@ ShellRoot {
         function loadBody() {
             if (bodyLoader.status !== Loader.Null)
                 return
-            bodyLoader.setSource(fleaWindow.fileUrl(Quickshell.shellDir + "/../WindowBody.qml"), { host: fleaWindow })
+            bodyLoader.setSource(dleaWindow.fileUrl(Quickshell.shellDir + "/../WindowBody.qml"), { host: dleaWindow })
             // Only before the window exists does Quickshell still take a clear surface; see ui/Glass.qml.
             if (bodyLoader.item && bodyLoader.item.clearSurface) {
-                fleaWindow.clearedEarly = !(bodyLoader.Window.window && bodyLoader.Window.window.visible)
-                if (fleaWindow.clearedEarly) fleaWindow.color = "transparent"
+                dleaWindow.clearedEarly = !(bodyLoader.Window.window && bodyLoader.Window.window.visible)
+                if (dleaWindow.clearedEarly) dleaWindow.color = "transparent"
             }
         }
 
         // Quickshell 0.3.1 has no exit API, and it is signalled from here because a window closed
         // before the body loads still has to take the process with it.
-        Connections { target: Quickshell; function onLastWindowClosed() { fleaWindow.quit() } }
+        Connections { target: Quickshell; function onLastWindowClosed() { dleaWindow.quit() } }
 
         // Nothing has been told to drain before the body exists, so an early exit kills directly.
         function quit() {
@@ -86,12 +86,12 @@ ShellRoot {
 
         // Loaded only once the error has arrived, which keeps ui/js/Renderer.js off the startup path.
         function retryCommand(backendName) {
-            var helper = Qt.createComponent(fleaWindow.fileUrl(Quickshell.shellDir + "/../RendererRetry.qml"))
+            var helper = Qt.createComponent(dleaWindow.fileUrl(Quickshell.shellDir + "/../RendererRetry.qml"))
             if (helper.status !== Component.Ready) {
-                console.warn("flea: the renderer retry helper did not load, so there is no fallback: " + helper.errorString())
+                console.warn("dlea: the renderer retry helper did not load, so there is no fallback: " + helper.errorString())
                 return null
             }
-            var object = helper.createObject(fleaWindow)
+            var object = helper.createObject(dleaWindow)
             var retry = object.fallbackCommand(backendName)
             object.destroy()
             return retry
@@ -105,8 +105,8 @@ ShellRoot {
             // An empty window forever is what this catches; the engine prints the reason above it.
             onStatusChanged: {
                 if (status === Loader.Error) {
-                    console.warn("flea: the window body did not load, so there is nothing to show")
-                    fleaWindow.quit()
+                    console.warn("dlea: the window body did not load, so there is nothing to show")
+                    dleaWindow.quit()
                 }
             }
         }
@@ -114,9 +114,9 @@ ShellRoot {
         // Null while this file loads and the QQuickWindow once it exists, which is before the scene graph starts.
         Connections {
             target: bodyLoader.Window.window
-            function onSceneGraphError(error, message) { fleaWindow.handleSceneGraphError(error, message) }
+            function onSceneGraphError(error, message) { dleaWindow.handleSceneGraphError(error, message) }
         }
 
-        Component.onCompleted: fleaWindow.loadBody()
+        Component.onCompleted: dleaWindow.loadBody()
     }
 }

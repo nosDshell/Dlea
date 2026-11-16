@@ -1,7 +1,7 @@
 #!/bin/bash
 # Sourced over the shared transport by cases whose launch target is a double: spawns the --binary given with its --ui, wrap prefix kept.
-flea_test_launch() {
-    local start_path="$1" flea_log="$2" ui="${flea_ui-}" bin="${flea_bin-}" backend="" arg
+dlea_test_launch() {
+    local start_path="$1" dlea_log="$2" ui="${dlea_ui-}" bin="${dlea_bin-}" backend="" arg
     shift 2
     local -a wrap=()
     while [ $# -gt 0 ]; do
@@ -20,7 +20,7 @@ flea_test_launch() {
         shift
     done
     [ -n "$bin" ] || fail "fixture launch has no binary"
-    FLEA_UI="$ui" FLEA_BIN="${backend:-$bin}" ${wrap[@]+"${wrap[@]}"} \
-        setsid nohup "$bin" --gui "$start_path" >"$flea_log" 2>&1 </dev/null &
-    FLEA_TEST_PID=$!
+    DLEA_UI="$ui" DLEA_BIN="${backend:-$bin}" ${wrap[@]+"${wrap[@]}"} \
+        setsid nohup "$bin" --gui "$start_path" >"$dlea_log" 2>&1 </dev/null &
+    DLEA_TEST_PID=$!
 }

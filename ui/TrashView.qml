@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Format.js" as Format
 import "js/Icons.js" as Icons
 import "js/Keymap.js" as Keymap
@@ -225,7 +225,7 @@ FocusScope {
             cursor = Math.max(0, Math.min(cursor, total - 1))
             if (message.op === "list") {
                 if ((message.recoveryErrors || []).length > 0)
-                    operationResult("Flea could not finish an interrupted file action", message.recoveryErrors.join("\n"), true)
+                    operationResult("Dlea could not finish an interrupted file action", message.recoveryErrors.join("\n"), true)
                 else if (message.recoveredCount > 0)
                     operationResult(message.recoveredCount === 1 ? root.recoveredWords.one : Format.fill(root.recoveredWords.many, message.recoveredCount), "", false)
                 errorText = ""
@@ -323,13 +323,13 @@ FocusScope {
                 anchors.leftMargin: Theme.spacing.rowPaddingX
                 anchors.rightMargin: Theme.spacing.rowPaddingX
                 spacing: Theme.spacing.gap
-                Flea.ChromeButton {
+                Dlea.ChromeButton {
                     id: backButton
                     ruleRows: Theme.spacing.hairline
                     glyph: "arrow-left"
                     onActivated: root.close()
                 }
-                Flea.ChromeButton {
+                Dlea.ChromeButton {
                     id: upButton
                     ruleRows: Theme.spacing.hairline
                     glyph: "arrow-up"
@@ -359,7 +359,7 @@ FocusScope {
                     font { family: Theme.font.family; pixelSize: Theme.font.caption }
                 }
                 // Emptying the Trash was reachable only by right-clicking the rail row. It addresses the whole Trash, which is what the count beside it describes, so it belongs here. It opens the confirmation the menu row opens: the boundary is unchanged and no key is bound to it. Disabled exactly where ui/js/Menu.js disables the row.
-                Flea.DialogButton {
+                Dlea.DialogButton {
                     id: emptyAction
                     anchors.verticalCenter: parent.verticalCenter
                     label: "Empty Trash"
@@ -430,8 +430,8 @@ FocusScope {
                     root.contextRequested(at.x, at.y, root.selectedCount > 0)
                 }
             }
-            Flea.FastScrollHandler { flickable: listing }
-            Flea.ViewportScrollBar { parent: listing; anchors.top: parent.top; anchors.right: parent.right; flickable: listing }
+            Dlea.FastScrollHandler { flickable: listing }
+            Dlea.ViewportScrollBar { parent: listing; anchors.top: parent.top; anchors.right: parent.right; flickable: listing }
             delegate: Rectangle {
                 id: itemRow
                 required property int index
@@ -447,7 +447,7 @@ FocusScope {
                     anchors.leftMargin: Theme.spacing.rowPaddingX
                     anchors.rightMargin: Theme.spacing.rowPaddingX
                     spacing: Theme.spacing.gap
-                    Flea.Glyph { width: Theme.markSize; height: parent.height; name: itemRow.item ? (itemRow.item.directory ? "folder" : Icons.glyphFor(itemRow.item.icon)) : "file"; color: Theme.color.foreground }
+                    Dlea.Glyph { width: Theme.markSize; height: parent.height; name: itemRow.item ? (itemRow.item.directory ? "folder" : Icons.glyphFor(itemRow.item.icon)) : "file"; color: Theme.color.foreground }
                     Text { width: Math.max(0, parent.width - Theme.markSize - original.width - deleted.width - 3 * parent.spacing); anchors.verticalCenter: parent.verticalCenter; text: itemRow.item ? itemRow.item.original.split("/").pop() : ""; textFormat: Text.PlainText; elide: Text.ElideRight; color: Theme.color.foreground; font { family: Theme.font.family; pixelSize: Theme.font.body } }
                     Text { id: original; width: locationTitle.width; anchors.verticalCenter: parent.verticalCenter; text: itemRow.item ? Trash.location(itemRow.item.original, root.home) : ""; textFormat: Text.PlainText; elide: Text.ElideLeft; horizontalAlignment: Text.AlignRight; color: Theme.color.foreground; font { family: Theme.font.family; pixelSize: Theme.font.body } }
                     Text { id: deleted; width: deletedTitle.width; anchors.verticalCenter: parent.verticalCenter; text: itemRow.item ? Trash.deleted(itemRow.item.deleted) : ""; textFormat: Text.PlainText; elide: Text.ElideRight; horizontalAlignment: Text.AlignRight; color: Theme.color.foreground; font { family: Theme.font.family; pixelSize: Theme.font.body } }
@@ -482,7 +482,7 @@ FocusScope {
         }
         contextRequested(width / 2, Theme.chromeHeight, selectedCount > 0)
     }
-    Flea.TrashConfirm {
+    Dlea.TrashConfirm {
         id: confirmation
         parent: root.overlayParent || root
         z: 5

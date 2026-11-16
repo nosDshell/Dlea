@@ -38,7 +38,7 @@ fn a_converter_failure_is_a_sheets_line_and_is_remembered() {
     let key = format!("{}{SHEETS_SUFFIX}", Store::key(&src));
     assert!(
         r.svc.store.fail_path(&key).is_file() && !r.svc.store.manifest_path(&key).exists(),
-        "the marker sits under fail/flea, apart from the manifest"
+        "the marker sits under fail/dlea, apart from the manifest"
     );
     assert_eq!((runs.load(Ordering::SeqCst), r.fail_markers()), (1, 1));
     assert_eq!(
@@ -215,7 +215,7 @@ fn the_sheet_argv_is_the_csv_filter_one_sheet_at_a_time_in_the_office_jail() {
             "--headless",
             "--norestore",
             "--nolockcheck",
-            "-env:UserInstallation=file:///tmp/flea-office-profile",
+            "-env:UserInstallation=file:///tmp/dlea-office-profile",
             "--convert-to",
             filter,
             "--outdir",

@@ -94,7 +94,7 @@ function peekOrder(sorts, path, remember, keep, newest, fallback) {
     return own && own.key !== "kind" ? { by: own.key, desc: own.reverse } : {}
 }
 
-// An unknown stored key reads as the default, so a newer Flea never wedges this one.
+// An unknown stored key reads as the default, so a newer Dlea never wedges this one.
 function orderFor(sorts, path, fallback, remember, newest) {
     if (remember !== false) {
         var own = get(sorts, path) || defaultOrder(path, newest)

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 . "$(dirname "$0")/headless-commons.sh"
-# Drive tests/dropline-peek.qml (the activity observer names the pane for a peek column's drag line instead of reading its null pane), then check that cap_dropmods puts focus back on Flea before it sends the key after a foreign drop.
+# Drive tests/dropline-peek.qml (the activity observer names the pane for a peek column's drag line instead of reading its null pane), then check that cap_dropmods puts focus back on Dlea before it sends the key after a foreign drop.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
-# A foreign drop leaves focus on the probe window, and key() refuses any key while focus is off the pid ipc points at, so the case focuses Flea between the first probe drop and the next seek.
+# A foreign drop leaves focus on the probe window, and key() refuses any key while focus is off the pid ipc points at, so the case focuses Dlea between the first probe drop and the next seek.
 case_body=$(sed -n '/^case_cap_dropmods()/,/^}/p' tests/ui-captures-dropmods.sh)
 between=$(printf '%s\n' "$case_body" | sed -n '/the probe never logged the plain drop/,/seek_row_named "probe2.txt"/p')
 if ! printf '%s\n' "$between" | grep -q 'seek_row_named "probe2.txt"' || ! printf '%s\n' "$between" | grep -Eq '^[[:space:]]*cap_dropmods_focus_pid([[:space:]]|;|$)'; then
@@ -19,15 +19,15 @@ if ! command -v qs >/dev/null; then
 fi
 
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-dropcase-guards.XXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-dropcase-guards.XXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER" || exit 1
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/dropline-peek.qml "$test_root/config/shell.qml" || exit 1

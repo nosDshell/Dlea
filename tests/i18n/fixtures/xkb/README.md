@@ -37,7 +37,7 @@ No command path holds AltGr. Each cell records both alternatives and its rule.
 The design linter receives equivalent physical-path normalization for candidate
 and v0.3.12, including the sequence's first key and continuation context.
 
-The current GUI model follows the pinned fork's keystroke conversion and Flea's
+The current GUI model follows the pinned fork's keystroke conversion and Dlea's
 held-Shift restoration. Its results are diagnostic, not native input proof.
 Terminal protocol limitations remain explicit per row and in the policy. Native
 group transitions, compositor interception and negotiated terminal reports must

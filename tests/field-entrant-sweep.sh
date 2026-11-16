@@ -1,8 +1,8 @@
 #!/bin/bash
-# Gates tools/flea-field-bench's entrant sweep: a process carrying the bench token is ended wherever it went, and nothing else is touched.
+# Gates tools/dlea-field-bench's entrant sweep: a process carrying the bench token is ended wherever it went, and nothing else is touched.
 set -u
 cd "$(dirname "$0")/.." || exit 1
-bench="$PWD/tools/flea-field-bench"
+bench="$PWD/tools/dlea-field-bench"
 
 bad=0
 check() {
@@ -32,15 +32,15 @@ trap 'kill -9 "${started[@]}" 2>/dev/null' EXIT
 alive() { kill -0 "$1" 2>/dev/null; }
 
 # The escapes a field entrant makes: a session of its own, SIGTERM ignored, and a child its parent left behind.
-FLEA_FIELD_BENCH=$BENCH_TOKEN setsid sleep 300 &
+DLEA_FIELD_BENCH=$BENCH_TOKEN setsid sleep 300 &
 started+=($!); disown
-FLEA_FIELD_BENCH=$BENCH_TOKEN setsid bash -c "trap '' TERM; exec sleep 300" &
+DLEA_FIELD_BENCH=$BENCH_TOKEN setsid bash -c "trap '' TERM; exec sleep 300" &
 started+=($!); disown
-FLEA_FIELD_BENCH=$BENCH_TOKEN bash -c 'setsid sleep 300 &'
+DLEA_FIELD_BENCH=$BENCH_TOKEN bash -c 'setsid sleep 300 &'
 # The controls: no token, and a token one digit longer than this run's, which a prefix match would take.
 sleep 300 &
 control=$!; started+=($!)
-FLEA_FIELD_BENCH=${BENCH_TOKEN}9 sleep 300 &
+DLEA_FIELD_BENCH=${BENCH_TOKEN}9 sleep 300 &
 foreign=$!; started+=($!)
 sleep 0.2
 
@@ -65,7 +65,7 @@ check "the other invocation's process is untouched" yes "$(alive "$foreign" && e
 check "a sweep with nothing to end says nothing" "" "$(sweep_token 2>&1)"
 
 # A process that outlives SIGKILL, which kill stubbed to do nothing stands in for, is refused by its pid.
-FLEA_FIELD_BENCH=$BENCH_TOKEN setsid sleep 300 &
+DLEA_FIELD_BENCH=$BENCH_TOKEN setsid sleep 300 &
 stuck=$!; started+=($!); disown
 sleep 0.2
 # A sweep that returned past the refusal would print RETURNED, and the run would go on.
@@ -74,7 +74,7 @@ check "a SIGKILL survivor is refused by its pid" 1 "$(printf '%s\n' "$log" | gre
 check "the refusal ends the run rather than returning" "1 0" "$rc $(printf '%s\n' "$log" | grep -c '^RETURNED$')"
 
 # The wiring: the timed launch, the preview pass and the warm launch each export the token, and clean_bench sweeps it.
-check "three launch sites export the token" 3 "$(grep -v '^ *#' "$bench" | grep -c 'FLEA_FIELD_BENCH=\$BENCH_TOKEN')"
+check "three launch sites export the token" 3 "$(grep -v '^ *#' "$bench" | grep -c 'DLEA_FIELD_BENCH=\$BENCH_TOKEN')"
 check "clean_bench sweeps after its kill list" "done sweep_token" "$(sed -n '/^clean_bench() {$/,/^}$/p' "$bench" | grep -E '^  (done|sweep_token)$' | sed 's/^ *//' | tr '\n' ' ' | sed 's/ $//')"
 check "the start-up refusal scans for any token" 1 "$(sed -n '/^require_bench_idle() {$/,/^}$/p' "$bench" | grep -c "token_pids '\.\*'")"
 

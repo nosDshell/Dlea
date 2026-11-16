@@ -8,7 +8,7 @@ use std::{
 };
 
 pub fn tool(args: &[&str]) -> Vec<u8> {
-    let output = Command::new(flea::testpath::tool("/usr/bin/timeout"))
+    let output = Command::new(dlea::testpath::tool("/usr/bin/timeout"))
         .args(["20", args[0]])
         .args(&args[1..])
         .output()
@@ -30,8 +30,8 @@ pub fn scenario(case: &str) {
     }
     std::os::unix::fs::symlink("/usr/bin/true", bin.join("soffice")).unwrap();
     dir.dir("i18n/en");
-    dir.file("i18n/en/flea.json", r#"{"tui.convert.cancelled":{"one":"Conversion cancelled; %1 output created.","other":"Conversion cancelled; %1 outputs created."},"tui.convert.failed":{"one":"Conversion failed after %1 output: %2","other":"Conversion failed after %1 outputs: %2"}}"#);
-    let mut command = Command::new(flea::testpath::tool("/usr/bin/setsid"));
+    dir.file("i18n/en/dlea.json", r#"{"tui.convert.cancelled":{"one":"Conversion cancelled; %1 output created.","other":"Conversion cancelled; %1 outputs created."},"tui.convert.failed":{"one":"Conversion failed after %1 output: %2","other":"Conversion failed after %1 outputs: %2"}}"#);
+    let mut command = Command::new(dlea::testpath::tool("/usr/bin/setsid"));
     command
         .args([
             "-w",
@@ -64,9 +64,9 @@ pub fn scenario(case: &str) {
             "PATH",
             format!("{}:/usr/local/bin:/usr/bin:/bin", bin.display()),
         )
-        .env("FLEA_TUI_CONVERT_ROOT", dir.path())
-        .env("FLEA_TUI_CONVERT_CASE", case)
-        .env("FLEA_I18N", dir.join("i18n"))
+        .env("DLEA_TUI_CONVERT_ROOT", dir.path())
+        .env("DLEA_TUI_CONVERT_CASE", case)
+        .env("DLEA_I18N", dir.join("i18n"))
         .env("MAGICK_THREAD_LIMIT", "1")
         .env("OMP_NUM_THREADS", "1")
         .env("LC_ALL", "C.UTF-8")
@@ -112,7 +112,7 @@ pub fn open(root: &Path, w: &mut Wire, names: &[&str]) -> Model {
     let mut m = Model::new(root.into(), &Json::Null);
     m.height = 27;
     m.columns = 130;
-    m.reverse = std::env::var("FLEA_TUI_CONVERT_CASE").as_deref() == Ok("order");
+    m.reverse = std::env::var("DLEA_TUI_CONVERT_CASE").as_deref() == Ok("order");
     m.open(root.into(), w).unwrap();
     until(&mut m, w, |m| {
         m.pending.is_none() && m.total > 0 && m.rows.len() == m.total
@@ -190,17 +190,17 @@ pub fn pdf(root: &Path, name: &str) -> PathBuf {
 #[test]
 #[ignore = "private backend entry point"]
 fn tui_convert_backend_helper() {
-    if std::env::var_os("FLEA_TUI_CONVERT_BACKEND").is_some() {
+    if std::env::var_os("DLEA_TUI_CONVERT_BACKEND").is_some() {
         std::process::exit(crate::backend::run::run());
     }
 }
 #[test]
 #[ignore = "private clean conversion scenarios"]
 fn tui_convert_process_helper() {
-    let root = PathBuf::from(std::env::var_os("FLEA_TUI_CONVERT_ROOT").unwrap());
-    assert!(root.is_absolute() && root.join(".flea-test-sandbox").is_file());
+    let root = PathBuf::from(std::env::var_os("DLEA_TUI_CONVERT_ROOT").unwrap());
+    assert!(root.is_absolute() && root.join(".dlea-test-sandbox").is_file());
     let mut w = backend();
-    match std::env::var("FLEA_TUI_CONVERT_CASE").unwrap().as_str() {
+    match std::env::var("DLEA_TUI_CONVERT_CASE").unwrap().as_str() {
         "formats" => super::convert_real_tests::formats(&root, &mut w),
         "pdf" => super::convert_real_tests::pages(&root, &mut w),
         "order" => super::convert_real_tests::order(&root, &mut w),
@@ -211,14 +211,14 @@ fn tui_convert_process_helper() {
     drop(w);
     std::fs::write(
         root.join("executed"),
-        std::env::var("FLEA_TUI_CONVERT_CASE").unwrap(),
+        std::env::var("DLEA_TUI_CONVERT_CASE").unwrap(),
     )
     .unwrap();
 }
 
 fn backend() -> Wire {
-    let mut command = Command::new(flea::testpath::tool("/bin/sh"));
+    let mut command = Command::new(dlea::testpath::tool("/bin/sh"));
     command.args(["-c", r#""$1" --exact tui::convert_process_tests::tui_convert_backend_helper --ignored --nocapture --quiet | /usr/bin/sed -u -n '/^{/p'"#, "tui-convert-backend"])
-        .arg(std::env::current_exe().unwrap()).env("FLEA_TUI_CONVERT_BACKEND", "1");
+        .arg(std::env::current_exe().unwrap()).env("DLEA_TUI_CONVERT_BACKEND", "1");
     Wire::spawn(command).unwrap()
 }

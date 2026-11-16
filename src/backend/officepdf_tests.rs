@@ -26,7 +26,7 @@ struct Rig {
 }
 
 // The runner of the production shape without the jail: spawn, poll the stop flag, kill on it, say the last stderr line on a failure.
-fn unjailed(argv: Vec<String>, _input: &Path, _work: &mut Work, stop: &AtomicBool) -> Result<(), FleaError> {
+fn unjailed(argv: Vec<String>, _input: &Path, _work: &mut Work, stop: &AtomicBool) -> Result<(), DleaError> {
     let mut child = std::process::Command::new(&argv[0]).args(&argv[1..]).stdin(std::process::Stdio::null()).stdout(std::process::Stdio::null())
         .stderr(std::process::Stdio::piped()).spawn().expect("the stub converter starts");
     let reader = spawn_stderr_reader(child.stderr.take());
@@ -112,7 +112,7 @@ fn a_program_counts_only_when_it_resolves_under_usr() {
 #[test]
 fn the_argv_is_the_headless_convert_and_nothing_more() {
     let got = argv("/usr/bin/soffice", Path::new("/in/a.docx"), Path::new("/out"));
-    let want = "/usr/bin/soffice --headless --norestore --nolockcheck -env:UserInstallation=file:///tmp/flea-office-profile --convert-to pdf --outdir /out /in/a.docx";
+    let want = "/usr/bin/soffice --headless --norestore --nolockcheck -env:UserInstallation=file:///tmp/dlea-office-profile --convert-to pdf --outdir /out /in/a.docx";
     assert_eq!(got.join(" "), want);
 }
 
@@ -151,7 +151,7 @@ fn a_miss_converts_once_and_the_second_request_runs_nothing() {
     assert_eq!((mode(&pdf), mode(pdf.parent().unwrap())), (0o600, 0o700));
     assert_eq!(r.ask(2, &src), ready_line(2, &pdf));
     assert_eq!(r.jobs(), 1, "the second request ran nothing");
-    let leftovers = std::fs::read_dir(pdf.parent().unwrap()).unwrap().flatten().filter(|e| e.file_name().to_string_lossy().starts_with(".flea-work-")).count();
+    let leftovers = std::fs::read_dir(pdf.parent().unwrap()).unwrap().flatten().filter(|e| e.file_name().to_string_lossy().starts_with(".dlea-work-")).count();
     assert_eq!(leftovers, 0, "the work folder is gone");
 }
 

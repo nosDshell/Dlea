@@ -17,7 +17,7 @@ pub(crate) fn answer(out: &mut dyn std::io::Write, line: &str) {
 
 // Classifies one image and answers its flashimage line; a mismatch refuses the row with no kind.
 pub fn handle_flashimage(out: &mut dyn std::io::Write, path: &str) {
-    let probe = crate::backend::flashimage::probe(&flea::bytename::view(path));
+    let probe = crate::backend::flashimage::probe(&dlea::bytename::view(path));
     answer(out, &flashimage_line(path, &probe.kind, probe.bytes, probe.unpacked, probe.known, &probe.member));
 }
 
@@ -40,7 +40,7 @@ fn flash_measure(image: &str) -> (Option<std::path::PathBuf>, Option<u64>) {
     if image.is_empty() {
         return (None, None);
     }
-    let path = flea::bytename::exact(image);
+    let path = dlea::bytename::exact(image);
     let probe = crate::backend::flashimage::probe(&path);
     if probe.kind.is_empty() {
         return (Some(path), None);
@@ -73,7 +73,7 @@ pub fn request(out: &mut dyn std::io::Write, flash: &mut super::flashslot::Ctx, 
 // Starts the flash worker, or refuses when one already runs; every ending is that worker's flashdone.
 pub fn start_flash(out: &mut dyn std::io::Write, slot: &Slot, tx: &std::sync::mpsc::Sender<FlashMsg>, req: FlashReq) {
     let Some(flag) = slot.claim(req.id) else {
-        let line = crate::backend::proto::error_line(&crate::error::FleaError {
+        let line = crate::backend::proto::error_line(&crate::error::DleaError {
             where_: "flash".to_string(),
             path: req.dev.clone(),
             msg: "a flash is already running".to_string(),
@@ -127,7 +127,7 @@ pub(crate) fn run_flash_on(req: FlashReq, cancel: Arc<AtomicBool>, tx: &std::syn
     let id = req.id;
     let done = |end: &Ending| send(tx, id, flashdone_line(id, end.ok, end.phase, end.at, end.err, end.blank), true);
     // The probe first: a row the pane never sends is refused before anything is touched.
-    let probe = crate::backend::flashimage::probe(&flea::bytename::view(&req.image));
+    let probe = crate::backend::flashimage::probe(&dlea::bytename::view(&req.image));
     if probe.kind.is_empty() {
         done(&Ending::failed("probe", "io", false));
         return;
@@ -158,7 +158,7 @@ pub(crate) fn run_flash_on(req: FlashReq, cancel: Arc<AtomicBool>, tx: &std::syn
         &mountinfo,
         &swaps,
         &chosen,
-        Some(&*flea::bytename::view(&req.image)),
+        Some(&*dlea::bytename::view(&req.image)),
         Some(total),
     ) {
         done(&Ending::failed("prepare", "changed", false));
@@ -190,7 +190,7 @@ pub(crate) fn run_flash_on(req: FlashReq, cancel: Arc<AtomicBool>, tx: &std::syn
         done(&Ending::failed("password", "cancelled", false));
         return;
     }
-    let image = flea::bytename::view(&req.image);
+    let image = dlea::bytename::view(&req.image);
     let mut job = Job::new(
         &image,
         &probe.kind,
@@ -209,7 +209,7 @@ pub(crate) fn run_flash_on(req: FlashReq, cancel: Arc<AtomicBool>, tx: &std::syn
 
 // One sentence for the log naming the phase and the disk, with the offset inside the detail.
 fn io_line(phase: &str, dev: &str, detail: &str) -> String {
-    format!("flea: the flash {phase} on /dev/{dev} failed ({detail})")
+    format!("dlea: the flash {phase} on /dev/{dev} failed ({detail})")
 }
 
 // The last io line this thread logged, so a test reads which sentence an ending chose.
@@ -236,7 +236,7 @@ fn write_ending(fail: Fail, dev: &str, job: &Job) -> Ending {
         Fail::Cancelled => Ending::failed("write", "cancelled", wiped()),
         Fail::NoSpace => Ending::failed("write", "nospace", wiped()),
         Fail::Decompress(e) => {
-            eprintln!("flea: the unpacker failed on {} ({e})", job.image.display());
+            eprintln!("dlea: the unpacker failed on {} ({e})", job.image.display());
             Ending::failed("write", "decompress", wiped())
         }
         Fail::Sandbox => Ending::failed("write", "sandbox", false),

@@ -263,7 +263,7 @@ fn a_committed_write_adopts_the_records_the_cli_printed() {
     let failed = favs.finish(
         Some(1),
         "",
-        "flea: Favorites changed in another window; try again.",
+        "dlea: Favorites changed in another window; try again.",
         Some(vec![record("D", "/d")]),
     );
     assert!(

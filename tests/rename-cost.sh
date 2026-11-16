@@ -3,13 +3,13 @@
 # Every cursor key after a rename ends with Enter, Escape, the path field taking focus or a view switch reaches the pane's key handler and costs no more work than before it, in the real WindowBody, offscreen.
 set -u
 cd "$(dirname "$0")/.." || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 command -v qs >/dev/null || { echo 'FAIL rename-cost needs qs'; exit 1; }
 command -v dbus-run-session >/dev/null || { echo 'FAIL rename-cost needs a private D-Bus session'; exit 1; }
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [[ -x "$bin" ]] || { echo 'FAIL rename-cost needs the built backend'; exit 1; }
 sandbox_root_ok
-probe=$(mktemp -d "$SANDBOX_ROOT/flea-rename-cost.XXXXXX") || exit 1
+probe=$(mktemp -d "$SANDBOX_ROOT/dlea-rename-cost.XXXXXX") || exit 1
 : > "$probe/$SANDBOX_MARKER" || exit 1
 qs_pid=""
 stop_qs() {
@@ -47,17 +47,17 @@ printf '#!/bin/sh\nexit 0\n' > "$probe/bin/gio"
 chmod +x "$probe/bin/gio"
 env HOME="$probe/home" XDG_STATE_HOME="$probe/state" "$bin" --ui-state \
     '{"preview":{"column":false,"thumbnails":"off"},"updates":{"autoCheck":false}}' >/dev/null || exit 1
-ln -s "$PWD/ui" "$probe/config/flea"
+ln -s "$PWD/ui" "$probe/config/dlea"
 headless_commons "$probe" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$probe/config/Ui"
-ln -s "$PWD/ui/boot/fleatab.qml" "$probe/config/fleatab.qml"
+ln -s "$PWD/ui/boot/dleatab.qml" "$probe/config/dleatab.qml"
 cp tests/rename-cost.qml "$probe/config/shell.qml"
 cp tests/rename-cost.js "$probe/config/rename-cost.js"
 log="$probe/qs.log"
-env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u FLEA_SELECT \
+env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u DLEA_SELECT \
     PATH="$probe/bin:$PATH" HOME="$probe/home" XDG_STATE_HOME="$probe/state" XDG_CONFIG_HOME="$probe/config" \
     XDG_DATA_HOME="$probe/data" XDG_CACHE_HOME="$probe/cache" XDG_RUNTIME_DIR="$probe/runtime" \
-    FLEA_PATH="$probe/home/fixture" FLEA_BIN="$bin" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
+    DLEA_PATH="$probe/home/fixture" DLEA_BIN="$bin" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
     QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 setsid dbus-run-session -- qs -p "$probe/config" >"$log" 2>&1 </dev/null &
 qs_pid=$!
 # Fifteen cases of two measured phases, three view legs or four control scrolls each, polled every 0.1 s for at most 390 s: 26 s per case, the budget the first seven cases had in 180 s.

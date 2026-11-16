@@ -5,8 +5,8 @@
 
 // Whole sentences with "%1" for a value, filled by fill so each translates as one; one per count, because the noun changes with it.
 var WORDS = {
-  holdingOne: "Flea shelf is holding 1 item",
-  holdingMany: "Flea shelf is holding %1 items",
+  holdingOne: "Dlea shelf is holding 1 item",
+  holdingMany: "Dlea shelf is holding %1 items",
   clearedOne: "Cleared %1 item \u00b7 z restores",
   clearedMany: "Cleared %1 items \u00b7 z restores",
   putBackOne: "Put %1 item back",
@@ -42,7 +42,7 @@ function parse(text) {
       continue
     }
     var folder = item.folder === true
-    // A folder wears its own separator, the way every Flea listing draws one: rule 3's "reads as Flea".
+    // A folder wears its own separator, the way every Dlea listing draws one: rule 3's "reads as Dlea".
     items.push({ path: item.path, name: leaf(item.path) + (folder ? "/" : ""), bytes: bytesOf(item),
           folder: folder, partial: item.partial === true, pinned: item.pinned === true })
   }
@@ -93,7 +93,7 @@ function fill(template) {
 function tooltip(state) {
   var n = state ? loose(state.items).length : 0
   if (n === 0) {
-    return "Flea shelf is empty"
+    return "Dlea shelf is empty"
   }
   return n === 1 ? WORDS.holdingOne : fill(WORDS.holdingMany, grouped(n))
 }
@@ -101,9 +101,9 @@ function tooltip(state) {
 // ---- what the card draws, Main board rules 4, 5 and 7 ----
 
 // The two marks a row can take, on the Omarchy cut, the same paths ui/js/Icons.js draws them from.
-// Flea's own mark, which is what an empty shelf draws rather than a stand-in for one.
+// Dlea's own mark, which is what an empty shelf draws rather than a stand-in for one.
 var SHELF_GLYPH = "M21 21H3V3h18v14H7V7h10v6h-6"
-// The strip's ink, at the names Flea's own menu rows use, copied here because a plugin cannot import
+// The strip's ink, at the names Dlea's own menu rows use, copied here because a plugin cannot import
 // the app's Icons.js. Send has no path: it carries Tailscale's own mark, which ShelfActionButton draws.
 var ACTION_GLYPHS = {
   move: "M2 20V3h6l2 3h12v14H2z M12 10v6 M9 13h6",
@@ -135,7 +135,7 @@ function glyphFor(item) {
   return item && item.recording === true ? RECORDING_GLYPH : FILE_GLYPH
 }
 
-// A size in the same words Flea's own list uses, so the shelf reads as Flea and not as a second app.
+// A size in the same words Dlea's own list uses, so the shelf reads as Dlea and not as a second app.
 function size(bytes) {
   var n = Number(bytes)
   if (!isFinite(n) || n < 0) {
@@ -287,7 +287,7 @@ function clearedText(count) {
   return fill(n === 1 ? WORDS.clearedOne : WORDS.clearedMany, grouped(n))
 }
 
-// Sample input, the one line `flea shelf undo` answers with: what it reversed, then how many items
+// Sample input, the one line `dlea shelf undo` answers with: what it reversed, then how many items
 // that was. `none 0` when there was nothing to reverse at all.
 function undone(text) {
   var parts = String(text || "").trim().split(" ")
@@ -328,7 +328,7 @@ function parsePiles(text) {
   return out
 }
 
-// The one date format this project draws, which is Flea's own: 2026-09-12 19:04.
+// The one date format this project draws, which is Dlea's own: 2026-09-12 19:04.
 function pileText(pile) {
   var n = Number(pile.count)
   return grouped(n) + (n === 1 ? " item" : " items") + " \u00b7 " + stamp(pile.at)
@@ -350,9 +350,9 @@ function stamp(at) {
          + " " + pad2(when.getHours()) + ":" + pad2(when.getMinutes())
 }
 
-// ---- Flea's own settings, which this plugin reads and never writes ----
+// ---- Dlea's own settings, which this plugin reads and never writes ----
 
-// Sample input, the part of ~/.local/state/flea/ui.json this reads:
+// Sample input, the part of ~/.local/state/dlea/ui.json this reads:
 // {"keyHints":false,"shelf":{"screenshots":true,"recordings":true,"recent":3}}
 function keyHintsOf(text) {
   var doc = parsedOr(text)
@@ -367,7 +367,7 @@ var EDGES = ["off", "left", "right", "bottom"]
 // The most the card will list, which is the largest stop Settings offers plus the one above it.
 var MOST_CAPTURES = 6
 
-// SettingsRest rules 1 to 3: Flea's Settings owns the shelf's switches and this plugin only reads
+// SettingsRest rules 1 to 3: Dlea's Settings owns the shelf's switches and this plugin only reads
 // them. A value this build cannot honour falls back to the same default a fresh ui.json holds.
 function shelfOf(text) {
   var doc = parsedOr(text)
@@ -666,7 +666,7 @@ function wholeCount(items) {
   return n
 }
 
-// Rule 8: an action's tooltip is its name, and its key rides along only while Flea's hints are on.
+// Rule 8: an action's tooltip is its name, and its key rides along only while Dlea's hints are on.
 function actionTip(label, key, hints) {
   return hints ? label + "  " + key : label
 }

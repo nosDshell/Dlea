@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-archive-threat-test
+//@ pragma ShellId dlea-archive-threat-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // The offscreen walk of tests/archive-threat.sh: a canary held in each password card is in no property of the cards or their host after submit, close or failure.
 ShellRoot {
@@ -44,7 +44,7 @@ ShellRoot {
         width: 800
         height: 600
 
-        Flea.ArchiveCards {
+        Dlea.ArchiveCards {
             id: cards
         }
     }
@@ -280,7 +280,7 @@ ShellRoot {
             } },
             // A request carrying a password is never parked in a QML property while the backend starts.
             { id: "AB3 queue", run: function () {
-                var made = Qt.createComponent("flea/Backend.qml").createObject(shell)
+                var made = Qt.createComponent("dlea/Backend.qml").createObject(shell)
                 var failed = []
                 made.failed.connect(function (where, input, message, mode) { failed.push(message) })
                 made.askFsInfo()

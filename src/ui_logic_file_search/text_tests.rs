@@ -52,7 +52,7 @@ fn the_status_line_counts_while_walking_and_times_the_landing() {
 fn the_scope_reads_with_a_tilde_and_esc_says_what_it_does() {
     let en = english();
     // search.js:27, search.js:28, search.js:29
-    assert_eq!(tilde("/home/gm/Work/claude/flea", "/home/gm"), "~/Work/claude/flea");
+    assert_eq!(tilde("/home/gm/Work/claude/dlea", "/home/gm"), "~/Work/claude/dlea");
     assert_eq!(tilde("/home/gm", "/home/gm"), "~");
     assert_eq!(tilde("/usr/share", "/home/gm"), "/usr/share");
     assert_eq!(tilde("/home/gmx", "/home/gm"), "/home/gmx");
@@ -76,7 +76,7 @@ impl Root {
         assert!(output.status.success());
         let path = PathBuf::from(String::from_utf8(output.stdout).unwrap().trim());
         assert!(path.is_absolute() && path.starts_with(&base) && path != base);
-        std::fs::write(path.join(".sr1-test-root"), b"flea sr1 test\n").unwrap();
+        std::fs::write(path.join(".sr1-test-root"), b"dlea sr1 test\n").unwrap();
         Self(path)
     }
 }
@@ -100,7 +100,7 @@ fn a_translated_catalog_takes_its_own_words_digits_and_english_fallback() {
     };
     write("omarchy/default/i18n/locales.json", include_str!("../i18n/fixtures/locales.json"));
     write("language", "de\n");
-    write("catalogs/de/flea.json", r#"{"search.note.landed":{"one":"%1 gefunden","other":"%1 gefunden"},"search.nothing_matches":"Keine Treffer für %1"}"#);
+    write("catalogs/de/dlea.json", r#"{"search.note.landed":{"one":"%1 gefunden","other":"%1 gefunden"},"search.nothing_matches":"Keine Treffer für %1"}"#);
     let de = I18n::load(Paths {
         omarchy: root.0.join("omarchy"),
         language_file: root.0.join("language"),

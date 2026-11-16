@@ -98,7 +98,7 @@ pub(super) fn run(
     }
     let mut command = Command::new("rclone");
     super::rcloneenv::sanitize(&mut command);
-    command.args(flea::bytename::args(args));
+    command.args(dlea::bytename::args(args));
     drive(command, cancel, limit, capture, line)
 }
 
@@ -199,7 +199,7 @@ mod tests {
     const FLOOD_LIMIT: Duration = Duration::from_secs(30);
 
     fn flood(script: &str, capture: bool) -> (Result<Output, String>, usize) {
-        let mut command = Command::new(flea::testpath::tool("/bin/sh"));
+        let mut command = Command::new(dlea::testpath::tool("/bin/sh"));
         let flood = format!(
             "yes \"$(printf '%0{}d' 0)\" | head -n {}",
             FLOOD_WIDTH, FLOOD_LINES

@@ -1,4 +1,4 @@
-//! The shelf pile's pinned entries, read for Settings, and the `flea shelf` calls that change them, run in order.
+//! The shelf pile's pinned entries, read for Settings, and the `dlea shelf` calls that change them, run in order.
 use crate::jsondoc::{self, Json};
 use std::collections::VecDeque;
 
@@ -37,14 +37,14 @@ pub fn pinned(text: &str) -> Vec<Pin> {
         .collect()
 }
 
-// The pile file the bar plugin writes: $XDG_STATE_HOME/omarchy/flea-shelf/shelf.json.
+// The pile file the bar plugin writes: $XDG_STATE_HOME/omarchy/dlea-shelf/shelf.json.
 pub fn pile_file(state_home: &str, home: &str) -> String {
     let root = if state_home.is_empty() {
         format!("{home}/.local/state")
     } else {
         state_home.to_owned()
     };
-    format!("{root}/omarchy/flea-shelf/shelf.json")
+    format!("{root}/omarchy/dlea-shelf/shelf.json")
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -55,7 +55,7 @@ pub enum Call {
 }
 
 impl Call {
-    // The argv after the flea binary.
+    // The argv after the dlea binary.
     pub fn args(&self) -> Vec<String> {
         match self {
             Self::Pin(path) => vec!["shelf".into(), "pin".into(), path.clone()],

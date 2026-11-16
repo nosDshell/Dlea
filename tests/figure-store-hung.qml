@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-figure-store-hung-test
+//@ pragma ShellId dlea-figure-store-hung-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // A store that reads every line and never answers: after replyMs the ticket falls to the helper and draws, and the store is latched off.
 ShellRoot {
@@ -20,8 +20,8 @@ ShellRoot {
     readonly property int watchdogMs: 90000
     readonly property var theme: ({ bg: "#101315", fg: "#c0caf5", accent: "#7aa2f7", font: "monospace", bodyPx: 14, exPx: 7 })
     Component.onCompleted: {
-        Flea.ViewState.setTextSize({ mode: 14 })
-        Flea.FigureService.persistent.replyMs = shell.replyMs
+        Dlea.ViewState.setTextSize({ mode: 14 })
+        Dlea.FigureService.persistent.replyMs = shell.replyMs
     }
 
     function check(passed, why) {
@@ -40,11 +40,11 @@ ShellRoot {
     }
 
     Connections {
-        target: Flea.FigureService
+        target: Dlea.FigureService
         function onDone(ticket, svg, error) {
             if (ticket !== shell.ticket)
                 return
-            var service = Flea.FigureService
+            var service = Dlea.FigureService
             shell.check(svg.indexOf("<svg") === 0 && error === "", "a figure the hung store never answered is drawn by the helper")
             shell.check(service.sends === 1 && service.persistent.hits === 0 && service.persistent.misses === 0, "the helper was asked once and the store answered nothing")
             shell.check(service.persistent.available === false, "the store that never answered is latched off for the session")
@@ -64,6 +64,6 @@ ShellRoot {
     Timer {
         interval: 1
         running: true
-        onTriggered: shell.ticket = Flea.FigureService.ask("math", "x^2", true, shell.theme)
+        onTriggered: shell.ticket = Dlea.FigureService.ask("math", "x^2", true, shell.theme)
     }
 }

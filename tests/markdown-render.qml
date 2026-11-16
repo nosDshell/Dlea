@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-markdown-render-test
+//@ pragma ShellId dlea-markdown-render-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/Focus.js" as Focus
+import "dlea" as Dlea
+import "dlea/js/Focus.js" as Focus
 import "markdown-mark.js" as Mark
 import "markdown-render.js" as Checks
 import "markdown-centre.js" as Centre
@@ -19,8 +19,8 @@ ShellRoot {
     function log(line) { console.log("MARKDOWN_RENDER " + line) }
     function quit() { Quickshell.execDetached(["kill", String(Quickshell.processId)]) }
 
-    property string fixture: Quickshell.env("FLEA_MARKDOWN_FIXTURE")
-    property string longFixture: Quickshell.env("FLEA_MARKDOWN_LONG")
+    property string fixture: Quickshell.env("DLEA_MARKDOWN_FIXTURE")
+    property string longFixture: Quickshell.env("DLEA_MARKDOWN_LONG")
     property string shotPath: Quickshell.env("XDG_RUNTIME_DIR") + "/markdown-render-" + Quickshell.processId
         + (shell.larger ? "-large.png" : "-base.png")
     property bool done: false
@@ -44,7 +44,7 @@ ShellRoot {
     // What Focus.handleKey reads of a pane while Quick Look is open: the open Quick Look and a listing that owns nothing.
     readonly property var keyHost: ({ preview: quick, renameEditor: function () { return null } })
 
-    FontMetrics { id: listMetrics; font.family: Flea.Theme.font.family; font.pixelSize: Flea.Theme.font.body }
+    FontMetrics { id: listMetrics; font.family: Dlea.Theme.font.family; font.pixelSize: Dlea.Theme.font.body }
 
     function listSamples() {
         var samples = []
@@ -90,7 +90,7 @@ ShellRoot {
             anchors.right: parent.right
             height: 1080
 
-            Flea.PreviewMarkdown {
+            Dlea.PreviewMarkdown {
                 id: md
                 anchors.top: parent.top
                 anchors.left: parent.left
@@ -113,7 +113,7 @@ ShellRoot {
                 Repeater {
                     id: references
                     model: shell.listSamples()
-                    delegate: Flea.MarkdownText {
+                    delegate: Dlea.MarkdownText {
                         required property var modelData
                         readonly property var sample: modelData
                         textFormat: Text.RichText
@@ -137,15 +137,15 @@ ShellRoot {
                         { name: "quote", px: 0, pad: 0, bold: false }, { name: "cell", px: 0, pad: 2, bold: false },
                         { name: "board body", px: 14, pad: 0, bold: false }, { name: "board h1", px: 20, pad: 0, bold: true },
                         { name: "board quote", px: 14, pad: 0, bold: false }, { name: "board cell", px: 14, pad: 2, bold: false }]
-                    delegate: Flea.MarkdownText {
+                    delegate: Dlea.MarkdownText {
                         id: centreText
                         required property var modelData
                         readonly property real centred: (box - probeMetrics.height) / 2 + probeMetrics.ascent
                         width: Math.ceil(probeMetrics.advanceWidth(shell.probeWord)) + shell.probeGap
-                        bodyPx: modelData.px > 0 ? modelData.px : modelData.px < 0 ? md.headingPx(1) : Flea.Theme.font.body
+                        bodyPx: modelData.px > 0 ? modelData.px : modelData.px < 0 ? md.headingPx(1) : Dlea.Theme.font.body
                         cellPad: modelData.pad
                         font.bold: modelData.bold
-                        color: Flea.Theme.color.foreground
+                        color: Dlea.Theme.color.foreground
                         text: [shell.probeWord, shell.probeWord, shell.probeWord].join(" ")
                         FontMetrics { id: probeMetrics; font: centreText.font }
                     }
@@ -155,7 +155,7 @@ ShellRoot {
 
         // Loaders only: the grab reads md, so neither paints into it.
         // Quick Look's own component: the board's bar order and code surface live there, so the suite reads through it.
-        Flea.MarkdownPane {
+        Dlea.MarkdownPane {
             id: pane
             width: 900
             height: 1000
@@ -167,7 +167,7 @@ ShellRoot {
         }
 
         // The preview column's own setting of the document, one token under Quick Look's body, built beside the grab and not under it.
-        Flea.PreviewMarkdown {
+        Dlea.PreviewMarkdown {
             id: colMd
             x: window.implicitWidth
             width: 560
@@ -180,7 +180,7 @@ ShellRoot {
         }
 
         // The bar without its segment, as a code or text pane draws it, over a name too long for it; shown beside the grab, because an item reports its effective visibility.
-        Flea.QuickLookBar {
+        Dlea.QuickLookBar {
             id: plainBar
             x: window.implicitWidth
             y: colMd.height
@@ -191,7 +191,7 @@ ShellRoot {
         }
 
         // A name too long for any bar, so it elides and the room the name may take is tested.
-        Flea.MarkdownPane {
+        Dlea.MarkdownPane {
             id: longNamePane
             width: 900
             height: 1000
@@ -208,7 +208,7 @@ ShellRoot {
             width: shell.quickLookMinWidth
             height: window.implicitHeight - grabRoot.height
 
-            Flea.Preview {
+            Dlea.Preview {
                 id: quick
                 active: true
                 kind: "text"
@@ -226,7 +226,7 @@ ShellRoot {
 
         TestEvent { id: events }
 
-        Flea.MarkdownFigure {
+        Dlea.MarkdownFigure {
             id: fallbackProbe
             width: 420
             visible: false
@@ -286,7 +286,7 @@ ShellRoot {
 
     // Both lists are measured at the suite's size and a larger supported text-size stop.
     function listBaselines(inkAt) {
-        var body = Flea.Theme.font.body
+        var body = Dlea.Theme.font.body
         for (var i = 0; i < md.blockList.length; i++) {
             var block = md.blockList[i]
             if (block.type === "list")
@@ -336,10 +336,10 @@ ShellRoot {
     function geometry() {
         var rects = []
         var texts = []
-        var body = Flea.Theme.font.body
+        var body = Dlea.Theme.font.body
         // md_rendered is drawn at body 14, so the board's own numbers are judged only where the box runs at 14.
         shell.log("body=" + body + " inset=" + md.insetY + "," + md.insetX + " gap=" + md.blockGap)
-        var ink = String(Flea.Theme.color.foreground)
+        var ink = String(Dlea.Theme.color.foreground)
         var h1 = null
         var h2 = null
         var para = null
@@ -355,11 +355,11 @@ ShellRoot {
             else if (type === "run" && para === null) para = text
         }
         shell.check(Checks.insetError(rects, md.width, md.insetX, md.insetY, body), "document inset")
-        shell.check(Checks.rhythmError(rects, Board.boardPx(Board.BOARD_BLOCK_GAP, Flea.Theme.font.body)), "block rhythm")
-        shell.check(Checks.headingError(h1, h2, para, body, ink, String(Flea.Theme.color.foregroundBright)), "heading sizes and ink")
+        shell.check(Checks.rhythmError(rects, Board.boardPx(Board.BOARD_BLOCK_GAP, Dlea.Theme.font.body)), "block rhythm")
+        shell.check(Checks.headingError(h1, h2, para, body, ink, String(Dlea.Theme.color.foregroundBright)), "heading sizes and ink")
         shell.check(Checks.lineBoxError(texts), "line boxes")
         var ruleTable = md.blockItem(shell.blockIndex("table"))
-        shell.check(Checks.ruleError(ruleTable, pane.barGeometry ? pane.barGeometry().bar : null, Flea.Theme.spacing.hairline),
+        shell.check(Checks.ruleError(ruleTable, pane.barGeometry ? pane.barGeometry().bar : null, Dlea.Theme.spacing.hairline),
             "table rules take the bar's hairline")
         shell.check(Checks.quoteBoxError(md.blockItem(shell.blockIndex("quote")), md), "quote bar spans line box")
         var tableIndex = shell.blockIndex("table")
@@ -370,9 +370,9 @@ ShellRoot {
         shell.check(Checks.fencePadError(Checks.fallbackOf(fallbackProbe), Board.boardPx(Board.BOARD_FENCE_PAD_X, body), Board.boardPx(Board.BOARD_FENCE_PAD_Y, body)),
             "figure fallback padding")
         var fence = Checks.fenceOf(md.blockItem(shell.blockIndex("fence")))
-        shell.check(Checks.surfaceError(fence, String(Flea.Theme.color.surface), String(Flea.Theme.color.background)), "column fence surface")
+        shell.check(Checks.surfaceError(fence, String(Dlea.Theme.color.surface), String(Dlea.Theme.color.background)), "column fence surface")
         shell.check(Checks.fencePadError(fence, Board.boardPx(Board.BOARD_FENCE_PAD_X, body), Board.boardPx(Board.BOARD_FENCE_PAD_Y, body)), "fence padding")
-        shell.check(Board.headerInkError(md.blockItem(shell.blockIndex("table")), String(Flea.Theme.color.foregroundBright), ink),
+        shell.check(Board.headerInkError(md.blockItem(shell.blockIndex("table")), String(Dlea.Theme.color.foregroundBright), ink),
             "table header cells take the heading ink")
         var columnHeads = { h1: null, h2: null, para: null }
         for (var c = 0; c < colMd.blockList.length; c++) {
@@ -384,7 +384,7 @@ ShellRoot {
             else if (colType === "heading" && colMd.blockList[c].level === 2) columnHeads.h2 = colText
             else if (colType === "run" && columnHeads.para === null) columnHeads.para = colText
         }
-        shell.check(Board.compactHeadingError(columnHeads.h1, columnHeads.h2, columnHeads.para, body, Flea.Theme.font.bodySmall),
+        shell.check(Board.compactHeadingError(columnHeads.h1, columnHeads.h2, columnHeads.para, body, Dlea.Theme.font.bodySmall),
             "column headings keep the board's sizes over the smaller body")
         // The close mark carries the keyboard's state out to the IPC, and rests unfocused.
         var restFocus = pane.closeState().focused
@@ -394,7 +394,7 @@ ShellRoot {
         shell.check(restFocus === false && keyFocus === true && pane.closeState().focused === false ? ""
             : "focused at rest " + restFocus + ", with the keyboard " + keyFocus, "the close mark reports the keyboard focus")
         var qlFence = pane.blockItem ? Checks.fenceOf(pane.blockItem(shell.blockIndex("fence"))) : null
-        shell.check(Checks.surfaceError(qlFence, String(Flea.Theme.color.background), String(Flea.Theme.color.surface)), "Quick Look fence surface")
+        shell.check(Checks.surfaceError(qlFence, String(Dlea.Theme.color.background), String(Dlea.Theme.color.surface)), "Quick Look fence surface")
         var g = pane.barGeometry ? pane.barGeometry() : null
         var tokens = shell.barTokens()
         shell.check(Bar.barError(g, tokens), "Quick Look bar order")
@@ -408,10 +408,10 @@ ShellRoot {
 
     // The tokens the bar is drawn from, read live so the larger text size is judged against its own numbers.
     function barTokens() {
-        return { chromeMark: Flea.Theme.chromeMarkSize, padX: Flea.Theme.spacing.rowPaddingX, gap: Flea.Theme.spacing.gap,
-            chromeHeight: Flea.Theme.chromeHeight, controlHeight: Flea.Theme.chromeControlHeight, hairline: Flea.Theme.spacing.hairline,
-            caption: Flea.Theme.font.caption,
-            foreground: String(Flea.Theme.color.foreground), muted: String(Flea.Theme.color.muted) }
+        return { chromeMark: Dlea.Theme.chromeMarkSize, padX: Dlea.Theme.spacing.rowPaddingX, gap: Dlea.Theme.spacing.gap,
+            chromeHeight: Dlea.Theme.chromeHeight, controlHeight: Dlea.Theme.chromeControlHeight, hairline: Dlea.Theme.spacing.hairline,
+            caption: Dlea.Theme.font.caption,
+            foreground: String(Dlea.Theme.color.foreground), muted: String(Dlea.Theme.color.muted) }
     }
 
     // At 480 px the long name elides; below that the count hides before close moves.
@@ -491,7 +491,7 @@ ShellRoot {
                 return
             }
             if (shell.fixture.length === 0)
-                shell.fail("no fixture arrived in FLEA_MARKDOWN_FIXTURE")
+                shell.fail("no fixture arrived in DLEA_MARKDOWN_FIXTURE")
             else if (!md.contentReady || !pane.contentReady || !longNamePane.contentReady || !quick.markdownShown || !quick.markdownShown.contentReady || !colMd.contentReady)
                 shell.fail("the document never loaded")
             else if (md.flickContentHeight > md.height)
@@ -609,8 +609,8 @@ ShellRoot {
         shell.lineCentres(inkAt)
         shell.probesClear()
         if (shell.larger) {
-            shell.check(Flea.Theme.font.body > shell.suiteBody ? "" : "text size did not grow", "larger text size")
-            Flea.ViewState.state = shell.savedState
+            shell.check(Dlea.Theme.font.body > shell.suiteBody ? "" : "text size did not grow", "larger text size")
+            Dlea.ViewState.state = shell.savedState
             if (shell.failures > 0)
                 return shell.fail(shell.failures + " geometry checks failed")
             return shell.pass(shell.loadStep + " load completions, run, chip, markers at two sizes, rules, fence, box, bar and links all read")
@@ -880,13 +880,13 @@ ShellRoot {
                 if (c[2] >= 200 && c[0] <= 110 && c[1] <= 170)
                     return shell.fail("a Qt default link blue survived at " + px + "," + py)
             }
-        shell.savedState = Flea.ViewState.state
-        shell.suiteBody = Flea.Theme.font.body
+        shell.savedState = Dlea.ViewState.state
+        shell.suiteBody = Dlea.Theme.font.body
         shell.larger = true
         shell.armed = false
         // Native label and r events finish their queued layout before the next specimen replaces the state.
         Qt.callLater(function () {
-            Flea.ViewState.state = Object.assign({}, shell.savedState,
+            Dlea.ViewState.state = Object.assign({}, shell.savedState,
                 { display: { textSize: { mode: shell.suiteBody < 16 ? 16 : 20 } } })
             largerSettle.start()
         })

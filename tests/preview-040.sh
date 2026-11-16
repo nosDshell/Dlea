@@ -3,14 +3,14 @@
 # TallPreviews callout 7 is scheduled for 0.3.10; prove its only red leg is the unchanged scroll-restoration assertion.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-preview-040.XXXXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-preview-040.XXXXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER"
 trap 'sandbox_remove "$test_root"' EXIT
 mkdir -p "$test_root/config" "$test_root/fixture" "$test_root"/{home,state,cache,data,runtime,tmp}
 chmod 700 "$test_root/runtime"
-ln -s "$PWD/ui" "$test_root/config/flea"
+ln -s "$PWD/ui" "$test_root/config/dlea"
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui"
 cp tests/preview-040.qml "$test_root/config/shell.qml"
@@ -25,7 +25,7 @@ run_probe() {
     env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CONFIG_HOME="$test_root/home/.config" \
     XDG_CACHE_HOME="$test_root/cache" XDG_DATA_HOME="$test_root/data" XDG_RUNTIME_DIR="$test_root/runtime" TMPDIR="$test_root/tmp" \
-    FLEA_BIN="$PWD/target/debug/flea" FLEA_PREVIEW_040_DIR="$test_root/fixture" \
+    DLEA_BIN="$PWD/target/debug/dlea" DLEA_PREVIEW_040_DIR="$test_root/fixture" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
     timeout 15 qs -p "$test_root/config" 2>&1
 }
@@ -62,7 +62,7 @@ python3 - "$test_root" <<'PY' || exit 1
 from pathlib import Path
 import sys
 root = Path(sys.argv[1])
-assert root.is_absolute() and (root / '.flea-test-sandbox').is_file()
+assert root.is_absolute() and (root / '.dlea-test-sandbox').is_file()
 path = root / 'config/shell.qml'
 assert path.resolve().is_relative_to(root.resolve())
 source = path.read_text()
@@ -74,8 +74,8 @@ output=$(run_probe)
 code=$?
 rejected=$(report_output "$output" "$code")
 control_status=$?
-if [ -n "${FLEA_CI_SUITE_LOGS:-}" ]; then
-    printf '%s\n' "$rejected" > "$FLEA_CI_SUITE_LOGS/preview-040-unexpected.control.log" || exit 1
+if [ -n "${DLEA_CI_SUITE_LOGS:-}" ]; then
+    printf '%s\n' "$rejected" > "$DLEA_CI_SUITE_LOGS/preview-040-unexpected.control.log" || exit 1
 fi
 if [ "$control_status" -ne 1 ] || [ "$code" -ne 1 ] \
     || ! grep -qF 'FAIL preview-040 did not produce exactly its expected red leg' <<< "$rejected" \

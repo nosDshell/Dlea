@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-thumbs-qlprefetch-test
+//@ pragma ShellId dlea-thumbs-qlprefetch-test
 
 import Quickshell
 import QtQuick
-import "flea/js/Thumbs.js" as Thumbs
-import "flea/js/ExtThumbs.js" as ExtThumbs
+import "dlea/js/Thumbs.js" as Thumbs
+import "dlea/js/ExtThumbs.js" as ExtThumbs
 
 // Quick Look's bounded prefetch through the stub backend: one cache-only ask for the next
 // row per settled rest, none while a held key is still bursting.

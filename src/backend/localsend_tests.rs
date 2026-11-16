@@ -55,7 +55,7 @@ fn a_folder_is_refused_by_name_before_a_terminal_is_opened() {
 // Two runs at once would both bind 53317; the second waits its turn, and a waiting send still cancels.
 #[test]
 fn a_second_run_waits_for_the_first_and_a_cancel_ends_the_wait() {
-    // A lock file of the test's own, so a Flea running on the box neither blocks nor is blocked by it.
+    // A lock file of the test's own, so a Dlea running on the box neither blocks nor is blocked by it.
     let dir = crate::backend::testdir::TestDir::new("localsend-turn");
     let lock = dir.path().join("localsend.lock");
     let open = || std::fs::OpenOptions::new().create(true).truncate(false).write(true).open(&lock).expect("the lock file");
@@ -164,7 +164,7 @@ fn the_cli_does_not_inherit_the_terminal_master() {
     drop(master);
     assert!(inherited.is_empty(), "the CLI holds the terminal master at {:?}", inherited);
 }
-const LIFECYCLE_MARKER: &str = "FLEA_LOCALSEND_LIFECYCLE_PROBE";
+const LIFECYCLE_MARKER: &str = "DLEA_LOCALSEND_LIFECYCLE_PROBE";
 const LIFECYCLE_TEST: &str = "backend::localsend::tests::a_child_cli_does_not_outlive_its_parent";
 
 // Field 3 (state) and field 22 (start time) of /proc/pid/stat, split after the last ')' so a comm cannot shift them.

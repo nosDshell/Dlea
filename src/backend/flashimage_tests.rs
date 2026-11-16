@@ -114,7 +114,7 @@ fn b1_an_iso_with_its_signature_probes_iso() {
 fn b1_a_zip_holding_an_iso_probes_zip() {
     let d = TestDir::new("flashimage-zipiso");
     if !jail_runs(&d) {
-        eprintln!("flea test: the sandbox does not run on this host, so the zipped ISO probe went unproven here");
+        eprintln!("dlea test: the sandbox does not run on this host, so the zipped ISO probe went unproven here");
         return;
     }
     let zip = zip_of(&d, "disk.iso", &iso_of(SMALL_ISO_BYTES));
@@ -127,7 +127,7 @@ fn b1_a_zip_holding_an_iso_probes_zip() {
 fn flx1_a_zip_with_one_image_in_a_folder_probes_zip() {
     let d = TestDir::new("flashimage-zipsub");
     if !jail_runs(&d) {
-        eprintln!("flea test: the sandbox does not run on this host, so the subfolder zip probe went unproven here");
+        eprintln!("dlea test: the sandbox does not run on this host, so the subfolder zip probe went unproven here");
         return;
     }
     std::fs::create_dir_all(d.join("fw")).unwrap();
@@ -144,7 +144,7 @@ fn flx1_a_zip_with_one_image_in_a_folder_probes_zip() {
 fn flx1_a_zip_with_two_images_is_refused() {
     let d = TestDir::new("flashimage-ziptwo");
     if !jail_runs(&d) {
-        eprintln!("flea test: the sandbox does not run on this host, so the two-image zip probe went unproven here");
+        eprintln!("dlea test: the sandbox does not run on this host, so the two-image zip probe went unproven here");
         return;
     }
     std::fs::write(d.join("a.img"), vec![7u8; 4096]).unwrap();
@@ -161,7 +161,7 @@ fn flx1_a_zip_with_two_images_is_refused() {
 fn flx1_a_zip_with_a_non_image_member_is_refused() {
     let d = TestDir::new("flashimage-ziptext");
     if !jail_runs(&d) {
-        eprintln!("flea test: the sandbox does not run on this host, so the text-member zip probe went unproven here");
+        eprintln!("dlea test: the sandbox does not run on this host, so the text-member zip probe went unproven here");
         return;
     }
     std::fs::write(d.join("notes.txt"), b"just text").unwrap();
@@ -196,7 +196,7 @@ fn b6_two_zstd_frames_sum_both_sizes() {
 fn b2_a_zipped_iso_larger_than_the_pipe_probes_zip_at_once() {
     let d = TestDir::new("flashimage-zipbig");
     if !jail_runs(&d) {
-        eprintln!("flea test: the sandbox does not run on this host, so the big zipped ISO probe went unproven here");
+        eprintln!("dlea test: the sandbox does not run on this host, so the big zipped ISO probe went unproven here");
         return;
     }
     let zip = zip_of(&d, "big.iso", &iso_of(BIG_ISO_BYTES));
@@ -208,7 +208,7 @@ fn b2_a_zipped_iso_larger_than_the_pipe_probes_zip_at_once() {
 
 // A plain child that writes this much stands in for a jailed tool, so the capture rule is proven where bwrap cannot run.
 fn writer_of(bytes: usize) -> crate::backend::jail::Jailed {
-    let child = std::process::Command::new(flea::testpath::tool("/bin/sh")).arg("-c").arg(format!("head -c {bytes} /dev/zero"))
+    let child = std::process::Command::new(dlea::testpath::tool("/bin/sh")).arg("-c").arg(format!("head -c {bytes} /dev/zero"))
         .stdin(std::process::Stdio::null()).stdout(std::process::Stdio::piped()).stderr(std::process::Stdio::null()).spawn().unwrap();
     crate::backend::jail::Jailed { child, sandbox_pid: std::sync::Arc::new(std::sync::atomic::AtomicI32::new(crate::backend::jail::NO_PID)) }
 }

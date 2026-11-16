@@ -29,7 +29,7 @@ pub(super) fn open_error() -> Option<std::io::Error> {
 
 // Each child owns its process-wide count; unrelated parallel tests cannot consume its permits.
 fn in_child(name: &str) -> bool {
-    const CHILD: &str = "FLEA_TEST_DELETE_HOLD_CHILD";
+    const CHILD: &str = "DLEA_TEST_DELETE_HOLD_CHILD";
     if std::env::var_os(CHILD).as_deref() == Some(OsStr::new(name)) {
         LIMIT.with(|limit| limit.set(Some(TEST_LIMIT)));
         assert_eq!(held(), 0);

@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/ClipMarks.js" as ClipMarks
 import "js/Filter.js" as Filter
 import "js/ExtThumbs.js" as ExtThumbs
@@ -24,7 +24,7 @@ Item {
     // The row this column's cursor is on, as an absolute index; -1 when this column has no cursor.
     property int selectedIndex: -1
     // The one row drawn as this column's cursor; a cursor move touches two delegates, not every live one.
-    Flea.CursorMark { id: cursorMark; row: root.selectedIndex }
+    Dlea.CursorMark { id: cursorMark; row: root.selectedIndex }
     // The row named here is the one the trail passes through: lifted like a hover, never accented.
     property string liftedName: ""
     // The pane whose listing this column draws, or null for a peek. Only that one column has a
@@ -41,7 +41,7 @@ Item {
     // True when this column draws its size cell, the same flag its rows read as showSize.
     readonly property bool showsSize: root.pane !== null && root.pane !== undefined
     // Parked rows the active column built ahead of the next landing; only the pane's own column has a pane, so only it prebuilds.
-    readonly property Flea.PrebuildDriver prebuild: Flea.PrebuildDriver {
+    readonly property Dlea.PrebuildDriver prebuild: Dlea.PrebuildDriver {
         view: root.viewport
         model: stable
         pane: root.pane
@@ -213,14 +213,14 @@ Item {
     }
     onHeightChanged: if (root.visible && root.pane !== null) { coalesce.restart(); settle.restart() }
 
-    Flea.FileDrag {
+    Dlea.FileDrag {
         id: dragSession
         pane: root.pane
         peekSource: root.peekSource
     }
 
     // Only the active column owns this directory; neighboring peek floors cannot target its listing.
-    Flea.DropInto {
+    Dlea.DropInto {
         anchors.fill: parent
         enabled: root.pane !== null && !root.pane.trash.opened && root.pane.searchMode === ""
         pane: root.pane
@@ -233,7 +233,7 @@ Item {
         id: view
         anchors.fill: parent
 
-        model: Flea.StableModel { id: stable; view: view; total: root.visible || root.keptTotal === root.rowTotal ? root.rowTotal : 0; keptRows: true
+        model: Dlea.StableModel { id: stable; view: view; total: root.visible || root.keptTotal === root.rowTotal ? root.rowTotal : 0; keptRows: true
                                   warm: root.pane !== null && view.visible && root.pane.searchMode.length > 0 && root.pane.swap.searchWarm === true; warmRows: Math.floor((view.height + view.cacheBuffer) / Theme.fileRowHeight) + 1 }
         clip: true
         // The pane's cache rows, as ui/List.qml takes them: Qt's default 320 px builds about 12 unseen rows into every landing.
@@ -251,19 +251,19 @@ Item {
             height: root.pane ? Theme.spacing.rowPaddingY : 0
         }
 
-        Flea.FastScrollHandler {
+        Dlea.FastScrollHandler {
             parent: view
             flickable: view
         }
 
-        Flea.ViewportScrollBar {
+        Dlea.ViewportScrollBar {
             id: verticalScroll
             parent: view
             anchors { top: parent.top; right: parent.right }
             flickable: view
         }
 
-        Flea.SelectionBand {
+        Dlea.SelectionBand {
             parent: view
             pane: root.pane
             flickable: view
@@ -282,7 +282,7 @@ Item {
             }
         }
 
-        delegate: Flea.ColumnRow {
+        delegate: Dlea.ColumnRow {
             id: cell
             required property int index
             // Parked while pooled (ColumnRow.live): a parked value reads itself back, so parking re-runs nothing that draws.
@@ -352,7 +352,7 @@ Item {
                 }
             }
 
-            Flea.RowDrag {
+            Dlea.RowDrag {
                 session: dragSession
                 listingIndex: cell.listingIndex
                 row: cell.row
@@ -361,7 +361,7 @@ Item {
     }
 
     // A denied peek answers zero rows, the exact count an empty directory answers, so a locked column draws States.dc.html's Locked tile rather than reading as an empty one.
-    Flea.StateMessage {
+    Dlea.StateMessage {
         anchors.fill: parent
         listingState: root.lockedMode >= 0 ? "locked" : "ready"
         lockedMode: root.lockedMode
@@ -369,7 +369,7 @@ Item {
     }
 
     // The column boundary, one per pane and never one per row; an inactive Loader builds no pane so draws none.
-    Flea.Divider {
+    Dlea.Divider {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: parent.bottom
@@ -419,7 +419,7 @@ Item {
         y: root.renameY
         width: root.renameWidth
         z: 2
-        sourceComponent: Flea.RenameField {
+        sourceComponent: Dlea.RenameField {
             height: implicitHeight
             pane: root.pane
             errorSpan: Math.max(0, root.renameWidth + root.renameRight - Theme.spacing.rowPaddingX)
@@ -435,14 +435,14 @@ Item {
     Loader {
         anchors.fill: parent
         active: root.loadingRows
-        sourceComponent: Flea.LoadingState {
+        sourceComponent: Dlea.LoadingState {
             heldOff: true
             onShownChanged: root.loadingShown(shown)
             Component.onCompleted: if (shown) root.loadingShown(true)
         }
     }
     // The same hero the list draws, per the operator: a peeked empty directory animates like the pane's own.
-    Flea.EmptyState {
+    Dlea.EmptyState {
         id: emptyTile
         anchors.fill: parent
         visible: root.drawsEmpty && root.rows.length === 0 && root.lockedMode < 0

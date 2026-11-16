@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Live search against target/debug/flea in the sandbox root, its sends and replies replayed in qml6 through the real Focus/Search/Swap route; fails on a FAIL line, a missing DONE, or noise.
+# Live search against target/debug/dlea in the sandbox root, its sends and replies replayed in qml6 through the real Focus/Search/Swap route; fails on a FAIL line, a missing DONE, or noise.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 command -v qml6 >/dev/null || { echo "search-live.sh: qml6 is not installed, cannot replay the session"; exit 1; }
 command -v python3 >/dev/null || { echo "search-live.sh: python3 is not installed, cannot check the wire"; exit 1; }
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [ -x "$bin" ] || { echo "search-live.sh: build the backend first: $bin"; exit 1; }
 
 fixture="$FIXTURE_ROOT/search-live-$$"

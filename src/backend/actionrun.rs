@@ -1,5 +1,5 @@
 // An action has one process group per invocation and a bounded merged stdout and stderr tail.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::actions::Action;
 use super::opsreq::{OpMsg, PROGRESS_EVERY};
 use std::io::Read;
@@ -85,7 +85,7 @@ pub(crate) fn background(
         if cancel.load(Ordering::Relaxed) {
             break;
         }
-        let file = flea::bytename::view(path)
+        let file = dlea::bytename::view(path)
             .file_name()
             .unwrap_or_default()
             .exact_text()
@@ -102,23 +102,23 @@ pub(crate) fn background(
                 .chain(paths.clone())
                 .collect()
         } else {
-            action.argv(&flea::bytename::view(path))
+            action.argv(&dlea::bytename::view(path))
         };
         let selected: Vec<_> = items
             .iter()
-            .filter(|item| action.script || item.path == *flea::bytename::view(path))
+            .filter(|item| action.script || item.path == *dlea::bytename::view(path))
             .cloned()
             .collect();
         let checked_paths = if action.script {
-            paths.iter().map(flea::bytename::exact).collect()
+            paths.iter().map(dlea::bytename::exact).collect()
         } else {
-            vec![flea::bytename::exact(path)]
+            vec![dlea::bytename::exact(path)]
         };
         let result = super::menu_actions::validate_sources(Some(&selected), &checked_paths)
             .and_then(|()| {
                 invoke(
                     &argv,
-                    flea::bytename::view(path)
+                    dlea::bytename::view(path)
                         .parent()
                         .unwrap_or(Path::new("/")),
                     &cancel,
@@ -173,9 +173,9 @@ fn invoke(
     let stdout: OwnedFd = writer.try_clone().map_err(|e| e.to_string())?.into();
     let stderr: OwnedFd = writer.into();
     reader.set_nonblocking(true).map_err(|e| e.to_string())?;
-    let mut command = Command::new(&*flea::bytename::text_name(&argv[0]));
+    let mut command = Command::new(&*dlea::bytename::text_name(&argv[0]));
     command
-        .args(flea::bytename::args(&argv[1..]))
+        .args(dlea::bytename::args(&argv[1..]))
         .current_dir(directory)
         .stdin(Stdio::null())
         .stdout(Stdio::from(stdout))

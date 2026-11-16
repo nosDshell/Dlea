@@ -3,13 +3,13 @@
 # operations design insists is proven on this bsdtar build rather than trusted as a libarchive default.
 set -u
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete below.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 
 cd "$(dirname "$0")/.." || exit 1
-BIN=./target/debug/flea
+BIN=./target/debug/dlea
 # Without this every case below drives a missing binary and reports the result as a product failure.
 [ -x "$BIN" ] || { echo "archive.sh: $BIN is missing, run cargo build" >&2; exit 1; }
-D="$FIXTURE_ROOT/flea-archive-test-$$"
+D="$FIXTURE_ROOT/dlea-archive-test-$$"
 fail=0
 
 
@@ -97,7 +97,7 @@ for format in $round_trip_formats; do
   stop_backend
 done
 
-# A program member at 0755 keeps its owner execute bit through Flea's own extract, for a zip and a tar.xz.
+# A program member at 0755 keeps its owner execute bit through Dlea's own extract, for a zip and a tar.xz.
 mkdir -p "$D/execsrc" || exit 1
 printf '\177ELF\002\001\001' > "$D/execsrc/Godot_linux.x86_64" || exit 1
 chmod 755 "$D/execsrc/Godot_linux.x86_64" || exit 1
@@ -131,11 +131,11 @@ else
 echo "--- no 7z; the wildcard-literal leg is skipped ---"
 fi
 
-# Flea reads rar and writes none, so this direction alone is exercised, and the fixture is built by
-# hand because nothing in the Arch repositories writes a rar. tools/flea-rar-fixture is that builder.
+# Dlea reads rar and writes none, so this direction alone is exercised, and the fixture is built by
+# hand because nothing in the Arch repositories writes a rar. tools/dlea-rar-fixture is that builder.
 echo "--- a rar extracts, through whichever reader this box has ---"
 start_backend
-./tools/flea-rar-fixture "$D/holiday.rar" "hello.txt" "hello from a rar" \
+./tools/dlea-rar-fixture "$D/holiday.rar" "hello.txt" "hello from a rar" \
   || { echo "FAIL the rar fixture could not be built"; fail=1; }
 send "{\"c\":\"archive\",\"op\":\"extract\",\"path\":\"$D/holiday.rar\",\"dest\":\"$D/back-rar\"}"
 await '"t":"archivedone"' || fail=1
@@ -179,7 +179,7 @@ send "{\"c\":\"archive\",\"op\":\"extract\",\"path\":\"$D/notreally.zip\",\"dest
 await '"t":"archivedone"' || fail=1
 check "a corrupt archive fails" "1" "$(seen '"ok":false')"
 check "and no destination was left behind" "no" "$([ -e "$D/nowhere" ] && echo yes || echo no)"
-check "and no work directory survived it" "0" "$(find "$D" -maxdepth 1 -name '.flea-work-*' | wc -l | tr -d ' ')"
+check "and no work directory survived it" "0" "$(find "$D" -maxdepth 1 -name '.dlea-work-*' | wc -l | tr -d ' ')"
 stop_backend
 
 echo "--- the hostile archive: nothing escapes the destination ---"
@@ -198,8 +198,8 @@ stop_backend
 
 echo "--- convert, with and without the metadata strip ---"
 magick -size 64x48 xc:navy "$D/shot.png"
-magick "$D/shot.png" -set comment 'flea test comment' "$D/tagged.png"
-before=$(magick identify -verbose "$D/tagged.png" 2>/dev/null | grep -c 'flea test comment')
+magick "$D/shot.png" -set comment 'dlea test comment' "$D/tagged.png"
+before=$(magick identify -verbose "$D/tagged.png" 2>/dev/null | grep -c 'dlea test comment')
 check "the fixture really carries the metadata to be stripped" "1" "$before"
 start_backend
 send "{\"c\":\"convert\",\"path\":\"$D/shot.png\",\"dest\":\"$D/shot (converted).jpg\",\"strip\":false}"
@@ -212,9 +212,9 @@ check "and the jpeg is on disk" "JPEG" "$(magick identify -format '%m' "$D/shot 
 check "the source is untouched" "PNG" "$(magick identify -format '%m' "$D/shot.png" 2>/dev/null)"
 send "{\"c\":\"convert\",\"path\":\"$D/tagged.png\",\"dest\":\"$D/tagged (stripped).png\",\"strip\":true}"
 await '"t":"convertdone","id":2' || fail=1
-after=$(magick identify -verbose "$D/tagged (stripped).png" 2>/dev/null | grep -c 'flea test comment')
+after=$(magick identify -verbose "$D/tagged (stripped).png" 2>/dev/null | grep -c 'dlea test comment')
 check "strip actually removed the metadata" "0" "$after"
-check "and the original still has it" "1" "$(magick identify -verbose "$D/tagged.png" 2>/dev/null | grep -c 'flea test comment')"
+check "and the original still has it" "1" "$(magick identify -verbose "$D/tagged.png" 2>/dev/null | grep -c 'dlea test comment')"
 stop_backend
 
 # The count is exact however long the listing is; only the names are capped, and the tile's
@@ -316,7 +316,7 @@ echo "  $bad"
 stop_backend
 
 echo "--- no work directory is left behind ---"
-check "every private work directory was cleaned up" "0" "$(find "$D" -maxdepth 2 -name '.flea-work-*' | wc -l | tr -d ' ')"
+check "every private work directory was cleaned up" "0" "$(find "$D" -maxdepth 2 -name '.dlea-work-*' | wc -l | tr -d ' ')"
 
 echo
 if [ "$fail" = 0 ]; then echo "archive.sh: all checks passed"; else echo "archive.sh: FAILURES above"; fi

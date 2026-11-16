@@ -1,17 +1,17 @@
-// One undo history for every Flea window; see AGENTS.md "Write operations and the undo journal".
+// One undo history for every Dlea window; see AGENTS.md "Write operations and the undo journal".
 use super::undorebase::RebaseMap;
 use super::undostage::{read, Read, Staged};
 use crate::backend::manifestdir::current_uid;
 use crate::backend::redo::Replay;
 use crate::backend::undo::{Entry, ItemIdentity, Step, DEPTH};
-use crate::error::FleaError;
+use crate::error::DleaError;
 use std::os::unix::fs::{DirBuilderExt, MetadataExt, OpenOptionsExt, PermissionsExt};
 use std::path::{Path, PathBuf};
 
 // A closed stderr pipe must never unwind publication or detach its journal history.
 fn diagnostic(message: std::fmt::Arguments<'_>) {
     use std::io::Write;
-    let _ = writeln!(std::io::stderr().lock(), "flea: {message}");
+    let _ = writeln!(std::io::stderr().lock(), "dlea: {message}");
 }
 
 // Past twice the largest benched tree in manifest bytes the file is foreign, as copymanifest refuses its stream.
@@ -30,13 +30,13 @@ pub(crate) struct Shared {
 }
 
 impl Shared {
-    // FLEA_UNDO_DIR isolates one test run when set; otherwise the session dir under XDG_RUNTIME_DIR.
+    // DLEA_UNDO_DIR isolates one test run when set; otherwise the session dir under XDG_RUNTIME_DIR.
     pub(crate) fn from_env() -> Option<Shared> {
-        if let Some(dir) = crate::userfile::env_dir("FLEA_UNDO_DIR") {
+        if let Some(dir) = crate::userfile::env_dir("DLEA_UNDO_DIR") {
             return Self::at(dir);
         }
         let runtime = crate::userfile::env_dir("XDG_RUNTIME_DIR")?;
-        Self::at(runtime.join("flea"))
+        Self::at(runtime.join("dlea"))
     }
 
     // Tests take their directories as arguments, never a process-wide variable another test reads.
@@ -107,7 +107,7 @@ use sharelock::lock;
 // A stored Err replay answers its error when taken, exactly as the in-memory pop answers it.
 pub(crate) enum StoredRedo {
     Ok(Replay),
-    Err(FleaError),
+    Err(DleaError),
 }
 
 pub(crate) struct Doc {
@@ -352,11 +352,11 @@ pub(crate) fn finish_undone(shared: &Shared, entry: Option<Entry>, changes: &[(I
 }
 
 // One constructor for every redo refusal, so the two sentences stay byte-identical.
-fn redo_error(msg: &str) -> FleaError {
-    FleaError { where_: "redo".into(), path: String::new(), msg: msg.into() }
+fn redo_error(msg: &str) -> DleaError {
+    DleaError { where_: "redo".into(), path: String::new(), msg: msg.into() }
 }
 
-pub(crate) fn redo_info(shared: &Shared) -> Result<(String, usize), FleaError> {
+pub(crate) fn redo_info(shared: &Shared) -> Result<(String, usize), DleaError> {
     let _guard = lock(shared).map_err(|msg| {
         diagnostic(format_args!("{}", msg));
         redo_error("the undo history could not be read")
@@ -365,7 +365,7 @@ pub(crate) fn redo_info(shared: &Shared) -> Result<(String, usize), FleaError> {
     match doc.redo.last() {
         Some(StoredRedo::Ok(replay)) => Ok((replay.op().to_string(), replay.len())),
         Some(StoredRedo::Err(error)) => {
-            Err(FleaError { where_: "redo".into(), path: error.path.clone(), msg: error.msg.clone() })
+            Err(DleaError { where_: "redo".into(), path: error.path.clone(), msg: error.msg.clone() })
         }
         None => Err(redo_error("there is nothing to redo")),
     }
@@ -403,7 +403,7 @@ pub(crate) fn finish_redone(shared: &Shared, entry: Entry, changes: &[(ItemIdent
 }
 
 pub(crate) fn redo_newest(slot: &mut Option<Shared>, id: usize, cancel: &std::sync::atomic::AtomicBool,
-    tx: &std::sync::mpsc::Sender<super::opsreq::OpMsg>) -> (Result<String, FleaError>, super::undo::Reached) {
+    tx: &std::sync::mpsc::Sender<super::opsreq::OpMsg>) -> (Result<String, DleaError>, super::undo::Reached) {
     let Some(shared) = slot.clone() else {
         return (Err(redo_error("there is nothing to redo")), Default::default());
     };

@@ -84,7 +84,7 @@ impl Listing {
 
     // The exact file a row names under base; every filesystem call on a row goes through here, never base.join(name).
     pub fn path(&self, base: &Path, i: usize) -> PathBuf {
-        base.join(flea::bytename::text_path(self.name(i)))
+        base.join(dlea::bytename::text_path(self.name(i)))
     }
 
     // The seam: callers ask the listing; spans is public only because sort borrows it.
@@ -154,16 +154,16 @@ fn relative_name<'a>(base: &Path, path: &'a Path) -> Option<std::borrow::Cow<'a,
     };
     match path
         .to_str()
-        .map(flea::bytename::text_path)
+        .map(dlea::bytename::text_path)
         .unwrap_or(Cow::Borrowed(path))
     {
         Cow::Borrowed(exact) => {
             let relative = exact.strip_prefix(base).ok()?;
-            normal(relative).then(|| flea::bytename::path_text(relative))
+            normal(relative).then(|| dlea::bytename::path_text(relative))
         }
         Cow::Owned(exact) => {
             let relative = exact.strip_prefix(base).ok()?;
-            normal(relative).then(|| Cow::Owned(flea::bytename::path_text(relative).into_owned()))
+            normal(relative).then(|| Cow::Owned(dlea::bytename::path_text(relative).into_owned()))
         }
     }
 }
@@ -303,7 +303,7 @@ mod tests {
 
     #[test]
     fn a_raw_named_folder_and_row_meet_their_exact_paths_and_never_their_twins() {
-        use flea::bytename::ExactText as _;
+        use dlea::bytename::ExactText as _;
         use std::os::unix::ffi::OsStrExt;
         let base = Path::new(std::ffi::OsStr::from_bytes(b"/d\xff"));
         let raw = base.join(std::ffi::OsStr::from_bytes(b"z\xfe"));

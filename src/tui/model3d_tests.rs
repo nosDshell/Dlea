@@ -13,14 +13,14 @@ impl Fixture {
         assert!(output.status.success());
         let path = PathBuf::from(String::from_utf8(output.stdout).unwrap().trim());
         assert!(path.is_absolute() && path.parent() == Some(parent.as_path()));
-        std::fs::write(path.join(".flea-test-sandbox"), b"owned m9 TUI model tests\n").unwrap();
+        std::fs::write(path.join(".dlea-test-sandbox"), b"owned m9 TUI model tests\n").unwrap();
         Self(path)
     }
     pub(crate) fn path(&self, name: &str) -> PathBuf { self.0.join(name) }
 }
 impl Drop for Fixture {
     fn drop(&mut self) {
-        assert!(self.0.is_absolute() && !self.0.as_os_str().is_empty() && self.0.join(".flea-test-sandbox").is_file());
+        assert!(self.0.is_absolute() && !self.0.as_os_str().is_empty() && self.0.join(".dlea-test-sandbox").is_file());
         assert!(self.0.starts_with(Path::new(env!("CARGO_MANIFEST_DIR")).join(".superpowers/m9-tui-04")));
         std::fs::remove_dir_all(&self.0).unwrap();
     }

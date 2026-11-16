@@ -22,12 +22,12 @@ class CaptionGate(unittest.TestCase):
         parent = Path(__file__).resolve().parents[2] / '.superpowers/omi-fit'
         parent.mkdir(parents=True, exist_ok=True)
         self.root = Path(tempfile.mkdtemp(prefix='omi-fit.', dir=parent))
-        (self.root / '.flea-test-sandbox').touch()
+        (self.root / '.dlea-test-sandbox').touch()
         self.addCleanup(self.remove_root)
 
     def remove_root(self):
         root = self.root
-        if root.is_absolute() and root.name.startswith('omi-fit.') and (root / '.flea-test-sandbox').is_file():
+        if root.is_absolute() and root.name.startswith('omi-fit.') and (root / '.dlea-test-sandbox').is_file():
             shutil.rmtree(root)
 
     def frame(self, name, boxes):

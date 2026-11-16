@@ -25,7 +25,7 @@ silver skyblue slateblue slategray slategrey snow springgreen steelblue tan teal
 turquoise violet wheat white whitesmoke yellow yellowgreen""".split())
 
 
-# Sample input: crates/flea-gui/tests/g1_03/transport.rs belongs to the g1_03 test crate; every src/ file to the package's own.
+# Sample input: crates/dlea-gui/tests/g1_03/transport.rs belongs to the g1_03 test crate; every src/ file to the package's own.
 # Returns the target and whether another package may call into it: src/main.rs and src/bin/ belong to binaries.
 def compilation_target(path):
     parts = path.split("/")

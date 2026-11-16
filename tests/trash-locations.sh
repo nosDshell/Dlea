@@ -3,7 +3,7 @@
 set -u
 set -o pipefail
 repo="$(cd "$(dirname "$0")/.." && pwd)"
-. "$repo/tools/flea-sandbox-guard"
+. "$repo/tools/dlea-sandbox-guard"
 [ "$(id -u)" != 0 ] || { printf 'TRASHLOC REFUSED running as uid 0 makes [ -w ] meaningless\n' >&2; exit 1; }
 
 checks=0
@@ -17,7 +17,7 @@ fail() {
 }
 
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-trashloc-XXXXXXXX") || fail "mktemp under $SANDBOX_ROOT failed"
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-trashloc-XXXXXXXX") || fail "mktemp under $SANDBOX_ROOT failed"
 : > "$test_root/$SANDBOX_MARKER" || fail "could not mark $test_root"
 # The other-device home lives in a second marked root, so cleanup leaves nothing outside a marked root.
 second_parent=""
@@ -29,7 +29,7 @@ for candidate in /tmp /dev/shm; do
     [[ -d "$candidate" ]] || continue
     candidate_dev=$(stat -c %d -- "$candidate" 2>/dev/null) || continue
     [[ "$candidate_dev" != "$root_dev" && "$candidate_dev" != "$home_dev" ]] || continue
-    second_parent=$(mktemp -d "$candidate/flea-trashloc-XXXXXXXX") || fail "mktemp under $candidate failed"
+    second_parent=$(mktemp -d "$candidate/dlea-trashloc-XXXXXXXX") || fail "mktemp under $candidate failed"
     second_root="$second_parent/root"
     mkdir -p "$second_root" || fail "could not make $second_root"
     : > "$second_root/$SANDBOX_MARKER" || fail "could not mark $second_root"
@@ -124,7 +124,7 @@ unset -f stat
 XDG_DATA_HOME="$data_real"
 [[ "$got" != "$second_root/data/Trash/files" && "$got" == */.Trash*/files ]] || fail "nested-volume item gave $got"
 ok "item on its own device inside the data home's folder goes to gio: $got"
-# trash_guard_rows judges each row by one rule: Flea's rename by the files rule, a gio trash by the gio rule, never either.
+# trash_guard_rows judges each row by one rule: Dlea's rename by the files rule, a gio trash by the gio rule, never either.
 . "$repo/tests/ui-trash.sh"
 trash_box=$second_root
 trash_private() { :; }
@@ -132,16 +132,16 @@ trash_backing() { printf '%s\n' "$stub_backing"; }
 rows_item="$second_root/item.txt"
 rows_listing=$(printf 'trash:///item.txt\t%s' "$rows_item")
 XDG_DATA_HOME="$second_root/data"
-rows_flea=$(sandbox_trash_files_dir "$rows_item" "$home_same") || { XDG_DATA_HOME="$data_real"; fail "rows: Flea rule refused"; }
+rows_dlea=$(sandbox_trash_files_dir "$rows_item" "$home_same") || { XDG_DATA_HOME="$data_real"; fail "rows: Dlea rule refused"; }
 rows_gio=$(sandbox_trash_gio_dir "$rows_item" "$home_same") || { XDG_DATA_HOME="$data_real"; fail "rows: gio rule refused"; }
-[[ "$rows_flea" != "$rows_gio" ]] || { XDG_DATA_HOME="$data_real"; fail "rows: the two rules agree, so the layout proves nothing"; }
+[[ "$rows_dlea" != "$rows_gio" ]] || { XDG_DATA_HOME="$data_real"; fail "rows: the two rules agree, so the layout proves nothing"; }
 rows_judge() { ( trash_gio_rows=(); [[ "$1" == gio ]] && trash_gio_rows[$rows_item]=1; stub_backing="$2/item.txt"; trash_guard_rows "$rows_listing" "$home_same" ) >/dev/null 2>&1; }
-rows_judge flea "$rows_flea" || { XDG_DATA_HOME="$data_real"; fail "rows: a Flea row in Flea's store was refused"; }
+rows_judge dlea "$rows_dlea" || { XDG_DATA_HOME="$data_real"; fail "rows: a Dlea row in Dlea's store was refused"; }
 rows_judge gio "$rows_gio" || { XDG_DATA_HOME="$data_real"; fail "rows: a gio row in the gio store was refused"; }
-! rows_judge flea "$rows_gio" || { XDG_DATA_HOME="$data_real"; fail "rows: a Flea row in the gio store passed"; }
-! rows_judge gio "$rows_flea" || { XDG_DATA_HOME="$data_real"; fail "rows: a gio row in Flea's store passed"; }
-# A Flea row never asks the gio rule, so a mount-top trash that cannot resolve leaves it passing.
-( sandbox_trash_gio_dir() { return 1; }; rows_judge flea "$rows_flea" ) || { XDG_DATA_HOME="$data_real"; fail "rows: a Flea row failed when the gio rule could not resolve"; }
+! rows_judge dlea "$rows_gio" || { XDG_DATA_HOME="$data_real"; fail "rows: a Dlea row in the gio store passed"; }
+! rows_judge gio "$rows_dlea" || { XDG_DATA_HOME="$data_real"; fail "rows: a gio row in Dlea's store passed"; }
+# A Dlea row never asks the gio rule, so a mount-top trash that cannot resolve leaves it passing.
+( sandbox_trash_gio_dir() { return 1; }; rows_judge dlea "$rows_dlea" ) || { XDG_DATA_HOME="$data_real"; fail "rows: a Dlea row failed when the gio rule could not resolve"; }
 XDG_DATA_HOME="$data_real"
 ok "row guard: each row is judged by its own rule, both wrong stores refused"
 # The remaining mount-top cases keep the data home on the other device, apart from the item.
@@ -262,7 +262,7 @@ rc=0; sandbox_trash_remove_own "$fake_files" "$test_root" extdir || rc=$?
 [[ "$rc" == 2 ]] || fail "foreign dir removal gave $rc, not 2"
 [[ ! -e "$fake_files/owndir" && ! -e "$fake_info/owndir.trashinfo" ]] || fail "owned dir survived"
 [[ -d "$fake_files/extdir" && -f "$fake_info/extdir.trashinfo" ]] || fail "foreign dir changed"
-[[ -d "$test_root/.flea-trash-quarantine" ]] || fail "no quarantine dir in the marked root"
+[[ -d "$test_root/.dlea-trash-quarantine" ]] || fail "no quarantine dir in the marked root"
 ok "owned dir moves into the marked root, foreign dir stays"
 # A per-user mount-top trash resolves its relative Path against the same top.
 pu_files="$test_root/top/.Trash/$uid/files"
@@ -384,7 +384,7 @@ trapleg_run() {
     leg_flag="$leg_top/flag"
     mkdir -p "$leg_files" "${leg_files%/files}/info" "$leg_top/payload" || fail "no trap leg trash for $mode"
     for name in "$@"; do trapleg_entry "$leg_files" "$leg_top" "$name"; done
-    leg_out=$(GUARD="$repo/tools/flea-sandbox-guard" FILES="$leg_files" ROOT="$leg_top" FLAG="$leg_flag" bash "$trapleg" "$mode" 2>/dev/null) || rc=$?
+    leg_out=$(GUARD="$repo/tools/dlea-sandbox-guard" FILES="$leg_files" ROOT="$leg_top" FLAG="$leg_flag" bash "$trapleg" "$mode" 2>/dev/null) || rc=$?
     return "$rc"
 }
 trapleg_gone() {

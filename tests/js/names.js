@@ -45,7 +45,7 @@ function run(check) {
     runLaziness(check)
 }
 
-// The grid caption carries Flea's own breaks, so Qt's word wrap never strands a token on line 2.
+// The grid caption carries Dlea's own breaks, so Qt's word wrap never strands a token on line 2.
 function runGridCaption(check) {
     var full = "screenshot-2026-08-30-final-review-for-gm-after-the-bench-v3.png"
     function linesOf(caption) {
@@ -125,7 +125,7 @@ function runGridCaption(check) {
           tile.indexOf("Theme.bodySmallAdvance") >= 0, true)
     check("the caption no longer budgets off the body face",
           tile.indexOf("Theme.bodyAdvance") >= 0, false)
-    check("the breaks are Flea's own, Qt only catches wide glyphs",
+    check("the breaks are Dlea's own, Qt only catches wide glyphs",
           tile.indexOf("wrapMode: Text.WrapAnywhere") >= 0, true)
     var labelAt = tile.indexOf("id: nameLabel")
     var tipAt = tile.indexOf("id: tip")

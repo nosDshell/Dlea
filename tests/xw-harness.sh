@@ -17,8 +17,8 @@ fail() {
     exit 1
 }
 fixture_root="$tmp/fixtures"
-flea_ui="$tmp/ui"
-flea_bin="$tmp/flea"
+dlea_ui="$tmp/ui"
+dlea_bin="$tmp/dlea"
 run_root="$tmp/run"
 settle_s=0
 drain_wait_s=30
@@ -31,15 +31,15 @@ mkdir -p "$fixture_root" "$run_root"
 # Sample clients: A at [100,200], B at [1000,200], both 880 by 620.
 hyprctl() {
     if [[ "$*" == 'clients -j' ]]; then
-        printf '[{"address":"%s","class":"com.thisisgm.flea","pid":111,"at":[100,200],"size":[880,620]},{"address":"%s","class":"com.thisisgm.flea","pid":222,"at":[1000,200],"size":[880,620]}]\n' "$addr_a" "$addr_b"
+        printf '[{"address":"%s","class":"com.nosDshell.dlea","pid":111,"at":[100,200],"size":[880,620]},{"address":"%s","class":"com.nosDshell.dlea","pid":222,"at":[1000,200],"size":[880,620]}]\n' "$addr_a" "$addr_b"
     elif [[ "$#" == 2 && "$2" == *".focus({ window = \"address:$addr_a\" })" ]]; then
         printf 'ok\n'
     else
         fail "unexpected compositor arguments: $*"
     fi
 }
-flea_window_class=com.thisisgm.flea
-flea_process_owned() {
+dlea_window_class=com.nosDshell.dlea
+dlea_process_owned() {
     [[ "$1" == 111 || "$1" == 222 ]]
 }
 omarchy-drive() {
@@ -52,12 +52,12 @@ mkdir -p "$tmp/bin"
 export XW_HARNESS_TMP="$tmp" a_cursor=0 background_y=400
 export PATH="$tmp/bin:$PATH"
 # The extracted xw_ipc runs its helper under the real timeout, so the helper is an executable that answers through the qs stub.
-cat > "$tmp/bin/flea-ipc-helper" <<'STUB'
+cat > "$tmp/bin/dlea-ipc-helper" <<'STUB'
 #!/bin/sh
 exec qs ipc "$@"
 STUB
-chmod +x "$tmp/bin/flea-ipc-helper"
-FLEA_IPC_HELPER="$tmp/bin/flea-ipc-helper"
+chmod +x "$tmp/bin/dlea-ipc-helper"
+DLEA_IPC_HELPER="$tmp/bin/dlea-ipc-helper"
 cat > "$tmp/bin/qs" <<'STUB'
 #!/bin/bash
 set -uo pipefail
@@ -66,7 +66,7 @@ tmp=$XW_HARNESS_TMP
 printf '%q ' "$@" >> "$tmp/ipc-argv"
 printf '\n' >> "$tmp/ipc-argv"
 fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
-[[ "$#" -ge 6 && "$1" == ipc && "$2" == --pid && "$4" == call && "$5" == flea ]] \
+[[ "$#" -ge 6 && "$1" == ipc && "$2" == --pid && "$4" == call && "$5" == dlea ]] \
     || fail "unexpected IPC route: $*"
 pid=$3
 query=$6
@@ -122,7 +122,7 @@ xw_second_window() {
     touch "$tmp/A.window" "$tmp/A.backend" "$tmp/A.monitor"
     printf '%s\n' "$addr_a"
 }
-flea_pid() {
+dlea_pid() {
     printf '222\n'
 }
 xw_addr_for_pid() {
@@ -194,7 +194,7 @@ xw_wait_editor() {
 xw_kill_second() {
     rm -f "$tmp/A.window"
 }
-kill_flea() {
+kill_dlea() {
     local window
     rm -f "$tmp/B.window"
     for window in A B; do
@@ -347,14 +347,14 @@ done
 # Stale sweep probes replace every process read and signal with a private fake /proc tree.
 result=0
 (
-    for helper in flea_process_owned xw_process_abandoned xw_sweep_stale; do
+    for helper in dlea_process_owned xw_process_abandoned xw_sweep_stale; do
         eval "$(sed -n "/^$helper()/,/^}/p" "$source_file" | sed 's|/proc/\$pid|$process_root/$pid|g')" || exit 1
     done
     process_root="$tmp/proc"
     mkdir -p "$process_root"
     FIXTURE_ROOT="$fixture_root"
     pgrep() { printf '111\n'; }
-    flea_process_dir() { printf '%s/%s\n' "$process_root" "$1"; }
+    dlea_process_dir() { printf '%s/%s\n' "$process_root" "$1"; }
     kill() { printf '%s\n' "$*" >> "$tmp/sweep-signals"; }
     sleep() { :; }
     checks=0
@@ -364,15 +364,15 @@ result=0
         mkdir -p "$process_root/111"
         peer_root="$tmp/run-$sample"
         mkdir -p "$peer_root"
-        : > "$peer_root/.flea-test-sandbox"
+        : > "$peer_root/.dlea-test-sandbox"
         printf '222\n' > "$peer_root/runner.pid"
         printf 'qs\0-p\0%s/xwwatch-ui\0' "$FIXTURE_ROOT" > "$process_root/111/cmdline"
-        printf 'FLEA_TEST_RUN_ROOT=%s\0' "$peer_root" > "$process_root/111/environ"
+        printf 'DLEA_TEST_RUN_ROOT=%s\0' "$peer_root" > "$process_root/111/environ"
         expected=0
         case "$sample" in
             live-peer) mkdir -p "$process_root/222" ;;
             current-root)
-                printf 'FLEA_TEST_RUN_ROOT=%s\0' "$run_root" > "$process_root/111/environ"
+                printf 'DLEA_TEST_RUN_ROOT=%s\0' "$run_root" > "$process_root/111/environ"
                 printf '222\n' > "$run_root/runner.pid"
                 mkdir -p "$process_root/222"
                 ;;
@@ -382,8 +382,8 @@ result=0
                 expected=1
                 ;;
             untagged) printf 'USER=gm\0' > "$process_root/111/environ" ;;
-            suffix-marker) printf 'OTHER_FLEA_TEST_RUN_ROOT=%s\0' "$peer_root" > "$process_root/111/environ" ;;
-            duplicate-marker) printf 'FLEA_TEST_RUN_ROOT=%s\0' "$run_root" >> "$process_root/111/environ" ;;
+            suffix-marker) printf 'OTHER_DLEA_TEST_RUN_ROOT=%s\0' "$peer_root" > "$process_root/111/environ" ;;
+            duplicate-marker) printf 'DLEA_TEST_RUN_ROOT=%s\0' "$run_root" >> "$process_root/111/environ" ;;
             unreadable-runner) rm "$peer_root/runner.pid" ;;
             unknown-runner) printf 'unknown\n' > "$peer_root/runner.pid" ;;
             other-command) printf 'qs\0-p\0/operator/ui\0' > "$process_root/111/cmdline" ;;
@@ -419,9 +419,9 @@ for mode in success failure wrong-mark; do
     fi
     if [[ "$mode" == success ]]; then
         if [[ ! -s "$tmp/ipc-argv" ]] \
-            || grep -vE '^ipc --pid (111|222) call flea ' "$tmp/ipc-argv" \
-            || ! grep -q '^ipc --pid 111 call flea listingBackgroundCentre ' "$tmp/ipc-argv" \
-            || ! grep -q '^ipc --pid 222 call flea selectedIndices ' "$tmp/ipc-argv" \
+            || grep -vE '^ipc --pid (111|222) call dlea ' "$tmp/ipc-argv" \
+            || ! grep -q '^ipc --pid 111 call dlea listingBackgroundCentre ' "$tmp/ipc-argv" \
+            || ! grep -q '^ipc --pid 222 call dlea selectedIndices ' "$tmp/ipc-argv" \
             || [[ "$(cat "$tmp/clicks" 2>/dev/null)" != 'click 400 600 right' ]]; then
             printf 'FAIL pid argv or A background target was not exercised\n'
             failures=$((failures + 1))
@@ -469,7 +469,7 @@ for window in A B; do
     result=0
     xw_ipc "$pid" total > "$tmp/route.out" 2> "$tmp/route.err" || result=$?
     forwarded=$(cat "$tmp/ipc-argv")
-    if [[ "$result" != 0 || "$forwarded" != "ipc --pid $pid call flea total " ]]; then
+    if [[ "$result" != 0 || "$forwarded" != "ipc --pid $pid call dlea total " ]]; then
         printf 'FAIL %s IPC read did not forward pid %s: %s\n' "$window" "$pid" "$forwarded"
         failures=$((failures + 1))
     fi
@@ -477,12 +477,12 @@ done
 
 # Drive the copied-window stopper against a real child carrying this run's ownership marker.
 eval "$(sed -n '/^xw_kill_second()/,/^}/p' "$source_file")" || exit 1
-eval "$(sed -n '/^flea_process_owned()/,/^}/p' "$source_file")" || exit 1
-flea_process_dir() {
+eval "$(sed -n '/^dlea_process_owned()/,/^}/p' "$source_file")" || exit 1
+dlea_process_dir() {
     printf '/proc/%s\n' "$1"
 }
 dummy_lifetime_s=10
-FLEA_TEST_RUN_ROOT="$run_root" bash -c 'exec -a "$1" sleep "$2"' _ "$fixture_root/xwwatch-ui" "$dummy_lifetime_s" &
+DLEA_TEST_RUN_ROOT="$run_root" bash -c 'exec -a "$1" sleep "$2"' _ "$fixture_root/xwwatch-ui" "$dummy_lifetime_s" &
 test_pid=$!
 pgrep() {
     printf '%s\n' "$test_pid"
@@ -514,10 +514,10 @@ mkdir -p "$mock_process"
 pgrep() {
     printf '333\n'
 }
-flea_process_dir() {
+dlea_process_dir() {
     printf '%s\n' "$mock_process"
 }
-flea_process_owned() {
+dlea_process_owned() {
     if [[ -d "$mock_process" ]]; then
         rmdir "$mock_process"
         return 0

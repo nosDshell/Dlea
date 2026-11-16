@@ -72,7 +72,7 @@ def pack(objects, pages_id, title, author, target):
     objects = list(objects)
     objects.append(f"<< /Type /Catalog /Pages {pages_id} 0 R >>")
     catalog = len(objects)
-    objects.append(f"<< /Title {info_string(title)} /Author {info_string(author)} /Producer (flea fixture) "
+    objects.append(f"<< /Title {info_string(title)} /Author {info_string(author)} /Producer (dlea fixture) "
                    "/CreationDate (D:20250615100000Z) /ModDate (D:20250615100000Z) >>")
     info = len(objects)
 

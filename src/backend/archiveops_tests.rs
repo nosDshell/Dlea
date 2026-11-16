@@ -324,12 +324,12 @@ fn a_password_extract_of_a_tar_is_refused_with_one_sentence() {
     let e = extract(&formats, &d.join("a.tar.gz"), &dest, &AtomicBool::new(false), Some("s3cret")).unwrap_err();
     assert_eq!(e.msg, "only an archive that 7-Zip reads can take a password");
     assert!(!dest.exists(), "a refused extract published a destination");
-    let none = std::fs::read_dir(d.path()).unwrap().flatten().filter(|e| e.file_name().to_string_lossy().starts_with(".flea-work-")).count();
+    let none = std::fs::read_dir(d.path()).unwrap().flatten().filter(|e| e.file_name().to_string_lossy().starts_with(".dlea-work-")).count();
     assert_eq!(none, 0, "and staged nothing");
 }
 
 // A listing past the retention cap still feeds exact totals to the empty-output and free-space checks.
-fn extract_past_the_retention_cap(tag: &str, first_size: u64) -> Result<bool, FleaError> {
+fn extract_past_the_retention_cap(tag: &str, first_size: u64) -> Result<bool, DleaError> {
     let d = TestDir::new(tag);
     let archive = d.file("oversized.7z", "stub input");
     let listing = format!("print('----------')\nfor i in range(70000):\n print('Path = f%d\\nSize = %d\\nEncrypted = -\\n' % (i, {first_size} if i == 0 else 0))\n");
@@ -391,8 +391,8 @@ fn a_line_broken_compress_password_names_the_archive() {
 fn a_raw_named_member_splits_to_its_exact_name() {
     use std::os::unix::ffi::OsStrExt;
     let raw = Path::new(std::ffi::OsStr::from_bytes(b"/d/a\xff"));
-    let (parent, names) = split_paths(&[flea::bytename::path_text(raw).into_owned(), "/d/b".to_string()]).unwrap();
+    let (parent, names) = split_paths(&[dlea::bytename::path_text(raw).into_owned(), "/d/b".to_string()]).unwrap();
     assert_eq!(parent, Path::new("/d"));
-    assert_eq!(flea::bytename::text_name(&names[0]).as_bytes(), b"a\xff");
+    assert_eq!(dlea::bytename::text_name(&names[0]).as_bytes(), b"a\xff");
     assert_eq!(names[1], "b");
 }

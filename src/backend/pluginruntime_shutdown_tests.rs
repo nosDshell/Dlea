@@ -7,7 +7,7 @@ use std::sync::{mpsc, Arc, Mutex};
 fn plugin_runtime_shutdown_closes_registration_before_delayed_workers_can_start() {
     let dir = TestDir::new("plugin-shutdown-registration");
     let env = env(&dir);
-    plugin(&dir, "config/flea/plugins/example.shutdown", "example.shutdown", &format!(
+    plugin(&dir, "config/dlea/plugins/example.shutdown", "example.shutdown", &format!(
         "#!/bin/sh\necho $$ >> '{}/starts'\nread hello\necho '{{\"op\":\"ready\"}}'\ncat >/dev/null\n",
         dir.path().display()
     ));
@@ -43,8 +43,8 @@ fn plugin_runtime_shutdown_closes_registration_before_delayed_workers_can_start(
 fn plugin_runtime_mixed_previewer_kind_keeps_other_declared_operations_available() {
     let dir = TestDir::new("plugin-mixed-previewer");
     let env = env(&dir);
-    plugin(&dir, "config/flea/plugins/example.mixed", "example.mixed", "#!/bin/sh\nread hello\necho '{\"op\":\"ready\"}'\nwhile read request; do echo '{\"op\":\"done\"}'; done\n");
-    dir.file("config/flea/plugins/example.mixed/manifest.json", r#"{"schemaVersion":1,"id":"example.mixed","name":"Mixed","version":"1","author":"Example","description":"Two kinds.","kinds":["menu-action","previewer"],"entryPoints":{"run":"bin/run"},"menuActions":[{"id":"go","label":"Go"}],"previewer":{"mime":["text/*"],"output":"text"}}"#);
+    plugin(&dir, "config/dlea/plugins/example.mixed", "example.mixed", "#!/bin/sh\nread hello\necho '{\"op\":\"ready\"}'\nwhile read request; do echo '{\"op\":\"done\"}'; done\n");
+    dir.file("config/dlea/plugins/example.mixed/manifest.json", r#"{"schemaVersion":1,"id":"example.mixed","name":"Mixed","version":"1","author":"Example","description":"Two kinds.","kinds":["menu-action","previewer"],"entryPoints":{"run":"bin/run"},"menuActions":[{"id":"go","label":"Go"}],"previewer":{"mime":["text/*"],"output":"text"}}"#);
     let mut found = crate::backend::plugins::find(&env, "example.mixed").unwrap();
     assert!(found.plugin.manifest.block("menu-action").is_some());
     assert!(found.plugin.manifest.block("previewer").is_some());
@@ -54,13 +54,13 @@ fn plugin_runtime_mixed_previewer_kind_keeps_other_declared_operations_available
     });
     let runtime =
         session_at(&registry, &env, &found).unwrap_or_else(|error| panic!("{}", error.detail));
-    let request = flea::jsondoc::parse(r#"{"op":"run","action":"go","paths":[]}"#).unwrap();
+    let request = dlea::jsondoc::parse(r#"{"op":"run","action":"go","paths":[]}"#).unwrap();
     let answer = runtime.request(request).unwrap();
     assert_eq!(
         answer
             .message
             .get("op")
-            .and_then(flea::jsondoc::Json::as_str),
+            .and_then(dlea::jsondoc::Json::as_str),
         Some("done")
     );
     found.plugin.manifest.kinds = vec!["previewer".into()];

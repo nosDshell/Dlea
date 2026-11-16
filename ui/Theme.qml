@@ -13,7 +13,7 @@ import "js/Density.js" as Density
 import "js/Palette.js" as Palette
 import "js/TextSize.js" as TextSize
 
-// Flea is its own process, so it plays the role shell.qml plays for the bar: it feeds Color and Style.
+// Dlea is its own process, so it plays the role shell.qml plays for the bar: it feeds Color and Style.
 Singleton {
     id: root
 
@@ -24,7 +24,7 @@ Singleton {
     // True only once colors.toml parsed to a palette, so a test can tell one from a fallback.
     property bool ready: false
 
-    // The size Flea draws at: Omarchy's own unless the Display section pinned an override stop.
+    // The size Dlea draws at: Omarchy's own unless the Display section pinned an override stop.
     readonly property int baseSize: TextSize.effective(ViewState.textSize, Style.font.baseSize)
     readonly property bool overridden: !TextSize.following(ViewState.textSize)
     // One while following, so every OEM token below is Omarchy's own until an override moves it,
@@ -37,7 +37,7 @@ Singleton {
 
     // A property and not a Motion.js var: a plain library var notifies nothing, so every Behavior
     // reading it would keep whatever it was built with when the compositor's answer arrives.
-    property bool reducedMotion: Quickshell.env("FLEA_REDUCED_MOTION") === "1"
+    property bool reducedMotion: Quickshell.env("DLEA_REDUCED_MOTION") === "1"
 
     // The only literal colours in the UI. Color models five roles; surface, symlink and executable
     // have no counterpart, and the other two are read here before Color.loadColors has run.
@@ -277,7 +277,7 @@ Singleton {
     }
 
     // The metrics contract as the app resolves it, one key=value per line in the Blueprint board's
-    // order; ui/shell.qml serves it as tokens() and tools/flea-metrics-gate diffs it. family is the
+    // order; ui/shell.qml serves it as tokens() and tools/dlea-metrics-gate diffs it. family is the
     // resolved face, never the "monospace" alias, so the gate cannot pass on a box without the font.
     function tokens() {
         var t = {
@@ -418,10 +418,10 @@ Singleton {
 
     // Hyprland reloads its config for a Window Corners, Gaps or Transparency change with no theme switch, so Style's rounding and Glass's mode are read again then.
     signal configReloaded()
-    signal fleaWindowOpened()
-    // Sample input, openwindow's data: "55bacb0a1f80,1,com.thisisgm.flea,Flea", the class third.
+    signal dleaWindowOpened()
+    // Sample input, openwindow's data: "55bacb0a1f80,1,com.nosDshell.dlea,Dlea", the class third.
     function hyprEvent(name, data) {
-        if (name === "openwindow" && String(data).split(",")[2] === "com.thisisgm.flea") root.fleaWindowOpened();
+        if (name === "openwindow" && String(data).split(",")[2] === "com.nosDshell.dlea") root.dleaWindowOpened();
         if (name !== "configreloaded") return;
         Style.scheduleRefresh();
         root.configReloaded();
@@ -432,7 +432,7 @@ Singleton {
         function onRawEvent(event) { root.hyprEvent(event.name, event.data) }
     }
 
-    // Read once, not watched: the Display section reports the compositor's scale and Flea owns no
+    // Read once, not watched: the Display section reports the compositor's scale and Dlea owns no
     // control that could change it, so there is nothing here for a poll to keep in step with.
     Process {
         running: true
@@ -445,12 +445,12 @@ Singleton {
         }
     }
 
-    // Flea agrees with the compositor rather than carrying a switch, and FLEA_REDUCED_MOTION is the
+    // Dlea agrees with the compositor rather than carrying a switch, and DLEA_REDUCED_MOTION is the
     // test override; Quickshell.env answers null for an unset variable, so the guard is a truthiness
     // test, StdioCollector text is a property whose call throws, and the query is Style.qml's own.
     Process {
         id: motionQuery
-        running: !Quickshell.env("FLEA_REDUCED_MOTION")
+        running: !Quickshell.env("DLEA_REDUCED_MOTION")
         command: ["hyprctl", "-j", "getoption", "animations:enabled"]
         stdout: StdioCollector {
             waitForEnd: true

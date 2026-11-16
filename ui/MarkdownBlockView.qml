@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/CodeRuns.js" as CodeRuns
 import "js/Markdown.js" as Markdown
 import "js/MdHtmlImage.js" as HtmlImage
@@ -49,7 +49,7 @@ Item {
     // Headings use the prescribed bold text size and line box.
     Component {
         id: textBlock
-        Flea.MarkdownText {
+        Dlea.MarkdownText {
             linkGate: Markdown.isExternalLink
             width: view.width
             bodyPx: view.preview.bodyPx
@@ -66,7 +66,7 @@ Item {
     // A run with inline formulas draws each in its line once the helper answers; the other runs build none of its parts.
     Component {
         id: mathsBlock
-        Flea.MarkdownMathsText {
+        Dlea.MarkdownMathsText {
             objectName: "mathsText"
             linkGate: Markdown.isExternalLink
             width: view.width
@@ -88,7 +88,7 @@ Item {
 
     Component {
         id: tableBlock
-        Flea.MarkdownTable {
+        Dlea.MarkdownTable {
             block: view.block
             preview: view.preview
             availableWidth: view.width
@@ -211,7 +211,7 @@ Item {
             readonly property int figureInset: figureItem.ready && figureItem.kind === "math" && figureItem.fitHeight > 0 ? Theme.spacing.gap : 0
             height: figureItem.implicitHeight + 2 * figureInset
 
-            Flea.MarkdownFigure {
+            Dlea.MarkdownFigure {
                 id: figureItem
                 objectName: "figureItem"
                 y: parent.figureInset
@@ -238,7 +238,7 @@ Item {
     // A quote draws one bar per level, and a joined block sits flush under the one above so the outer bars run on.
     Component {
         id: quoteBlock
-        Flea.MarkdownQuote {
+        Dlea.MarkdownQuote {
             objectName: "quoteRow"
             y: view.block.joined === true ? -view.preview.blockGap : 0
             width: view.width
@@ -255,7 +255,7 @@ Item {
     // A chunk after the first sits flush under its predecessor, across the gap the list puts between blocks.
     Component {
         id: listBlock
-        Flea.MarkdownList {
+        Dlea.MarkdownList {
             objectName: "listColumn"
             y: view.block.joined === true ? -view.preview.blockGap : 0
             width: view.width
@@ -270,7 +270,7 @@ Item {
 
     Component {
         id: remoteBlock
-        Flea.MarkdownRemote {
+        Dlea.MarkdownRemote {
             width: view.width
             host: view.block.host
         }
@@ -279,7 +279,7 @@ Item {
     // A badge row builds only its own pictures, wrapped and aligned by the row itself.
     Component {
         id: imagesBlock
-        Flea.MarkdownImages {
+        Dlea.MarkdownImages {
             width: view.width
             images: view.block.type === "images" ? view.block.items : []
             centred: view.block.type === "images" && view.block.align === "center"

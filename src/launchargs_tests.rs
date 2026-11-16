@@ -1,7 +1,7 @@
 use super::Options;
 
 fn parse(args: &[&str]) -> Result<Options, String> {
-    let argv: Vec<String> = std::iter::once("flea")
+    let argv: Vec<String> = std::iter::once("dlea")
         .chain(args.iter().copied())
         .map(String::from)
         .collect();

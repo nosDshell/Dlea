@@ -33,11 +33,11 @@ fn only_pinned_entries_with_a_path_are_pins() {
 fn the_pile_lives_in_the_state_home() {
     assert_eq!(
         pile_file("/run/state", "/home/gm"),
-        "/run/state/omarchy/flea-shelf/shelf.json"
+        "/run/state/omarchy/dlea-shelf/shelf.json"
     );
     assert_eq!(
         pile_file("", "/home/gm"),
-        "/home/gm/.local/state/omarchy/flea-shelf/shelf.json"
+        "/home/gm/.local/state/omarchy/dlea-shelf/shelf.json"
     );
 }
 

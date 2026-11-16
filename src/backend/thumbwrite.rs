@@ -9,7 +9,7 @@ const TEMP_TRIES: usize = 8;
 const TEMP_MODE: u32 = 0o600;
 const SUFFIX_BYTES: usize = 8;
 // This application's name in the PNG Software key, matching the fail/ namespace in thumbcache.
-const SOFTWARE: &str = "flea";
+const SOFTWARE: &str = "dlea";
 // The three keys a published entry may hold only one of, so any the thumbnailer wrote are stripped before ours go in.
 const STAMPED_KEYS: [&str; 3] = ["Thumb::URI", "Thumb::MTime", "Software"];
 // The reflected polynomial PNG's CRC-32 uses, and the value that both seeds and inverts the register.
@@ -267,7 +267,7 @@ mod tests {
         let mine = exclusive_temp(dir.path()).unwrap();
         // A published entry, another process's in-flight temp, and another application's dotfile must all survive.
         let published = dir.join("d41d8cd98f00b204e9800998ecf8427e.png");
-        let other_pid = dir.join(".flea-1-0011223344556677.png");
+        let other_pid = dir.join(".dlea-1-0011223344556677.png");
         let other_app = dir.join(".gnome-thumbnail-factory.png");
         for p in [&published, &other_pid, &other_app] {
             std::fs::write(p, b"").unwrap();
@@ -288,7 +288,7 @@ mod tests {
         let mine = work.dir.clone();
         std::fs::write(mine.join("list.txt"), b"x").unwrap();
         std::mem::forget(work);
-        let other_pid = dir.join(".flea-work-appicon-1-0");
+        let other_pid = dir.join(".dlea-work-appicon-1-0");
         let other_tag = dir.join(&format!("{}archive-{}-0", WORK_PREFIX, std::process::id()));
         for p in [&other_pid, &other_tag] {
             std::fs::create_dir(p).unwrap();

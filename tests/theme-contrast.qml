@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-theme-contrast-test
+//@ pragma ShellId dlea-theme-contrast-test
 
 import QtQuick
 import Quickshell
 import qs.Commons
-import "flea" as Flea
-import "flea/js/Contrast.js" as Contrast
+import "dlea" as Dlea
+import "dlea/js/Contrast.js" as Contrast
 import "button-probe.js" as Probe
 import "qml-probe.js" as QmlProbe
 import "palettes.js" as Palettes
@@ -63,16 +63,16 @@ ShellRoot {
         color: "#303030"
 
         Column {
-            Flea.Row { id: restRow; width: 800; row: shell.sampleRow; kindNames: []; hiddenCols: []; clipMark: "" }
-            Flea.MenuRow { id: litRow; width: 400; current: true; entry: ({ label: "Open", glyph: "folder-open", action: "open", hint: "enter" }) }
-            Flea.DialogButton { id: secondaryButton; label: "Cancel" }
+            Dlea.Row { id: restRow; width: 800; row: shell.sampleRow; kindNames: []; hiddenCols: []; clipMark: "" }
+            Dlea.MenuRow { id: litRow; width: 400; current: true; entry: ({ label: "Open", glyph: "folder-open", action: "open", hint: "enter" }) }
+            Dlea.DialogButton { id: secondaryButton; label: "Cancel" }
             // The same entries as a cursor row, a picked row and a resting row: the pairs the recipe check compares.
-            Flea.MenuRow { id: restKeyRow; width: 400; entry: ({ label: "Open", glyph: "folder-open", action: "open", hint: "enter" }) }
-            Flea.MenuRow { id: litDangerRow; width: 400; current: true; entry: ({ label: "Move to Trash", glyph: "trash", action: "trash", danger: true, hint: "d" }) }
-            Flea.MenuRow { id: restDangerRow; width: 400; entry: ({ label: "Move to Trash", glyph: "trash", action: "trash", danger: true, hint: "d" }) }
-            Flea.MenuRow { id: litSubRow; width: 400; current: true; entry: ({ label: "Open With", glyph: "folder-open", action: "openWith", submenu: [{ label: "x" }] }) }
-            Flea.MenuRow { id: restSubRow; width: 400; entry: ({ label: "Open With", glyph: "folder-open", action: "openWith", submenu: [{ label: "x" }] }) }
-            Flea.MenuRow { id: pickedRow; width: 400; picked: true; current: true; entry: ({ label: "Name", glyph: "file", action: "name" }) }
+            Dlea.MenuRow { id: restKeyRow; width: 400; entry: ({ label: "Open", glyph: "folder-open", action: "open", hint: "enter" }) }
+            Dlea.MenuRow { id: litDangerRow; width: 400; current: true; entry: ({ label: "Move to Trash", glyph: "trash", action: "trash", danger: true, hint: "d" }) }
+            Dlea.MenuRow { id: restDangerRow; width: 400; entry: ({ label: "Move to Trash", glyph: "trash", action: "trash", danger: true, hint: "d" }) }
+            Dlea.MenuRow { id: litSubRow; width: 400; current: true; entry: ({ label: "Open With", glyph: "folder-open", action: "openWith", submenu: [{ label: "x" }] }) }
+            Dlea.MenuRow { id: restSubRow; width: 400; entry: ({ label: "Open With", glyph: "folder-open", action: "openWith", submenu: [{ label: "x" }] }) }
+            Dlea.MenuRow { id: pickedRow; width: 400; picked: true; current: true; entry: ({ label: "Name", glyph: "file", action: "name" }) }
         }
     }
 
@@ -93,7 +93,7 @@ ShellRoot {
         var cursor = shell.findNamed(litRow, "objectName", "menuWash"), picked = shell.findNamed(pickedRow, "objectName", "menuWash"), rest = shell.findNamed(restKeyRow, "objectName", "menuWash")
         var selected = Style.selectedAccentFill
         shell.check(name + " cursor wash is the foreground", cursor !== null && shell.solid(cursor.color) === shell.solid(fg), true)
-        shell.check(name + " cursor wash is the hover lift", cursor !== null && Math.abs(cursor.color.a * cursor.opacity - Flea.Theme.washHover) < shell.alphaEpsilon, true)
+        shell.check(name + " cursor wash is the hover lift", cursor !== null && Math.abs(cursor.color.a * cursor.opacity - Dlea.Theme.washHover) < shell.alphaEpsilon, true)
         shell.check(name + " resting row draws no wash", rest !== null && rest.opacity === 0, true)
         shell.check(name + " picked wash is the selected accent fill", picked !== null && String(picked.color) === String(selected), true)
         shell.check(name + " picked wash is drawn at opacity 1", picked !== null && picked.opacity === 1, true)
@@ -139,7 +139,7 @@ ShellRoot {
     // Option B: the lowest 8-bit alpha at which the unlifted muted and metadata ink hold 4.5 on the background plane alone, the plane under the list and preview.
     function listFloor(c) {
         var floor = shell.glassSteps
-        while (floor > 0 && Math.min(shell.inkWorstOn(c.muted, c.background, floor - 1), shell.inkWorstOn(c.metadata, c.background, floor - 1)) >= Flea.Theme.textContrast) floor--
+        while (floor > 0 && Math.min(shell.inkWorstOn(c.muted, c.background, floor - 1), shell.inkWorstOn(c.metadata, c.background, floor - 1)) >= Dlea.Theme.textContrast) floor--
         return floor
     }
     function inkWorstOn(ink, plane, a) {
@@ -151,11 +151,11 @@ ShellRoot {
     function glassSweep(name, c) {
         // Walk down from opaque while every step still passes; the step before the first miss is this palette's floor.
         var floor = shell.glassSteps
-        while (floor > 0 && shell.glassWorst(c, floor - 1).ratio >= Flea.Theme.textContrast) floor--
+        while (floor > 0 && shell.glassWorst(c, floor - 1).ratio >= Dlea.Theme.textContrast) floor--
         var worst = shell.glassWorst(c, floor)
         shell.log("floor " + name + " " + floor + "/255 (" + (Math.round(floor / shell.glassSteps * 1000) / 1000) + "), lowest ratio there " + (Math.round(worst.ratio * 100) / 100) + " " + worst.at)
         shell.glassFloor = Math.max(shell.glassFloor, floor)
-        shell.atLeast(name, "glass ink at opaque", "both planes over both backdrops", shell.glassWorst(c, shell.glassSteps).ratio, Flea.Theme.textContrast)
+        shell.atLeast(name, "glass ink at opaque", "both planes over both backdrops", shell.glassWorst(c, shell.glassSteps).ratio, Dlea.Theme.textContrast)
         var recorded = shell.glassFloors[name]
         shell.check(name + " glass floor " + floor + " is at or under the recorded " + recorded, recorded !== undefined && floor <= recorded, true)
     }
@@ -209,17 +209,17 @@ ShellRoot {
     }
     // The smallest lightness step from ink, keeping its hue, toward the side the foreground sits on that holds the floor on every glass ground (Theme's ensureRatio walk, over four grounds).
     function liftToward(ink, c, a) {
-        if (shell.inkWorst(ink, c, a) >= Flea.Theme.textContrast) return String(ink)
+        if (shell.inkWorst(ink, c, a) >= Dlea.Theme.textContrast) return String(ink)
         var fg = Contrast.parse(c.foreground), bg = Contrast.parse(c.background)
         var from = Contrast.parse(ink), to = Contrast.luminance(fg[0], fg[1], fg[2]) > Contrast.luminance(bg[0], bg[1], bg[2]) ? [1, 1, 1] : [0, 0, 0], lo = 0, hi = 1
         for (var i = 0; i < 20; i++) {
             var mid = (lo + hi) / 2
-            if (shell.inkWorst(Contrast.hexOf(Contrast.mix(from, to, mid)), c, a) >= Flea.Theme.textContrast) hi = mid
+            if (shell.inkWorst(Contrast.hexOf(Contrast.mix(from, to, mid)), c, a) >= Dlea.Theme.textContrast) hi = mid
             else lo = mid
         }
         for (var t = hi; t <= 1; t += 1 / 512) {
             var hex = Contrast.hexOf(Contrast.mix(from, to, t))
-            if (shell.inkWorst(hex, c, a) >= Flea.Theme.textContrast) return hex
+            if (shell.inkWorst(hex, c, a) >= Dlea.Theme.textContrast) return hex
         }
         return Contrast.hexOf(to)
     }
@@ -236,7 +236,7 @@ ShellRoot {
             var got = shell.glassInk(name, role, ink, shell.liftAlpha)
             shell.log("floor lift " + name + " " + role + " " + String(ink) + " to " + lifted[role] + ", ratio " + (Math.round(shell.inkWorst(lifted[role], c, shell.liftAlpha) * 100) / 100)
                       + ", step to ink " + (Math.round(Contrast.ratio(String(c.foreground), lifted[role]) * 100) / 100) + " (opaque " + (Math.round(Contrast.ratio(String(c.foreground), String(ink)) * 100) / 100) + ")")
-            shell.atLeast(name, "lifted " + role + " ink at 0.75", "both planes over both backdrops", shell.inkWorst(got, c, shell.liftAlpha), Flea.Theme.textContrast)
+            shell.atLeast(name, "lifted " + role + " ink at 0.75", "both planes over both backdrops", shell.inkWorst(got, c, shell.liftAlpha), Dlea.Theme.textContrast)
             shell.check(name + " " + role + " lift is the recorded " + got, got === lifted[role], true)
         }
         var collapsed = shell.collapsedInto(lifted.muted, c)
@@ -248,7 +248,7 @@ ShellRoot {
         var floor = shell.glassSteps
         for (var a = shell.glassSteps; a >= shell.liftAlpha; a--) {
             var muted = shell.liftToward(c.muted, c, a), metadata = shell.liftToward(c.metadata, c, a)
-            if (shell.collapsedInto(muted, c) || shell.collapsedInto(metadata, c) || shell.inkWorst(c.foreground, c, a) < Flea.Theme.textContrast) break
+            if (shell.collapsedInto(muted, c) || shell.collapsedInto(metadata, c) || shell.inkWorst(c.foreground, c, a) < Dlea.Theme.textContrast) break
             floor = a
         }
         shell.log("floor distinct " + name + " " + floor + "/255")
@@ -264,50 +264,50 @@ ShellRoot {
         return worst
     }
     function pickedSweep(name, c) {
-        Flea.Glass.mode = "glassy"
-        Flea.Glass.focused = true
-        Flea.Glass.clear = true
-        var drawn = Flea.Theme.color, a = Math.round(Flea.Glass.alpha * 255), list = Math.round(Flea.Glass.listAlpha * 255)
+        Dlea.Glass.mode = "glassy"
+        Dlea.Glass.focused = true
+        Dlea.Glass.clear = true
+        var drawn = Dlea.Theme.color, a = Math.round(Dlea.Glass.alpha * 255), list = Math.round(Dlea.Glass.listAlpha * 255)
         shell.check(name + " A uses at least Nautilus's 0.75", a >= Math.ceil(0.75 * 255) && a < 255, true)
-        shell.atLeast(name, "picked primary", "both planes over both backdrops", shell.modeWorst(drawn.foreground, c, a, shell.blurBrightness), Flea.Theme.textContrast)
-        shell.atLeast(name, "picked muted", "both planes over both backdrops", shell.modeWorst(drawn.muted, c, a, shell.blurBrightness), Flea.Theme.textContrast)
-        shell.atLeast(name, "picked metadata", "both planes over both backdrops", shell.modeWorst(drawn.metadata, c, a, shell.blurBrightness), Flea.Theme.textContrast)
+        shell.atLeast(name, "picked primary", "both planes over both backdrops", shell.modeWorst(drawn.foreground, c, a, shell.blurBrightness), Dlea.Theme.textContrast)
+        shell.atLeast(name, "picked muted", "both planes over both backdrops", shell.modeWorst(drawn.muted, c, a, shell.blurBrightness), Dlea.Theme.textContrast)
+        shell.atLeast(name, "picked metadata", "both planes over both backdrops", shell.modeWorst(drawn.metadata, c, a, shell.blurBrightness), Dlea.Theme.textContrast)
         var primary = {foreground: drawn.foreground, background: c.background}
         shell.check(name + " picked muted keeps its primary step", shell.collapsedInto(String(drawn.muted), primary), false)
         shell.check(name + " picked metadata keeps its primary step", shell.collapsedInto(String(drawn.metadata), primary), false)
-        shell.check(name + " picked listing has its own floor", list, Flea.Glass.split ? Math.max(a, shell.listFloor(c)) : a)
+        shell.check(name + " picked listing has its own floor", list, Dlea.Glass.split ? Math.max(a, shell.listFloor(c)) : a)
         var frames = [["muted frame", drawn.mutedFrame], ["metadata glyph", drawn.metadataFrame], ["accent frame", drawn.accentFrame]]
         var texts = [["error", drawn.error], ["status error", drawn.errorOnSurface], ["symlink", drawn.symlink], ["executable", drawn.executable]]
         for (var g = 0; g < frames.length; g++)
-            shell.atLeast(name, "picked " + frames[g][0], "both planes over both backdrops", shell.modeWorst(frames[g][1], c, a, shell.blurBrightness), Flea.Theme.frameContrast)
+            shell.atLeast(name, "picked " + frames[g][0], "both planes over both backdrops", shell.modeWorst(frames[g][1], c, a, shell.blurBrightness), Dlea.Theme.frameContrast)
         for (var t = 0; t < texts.length; t++)
-            shell.atLeast(name, "picked " + texts[t][0], "both planes over both backdrops", shell.modeWorst(texts[t][1], c, a, shell.blurBrightness), Flea.Theme.textContrast)
+            shell.atLeast(name, "picked " + texts[t][0], "both planes over both backdrops", shell.modeWorst(texts[t][1], c, a, shell.blurBrightness), Dlea.Theme.textContrast)
         shell.log("floor PICK " + name + " alpha=" + a + " list=" + list + " primary=" + String(drawn.foreground) + " muted=" + String(drawn.muted) + " metadata=" + String(drawn.metadata))
-        Flea.Glass.mode = "transparent"
+        Dlea.Glass.mode = "transparent"
         var focuses = [true, false]
         for (var f = 0; f < focuses.length; f++) {
-            Flea.Glass.focused = focuses[f]
-            shell.check(name + " transparent focus " + focuses[f] + " alpha", Math.round(Flea.Glass.alpha * 255), 255)
+            Dlea.Glass.focused = focuses[f]
+            shell.check(name + " transparent focus " + focuses[f] + " alpha", Math.round(Dlea.Glass.alpha * 255), 255)
             shell.check(name + " transparent draws opaque inks", [String(drawn.foreground), String(drawn.muted), String(drawn.metadata)], [String(c.foreground), String(c.muted), String(c.metadata)])
         }
-        Flea.Glass.mode = "opaque"
+        Dlea.Glass.mode = "opaque"
         shell.check(name + " opaque restores all three inks", [String(drawn.foreground), String(drawn.muted), String(drawn.metadata)], [String(c.foreground), String(c.muted), String(c.metadata)])
-        Flea.Glass.clear = false
+        Dlea.Glass.clear = false
     }
 
     function sweep(entry) {
-        var c = Flea.Theme.color, rgba = Probe.rgba, name = entry.name
-        Flea.Theme.applyColors(entry.body)
+        var c = Dlea.Theme.color, rgba = Probe.rgba, name = entry.name
+        Dlea.Theme.applyColors(entry.body)
         var bg = String(c.background), surface = String(c.surface), fg = String(c.foreground)
         // The ground a cursor row draws on: the plain hover wash the row itself draws, over the card's surface.
         var wash = Probe.find(litRow, "menuWash")
         shell.check(name + " cursor row draws its wash", wash !== null && wash.visible, true)
         shell.cursorRecipe(name, fg)
-        shell.atLeast(name, "muted text", "background", Contrast.ratio(String(c.muted), bg), Flea.Theme.textContrast)
-        shell.atLeast(name, "muted text", "surface", Contrast.ratio(String(c.muted), surface), Flea.Theme.textContrast)
-        shell.atLeast(name, "metadata text", "background", Contrast.ratio(String(c.metadata), bg), Flea.Theme.textContrast)
-        shell.atLeast(name, "metadata text", "surface", Contrast.ratio(String(c.metadata), surface), Flea.Theme.textContrast)
-        shell.atLeast(name, "muted frame", "background", Contrast.ratio(String(c.mutedFrame), bg), Flea.Theme.frameContrast)
+        shell.atLeast(name, "muted text", "background", Contrast.ratio(String(c.muted), bg), Dlea.Theme.textContrast)
+        shell.atLeast(name, "muted text", "surface", Contrast.ratio(String(c.muted), surface), Dlea.Theme.textContrast)
+        shell.atLeast(name, "metadata text", "background", Contrast.ratio(String(c.metadata), bg), Dlea.Theme.textContrast)
+        shell.atLeast(name, "metadata text", "surface", Contrast.ratio(String(c.metadata), surface), Dlea.Theme.textContrast)
+        shell.atLeast(name, "muted frame", "background", Contrast.ratio(String(c.mutedFrame), bg), Dlea.Theme.frameContrast)
         // The error ink is never the quieter of the two beside a caption, on each ground it draws on.
         shell.atLeast(name, "error against the caption", "background", Contrast.ratio(String(c.error), bg), Contrast.ratio(String(c.muted), bg))
         shell.atLeast(name, "status error against the caption", "surface", Contrast.ratio(String(c.errorOnSurface), surface), Contrast.ratio(String(c.muted), surface))
@@ -331,7 +331,7 @@ ShellRoot {
         shell.check("a wash ground keeps the colour's own alpha", shell.groundOf({ color: Qt.rgba(1, 1, 1, 0.5), opacity: 0.5 }, "#000000"), "#404040")
         for (var i = 0; i < Palettes.PALETTES.length; i++)
             shell.sweep(Palettes.PALETTES[i])
-        var want = Math.round(Flea.Glass.glassAlpha * shell.glassSteps)
+        var want = Math.round(Dlea.Glass.glassAlpha * shell.glassSteps)
         shell.log("floor all palettes " + shell.glassFloor + "/255 (" + (Math.round(shell.glassFloor / shell.glassSteps * 1000) / 1000) + "), glass alpha " + want + "/255")
         shell.finish()
     }

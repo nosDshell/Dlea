@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Verifies a clean package install supplies every backend Flea advertises.
+# Verifies a clean package install supplies every backend Dlea advertises.
 set -u
 cd "$(dirname "$0")/.." || exit 1
 
@@ -11,7 +11,7 @@ cleanup_extract() {
     [ -n "$extract_root" ] || return
     [ "$extract_root" != / ] || return
     [ "${extract_root#/}" != "$extract_root" ] || return
-    [ -f "$extract_root/.flea-package-test-owned" ] || return
+    [ -f "$extract_root/.dlea-package-test-owned" ] || return
     rm -rf -- "$extract_root"
 }
 trap cleanup_extract EXIT
@@ -33,9 +33,9 @@ for package in "${required_packages[@]}"; do
     fi
 done
 
-helper_path=usr/lib/flea/flea-gio-auth
+helper_path=usr/lib/dlea/dlea-gio-auth
 helper_sha=f4c75e616dd1381b285219415841a2deb9bc9a861998a52aa03a2ace8522d3c8
-package_file=${FLEA_PACKAGE_FILE:-}
+package_file=${DLEA_PACKAGE_FILE:-}
 if [ -z "$package_file" ] && command -v makepkg >/dev/null 2>&1; then
     mapfile -t package_files < <(makepkg --packagelist)
     if [ "${#package_files[@]}" -eq 1 ]; then
@@ -44,7 +44,7 @@ if [ -z "$package_file" ] && command -v makepkg >/dev/null 2>&1; then
 fi
 
 if [ -z "$package_file" ] || [ ! -f "$package_file" ]; then
-    printf 'FAIL package archive is absent; set FLEA_PACKAGE_FILE to a built makepkg archive\n'
+    printf 'FAIL package archive is absent; set DLEA_PACKAGE_FILE to a built makepkg archive\n'
     failed=$((failed + 1))
 else
     package_info=$(bsdtar -xOf "$package_file" .PKGINFO 2>/dev/null || true)
@@ -65,7 +65,7 @@ else
         failed=$((failed + 1))
     fi
 
-    # bsdtar -tvf: -rwxr-xr-x  0 root root 1327 Sep 04 12:00 usr/lib/flea/flea-gio-auth
+    # bsdtar -tvf: -rwxr-xr-x  0 root root 1327 Sep 04 12:00 usr/lib/dlea/dlea-gio-auth
     member_metadata=$(bsdtar -tvf "$package_file" 2>/dev/null | grep -F " $helper_path" || true)
     if [[ "$member_metadata" =~ ^-rwxr-xr-x[[:space:]]+[0-9]+[[:space:]]+root[[:space:]]+root[[:space:]].*[[:space:]]$helper_path$ ]]; then
         printf 'PASS package helper metadata root:root 0755\n'
@@ -79,7 +79,7 @@ else
         /*) : ;;
         *) printf 'FAIL package extraction root is not absolute\n'; exit 1 ;;
     esac
-    : > "$extract_root/.flea-package-test-owned" || exit 1
+    : > "$extract_root/.dlea-package-test-owned" || exit 1
     if bsdtar -xf "$package_file" -C "$extract_root" "$helper_path" 2>/dev/null \
         && [ -f "$extract_root/$helper_path" ] && [ -x "$extract_root/$helper_path" ]; then
         archived_sha=$(sha256sum "$extract_root/$helper_path" | cut -d' ' -f1)
@@ -96,9 +96,9 @@ else
 
     # The flasher's helper ships executable; its bench seam never ships, so an installed helper refuses --loop-root.
     udisks_listing=$(bsdtar -tvf "$package_file" 2>/dev/null || true)
-    # bsdtar -tvf: -rwxr-xr-x  0 root root 18214 Sep 24 12:00 usr/lib/flea/flea-udisks
-    if grep -Eq '^-rwxr-xr-x[[:space:]].*[[:space:]]usr/lib/flea/flea-udisks$' <<< "$udisks_listing" \
-        && ! grep -Fq 'flea-udisks-seam' <<< "$udisks_listing"; then
+    # bsdtar -tvf: -rwxr-xr-x  0 root root 18214 Sep 24 12:00 usr/lib/dlea/dlea-udisks
+    if grep -Eq '^-rwxr-xr-x[[:space:]].*[[:space:]]usr/lib/dlea/dlea-udisks$' <<< "$udisks_listing" \
+        && ! grep -Fq 'dlea-udisks-seam' <<< "$udisks_listing"; then
         printf 'PASS package flasher helper without its bench seam\n'
     else
         printf 'FAIL package flasher helper is absent, not 0755, or ships its bench seam\n'
@@ -106,8 +106,8 @@ else
     fi
 
     # Issue 173: the removal note is a tracked alpm hook, never a scriptlet, so it is a member like any other.
-    hook_path=usr/share/libalpm/hooks/flea.hook
-    # bsdtar -tvf: -rw-r--r--  0 root root 612 Sep 24 12:00 usr/share/libalpm/hooks/flea.hook
+    hook_path=usr/share/libalpm/hooks/dlea.hook
+    # bsdtar -tvf: -rw-r--r--  0 root root 612 Sep 24 12:00 usr/share/libalpm/hooks/dlea.hook
     hook_metadata=$(bsdtar -tvf "$package_file" 2>/dev/null | grep -F " $hook_path" || true)
     if [[ "$hook_metadata" =~ ^-rw-r--r--[[:space:]]+[0-9]+[[:space:]]+root[[:space:]]+root[[:space:]].*[[:space:]]$hook_path$ ]]; then
         printf 'PASS package removal hook %s root:root 0644\n' "$hook_path"
@@ -115,7 +115,7 @@ else
         printf 'FAIL package removal hook %s is absent or not root:root 0644\n' "$hook_path"
         failed=$((failed + 1))
     fi
-    # Sample input, packaging/flea.hook's own lines: [Trigger], Operation = Remove, Target = flea, When = PreTransaction.
+    # Sample input, packaging/dlea.hook's own lines: [Trigger], Operation = Remove, Target = dlea, When = PreTransaction.
     if bsdtar -xf "$package_file" -C "$extract_root" "$hook_path" 2>/dev/null && [ -f "$extract_root/$hook_path" ]; then
         for hook_line in '[Trigger]' 'Type = Package' 'Operation = Remove' '[Action]' 'When = PreTransaction'; do
             if grep -Fxq -- "$hook_line" "$extract_root/$hook_path"; then
@@ -125,15 +125,15 @@ else
                 failed=$((failed + 1))
             fi
         done
-        # Only flea, the one package Flea publishes, triggers the note.
+        # Only dlea, the one package Dlea publishes, triggers the note.
         hook_targets=$(grep '^Target = ' "$extract_root/$hook_path")
-        if [ "$hook_targets" = 'Target = flea' ]; then
-            printf 'PASS package removal hook targets flea alone\n'
+        if [ "$hook_targets" = 'Target = dlea' ]; then
+            printf 'PASS package removal hook targets dlea alone\n'
         else
-            printf 'FAIL package removal hook targets %s, not flea alone\n' "$(printf '%s' "$hook_targets" | tr '\n' ' ')"
+            printf 'FAIL package removal hook targets %s, not dlea alone\n' "$(printf '%s' "$hook_targets" | tr '\n' ' ')"
             failed=$((failed + 1))
         fi
-        # Sample input: Exec = /usr/bin/printf %s\n "Flea: ..." "Flea: ...", whose first word pacman executes.
+        # Sample input: Exec = /usr/bin/printf %s\n "Dlea: ..." "Dlea: ...", whose first word pacman executes.
         hook_program=$(sed -n 's/^Exec = \([^ ]*\).*$/\1/p' "$extract_root/$hook_path")
         if [ -n "$hook_program" ] && [ "${hook_program#/}" != "$hook_program" ] && [ -x "$hook_program" ]; then
             printf 'PASS package removal hook runs %s, which is here\n' "$hook_program"

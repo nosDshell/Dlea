@@ -32,7 +32,7 @@ def function(name):
     return PROBE[start:PROBE.index('\n}', start) + 2]
 
 
-reader = '        lines=$(tail -n +"$((drag_mark + 1))" "$work/flea.log"'
+reader = '        lines=$(tail -n +"$((drag_mark + 1))" "$work/dlea.log"'
 previous = PROBE[:PROBE.index(reader)].splitlines()[-1]
 check('TABDRAG reader has an immediate sample-input comment',
       # Sample input: # Sample input: TABDRAG catcher-enter pid=1154634 global=1280,720
@@ -96,7 +96,7 @@ wy=40
 wh=500
 dx=8
 dy=1432
-flea_pid=101
+dlea_pid=101
 srcdir=/fixture
 layerdrop_outside_x=200
 layerdrop_outside_y=60
@@ -112,20 +112,20 @@ refuse() {
 sleep() { :; }
 hyprctl() {
     [[ "$route" != unmapped ]] || return 0
-    printf '%s\n' '{"levels":{"1":[{"namespace": "flea-tab-tearoff"}]}}'
+    printf '%s\n' '{"levels":{"1":[{"namespace": "dlea-tab-tearoff"}]}}'
 }
 move_to() {
     [[ "$pressed" == true ]] || return 0
     motions=$((motions + 1))
     if [[ "$motions" == 1 ]]; then
-        printf 'TABDRAG drag-start pid=101 path=/fixture mime=application/x-flea-tab\n' >> "$work/flea.log"
+        printf 'TABDRAG drag-start pid=101 path=/fixture mime=application/x-dlea-tab\n' >> "$work/dlea.log"
     elif [[ "$route" == catcher || "$route" == unmapped ]]; then
-        printf 'TABDRAG catcher-enter pid=101 global=8,1432\n' >> "$work/flea.log"
+        printf 'TABDRAG catcher-enter pid=101 global=8,1432\n' >> "$work/dlea.log"
     elif [[ "$route" == panel || "$route" == finished ]]; then
         printf 'PANEL-ENTER\n' >> "$log"
     fi
     if [[ "$route" == finished ]]; then
-        printf 'TABDRAG drag-finished pid=101 action=0\n' >> "$work/flea.log"
+        printf 'TABDRAG drag-finished pid=101 action=0\n' >> "$work/dlea.log"
     fi
 }
 ydotool() {
@@ -142,7 +142,7 @@ ydotool() {
 }
 '''
     for route in ('panel', 'catcher', 'missing', 'finished', 'unmapped'):
-        for name in ('flea.log', 'panel.log', 'releases', 'catcher'):
+        for name in ('dlea.log', 'panel.log', 'releases', 'catcher'):
             (scratch / name).write_text('')
         code = function('layerdrop_wait_drag') + '\n' + setup + '\n' + doubles
         code += '\nroute=' + route + '\n' + gesture

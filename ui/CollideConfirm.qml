@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Collide.js" as Collide
 import "js/Icons.js" as Icons
 
@@ -48,7 +48,7 @@ FocusScope {
         opened = false
         chosen(choice)
     }
-    Flea.Reveal { target: root; shown: root.opened; lift: card }
+    Dlea.Reveal { target: root; shown: root.opened; lift: card }
     // A press lands on its own button first, so the accent never shows one choice while another is taken.
     function press(choice) {
         focusName = choice
@@ -62,7 +62,7 @@ FocusScope {
         if (root.opened) body.reveal(root.buttonItem(root.focusName))
         event.accepted = true
     }
-    Flea.DialogScrim {
+    Dlea.DialogScrim {
         onDismissed: root.choose("cancel")
     }
     Rectangle {
@@ -81,7 +81,7 @@ FocusScope {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             onWheel: function(wheel) { wheel.accepted = true }
         }
-        Flea.CardFrame {
+        Dlea.CardFrame {
             id: body
             bleed: Theme.focusClearance
             anchors.fill: parent
@@ -89,7 +89,7 @@ FocusScope {
             anchors.rightMargin: root.cardPadding + Theme.spacing.hairline - Theme.focusClearance
             anchors.topMargin: root.cardPadding + Theme.spacing.hairline - Theme.focusClearance
             anchors.bottomMargin: root.cardBottomPadding + Theme.spacing.hairline - Theme.focusClearance
-            title: Flea.DialogHeader {
+            title: Dlea.DialogHeader {
                 id: title
                 width: parent.width
                 text: root.titleText
@@ -99,11 +99,11 @@ FocusScope {
                 anchors.right: parent.right
                 topPadding: root.buttonsAir
                 spacing: Theme.spacing.gap
-                Flea.DialogButton { id: cancelButton; label: Collide.LABELS.cancel; focused: root.focusName === "cancel"; onActivated: root.press("cancel") }
-                Flea.DialogButton { id: skipButton; label: Collide.LABELS.skip; focused: root.focusName === "skip"; onActivated: root.press("skip") }
-                Flea.DialogButton { id: keepButton; label: Collide.LABELS.keep; primary: true; focused: root.focusName === "keep"; onActivated: root.press("keep") }
-                Flea.DialogButton { id: mergeButton; visible: root.showMerge; label: Collide.LABELS.merge; focused: root.focusName === "merge"; onActivated: root.press("merge") }
-                Flea.DialogButton { id: replaceButton; label: Collide.LABELS.replace; destructive: true; focused: root.focusName === "replace"; onActivated: root.press("replace") }
+                Dlea.DialogButton { id: cancelButton; label: Collide.LABELS.cancel; focused: root.focusName === "cancel"; onActivated: root.press("cancel") }
+                Dlea.DialogButton { id: skipButton; label: Collide.LABELS.skip; focused: root.focusName === "skip"; onActivated: root.press("skip") }
+                Dlea.DialogButton { id: keepButton; label: Collide.LABELS.keep; primary: true; focused: root.focusName === "keep"; onActivated: root.press("keep") }
+                Dlea.DialogButton { id: mergeButton; visible: root.showMerge; label: Collide.LABELS.merge; focused: root.focusName === "merge"; onActivated: root.press("merge") }
+                Dlea.DialogButton { id: replaceButton; label: Collide.LABELS.replace; destructive: true; focused: root.focusName === "replace"; onActivated: root.press("replace") }
             }
             Column {
                 width: parent.width
@@ -118,7 +118,7 @@ FocusScope {
                             width: parent.width
                             height: Theme.fileRowHeight
                             spacing: Theme.spacing.gap
-                            Flea.Glyph { width: Theme.markSize; height: parent.height; name: nameRow.modelData.d ? "folder" : Icons.glyphFor(nameRow.modelData.i); color: Theme.color.foreground }
+                            Dlea.Glyph { width: Theme.markSize; height: parent.height; name: nameRow.modelData.d ? "folder" : Icons.glyphFor(nameRow.modelData.i); color: Theme.color.foreground }
                             Text { width: Math.max(0, parent.width - Theme.markSize - parent.spacing); anchors.verticalCenter: parent.verticalCenter; text: nameRow.modelData.n; textFormat: Text.PlainText; elide: Text.ElideRight; color: Theme.color.foreground; font { family: Theme.font.family; pixelSize: Theme.font.body } }
                         }
                     }

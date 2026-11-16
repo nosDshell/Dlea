@@ -1,11 +1,11 @@
 // One retained execution worker owns the session during an answer; the loop alone publishes it.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::events::Event;
 use super::searchreq::{Answer, Cancelled};
 use super::searchsession::Session;
 use super::state::{State, Tables};
 use super::thumbs::Pool;
-use crate::error::FleaError;
+use crate::error::DleaError;
 use std::collections::VecDeque;
 use std::io::Write;
 use crate::backend::events::Sender;
@@ -31,7 +31,7 @@ struct Done {
     answer: Option<Answer>,
     cancelled: Option<Cancelled>,
     empty: Option<(usize, usize, usize, f64)>,
-    failed: Option<FleaError>,
+    failed: Option<DleaError>,
 }
 
 struct Worker {

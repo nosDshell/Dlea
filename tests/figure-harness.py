@@ -31,15 +31,15 @@ def section(start, end):
     return script.split(start, 1)[1].split(end, 1)[0]
 
 
-with tempfile.TemporaryDirectory(prefix="flea-figure-harness-") as scratch:
+with tempfile.TemporaryDirectory(prefix="dlea-figure-harness-") as scratch:
     box = pathlib.Path(scratch)
-    binary = box / "flea"
+    binary = box / "dlea"
     binary.write_text('''#!/bin/sh
 if [ "$FIG_MODE" = silent ]; then
     exit 127
 fi
 if [ "$FIG_MODE" = wrong ]; then
-    echo "flea: unrelated refusal" >&2
+    echo "dlea: unrelated refusal" >&2
     exit 127
 fi
 if [ "$FIG_MODE" = namespace ]; then
@@ -58,10 +58,10 @@ if [ "$FIG_MODE" = good ]; then
     exit 0
 fi
 if ! command -v bwrap >/dev/null || ! command -v prlimit >/dev/null; then
-    echo "flea: the figure helper needs bwrap and prlimit, and one of them is missing" >&2
+    echo "dlea: the figure helper needs bwrap and prlimit, and one of them is missing" >&2
     exit 127
 fi
-echo "flea: the figure helper needs quickjs-ng at $FLEA_QJS, and it is missing" >&2
+echo "dlea: the figure helper needs quickjs-ng at $DLEA_QJS, and it is missing" >&2
 exit 127
 ''')
     binary.chmod(0o755)
@@ -78,28 +78,28 @@ exit 127
     (box / "empty-path").mkdir()
 
     def run(body, mode="refusal", **extra):
-        env = dict(os.environ, FIG_MODE=mode, test_root=str(box), fleabin=str(binary), qjs=str(qjs), **extra)
+        env = dict(os.environ, FIG_MODE=mode, test_root=str(box), dleabin=str(binary), qjs=str(qjs), **extra)
         return subprocess.run(["/bin/bash", "-uc", body], cwd=tree, env=env,
                               capture_output=True, text=True, timeout=FRAGMENT_BOUND_SECONDS)
 
-    ui_setup = section('cd "$(dirname "$0")/.." || exit 1\n', '\nfleabin=')
-    exported_ui = '\n/bin/sh -c \'printf "%s\\n" "$FLEA_UI"\''
-    result = run(ui_setup + exported_ui, FLEA_UI="")
+    ui_setup = section('cd "$(dirname "$0")/.." || exit 1\n', '\ndleabin=')
+    exported_ui = '\n/bin/sh -c \'printf "%s\\n" "$DLEA_UI"\''
+    result = run(ui_setup + exported_ui, DLEA_UI="")
     check(result.returncode == 0 and result.stdout.strip() == str(tree / "ui"),
           "PSS fix suite exports the candidate UI by default")
     chosen_ui = str(box / "caller-ui")
-    result = run(ui_setup + exported_ui, FLEA_UI=chosen_ui)
+    result = run(ui_setup + exported_ui, DLEA_UI=chosen_ui)
     check(result.returncode == 0 and result.stdout.strip() == chosen_ui,
           "PSS fix suite preserves the caller's UI override")
 
-    start_binary = box / "start-flea"
+    start_binary = box / "start-dlea"
     captured_ui = box / "captured-ui"
     start_pid = box / "start.pid"
     # Larger than the startup check's bounded diagnostic excerpt.
     DIAGNOSTIC_FIXTURE_CHARS = 8192
     start_binary.write_text(f'''#!{sys.executable}
 import os, pathlib, signal, sys
-pathlib.Path({str(captured_ui)!r}).write_text(os.environ.get("FLEA_UI", ""))
+pathlib.Path({str(captured_ui)!r}).write_text(os.environ.get("DLEA_UI", ""))
 print("helper stdout cause", flush=True)
 print("helper stderr cause", file=sys.stderr, flush=True)
 if os.environ.get("FIG_START_MODE") == "hang":
@@ -112,9 +112,9 @@ print("x" * {DIAGNOSTIC_FIXTURE_CHARS} + "UNBOUNDED_STDERR_TAIL", file=sys.stder
     def startup(ui=None, mode="failed"):
         env = dict(os.environ, FIG_START_MODE=mode)
         if ui is None:
-            env.pop("FLEA_UI", None)
+            env.pop("DLEA_UI", None)
         else:
-            env["FLEA_UI"] = ui
+            env["DLEA_UI"] = ui
         return subprocess.run([sys.executable, str(tree / "tests/figure-helper-start.py"), str(start_binary)],
                               cwd=tree, env=env, capture_output=True,
                               text=True, timeout=FRAGMENT_BOUND_SECONDS)
@@ -256,8 +256,8 @@ print("x" * {DIAGNOSTIC_FIXTURE_CHARS} + "UNBOUNDED_STDERR_TAIL", file=sys.stder
           and "ERROR Type TestRoot unavailable" in result.stdout and "qs exited 1" in result.stdout,
           "mx2b F27 missing pid receipt reports captured launch errors and qs status")
     driver_call = 'if ! ' + section('\nif ! ', '\n# A missing engine')
-    (box / "drive.py").write_text('import os\nprint(os.environ.get("FLEA_QJS", "unset"))\n')
-    result = run('jailed=0\nengine=("$fleabin" --figure-helper)\n' + driver_call, FLEA_QJS="")
+    (box / "drive.py").write_text('import os\nprint(os.environ.get("DLEA_QJS", "unset"))\n')
+    result = run('jailed=0\nengine=("$dleabin" --figure-helper)\n' + driver_call, DLEA_QJS="")
     check(result.returncode == 0 and result.stdout.strip() == str(qjs),
           "mx2b F33 the jailed driver inherits the resolved development engine")
 
@@ -326,16 +326,16 @@ QtObject {
     else:
         print("figure-harness: SKIP node is absent, so the mx2b F30 quoted-family check did not run")
 
-    stub = 'cat > "$test_root/stubbin/flea"' + section('cat > "$test_root/stubbin/flea"', 'chmod +x "$test_root/stubbin/flea"')
+    stub = 'cat > "$test_root/stubbin/dlea"' + section('cat > "$test_root/stubbin/dlea"', 'chmod +x "$test_root/stubbin/dlea"')
     (box / "stubbin").mkdir()
     (box / "phase").write_text("answer\n")
     prefix = 'engine=("$qjs" "helper.mjs")\nprintf -v engine_exec \'%q \' "${engine[@]}"\n'
-    result = run(prefix + stub + '\n/bin/bash "$test_root/stubbin/flea" --figure-helper')
+    result = run(prefix + stub + '\n/bin/bash "$test_root/stubbin/dlea" --figure-helper')
     check(result.returncode == 0 and "selected direct engine" in result.stdout,
           "F3 QML stub executes the same selected engine")
-    check("FLEA_FIG_REAL" not in script, "F3 removes the unread engine export")
+    check("DLEA_FIG_REAL" not in script, "F3 removes the unread engine export")
     (box / "phase").write_text("hang\n")
-    fixture = subprocess.Popen(["/bin/bash", str(box / "stubbin/flea"), "--figure-helper"],
+    fixture = subprocess.Popen(["/bin/bash", str(box / "stubbin/dlea"), "--figure-helper"],
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     try:
         with selectors.DefaultSelector() as ready:
@@ -427,14 +427,14 @@ check("depth > 12" not in worker and "/ 2;" not in worker and "* 100) / 100" not
       "F12 resolver and ex conversion policy numbers have names")
 qml = (tree / "tests/markdown-figures.qml").read_text()
 check("readonly property int hangingRenderLimitMs: 300000" in qml
-      and "Flea.FigureService.renderMs = shell.hangingRenderLimitMs" in qml
+      and "Dlea.FigureService.renderMs = shell.hangingRenderLimitMs" in qml
       and "readonly property int requiredPendingPumpCallbacks: 2" in qml
       and "readonly property int expiredTicketDeadline: 0" in qml
       and "shell.pendingPumpCallbacks === shell.requiredPendingPumpCallbacks" in qml
-      and "shell.ticket > 0 && Flea.FigureService.waiting[shell.ticket] !== undefined" in qml
-      and "Flea.FigureService.deadlineExpirations === shell.renderDeadlineMark" in qml
+      and "shell.ticket > 0 && Dlea.FigureService.waiting[shell.ticket] !== undefined" in qml
+      and "Dlea.FigureService.deadlineExpirations === shell.renderDeadlineMark" in qml
       and "shell.pendingPumpCallbacks++;" in qml
-      and "Flea.FigureService.waiting[shell.ticket].deadline = shell.expiredTicketDeadline;" in qml
+      and "Dlea.FigureService.waiting[shell.ticket].deadline = shell.expiredTicketDeadline;" in qml
       and "shell.hangingDeadlineArmed && shell.pendingPumpCallbacks === shell.requiredPendingPumpCallbacks" in qml
       and "blockedLoopTicks" not in qml and "pendingTicksMark" not in qml,
       "G2 hanging deadline follows pending-ticket pump callbacks without racing a duration")
@@ -478,7 +478,7 @@ for target in targets:
                                  capture_output=True, text=True, timeout=FRAGMENT_BOUND_SECONDS)
         check(tracked.returncode == 0, f"mx2b F22 comparison target is tracked: {target}")
 # The real build.sh runs beside stub npm and npx in a throwaway layout, so its refusal and its comparison both execute.
-with tempfile.TemporaryDirectory(prefix="flea-vendor-targets-") as scratch:
+with tempfile.TemporaryDirectory(prefix="dlea-vendor-targets-") as scratch:
     layout = pathlib.Path(scratch)
     build_dir = layout / "tools/vendor-js"
     vendor = layout / "ui/vendor"

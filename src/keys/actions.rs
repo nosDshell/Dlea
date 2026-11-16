@@ -1,7 +1,7 @@
 //! Action ids outside code may run: built-ins from the key table, and `plugin:action` for plugin menu actions.
 use super::{Binding, Context, Frontend, DIGITS, PRESET_KEYS, SEQUENCES, SHARED_KEYS};
 
-/// Outcome statuses PLUGINS.md documents for `flea --action`; the window answers RAN, UNKNOWN or UNAVAILABLE itself.
+/// Outcome statuses PLUGINS.md documents for `dlea --action`; the window answers RAN, UNKNOWN or UNAVAILABLE itself.
 pub const RAN: i32 = 0;
 pub const USAGE: i32 = 2;
 pub const UNKNOWN: i32 = 3;

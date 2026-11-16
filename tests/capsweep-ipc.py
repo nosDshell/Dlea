@@ -7,7 +7,7 @@ import sys
 import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
-from flea_ipc import Client
+from dlea_ipc import Client
 IPC = Client("qs")
 IPC.export()
 
@@ -105,12 +105,12 @@ with (scratch / "ipc.log").open("wb") as log:
         else:
             print("CAPSWEEP_IPC no-limit-observed-through=1048576")
         deadline = time.monotonic() + PREVIEW_LOAD_SECONDS
-        while call("previewState", target="flea").strip() != b"ready":
+        while call("previewState", target="dlea").strip() != b"ready":
             assert shell.poll() is None, (scratch / "ipc.log").read_text()
             assert time.monotonic() < deadline, (scratch / "ipc.log").read_text()
             time.sleep(PREVIEW_POLL_SECONDS)
-        assert call("previewTextLength", target="flea").strip() == str(fixture.stat().st_size).encode()
-        legacy = call("previewText", target="flea").removesuffix(b"\n")
+        assert call("previewTextLength", target="dlea").strip() == str(fixture.stat().st_size).encode()
+        legacy = call("previewText", target="dlea").removesuffix(b"\n")
         if legacy == payload.encode():
             status = "complete"
         elif legacy and payload.encode().startswith(legacy):
@@ -120,12 +120,12 @@ with (scratch / "ipc.log").open("wb") as log:
             status = "peer-closed"
         print(f"CAPSWEEP_IPC legacy-preview-bytes={len(legacy) if status != 'peer-closed' else 0} status={status}")
         last_line = payload.splitlines(keepends=True)[-1]
-        assert call("previewTextTail", len(last_line), target="flea").removesuffix(b"\n") == last_line.encode()
+        assert call("previewTextTail", len(last_line), target="dlea").removesuffix(b"\n") == last_line.encode()
         checks = 2
         for size in (-1, 0, 1, 4096, len(payload), 2147483647):
             count = max(0, min(size, 4096))
             expected = payload[-count:] if count else ""
-            assert call("previewTextTail", size, target="flea").removesuffix(b"\n") == expected.encode(), size
+            assert call("previewTextTail", size, target="dlea").removesuffix(b"\n") == expected.encode(), size
             checks += 1
         for function, expected in {
             "previewOpen": b"true", "previewKind": b"text", "previewPosition": b"0",
@@ -134,10 +134,10 @@ with (scratch / "ipc.log").open("wb") as log:
             "previewArchiveNames": b"", "previewPictureRect": b"", "previewSliderCentre": b"",
             "previewMarkdownView": b"", "listingDropActive": b"false",
         }.items():
-            assert call(function, target="flea").strip() == expected, function
+            assert call(function, target="dlea").strip() == expected, function
             checks += 1
         for overlay in ("true", "false"):
-            assert call("pdfState", overlay, target="flea").strip() == b"null", overlay
+            assert call("pdfState", overlay, target="dlea").strip() == b"null", overlay
             checks += 1
         print(f"CAPSWEEP_IPC preview-checks={checks} failed=0 file-bytes={fixture.stat().st_size} tail-limit=4096")
         reader_checks = 0
@@ -145,7 +145,7 @@ with (scratch / "ipc.log").open("wb") as log:
                                                (True, False, True), (True, True, False)):
             assert call("floorState", str(active).lower(), str(enabled).lower(), str(correct_dest).lower()).strip() == b"true"
             expected = str(active and enabled and correct_dest).lower().encode()
-            assert call("listingDropActive", target="flea").strip() == expected
+            assert call("listingDropActive", target="dlea").strip() == expected
             reader_checks += 1
         assert call("loadPreview").strip() == b"true"
         deadline = time.monotonic() + PREVIEW_LOAD_SECONDS
@@ -157,7 +157,7 @@ with (scratch / "ipc.log").open("wb") as log:
                                          ("source", False, True), ("source", True, False)):
             assert call("markdown", mode, str(active).lower(), str(is_markdown).lower()).strip() == b"true"
             expected = mode.encode() if active and is_markdown else b""
-            assert call("previewMarkdownView", target="flea").strip() == expected
+            assert call("previewMarkdownView", target="dlea").strip() == expected
             reader_checks += 1
         print(f"CAPSWEEP_IPC capture-reader-checks={reader_checks} failed=0")
     except Exception:

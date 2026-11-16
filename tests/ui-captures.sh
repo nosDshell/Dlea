@@ -4,7 +4,7 @@
 cap_resize() {
     local target_width="$1" target_height="$2"
     local client address result wx wy width height end=$((SECONDS + 20))
-    client=$(hyprctl clients -j | jq -ec --argjson pid "$(flea_pid)" '.[] | select(.pid == $pid)') \
+    client=$(hyprctl clients -j | jq -ec --argjson pid "$(dlea_pid)" '.[] | select(.pid == $pid)') \
         || fail "captures: owned window unavailable for resize to ${target_width}x${target_height}"
     address=$(jq -er '.address' <<< "$client") || fail "captures: owned window has no address"
     [[ "$address" =~ ^0x[0-9a-fA-F]+$ ]] || fail "captures: invalid owned window address $address"
@@ -92,7 +92,7 @@ case_cap_tabs() {
     key -k Escape >/dev/null
     settle
     printf 'CAP_TABS drag=held labels=%s hint=shown\n' "$(ipc tabLabels)"
-    kill_flea
+    kill_dlea
 }
 
 # ClickAndRefresh: a slow-click rename as it opens, then Opening on Single click where
@@ -142,7 +142,7 @@ case_cap_click() {
     key -k Escape >/dev/null
     settle
     printf 'CAP_CLICK rename=stem-selected single=greyed\n'
-    kill_flea
+    kill_dlea
 }
 
 # ClickAndRefresh slow click rename: the one editor in every view at text size 14 (decided 2026-10-03), the rail on a Network place.
@@ -213,7 +213,7 @@ case_cap_rename() {
     key -k Escape >/dev/null
     settle
     printf 'CAP_RENAME views=list,columns-file,columns-folder,grid,dual,rail error=columns\n'
-    kill_flea
+    kill_dlea
 }
 
 # The cursor on a named row; the grid goes by its own rows (j) and columns (l), since l clamps at a row's end and never wraps to the next row.
@@ -270,7 +270,7 @@ case_cap_cursor() {
     key -k Escape >/dev/null
     settle
     printf 'CAP_CURSOR wrap=off escape=off\n'
-    kill_flea
+    kill_dlea
 }
 
 # MenuAdditions040: the file menu with the Copy as flyout open, Paste as once the
@@ -326,7 +326,7 @@ case_cap_menus() {
     shot cap-menus-symlink
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
     seed_ui_state "$fixture_root/cap-menus-background-state" '{"keys":"default","view":"list","keyHints":true,"menu":{"hidden":["delete","openTerminal","openAgent","placeMenu","runScript","moveto","copyto","properties","permissions","copyAs","pasteAs","extThumbs"]}}'
     launch "$dir"
     wait_listing 2
@@ -347,7 +347,7 @@ case_cap_menus() {
     shot cap-menus-background
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
     seed_ui_state "$fixture_root/cap-menus-state" '{"keys":"default","view":"list","keyHints":true,"menu":{"hidden":["delete","openTerminal","moveto","copyto","properties","permissions","invertSelection"]}}'
     launch "$dir"
     wait_listing 2
@@ -362,7 +362,7 @@ case_cap_menus() {
     key -k Escape >/dev/null
     settle
     printf 'CAP_MENUS copyas=ok pasteas=ok symlink=ok background=ok settings=ok\n'
-    kill_flea
+    kill_dlea
 }
 
 # MenuAdditions040 and SettingsMenus states the first set leaves out: Make executable, the two-file menu, both flyouts with hints off, Settings > Menus at its tail, the Places row menu with and without Copy path.
@@ -371,7 +371,7 @@ case_cap_menus2() {
     local makeexec_polls=40 menu_hidden_file menu_hidden_place
     sandbox_scratch "$dir"
     mkdir -p "$dir/Work"
-    printf '#!/bin/sh\necho flea\n' > "$dir/run.sh"
+    printf '#!/bin/sh\necho dlea\n' > "$dir/run.sh"
     chmod 0644 "$dir/run.sh" || fail "cap_menus2: the 0644 script fixture mode failed"
     printf 'one\n' > "$dir/one.txt"
     printf 'two\n' > "$dir/two.txt"
@@ -402,7 +402,7 @@ case_cap_menus2() {
     shot cap-menus2-two-files
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
     seed_ui_state "$fixture_root/cap-menus2-nohints-state" "$(printf '{"keys":"default","view":"list","keyHints":false,"menu":{"hidden":[%s]}}' "$menu_hidden_file")"
     launch "$dir"
     wait_listing 4
@@ -435,7 +435,7 @@ case_cap_menus2() {
     settle
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
     seed_ui_state "$fixture_root/cap-menus2-settings-state" '{"keys":"default","view":"list"}'
     launch "$dir"
     wait_listing 4
@@ -449,7 +449,7 @@ case_cap_menus2() {
     shot cap-menus2-settings-tail
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
     menu_hidden_place='"delete","openTerminal","runScript","moveto","copyto","properties","permissions","copyAs","pasteAs","invertSelection","extThumbs"'
     seed_ui_state "$fixture_root/cap-menus2-place-state" "$(printf '{"keys":"default","view":"list","menu":{"hidden":[%s]},"places":{"favourites":[{"label":"Work","path":"%s/Work"}]}}' "$menu_hidden_place" "$dir")"
     launch "$dir"
@@ -465,7 +465,7 @@ case_cap_menus2() {
     shot cap-menus2-place-only
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
     seed_ui_state "$fixture_root/cap-menus2-place-copypath-state" "$(printf '{"keys":"default","view":"list","menu":{"hidden":["delete","runScript","moveto","copyto","properties","permissions","pasteAs","invertSelection","extThumbs"]},"places":{"favourites":[{"label":"Work","path":"%s/Work"}]}}' "$dir")"
     launch "$dir"
     wait_listing 4
@@ -481,7 +481,7 @@ case_cap_menus2() {
     key -k Escape >/dev/null
     settle
     printf 'CAP_MENUS2 makeexec=ok two-files=ok nohints=ok settings-tail=ok place=ok\n'
-    kill_flea
+    kill_dlea
 }
 
 # MenuAdditions040 states the first two menu cases leave out: board a as drawn (defaults plus Copy as and Paste as, a file on the clipboard, hints on, both flyouts), c and P at shipped defaults (the lone flyout), board f (Invert on, hints off, empty clipboard) and Show original's result.
@@ -529,7 +529,7 @@ case_cap_menus3() {
     key -k Escape >/dev/null
     settle
     [[ "$(ipc contextMenuVisible)" == "false" ]] || fail "cap_menus3: board a's menu stayed open"
-    kill_flea
+    kill_dlea
     seed_ui_state "$fixture_root/cap-menus3-lone-state" '{"keys":"default","view":"list","keyHints":true}'
     launch "$dir"
     wait_listing 3
@@ -556,7 +556,7 @@ case_cap_menus3() {
     settle
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
     # The y presses above left plain.txt on the session clipboard, so it is emptied for board f's dead Paste.
     wl-copy --clear || fail "cap_menus3: wl-copy could not empty the clipboard for board f"
     # wl-clipboard 2.3, minipc's, answers an empty clipboard with "Nothing is copied"; a connection failure prints something else.
@@ -580,7 +580,7 @@ case_cap_menus3() {
     shot cap-menus3-board-f
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
     seed_ui_state "$fixture_root/cap-menus3-original-state" '{"keys":"default","view":"list"}'
     launch "$dir"
     wait_listing 3
@@ -601,7 +601,7 @@ case_cap_menus3() {
         || fail "cap_menus3: Show original left the cursor on $cursor_row with $(ipc selectionCount) selected, not target.txt alone"
     shot cap-menus3-show-original
     printf 'CAP_MENUS3 board-a=ok lone=ok board-f=ok show-original=ok\n'
-    kill_flea
+    kill_dlea
 }
 
 # Permissions040: Tab or Shift+Tab until the dialog's focused control has this name, within the whole ring of controls.
@@ -860,7 +860,7 @@ cap_permissions_inflight() {
     pid="${pids[0]}"
     permissions_stopped="$pid"
     # Each case runs in a subshell whose EXIT trap is cleared (tests/ui.sh:14560), so this trap owns EXIT.
-    trap 'permissions_resume_stopped "$permissions_stopped"; kill_flea' EXIT
+    trap 'permissions_resume_stopped "$permissions_stopped"; kill_dlea' EXIT
     convert_pause_backend "$pid"
     cap_permissions_focus Apply forward
     key -k Return >/dev/null
@@ -983,7 +983,7 @@ case_cap_permissions() {
     cap_permissions_vanished 0 "$dir/zz-gone.txt" 8
     cap_permissions_inflight
     printf 'CAP_PERMISSIONS mixed=3rows boxes=on,mixed,off,hover,pressed,click1,click2 single=apply,octal,error,disabled,close,special,pointer symlink=errored note=setuid menu=makeexec skips=applied,note,foreign other=note inflight=disabled closemark=absent\n'
-    kill_flea
+    kill_dlea
 }
 
 # PropertiesCount: Format.js size() for a byte total, round half up on the double's exact value as toFixed does; the HIG boards group the byte count (2,560,562 bytes).
@@ -1051,10 +1051,10 @@ case_cap_properties_count() {
     [[ "$shown_size" == "$want_size" ]] || fail "cap_propcount: Size reads [$shown_size], the fixture holds [$want_size]"
     [[ "$shown_items" == "$want_items" ]] || fail "cap_propcount: Contains reads [$shown_items], the fixture holds [$want_items]"
     key -k Escape >/dev/null
-    kill_flea
+    kill_dlea
 }
 
-# Sidebar040: Settings Places at defaults with two favourites, Recent switched on and listed as the current place, then a favourites reorder held mid-drag; the Flea home and its recently-used.xbel are the fixture's own, so paths read home-relative as the board writes them.
+# Sidebar040: Settings Places at defaults with two favourites, Recent switched on and listed as the current place, then a favourites reorder held mid-drag; the Dlea home and its recently-used.xbel are the fixture's own, so paths read home-relative as the board writes them.
 case_cap_sidebar() {
     local home="$fixture_root/cap-sidebar-home"
     local dir="$home/Documents/claude" downloads="$home/Downloads" name
@@ -1140,7 +1140,7 @@ EOS
     after_beta="$beta_index"
     (( after_beta < after_alpha )) || fail "cap_sidebar: the held drag never reordered, Alpha at $after_alpha Beta at $after_beta (was $before_alpha)"
     printf 'CAP_SIDEBAR places=defaults recent=current drag=held reorder=ok\n'
-    kill_flea
+    kill_dlea
 }
 
 # How long the sheet or the Permissions dialog may take to read open or closed after a key.
@@ -1152,7 +1152,7 @@ cap_sheet_type() {
     for ((i = 0; i < ${#word}; i++)); do
         key "${word:i:1}" >/dev/null
     done
-    flea_ipc_wait -p "$flea_ui/boot" flea keymapQuery "$word" --timeout "$cap_sheet_wait_s" >/dev/null \
+    dlea_ipc_wait -p "$dlea_ui/boot" dlea keymapQuery "$word" --timeout "$cap_sheet_wait_s" >/dev/null \
         || fail "cap_sheet: the query never reached $word, it is '$(ipc keymapQuery)'"
     [[ "$(ipc keymapQuery)" == "$word" ]] || fail "cap_sheet: the query is '$(ipc keymapQuery)', not $word"
 }
@@ -1192,14 +1192,14 @@ case_cap_sheet() {
     local dir="$fixture_root/cap-sheet"
     local places="$fixture_root/cap-sheet-places"
     local fixture_home="$fixture_root/cap-sheet-home" real_home="$HOME" real_data="${XDG_DATA_HOME-}"
-    local sheet_rows flea_at mix_at
+    local sheet_rows dlea_at mix_at
     sandbox_scratch "$dir"
     : > "$dir/a.txt"
     : > "$dir/b.txt"
     # fixture_home_make wipes the home it makes, so the history and the recent file go in after it.
     fixture_home_make "$fixture_home"
-    # The favourite flea and the recent file mix.flac stand in the case's own fixture home, so no other bookmark moves the rows.
-    mkdir -p "$places/flea" "$fixture_home/Documents/claude" "$fixture_home/.local/share"
+    # The favourite dlea and the recent file mix.flac stand in the case's own fixture home, so no other bookmark moves the rows.
+    mkdir -p "$places/dlea" "$fixture_home/Documents/claude" "$fixture_home/.local/share"
     : > "$fixture_home/Documents/claude/mix.flac"
     cat > "$fixture_home/.local/share/recently-used.xbel" <<EOS
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1207,14 +1207,14 @@ case_cap_sheet() {
   <bookmark href="file://$fixture_home/Documents/claude/mix.flac" added="2026-09-26T10:00:00Z" modified="2026-09-26T10:00:00Z" visited="2026-09-26T10:00:00Z"/>
 </xbel>
 EOS
-    seed_ui_state "$fixture_root/cap-sheet-state" "$(printf '{"keys":"default","view":"list","places":{"favourites":[{"label":"flea","path":"%s/flea"}]}}' "$places")"
+    seed_ui_state "$fixture_root/cap-sheet-state" "$(printf '{"keys":"default","view":"list","places":{"favourites":[{"label":"dlea","path":"%s/dlea"}]}}' "$places")"
     export HOME="$fixture_home" XDG_DATA_HOME="$fixture_home/.local/share"
     launch "$dir"
     export HOME="$real_home"
     if [[ -n "$real_data" ]]; then export XDG_DATA_HOME="$real_data"; else unset XDG_DATA_HOME; fi
     wait_listing 2
     key '?' >/dev/null
-    flea_ipc_wait -p "$flea_ui/boot" flea keymapSheetOpen true --timeout "$cap_sheet_wait_s" >/dev/null \
+    dlea_ipc_wait -p "$dlea_ui/boot" dlea keymapSheetOpen true --timeout "$cap_sheet_wait_s" >/dev/null \
         || fail "cap_sheet: ? opened no keymap sheet"
     [[ "$(ipc keymapSheetOpen)" == "true" ]] || fail "cap_sheet: ? opened no keymap sheet"
     [[ "$(ipc keymapQuery)" == "" ]] || fail "cap_sheet: the resting sheet carries query '$(ipc keymapQuery)'"
@@ -1234,13 +1234,13 @@ EOS
     # The recent file arrives from an async xbel read the first key starts, so the rows are read once it has landed.
     cap_sheet_rows_hold ' Open mix.flac' "the fl query lists no recent file mix.flac"
     sheet_rows=$(ipc keymapSheetRows)
-    grep -Fxq ' Open flea' <<< "$sheet_rows" \
-        || fail "cap_sheet: the fl query lists no favourite flea: ${sheet_rows//$'\n'/ | }"
-    flea_at=$(grep -Fxn ' Open flea' <<< "$sheet_rows" | head -n 1 | cut -d: -f1)
+    grep -Fxq ' Open dlea' <<< "$sheet_rows" \
+        || fail "cap_sheet: the fl query lists no favourite dlea: ${sheet_rows//$'\n'/ | }"
+    dlea_at=$(grep -Fxn ' Open dlea' <<< "$sheet_rows" | head -n 1 | cut -d: -f1)
     mix_at=$(grep -Fxn ' Open mix.flac' <<< "$sheet_rows" | head -n 1 | cut -d: -f1)
-    (( flea_at < mix_at )) || fail "cap_sheet: the fl query does not lead with the favourite: ${sheet_rows//$'\n'/ | }"
+    (( dlea_at < mix_at )) || fail "cap_sheet: the fl query does not lead with the favourite: ${sheet_rows//$'\n'/ | }"
     # The where reads "in Favorites" as the sheet draws it (settings.sheet.in, g2/st1/sheet_view.rs); no HIG board draws it.
-    cap_sheet_where "Open flea" "in Favorites" "the favourite flea draws no where Favorites"
+    cap_sheet_where "Open dlea" "in Favorites" "the favourite dlea draws no where Favorites"
     cap_sheet_where "Open mix.flac" "in ~/Documents/claude" "the recent mix.flac draws no where ~/Documents/claude"
     shot cap-sheet-query-fl
     key -k Escape >/dev/null
@@ -1306,7 +1306,7 @@ EOS
     cap_sheet_expect menuDialogState false "Escape did not close the delete card" .confirmation.opened
     [[ -e "$dir/a.txt" ]] || fail "cap_sheet: Escape on the delete card still deleted a.txt"
     printf 'CAP_SHEET rest=ok queries=trash,fl,comp,mute,perm permissions=opened delete=cancel-then-delete\n'
-    kill_flea
+    kill_dlea
 }
 
 # The current matrix cell's drawn picture box, "x y width height", from the frontend under test.
@@ -1519,5 +1519,5 @@ case_previewmatrix() {
         || fail "previewmatrix: the contact sheet failed"
     printf 'PREVIEWMATRIX cells=12 ok=12\n'
     printf 'PREVIEWMATRIX_SHEET %s\n' "$evidence_dir/previewmatrix-sheet.png"
-    kill_flea
+    kill_dlea
 }

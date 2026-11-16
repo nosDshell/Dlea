@@ -1,9 +1,9 @@
 # A row whose name is not UTF-8 acts on that exact file over the wire, never on its lossy twin.
-# argv: <flea binary>. Every write lands inside one mkdtemp root that carries the sandbox marker.
+# argv: <dlea binary>. Every write lands inside one mkdtemp root that carries the sandbox marker.
 import json, os, queue, shutil, subprocess, sys, tempfile, threading, time
 
 BIN = sys.argv[1]
-MARKER = ".flea-test-sandbox"
+MARKER = ".dlea-test-sandbox"
 INVALID = b"col\xff"
 TWIN = "col�".encode()
 FAILS = []
@@ -52,7 +52,7 @@ class Backend:
                          ("XDG_STATE_HOME", "state"), ("XDG_RUNTIME_DIR", "run")):
             env[key] = os.path.join(home, sub)
             os.makedirs(env[key], mode=0o700, exist_ok=True)
-        env["FLEA_UNDO_DIR"] = os.path.join(home, "run", "flea")
+        env["DLEA_UNDO_DIR"] = os.path.join(home, "run", "dlea")
         self.env = env
         self.p = subprocess.Popen([BIN, "--backend"], stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                   stderr=subprocess.DEVNULL, env=env, cwd=home)
@@ -261,7 +261,7 @@ def run(root, home):
         d = row_of(up["rows"], b"d\xe9j\xe0")
         inner = k.list(os.path.join(root, "pair") + "/" + up["rows"][d]["n"]) if d is not None else None
         check("list opens a folder whose name is not UTF-8", inner and inner.get("t") == "rows" and [x["n"] for x in inner["rows"]] == ["inner.txt"] and inner["rows"][0]["s"] == 2, str(inner)[:300])
-        # flea --open takes the raw bytes the window's launcher decodes from the row text, and a folder answers status 3.
+        # dlea --open takes the raw bytes the window's launcher decodes from the row text, and a folder answers status 3.
         got = subprocess.run([os.fsencode(BIN), b"--open", sub], env=k.env, cwd=home, stdin=subprocess.DEVNULL, capture_output=True, timeout=30)
         check("open resolves a folder whose name is not UTF-8", got.returncode == 3, "%s %r" % (got.returncode, got.stderr[-200:]))
 
@@ -353,7 +353,7 @@ def run(root, home):
 
 
 def main():
-    root = tempfile.mkdtemp(prefix="flea-test-exact-names-")
+    root = tempfile.mkdtemp(prefix="dlea-test-exact-names-")
     open(os.path.join(root, MARKER), "w").close()
     try:
         home = os.path.join(root, "home")

@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-heldlisting-test
+//@ pragma ShellId dlea-heldlisting-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // A first listing held by the proxy: the pane reads loading with the list in flight until the rows land, in the view the leg names.
 ShellRoot {
@@ -23,12 +23,12 @@ ShellRoot {
         id: win
         implicitWidth: 1400
         implicitHeight: 800
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
     }
-    Flea.Backend { id: realBackend }
+    Dlea.Backend { id: realBackend }
     Component {
         id: paneComponent
-        Flea.Pane {
+        Dlea.Pane {
             width: 1400
             height: 800
             backend: realBackend
@@ -52,8 +52,8 @@ ShellRoot {
         interval: 50
         running: true
         onTriggered: {
-            Flea.ViewState.changeKey("view", root.view)
-            Flea.ViewState.changeKey("columnsLimit", 2)
+            Dlea.ViewState.changeKey("view", root.view)
+            Dlea.ViewState.changeKey("columnsLimit", 2)
             root.pane = paneComponent.createObject(win.contentItem)
             root.pane.open(Quickshell.env("HELDLISTING_DIR"))
             root.openedAt = Date.now()

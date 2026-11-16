@@ -6,7 +6,7 @@ use super::archivework::{
 use super::extractprogress::Progress;
 use super::opsreq::{op_err, OpMsg};
 use super::{jail, sandbox};
-use crate::error::{from_io, FleaError};
+use crate::error::{from_io, DleaError};
 use std::io::Read;
 use std::path::Path;
 use std::process::Stdio;
@@ -38,7 +38,7 @@ pub(crate) fn run(
     cancel: &AtomicBool,
     progress: Progress,
     report: Option<(usize, &Sender<OpMsg>)>,
-) -> Result<(Option<SevenFailure>, Progress), FleaError> {
+) -> Result<(Option<SevenFailure>, Progress), DleaError> {
     let Command {
         inner,
         archive,

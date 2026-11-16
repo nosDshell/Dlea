@@ -1,7 +1,7 @@
 import QtQuick
 import QtMultimedia
 import Quickshell.Wayland
-import "." as Flea
+import "." as Dlea
 import "js/Format.js" as Format
 
 // The only file in the tree importing QtMultimedia: reached only through Preview.qml's Loader, on demand.
@@ -98,7 +98,7 @@ Item {
         else if (word[0] === "SetPosition") root.seekTo(Number(word[1]))
     }
 
-    Flea.MediaSession {
+    Dlea.MediaSession {
         id: session
         media: root
     }
@@ -122,7 +122,7 @@ Item {
         source: root.path === "" ? "" : Format.fileUri(root.path)
         autoPlay: root.autoStart
         // MediaMute rule 5: mute silences without pausing, so the clock and the handle keep moving.
-        audioOutput: AudioOutput { muted: Flea.MediaSound.muted; volume: Flea.MediaSound.gain }
+        audioOutput: AudioOutput { muted: Dlea.MediaSound.muted; volume: Dlea.MediaSound.gain }
         videoOutput: video
         // The first play makes this an MPRIS player.
         onPlaybackStateChanged: {
@@ -158,7 +158,7 @@ Item {
     }
     readonly property Item contentItem: contentAnchor
 
-    Flea.Glyph {
+    Dlea.Glyph {
         anchors.centerIn: parent
         maxSize: Theme.stateMarkSize
         width: Theme.stateMarkSize
@@ -178,7 +178,7 @@ Item {
         spacing: Theme.spacing.rowPaddingX
         visible: root.kind === "audio" && !root.failed
 
-        Flea.Glyph {
+        Dlea.Glyph {
             anchors.verticalCenter: parent.verticalCenter
             maxSize: Theme.stateMarkSize
             width: Theme.stateMarkSize
@@ -227,7 +227,7 @@ Item {
         spacing: Theme.spacing.gap
         visible: root.failed
 
-        Flea.Glyph {
+        Dlea.Glyph {
             anchors.horizontalCenter: parent.horizontalCenter
             maxSize: Theme.stateMarkSize
             width: Theme.stateMarkSize

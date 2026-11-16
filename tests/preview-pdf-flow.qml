@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-preview-pdf-flow
+//@ pragma ShellId dlea-preview-pdf-flow
 
 import QtQuick
 import QtTest
 import QtQuick.Pdf
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // A PDF in the Columns preview fills the frame's width, its pages follow one another under a scroll knob, and only the pages near the frame are built; tests/preview-pdf-flow.sh drives it.
 ShellRoot {
@@ -13,7 +13,7 @@ ShellRoot {
     readonly property string dir: Quickshell.env("FLOW_DIR")
     readonly property int winW: parseInt(Quickshell.env("FLOW_W"))
     readonly property int winH: parseInt(Quickshell.env("FLOW_H"))
-    readonly property real gap: Flea.Theme.spacing.gap
+    readonly property real gap: Dlea.Theme.spacing.gap
 
     property int passed: 0
     property int failed: 0
@@ -129,9 +129,9 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: root.winW
         implicitHeight: root.winH
-        color: Flea.Theme.color.background
-        Flea.ColumnsArea { id: area; anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; width: parent.width - root.inset; pane: pane; menu: menu }
-        Flea.PdfViewer {
+        color: Dlea.Theme.color.background
+        Dlea.ColumnsArea { id: area; anchors.left: parent.left; anchors.top: parent.top; anchors.bottom: parent.bottom; width: parent.width - root.inset; pane: pane; menu: menu }
+        Dlea.PdfViewer {
             id: look
             anchors.fill: parent
             visible: false
@@ -223,7 +223,7 @@ ShellRoot {
         root.check("at rest the page 1 render is the frame's width in device pixels", im[0].sourceSize.width, Math.round(inner * Screen.devicePixelRatio))
         var b = root.bar()
         root.check("the knob is on the frame's lane", b !== null && b.overflow && b.visible, true)
-        root.near("the knob is the visible share of the content", b.handleLength, Math.max(Flea.Theme.hitMin, b.trackLength * f.height / f.contentHeight))
+        root.near("the knob is the visible share of the content", b.handleLength, Math.max(Dlea.Theme.hitMin, b.trackLength * f.height / f.contentHeight))
         root.check("the content height was right before any render landed", root.firstHeight, total)
         root.log("COUNTS rest images=" + im.length + " visible=" + visible)
     }

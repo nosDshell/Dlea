@@ -34,8 +34,8 @@ as the same text.
 An argument vector cannot hold a NUL, so the text never reaches a child process as it is.
 `bytename::args` and `text_name` turn each argument back into the bytes it names: the jail that runs
 bat, the thumbnailers and the archive tools, the action runner, gio, rclone, LocalSend, AirDrop and
-Taildrop sends, and the window launch. A process that starts Flea with such a path (`flea --gui`,
-`flea-gui`, the launch helpers) reads its own `args_os` back into the text with `path_text`.
+Taildrop sends, and the window launch. A process that starts Dlea with such a path (`dlea --gui`,
+`dlea-gui`, the launch helpers) reads its own `args_os` back into the text with `path_text`.
 
 **Display stays lossy.** `bytename::display` drops each exact tail, so a person reads `col\u{fffd}`.
 The GUI applies it in `list::outline::display`, the columns row cache, the grid caption, the path

@@ -3,13 +3,13 @@ use crate::backend::opsdispatch::Ops;
 use crate::backend::opsreq::{op_err, trashed_line, OpMsg};
 use crate::backend::trash;
 use crate::backend::undo::{Entry, Step};
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::io::Write;
 use std::path::PathBuf;
 use std::sync::mpsc::Sender;
 
 pub(crate) fn run_trash(id: usize, request: usize, paths: Vec<String>, tx: Sender<OpMsg>, selection: Option<Vec<super::menu_actions::Selected>>) {
-    let owned: Vec<PathBuf> = paths.iter().map(flea::bytename::exact).collect();
+    let owned: Vec<PathBuf> = paths.iter().map(dlea::bytename::exact).collect();
     // Undo and redo name this path while the batch's entry is pending; a leading empty path is a drag marker, not an item.
     let first = paths.iter().find(|p| !p.is_empty()).cloned().unwrap_or_default();
     let mut announced = false;

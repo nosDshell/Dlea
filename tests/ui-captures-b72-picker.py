@@ -13,7 +13,7 @@ import tomllib
 
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "tools"))
-from flea_ipc import Client
+from dlea_ipc import Client
 IPC = Client("qs")
 IPC.export()
 import gi
@@ -22,7 +22,7 @@ from gi.repository import Gio, GLib
 
 REPO = Path(__file__).resolve().parent.parent
 FRONTEND = "org.freedesktop.portal.Desktop"
-BACKEND = "org.freedesktop.impl.portal.desktop.flea"
+BACKEND = "org.freedesktop.impl.portal.desktop.dlea"
 OBJECT = "/org/freedesktop/portal/desktop"
 WAIT_SECONDS = 20
 POLL_SECONDS = 0.1
@@ -42,16 +42,16 @@ SOCKET_PATH_MAX_BYTES = 107
 HYPRLAND_ALIAS = "b72"
 root, theme_home, evidence = map(lambda value: Path(value).resolve(), sys.argv[1:4])
 theme = sys.argv[4]
-run_root = Path(os.environ["FLEA_TEST_RUN_ROOT"]).resolve()
+run_root = Path(os.environ["DLEA_TEST_RUN_ROOT"]).resolve()
 fixture_root = root.parent.parent
-if not (fixture_root / ".flea-test-sandbox").is_file() or not root.is_relative_to(fixture_root):
+if not (fixture_root / ".dlea-test-sandbox").is_file() or not root.is_relative_to(fixture_root):
     raise AssertionError("b72 picker capture needs the suite's marked fixture root")
-if not evidence.is_relative_to(run_root / "evidence") or not (run_root / ".flea-test-sandbox").is_file():
+if not evidence.is_relative_to(run_root / "evidence") or not (run_root / ".dlea-test-sandbox").is_file():
     raise AssertionError("b72 picker captures must stay inside the suite evidence directory")
 if not theme_home.is_relative_to(root.parent):
     raise AssertionError("b72 picker theme HOME escaped the fixture")
 root.mkdir()
-(root / ".flea-test-sandbox").write_text("private portal capture fixture\n")
+(root / ".dlea-test-sandbox").write_text("private portal capture fixture\n")
 drive_env = dict(os.environ)
 picker_env = dict(drive_env)
 for key, directory in [("XDG_CONFIG_HOME", "config"), ("XDG_DATA_HOME", "data"),
@@ -71,8 +71,8 @@ if not instance.is_dir():
 picker_env["HYPRLAND_INSTANCE_SIGNATURE"] = HYPRLAND_ALIAS
 picker_env["HOME"] = str(theme_home)
 picker_env["WAYLAND_DISPLAY"] = str(Path(drive_env["XDG_RUNTIME_DIR"]) / drive_env["WAYLAND_DISPLAY"])
-picker_env["FLEA_BIN"] = str(Path(os.environ["FLEA_BIN"]).resolve(strict=True))
-picker_env["FLEA_UI"] = str(Path(os.environ["FLEA_UI"]).resolve(strict=True))
+picker_env["DLEA_BIN"] = str(Path(os.environ["DLEA_BIN"]).resolve(strict=True))
+picker_env["DLEA_UI"] = str(Path(os.environ["DLEA_UI"]).resolve(strict=True))
 listing = root / "files"
 listing.mkdir()
 for name in ("alpha.txt", "beta.txt", "gamma.txt"):
@@ -80,8 +80,8 @@ for name in ("alpha.txt", "beta.txt", "gamma.txt"):
 subprocess.run(["magick", "-size", "64x64", "xc:#336699", str(listing / "photo.png")], env=picker_env, check=True)
 portals = root / "portals"
 portals.mkdir()
-(portals / "flea.portal").write_text("[portal]\nDBusName=org.freedesktop.impl.portal.desktop.flea\nInterfaces=org.freedesktop.impl.portal.FileChooser;\n")
-(portals / "portals.conf").write_text("[preferred]\norg.freedesktop.impl.portal.FileChooser=flea\n")
+(portals / "dlea.portal").write_text("[portal]\nDBusName=org.freedesktop.impl.portal.desktop.dlea\nInterfaces=org.freedesktop.impl.portal.FileChooser;\n")
+(portals / "portals.conf").write_text("[preferred]\norg.freedesktop.impl.portal.FileChooser=dlea\n")
 picker_env["XDG_DESKTOP_PORTAL_DIR"] = str(portals)
 processes, logs, missed = [], [], []
 manifest = (evidence / "b72-manifest.tsv").open("a")
@@ -116,7 +116,7 @@ def wait(label, predicate):
 
 
 def windows():
-    # Sample input: [{"title":"Flea b72 picker 123 open","pid":456,"address":"0xabc"}].
+    # Sample input: [{"title":"Dlea b72 picker 123 open","pid":456,"address":"0xabc"}].
     return json.loads(run(["hyprctl", "clients", "-j"]))
 
 
@@ -128,7 +128,7 @@ def owner(name):
 
 class Request:
     def __init__(self, token, method, **options):
-        self.title = f"Flea b72 picker {os.getpid()} {token}"
+        self.title = f"Dlea b72 picker {os.getpid()} {token}"
         self.response = []
         sender = bus.get_unique_name()[1:].replace(".", "_")
         handle = f"{OBJECT}/request/{sender}/{token}"
@@ -166,18 +166,18 @@ class Request:
         found = [window for window in windows() if window.get("title") == self.title and window.get("pid") == self.pid]
         if len(found) != 1:
             raise AssertionError("owned picker window missing or ambiguous")
-        # Sample input: b"HOME=/fixture/home\0FLEA_PICKER_REPLY=/fixture/run/reply\0".
+        # Sample input: b"HOME=/fixture/home\0DLEA_PICKER_REPLY=/fixture/run/reply\0".
         environment = dict(row.split(b"=", 1) for row in Path(f"/proc/{self.pid}/environ").read_bytes().split(b"\0") if b"=" in row)
-        reply = Path(os.fsdecode(environment.get(b"FLEA_PICKER_REPLY", b""))).resolve()
+        reply = Path(os.fsdecode(environment.get(b"DLEA_PICKER_REPLY", b""))).resolve()
         if not reply.is_relative_to(runtime) or environment.get(b"HOME") != os.fsencode(theme_home):
             raise AssertionError("picker window has foreign reply or theme inputs")
-        if environment.get(b"FLEA_BIN") != os.fsencode(picker_env["FLEA_BIN"]):
+        if environment.get(b"DLEA_BIN") != os.fsencode(picker_env["DLEA_BIN"]):
             raise AssertionError("picker window is not using the candidate binary")
         return found[0]
 
     def ipc(self, call):
         self.window()
-        return json.loads(run([*IPC.command(), "--pid", self.pid, "call", "fleapicker", call], picker_env, 5))
+        return json.loads(run([*IPC.command(), "--pid", self.pid, "call", "dleapicker", call], picker_env, 5))
 
     def state(self):
         return self.ipc("snapshot")
@@ -254,7 +254,7 @@ class Request:
             except FileNotFoundError:
                 # The thread ended after the listing, so it has no children to hold.
                 continue
-        binary = Path(picker_env["FLEA_BIN"])
+        binary = Path(picker_env["DLEA_BIN"])
         return [int(pid) for pid in children if Path(f"/proc/{pid}/exe").resolve() == binary]
 
     def closed(self, code):
@@ -374,11 +374,11 @@ try:
     picker_env["DBUS_SESSION_BUS_ADDRESS"] = address
     bus = Gio.DBusConnection.new_for_address_sync(address, Gio.DBusConnectionFlags.AUTHENTICATION_CLIENT |
                                                  Gio.DBusConnectionFlags.MESSAGE_BUS_CONNECTION, None, None)
-    start([sys.executable, REPO / "tools/flea-portal"], "backend")
+    start([sys.executable, REPO / "tools/dlea-portal"], "backend")
     wait("candidate backend", lambda: owner(BACKEND))
     start(["/usr/lib/xdg-desktop-portal", "--verbose"], "frontend")
     wait("public frontend", lambda: owner(FRONTEND))
-    run([picker_env["FLEA_BIN"], "--ui-state", json.dumps({"keys": "default", "pickerView": "list",
+    run([picker_env["DLEA_BIN"], "--ui-state", json.dumps({"keys": "default", "pickerView": "list",
          "display": {"textSize": {"mode": 14}}})], picker_env)
     open_states()
     save_states()

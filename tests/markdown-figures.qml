@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-markdown-figures-test
+//@ pragma ShellId dlea-markdown-figures-test
 
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 import "figure-memory" as Memory
 
 // FigureService against the real helper: answers, the 64-entry cache, the
@@ -25,7 +25,7 @@ ShellRoot {
         }
     }
 
-    property string phaseFile: Quickshell.env("FLEA_FIG_PHASE_FILE")
+    property string phaseFile: Quickshell.env("DLEA_FIG_PHASE_FILE")
     property int step: 0
     // Bound the wait for the idle helper's exit event.
     readonly property int idleExitBoundMs: 5000
@@ -71,11 +71,11 @@ ShellRoot {
 
     Component.onCompleted: {
         if (shell.phaseFile === "") {
-            shell.log("FAIL no FLEA_FIG_PHASE_FILE arrived");
+            shell.log("FAIL no DLEA_FIG_PHASE_FILE arrived");
             shell.finish(1);
             return;
         }
-        shell.check(Flea.FigureService.deadlineRunning === false, "the deadline timer is stopped before the first ask");
+        shell.check(Dlea.FigureService.deadlineRunning === false, "the deadline timer is stopped before the first ask");
         memory.checkReload(shell.phaseFile, shell.writePhase, shell.check, function () {
             shell.writePhase("answer", function () {
                 shell.logPss("before");
@@ -86,11 +86,11 @@ ShellRoot {
     }
 
     function askMeasFormula(n) {
-        shell.ticket = Flea.FigureService.ask("math", "\\psi+" + n, true, shell.theme());
+        shell.ticket = Dlea.FigureService.ask("math", "\\psi+" + n, true, shell.theme());
     }
 
     function askMeasDiagram(n) {
-        shell.ticket = Flea.FigureService.ask("mermaid", "flowchart TD\n    P" + n + " --> Q" + n, true, shell.theme());
+        shell.ticket = Dlea.FigureService.ask("mermaid", "flowchart TD\n    P" + n + " --> Q" + n, true, shell.theme());
     }
 
     function logPss(phase) {
@@ -100,7 +100,7 @@ ShellRoot {
     }
 
     function logHelperPeak() {
-        shell.log("FIGHELPER rss_peak_kb=" + memory.treePeak(Flea.FigureService.helperPid));
+        shell.log("FIGHELPER rss_peak_kb=" + memory.treePeak(Dlea.FigureService.helperPid));
     }
 
     function theme() {
@@ -108,21 +108,21 @@ ShellRoot {
     }
 
     function askFormula() {
-        shell.ticket = Flea.FigureService.ask("math", "\\frac{a}{b}", true, shell.theme());
+        shell.ticket = Dlea.FigureService.ask("math", "\\frac{a}{b}", true, shell.theme());
     }
 
     // Every helper-reaching step names a source no earlier step asked for:
     // a repeat would answer from the cache and never touch the helper.
     function askFresh(source) {
-        shell.ticket = Flea.FigureService.ask("math", source, true, shell.theme());
+        shell.ticket = Dlea.FigureService.ask("math", source, true, shell.theme());
     }
 
     function askDiagram() {
-        shell.ticket = Flea.FigureService.ask("mermaid", "flowchart TD\n    A --> B", true, shell.theme());
+        shell.ticket = Dlea.FigureService.ask("mermaid", "flowchart TD\n    A --> B", true, shell.theme());
     }
 
     Connections {
-        target: Flea.FigureService
+        target: Dlea.FigureService
         function onDone(ticket, svg, error) { shell.landed(ticket, svg, error); }
     }
 
@@ -149,8 +149,8 @@ ShellRoot {
             } else {
                 shell.logPss("diagrams");
                 shell.logHelperPeak();
-                shell.helperExitsMark = Flea.FigureService.helperExits;
-                Flea.FigureService.idleExitMs = shell.measIdleExitMs;
+                shell.helperExitsMark = Dlea.FigureService.helperExits;
+                Dlea.FigureService.idleExitMs = shell.measIdleExitMs;
                 shell.step = 22;
             }
         } else if (shell.step === 1) {
@@ -164,39 +164,39 @@ ShellRoot {
             var checkedSvg = svg.replace(/xmlns(?::\w+)?="[^"]*"/g, "");
             shell.check(checkedSvg.indexOf("http:") < 0 && checkedSvg.indexOf("https:") < 0, "the diagram answer passes checkSafe");
             shell.step = 3;
-            shell.sendsMark = Flea.FigureService.sends;
-            shell.answersMark = Flea.FigureService.workerAnswers;
+            shell.sendsMark = Dlea.FigureService.sends;
+            shell.answersMark = Dlea.FigureService.workerAnswers;
             shell.askFormula();
         } else if (shell.step === 3) {
             shell.check(svg === shell.firstSvg && error === "", "a second identical request is a cache hit");
-            shell.check(Flea.FigureService.sends === shell.sendsMark, "the cache hit writes no new helper line");
-            shell.check(Flea.FigureService.workerAnswers === shell.answersMark, "the cache hit asks the helper nothing");
+            shell.check(Dlea.FigureService.sends === shell.sendsMark, "the cache hit writes no new helper line");
+            shell.check(Dlea.FigureService.workerAnswers === shell.answersMark, "the cache hit asks the helper nothing");
             shell.step = 31;
-            shell.ticket = Flea.FigureService.ask("math", "\\frac{a}{b}", false, shell.theme());
+            shell.ticket = Dlea.FigureService.ask("math", "\\frac{a}{b}", false, shell.theme());
         } else if (shell.step === 31) {
             shell.check(svg !== "" && svg !== shell.firstSvg && error === "", "the same source inline renders separately from display");
-            shell.check(Flea.FigureService.sends === shell.sendsMark + 1, "inline mode sends one new helper line");
+            shell.check(Dlea.FigureService.sends === shell.sendsMark + 1, "inline mode sends one new helper line");
             shell.inlineSvg = svg;
             shell.step = 32;
-            shell.ticket = Flea.FigureService.ask("math", "\\frac{a}{b}", false, shell.theme());
+            shell.ticket = Dlea.FigureService.ask("math", "\\frac{a}{b}", false, shell.theme());
         } else if (shell.step === 32) {
             shell.check(svg === shell.inlineSvg && error === "", "the inline revisit keeps its own answer");
-            shell.check(Flea.FigureService.sends === shell.sendsMark + 1, "the inline revisit sends nothing");
+            shell.check(Dlea.FigureService.sends === shell.sendsMark + 1, "the inline revisit sends nothing");
             shell.step = 33;
             shell.askFormula();
         } else if (shell.step === 33) {
             shell.check(svg === shell.firstSvg && error === "", "the display revisit keeps its own answer");
-            shell.check(Flea.FigureService.sends === shell.sendsMark + 1, "the display revisit sends nothing");
+            shell.check(Dlea.FigureService.sends === shell.sendsMark + 1, "the display revisit sends nothing");
             shell.step = 4;
-            Flea.FigureService.idleExitMs = shell.measIdleExitMs;
-            shell.helperExitsMark = Flea.FigureService.helperExits;
+            Dlea.FigureService.idleExitMs = shell.measIdleExitMs;
+            shell.helperExitsMark = Dlea.FigureService.helperExits;
             shell.idleExitWait.start();
             shell.awaitSource = "\\sqrt{2}";
             shell.afterAwait = 5;
         } else if (shell.step === 5) {
             shell.check(svg !== "" && error === "", "a request after the idle exit restarts the helper");
             shell.step = 6;
-            Flea.FigureService.renderMs = shell.hangingRenderLimitMs;
+            Dlea.FigureService.renderMs = shell.hangingRenderLimitMs;
             shell.writePhase("hang", function () {
                 shell.awaitSource = "\\int_0^1 x^2\\,dx";
                 shell.afterAwait = 7;
@@ -204,10 +204,10 @@ ShellRoot {
             });
         } else if (shell.step === 7) {
             shell.check(svg === "" && error === "render timed out", "a helper that never answers times out");
-            shell.check(Flea.FigureService.deadlineExpirations > shell.renderDeadlineMark, "the hanging helper answers from the deadline event");
+            shell.check(Dlea.FigureService.deadlineExpirations > shell.renderDeadlineMark, "the hanging helper answers from the deadline event");
             shell.check(shell.hangingDeadlineArmed && shell.pendingPumpCallbacks === shell.requiredPendingPumpCallbacks,
                 "pending-ticket pump callbacks precede the hanging deadline");
-            Flea.FigureService.renderMs = shell.recoveredRenderMs;
+            Dlea.FigureService.renderMs = shell.recoveredRenderMs;
             shell.writePhase("answer", function () {
                 shell.awaitSource = "\\sum_{n=1}^{\\infty}\\frac{1}{n^2}";
                 shell.afterAwait = 9;
@@ -222,9 +222,9 @@ ShellRoot {
             });
         } else if (shell.step === 14) {
             shell.check(svg === "" && error.indexOf("exited 42") >= 0, "a helper exit names its code");
-            shell.check(Flea.FigureService.deadlineExpirations === shell.renderDeadlineMark, "a helper exit answers before the render deadline event");
-            shell.check(Flea.FigureService.helperExits === shell.helperExitsMark + shell.crashingHelperExitCount, "exactly two helper exit events precede the failed head's answer");
-            shell.check(Flea.FigureService.available, "an ordinary exit leaves a fresh helper available");
+            shell.check(Dlea.FigureService.deadlineExpirations === shell.renderDeadlineMark, "a helper exit answers before the render deadline event");
+            shell.check(Dlea.FigureService.helperExits === shell.helperExitsMark + shell.crashingHelperExitCount, "exactly two helper exit events precede the failed head's answer");
+            shell.check(Dlea.FigureService.available, "an ordinary exit leaves a fresh helper available");
             shell.step = 10;
             shell.writePhase("refused", function () {
                 shell.awaitSource = "\\binom{n}{k}";
@@ -233,13 +233,13 @@ ShellRoot {
             });
         } else if (shell.step === 11) {
             shell.check(svg === "" && error !== "", "a helper that exits 127 fails the request");
-            shell.check(Flea.FigureService.available === false, "the 127 exit latches available false");
+            shell.check(Dlea.FigureService.available === false, "the 127 exit latches available false");
             shell.step = 12;
-            shell.sendsMark = Flea.FigureService.sends;
+            shell.sendsMark = Dlea.FigureService.sends;
             shell.askFresh("\\binom{n}{k}");
         } else if (shell.step === 12) {
             shell.check(svg === "" && error !== "", "a latched service fails without retrying");
-            shell.check(Flea.FigureService.sends === shell.sendsMark, "the latch writes no new helper line");
+            shell.check(Dlea.FigureService.sends === shell.sendsMark, "the latch writes no new helper line");
             shell.step = 13;
             // A source no earlier step asked for, so the latched service
             // fails it instead of answering from the cache.
@@ -247,7 +247,7 @@ ShellRoot {
         }
     }
 
-    Flea.MarkdownFigure {
+    Dlea.MarkdownFigure {
         id: fenceFig
         width: 400
         kind: "math"
@@ -289,20 +289,20 @@ ShellRoot {
 
     function drive() {
         if (shell.step === 7 && !shell.hangingDeadlineArmed
-                && Flea.FigureService.written.indexOf(shell.ticket) >= 0) {
-            shell.check(shell.ticket > 0 && Flea.FigureService.waiting[shell.ticket] !== undefined
-                && Flea.FigureService.deadlineExpirations === shell.renderDeadlineMark,
+                && Dlea.FigureService.written.indexOf(shell.ticket) >= 0) {
+            shell.check(shell.ticket > 0 && Dlea.FigureService.waiting[shell.ticket] !== undefined
+                && Dlea.FigureService.deadlineExpirations === shell.renderDeadlineMark,
                 "pump callback sees the hanging ticket still waiting and unanswered");
             shell.pendingPumpCallbacks++;
             if (shell.pendingPumpCallbacks === shell.requiredPendingPumpCallbacks) {
                 shell.hangingDeadlineArmed = true;
-                Flea.FigureService.waiting[shell.ticket].deadline = shell.expiredTicketDeadline;
+                Dlea.FigureService.waiting[shell.ticket].deadline = shell.expiredTicketDeadline;
             }
         }
         // The idle exit and the timeout kill are stopped processes, not
         // answers, so the next phase's ask waits for one here.
-        if (shell.awaitSource !== "" && !Flea.FigureService.helperRunning
-                && Flea.FigureService.helperExits > shell.helperExitsMark) {
+        if (shell.awaitSource !== "" && !Dlea.FigureService.helperRunning
+                && Dlea.FigureService.helperExits > shell.helperExitsMark) {
             var src = shell.awaitSource;
             shell.awaitSource = "";
             shell.step = shell.afterAwait;
@@ -310,19 +310,19 @@ ShellRoot {
                 shell.idleExitWait.stop();
                 shell.check(true, "the idle exit event stops the process");
             }
-            shell.helperExitsMark = Flea.FigureService.helperExits;
-            shell.renderDeadlineMark = Flea.FigureService.deadlineExpirations;
+            shell.helperExitsMark = Dlea.FigureService.helperExits;
+            shell.renderDeadlineMark = Dlea.FigureService.deadlineExpirations;
             shell.askFresh(src);
         }
         // The idle-phase reading waits past the helper's stop, then the
         // functional flow starts on a production idle exit again.
-        if (shell.step === 22 && !Flea.FigureService.helperRunning
-                && Flea.FigureService.helperExits > shell.helperExitsMark) {
+        if (shell.step === 22 && !Dlea.FigureService.helperRunning
+                && Dlea.FigureService.helperExits > shell.helperExitsMark) {
             shell.step = 23;
             memoryIdleWait.start();
         }
         // The deadline timer stops on its own tick once waiting is empty.
-        if (shell.awaitTimerStop && Flea.FigureService.deadlineRunning === false) {
+        if (shell.awaitTimerStop && Dlea.FigureService.deadlineRunning === false) {
             shell.awaitTimerStop = false;
             deadlineStopWait.stop();
             shell.check(true, "the deadline timer stops once every answer has landed");
@@ -331,7 +331,7 @@ ShellRoot {
     }
 
     function idleWaitExpired() {
-        if (!Flea.FigureService.helperRunning && Flea.FigureService.helperExits > shell.helperExitsMark) {
+        if (!Dlea.FigureService.helperRunning && Dlea.FigureService.helperExits > shell.helperExitsMark) {
             shell.drive();
             return;
         }
@@ -352,7 +352,7 @@ ShellRoot {
         onTriggered: {
             shell.step = 0;
             shell.logPss("idle");
-            Flea.FigureService.idleExitMs = shell.prodIdleExitMs;
+            Dlea.FigureService.idleExitMs = shell.prodIdleExitMs;
             shell.writePhase("answer", function () {
                 shell.step = 1;
                 shell.askFormula();
@@ -365,7 +365,7 @@ ShellRoot {
         interval: shell.stopWaitMs
         onTriggered: {
             shell.awaitTimerStop = false;
-            shell.check(Flea.FigureService.deadlineRunning === false, "the deadline timer stops before the wait timer fires");
+            shell.check(Dlea.FigureService.deadlineRunning === false, "the deadline timer stops before the wait timer fires");
             shell.finish(0);
         }
     }
@@ -392,7 +392,7 @@ ShellRoot {
             return;
         shell.done = true;
         pump.running = false;
-        shell.check(Flea.FigureService.workerAnswers > 0, "every answer came through the helper");
+        shell.check(Dlea.FigureService.workerAnswers > 0, "every answer came through the helper");
         shell.log("DONE failures=" + (shell.failures + extra));
         shell.quit();
     }

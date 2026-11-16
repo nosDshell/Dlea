@@ -34,10 +34,10 @@ impl<T> Drop for Task<T> {
 }
 
 // Read the terminal's encoded theme roles back into the shared renderer's sRGB palette.
-pub fn palette(theme: &super::theme::Theme) -> flea::ui_logic_model_preview::color::Palette {
+pub fn palette(theme: &super::theme::Theme) -> dlea::ui_logic_model_preview::color::Palette {
     if theme.depth == super::theme::Depth::Mono {
         // Raster pixels cannot inherit terminal attributes or its default ink.
-        return flea::ui_logic_model_preview::color::Palette {
+        return dlea::ui_logic_model_preview::color::Palette {
             ground: [0.; 3],
             foreground: [1.; 3],
             muted: [0.7; 3],
@@ -68,7 +68,7 @@ pub fn palette(theme: &super::theme::Theme) -> flea::ui_logic_model_preview::col
             _ => ground,
         }
     };
-    flea::ui_logic_model_preview::color::Palette { ground, foreground: role(&theme.foreground), muted: role(&theme.meta), frame: role(&theme.track) }
+    dlea::ui_logic_model_preview::color::Palette { ground, foreground: role(&theme.foreground), muted: role(&theme.meta), frame: role(&theme.track) }
 }
 fn hex(text: &str) -> [f32; 3] {
     let text = text.strip_prefix('#').unwrap_or("");

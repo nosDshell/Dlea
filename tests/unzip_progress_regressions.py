@@ -118,7 +118,7 @@ os.execv({real!r}, [{real!r}] + args)
         event = backend.read(15)
         if event['t'] == 'job':
             job = event['job']
-            stage = next(root.glob('.flea-work-ext-*/out/large.bin'), None)
+            stage = next(root.glob('.dlea-work-ext-*/out/large.bin'), None)
             try:
                 written = stage.stat().st_size if stage else 0
             except FileNotFoundError:
@@ -224,12 +224,12 @@ os.execv({real!r}, [{real!r}] + args)
                 assert reply['ok'], reply
                 assert elapsed < (3.5 if mode == 'plain' else 5), elapsed
                 assert (destination / '01999.txt').read_bytes() == b'x'
-            assert not list(root.glob('.flea-work-ext-*'))
+            assert not list(root.glob('.dlea-work-ext-*'))
             index_stat = Path('/proc') / pid_file.read_text() / 'stat'
             assert not index_stat.exists() or index_stat.read_text().rsplit(')', 1)[1].split()[0] == 'Z'
         finally:
             if not replied and pid_file.exists():
-                assert root.is_absolute() and (root / '.flea-test-sandbox').is_file()
+                assert root.is_absolute() and (root / '.dlea-test-sandbox').is_file()
                 try:
                     os.killpg(int(pid_file.read_text()), signal.SIGKILL)
                 except ProcessLookupError:

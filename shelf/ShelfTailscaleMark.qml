@@ -1,7 +1,7 @@
 import QtQuick
 import qs.Commons
 
-// Tailscale's own mark, reproduced from the official artwork the way Flea's ui/TailscaleMark.qml
+// Tailscale's own mark, reproduced from the official artwork the way Dlea's ui/TailscaleMark.qml
 // reproduces it: Send is Taildrop, and a brand row keeps the brand's mark rather than a cut glyph.
 // The shelf carries its own copy because it ships as its own repository at release.
 Item {

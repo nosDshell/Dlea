@@ -23,15 +23,15 @@ Window {
         var socket = "ws://127.0.0.1:9222/devtools/page/" + view.devToolsId
         var script = "var socket=new WebSocket(" + JSON.stringify(socket) + ");"
             + "socket.onopen=function(){socket.send(JSON.stringify({id:1,method:'Page.getResourceTree'}));};"
-            + "socket.onerror=function(){console.warn('FLEA_RESOURCES null');};"
+            + "socket.onerror=function(){console.warn('DLEA_RESOURCES null');};"
             + "socket.onmessage=function(event){try{var reply=JSON.parse(event.data);if(reply.id!==1)return;"
-            + "if(!reply.result){console.warn('FLEA_RESOURCES null');return;}var urls=[],overflow=false;"
+            + "if(!reply.result){console.warn('DLEA_RESOURCES null');return;}var urls=[],overflow=false;"
             + "function collect(tree){(tree.resources||[]).forEach(function(resource){try{"
             + "var url=new URL(resource.url);if(url.protocol!=='file:'||url.pathname.indexOf('/page/')!==0)return;url.search='';url.hash='';"
             + "if(urls.length<" + (maxResources + 1) + ")urls.push({url:url.href,failed:resource.failed===true});else overflow=true;}catch(skipped){}});"
             + "(tree.childFrames||[]).forEach(collect);}collect(reply.result.frameTree);"
-            + "console.warn('FLEA_RESOURCES '+JSON.stringify({resources:urls,overflow:overflow}));socket.close();"
-            + "}catch(error){console.warn('FLEA_RESOURCES null');}};"
+            + "console.warn('DLEA_RESOURCES '+JSON.stringify({resources:urls,overflow:overflow}));socket.close();"
+            + "}catch(error){console.warn('DLEA_RESOURCES null');}};"
         observer.runJavaScript(script, WebEngineScript.ApplicationWorld)
     }
     visible: true
@@ -43,7 +43,7 @@ Window {
         id: view
         anchors.fill: parent
         url: win.pageUrl
-        profile: WebEngineProfile { offTheRecord: true; httpUserAgent: "Flea-Preview" }
+        profile: WebEngineProfile { offTheRecord: true; httpUserAgent: "Dlea-Preview" }
         settings.javascriptEnabled: false
         settings.localContentCanAccessRemoteUrls: false
         settings.localStorageEnabled: false
@@ -74,7 +74,7 @@ Window {
         settings.pluginsEnabled: false
         // Only trusted blank-page code queries this sandbox's engine resource tree.
         onJavaScriptConsoleMessage: function (level, message) {
-            if (message.indexOf("FLEA_RESOURCES ") !== 0) return
+            if (message.indexOf("DLEA_RESOURCES ") !== 0) return
             console.warn("HTML_RESOURCES " + message.substring(15))
             Qt.exit(0)
         }

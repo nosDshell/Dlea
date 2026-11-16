@@ -11,7 +11,7 @@ const O_WRONLY: c_int = 1;
 const O_CREAT: c_int = 0o100;
 const O_EXCL: c_int = 0o200;
 const O_CLOEXEC: c_int = 0o2000000;
-const MARKER_NAME: &std::ffi::CStr = c".flea-test-sandbox";
+const MARKER_NAME: &std::ffi::CStr = c".dlea-test-sandbox";
 
 extern "C" {
     fn openat(dirfd: c_int, path: *const c_char, flags: c_int, ...) -> c_int;

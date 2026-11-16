@@ -2,7 +2,7 @@ use super::*;
 use crate::backend::quietpanic;
 use crate::backend::scanhold::{self, Stage};
 use crate::backend::testdir::TestDir;
-use crate::error::FleaError;
+use crate::error::DleaError;
 use std::os::unix::fs::MetadataExt;
 use std::sync::mpsc::{channel, Receiver};
 use std::sync::Arc;
@@ -207,7 +207,7 @@ fn a_failed_scan_answers_the_mode_the_worker_read_not_a_fresh_stat() {
         },
         done: Done {
             result: Err(ListErr {
-                error: FleaError {
+                error: DleaError {
                     where_: "scan".into(),
                     path: missing,
                     msg: "refused".into(),

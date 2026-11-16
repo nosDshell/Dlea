@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.." || exit 1
 parent="$(pwd -P)/.superpowers/i0"
 mkdir -p "$parent" || exit 1
 box=$(mktemp -d "$parent/locale-suite.XXXXXX") || exit 1
-marker=.flea-test-sandbox
+marker=.dlea-test-sandbox
 case $box in "$parent"/locale-suite.?*) ;; *) exit 1 ;; esac
 : > "$box/$marker" || exit 1
 passed=0
@@ -152,6 +152,6 @@ run 'parser setup failure with locale variables unset' 1 'FAIL mutant --regress-
 run 'i50 roster regression controls' 0 '' python3 -B tests/i18n/test_roster.py
 run 'jq required for all-code plural equality' 0 '' jq --version
 run 'installed Omarchy roster and references (catalog completeness is the release gate)' 0 '' \
-    python3 -B tools/flea-i18n-roster --omarchy-path /usr/share/omarchy --check-installed --warn-only
+    python3 -B tools/dlea-i18n-roster --omarchy-path /usr/share/omarchy --check-installed --warn-only
 printf 'locale: %d passed, %d failed\n' "$passed" "$failed"
 [ "$failed" -eq 0 ]

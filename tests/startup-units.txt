@@ -18,7 +18,7 @@ FigureService.qml
 FigureStore.qml
 FileDrag.qml
 FilterStrip.qml
-FleaMark.qml
+DleaMark.qml
 Glass.qml
 Glyph.qml
 Header.qml

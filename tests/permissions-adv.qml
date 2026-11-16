@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-permissions-adv-test
+//@ pragma ShellId dlea-permissions-adv-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "permissions-columns.js" as Columns
 
 // tests/permissions-adv.sh's harness: the multi-row Permissions card's review findings, red first.
@@ -48,7 +48,7 @@ ShellRoot {
     }
 
     function stopState(stop) {
-        Flea.ViewState.load(JSON.stringify({ display: { textSize: { mode: stop } } }))
+        Dlea.ViewState.load(JSON.stringify({ display: { textSize: { mode: stop } } }))
     }
     function whole(value) { return value === Math.round(value) }
     function sceneRect(item) {
@@ -76,7 +76,7 @@ ShellRoot {
     function checkNote(tag, card) {
         var note = card.noteItem
         if (!note) { shell.check(tag + " note is reachable", false, "no noteItem"); shell.check(tag + " note glyphs are centred", false, "no noteItem"); return }
-        var box = Math.round(shell.noteLineRatio * Flea.Theme.font.caption)
+        var box = Math.round(shell.noteLineRatio * Dlea.Theme.font.caption)
         // contentHeight is what the text layout laid out, so it moves with lineHeight or the font and not with the height binding.
         shell.check(tag + " note lays out lines of 1.5 x caption", note.lineCount > 0 && note.contentHeight === note.lineCount * box, note.contentHeight + " for " + note.lineCount + " lines of " + box)
         shell.check(tag + " note box holds its laid-out lines", note.height === note.contentHeight, note.height + " against " + note.contentHeight)
@@ -87,16 +87,16 @@ ShellRoot {
     function same(name, actual, expected) { shell.check(name, String(actual) === String(expected), String(actual) + " want " + String(expected)) }
     // Theme.cardSpan and cardOrigin give every card a whole size inside its room and a whole origin, in odd and even rooms.
     function checkHelper() {
-        var ready = typeof Flea.Theme.cardSpan === "function" && typeof Flea.Theme.cardOrigin === "function"
+        var ready = typeof Dlea.Theme.cardSpan === "function" && typeof Dlea.Theme.cardOrigin === "function"
         for (var r = 0; r < shell.helperRooms.length; r++) {
             var room = shell.helperRooms[r]
             for (var w = 0; w < shell.helperWants.length; w++) {
                 var want = shell.helperWants[w]
-                var span = ready ? Flea.Theme.cardSpan(want, room - 2 * shell.helperMargin) : -1
-                var origin = ready ? Flea.Theme.cardOrigin(room, span) : -1
+                var span = ready ? Dlea.Theme.cardSpan(want, room - 2 * shell.helperMargin) : -1
+                var origin = ready ? Dlea.Theme.cardOrigin(room, span) : -1
                 shell.check("helper room " + room + " want " + want + " is whole", ready && shell.whole(span) && shell.whole(origin) && span >= want && span < want + 1 && origin >= 0 && origin + span <= room, span + " at " + origin)
             }
-            var clamped = ready ? Flea.Theme.cardSpan(room * 2, room - 2 * shell.helperMargin) : -1
+            var clamped = ready ? Dlea.Theme.cardSpan(room * 2, room - 2 * shell.helperMargin) : -1
             shell.check("helper room " + room + " clamps to the room", ready && clamped === room - 2 * shell.helperMargin, String(clamped))
         }
     }
@@ -115,7 +115,7 @@ ShellRoot {
         shell.check(tag + " card has a mixed Owner execute box showing the bar", !!box && box.value === "some" && !!box.barItem && box.barItem.visible, box ? box.value : "no box")
         if (!box) return
         var bar = box.barItem
-        var scale = Flea.Theme.font.bodySmall / shell.boardBodySmall
+        var scale = Dlea.Theme.font.bodySmall / shell.boardBodySmall
         var wantWidth = Math.round(shell.boardBarWidth * scale)
         var wantHeight = Math.max(1, Math.round(shell.boardBarHeight * scale))
         shell.check(tag + " mixed bar is a rectangle", !!bar && String(bar).indexOf("QQuickRectangle") === 0, String(bar))
@@ -125,7 +125,7 @@ ShellRoot {
         shell.check(tag + " mixed bar sits on whole pixels", !!bar && shell.whole(bar.x) && shell.whole(bar.y), at)
         shell.check(tag + " mixed bar is centred in the box",
             !!bar && Math.abs(2 * bar.x + bar.width - box.width) <= 1 && Math.abs(2 * bar.y + bar.height - box.height) <= 1, at)
-        shell.check(tag + " mixed bar draws in the check's ink", !!bar && Qt.colorEqual(bar.color, Flea.Theme.color.background) && bar.opacity === 1, bar ? String(bar.color) : "none")
+        shell.check(tag + " mixed bar draws in the check's ink", !!bar && Qt.colorEqual(bar.color, Dlea.Theme.color.background) && bar.opacity === 1, bar ? String(bar.color) : "none")
         if (stop === shell.boardStop)
             shell.check(tag + " mixed bar is the board's 8 x 2 at 5,8", !!bar && size === shell.boardBarWidth + "x" + shell.boardBarHeight
                 && bar.x === shell.boardBarX && bar.y === shell.boardBarY, size + " at " + at)
@@ -134,7 +134,7 @@ ShellRoot {
     function visibleSections(item, result) {
         if (!item.visible) return result
         if (item.text === "WILL CHANGE") result.headers += 1
-        if (item.height === Flea.Theme.spacing.hairline && item.opacity === sectionRuleOpacity) result.rules += 1
+        if (item.height === Dlea.Theme.spacing.hairline && item.opacity === sectionRuleOpacity) result.rules += 1
         for (var i = 0; i < item.children.length; i++) visibleSections(item.children[i], result)
         return result
     }
@@ -153,15 +153,15 @@ ShellRoot {
             id: probeNote
             visible: false
             text: "Hg"
-            font { family: Flea.Theme.font.family; pixelSize: Flea.Theme.font.caption }
+            font { family: Dlea.Theme.font.family; pixelSize: Dlea.Theme.font.caption }
         }
 
-        FontMetrics { id: probeFont; font { family: Flea.Theme.font.family; pixelSize: Flea.Theme.font.caption } }
-        TextMetrics { id: probeInk; text: "READ"; font { family: Flea.Theme.font.family; pixelSize: Flea.Theme.font.caption } }
+        FontMetrics { id: probeFont; font { family: Dlea.Theme.font.family; pixelSize: Dlea.Theme.font.caption } }
+        TextMetrics { id: probeInk; text: "READ"; font { family: Dlea.Theme.font.family; pixelSize: Dlea.Theme.font.caption } }
 
         // A live DialogField, whose box height the Octal field must match at every text size.
-        Flea.DialogField { id: probeField; visible: false }
-        Flea.PermissionsDialog { id: dialog }
+        Dlea.DialogField { id: probeField; visible: false }
+        Dlea.PermissionsDialog { id: dialog }
     }
 
     // Sample backend: {"c":"permissions","op":"inspect","id":1000,"path":"/a"} answers mode and reason.
@@ -373,8 +373,8 @@ ShellRoot {
             // The board draws the several-items note on one line at every stop; the spare px is the label's width over the text's.
             if (shell.cardKind === 1) shell.check(tag + " note holds one line with " + (dialog.noteItem.width - dialog.noteItem.contentWidth).toFixed(2) + " px to spare", dialog.noteItem.lineCount === 1, dialog.noteItem.lineCount + " lines")
             Columns.checkColumns(shell, tag, dialog, stop)
-            Columns.checkHeading(shell, tag, dialog, probeNote.implicitHeight, Flea.Theme.font.caption, probeFont.ascent + probeInk.tightBoundingRect.y, stop)
-            if (shell.cardKind === 0) Columns.checkOctalFrame(shell, tag, dialog, Flea.Theme, probeField)
+            Columns.checkHeading(shell, tag, dialog, probeNote.implicitHeight, Dlea.Theme.font.caption, probeFont.ascent + probeInk.tightBoundingRect.y, stop)
+            if (shell.cardKind === 0) Columns.checkOctalFrame(shell, tag, dialog, Dlea.Theme, probeField)
             if (shell.cardKind === 1 && stop === shell.boardStop)
                 shell.check(tag + " card is the board's 275", dialog.cardItem.height === shell.boardSeveralHeight, String(dialog.cardItem.height))
             if (shell.cardKind === 1) shell.checkMixedBar(tag, dialog, stop)

@@ -19,7 +19,7 @@ function injectPane(fixture, source) {
     // The pending turns stub the G1 refusal surface on the fixture pane; the
     // owner case injects Pane's real renameEditor below, so the stub goes first.
     fixture = fixture.replace("        function renameEditor() { return probe.editor() }\n", "");
-    return fixture.replace('import "flea/js/Ops.js" as Ops', 'import "flea/js/Ops.js" as Ops\nimport "flea/js/Tap.js" as Tap\nimport "flea/js/Errors.js" as Errors\nimport "flea/js/Swap.js" as Swap\nimport "flea/js/Nav.js" as Nav') // PaneWire.onFailed reads Swap.failListing and Nav.clearPendingBackground
+    return fixture.replace('import "dlea/js/Ops.js" as Ops', 'import "dlea/js/Ops.js" as Ops\nimport "dlea/js/Tap.js" as Tap\nimport "dlea/js/Errors.js" as Errors\nimport "dlea/js/Swap.js" as Swap\nimport "dlea/js/Nav.js" as Nav') // PaneWire.onFailed reads Swap.failListing and Nav.clearPendingBackground
         .replace("    property int step: 0", `    property Item retainedLoader: null
     property Item liveLoader: null
     property Item oldTile: null

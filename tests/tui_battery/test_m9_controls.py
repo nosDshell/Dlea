@@ -19,7 +19,7 @@ from .receipts import supplement
 
 class M9ControlTests(unittest.TestCase):
     def setUp(self):
-        parent = Path(os.environ.get("FLEA_BATTERY_TEST_ROOT", Path(__file__).resolve().parents[2] / ".superpowers/m9-tui-06"))
+        parent = Path(os.environ.get("DLEA_BATTERY_TEST_ROOT", Path(__file__).resolve().parents[2] / ".superpowers/m9-tui-06"))
         parent.mkdir(parents=True, exist_ok=True)
         self.root = Path(tempfile.mkdtemp(prefix="controls.", dir=parent))
         (self.root / MARKER).write_text("owned offline native-control doubles\n")
@@ -54,7 +54,7 @@ class M9ControlTests(unittest.TestCase):
                    sha256=digest(case / "terminal.conf"), calibration={"client": {"address": "0x123"}}))
         self.write(case / "capture-config.json", config)
         self.write(case / "candidate-settings.json", {"keys": preset})
-        self.write(case / "fx/state/flea/ui.json", {"keys": preset})
+        self.write(case / "fx/state/dlea/ui.json", {"keys": preset})
         self.write(case / "state.json", {"requested": state, "variant": variant, "preset": preset})
         screen = Screen(12, 5)
         screen.feed(b"\x1b[HREADY")
@@ -62,8 +62,8 @@ class M9ControlTests(unittest.TestCase):
         self.write(case / "commands.json", [{"argv": ["bash", "-c", "helper", "hypr_window_send_shortcut", "0x123", "SHIFT", "Delete"],
                    "start_ns": 100, "end_ns": 115, "exit_code": 0}])
         self.write(case / "launch-spec.json", {"argv": ["foot", "--config", str(case / "terminal.conf"), "relay"]})
-        self.write(case / "relay-spec.json", {"argv": ["bwrap", "--unshare-all", "--ro-bind", self.identity["binary"], "/opt/flea",
-                                                       "/opt/flea", "--tui", *flags, "/fx/v/work"]})
+        self.write(case / "relay-spec.json", {"argv": ["bwrap", "--unshare-all", "--ro-bind", self.identity["binary"], "/opt/dlea",
+                                                       "/opt/dlea", "--tui", *flags, "/fx/v/work"]})
         shutdown = {"candidate_exit": 0, "termios_restored": True, "relay_termios_restored": True, "screen": screen.snapshot()}
         self.write(case / "relay-exit.json", shutdown)
         self.write(case / "launch-exit.json", {"exit_code": 0})

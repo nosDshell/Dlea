@@ -1,5 +1,5 @@
 // A written file counts only once its close answers and a fresh look by name shows all of it (S8-12).
-use crate::error::FleaError;
+use crate::error::DleaError;
 use std::ffi::c_int;
 use std::os::unix::io::IntoRawFd;
 use std::path::Path;
@@ -29,16 +29,16 @@ pub(crate) enum Unlanded {
 }
 
 impl Unlanded {
-    pub(crate) fn error(self, op: &str, path: &Path) -> FleaError {
+    pub(crate) fn error(self, op: &str, path: &Path) -> DleaError {
         let path = path.to_string_lossy();
         match self {
             Unlanded::Failed(e) => crate::error::from_io(op, &path, &e),
-            Unlanded::Short => FleaError {
+            Unlanded::Short => DleaError {
                 where_: op.to_string(),
                 path: path.to_string(),
                 msg: FILE_UNCONFIRMED.to_string(),
             },
-            Unlanded::Cancelled => FleaError {
+            Unlanded::Cancelled => DleaError {
                 where_: op.to_string(),
                 path: path.to_string(),
                 msg: "cancelled".to_string(),

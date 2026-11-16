@@ -1,9 +1,9 @@
-// flea --update: ask the source that installs this Flea for a newer one, and hand installing to Omarchy.
+// dlea --update: ask the source that installs this Dlea for a newer one, and hand installing to Omarchy.
 use crate::terminal;
 use std::cmp::Ordering;
 use std::process::{Command, Stdio};
 
-// The exit statuses of `flea --update check`; the printed line carries the detail.
+// The exit statuses of `dlea --update check`; the printed line carries the detail.
 pub const AVAILABLE: i32 = 0;
 pub const FAILED: i32 = 2;
 pub const NOTHING_TO_INSTALL: i32 = 3;
@@ -12,17 +12,17 @@ pub const NOTHING_TO_INSTALL: i32 = 3;
 const UPDATER: &str = "omarchy-update";
 
 // The signed package Omarchy installs from its repository.
-const OPR_PACKAGE: &str = "flea";
+const OPR_PACKAGE: &str = "dlea";
 
-// The prebuilt release binary's package, which `omarchy update` upgrades or moves to OPR's `flea`.
-const RELEASE_PACKAGE: &str = "flea-bin";
+// The prebuilt release binary's package, which `omarchy update` upgrades or moves to OPR's `dlea`.
+const RELEASE_PACKAGE: &str = "dlea-bin";
 
-// Where the check found this Flea, which decides what may be asked and what `omarchy update` does to it.
+// Where the check found this Dlea, which decides what may be asked and what `omarchy update` does to it.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Kind {
-    // OPR's signed `flea`, which `omarchy update` upgrades through pacman.
+    // OPR's signed `dlea`, which `omarchy update` upgrades through pacman.
     Opr,
-    // `flea-bin`, a release build no source here describes, which `omarchy update` keeps current.
+    // `dlea-bin`, a release build no source here describes, which `omarchy update` keeps current.
     Release,
     // Any other package, which is a local build.
     Local,
@@ -85,24 +85,24 @@ fn shown(version: &Option<String>) -> &str {
     version.as_deref().unwrap_or("-")
 }
 
-// flea --update check: print the one line, say a failure on stderr, and exit with its status.
+// dlea --update check: print the one line, say a failure on stderr, and exit with its status.
 pub fn check() -> i32 {
     let report = investigate();
     println!("{}", report.line());
     if let State::Failed(why) = report.state {
-        eprintln!("flea: {}", why);
+        eprintln!("dlea: {}", why);
     }
     report.status()
 }
 
-// flea --update: Omarchy's updater in its own floating terminal, the command its menu and its bar run.
+// dlea --update: Omarchy's updater in its own floating terminal, the command its menu and its bar run.
 pub fn launch() -> i32 {
     let mut presenter = Command::new("omarchy-launch-floating-terminal-with-presentation");
     terminal::detach(&mut presenter);
     match presenter.arg(UPDATER).spawn() {
         Ok(_) => 0,
         Err(_) => {
-            eprintln!("flea: Omarchy's updater could not be started, so nothing was updated");
+            eprintln!("dlea: Omarchy's updater could not be started, so nothing was updated");
             FAILED
         }
     }
@@ -113,7 +113,7 @@ fn investigate() -> Report {
         return unchecked(Kind::Unowned, None);
     };
     let Some(described) = run("pacman", &["-Qi", owner.as_str()]).filter(|ran| ran.code == 0) else {
-        return failed(kind_for(&owner, false), None, "pacman could not find the package that installed Flea");
+        return failed(kind_for(&owner, false), None, "pacman could not find the package that installed Dlea");
     };
     let (installed, signed) = package_info(&described.stdout);
     let installed = installed.filter(|v| valid_version(v));
@@ -140,7 +140,7 @@ fn from_source(kind: Kind, installed: Option<String>, latest: Result<Option<Stri
         Err(why) => return failed(kind, installed, why),
     };
     let Some(have) = installed.clone() else {
-        return failed(kind, None, "the installed Flea reports a version this check cannot compare");
+        return failed(kind, None, "the installed Dlea reports a version this check cannot compare");
     };
     let Some(offer) = latest else {
         return Report { state: State::Current, kind, installed, latest: None };
@@ -174,7 +174,7 @@ fn failed(kind: Kind, installed: Option<String>, why: &'static str) -> Report {
 fn repo_latest(package: &str) -> Result<Option<String>, &'static str> {
     const UPDATES: i32 = 0;
     const NO_UPDATES: i32 = 2;
-    let why = "the package mirrors could not be asked for a newer Flea";
+    let why = "the package mirrors could not be asked for a newer Dlea";
     let ran = run("checkupdates", &[]).ok_or(why)?;
     match ran.code {
         UPDATES => Ok(checkupdates_version(&ran.stdout, package)),
@@ -201,7 +201,7 @@ fn run(program: &str, args: &[&str]) -> Option<Ran> {
     Some(Ran { code, stdout: String::from_utf8_lossy(&output.stdout).into_owned() })
 }
 
-// Sample input: "flea\n"
+// Sample input: "dlea\n"
 fn owner_from(text: &str) -> Option<String> {
     let name = text.trim();
     let allowed = |c: char| c.is_ascii_lowercase() || c.is_ascii_digit() || "@._+-".contains(c);
@@ -211,7 +211,7 @@ fn owner_from(text: &str) -> Option<String> {
     Some(name.to_string())
 }
 
-// Sample input: "Name            : flea\nVersion         : 0.3.2-1\nValidated By    : Signature\n"
+// Sample input: "Name            : dlea\nVersion         : 0.3.2-1\nValidated By    : Signature\n"
 fn package_info(text: &str) -> (Option<String>, bool) {
     let mut version = None;
     let mut signed = false;
@@ -229,7 +229,7 @@ fn package_info(text: &str) -> (Option<String>, bool) {
     (version, signed)
 }
 
-// Only a signed flea is checked; flea-bin is a prebuilt release, and anything else is somebody's own build.
+// Only a signed dlea is checked; dlea-bin is a prebuilt release, and anything else is somebody's own build.
 fn kind_for(owner: &str, signed: bool) -> Kind {
     match owner {
         OPR_PACKAGE if signed => Kind::Opr,
@@ -238,7 +238,7 @@ fn kind_for(owner: &str, signed: bool) -> Kind {
     }
 }
 
-// Sample input: "linux 6.16.8-1 -> 6.16.9-1\nflea 0.3.2-1 -> 0.3.3-1\n"
+// Sample input: "linux 6.16.8-1 -> 6.16.9-1\ndlea 0.3.2-1 -> 0.3.3-1\n"
 fn checkupdates_version(text: &str, package: &str) -> Option<String> {
     for line in text.lines() {
         let words: Vec<&str> = line.split_whitespace().collect();

@@ -15,17 +15,17 @@ import unittest
 from unittest import mock
 
 REPO = Path(__file__).resolve().parent.parent
-loader = importlib.machinery.SourceFileLoader("bench_thumbs_native", str(REPO / "tools/flea-bench-thumbs"))
+loader = importlib.machinery.SourceFileLoader("bench_thumbs_native", str(REPO / "tools/dlea-bench-thumbs"))
 spec = importlib.util.spec_from_loader(loader.name, loader)
 bench = importlib.util.module_from_spec(spec)
 loader.exec_module(bench)
-ROOT = Path(os.environ["FLEA_B7_TEST_ROOT"])
+ROOT = Path(os.environ["DLEA_B7_TEST_ROOT"])
 
 
 class NativeLane(unittest.TestCase):
     def setUp(self):
         self.root = Path(tempfile.mkdtemp(prefix="native-stubs-", dir=ROOT))
-        (self.root / ".flea-test-sandbox").touch()
+        (self.root / ".dlea-test-sandbox").touch()
         self.bin = self.root / "bin"
         self.bin.mkdir()
         self.runtime = self.root / "session"
@@ -42,20 +42,20 @@ class NativeLane(unittest.TestCase):
             path.chmod(0o700)
         self.b5 = self.root / "b5"
         self.b5.mkdir()
-        (self.b5 / ".flea-test-sandbox").touch()
+        (self.b5 / ".dlea-test-sandbox").touch()
         binaries = {}
         archives = []
         packages = {}
         self.paths = {}
         for ident in bench.IDS:
-            if ident == "flea":
+            if ident == "dlea":
                 continue
-            version = "0.3.12" if ident == "flea-0312" else "1.0.0" if ident == "strata-stable" else "1.0.1-nightly.20261018" if ident == "strata-nightly" else "2.9.0"
-            path = self.b5 / "entrants" / ident / "strata" if ident.startswith("strata") else self.bin / ("flea" if ident == "flea-0312" else ident)
+            version = "0.3.12" if ident == "dlea-0312" else "1.0.0" if ident == "strata-stable" else "1.0.1-nightly.20261018" if ident == "strata-nightly" else "2.9.0"
+            path = self.b5 / "entrants" / ident / "strata" if ident.startswith("strata") else self.bin / ("dlea" if ident == "dlea-0312" else ident)
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(source)
             path.chmod(0o700)
-            output = ("strata" if ident.startswith("strata") else "flea" if ident == "flea-0312" else ident) + " " + version
+            output = ("strata" if ident.startswith("strata") else "dlea" if ident == "dlea-0312" else ident) + " " + version
             self.paths[ident] = path
             binaries[str(path)] = dict(id=ident, version_output=output)
             if ident.startswith("strata"):
@@ -64,12 +64,12 @@ class NativeLane(unittest.TestCase):
                 archives.append(dict(id=ident, binary_path=str(path), binary_sha256=bench.digest(path), sha256="a" * 64,
                                      url=f"https://example.invalid/{ident}.tar.gz", tag="v" + version, expected_version=output,
                                      source_commit=embedded, tag_commit=tag, version_check=dict(rc=0, stdout=output)))
-            elif ident != "flea-0312":
+            elif ident != "dlea-0312":
                 packages[ident] = dict(realpath=str(path), sha256=bench.digest(path), package=dict(rc=0, stdout=ident + " " + version + "-2"))
-        (self.root / ".b7-offline.json").write_text(json.dumps(dict(binaries=binaries, driver=str(REPO / "tools/flea-bench-thumbs"))))
+        (self.root / ".b7-offline.json").write_text(json.dumps(dict(binaries=binaries, driver=str(REPO / "tools/dlea-bench-thumbs"))))
         (self.b5 / "rival-versions.json").write_text(json.dumps(dict(date_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(), archives=archives, packages=packages)))
         env = dict(PATH=str(self.bin) + ":/usr/bin:/bin", XDG_RUNTIME_DIR=str(self.runtime), WAYLAND_DISPLAY="wayland-test",
-                   HYPRLAND_INSTANCE_SIGNATURE="stub-instance", FLEA_0312_BIN=str(self.paths["flea-0312"]),
+                   HYPRLAND_INSTANCE_SIGNATURE="stub-instance", DLEA_0312_BIN=str(self.paths["dlea-0312"]),
                    STRATA_STABLE_BIN=str(self.paths["strata-stable"]), STRATA_NIGHTLY_BIN=str(self.paths["strata-nightly"]))
         self.environment = mock.patch.dict(os.environ, env)
         self.environment.start()
@@ -123,7 +123,7 @@ class NativeLane(unittest.TestCase):
             bench.measure.run_one(REPO, self.root, None, self.root / "unused-fixture", row, 1, 2)
 
     def test_real_samples_and_archive_receipts_without_an_x_server(self):
-        packaged = set(bench.IDS) - {"flea", "flea-0312", "strata-stable", "strata-nightly"}
+        packaged = set(bench.IDS) - {"dlea", "dlea-0312", "strata-stable", "strata-nightly"}
         self.display_failure(packaged)
         rows, path = self.roster()
         self.assertEqual(len(rows), 9)
@@ -140,7 +140,7 @@ class NativeLane(unittest.TestCase):
         evidence = []
         with bench.wayland.Display(self.root) as display:
             self.assertEqual(display.metadata()["transport"], "Hyprland/Wayland")
-            for ident in (ident for ident in bench.IDS if ident != "flea"):
+            for ident in (ident for ident in bench.IDS if ident != "dlea"):
                 row = next(row for row in rows if row["id"] == ident)
                 result = bench.measure.run_one(REPO, self.root, display, fixture, row, 1, 2)
                 self.assertEqual(result["version_identity"]["version_method"], "package" if ident in packaged else "cli")
@@ -162,13 +162,13 @@ class NativeLane(unittest.TestCase):
                     self.assertTrue((Path(result["evidence"]) / "cache/thumbnails").is_dir(), ident)
                 config = Path(result["evidence"]) / "config"
                 self.assertFalse((config / "kdeglobals").exists() or (config / "libfm").exists(), ident)
-                if ident == "flea-0312":
-                    self.assertTrue(result["thumbnail_method"].startswith("flea thumb trace"))
+                if ident == "dlea-0312":
+                    self.assertTrue(result["thumbnail_method"].startswith("dlea thumb trace"))
                     self.assertGreater(result["all_thumbnails_ms"], 0)
                     self.assertGreater(result["per_thumbnail_ms"], 0)
                     trace = (Path(result["evidence"]) / "trace.log").read_text().splitlines()
                     self.assertEqual(len(trace), 16)
-                    self.assertTrue(all(line.startswith("flea: trace row=") for line in trace))
+                    self.assertTrue(all(line.startswith("dlea: trace row=") for line in trace))
                 if ident.startswith("strata"):
                     self.assertEqual(result["per_thumbnail_ms"], 12)
                     self.assertTrue((Path(result["evidence"]) / "preview-15.png").is_file())
@@ -186,13 +186,13 @@ class NativeLane(unittest.TestCase):
         self.assertTrue(all(len(argv) == 2 for argv in dispatches), dispatches)
         self.assertTrue(any(row["kind"] == "wtype" for row in commands))
         self.assertFalse(any(row["kind"] in ("Xvfb", "xdotool", "xwd") for row in commands))
-        for ident in (ident for ident in bench.IDS if ident != "flea"):
+        for ident in (ident for ident in bench.IDS if ident != "dlea"):
             window = [json.loads(path.read_text()) for path in self.root.glob(f"photo-jpeg-{ident}-1-*/window.json")]
             self.assertEqual([(row["address"], row["token"].startswith(f"photo-jpeg-{ident}-1-")) for row in window], [("0xb700", True)], ident)
         homes = [row["environment"]["HOME"] for row in commands if row["kind"] == "app-environment"]
         self.assertEqual(len(set(homes)), 9)
         cli_versions = {row["id"] for row in commands if row["kind"] == "version-call"}
-        self.assertEqual(cli_versions, {"flea-0312", "strata-stable", "strata-nightly"})
+        self.assertEqual(cli_versions, {"dlea-0312", "strata-stable", "strata-nightly"})
         for ident in packaged:
             queries = [row for row in commands if row["kind"] == "pacman" and row["argv"] == ["-Q", "--", ident]]
             self.assertEqual(len(queries), 2, ident)
@@ -325,7 +325,7 @@ class NativeLane(unittest.TestCase):
         self.assertIn("q", keys)
 
     def test_the_trace_seam_sends_only_the_backend_stderr_to_the_trace_file(self):
-        binary = self.root / "fake flea $(touch escaped)"
+        binary = self.root / "fake dlea $(touch escaped)"
         binary.write_text('#!/bin/sh\necho "out:$*"\necho "err:$*" >&2\n')
         binary.chmod(0o700)
         seam = bench.measure.write_trace_seam(self.root, str(binary))
@@ -404,7 +404,7 @@ class NativeLane(unittest.TestCase):
         self.assertNotIn('"kind": "wtype"', commands)
 
     def test_listed_cli_runs_the_early_schedule_offline(self):
-        field = self.bin / "flea-field-bench"
+        field = self.bin / "dlea-field-bench"
         field.write_text('#!/usr/bin/python3\n' + (REPO / "tests/bench-thumbs-stub.py").read_text())
         field.chmod(0o700)
         roster = self.root / "cli-roster.json"
@@ -421,11 +421,11 @@ class NativeLane(unittest.TestCase):
             if command == "installed-roster":
                 roster.write_text(result.stdout)
         rows = json.loads(roster.read_text())
-        self.assertEqual({row["id"] for row in rows}, set(bench.IDS) - {"flea"})
+        self.assertEqual({row["id"] for row in rows}, set(bench.IDS) - {"dlea"})
         run = next(self.root.glob("run-*"))
         self.assertEqual(len((run / "runs.jsonl").read_text().splitlines()), 189)
         commands = [json.loads(line) for line in (self.root / "stub-commands.jsonl").read_text().splitlines()]
-        phases = [row["argv"][1] for row in commands if row["kind"] == "flea-field-bench"]
+        phases = [row["argv"][1] for row in commands if row["kind"] == "dlea-field-bench"]
         self.assertEqual(phases, ["doctor", "fixtures", "verify", "installed-roster", "run"])
 
     def test_l_b7_missing_child_cpu_cannot_be_presented_as_complete(self):
@@ -502,15 +502,15 @@ class NativeLane(unittest.TestCase):
         with mock.patch.object(bench, "verify_fixtures", return_value={"simulated": True}), mock.patch.object(bench.measure, "run_one", side_effect=sample), mock.patch("builtins.print"):
             self.assertEqual(bench.run(args, self.root), 1)
         self.assertEqual(len(calls), 189)
-        self.assertNotIn("flea", {call[1] for call in calls})
+        self.assertNotIn("dlea", {call[1] for call in calls})
         self.assertEqual([call[1] for call in calls[:9]], [row["id"] for row in rows])
         self.assertEqual([call[1] for call in calls[27:36]], list(reversed([row["id"] for row in rows])))
         run = next(self.root.glob("run-*"))
         manifest = json.loads((run / "manifest.json").read_text())
         self.assertEqual(manifest["entrants"], rows)
-        self.assertEqual(manifest["session"]["display_lock"], str(self.runtime / "flea-display.lock"))
+        self.assertEqual(manifest["session"]["display_lock"], str(self.runtime / "dlea-display.lock"))
         summary = json.loads((run / "summary.json").read_text())
-        self.assertTrue(all(not value["measured"] for row in summary if row["id"] == "flea" for value in row["metrics"].values()))
+        self.assertTrue(all(not value["measured"] for row in summary if row["id"] == "dlea" for value in row["metrics"].values()))
 
     def test_a_focused_single_pass_runs_one_round_and_cannot_rank(self):
         rows, path = self.roster()
@@ -526,7 +526,7 @@ class NativeLane(unittest.TestCase):
         self.assertEqual({call[1] for call in calls}, {"thunar", "nemo"})
 
     def test_cli_exposes_the_focused_run_controls(self):
-        result = subprocess.run([str(REPO / "tools/flea-field-bench"), "--thumbs", "run", "--help"],
+        result = subprocess.run([str(REPO / "tools/dlea-field-bench"), "--thumbs", "run", "--help"],
                                 capture_output=True, text=True, timeout=10)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("--only", result.stdout)
@@ -547,11 +547,11 @@ class NativeLane(unittest.TestCase):
         corpus = self.root / "camera-corpus"
         (corpus / "twelve").mkdir(parents=True)
         (corpus / "hundred").mkdir()
-        with self.assertRaisesRegex(ValueError, "official tools/flea-raw-corpus"):
+        with self.assertRaisesRegex(ValueError, "official tools/dlea-raw-corpus"):
             bench.raw_corpus.verify(repo, self.root, corpus)
-        tool = repo / "tools/flea-raw-corpus"
+        tool = repo / "tools/dlea-raw-corpus"
         tool.write_text("offline verifier stub, never camera data")
-        (repo / "tools/flea-raw-corpus.tsv").write_text("offline verifier manifest stub")
+        (repo / "tools/dlea-raw-corpus.tsv").write_text("offline verifier manifest stub")
         with mock.patch.object(bench.raw_corpus.subprocess, "run", return_value=types.SimpleNamespace(returncode=0)) as run:
             result = bench.raw_corpus.verify(repo, self.root, corpus)
             self.assertEqual([call.args[0] for call in run.call_args_list],

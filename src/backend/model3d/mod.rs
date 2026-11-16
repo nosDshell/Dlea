@@ -21,7 +21,7 @@ mod xml;
 mod xml_budget;
 mod zip;
 
-use flea::ui_logic_model_preview::wire::{Failure, Refusal};
+use dlea::ui_logic_model_preview::wire::{Failure, Refusal};
 use std::collections::BTreeMap;
 
 #[path = "../../ui_logic_model_preview/model_wire_types.rs"]
@@ -43,7 +43,7 @@ pub struct Facts {
 }
 
 pub fn supported(name: &str) -> Option<&'static str> {
-    match flea::bytename::display(name)
+    match dlea::bytename::display(name)
         .rsplit_once('.')?
         .1
         .to_ascii_lowercase()

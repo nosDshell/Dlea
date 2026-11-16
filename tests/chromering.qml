@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-chromering-test
+//@ pragma ShellId dlea-chromering-test
 
 import QtQuick
 import Quickshell
 import qs.Commons
-import "flea" as Flea
+import "dlea" as Dlea
 import "button-probe.js" as Probe
 
 // tests/chromering.sh's harness: the real ui/ChromeButton.qml, whose foreground hairline frame ButtonSystem040 A draws only for the keyboard, on every mark and every theme.
@@ -52,17 +52,17 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 320
         implicitHeight: 200
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
         Row {
             spacing: 12
-            Flea.ChromeButton { id: rest; glyph: "x" }
-            Flea.ChromeButton { id: hot; glyph: "x"; keyboardFocused: true }
+            Dlea.ChromeButton { id: rest; glyph: "x" }
+            Dlea.ChromeButton { id: hot; glyph: "x"; keyboardFocused: true }
             // A strip DialogButton keeps the inset.
-            Flea.DialogButton { id: answer; label: "Answer"; inStrip: true }
-            Flea.ChromeButton { id: off; glyph: "x"; keyboardFocused: true; enabled: false }
-            Flea.ChromeButton { id: muted; glyph: "x"; keyboardFocused: true; restingColor: Flea.Theme.color.mutedFrame }
-            Flea.ChromeButton { id: lit; glyph: "x"; active: true; keyboardFocused: true }
+            Dlea.DialogButton { id: answer; label: "Answer"; inStrip: true }
+            Dlea.ChromeButton { id: off; glyph: "x"; keyboardFocused: true; enabled: false }
+            Dlea.ChromeButton { id: muted; glyph: "x"; keyboardFocused: true; restingColor: Dlea.Theme.color.mutedFrame }
+            Dlea.ChromeButton { id: lit; glyph: "x"; active: true; keyboardFocused: true }
         }
 
         // A strip that draws its rule in the hit box's last row, as the PDF and Markdown Quick Look strips do.
@@ -70,17 +70,17 @@ ShellRoot {
             id: strip
             y: 60
             width: 120
-            height: Flea.Theme.chromeHeight
-            Rectangle { id: stripRule; anchors.bottom: parent.bottom; width: parent.width; height: Flea.Theme.spacing.hairline; color: Flea.Theme.color.foreground }
+            height: Dlea.Theme.chromeHeight
+            Rectangle { id: stripRule; anchors.bottom: parent.bottom; width: parent.width; height: Dlea.Theme.spacing.hairline; color: Dlea.Theme.color.foreground }
             Row {
                 spacing: 12
-                Flea.ChromeButton { id: ruled; glyph: "x"; keyboardFocused: true; ruleRows: Flea.Theme.spacing.hairline }
-                Flea.ChromeButton { id: bare; glyph: "x"; keyboardFocused: true }
+                Dlea.ChromeButton { id: ruled; glyph: "x"; keyboardFocused: true; ruleRows: Dlea.Theme.spacing.hairline }
+                Dlea.ChromeButton { id: bare; glyph: "x"; keyboardFocused: true }
             }
         }
 
         // The real Flash strip, whose Back must match the ruled sample.
-        Flea.FlashStrip {
+        Dlea.FlashStrip {
             id: flashStrip
             y: 115
             width: 200
@@ -90,12 +90,12 @@ ShellRoot {
         Row {
             y: 100
             spacing: 12
-            Flea.ChromeButton { id: lined; glyph: "x"; keyboardFocused: true; ruleRows: Flea.Theme.spacing.hairline }
-            Flea.DialogField { id: field; width: 80; label: "Host" }
+            Dlea.ChromeButton { id: lined; glyph: "x"; keyboardFocused: true; ruleRows: Dlea.Theme.spacing.hairline }
+            Dlea.DialogField { id: field; width: 80; label: "Host" }
         }
 
         // The real window chrome and Trash strip, whose marks must keep their glyph row while the frame clears the rule.
-        Flea.ChromeBar {
+        Dlea.ChromeBar {
             id: chromeBar
             y: 320
             width: 600
@@ -108,7 +108,7 @@ ShellRoot {
             y: 380
             width: 800
             height: 300
-            Flea.TrashView { id: trash; opened: true; total: 0 }
+            Dlea.TrashView { id: trash; opened: true; total: 0 }
         }
 
         // The real picker chrome and the answer row under it, whose focused frames must stay inside the row.
@@ -117,14 +117,14 @@ ShellRoot {
             y: 140
             width: 800
             height: 160
-            Flea.PickerChrome {
+            Dlea.PickerChrome {
                 id: pchrome
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.top: parent.top
                 picker: mockPicker
             }
-            Flea.PickerAnswers { id: panswers; anchors.top: pchrome.bottom; picker: mockPicker }
+            Dlea.PickerAnswers { id: panswers; anchors.top: pchrome.bottom; picker: mockPicker }
         }
     }
 
@@ -181,10 +181,10 @@ ShellRoot {
     // Board stop 14: 27 band less two 3 insets leaves 21 room, trimmed to the 16 glyph parity is 20.
     readonly property string boardRing: "20x20"
     function wantStrip(stop) {
-        var row = Math.round(Flea.Theme.font.bodySmall * root.lineBoxRatio) + 2 * Flea.Theme.spacing.rowPaddingY
+        var row = Math.round(Dlea.Theme.font.bodySmall * root.lineBoxRatio) + 2 * Dlea.Theme.spacing.rowPaddingY
         return Math.round(row * root.chromeRowRatio)
     }
-    function stopState(stop) { Flea.ViewState.load(JSON.stringify({ display: { textSize: { mode: stop } } })) }
+    function stopState(stop) { Dlea.ViewState.load(JSON.stringify({ display: { textSize: { mode: stop } } })) }
 
     // Every read is synchronous on the settled layout; hover and press have no reader here because the ring never depends on them.
     function run() {
@@ -194,14 +194,14 @@ ShellRoot {
         check("a resting mark draws no ring", ringRead(rest, shown), false)
         check("a keyboard-focused mark draws its ring", ringRead(hot, shown), true)
         check("the ring is the inset-sized square at the board's size", ringRead(hot, function (ring) { return ring.width + "x" + ring.height }), root.boardRing)
-        check("the frame is one hairline", ringRead(hot, function (ring) { return ring.border.width }), Flea.Theme.spacing.hairline)
-        check("the frame is the foreground", ringRead(hot, function (ring) { return String(ring.border.color) }), String(Flea.Theme.color.foreground))
+        check("the frame is one hairline", ringRead(hot, function (ring) { return ring.border.width }), Dlea.Theme.spacing.hairline)
+        check("the frame is the foreground", ringRead(hot, function (ring) { return String(ring.border.color) }), String(Dlea.Theme.color.foreground))
         check("the ring has no fill", ringRead(hot, function (ring) { return ring.color.a }), 0)
         check("a disabled mark draws no ring", ringRead(off, shown), false)
-        check("a disabled mark mutes its glyph", markRead(off, function (mark) { return String(mark.color) }), String(Flea.Theme.color.mutedFrame))
-        check("a muted resting mark inks in the foreground under the ring", markRead(muted, function (mark) { return String(mark.color) }), String(Flea.Theme.color.foreground))
+        check("a disabled mark mutes its glyph", markRead(off, function (mark) { return String(mark.color) }), String(Dlea.Theme.color.mutedFrame))
+        check("a muted resting mark inks in the foreground under the ring", markRead(muted, function (mark) { return String(mark.color) }), String(Dlea.Theme.color.foreground))
         check("an active mark still takes the ring", ringRead(lit, shown), true)
-        check("a resting mark inks in the foreground", markRead(rest, function (mark) { return String(mark.color) }), String(Flea.Theme.color.foreground))
+        check("a resting mark inks in the foreground", markRead(rest, function (mark) { return String(mark.color) }), String(Dlea.Theme.color.foreground))
         var marks = {}
         var strips = {}
         for (var i = 0; i < root.stops.length; i++) {
@@ -213,18 +213,18 @@ ShellRoot {
                 return (ring.x * 2 + ring.width) + "," + (ring.y * 2 + ring.height) }
             var markCentre = markRead(hot, function (mark) { return (mark.x * 2 + mark.width) + "," + (mark.y * 2 + mark.height) })
             check(tag + "the ring stays inside the hit box", ringRead(hot, inside), true)
-            check(tag + "the ring keeps the control inset above and below", ringRead(hot, function (ring) { return ring.y >= Flea.Theme.chromeControlInset && hot.height - ring.y - ring.height >= Flea.Theme.chromeControlInset }), true)
+            check(tag + "the ring keeps the control inset above and below", ringRead(hot, function (ring) { return ring.y >= Dlea.Theme.chromeControlInset && hot.height - ring.y - ring.height >= Dlea.Theme.chromeControlInset }), true)
             check(tag + "the ring shares the glyph's centre, so both sit on whole pixels together", ringRead(hot, centre), markCentre)
-            check(tag + "the glyph keeps the chrome mark size under the ring", markRead(hot, function (mark) { return mark.width }), Flea.Theme.chromeMarkSize)
+            check(tag + "the glyph keeps the chrome mark size under the ring", markRead(hot, function (mark) { return mark.width }), Dlea.Theme.chromeMarkSize)
             check(tag + "the mark is the icon token scaled to the stop", markRead(hot, function (mark) { return mark.width }), root.wantMark(root.stops[i]))
             check(tag + "the hit box is as wide as the larger of the 24 floor and the mark", hot.width, Math.max(root.ringBoard, root.wantMark(root.stops[i])))
             check(tag + "the hit box is the strip's height off the row", hot.height, root.wantStrip(root.stops[i]))
             var ruledRing = ringRead(ruled, function (ring) { return ring.y + "," + (ring.y + ring.height) })
             var rows = ruledRing.split(",")
-            check(tag + "a ring over a strip rule keeps the inset above it", Number(rows[0]) >= Flea.Theme.chromeControlInset, true)
-            check(tag + "a ring over a strip rule keeps the inset between it and the rule", stripRule.y - Number(rows[1]) >= Flea.Theme.chromeControlInset, true)
-            check(tag + "a strip answer keeps the inset above it", answer.frameY >= Flea.Theme.chromeControlInset, true)
-            check(tag + "a strip answer keeps the inset between it and the rule", answer.height - Flea.Theme.spacing.hairline - answer.frameY - answer.frameHeight >= Flea.Theme.chromeControlInset, true)
+            check(tag + "a ring over a strip rule keeps the inset above it", Number(rows[0]) >= Dlea.Theme.chromeControlInset, true)
+            check(tag + "a ring over a strip rule keeps the inset between it and the rule", stripRule.y - Number(rows[1]) >= Dlea.Theme.chromeControlInset, true)
+            check(tag + "a strip answer keeps the inset above it", answer.frameY >= Dlea.Theme.chromeControlInset, true)
+            check(tag + "a strip answer keeps the inset between it and the rule", answer.height - Dlea.Theme.spacing.hairline - answer.frameY - answer.frameHeight >= Dlea.Theme.chromeControlInset, true)
             check(tag + "over a strip rule the ring and the glyph still share a centre", ringRead(ruled, centre), markRead(ruled, function (mark) { return (mark.x * 2 + mark.width) + "," + (mark.y * 2 + mark.height) }))
             marks[root.wantMark(root.stops[i])] = true
             strips[root.wantStrip(root.stops[i])] = true
@@ -266,7 +266,7 @@ ShellRoot {
         check("stop " + size + " the picker answer row holds the Cancel and primary answers", !!cancel && !!accept, true)
         if (!cancel || !accept)
             return
-        var rule = Array.prototype.filter.call(panswers.children, function (c) { return c.height === Flea.Theme.spacing.hairline && c.width === panswers.width })[0]
+        var rule = Array.prototype.filter.call(panswers.children, function (c) { return c.height === Dlea.Theme.spacing.hairline && c.width === panswers.width })[0]
         check("stop " + size + " the picker answer row draws its rule", !!rule, true)
         if (!rule)
             return
@@ -275,8 +275,8 @@ ShellRoot {
             var ans = answers[k][1]
             var tag = "stop " + size + " the picker " + answers[k][0] + " "
             var label = Probe.find(ans, "buttonLabel")
-            check(tag + "label is the body size the board draws", label ? label.font.pixelSize : "no label", Flea.Theme.font.body)
-            check(tag + "hit box is the board's control height", ans.height, Flea.Theme.rowHeight - Flea.Theme.spacing.rowPaddingY)
+            check(tag + "label is the body size the board draws", label ? label.font.pixelSize : "no label", Dlea.Theme.font.body)
+            check(tag + "hit box is the board's control height", ans.height, Dlea.Theme.rowHeight - Dlea.Theme.spacing.rowPaddingY)
             var at = ans.mapToItem(panswers, 0, 0)
             check(tag + "hit box lies inside the answer row and below its rule", [at.y >= rule.y + rule.height, at.y + ans.height <= panswers.height].join(" "), "true true")
             check(tag + "focused frame lies inside the answer row and below its rule", root.focusedFrame(ans, panswers, rule.y + rule.height), "true true true")
@@ -309,10 +309,10 @@ ShellRoot {
         var glyph = mark.markItem.mapToItem(strip, 0, 0, mark.markItem.width, mark.markItem.height)
         var hit = mark.mapToItem(strip, 0, 0, mark.width, mark.height)
         check(tag + "glyph row, glyph size and hit box rows sit where the strip centres them", [glyph.y, glyph.height, hit.y, hit.height].join(","),
-            [root.glyphRows[size], Flea.Theme.chromeMarkSize, 0, Flea.Theme.chromeHeight].join(","))
+            [root.glyphRows[size], Dlea.Theme.chromeMarkSize, 0, Dlea.Theme.chromeHeight].join(","))
         var ring = mark.ringItem.mapToItem(strip, 0, 0, mark.ringItem.width, mark.ringItem.height)
         check(tag + "focus frame keeps the inset from the strip top and from its rule",
-            ring.y >= Flea.Theme.chromeControlInset && strip.height - Flea.Theme.spacing.hairline - ring.y - ring.height >= Flea.Theme.chromeControlInset, true)
+            ring.y >= Dlea.Theme.chromeControlInset && strip.height - Dlea.Theme.spacing.hairline - ring.y - ring.height >= Dlea.Theme.chromeControlInset, true)
     }
 
     // The Flash Back keeps the ruled sample's centre and the inset off the rule.
@@ -325,7 +325,7 @@ ShellRoot {
         return row ? row.children[0] : null
     }
     function flashRule() {
-        var bars = Array.prototype.filter.call(flashStrip.children, function (c) { return c.height === Flea.Theme.spacing.hairline })
+        var bars = Array.prototype.filter.call(flashStrip.children, function (c) { return c.height === Dlea.Theme.spacing.hairline })
         return bars.length > 0 ? bars[0] : null
     }
     // The Flash Back answers after its own settle tick, one size per two ticks.
@@ -370,15 +370,15 @@ ShellRoot {
         var centre = function (item) { return (item.x * 2 + item.width) + "," + (item.y * 2 + item.height) }
         check(tag + "the Flash Back draws its ring for the keyboard", ringRead(back, shown), true)
         check(tag + "the Flash Back glyph shares the ruled mark's centre", markRead(back, centre), markRead(ruled, centre))
-        check(tag + "the Flash Back ring keeps the inset above it", ringRead(back, function (ring) { var at = ring.mapToItem(rule.parent, 0, 0); return at.y >= Flea.Theme.chromeControlInset }), true)
-        check(tag + "the Flash Back ring keeps the inset off the strip rule", ringRead(back, function (ring) { var at = ring.mapToItem(rule.parent, 0, 0); return rule.y - at.y - ring.height >= Flea.Theme.chromeControlInset }), true)
+        check(tag + "the Flash Back ring keeps the inset above it", ringRead(back, function (ring) { var at = ring.mapToItem(rule.parent, 0, 0); return at.y >= Dlea.Theme.chromeControlInset }), true)
+        check(tag + "the Flash Back ring keeps the inset off the strip rule", ringRead(back, function (ring) { var at = ring.mapToItem(rule.parent, 0, 0); return rule.y - at.y - ring.height >= Dlea.Theme.chromeControlInset }), true)
     }
 
     // One theme's keyboard frame on a strip mark: the foreground hairline every mark draws, never the focused field's accent line.
     function stripReads(name) {
         // A stroke reads as "width colour", one string, because check compares with ===.
         var stroke = function (ring) { return ring.border.width + " " + Probe.rgba(ring.border.color) }
-        var foregroundLine = Flea.Theme.spacing.hairline + " " + Probe.rgba(Flea.Theme.color.foreground)
+        var foregroundLine = Dlea.Theme.spacing.hairline + " " + Probe.rgba(Dlea.Theme.color.foreground)
         check(name + "a strip mark frames itself in the foreground hairline as every mark does", ringRead(lined, stroke), foregroundLine)
         check(name + "a strip mark frames itself as the bare mark beside it does", ringRead(lined, stroke), ringRead(bare, stroke))
         // The same mark read with the keyboard on it and at rest, so a frame drawn without the keyboard fails here on each theme.
@@ -396,18 +396,18 @@ ShellRoot {
         root.stopState(root.boardStop)
         check("a chrome mark has no focus line to set", lined.focusLine === undefined, true)
         field.takeFocus()
-        Flea.Theme.applyColors(Probe.COLOURED_THEME)
-        check("the pinned theme's accent has a hue", Flea.Theme.color.accentHasHue, true)
+        Dlea.Theme.applyColors(Probe.COLOURED_THEME)
+        check("the pinned theme's accent has a hue", Dlea.Theme.color.accentHasHue, true)
         var stroke = function (item) { return item.border.width + " " + Probe.rgba(item.border.color) }
         check("the field holds the keyboard, so its frame is the accent hairline", [field.focused, stroke(field.input.parent)].join(" "),
-              "true " + Flea.Theme.spacing.hairline + " " + Probe.rgba(Flea.Theme.color.accent))
+              "true " + Dlea.Theme.spacing.hairline + " " + Probe.rgba(Dlea.Theme.color.accent))
         check("a strip mark's frame is not the focused field's accent line", ringRead(lined, stroke) !== stroke(field.input.parent), true)
         stripReads("coloured: ")
         lined.enabled = false
         check("a disabled strip mark draws no frame", ringRead(lined, function (ring) { return ring.visible }), false)
         lined.enabled = true
-        Flea.Theme.applyColors(Probe.KANAGAWA_THEME)
-        check("the hueless theme's accent has no hue", Flea.Theme.color.accentHasHue, false)
+        Dlea.Theme.applyColors(Probe.KANAGAWA_THEME)
+        check("the hueless theme's accent has no hue", Dlea.Theme.color.accentHasHue, false)
         stripReads("hueless: ")
     }
 }

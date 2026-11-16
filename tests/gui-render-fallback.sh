@@ -9,7 +9,7 @@ printf 'gui-render-fallback: host=%s compositor=Hyprland launcher=start-hyprland
 cargo build --locked --workspace
 mkdir -p "$PWD/.superpowers/u2"
 test_root=$(mktemp -d "$PWD/.superpowers/u2/render.XXXXXXXX")
-: > "$test_root/.flea-test-sandbox"
+: > "$test_root/.dlea-test-sandbox"
 python3 tests/gui-render-fallback.py "$test_root"
 printf 'gui-render-fallback: all five renderer cases passed\n'
 printf 'gui-render-fallback: both Gen6 OpenGL cases passed\n'

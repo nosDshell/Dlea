@@ -1,4 +1,4 @@
-module flea
+module dlea
 RowDropTarget 1.0 RowDropTarget.qml
 TrashDropHandler 1.0 TrashDropHandler.qml
 singleton Theme 1.0 Theme.qml
@@ -128,7 +128,7 @@ NetworkMounts 1.0 NetworkMounts.qml
 NetworkPlaces 1.0 NetworkPlaces.qml
 MountListing 1.0 MountListing.qml
 PhoneMounts 1.0 PhoneMounts.qml
-FleaMark 1.0 FleaMark.qml
+DleaMark 1.0 DleaMark.qml
 Opener 1.0 Opener.qml
 Preview 1.0 Preview.qml
 PreviewArchive 1.0 PreviewArchive.qml

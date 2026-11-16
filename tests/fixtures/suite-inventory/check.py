@@ -15,8 +15,8 @@ repo, root = map(Path, sys.argv[1:])
 assert root.is_absolute() and (root / '.suite-inventory-test-root').is_file()
 csv.field_size_limit(16 * 1024 * 1024)
 fixture = repo / 'tests/fixtures/suite-inventory'
-tool = [sys.executable, '-B', str(repo / 'tools/flea-suite-inventory')]
-generator = [sys.executable, '-B', str(repo / 'tools/flea-parity')]
+tool = [sys.executable, '-B', str(repo / 'tools/dlea-suite-inventory')]
+generator = [sys.executable, '-B', str(repo / 'tools/dlea-parity')]
 checks = 0
 mutants = 0
 
@@ -70,7 +70,7 @@ def sandbox(name):
 
 
 def command(directory):
-    local_tool = directory / 'tools/flea-suite-inventory'
+    local_tool = directory / 'tools/dlea-suite-inventory'
     checker = [sys.executable, '-B', str(local_tool)] if local_tool.is_file() else tool
     return checker + ['--evidence', str(directory / 'suite-evidence.txt'),
                    '--layouts', str(directory / 'layouts'), '--parity', str(parity),
@@ -184,7 +184,7 @@ mutant('excluded-layout-member', 'layout-inactive', 'menu-copyas-reveal', exclud
 
 def script_snapshot(directory):
     (directory / 'tools').mkdir()
-    shutil.copyfile(repo / 'tools/flea-suite-inventory', directory / 'tools/flea-suite-inventory')
+    shutil.copyfile(repo / 'tools/dlea-suite-inventory', directory / 'tools/dlea-suite-inventory')
     (directory / 'tests').mkdir()
     for name, row in by_name.items():
         if row['state'] == 'active':
@@ -238,9 +238,9 @@ ci_input.mkdir()
 shutil.copyfile(fixture / 'layouts/default.layout', ci_input / 'suite-inventory.layout')
 shutil.copyfile(fixture / 'suite-evidence.txt', ci_input / 'suite-evidence.txt')
 environment = os.environ.copy()
-for key in ('FLEA_CI_LAYOUT', 'FLEA_CI_EVIDENCE'):
+for key in ('DLEA_CI_LAYOUT', 'DLEA_CI_EVIDENCE'):
     environment.pop(key, None)
-environment['FLEA_CI_INPUT_DIR'] = str(ci_input)
+environment['DLEA_CI_INPUT_DIR'] = str(ci_input)
 entry = ['bash', '-c', 'source "$1"; suite_inventory_layout "$2"',
          'suite-inventory-input', str(repo / 'tests/suite-inventory.sh'), str(repo)]
 check(execute(entry, env=environment).stdout == baseline, 'suite reads the CI-staged selected layout and evidence')

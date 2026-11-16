@@ -106,7 +106,7 @@ fn ctrl_text_aliases_keep_the_display_hints_on_shift_chords() {
             ("textSizeReset", "Ctrl+Shift+0"),
         ] {
             assert_eq!(
-                flea::keys::presentation::key_for(preset, action),
+                dlea::keys::presentation::key_for(preset, action),
                 shown,
                 "{preset}: {action}"
             );

@@ -8,7 +8,7 @@ use super::super::{
 };
 use super::Paste;
 use crate::jsondoc::Json;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::io;
 
 // Paste asks which names already exist before anything is written; a second paste waits for the first question's answer.
@@ -106,7 +106,7 @@ pub fn collided(m: &mut Model, value: &Json, w: &mut Wire) -> io::Result<()> {
         {
             Some(index) => m.move_by(index as isize - m.cursor as isize, false, w)?,
             None => {
-                let path = paste.dest.join(flea::bytename::text_path(&paste.name));
+                let path = paste.dest.join(dlea::bytename::text_path(&paste.name));
                 w.send(vec![
                     ("c", word("locate")),
                     ("path", word(&path.exact_text())),
@@ -173,7 +173,7 @@ pub(super) fn ask(m: &Model, question: &Paste, theme: &Theme, columns: usize) ->
     let head = if question.total == 1 {
         i18n.tr_args(
             "collide.one",
-            &[&flea::bytename::display(&question.name), &folder],
+            &[&dlea::bytename::display(&question.name), &folder],
         )
     } else {
         i18n.trn_args("collide.many", question.total as i64, &[&folder])

@@ -1894,7 +1894,7 @@
     {
       "scene": "g2.op2.extra.flash-readonly",
       "unit": "g2-op2",
-      "title": "Flash, flash-readonly: It is read-only, so Flea cannot write to it.",
+      "title": "Flash, flash-readonly: It is read-only, so Dlea cannot write to it.",
       "board_png": "boards/flash.png",
       "board_html": "boards/flash.html",
       "before_png": "before/flash-rest-a-1100x700.png",
@@ -1924,7 +1924,7 @@
         "image_bytes": 4300000000
       },
       "assertions": [
-        "It is read-only, so Flea cannot write to it."
+        "It is read-only, so Dlea cannot write to it."
       ],
       "parity_ids": [],
       "producer_owner": [

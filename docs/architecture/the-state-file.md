@@ -1,26 +1,26 @@
 ## The state file
 
-`~/.local/state/flea/ui.json`, or `$XDG_STATE_HOME/flea/ui.json` when that is set and not empty, is
-the one file Flea writes for itself. `src/uischema.rs` holds the shipped shape and every default,
+`~/.local/state/dlea/ui.json`, or `$XDG_STATE_HOME/dlea/ui.json` when that is set and not empty, is
+the one file Dlea writes for itself. `src/uischema.rs` holds the shipped shape and every default,
 copied from the 0.1.4 build handoff; `src/uistate.rs` holds the merges; `src/uistore.rs` holds the
 paths, the lock and the write. Two defaults have moved since that handoff. Row density is `compact` from
-0.3.2, a deliberate change. Every write stores the whole document, so a state file any earlier Flea wrote keeps
+0.3.2, a deliberate change. Every write stores the whole document, so a state file any earlier Dlea wrote keeps
 the `normal` it recorded, and only state that never stored a density takes the new default.
 `tests/ui.sh` case `icons` launches with no `ui.json` at all and pins those rows below the board's.
 Settings > Places > "Show unmounted drives", `places.showUnmounted`, is on from 0.3.3, also deliberate,
-and that one reaches the files earlier Flea wrote as well, once, through the `stateVersion` migration below.
+and that one reaches the files earlier Dlea wrote as well, once, through the `stateVersion` migration below.
 
-**One lock, and every write goes through it.** `flea --ui-state` prints
-the merged document and writes nothing. `flea --ui-state '<json object>'` merges that patch through
+**One lock, and every write goes through it.** `dlea --ui-state` prints
+the merged document and writes nothing. `dlea --ui-state '<json object>'` merges that patch through
 the lock and prints the result. The window reaches it from `ui/ViewState.qml` through a `Process`;
-the terminal interface (`flea --tui`, `src/tui`) holds a `uistore::Store` of its own and writes the same
+the terminal interface (`dlea --tui`, `src/tui`) holds a `uistore::Store` of its own and writes the same
 file under the same lock, patching its own keys only, because menus and places are the window's.
 Scale is on neither list: `src/uischema.rs` has no `scale` key at all, it stores an Omarchy text-size
 stop under `display.textSize.mode`, and the multiplier `ui/js/Scale.js` applies is a session value.
 **The streams and the status are the contract**, because
 that `Process` reads the status alone: either shape prints the whole document on stdout and exits 0,
-and every refusal, a patch that is not JSON, a key or value this Flea does not take, a state file it
-could not write, or more than one argument, prints one `flea: ` sentence on stderr, prints nothing
+and every refusal, a patch that is not JSON, a key or value this Dlea does not take, a state file it
+could not write, or more than one argument, prints one `dlea: ` sentence on stderr, prints nothing
 on stdout at all, and exits 2. Pinned in `tests/uistate.sh`, both streams for each of the four.
 
 **A patch names what that window changed, and nothing else.** `ui/ViewState.qml` holds a second
@@ -31,8 +31,8 @@ snapshot names every key explicitly, so a window that changed only the text size
 read of `keys` back over a change another window made after that read. The lock was working
 correctly and the data was still lost. Running the rebuild over both documents is what keeps them
 honest in the other direction too: `changeLeaf` merges a leaf into the group the window DRAWS, so a
-sub-key a newer Flea left in `display` or `menu` stays on screen, and owes the leaf alone, because
-this Flea has no rule for that sub-key and `check()` refuses a whole patch that names one. The owed
+sub-key a newer Dlea left in `display` or `menu` stays on screen, and owes the leaf alone, because
+this Dlea has no rule for that sub-key and `check()` refuses a whole patch that names one. The owed
 document is a union rather than the newest change alone, so a change made while a writer runs
 coalesces with whatever is queued behind it; a refused write keeps it owed so the next patch carries
 it again. **A write that LANDS takes its own settings back out, leaf by leaf, the moment it exits**,
@@ -58,15 +58,15 @@ With per-folder sorting enabled, Downloads, Pictures and Videos open in Modified
 **The window's read is the settled file, and not a raw one.** `main()` calls `Store::settle` before
 it hands off to `qs`: an empty patch through the same lock and the same per-key validation, so
 whenever that settle succeeded on a document it could read, a value a hand edit left in a key this
-Flea knows has already fallen back to its own default by the time `ui/ViewState.qml`'s `FileView`
-reads it. A key this Flea does not know is not one of those: `merge` keeps it verbatim, so a newer
-Flea's settings survive the settle rather than falling back to anything. Without the step the two
+Dlea knows has already fallen back to its own default by the time `ui/ViewState.qml`'s `FileView`
+reads it. A key this Dlea does not know is not one of those: `merge` keeps it verbatim, so a newer
+Dlea's settings survive the settle rather than falling back to anything. Without the step the two
 front ends answer one file two ways, because the window's read is a `JSON.parse` and applies no rule
 of its own. The settle can fail, on an unwritable state directory or a `ui.json` that is a link, and
 then `main()` prints one line and opens the window anyway on a file it did not validate. **The
 migration is `read()`'s and not `settle`'s**: `read()` falls back to `view.json` exactly while
-`ui.json` is absent, so every path that reads reaches it, `flea --ui-state` included. Measured, a
-first `flea --ui-state '{"view":"grid"}'` on a box with `view.json` and no `ui.json` writes the
+`ui.json` is absent, so every path that reads reaches it, `dlea --ui-state` included. Measured, a
+first `dlea --ui-state '{"view":"grid"}'` on a box with `view.json` and no `ui.json` writes the
 migrated columns, the same ones the settle writes, and leaves `view.json` byte for byte. `settle` is
 only where the migration is first written down on a launch that never patches anything.
 
@@ -74,7 +74,7 @@ only where the migration is first written down on a launch that never patches an
 a first run always has. Neither does one whose `ui.json` already reads back as exactly what a
 rewrite would render, because that rewrite would change nothing: the lock, the temp, the `sync_all`
 and the rename measured 6.7 to 18.6 ms a launch on this box, against 1.3 to 1.7 ms for a launch that
-only reads, which is real money against a 77 ms startup. Both are per-launch times of `flea --gui`
+only reads, which is real money against a 77 ms startup. Both are per-launch times of `dlea --gui`
 driven to the missing shell, 100 launches a pass over eight passes of two harnesses that differed
 only in how `ui.json` was reseeded between launches; the read figure has the separately timed reseed
 subtracted, and the write figure's own eight passes spanned that whole 6.7 to 18.6, which is why
@@ -93,7 +93,7 @@ paragraph above is a document this can read and cannot parse. A regular `ui.json
 `read()` cannot get at all is the third instance of the data loss this release closed twice
 already: `read()` answers the shipped defaults for it too, and `update()` used to rename those
 defaults over the only copy of what the operator wrote. `chmod 000` is one way in and one
-`sudo flea` is the other, because the rename needs write on the directory and never read on the
+`sudo dlea` is the other, because the rename needs write on the directory and never read on the
 file. `read()` still never fails, because a front end reads it before the first paint; the
 distinction lives in `refuse_a_bad_target`, which `write()` calls before it creates the temp, so a
 link, a device and a file this cannot read are all refused with one sentence naming the path and
@@ -104,7 +104,7 @@ the same file through the window, where the operator is told twice, once by `ui/
 what is on disk was not used and once by the status bar that the setting was not saved.
 
 **A refused write reaches the operator.** `ui/ViewState.qml` records a patch as stored only when
-`flea --ui-state` exits 0. `ui/js/UiState.js` holds that bookkeeping, and `ui/PaneWire.qml` turns
+`dlea --ui-state` exits 0. `ui/js/UiState.js` holds that bookkeeping, and `ui/PaneWire.qml` turns
 the failure into the status bar's one transient sentence through `ui/js/Errors.js`, the same slot
 every other write operation reports in. The status alone is read and not the child's stderr,
 because a `Process`'s own `onExited` can race its `StdioCollector`'s text. A patch that was refused
@@ -119,22 +119,22 @@ all, so the handler cannot fire for a writer that ran. `tests/uiwriter.sh` drive
 
 **The lock is the sibling `ui.json.lock`.** `File::lock()` is `flock(2)` here: advisory, exclusive
 and cross-process, held across the re-read, the per-key validation, the caller-key merge, the temp
-write and the rename, so a second Flea cannot land between this one's read and its write. Measured
+write and the rename, so a second Dlea cannot land between this one's read and its write. Measured
 on the box with the lock taken out, twelve concurrent writers landed 1 of their 12 keys; with it in,
 12 of 12. `update()` makes the state directory and takes the lock before `patched()` validates, so a
-patch this Flea refuses leaves both of those behind and only never writes the state file itself. The
-cost is an empty `~/.local/state/flea/` and a lock the next accepted save uses anyway, which is why
+patch this Dlea refuses leaves both of those behind and only never writes the state file itself. The
+cost is an empty `~/.local/state/dlea/` and a lock the next accepted save uses anyway, which is why
 the check says what it leaves rather than the code being moved to leave nothing.
 
 **Failure is per key, and per file only when the document does not parse at all.** That one case
 is per file by construction: a document that does not parse reads as the full default shape rather
 than throwing, and is left on disk exactly as it was rather than rewritten into that shape, so every
 key in it is lost to the read at once. Every other failure costs one key: a value a key cannot take
-costs that key alone, and every other key in the file stands. A key this Flea does not know is kept
-and rewritten as it was read, at the top level and inside a nested object, so an older Flea cannot
+costs that key alone, and every other key in the file stands. A key this Dlea does not know is kept
+and rewritten as it was read, at the top level and inside a nested object, so an older Dlea cannot
 eat a newer one's settings. A patch is the
 other way round: it is checked whole before any of it lands, and one bad key refuses the whole patch
-with a sentence naming it, because a patch comes from Flea and not from a text editor. **A number is
+with a sentence naming it, because a patch comes from Dlea and not from a text editor. **A number is
 measured against JSON's own grammar and not Rust's**, because `Json::Num` keeps the literal it was
 read with and writes it straight back: `1.`, `1.e5`, `0192`, `-0192`, `01`, `00` and `-.5` all parse
 as an `f64` and none of them is a JSON number, and accepting one would have let a settle rewrite
@@ -176,7 +176,7 @@ once at open and writes it when the user switches view, never per cursor move; a
 it cannot draw costs the key its default, like every other key.
 
 **`menu.hidden` stores what is hidden**, and its rule is deliberately open, an action id rather than
-a closed list, because a closed list would make this Flea drop an id a newer one hid. It is the
+a closed list, because a closed list would make this Dlea drop an id a newer one hid. It is the
 Menus section's whole visibility state: the panel's master row over the six basic actions is derived
 from the set every time it is drawn, so there is no second value for a hand edit to leave it
 disagreeing with. **An id here is the action id `ui/js/Menu.js` gives the row and never a second
@@ -229,12 +229,12 @@ suite lists the directory with `ls -A` and asserts that every leftover is a kill
 and that there are never more of them than there were kills.
 
 **0.1.3 did store something, and it is migrated.** `ui/ViewState.qml` wrote `hiddenCols` and
-`uiScale` to `$XDG_CONFIG_HOME/flea/view.json`, so the handoff's "0.1.3 stored nothing" is wrong.
+`uiScale` to `$XDG_CONFIG_HOME/dlea/view.json`, so the handoff's "0.1.3 stored nothing" is wrong.
 `hiddenCols` named what was HIDDEN and `columns` names what is SHOWN, so the migration inverts it;
 `uiScale` is dropped deliberately, because 0.1.4 stores an Omarchy stop and never a free
 multiplier. The migration rides `read()` above, so the first paint after an upgrade already reads
-the migrated columns, whether the settle or a `flea --ui-state` patch was what wrote them down. A
-`ui.json` that exists means `view.json` is never read again, whether or not this Flea can read that
+the migrated columns, whether the settle or a `dlea --ui-state` patch was what wrote them down. A
+`ui.json` that exists means `view.json` is never read again, whether or not this Dlea can read that
 `ui.json`'s bytes, and `view.json` is never written again.
 
 **`stateVersion` is the record of every one-time migration, and it lives in `ui.json` itself.** A
@@ -252,8 +252,8 @@ shipped default and would call every 0.3.2 file migrated. A file whose stamp is 
 or below a step's version gets that step and that step's stamp; a file at or above it gets nothing.
 The shipped document is already stamped 2, so a fresh install's first write is stamped too and its own
 switch-off is never undone. **It happens on read.** `from_file` is under every reader, `Store::read`,
-`flea --ui-state` with or without a patch, the TUI and the base every patch merges onto, so a read
-answers the switch on before anything is written, and a bare `flea --ui-state` still writes nothing.
+`dlea --ui-state` with or without a patch, the TUI and the base every patch merges onto, so a read
+answers the switch on before anything is written, and a bare `dlea --ui-state` still writes nothing.
 **It is written down by the settle**, the write-on-migrate place the launch already had:
 `left_as_it_is` compares the file with its own `from_file` rendering, an unstamped file no longer
 matches it, so the first 0.3.3 launch of either front end writes the migration once, and every later
@@ -264,7 +264,7 @@ same limit every other rule here has when the settle fails. **Concurrent writers
 Each one re-reads under the lock, so whichever of two windows, the TUI or the CLI writes first migrates
 and stamps, and every writer after it reads a stamped file; a patch names only what that front end
 changed, so the operator's own switch-off lands on top of the migration whatever the order.
-`Rule::Version` keeps any whole number, so a newer Flea's higher stamp survives this one's rewrite, and
+`Rule::Version` keeps any whole number, so a newer Dlea's higher stamp survives this one's rewrite, and
 `check()` refuses a patch that names `stateVersion` at all, so no front end can rewind a migration a
 file has had. A 0.3.2 binary keeps the stamp as an unknown key, so a downgrade and an upgrade again do
 not run it twice. **The window reads an absent `showUnmounted` as on**: `ui/Sidebar.qml` and the rail

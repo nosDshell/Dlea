@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Keymap.js" as Keymap
 import "js/Settings.js" as Settings
 
@@ -127,8 +127,8 @@ Item {
         }
         // About's two web routes carry their own destination; ui/js/SettingsAbout.js names both.
         if (row.url !== undefined) { Qt.openUrlExternally(row.url); return }
-        // Two About actions with a live state: Update Flea's value shows a check and the footer what a launch did, and Make Flea the default runs flea instead of writing ui.json.
-        if (row.id === "updateFlea") { UpdateCheck.activate(root.focusHolder); return }
+        // Two About actions with a live state: Update Dlea's value shows a check and the footer what a launch did, and Make Dlea the default runs dlea instead of writing ui.json.
+        if (row.id === "updateDlea") { UpdateCheck.activate(root.focusHolder); return }
         if (row.id === "makeDefault") { DefaultClaim.toggle(); return }
         if (row.id.indexOf("column:") === 0) { ViewState.toggleColumn(row.id.substring(7)); return }
         if (row.kind === "check" && root.section !== "menus") {
@@ -267,7 +267,7 @@ Item {
     opacity: 0
     // Above the context menu and the keymap sheet: the panel is the surface that opened last.
     z: 3
-    Flea.Reveal { target: root; shown: root.opened; lift: card }
+    Dlea.Reveal { target: root; shown: root.opened; lift: card }
 
     Rectangle {
         anchors.fill: parent
@@ -321,7 +321,7 @@ Item {
                 anchors.top: parent.top
                 height: Theme.chromeHeight
 
-                Flea.Glyph {
+                Dlea.Glyph {
                     id: titleMark
                     anchors.left: parent.left
                     anchors.leftMargin: Theme.spacing.rowPaddingX
@@ -358,7 +358,7 @@ Item {
                     Accessible.name: "Close settings"
                     Accessible.onPressAction: root.close()
 
-                    Flea.Glyph {
+                    Dlea.Glyph {
                         anchors.centerIn: parent
                         width: Theme.chromeMarkSize
                         height: Theme.chromeMarkSize
@@ -398,7 +398,7 @@ Item {
                 }
             }
 
-            Flea.SettingsRail {
+            Dlea.SettingsRail {
                 id: rail
                 anchors.left: parent.left
                 anchors.top: chrome.bottom
@@ -425,7 +425,7 @@ Item {
                 opacity: 0.4
             }
 
-            Flea.SettingsPane {
+            Dlea.SettingsPane {
                 id: pane
                 anchors.left: rail.right
                 anchors.right: parent.right
@@ -484,7 +484,7 @@ Item {
         function onFailed(message) { root.favouriteMoveTarget = -1; root.favouriteActionPending = false }
     }
 
-    Flea.AboutFacts { id: aboutFacts; active: root.opened && root.section === "about" }
+    Dlea.AboutFacts { id: aboutFacts; active: root.opened && root.section === "about" }
 
     Item {
         id: keys

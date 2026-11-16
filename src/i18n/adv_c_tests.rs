@@ -21,7 +21,7 @@ fn adv_c_f1_rounded_size_promotes_at_si_boundaries() {
 fn adv_c_f7_norwegian_grouping_without_generated_locale() {
     for language in ["nb-NO", "nn-NO", "no-NO"] {
         let mut locale = Locale {
-            format_locale: language.into(), glibc_locale: "missing_FLEA_TEST".into(),
+            format_locale: language.into(), glibc_locale: "missing_DLEA_TEST".into(),
             decimal: ",".into(), ..Locale::default()
         };
         format::set_grouping(&mut locale);
@@ -31,7 +31,7 @@ fn adv_c_f7_norwegian_grouping_without_generated_locale() {
 
 #[test]
 fn adv_c_f4_roster_refusal_child() {
-    let Some(root) = std::env::var_os("FLEA_I18N_REFUSAL_ROOT") else { return; };
+    let Some(root) = std::env::var_os("DLEA_I18N_REFUSAL_ROOT") else { return; };
     let root = PathBuf::from(root);
     let i = I18n::load(Paths {
         omarchy: root.clone(), language_file: root.join("unused-language"), catalogs: Vec::new(),
@@ -45,7 +45,7 @@ fn adv_c_f4_roster_refusal_names_locales_json_path() {
     f.write("omarchy/default/i18n/locales.json", "{invalid");
     let output = std::process::Command::new(std::env::current_exe().unwrap())
         .args(["--exact", "i18n::adv_c_tests::adv_c_f4_roster_refusal_child", "--nocapture"])
-        .env("FLEA_I18N_REFUSAL_ROOT", f.path("omarchy")).output().unwrap();
+        .env("DLEA_I18N_REFUSAL_ROOT", f.path("omarchy")).output().unwrap();
     assert!(output.status.success());
     let error = String::from_utf8(output.stderr).unwrap();
     assert!(error.contains("refusing i18n roster"), "{error}");
@@ -55,29 +55,29 @@ fn adv_c_f4_roster_refusal_names_locales_json_path() {
 #[test]
 fn adv_c_f8_installed_binary_ignores_home_and_build_catalogs() {
     let f = Fixture::new();
-    f.write("home/i18n/en/flea.json", r#"{"app.name":"Unrelated home catalog"}"#);
-    f.write("build/i18n/en/flea.json", r#"{"app.name":"Unrelated build catalog"}"#);
+    f.write("home/i18n/en/dlea.json", r#"{"app.name":"Unrelated home catalog"}"#);
+    f.write("build/i18n/en/dlea.json", r#"{"app.name":"Unrelated build catalog"}"#);
     let source = f.path("build");
-    let executable = f.path("home/.local/bin/flea");
+    let executable = f.path("home/.local/bin/dlea");
     let roots = catalog_dirs(None, Some(&executable), &source, false);
     assert!(!roots.contains(&f.path("home/i18n")), "{roots:?}");
     assert!(!roots.contains(&source.join("i18n")), "{roots:?}");
-    assert_eq!(roots, vec![f.path("home/.local/share/flea/i18n"), PathBuf::from("/usr/share/flea/i18n"), PathBuf::from("/usr/local/share/flea/i18n")]);
+    assert_eq!(roots, vec![f.path("home/.local/share/dlea/i18n"), PathBuf::from("/usr/share/dlea/i18n"), PathBuf::from("/usr/local/share/dlea/i18n")]);
     let i = I18n::load(Paths {
         omarchy: f.path("omarchy"), language_file: f.path("language"), catalogs: roots,
     });
-    assert_eq!(i.tr("app.name"), "Flea");
+    assert_eq!(i.tr("app.name"), "Dlea");
 }
 
 #[test]
-fn installed_prefix_catalog_translates_with_flea_i18n_unset() {
+fn installed_prefix_catalog_translates_with_dlea_i18n_unset() {
     let f = Fixture::new();
     f.registry();
     f.write("config/omarchy/language", "de\n");
-    f.write("prefix/share/flea/i18n/de/flea.json", include_str!("../../i18n/de/flea.json"));
-    let roots = catalog_dirs(None, Some(&f.path("prefix/bin/flea")), &f.path("build"), false);
-    assert_eq!(roots[0], f.path("prefix/share/flea/i18n"));
-    // Only that root, so a catalog the host keeps in /usr/share/flea/i18n cannot answer for it.
+    f.write("prefix/share/dlea/i18n/de/dlea.json", include_str!("../../i18n/de/dlea.json"));
+    let roots = catalog_dirs(None, Some(&f.path("prefix/bin/dlea")), &f.path("build"), false);
+    assert_eq!(roots[0], f.path("prefix/share/dlea/i18n"));
+    // Only that root, so a catalog the host keeps in /usr/share/dlea/i18n cannot answer for it.
     let i = I18n::load(Paths {
         omarchy: f.path("omarchy"), language_file: f.path("config/omarchy/language"), catalogs: roots[..1].to_vec(),
     });
@@ -87,11 +87,11 @@ fn installed_prefix_catalog_translates_with_flea_i18n_unset() {
 
 #[test]
 fn adv_c_f8_source_catalogs_require_debug_or_that_trees_target() {
-    let source = Path::new("/build/flea");
-    let external = Path::new("/opt/flea/bin/flea");
+    let source = Path::new("/build/dlea");
+    let external = Path::new("/opt/dlea/bin/dlea");
     assert!(catalog_dirs(None, Some(external), source, true).contains(&source.join("i18n")));
-    assert!(catalog_dirs(None, Some(Path::new("/build/flea/target/release/flea")), source, false).contains(&source.join("i18n")));
-    assert!(!catalog_dirs(None, Some(Path::new("/build/flea/target-other/flea")), source, false).contains(&source.join("i18n")));
+    assert!(catalog_dirs(None, Some(Path::new("/build/dlea/target/release/dlea")), source, false).contains(&source.join("i18n")));
+    assert!(!catalog_dirs(None, Some(Path::new("/build/dlea/target-other/dlea")), source, false).contains(&source.join("i18n")));
     assert!(!catalog_dirs(None, None, source, false).contains(&source.join("i18n")));
     assert_eq!(catalog_dirs(Some(PathBuf::from("/operator/catalogs")), Some(external), source, false)[0], Path::new("/operator/catalogs"));
 }

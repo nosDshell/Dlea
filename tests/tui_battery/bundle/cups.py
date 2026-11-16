@@ -15,7 +15,7 @@ PPD = b'''*PPD-Adobe: "4.3"
 *FileVersion: "1.0"
 *LanguageVersion: English
 *LanguageEncoding: ISOLatin1
-*PCFileName: "FLEA.PPD"
+*PCFileName: "DLEA.PPD"
 *Manufacturer: "Private fixture"
 *ModelName: "Brother HL-L3270CDW"
 *NickName: "Brother HL-L3270CDW"
@@ -175,9 +175,9 @@ class PrivateSink:
         result = body[:2] + struct.pack(">H", status) + body[4:8] + b"\x01"
         result += attribute(0x47, "attributes-charset", "utf-8") + attribute(0x48, "attributes-natural-language", "en")
         if operation in (0x4001, 0x4002, 0x000b):
-            result += b"\x04" + attribute(0x42, "printer-name", "flea-private")
+            result += b"\x04" + attribute(0x42, "printer-name", "dlea-private")
             result += attribute(0x41, "printer-info", "Brother HL-L3270CDW")
-            result += attribute(0x45, "printer-uri-supported", "ipp://localhost/printers/flea-private")
+            result += attribute(0x45, "printer-uri-supported", "ipp://localhost/printers/dlea-private")
             result += attribute(0x23, "printer-state", struct.pack(">I", 3))
             result += attribute(0x22, "printer-is-accepting-jobs", b"\x01")
             result += attribute(0x49, "document-format-supported", "application/pdf")

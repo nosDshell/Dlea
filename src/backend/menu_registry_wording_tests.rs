@@ -6,14 +6,14 @@ use super::*;
 fn registry_errors_are_sentences_that_end_once() {
     let registry = Registry::default();
     let cancel = Cancellation::default();
-    let query = registry.capture(&mut Command::new(flea::testpath::tool("/usr/bin/false")), &cancel).unwrap_err();
-    let launch = registry.launch_command(&mut Command::new(flea::testpath::tool("/usr/bin/false")), &cancel).unwrap_err();
+    let query = registry.capture(&mut Command::new(dlea::testpath::tool("/usr/bin/false")), &cancel).unwrap_err();
+    let launch = registry.launch_command(&mut Command::new(dlea::testpath::tool("/usr/bin/false")), &cancel).unwrap_err();
     assert_eq!(launch, "The application could not be started (exit status 1).");
     let missing = registry.launch_command(&mut Command::new("/definitely-missing-gio-test-helper"), &cancel).unwrap_err();
     assert!(missing.starts_with("The application could not be started: ") && !missing.contains("os error"), "{}", missing);
     let stopped = Cancellation::default();
     stopped.next();
-    let cancelled = registry.launch_command(&mut Command::new(flea::testpath::tool("/usr/bin/true")), &stopped).unwrap_err();
+    let cancelled = registry.launch_command(&mut Command::new(dlea::testpath::tool("/usr/bin/true")), &stopped).unwrap_err();
     for error in [query, launch, missing, cancelled] {
         assert!(error.ends_with('.') && !error.ends_with(".."), "{}", error);
     }
@@ -27,8 +27,8 @@ fn a_launch_fault_never_blames_the_application_list_and_a_list_fault_never_blame
     let stopped = Cancellation::default();
     stopped.next();
     let missing = "/definitely-missing-gio-test-helper";
-    assert_eq!(registry.launch_command(&mut Command::new(flea::testpath::tool("/usr/bin/true")), &stopped).unwrap_err(), "Opening the application was cancelled.");
-    assert_eq!(registry.capture(&mut Command::new(flea::testpath::tool("/usr/bin/true")), &stopped).unwrap_err(), "Reading the application list was cancelled.");
+    assert_eq!(registry.launch_command(&mut Command::new(dlea::testpath::tool("/usr/bin/true")), &stopped).unwrap_err(), "Opening the application was cancelled.");
+    assert_eq!(registry.capture(&mut Command::new(dlea::testpath::tool("/usr/bin/true")), &stopped).unwrap_err(), "Reading the application list was cancelled.");
     let launch = registry.launch_command(&mut Command::new(missing), &live).unwrap_err();
     assert!(launch.starts_with("The application could not be started: ") && !launch.contains("application list"), "{}", launch);
     let list = registry.capture(&mut Command::new(missing), &live).unwrap_err();

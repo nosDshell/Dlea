@@ -100,7 +100,7 @@ impl Reader<'_> {
         Err(self.error("unterminated string"))
     }
 
-    // Sample input: {"name":"Flea","forms":{"other":"%1 items"}} is a JSON object.
+    // Sample input: {"name":"Dlea","forms":{"other":"%1 items"}} is a JSON object.
     fn object(&mut self, depth: usize) -> Result<Json, String> {
         self.at += 1;
         self.space();

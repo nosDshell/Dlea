@@ -158,7 +158,7 @@ impl Progress {
             *named = (phase.into(), String::new(), 0);
         }
         if let Some(item) = item {
-            let shown = flea::bytename::display(&item.item.original);
+            let shown = dlea::bytename::display(&item.item.original);
             let name = shown.rsplit('/').next().unwrap_or("");
             if named.1 != name {
                 named.1 = name.into();

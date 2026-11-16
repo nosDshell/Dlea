@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # The U1 proof and the unlock threat pins: the canary reaches udisksctl unlock on stdin alone, no newline, then EOF.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 CANARY='S3cr3t-canary-1006'
@@ -13,7 +13,7 @@ if ! command -v qs >/dev/null; then
 fi
 
 # A marked sandbox of its own under the fixture root, so cleanup deletes only what this run owns.
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-unlock-stdin-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-unlock-stdin-XXXXXX") || exit 1
 # The allocated path must be absolute and non-empty before the sandbox trusts it.
 case $test_root in
   /*/*) ;;
@@ -26,8 +26,8 @@ trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/runtime" "$test_root/bin" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/unlock-stdin.qml "$test_root/config/shell.qml" || exit 1

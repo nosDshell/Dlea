@@ -21,7 +21,7 @@ fn num(n: usize) -> Json {
 }
 
 impl Operation {
-    // The JSON `flea --favourites` takes; every edit but add carries the records it was decided against.
+    // The JSON `dlea --favourites` takes; every edit but add carries the records it was decided against.
     pub fn wire(&self, records: &[Json]) -> String {
         let expected = ("expected".to_owned(), Json::Arr(records.to_vec()));
         let fields = match self {
@@ -145,7 +145,7 @@ impl Favourites {
         !self.busy
     }
 
-    // Start one write; the caller runs `flea --favourites <wire>` off the UI thread.
+    // Start one write; the caller runs `dlea --favourites <wire>` off the UI thread.
     pub fn apply(&mut self, operation: &Operation) -> Result<String, Failure> {
         if self.busy {
             return Err(Failure::Busy);
@@ -170,7 +170,7 @@ impl Favourites {
                 self.adopt(records);
             }
             let line = super::js_trim(stderr).split('\n').next().unwrap_or("");
-            let line = line.strip_prefix("flea: ").unwrap_or(line);
+            let line = line.strip_prefix("dlea: ").unwrap_or(line);
             let failure = if line.is_empty() {
                 Failure::NotSaved
             } else {

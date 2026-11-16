@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-rail-highlight-test
+//@ pragma ShellId dlea-rail-highlight-test
 
 import QtQuick
 import Quickshell
 import qs.Commons
 import qs.Commons as Commons
-import "flea" as Flea
+import "dlea" as Dlea
 import "sidebar-flows-palette.js" as PaletteFlow
 
 // The real Sidebar chooses one visual row while keeping the current-place identity separate.
@@ -24,7 +24,7 @@ ShellRoot {
             var c = row.children[i]
             if (c.color === undefined || c.border === undefined || !c.visible) continue
             if (c.color.a === 0) out.frame = out.frame || (c.width < row.width && c.height === row.height)
-            else if (c.width === Flea.Theme.spacing.hairline * 2) out.edge = true
+            else if (c.width === Dlea.Theme.spacing.hairline * 2) out.edge = true
             else if (c.width === row.width && c.opacity === 1) { out.fill = true; out.color = c.color }
         }
         return out
@@ -40,15 +40,15 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 260
         implicitHeight: 500
-        Flea.Sidebar { id: rail; anchors.fill: parent; polling: false; menu: menu }
+        Dlea.Sidebar { id: rail; anchors.fill: parent; polling: false; menu: menu }
     }
     QtObject { id: menu; property bool opened: false; property bool forRail: true }
-    Component.onCompleted: Flea.ViewState.state = { places: { showHome: true, showRecent: true, showTrash: true, showNetwork: false, showDevices: false } }
+    Component.onCompleted: Dlea.ViewState.state = { places: { showHome: true, showRecent: true, showTrash: true, showNetwork: false, showDevices: false } }
     Timer {
         interval: 1200
         running: true
         onTriggered: {
-            PaletteFlow.withPalette(Flea.Theme, Commons.Color, PaletteFlow.COLOURED_THEME, function () {
+            PaletteFlow.withPalette(Dlea.Theme, Commons.Color, PaletteFlow.COLOURED_THEME, function () {
                 shell.check("selectedFill differs from normalFill", !Qt.colorEqual(Style.selectedFill, Style.normalFill), true)
                 shell.check("two rows are drawn", rail.entries.length >= 2, true)
                 if (rail.entries.length >= 2) {

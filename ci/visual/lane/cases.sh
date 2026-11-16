@@ -1,4 +1,4 @@
-# Source after the shared flea-ci-visual lane cases to register the plugin SOURCE regression and the AirDrop plugin.
+# Source after the shared dlea-ci-visual lane cases to register the plugin SOURCE regression and the AirDrop plugin.
 . "$(dirname "${BASH_SOURCE[0]}")/wait.sh"
 . "$(dirname "${BASH_SOURCE[0]}")/trash.sh"
 . "$(dirname "${BASH_SOURCE[0]}")/state_pairs.sh"
@@ -87,12 +87,12 @@ case_settings_plugin_source_row() (
     # Under the case fixture like the gh315 cases, so reset_fixture removes it before the next case.
     root=$C/plugin-source
     mkdir -p "$root" || return 1
-    : > "$root/.flea-test-sandbox" || return 1
+    : > "$root/.dlea-test-sandbox" || return 1
     origin="$root/a long local plugin parent/another long parent/keep the final folder/checksums"
     mkdir -p "$origin" "$root/data" || return 1
     cp -a /src/examples/plugins/checksums/. "$origin/" || return 1
     export XDG_DATA_HOME="$root/data" XDG_STATE_HOME="/tmp/vstate/$case_name"
-    "$flea_bin" plugin add "$origin" >> "$case_notes" 2>&1 || return 1
+    "$dlea_bin" plugin add "$origin" >> "$case_notes" 2>&1 || return 1
     launch list "$W" || return 1
     plugin_page_open example.checksums || return 1
     for attempt in $(seq 1 "$pane_limit"); do
@@ -114,8 +114,8 @@ airdrop_settle_seconds=0.3
 airdrop_owly() {
     local mode=$1 bin=$C/airdrop/bin
     mkdir -p "$bin" || return 1
-    : > "$C/airdrop/.flea-test-sandbox" || return 1
-    export LAUNCH_STATE=',"plugins":{"flea.airdrop":{"enabled":true}}'
+    : > "$C/airdrop/.dlea-test-sandbox" || return 1
+    export LAUNCH_STATE=',"plugins":{"dlea.airdrop":{"enabled":true}}'
     if [ "$mode" = none ]; then
         # A host owly would draw a real adapter, so the missing case fails rather than snap the wrong page.
         if command -v owly > /dev/null; then
@@ -178,7 +178,7 @@ case_airdrop_menu_devices() (
 
 airdrop_page() {
     launch list "$W" || return 1
-    plugin_page_open flea.airdrop || return 1
+    plugin_page_open dlea.airdrop || return 1
     # Sample input: [{"kind":"fact","label":"Wi-Fi adapter","value":"Intel AX210, works with AirDrop"}]
     wait_ipc_has settingsModel "$1" || return 1
     sleep "$airdrop_settle_seconds"
@@ -252,7 +252,7 @@ case_cols_density_pictures_end() (
     [ "$VISUAL_FRONTEND" = gpui ] || return 77
     local root=$C/pictures last=119 decode_limit=100 poll_seconds=0.1 i attempt
     mkdir -p "$root" || return 1
-    : > "$root/.flea-test-sandbox" || return 1
+    : > "$root/.dlea-test-sandbox" || return 1
     for i in $(seq -f %03g 0 "$last"); do ln "$W/Media/photo.png" "$root/picture-$i.png" || return 1; done
     LAUNCH_STATE=',"density":"comfortable","display":{"textSize":{"mode":14}}' launch columns "$root" || return 1
     wait_ipc bodyPx 14 || return 1
@@ -524,13 +524,13 @@ case_plugin_rail_mark() (
     local root=$C/plugin-rail rows_limit=200 poll_seconds=0.1 settle_seconds=0.3 attempt id
     local ready='any(.[]; .label == "Photos") and any(.[]; .label == "Example Files" and has("mark"))'
     mkdir -p "$root/sync/Photos" "$root/sync/Notes" "$root/sync/Music" || return 1
-    : > "$root/.flea-test-sandbox" || return 1
+    : > "$root/.dlea-test-sandbox" || return 1
     # The installed copies leave with the case, so no later Settings shot gains a plugin row.
-    trap '"$flea_bin" plugin remove example.syncthing >> "$case_notes" 2>&1; "$flea_bin" plugin remove example.virtual-place >> "$case_notes" 2>&1' EXIT
+    trap '"$dlea_bin" plugin remove example.syncthing >> "$case_notes" 2>&1; "$dlea_bin" plugin remove example.virtual-place >> "$case_notes" 2>&1' EXIT
     for id in syncthing virtual-place; do
-        "$flea_bin" plugin add "/src/examples/plugins/$id" >> "$case_notes" 2>&1 || return 1
+        "$dlea_bin" plugin add "/src/examples/plugins/$id" >> "$case_notes" 2>&1 || return 1
     done
-    export FLEA_EXAMPLE_FOLDERS=$root/sync XDG_STATE_HOME="/tmp/vstate/$case_name"
+    export DLEA_EXAMPLE_FOLDERS=$root/sync XDG_STATE_HOME="/tmp/vstate/$case_name"
     export LAUNCH_STATE=',"plugins":{"example.syncthing":{"enabled":true},"example.virtual-place":{"enabled":true}}'
     launch list "$W" || return 1
     # Both runtimes start and Syncthing answers its first section before the rail holds every row.

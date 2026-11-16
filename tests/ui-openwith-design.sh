@@ -28,7 +28,7 @@ openwith_open_dialog() {
 }
 
 openwith_search() {
-    printf '%s' "$1" | omarchy-drive key --window com.thisisgm.flea - >/dev/null || fail "openwith: typing $1 failed"
+    printf '%s' "$1" | omarchy-drive key --window com.nosDshell.dlea - >/dev/null || fail "openwith: typing $1 failed"
     settle
 }
 
@@ -44,23 +44,23 @@ case_openwithdesign() (
     local -a numbers
     sandbox_require "$fixture_root"
     menu_box=$(mktemp -d "$fixture_root/openwith-design.XXXXXXXX") || fail 'openwith: owned fixture creation failed'
-    printf 'native Open with fixture\n' > "$menu_box/.flea-test-sandbox"
+    printf 'native Open with fixture\n' > "$menu_box/.dlea-test-sandbox"
     listing="$menu_box/listing"; config="$menu_box/config"; data="$menu_box/data"; state="$menu_box/state"
     for name in "$listing" "$config" "$data" "$data/applications"; do
         menus_guard "$name"
         mkdir -p "$name" || fail 'openwith: fixture directory creation failed'
     done
     # The fixture entry execs /bin/true, so an Open that reaches the launcher starts nothing.
-    menus_guard "$data/applications/zzflea-openwith.desktop"
-    printf '[Desktop Entry]\nType=Application\nName=Zzflea Fixture\nExec=/bin/true %%f\nIcon=text-x-generic\nMimeType=text/plain;\n' \
-        > "$data/applications/zzflea-openwith.desktop"
+    menus_guard "$data/applications/zzdlea-openwith.desktop"
+    printf '[Desktop Entry]\nType=Application\nName=Zzdlea Fixture\nExec=/bin/true %%f\nIcon=text-x-generic\nMimeType=text/plain;\n' \
+        > "$data/applications/zzdlea-openwith.desktop"
     # gio resolves the id named below through the desktop database, and an applications directory
     # with no cache answers for nothing, so the default silently did not take.
     update-desktop-database "$data/applications" 2>/dev/null \
         || fail 'openwith: the fixture desktop database could not be built'
     # A default the desktop really reads back, so the board's "default" caption has something to name.
     menus_guard "$config/mimeapps.list"
-    printf '[Default Applications]\ntext/plain=zzflea-openwith.desktop\n' > "$config/mimeapps.list"
+    printf '[Default Applications]\ntext/plain=zzdlea-openwith.desktop\n' > "$config/mimeapps.list"
     export XDG_CONFIG_HOME="$config" XDG_DATA_HOME="$data"
     # The system roots stay on the path: the shared mime database names the kind, and dropping it
     # would leave the eyebrow reading "text/plain" instead of the type's own name.
@@ -69,7 +69,7 @@ case_openwithdesign() (
     printf 'a note with real bytes in it\n' > "$listing/notes.txt"
     seed_ui_state "$state" '{"view":"list","keys":"default","preview":{"column":false,"thumbnails":"off"},"menu":{"hidden":[]}}'
     mime_before=$(stat -c %Y "$config/mimeapps.list")
-    trap 'kill_flea' EXIT
+    trap 'kill_dlea' EXIT
     launch "$listing"
     wait_listing 1
 
@@ -83,7 +83,7 @@ case_openwithdesign() (
         || fail "openwith: the flyout is ${numbers[6]} wide, the menu is ${numbers[2]}"
     (( numbers[4] == numbers[0] + numbers[2] )) \
         || fail "openwith: the flyout starts at ${numbers[4]}, not flush at $(( numbers[0] + numbers[2] ))"
-    menus_expect menuState '[.entries[] | select(.action == "openWith") | .submenu[]][0] | .id == "zzflea-openwith.desktop" and .hint == "default"' \
+    menus_expect menuState '[.entries[] | select(.action == "openWith") | .submenu[]][0] | .id == "zzdlea-openwith.desktop" and .hint == "default"' \
         'the desktop default leads the flyout and says so'
     menus_expect menuState '[.entries[] | select(.action == "openWith") | .submenu[]] | (.[-2].separator == true) and (.[-1].glyph == "app-window")' \
         'the tail row sits under its own separator with the app-window glyph'
@@ -92,7 +92,7 @@ case_openwithdesign() (
     # The fixture names a mimetype icon on purpose, which is exactly what that index does not hold.
     menus_expect menuState '[.entries[] | select(.action == "openWith") | .submenu[] | .icon // empty] | any(startswith("/"))' \
         "an entry the app icon index places arrives as a file"
-    menus_expect menuState '[.entries[] | select(.action == "openWith") | .submenu[] | select(.id == "zzflea-openwith.desktop")][0].icon == "text-x-generic"' \
+    menus_expect menuState '[.entries[] | select(.action == "openWith") | .submenu[] | select(.id == "zzdlea-openwith.desktop")][0].icon == "text-x-generic"' \
         "a name that index cannot place is left for the themed lookup"
     shot openwith-flyout
     # Two: the first closes the flyout, the second the menu holding it open behind it.
@@ -105,7 +105,7 @@ case_openwithdesign() (
     menus_expect openWithState '.kind == "Plain text document" and .name == "notes.txt"' 'the card names the file and its kind'
     menus_expect openWithState '[.rows[] | select(.eyebrow) | .eyebrow] == ["Registered for Plain text document", "All applications"]' \
         'both groups draw under their own eyebrow'
-    menus_expect openWithState '.rows[1].id == "zzflea-openwith.desktop" and .rows[1].isDefault' 'the registered group leads with the default'
+    menus_expect openWithState '.rows[1].id == "zzdlea-openwith.desktop" and .rows[1].isDefault' 'the registered group leads with the default'
     # Arithmetic on live tokens, never a pixel count: the box's own text size decides the row, and
     # a literal here passed at base-size 14 and failed at 20 without anything being wrong.
     menus_expect openWithState '(.listRect | split(" ")[3] | tonumber) == (7 * .rowHeight + 2 * .eyebrowHeight)' \
@@ -119,8 +119,8 @@ case_openwithdesign() (
     shot openwith-dialog
 
     # Rule 5: the search filters both groups, and a group that matches nothing takes its eyebrow with it.
-    openwith_search Zzflea
-    menus_expect openWithState '[.rows[] | .label // .eyebrow] == ["Registered for Plain text document", "Zzflea Fixture", "All applications", "Zzflea Fixture"]' \
+    openwith_search Zzdlea
+    menus_expect openWithState '[.rows[] | .label // .eyebrow] == ["Registered for Plain text document", "Zzdlea Fixture", "All applications", "Zzdlea Fixture"]' \
         'the search filters both groups and keeps both eyebrows'
     openwith_clear_search
     openwith_search zzqq
@@ -134,11 +134,11 @@ case_openwithdesign() (
     # Rule 7: Space toggles the always box from an empty search line, and the write lands once.
     key -k space >/dev/null
     menus_expect openWithState '.always' 'Space toggles the always box'
-    openwith_search Zzflea
-    menus_expect openWithState '.cursor == 0 and .rows[1].id == "zzflea-openwith.desktop"' 'the cursor holds the only match'
+    openwith_search Zzdlea
+    menus_expect openWithState '.cursor == 0 and .rows[1].id == "zzdlea-openwith.desktop"' 'the cursor holds the only match'
     key -k Return >/dev/null
     menus_expect openWithState '.opened | not' 'Open closes the card'
-    grep -q '^text/plain=zzflea-openwith.desktop' "$config/mimeapps.list" \
+    grep -q '^text/plain=zzdlea-openwith.desktop' "$config/mimeapps.list" \
         || fail "openwith: the default was not written: $(cat "$config/mimeapps.list")"
     [[ "$(stat -c %Y "$config/mimeapps.list")" != "$mime_before" ]] \
         || fail 'openwith: mimeapps.list was never rewritten'
@@ -151,21 +151,21 @@ case_openwithmulti() (
     local menus_checks=0 openwith_flyout_rows=0
     sandbox_require "$fixture_root"
     menu_box=$(mktemp -d "$fixture_root/openwith-multi.XXXXXXXX") || fail 'openwithmulti: owned fixture creation failed'
-    printf 'native Open with multi fixture\n' > "$menu_box/.flea-test-sandbox"
+    printf 'native Open with multi fixture\n' > "$menu_box/.dlea-test-sandbox"
     listing="$menu_box/listing"; config="$menu_box/config"; data="$menu_box/data"; state="$menu_box/state"
     for name in "$listing" "$config" "$data" "$data/applications"; do
         menus_guard "$name"
         mkdir -p "$name" || fail 'openwithmulti: fixture directory creation failed'
     done
     # The fixture entry execs /bin/true, so an Open that reaches the launcher starts nothing.
-    menus_guard "$data/applications/zzflea-openwith.desktop"
-    printf '[Desktop Entry]\nType=Application\nName=Zzflea Fixture\nExec=/bin/true %%f\nIcon=text-x-generic\nMimeType=text/plain;\n' \
-        > "$data/applications/zzflea-openwith.desktop"
+    menus_guard "$data/applications/zzdlea-openwith.desktop"
+    printf '[Desktop Entry]\nType=Application\nName=Zzdlea Fixture\nExec=/bin/true %%f\nIcon=text-x-generic\nMimeType=text/plain;\n' \
+        > "$data/applications/zzdlea-openwith.desktop"
     # No cache means the default silently does not take, so the database is built.
     update-desktop-database "$data/applications" 2>/dev/null \
         || fail 'openwithmulti: the fixture desktop database could not be built'
     menus_guard "$config/mimeapps.list"
-    printf '[Default Applications]\ntext/plain=zzflea-openwith.desktop\n' > "$config/mimeapps.list"
+    printf '[Default Applications]\ntext/plain=zzdlea-openwith.desktop\n' > "$config/mimeapps.list"
     export XDG_CONFIG_HOME="$config" XDG_DATA_HOME="$data"
     # The system roots stay on the path: the shared mime database names the kind.
     export XDG_DATA_DIRS="$data:/usr/local/share:/usr/share"
@@ -176,12 +176,12 @@ case_openwithmulti() (
     menus_guard "$listing/b.txt"
     printf 'beta\n' > "$listing/b.txt"
     seed_ui_state "$state" '{"view":"list","keys":"default","preview":{"column":false,"thumbnails":"off"},"menu":{"hidden":[]}}'
-    trap 'kill_flea' EXIT
+    trap 'kill_dlea' EXIT
     launch "$listing"
     wait_listing 3
     # Single-file positive proves discovery reached the fixture registry.
     openwith_open_flyout notes.txt
-    menus_expect menuState '[.entries[] | select(.action == "openWith") | .submenu[]][0] | .id == "zzflea-openwith.desktop"' 'single-file names the fixture default'
+    menus_expect menuState '[.entries[] | select(.action == "openWith") | .submenu[]][0] | .id == "zzdlea-openwith.desktop"' 'single-file names the fixture default'
     key -k Escape >/dev/null
     key -k Escape >/dev/null
     # Two-item selection mirrors ui-menus.sh multi-selection eligibility.
@@ -198,7 +198,7 @@ case_openwithmulti() (
     initial=$(ipc menuState)
     selected=$(ipc selectionCount)
     snapshot_id=$(ipc menuState | jq -r .snapshotId)
-    owned_pid=$(flea_pid)
+    owned_pid=$(dlea_pid)
     box=$(window_box)
     assert_focus
     # Provider settling bounds the menu; the Node callback test is the no-query oracle.

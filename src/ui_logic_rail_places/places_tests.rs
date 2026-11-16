@@ -13,7 +13,7 @@ fn stored_favourites_keep_every_record() {
         record("", "bad"),
     ];
     let stored = stored_entries(&records, "/home/test");
-    assert_eq!(stored.len(), 4, "Flea keeps duplicate paths");
+    assert_eq!(stored.len(), 4, "Dlea keeps duplicate paths");
     assert_eq!(stored[1].label, "Again", "each duplicate label is kept");
     assert_eq!(
         stored[2].original,

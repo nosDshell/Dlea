@@ -1,4 +1,4 @@
-Flea vendors two ES module bundles under ui/vendor/, built from pinned npm
+Dlea vendors two ES module bundles under ui/vendor/, built from pinned npm
 packages. The bundle files are generated output; the sources of record are the
 pinned packages plus the entry files in tools/vendor-js/.
 
@@ -16,7 +16,7 @@ pinned packages plus the entry files in tools/vendor-js/.
    Used for: mermaidToSvg(source, theme) in ui/vendor/mermaid.mjs.
    Unmodified: tools/vendor-js/mermaid-entry.mjs only calls Pele's render()
    with a text measurer built from the request's advance tables, and
-   resolves its theme variables and its one colour mix to the colours Flea
+   resolves its theme variables and its one colour mix to the colours Dlea
    hands it.
 
 Build tool esbuild 0.28.2 is a dev-only build dependency and is not shipped.

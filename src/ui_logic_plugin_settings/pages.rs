@@ -47,7 +47,7 @@ impl Row {
     }
 }
 
-// What the Update row shows; v0.3.12's Update Flea words.
+// What the Update row shows; v0.3.12's Update Dlea words.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub enum Update {
     #[default]
@@ -67,7 +67,7 @@ fn suffix(id: &str) -> &str {
     id.strip_prefix(super::manifest::RESERVED_PREFIX).unwrap_or(id)
 }
 
-// A built-in's name and description are Flea's own words, so they follow Flea's catalogs.
+// A built-in's name and description are Dlea's own words, so they follow Dlea's catalogs.
 pub fn name(plugin: &Plugin, i18n: &I18n) -> String {
     match plugin.source {
         Source::Builtin => i18n.tr(&format!("plugins.builtin.{}.name", suffix(&plugin.manifest.id))),
@@ -133,7 +133,7 @@ pub fn access_lines(access: &[String], i18n: &I18n) -> Vec<String> {
             }
             // Later exec: entries are already in the one Runs line.
             e if e.starts_with("exec:") => continue,
-            // An entry this Flea cannot name in plain words is still shown, as the plugin wrote it.
+            // An entry this Dlea cannot name in plain words is still shown, as the plugin wrote it.
             other => {
                 lines.push(i18n.tr_args("plugins.access.other", &[other]));
                 continue;
@@ -228,7 +228,7 @@ pub fn page_rows_with(plugin: &Plugin, update: &Update, airdrop: Option<&super::
     rows
 }
 
-// Sample input: "https://github.com/mtorvik/flea-checksums.git" shows as "github.com/mtorvik/flea-checksums".
+// Sample input: "https://github.com/mtorvik/dlea-checksums.git" shows as "github.com/mtorvik/dlea-checksums".
 pub fn shown_origin(origin: &str) -> String {
     let bare = origin.split_once("://").map_or(origin, |(_, rest)| rest);
     let bare = bare.strip_prefix("git@").map(|r| r.replacen(':', "/", 1)).unwrap_or_else(|| bare.to_string());

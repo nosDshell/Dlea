@@ -2,7 +2,7 @@
 use crate::backend::opsreq::OpMsg;
 use crate::backend::regfile::open_regular;
 use crate::json::escape;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::io::Read;
 use std::path::{Path, PathBuf};
 

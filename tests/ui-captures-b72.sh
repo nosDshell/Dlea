@@ -221,7 +221,7 @@ b72_release_backend() {
     # A held request never runs: the owned backend dies stopped, so no conversion or launch reaches the box.
     permissions_backend_owned "$b72_held" && kill -KILL "$b72_held"
     b72_held=""
-    kill_flea
+    kill_dlea
 }
 
 # L7: Convert at rest, then mid-commit with its backend held.
@@ -292,7 +292,7 @@ b72_surface() {
 b72_picker() {
     local home status=0
     home=$(coh_home "$coh_theme")
-    FLEA_BIN="$flea_bin" FLEA_UI="$flea_ui" timeout 240 python3 "$repo/tests/ui-captures-b72-picker.py" \
+    DLEA_BIN="$dlea_bin" DLEA_UI="$dlea_ui" timeout 240 python3 "$repo/tests/ui-captures-b72-picker.py" \
         "$fixture_root/coh-$coh_theme/b72-picker-$RANDOM$RANDOM" "$home" "$evidence_dir" "$coh_theme" < /dev/null || status=$?
     (( status == 0 )) && return 0
     printf 'B72_FAILED %s picker status %s\n' "$coh_theme" "$status"
@@ -305,8 +305,8 @@ case_cap_b72() {
     local list='{"keys":"default","view":"list","menu":{"hidden":[]}}'
     local cols='{"keys":"default","view":"columns","columnsLimit":3,"preview":{"column":true,"loadOn":"automatic"},"menu":{"hidden":[]}}'
     local themes="${B72_THEMES:-live gruvbox kanagawa}" want="${B72_SURFACES:-all}"
-    local flea_ui
-    flea_ui=$(coh_capture_ui) || fail "b72: the UI fixture could not be prepared"
+    local dlea_ui
+    dlea_ui=$(coh_capture_ui) || fail "b72: the UI fixture could not be prepared"
     coh_fixture "$coh_dir"
     ffmpeg -y -f lavfi -i "testsrc=duration=15:size=320x180:rate=10" "$coh_dir/clip.mp4" >/dev/null 2>&1
     [[ -s "$coh_dir/clip.mp4" ]] || fail "b72: ffmpeg produced no clip.mp4"
@@ -315,10 +315,10 @@ case_cap_b72() {
     for coh_theme in $themes; do
         for s in network settings permissions qlpdf media convert openwith main picker; do
             [[ "$want" == all || " $want " == *" $s "* ]] || continue
-            kill_flea
+            kill_dlea
             if [[ "$s" == picker ]]; then b72_picker; else b72_surface "b72_$s"; fi
         done
-        kill_flea
+        kill_dlea
         real_foreground="$live_foreground"
     done
     printf 'CAP_B72 shots=%s failed=%s\n' "$(wc -l < "$evidence_dir/b72-manifest.tsv")" "${b72_failed:-none}"

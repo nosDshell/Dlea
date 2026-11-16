@@ -204,7 +204,7 @@ mod tests {
     use std::path::PathBuf;
 
     fn english() -> I18n {
-        let none = PathBuf::from("/nonexistent/flea-sd1");
+        let none = PathBuf::from("/nonexistent/dlea-sd1");
         I18n::load(Paths { omarchy: none.clone(), language_file: none, catalogs: Vec::new() })
     }
 
@@ -258,7 +258,7 @@ mod tests {
         assert_eq!(ShareLink::busy_reason(&i18n), "A share link is still being copied; try again when it finishes.");
         let mut fresh = ShareLink::default();
         assert_eq!(fresh.copy("relative.txt").unwrap_err(), "no-file");
-        assert_eq!(ShareLink::no_file_reason(&i18n), "Flea could not find that file's location, so no share link was made.");
+        assert_eq!(ShareLink::no_file_reason(&i18n), "Dlea could not find that file's location, so no share link was made.");
     }
 
     #[test]

@@ -2,7 +2,7 @@
 
 .import "Format.js" as Format
 
-// The backend sends a freedesktop icon name per row; this is the only place Flea maps one to a mark.
+// The backend sends a freedesktop icon name per row; this is the only place Dlea maps one to a mark.
 // Counts re-derived 2026-08-31 from /usr/share/mime/generic-icons on this box, see AGENTS.md "Icons in the row":
 // x-office-document 106, package-x-generic 89, application-x-executable 57, text-x-generic 46,
 // image-x-generic 40, x-office-spreadsheet 38, text-x-script 36, font-x-generic 23, x-office-presentation 21,
@@ -77,7 +77,7 @@ var PATHS = {
     "folder": "M2 20V3h6l2 3h12v14H2z",
     "folders-first": "M2 12V4h6l2 2h12v6H2z M2 17h20 M2 21h20",
     "file-text": "M4 22V2h10l6 6v14H4z M14 2v6h6 M8 9h2 M8 13h8 M8 17h8",
-    // LanguageMarks' Markdown mark, Flea's cut of dcurtis/markdown-mark (CC0): the frame, the M and the down arrow in one stroke.
+    // LanguageMarks' Markdown mark, Dlea's cut of dcurtis/markdown-mark (CC0): the frame, the M and the down arrow in one stroke.
     "markdown": "M2 5h20v14H2z M5.5 15V9l3 3.5 3-3.5v6 M17 9v6 M14.5 12.5 17 15l2.5-2.5",
     "html": "M4 2h16l-1.5 17L12 22l-6.5-3z M15.5 6.5h-7V11h7v5L12 17.5 8.5 16",
     "code": "M16 18l6-6-6-6 M8 6l-6 6 6 6",

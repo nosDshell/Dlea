@@ -7,9 +7,9 @@ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 // Launcher hands qs the prefetch file, path and launch start; empty is absent throughout.
-pub const PREFETCH_ENV: &str = "FLEA_GVFS_PREFETCH";
-pub const PATH_ENV: &str = "FLEA_GVFS_PATH";
-pub const START_ENV: &str = "FLEA_GVFS_START";
+pub const PREFETCH_ENV: &str = "DLEA_GVFS_PREFETCH";
+pub const PATH_ENV: &str = "DLEA_GVFS_PATH";
+pub const START_ENV: &str = "DLEA_GVFS_START";
 // A published file older than this is refused, even one written after the launch.
 const STALE_SECS: u64 = 10;
 // Leftovers stop being adoptable long before this reaps them.
@@ -20,8 +20,8 @@ const GRACE_SECS: u64 = 2;
 const POLL_MS: u64 = 20;
 // A 10k NAS listing is about a megabyte; anything past this is not gio's output.
 const MAX_BYTES: u64 = 64 * 1024 * 1024;
-// Sample gio failure outcome: "flea-gvfs-fail\n", never a valid listing line.
-const FAIL_MARKER: &[u8] = b"flea-gvfs-fail\n";
+// Sample gio failure outcome: "dlea-gvfs-fail\n", never a valid listing line.
+const FAIL_MARKER: &[u8] = b"dlea-gvfs-fail\n";
 // A prefetch is adopted once; this stops a second listing adopting a late arrival.
 static CONSUMED: AtomicBool = AtomicBool::new(false);
 // Two prepares in one process still name different files.
@@ -39,7 +39,7 @@ pub struct Prefetch {
     pub start_ms: u64,
 }
 
-// Sample input: FLEA_GVFS_PATH "/run/user/1000/gvfs/smb-share:server=x,share=y/dir".
+// Sample input: DLEA_GVFS_PATH "/run/user/1000/gvfs/smb-share:server=x,share=y/dir".
 pub fn env_prefetch() -> Option<Prefetch> {
     env_prefetch_from(|name| std::env::var_os(name))
 }
@@ -52,7 +52,7 @@ pub(crate) fn env_prefetch_from(get: impl Fn(&str) -> Option<std::ffi::OsString>
     Some(Prefetch { dest, path, start_ms })
 }
 
-// $XDG_RUNTIME_DIR/flea, or None when the session names none.
+// $XDG_RUNTIME_DIR/dlea, or None when the session names none.
 pub fn runtime_dir() -> Option<PathBuf> {
     runtime_dir_from(std::env::var_os("XDG_RUNTIME_DIR"))
 }
@@ -60,7 +60,7 @@ pub fn runtime_dir() -> Option<PathBuf> {
 // Split so a test names the session's runtime root without writing this process's environment.
 pub(crate) fn runtime_dir_from(root: Option<std::ffi::OsString>) -> Option<PathBuf> {
     let root = root.filter(|v| !v.is_empty())?;
-    Some(PathBuf::from(root).join("flea"))
+    Some(PathBuf::from(root).join("dlea"))
 }
 
 // A directory this user owns and only this user can enter; anything else refuses.
@@ -132,7 +132,7 @@ pub(crate) fn prepare_in(dir: Option<PathBuf>) -> Option<(PathBuf, u64)> {
     let dir = dir?;
     // A refused runtime dir says why on stderr, then the launch lists the share itself.
     if let Err(e) = ensure_dir(&dir) {
-        eprintln!("flea: {}, so the share lists without a head start", e);
+        eprintln!("dlea: {}, so the share lists without a head start", e);
         return None;
     }
     let now = SystemTime::now();
@@ -146,34 +146,34 @@ pub(crate) fn prepare_in(dir: Option<PathBuf>) -> Option<(PathBuf, u64)> {
 // The gio half the combined launch helper shares: the same call the backend would make, hidden included.
 pub(crate) fn run_in(path: &str, dest: &Path, gio: &str, runtime: Option<&Path>) -> i32 {
     let Some(dir) = dest.parent() else {
-        eprintln!("flea: gvfs prefetch destination has no parent directory");
+        eprintln!("dlea: gvfs prefetch destination has no parent directory");
         return 2;
     };
     // dest must be a fresh name inside our own runtime dir, never an arbitrary path.
     if Some(dir) != runtime {
-        eprintln!("flea: gvfs prefetch destination {} is not inside the runtime dir", dest.display());
+        eprintln!("dlea: gvfs prefetch destination {} is not inside the runtime dir", dest.display());
         return 2;
     }
     if !gvfslist::is_gvfs(Path::new(path)) {
-        eprintln!("flea: gvfs prefetch needs a gvfs path, got {}", path);
+        eprintln!("dlea: gvfs prefetch needs a gvfs path, got {}", path);
         return 2;
     }
     if let Err(e) = check_dir(dir) {
-        eprintln!("flea: {}", e);
+        eprintln!("dlea: {}", e);
         return 2;
     }
     match gvfslist::raw_output(path, gio, gvfslist::GIO_TIMEOUT) {
         Ok(bytes) => match publish(dest, &bytes) {
             Ok(()) => 0,
             Err(e) => {
-                eprintln!("flea: {}", e);
+                eprintln!("dlea: {}", e);
                 1
             }
         },
         Err(e) => {
             // A failed gio still publishes an outcome, so the backend stops waiting at once.
             let _ = publish(dest, FAIL_MARKER);
-            eprintln!("flea: gvfs prefetch for {} failed ({}), the window lists it itself", path, e);
+            eprintln!("dlea: gvfs prefetch for {} failed ({}), the window lists it itself", path, e);
             1
         }
     }

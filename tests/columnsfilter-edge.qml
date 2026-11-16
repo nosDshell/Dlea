@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-columnsfilter-edge-test
+//@ pragma ShellId dlea-columnsfilter-edge-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Focus.js" as Focus
-import "flea/js/Filter.js" as Filter
+import "dlea" as Dlea
+import "dlea/js/Focus.js" as Focus
+import "dlea/js/Filter.js" as Filter
 import "columnsfilter-fixture.js" as Fixture
 
 // The third column across a filter key that hides the cursor's folder never lands an empty column while a match remains.
@@ -135,9 +135,9 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 1100
         implicitHeight: 600
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
-        Flea.ColumnsArea {
+        Dlea.ColumnsArea {
             id: area
             anchors.fill: parent
             pane: root.stubPane

@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-raildrop-test
+//@ pragma ShellId dlea-raildrop-test
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
-import "flea/js/Drag.js" as Drag
-import "flea/js/DragOut.js" as DragOut
+import "dlea" as Dlea
+import "dlea/js/Drag.js" as Drag
+import "dlea/js/DragOut.js" as DragOut
 
 // The real receiver, cue, collision host and backend run against marked fixture folders.
 ShellRoot {
@@ -74,7 +74,7 @@ ShellRoot {
         }
     }
 
-    Flea.Backend {
+    Dlea.Backend {
         id: backend
         onRows: function (start, items) { root.rowsLanded(items) }
         onTransferDone: function (id, ok, failed) {
@@ -157,25 +157,25 @@ ShellRoot {
                 { label: "Favorite", group: "favourite", kind: "favourite", path: root.fixture + "/favorite", glyph: "folder" },
                 { label: "USB", group: "device", kind: "volume", path: root.fixture + "/usb", mounted: true, size: 128000000000, glyph: "usb" },
                 { label: "Pixel", group: "device", kind: "phone", path: "", mounted: true, size: null, glyph: "smartphone" },
-                { label: "Recent", group: "recent", kind: "recent", path: "flea:recent", glyph: "history" }
+                { label: "Recent", group: "recent", kind: "recent", path: "dlea:recent", glyph: "history" }
             ]
             function railItemFor(index) { return rows.itemAt(index) }
-            Flea.RailDrop { id: receiver; sidebar: rail; viewport: scroller }
+            Dlea.RailDrop { id: receiver; sidebar: rail; viewport: scroller }
             Flickable {
                 id: scroller
                 anchors.fill: parent
                 clip: true
                 contentWidth: width
-                contentHeight: height + rows.count * Flea.Theme.railRowHeight
+                contentHeight: height + rows.count * Dlea.Theme.railRowHeight
                 onContentYChanged: receiver.reaim()
                 Repeater {
                     id: rows
                     model: rail.entries
-                    delegate: Flea.SidebarRow { y: index * height }
+                    delegate: Dlea.SidebarRow { y: index * height }
                 }
             }
         }
-        Flea.CollideHost { id: collide; pane: paneStub; source: Qt.resolvedUrl("flea/CollideConfirm.qml") }
+        Dlea.CollideHost { id: collide; pane: paneStub; source: Qt.resolvedUrl("dlea/CollideConfirm.qml") }
     }
     Timer {
         interval: 30

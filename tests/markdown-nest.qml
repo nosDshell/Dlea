@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-markdown-nest-test
+//@ pragma ShellId dlea-markdown-nest-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "markdown-nest.js" as Nest
 
 // The real PreviewMarkdown over blocks nested in items and quotes: each draws with its top-level recipe at the item's text column or inside the quote's bars.
@@ -12,7 +12,7 @@ ShellRoot {
     function log(line) { console.log("MARKDOWN_NEST " + line) }
     function quit() { Quickshell.execDetached(["kill", String(Quickshell.processId)]) }
 
-    property string dir: Quickshell.env("FLEA_NEST_DIR")
+    property string dir: Quickshell.env("DLEA_NEST_DIR")
     readonly property var plan: ["nest", "empty", "compact", "gap"]
     readonly property int bodySize: 14
     readonly property string nestTypes: "heading,fence,list,quote,list,quote,quote,list,quote"
@@ -21,7 +21,7 @@ ShellRoot {
     property int checks: 0
     property int failures: 0
     property int loadsMark: 0
-    Component.onCompleted: Flea.ViewState.setTextSize({ mode: shell.bodySize })
+    Component.onCompleted: Dlea.ViewState.setTextSize({ mode: shell.bodySize })
 
     function check(error, name) {
         shell.checks++
@@ -42,7 +42,7 @@ ShellRoot {
         implicitHeight: 1400
         color: "#101315"
 
-        Flea.PreviewMarkdown {
+        Dlea.PreviewMarkdown {
             id: md
             anchors.fill: parent
             active: true

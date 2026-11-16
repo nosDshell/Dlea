@@ -111,7 +111,7 @@ fn drop_returns_before_a_held_worker_can_finish() {
 
 #[test]
 fn empty_and_unset_path_never_use_an_executable_in_cwd() {
-    if std::env::var_os("FLEA_CHAFA_PATH_PROBE").is_some() {
+    if std::env::var_os("DLEA_CHAFA_PATH_PROBE").is_some() {
         assert!(find_on(OsStr::new("")).is_none());
         assert!(find_on(OsStr::new(".")).is_none());
         assert!(
@@ -133,7 +133,7 @@ fn empty_and_unset_path_never_use_an_executable_in_cwd() {
                 "--nocapture",
             ])
             .current_dir(fixture.path("bin"))
-            .env("FLEA_CHAFA_PATH_PROBE", "1")
+            .env("DLEA_CHAFA_PATH_PROBE", "1")
             .env_remove("PATH");
         if empty {
             child.env("PATH", "");
@@ -153,7 +153,7 @@ fn empty_and_unset_path_never_use_an_executable_in_cwd() {
 
 #[test]
 fn no_namespace_skips_jail_legs_and_runs_parser_cases() {
-    if std::env::var_os("FLEA_CHAFA_NO_NAMESPACE_PROBE").is_some() {
+    if std::env::var_os("DLEA_CHAFA_NO_NAMESPACE_PROBE").is_some() {
         return;
     }
     let fixture = Fixture::new();
@@ -162,7 +162,7 @@ fn no_namespace_skips_jail_legs_and_runs_parser_cases() {
     for tool in ["prlimit", "cat", "chmod"] {
         symlink(Path::new("/usr/bin").join(tool), fake.join(tool)).unwrap();
     }
-    let mut writer = Command::new(flea::testpath::tool("/bin/sh"))
+    let mut writer = Command::new(dlea::testpath::tool("/bin/sh"))
         .args([
             "-c",
             "/usr/bin/cat > \"$1\" && /usr/bin/chmod 755 \"$1\"",
@@ -177,7 +177,7 @@ fn no_namespace_skips_jail_legs_and_runs_parser_cases() {
     let output = Command::new(std::env::current_exe().unwrap())
         .args(["tui::chafa::", "--show-output"])
         .env("PATH", &fake)
-        .env("FLEA_CHAFA_NO_NAMESPACE_PROBE", "1")
+        .env("DLEA_CHAFA_NO_NAMESPACE_PROBE", "1")
         .output()
         .unwrap();
     // The child's SKIP lines stay in its captured output; echoing them would count as skips in CI.

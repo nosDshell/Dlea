@@ -126,7 +126,7 @@ def fixture(path):
 def backend(binary, root, path):
     environment = dict(os.environ, XDG_CACHE_HOME=str(root / "cache"),
                        XDG_STATE_HOME=str(root / "state"), HOME=str(root / "home"),
-                       FLEA_UNDO_DIR=str(root / "undo"))
+                       DLEA_UNDO_DIR=str(root / "undo"))
     buffer = bytearray()
     with (root / "backend.log").open("xb") as log:
         process = subprocess.Popen([binary, "--backend"], stdin=subprocess.PIPE,
@@ -191,7 +191,7 @@ def backend(binary, root, path):
 def main():
     binary, directory = sys.argv[1:]
     root = Path(directory).resolve(strict=True)
-    require((root / ".flea-test-sandbox").is_file(), "test root has no marker")
+    require((root / ".dlea-test-sandbox").is_file(), "test root has no marker")
     path = root / "raw" / "L1000921.DNG"
     fixture(path)
     stamp = datetime(2026, 9, 18, 20, 10, tzinfo=timezone.utc).timestamp()

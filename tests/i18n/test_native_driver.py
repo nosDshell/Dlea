@@ -1,4 +1,4 @@
-"""Plan and verify contract of tools/flea-i18n-native, run without a display or a candidate."""
+"""Plan and verify contract of tools/dlea-i18n-native, run without a display or a candidate."""
 import copy
 import hashlib
 import importlib.machinery
@@ -13,12 +13,12 @@ import unittest
 from unittest.mock import patch
 
 REPO = Path(__file__).resolve().parents[2]
-TOOL = REPO / 'tools/flea-i18n-native'
+TOOL = REPO / 'tools/dlea-i18n-native'
 ROSTER = REPO / 'src/i18n/fixtures/locales.json'
 
 
 def load_tool():
-    loader = importlib.machinery.SourceFileLoader('flea_i18n_native', str(TOOL))
+    loader = importlib.machinery.SourceFileLoader('dlea_i18n_native', str(TOOL))
     spec = importlib.util.spec_from_loader(loader.name, loader)
     module = importlib.util.module_from_spec(spec)
     loader.exec_module(module)
@@ -34,12 +34,12 @@ class Scratch(unittest.TestCase):
         parent = REPO / '.superpowers/m9-i50-27'
         parent.mkdir(parents=True, exist_ok=True)
         self.root = Path(tempfile.mkdtemp(prefix='native.', dir=parent))
-        (self.root / '.flea-test-sandbox').write_text('i50-27 native driver test\n')
+        (self.root / '.dlea-test-sandbox').write_text('i50-27 native driver test\n')
         self.addCleanup(self.remove_root)
 
     def remove_root(self):
         root = self.root
-        if root.is_absolute() and root.name.startswith('native.') and (root / '.flea-test-sandbox').is_file():
+        if root.is_absolute() and root.name.startswith('native.') and (root / '.dlea-test-sandbox').is_file():
             shutil.rmtree(root)
 
     def run_tool(self, *args):
@@ -64,12 +64,12 @@ class Evidence(Scratch):
         for code in self.codes:
             (self.catalogs / code).mkdir(parents=True)
             text = {'menu.open': 'Open' if code == 'en' else f'Open {code}', 'menu.cancel': 'Cancel'}
-            (self.catalogs / code / 'flea.json').write_text(json.dumps(text, ensure_ascii=False))
+            (self.catalogs / code / 'dlea.json').write_text(json.dumps(text, ensure_ascii=False))
         self.keymap = self.root / 'keys.toml'
         self.keymap.write_text('[keys]\n')
         self.index = self.root / 'source-index.json'
         self.index.write_text('{}\n')
-        self.candidate = self.root / 'flea'
+        self.candidate = self.root / 'dlea'
         self.candidate.write_bytes(b'candidate binary')
         self.plan_doc = {
             'schema': self.tool.PLAN_SCHEMA, 'scope': 'all', 'complete': True, 'owed': [],
@@ -81,9 +81,9 @@ class Evidence(Scratch):
         }
         records = []
         for frame, code in enumerate(self.codes, 1):
-            value = json.loads((self.catalogs / code / 'flea.json').read_text())['menu.open']
+            value = json.loads((self.catalogs / code / 'dlea.json').read_text())['menu.open']
             records.append(dict(case=f'catalog.{code}.gui', language=code, frontend='gui',
-                                catalog_sha256=sha((self.catalogs / code / 'flea.json').read_bytes()),
+                                catalog_sha256=sha((self.catalogs / code / 'dlea.json').read_bytes()),
                                 receipt=dict(case=f'catalog.{code}.gui', window=7, frame=frame, presented=True),
                                 texts=[dict(key='menu.open', text=value)]))
         self.capture = {
@@ -286,13 +286,13 @@ class MissingLanguage(Evidence):
 
     def test_i50_native_placeholder_only_key_is_not_required(self):
         for code in self.codes:
-            path = self.catalogs / code / 'flea.json'
+            path = self.catalogs / code / 'dlea.json'
             data = json.loads(path.read_text())
             data['send.reason'] = '%1'
             path.write_text(json.dumps(data, ensure_ascii=False))
         capture = copy.deepcopy(self.capture)
         for record in capture['records']:
-            record['catalog_sha256'] = sha((self.catalogs / record['language'] / 'flea.json').read_bytes())
+            record['catalog_sha256'] = sha((self.catalogs / record['language'] / 'dlea.json').read_bytes())
         plan = copy.deepcopy(self.plan_doc)
         for case in plan['cases']:
             case['required_keys'] = ['menu.open', 'send.reason']
@@ -379,7 +379,7 @@ class Identity(Evidence):
         plan = copy.deepcopy(self.plan_doc)
         plan.pop('source_index')
         self.assertRefused('source index differs from the plan', plan=plan)
-        other = self.root / 'other-flea'
+        other = self.root / 'other-dlea'
         other.write_bytes(b'another build')
         self.assertRefused('candidate sha256 does not match', candidate=other)
         for field, needle in [('source_commit', 'source commit'), ('keymap_sha256', 'keymap'),
@@ -405,7 +405,7 @@ class Identity(Evidence):
 
 class StaleCatalog(Evidence):
     def test_i50_native_stale_catalog_fails(self):
-        path = self.catalogs / 'ja' / 'flea.json'
+        path = self.catalogs / 'ja' / 'dlea.json'
         path.write_text(path.read_text().replace('Open ja', 'Open ja v2'))
         self.assertRefused('catalog.ja.gui: catalog changed since capture', capture=self.capture)
         path.unlink()
@@ -416,7 +416,7 @@ class Lease(Scratch):
     def test_i50_native_shared_tui_lease(self):
         plan = self.plan()
         protocol = plan['capture_protocol']
-        self.assertEqual(protocol['queue'], '/home/gm/flea-work/ctl-gates/minipc-q.sh')
+        self.assertEqual(protocol['queue'], '/home/gm/dlea-work/ctl-gates/minipc-q.sh')
         self.assertFalse(protocol['own_lock'])
         self.assertEqual(protocol['lease'], 'TUI-16')
         self.assertEqual(protocol['tui_callable']['callable'], 'tui_battery.candidate.catalog_case')
@@ -587,7 +587,7 @@ class Adapters(Scratch):
             with self.subTest(flags=flags):
                 output = self.root / f'verify-{len(flags)}-{flags[0][2:]}'
                 output.mkdir()
-                (output / '.flea-test-sandbox').write_text('i50-27 override test\n')
+                (output / '.dlea-test-sandbox').write_text('i50-27 override test\n')
                 inputs = [arg for flag in flags for arg in (flag, overrides[flag])]
                 done = self.run_tool('plan', '--languages', 'all', '--output', output / 'plan.json', *inputs)
                 self.assertEqual(done.returncode, 0, done.stderr)

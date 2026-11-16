@@ -264,8 +264,8 @@ function run(check) {
     check("F16 title accepted", Blocks.collectReferences('[foo]:\nbar "title"').defs.foo, 'bar')
     check("F17 four spaces", Blocks.collectReferences("[^1]: a\n    more").notes['1'].text, 'a\nmore')
     check("F17 eight spaces", Blocks.collectReferences("[^1]: a\n        more").notes['1'].text, 'a\nmore')
-    var htmlH1 = Markdown.blocks('<h1 align="center">Flea</h1>', dir, "#181825", ink)[0]
-    var mdH1 = Markdown.blocks("# Flea", dir, "#181825", ink)[0]
+    var htmlH1 = Markdown.blocks('<h1 align="center">Dlea</h1>', dir, "#181825", ink)[0]
+    var mdH1 = Markdown.blocks("# Dlea", dir, "#181825", ink)[0]
     check("mdfid2 HTML h1 is a heading block", htmlH1.type, "heading")
     check("mdfid2 HTML h1 level is 1", htmlH1.level, 1)
     check("mdfid2 HTML h1 text matches Markdown h1", htmlH1.text, mdH1.text)

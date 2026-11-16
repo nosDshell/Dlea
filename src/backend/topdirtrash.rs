@@ -161,7 +161,7 @@ pub(crate) fn restore_from_topdir(entry: &Entry) -> Option<Result<(), String>> {
             if !top.ancestors().any(crate::backend::testdir::removable) {
                 return Err("test mount is not sandboxed".into());
             }
-            top.join(".flea-test-recovery")
+            top.join(".dlea-test-recovery")
         };
         record
             .backing

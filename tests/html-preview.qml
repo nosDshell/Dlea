@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Icons.js" as Icons
+import "dlea" as Dlea
+import "dlea/js/Icons.js" as Icons
 
 ShellRoot {
     id: root
@@ -53,7 +53,7 @@ ShellRoot {
         root.press(Qt.Key_Space)
     }
     function shot(item, name, after) {
-        var output = Quickshell.env("FLEA_CI_SUITE_LOGS") || Quickshell.env("HTML_ROOT")
+        var output = Quickshell.env("DLEA_CI_SUITE_LOGS") || Quickshell.env("HTML_ROOT")
         root.capturePending = true
         item.grabToImage(function (image) {
             root.check(name + " image saved", image.saveToFile(output + "/" + name + ".png"), true)
@@ -94,7 +94,7 @@ ShellRoot {
         case 0:
             if (!p || p.listInFlight || !p.storageKnown || p.total < 4) return
             root.check("listing builds no Quick Look or HTML surface", [l, root.replies], [null, 0])
-            root.check("neither document kind stores its view", [Flea.ViewState.preview.htmlView, Flea.ViewState.preview.markdownView], [undefined, undefined])
+            root.check("neither document kind stores its view", [Dlea.ViewState.preview.htmlView, Dlea.ViewState.preview.markdownView], [undefined, undefined])
             root.keys = Qt.createQmlObject("import QtTest; TestEvent {}", p.listArea)
             root.open("index.html")
             root.next()

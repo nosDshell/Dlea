@@ -7,11 +7,11 @@ fn args(values: &[&str]) -> Vec<String> {
 #[test]
 fn call_and_show_keep_positional_arguments_as_data() {
     assert_eq!(
-        parse(&args(&["--pid", "42", "call", "flea", "rowAt", "-1"])).unwrap(),
+        parse(&args(&["--pid", "42", "call", "dlea", "rowAt", "-1"])).unwrap(),
         Options {
             pid: Some(42),
             request: Request::Call {
-                target: "flea".into(),
+                target: "dlea".into(),
                 function: "rowAt".into(),
                 arguments: vec!["-1".into()]
             }
@@ -29,7 +29,7 @@ fn call_and_show_keep_positional_arguments_as_data() {
         Err(Reply::value("Target required to send message."))
     );
     assert_eq!(
-        parse(&args(&["call", "flea"])),
+        parse(&args(&["call", "dlea"])),
         Err(Reply::value("Function required to send message."))
     );
     for arguments in [

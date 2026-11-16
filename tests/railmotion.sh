@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-. "$(dirname "${BASH_SOURCE[0]}")/../tools/flea-ipc"
-flea_ipc_init qs
+. "$(dirname "${BASH_SOURCE[0]}")/../tools/dlea-ipc"
+dlea_ipc_init qs
 . "$(dirname "$0")/headless-commons.sh"
-# The auto-hidden rail slides on x in the real window offscreen, once with motion and once with FLEA_REDUCED_MOTION=1.
+# The auto-hidden rail slides on x in the real window offscreen, once with motion and once with DLEA_REDUCED_MOTION=1.
 set -u
 cd "$(dirname "$0")/.." || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 command -v qs >/dev/null || { echo 'FAIL railmotion needs qs'; exit 1; }
 command -v dbus-run-session >/dev/null || { echo 'FAIL railmotion needs a private D-Bus session'; exit 1; }
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [[ -x "$bin" ]] || { echo 'FAIL railmotion needs the built backend'; exit 1; }
 sandbox_root_ok
-probe=$(mktemp -d "$SANDBOX_ROOT/flea-railmotion.XXXXXX") || exit 1
+probe=$(mktemp -d "$SANDBOX_ROOT/dlea-railmotion.XXXXXX") || exit 1
 : > "$probe/$SANDBOX_MARKER" || exit 1
 qs_pid=""
 stop_qs() {
@@ -44,10 +44,10 @@ cat > "$probe/bin/lsblk" <<'SH'
 printf '{"blockdevices":[]}\n'
 SH
 chmod 700 "$probe/bin/lsblk" || exit 1
-ln -s "$PWD/ui" "$probe/config/flea"
+ln -s "$PWD/ui" "$probe/config/dlea"
 headless_commons "$probe" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$probe/config/Ui"
-ln -s "$PWD/ui/boot/fleatab.qml" "$probe/config/fleatab.qml"
+ln -s "$PWD/ui/boot/dleatab.qml" "$probe/config/dleatab.qml"
 cp tests/railmotion.qml "$probe/config/shell.qml"
 cp tests/RailIpc.qml "$probe/config/RailIpc.qml"
 cp tests/RailDragHold.qml "$probe/config/RailDragHold.qml"
@@ -60,11 +60,11 @@ run_once() {
     local reduced=$1 tag=$2 log="$probe/qs-$2.log" tick tally
     : > "$log"
     seed_state || return 1
-    env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u FLEA_SELECT \
+    env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u DLEA_SELECT \
         HOME="$probe/home" XDG_STATE_HOME="$probe/state" XDG_CONFIG_HOME="$probe/config" \
         XDG_DATA_HOME="$probe/data" XDG_CACHE_HOME="$probe/cache" XDG_RUNTIME_DIR="$probe/runtime" \
-        PATH="$probe/bin:$PATH" FLEA_REDUCED_MOTION="$reduced" \
-        FLEA_PATH="$probe/home" FLEA_BIN="$bin" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
+        PATH="$probe/bin:$PATH" DLEA_REDUCED_MOTION="$reduced" \
+        DLEA_PATH="$probe/home" DLEA_BIN="$bin" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
         QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 setsid dbus-run-session -- qs -p "$probe/config" >"$log" 2>&1 </dev/null &
     qs_pid=$!
     for ((tick = 0; tick < 600; tick++)); do

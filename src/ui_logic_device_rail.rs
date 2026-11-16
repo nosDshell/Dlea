@@ -116,7 +116,7 @@ impl Note {
     }
 }
 
-/// The English catalog text under the device prefix, mirrored from i18n/en/flea.json.
+/// The English catalog text under the device prefix, mirrored from i18n/en/dlea.json.
 pub const ENGLISH: &[(&str, &str)] = &[
     ("device.nothing_to_release", "%1 has nothing to eject or unmount"),
     ("device.still_ejecting", "Still ejecting %1; wait for its result"),
@@ -124,7 +124,7 @@ pub const ENGLISH: &[(&str, &str)] = &[
     ("device.another_mounting", "Another drive is still mounting. Try again when it finishes"),
     ("device.still_unmounting_try_again", "%1 is still unmounting. Try again when it finishes"),
     ("device.ejecting", "Ejecting %1. Do not unplug it yet."),
-    ("device.no_folder", "%1 was mounted, but Flea could not find its folder."),
+    ("device.no_folder", "%1 was mounted, but Dlea could not find its folder."),
     ("device.eject_unfinished", "%1 did not finish ejecting and is still mounted."),
     ("device.mount_failed", "%1 could not be mounted."),
     ("device.damaged", "%1 could not be mounted: its file system is damaged or not supported."),
@@ -157,9 +157,9 @@ pub const ENGLISH: &[(&str, &str)] = &[
         "device.action_running",
         "An action on %1 is still running. Try again when it finishes.",
     ),
-    ("device.system_drive", "%1 is the system drive, which Flea never ejects."),
-    ("device.system_volume", "This folder is not on a drive Flea can eject."),
-    ("device.no_volume", "This folder is not on a drive Flea can eject."),
+    ("device.system_drive", "%1 is the system drive, which Dlea never ejects."),
+    ("device.system_volume", "This folder is not on a drive Dlea can eject."),
+    ("device.no_volume", "This folder is not on a drive Dlea can eject."),
     ("device.safe", "Ejected %1. It is safe to unplug."),
     ("device.safe_image", "Ejected %1."),
     ("device.still_mounted", "%1 is still mounted; close what is using it."),

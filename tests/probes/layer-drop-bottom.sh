@@ -1,6 +1,6 @@
 #!/bin/bash
 # Proves an empty-desktop drop reaches a Bottom-layer receiver and prints exactly one LAYERDROP line on stdout, with diagnostics on stderr.
-. "$(dirname "${BASH_SOURCE[0]}")/../../tools/flea-ipc"
+. "$(dirname "${BASH_SOURCE[0]}")/../../tools/dlea-ipc"
 set -u
 out() { printf 'LAYERDROP %s\n' "$*"; }
 refuse() {
@@ -12,10 +12,10 @@ refuse() {
 need() { command -v "$1" >/dev/null 2>&1 || refuse "missing $1"; }
 need qs; need hyprctl; need ydotool; need omarchy-drive
 [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] || refuse "no Hyprland session"
-flea_bin="${FLEA_BIN:-$(command -v flea || true)}"
-[ -n "$flea_bin" ] || refuse "no flea binary (set FLEA_BIN)"
-flea_ui="${FLEA_UI:-$(cd "$(dirname "$0")/../../ui" && pwd)}"
-[ -f "$flea_ui/boot/shell.qml" ] || refuse "no Flea ui at $flea_ui (set FLEA_UI)"
+dlea_bin="${DLEA_BIN:-$(command -v dlea || true)}"
+[ -n "$dlea_bin" ] || refuse "no dlea binary (set DLEA_BIN)"
+dlea_ui="${DLEA_UI:-$(cd "$(dirname "$0")/../../ui" && pwd)}"
+[ -f "$dlea_ui/boot/shell.qml" ] || refuse "no Dlea ui at $dlea_ui (set DLEA_UI)"
 repo="$(cd "$(dirname "$0")/../.." && pwd)"
 [ -f "$repo/tests/lib/hypr-dispatch.sh" ] || refuse "no typed Hyprland helper at $repo/tests/lib/hypr-dispatch.sh"
 . "$repo/tests/lib/hypr-dispatch.sh"
@@ -32,15 +32,15 @@ layerdrop_cleanup() {
     if [[ "$layerdrop_button_down" == true ]]; then
         ydotool click 0x80 >/dev/null 2>&1 || true
     fi
-    kill "$qs_pid" "$flea_pid" $torn 2>/dev/null || true
+    kill "$qs_pid" "$dlea_pid" $torn 2>/dev/null || true
     rm -rf "$work"
 }
 trap 'layerdrop_cleanup' EXIT
-qs_pid=""; flea_pid=""; torn=""; addr=""; qid=""; drag_mark=0
+qs_pid=""; dlea_pid=""; torn=""; addr=""; qid=""; drag_mark=0
 centre=""; lifted_path=""; source_rect=""; sx=""; sy=""; dx=""; dy=""
 layerdrop_panel_attempts=40 # Bound the wait for the fixture panel's layer surface to map.
 layerdrop_panel_poll=0.25 # Poll the layer list between checks.
-layerdrop_lookup_attempts=60 # Bound the wait for the Flea client and its qs instance to appear.
+layerdrop_lookup_attempts=60 # Bound the wait for the Dlea client and its qs instance to appear.
 layerdrop_lookup_poll=0.5 # Poll the clients and qs instances between checks.
 layerdrop_torn_attempts=20 # Bound the lookup of a torn-off window's qs instance.
 layerdrop_settle_attempts=40 # Bound each wait for window state: focus, float, fixture listing, second tab and drop receipt.
@@ -54,17 +54,17 @@ layerdrop_park_h=500
 # Print setup and this gesture's trace only when the probe fails.
 layerdrop_diagnostics() {
     local lines
-    printf 'LAYERDROP source pid=%s address=%s instance=%s expected=%s lifted=%s\n' "$flea_pid" "$addr" "$qid" "${srcdir:-}" "$lifted_path" >&2
+    printf 'LAYERDROP source pid=%s address=%s instance=%s expected=%s lifted=%s\n' "$dlea_pid" "$addr" "$qid" "${srcdir:-}" "$lifted_path" >&2
     printf 'LAYERDROP rect=%s tabCentre=%s press=%s,%s release=%s,%s; cursorpos: ' "$source_rect" "$centre" "$sx" "$sy" "$dx" "$dy" >&2
     hyprctl cursorpos >&2 || true
     printf 'LAYERDROP active: ' >&2
     hyprctl activewindow -j >&2 || true
     if [ -n "$addr" ]; then printf 'LAYERDROP current source rect=%s\n' "$(layerdrop_rect || true)" >&2; fi
-    if [ -n "$flea_pid" ]; then
-        printf 'LAYERDROP stdout=%s stderr=%s\n' "$(readlink "/proc/$flea_pid/fd/1" || true)" "$(readlink "/proc/$flea_pid/fd/2" || true)" >&2
+    if [ -n "$dlea_pid" ]; then
+        printf 'LAYERDROP stdout=%s stderr=%s\n' "$(readlink "/proc/$dlea_pid/fd/1" || true)" "$(readlink "/proc/$dlea_pid/fd/2" || true)" >&2
     fi
-    printf 'LAYERDROP TABDRAG file=%s/flea.log after-line=%s\n' "$work" "$drag_mark" >&2
-    lines=$(tail -n +"$((drag_mark + 1))" "$work/flea.log" 2>/dev/null | grep -a TABDRAG || true)
+    printf 'LAYERDROP TABDRAG file=%s/dlea.log after-line=%s\n' "$work" "$drag_mark" >&2
+    lines=$(tail -n +"$((drag_mark + 1))" "$work/dlea.log" 2>/dev/null | grep -a TABDRAG || true)
     printf '%s\n' "${lines:-(no TABDRAG lines since press mark)}" >&2
     tail -5 "$work/qs.log" >&2 2>/dev/null || true
 }
@@ -88,10 +88,10 @@ ShellRoot {
             WlrLayershell.layer: WlrLayer.Bottom
             WlrLayershell.exclusiveZone: 0
             // The startup wait below matches this namespace exactly, never a qs prefix.
-            WlrLayershell.namespace: "flea-layer-drop"
+            WlrLayershell.namespace: "dlea-layer-drop"
             DropArea {
                 anchors.fill: parent
-                keys: ["application/x-flea-tab"]
+                keys: ["application/x-dlea-tab"]
                 onEntered: function (drag) {
                     Quickshell.execDetached(["sh", "-c", "printf 'PANEL-ENTER\\\\n' >> '$log'"])
                 }
@@ -108,20 +108,20 @@ setsid qs -p "$work/panel.qml" >"$work/qs.log" 2>&1 &
 qs_pid=$!
 qs_up=""
 for _ in $(seq 1 "$layerdrop_panel_attempts"); do
-    if hyprctl layers -j 2>/dev/null | grep -Fq '"namespace": "flea-layer-drop"'; then qs_up=1; break; fi
+    if hyprctl layers -j 2>/dev/null | grep -Fq '"namespace": "dlea-layer-drop"'; then qs_up=1; break; fi
     sleep "$layerdrop_panel_poll"
 done
 [ -n "$qs_up" ] || refuse "no Quickshell layer surface appeared"
 
-# A Flea window with two tabs is the drag source: the strip is hidden for one.
+# A Dlea window with two tabs is the drag source: the strip is hidden for one.
 srcdir="$work/src"
 mkdir -p "$srcdir/sub" "$work/state"
 export XDG_STATE_HOME="$work/state"
 # The session runtime dir stays real, so the undo journal needs its own knob.
-export FLEA_UNDO_DIR="$work/flea-undo"
-"$flea_bin" --ui-state '{"newTab":"current","view":"list"}' >/dev/null || refuse "could not seed probe settings"
-FLEA_TRACE_TABDRAG=1 FLEA_UI="$flea_ui" FLEA_BIN="$flea_bin" setsid nohup "$flea_bin" --gui "$srcdir" >"$work/flea.log" 2>&1 </dev/null &
-flea_pid=$!
+export DLEA_UNDO_DIR="$work/dlea-undo"
+"$dlea_bin" --ui-state '{"newTab":"current","view":"list"}' >/dev/null || refuse "could not seed probe settings"
+DLEA_TRACE_TABDRAG=1 DLEA_UI="$dlea_ui" DLEA_BIN="$dlea_bin" setsid nohup "$dlea_bin" --gui "$srcdir" >"$work/dlea.log" 2>&1 </dev/null &
+dlea_pid=$!
 addr=""
 for _ in $(seq 1 "$layerdrop_lookup_attempts"); do
     addr=$(hyprctl clients -j | python3 -c '
@@ -129,11 +129,11 @@ import json, sys
 # Sample input: [{"address":"0xa","pid":101,"at":[40,40],"size":[900,500],"floating":true}].
 hits = [c for c in json.load(sys.stdin) if str(c.get("pid")) == sys.argv[1]]
 print(hits[0]["address"] if len(hits) == 1 else "")
-' "$flea_pid") || true
+' "$dlea_pid") || true
     [ -n "$addr" ] && break
     sleep "$layerdrop_lookup_poll"
 done
-[ -n "$addr" ] || refuse "no Flea window came up"
+[ -n "$addr" ] || refuse "no Dlea window came up"
 # Read only the probe's address, including after every compositor operation.
 layerdrop_rect() {
     hyprctl clients -j 2>/dev/null | python3 -c '
@@ -144,14 +144,14 @@ if len(hits) != 1:
     raise SystemExit(1)
 c = hits[0]
 print(c["at"][0], c["at"][1], c["size"][0], c["size"][1], str(bool(c.get("floating"))))
-' "$addr" "$flea_pid"
+' "$addr" "$dlea_pid"
 }
 
 layerdrop_focus() {
     local i active
     hypr_window_focus "$addr" || refuse "could not focus probe window"
     for i in $(seq 1 "$layerdrop_settle_attempts"); do
-        # Sample input: {"address":"0xa","pid":101,"class":"com.thisisgm.flea"} from hyprctl activewindow -j.
+        # Sample input: {"address":"0xa","pid":101,"class":"com.nosDshell.dlea"} from hyprctl activewindow -j.
         active=$(hyprctl activewindow -j 2>/dev/null | python3 -c 'import json,sys; print(json.load(sys.stdin).get("address", ""))' || true)
         [ "$active" = "$addr" ] && return 0
         sleep "$layerdrop_settle_poll"
@@ -185,21 +185,21 @@ done
 # The qs instance id for this pid, same lookup tests/ui.sh uses for its tabs.
 qid=""
 for _ in $(seq 1 "$layerdrop_lookup_attempts"); do
-    qid=$(flea_ipc_list --all --json 2>/dev/null | python3 -c '
+    qid=$(dlea_ipc_list --all --json 2>/dev/null | python3 -c '
 import json, sys
 # Sample input: [{"id":"abc123","pid":101,"config_path":"/ui/boot/shell.qml"}].
 hits = [x for x in json.load(sys.stdin) if x.get("config_path") == sys.argv[1] and x.get("pid") == int(sys.argv[2])]
 print(hits[0]["id"] if len(hits) == 1 else "")
-' "$flea_ui/boot/shell.qml" "$flea_pid") || true
+' "$dlea_ui/boot/shell.qml" "$dlea_pid") || true
     [ -n "$qid" ] && break
     sleep "$layerdrop_lookup_poll"
 done
-[ -n "$qid" ] || refuse "no qs instance for $flea_pid"
+[ -n "$qid" ] || refuse "no qs instance for $dlea_pid"
 # The command-line fixture must have landed before t snapshots it into another tab.
 ready=""
 for _ in $(seq 1 "$layerdrop_settle_attempts"); do
-    lifted_path=$(flea_ipc_call -i "$qid" call flea path 2>/dev/null || true)
-    if [ "$lifted_path" = "$srcdir" ] && [ "$(flea_ipc_call -i "$qid" call flea listInFlight 2>/dev/null || true)" = false ]; then ready=1; break; fi
+    lifted_path=$(dlea_ipc_call -i "$qid" call dlea path 2>/dev/null || true)
+    if [ "$lifted_path" = "$srcdir" ] && [ "$(dlea_ipc_call -i "$qid" call dlea listInFlight 2>/dev/null || true)" = false ]; then ready=1; break; fi
     sleep "$layerdrop_settle_poll"
 done
 [ -n "$ready" ] || refuse "source window did not settle on fixture $srcdir"
@@ -208,16 +208,16 @@ omarchy-drive key --window "$addr" t >/dev/null 2>&1 || refuse "t did not reach 
 # A second tab must be current and settled on the fixture, never the operator's home.
 two=""
 for _ in $(seq 1 "$layerdrop_settle_attempts"); do
-    lifted_path=$(flea_ipc_call -i "$qid" call flea path 2>/dev/null || true)
-    if [ "$(flea_ipc_call -i "$qid" call flea tabCount 2>/dev/null || true)" = "2" ] \
-        && [ "$(flea_ipc_call -i "$qid" call flea tabIndex 2>/dev/null || true)" = "1" ] \
+    lifted_path=$(dlea_ipc_call -i "$qid" call dlea path 2>/dev/null || true)
+    if [ "$(dlea_ipc_call -i "$qid" call dlea tabCount 2>/dev/null || true)" = "2" ] \
+        && [ "$(dlea_ipc_call -i "$qid" call dlea tabIndex 2>/dev/null || true)" = "1" ] \
         && [ "$lifted_path" = "$srcdir" ] \
-        && [ "$(flea_ipc_call -i "$qid" call flea listInFlight 2>/dev/null || true)" = false ]; then two=1; break; fi
+        && [ "$(dlea_ipc_call -i "$qid" call dlea listInFlight 2>/dev/null || true)" = false ]; then two=1; break; fi
     sleep "$layerdrop_settle_poll"
 done
 [ -n "$two" ] || refuse "second tab did not settle on fixture $srcdir"
 # Read both the painted tab centre and the real client geometry after the park.
-centre=$(flea_ipc_call -i "$qid" call flea tabCentre 1 2>/dev/null || true)
+centre=$(dlea_ipc_call -i "$qid" call dlea tabCentre 1 2>/dev/null || true)
 [ -n "$centre" ] || refuse "second tab has no centre"
 read -r cx cy <<< "$centre"
 source_rect=$(layerdrop_rect) || refuse "no post-move geometry for $addr"
@@ -239,7 +239,7 @@ hyprctl clients -j 2>/dev/null > "$work/clients.json" || refuse "no clients to s
 # The own panel receives the drop, so it is filtered out of the cover like the case filters nothing yet mapped.
 hyprctl layers -j 2>/dev/null | python3 -c '
 import json, sys
-# Sample input: {"DP-2":{"levels":{"1":[{"namespace":"flea-layer-drop","x":0,"y":0,"w":2560,"h":1440,"pid":200}]}}}.
+# Sample input: {"DP-2":{"levels":{"1":[{"namespace":"dlea-layer-drop","x":0,"y":0,"w":2560,"h":1440,"pid":200}]}}}.
 d = json.load(sys.stdin)
 for entry in (d.values() if isinstance(d, dict) else []):
     lv = entry.get("levels") if isinstance(entry, dict) else None
@@ -248,7 +248,7 @@ for entry in (d.values() if isinstance(d, dict) else []):
     for k in list(lv.keys()):
         v = lv[k]
         if isinstance(v, list):
-            lv[k] = [n for n in v if not (isinstance(n, dict) and n.get("namespace") == "flea-layer-drop")]
+            lv[k] = [n for n in v if not (isinstance(n, dict) and n.get("namespace") == "dlea-layer-drop")]
 print(json.dumps(d))
 ' > "$work/layers.json" || refuse "no layers to scan"
 printf '%s' "$mon_json" > "$work/monitors.json"
@@ -256,7 +256,7 @@ point=$(python3 -B "$probe_py" "$mx" "$my" "$mw" "$mh" "$mon_name" "$work/client
 [ -n "$point" ] || refuse "no empty desktop point on the focused monitor"
 read -r dx dy <<< "$point"
 # The Bottom panel must still be mapped at release, or the drop has no receiver.
-hyprctl layers -j 2>/dev/null | grep -Fq '"namespace": "flea-layer-drop"' || refuse "Bottom panel went away before the drop"
+hyprctl layers -j 2>/dev/null | grep -Fq '"namespace": "dlea-layer-drop"' || refuse "Bottom panel went away before the drop"
 move_to() {
     local tx="$1" ty="$2" i cx cy cursor
     local attempts=16 tolerance=4 divisor=2 poll=0.05
@@ -284,7 +284,7 @@ layerdrop_wait_drag() {
     local stage="$1" attempt lines
     for attempt in $(seq 1 "$layerdrop_drag_attempts"); do
         # Sample input: TABDRAG catcher-enter pid=1154634 global=1280,720
-        lines=$(tail -n +"$((drag_mark + 1))" "$work/flea.log" | grep -a "TABDRAG .* pid=$flea_pid " || true)
+        lines=$(tail -n +"$((drag_mark + 1))" "$work/dlea.log" | grep -a "TABDRAG .* pid=$dlea_pid " || true)
         if grep -aq 'TABDRAG drag-finished' <<< "$lines"; then
             refuse "drag ended before $stage while pointer held"
         fi
@@ -295,7 +295,7 @@ layerdrop_wait_drag() {
                 fi
                 ;;
             mapped)
-                if hyprctl layers -j 2>/dev/null | grep -Fq '"namespace": "flea-tab-tearoff"'; then
+                if hyprctl layers -j 2>/dev/null | grep -Fq '"namespace": "dlea-tab-tearoff"'; then
                     return 0
                 fi
                 ;;
@@ -310,11 +310,11 @@ layerdrop_wait_drag() {
     refuse "no $stage receipt from platform tab drag on fixture $srcdir"
 }
 
-# Flea windows before the drop: its own Bottom catcher may take the drop and tear off instead.
-before_flea=$(pgrep -x qs | while read -r pid; do tr '\0' ' ' 2>/dev/null < "/proc/$pid/cmdline" | grep -Fq "$flea_ui" && printf '%s ' "$pid"; done)
+# Dlea windows before the drop: its own Bottom catcher may take the drop and tear off instead.
+before_dlea=$(pgrep -x qs | while read -r pid; do tr '\0' ' ' 2>/dev/null < "/proc/$pid/cmdline" | grep -Fq "$dlea_ui" && printf '%s ' "$pid"; done)
 [ "$(layerdrop_rect || true)" = "$source_rect" ] || refuse "source geometry changed before the press"
 move_to "$sx" "$sy"
-drag_mark=$(wc -l < "$work/flea.log")
+drag_mark=$(wc -l < "$work/dlea.log")
 layerdrop_button_down=true
 ydotool click 0x40 >/dev/null 2>&1 || refuse "pointer press failed"
 move_to "$((wx + layerdrop_outside_x))" "$((wy + wh + layerdrop_outside_y))"
@@ -326,11 +326,11 @@ move_to "$dx" "$dy"
 layerdrop_wait_drag receiver
 ydotool click 0x80 >/dev/null 2>&1 || refuse "pointer release failed"
 layerdrop_button_down=false
-# Wait for an observed panel receipt or a new Flea process before evaluating either route.
+# Wait for an observed panel receipt or a new Dlea process before evaluating either route.
 for _ in $(seq 1 "$layerdrop_settle_attempts"); do
     layerdrop_panel_hit "$log" && break
-    after_flea=$(pgrep -x qs | while read -r pid; do tr '\0' ' ' 2>/dev/null < "/proc/$pid/cmdline" | grep -Fq "$flea_ui" && printf '%s ' "$pid"; done)
-    torn=$(layerdrop_torn_pids "$before_flea" "$after_flea")
+    after_dlea=$(pgrep -x qs | while read -r pid; do tr '\0' ' ' 2>/dev/null < "/proc/$pid/cmdline" | grep -Fq "$dlea_ui" && printf '%s ' "$pid"; done)
+    torn=$(layerdrop_torn_pids "$before_dlea" "$after_dlea")
     [ -n "$torn" ] && break
     sleep "$layerdrop_settle_poll"
 done
@@ -338,12 +338,12 @@ done
 layerdrop_qsid() {
     local pid="$1" i tid
     for i in $(seq 1 "$layerdrop_torn_attempts"); do
-        tid=$(flea_ipc_list --all --json 2>/dev/null | python3 -c '
+        tid=$(dlea_ipc_list --all --json 2>/dev/null | python3 -c '
 import json, sys
 # Sample input: [{"id":"def456","pid":202,"config_path":"/ui/boot/shell.qml"}], read for the torn-off window.
 hits = [x for x in json.load(sys.stdin) if x.get("config_path") == sys.argv[1] and x.get("pid") == int(sys.argv[2])]
 print(hits[0]["id"] if len(hits) == 1 else "")
-' "$flea_ui/boot/shell.qml" "$pid") || true
+' "$dlea_ui/boot/shell.qml" "$pid") || true
         if [ -n "$tid" ]; then printf '%s' "$tid"; return 0; fi
         sleep "$layerdrop_lookup_poll"
     done
@@ -354,15 +354,15 @@ if layerdrop_panel_hit "$log"; then
     out "PASS"
     exit 0
 fi
-# The drop reached Flea's own Bottom catcher when a new owned window reads as the lifted folder through qs ipc.
-after_flea=$(pgrep -x qs | while read -r pid; do tr '\0' ' ' 2>/dev/null < "/proc/$pid/cmdline" | grep -Fq "$flea_ui" && printf '%s ' "$pid"; done)
-torn=$(layerdrop_torn_pids "$before_flea" "$after_flea")
+# The drop reached Dlea's own Bottom catcher when a new owned window reads as the lifted folder through qs ipc.
+after_dlea=$(pgrep -x qs | while read -r pid; do tr '\0' ' ' 2>/dev/null < "/proc/$pid/cmdline" | grep -Fq "$dlea_ui" && printf '%s ' "$pid"; done)
+torn=$(layerdrop_torn_pids "$before_dlea" "$after_dlea")
 paths_tsv=""
 if layerdrop_catcher_hit "$torn" "$lifted_path"; then
-    # LAYERDROP CATCHER-TEAROFF proves a new Flea window opened on the lifted folder through the catcher.
+    # LAYERDROP CATCHER-TEAROFF proves a new Dlea window opened on the lifted folder through the catcher.
     out "CATCHER-TEAROFF"
     exit 0
 fi
-printf 'flea windows before: %s after: %s\n' "$before_flea" "$after_flea" >&2
+printf 'dlea windows before: %s after: %s\n' "$before_dlea" "$after_dlea" >&2
 printf 'lifted folder: %s torn: %s paths: %s\n' "$lifted_path" "$torn" "$(printf '%s' "$paths_tsv" | tr '\n' ';')" >&2
 refuse "no PANEL-DROP in $log and no torn-off window"

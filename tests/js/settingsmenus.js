@@ -55,7 +55,7 @@ function runInventory(check) {
     var switched = []
     for (var g = 0; g < Settings.MENU_GROUPS.length; g++)
         switched = switched.concat(Settings.MENU_GROUPS[g].ids)
-    // The background menu's rows count too where a switch governs them, as Update Flea's does once an update is known.
+    // The background menu's rows count too where a switch governs them, as Update Dlea's does once an update is known.
     // storageClass "usb" builds the ExtThumbs row the way a removable drive does, so its switch is covered too.
     var background = Menu.listingEntries({ hasRow: false, showHidden: false, langMarks: false, hiddenActions: [], updateVersion: "0.3.4", storageClass: "usb", thumbPreview: {} })
     for (var b = 0; b < background.length; b++) {

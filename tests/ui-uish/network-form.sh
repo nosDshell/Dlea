@@ -20,7 +20,7 @@ case_network() {
     local real_state="${XDG_STATE_HOME-}" real_config="${XDG_CONFIG_HOME-}"
     export XDG_CONFIG_HOME="$fixture_home/.config"
     seed_ui_state "$state" '{"view":"list","keys":"default","places":{"favourites":[]}}'
-    stored="$state/flea/ui.json"
+    stored="$state/dlea/ui.json"
     : > "$mount_log"
     : > "$mount_calls"
     mkfifo "$fake_root/mount-release"
@@ -52,7 +52,7 @@ case_network() {
             release_fds+=("$fd")
             printf 'release\n' >&"$fd" || fail "network: could not release cleanup barrier: $fifo"
         done
-        ( kill_flea ) || result=1
+        ( kill_dlea ) || result=1
         for fd in "${release_fds[@]}"; do exec {fd}>&-; done
         return "$result"
     }
@@ -156,7 +156,7 @@ case_network() {
         settings_wait_value '.display.textSize.mode == "system"'
         font_before=$(token_of baseSize)
         # Sample source: var STOPS = [9, 10, 11, 12, 14, 16, 20]
-        stops=$(grep '^var STOPS = ' "$flea_ui/js/TextSize.js" | cut -d= -f2-) || fail 'network: text-size stops are unavailable'
+        stops=$(grep '^var STOPS = ' "$dlea_ui/js/TextSize.js" | cut -d= -f2-) || fail 'network: text-size stops are unavailable'
         font_after=$(jq -r --argjson size "$font_before" 'map(select(. > $size)) | first' <<< "$stops") \
             || fail 'network: text-size stops could not be read'
         direction=equal
@@ -211,7 +211,7 @@ case_network() {
         local what="$1"
         network_ipc networkEntries
         [[ -z "$network_ipc_out" ]] \
-            || fail "network: $what: the Network group shows [$network_ipc_out], not empty (the gio double isolates the gio mount table only; a kernel network mount Flea lists from /proc/self/mountinfo shows as its own row)"
+            || fail "network: $what: the Network group shows [$network_ipc_out], not empty (the gio double isolates the gio mount table only; a kernel network mount Dlea lists from /proc/self/mountinfo shows as its own row)"
     }
 
     # This case proves form/bookmark behavior, not a network route; a bounded local gio double keeps
@@ -656,12 +656,12 @@ EOS
     settle
     [[ "$(ipc dialogOpen)" == "false" ]] || fail "network: escape did not close the dialog after the TLS pass"
 
-    # Legacy GTK rows stay readable and byte-for-byte intact alongside persisted Flea favourites.
+    # Legacy GTK rows stay readable and byte-for-byte intact alongside persisted Dlea favourites.
     mkdir -p "$fixture_home/.config/gtk-3.0"
     printf 'smb://legacy.test/data Legacy share\nfile:///missing/legacy Local legacy\n' > "$bookmarks"
     local legacy_before
     legacy_before=$(cat "$bookmarks")
-    kill_flea
+    kill_dlea
     export HOME="$fixture_home"
     launch "$dir"
     export HOME="$real_home"
@@ -755,7 +755,7 @@ EOS
     printf 'NETWORK empty=ok a-scoped=ok dialog=ok submit-path=ok keyboard-after=ok guest-smb=anonymous nfs=plain caches=isolated\n'
 
     # Separate persisted fixtures keep the mount-origin races independent of the save inventory above.
-    kill_flea
+    kill_dlea
     seed_ui_state "$race_state" "$(jq -n --arg left "$races/left" --arg right "$races/right" \
         '{view:"list",keys:"default",dual:{paths:[$left,$right],focus:0},places:{favourites:[
             {label:"Late retry",path:"nfs://late-retry.test/export"},
@@ -883,7 +883,7 @@ EOS
     retained_shares=$(ipc shareBrowserState | jq -c '{active,owner,baseUri,cursor}')
     retained_entries=$(ipc shareBrowserEntries)
     retained_rect="$network_geometry_rect"
-    exit_log_start=$(wc -l < "$flea_log")
+    exit_log_start=$(wc -l < "$dlea_log")
     click_chrome list
     network_wait_panes "(.active | not) and .focused == 0 and (.panes[1].focused | not) and ((.panes[1] | del(.focused)) == $retained_secondary)"
     menus_expect shareBrowserState "{active,owner,baseUri,cursor} == $retained_shares" 'leaving dual retains the secondary share listing session'
@@ -931,7 +931,7 @@ EOS
     shot network-shares-owner-dismissed
     click_chrome list
     network_wait_panes '(.active | not) and .focused == 0 and (.panes[1].focused | not)'
-    tail -n "+$((exit_log_start + 1))" "$flea_log" > "$fake_root/second-pane-exit.log"
+    tail -n "+$((exit_log_start + 1))" "$dlea_log" > "$fake_root/second-pane-exit.log"
     # Qt 6.12's Wayland text input warns when focus leaves with no surface focused; the log check below skips it too.
     if grep -F -v 'QWaylandTextInputv3::disableSurface(wl_surface*) Trying to disable ' "$fake_root/second-pane-exit.log" \
         | grep -E 'WARN|ERROR|TypeError|ReferenceError|Cannot'; then
@@ -1015,7 +1015,7 @@ case_netmark() {
     printf 'NETMARK stops=7 caption=%s..%s probes=4 zoom=%s..%s\n' \
         "$smallest" "$largest" "$zoom_small" "$zoom_large"
     export PATH="$saved_path"
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
     sandbox_remove "$fake_root"
     sandbox_remove "$dir"
@@ -1043,8 +1043,8 @@ case_networkauth() {
     assert_runtime_canary_absent() {
         local surface method value
         for surface in "$fixture_root" "$thumb_fixture" "$hash_fixture" "$stale_fixture" \
-            "$evidence_dir" "$flea_log" "$run_log" "$case_log" \
-            "$repo/.superpowers/flea/release-014-20260904/reports/baseline-authenticated-ui.md"; do
+            "$evidence_dir" "$dlea_log" "$run_log" "$case_log" \
+            "$repo/.superpowers/dlea/release-014-20260904/reports/baseline-authenticated-ui.md"; do
             [[ -e "$surface" ]] || continue
             # -D skip and -r, not -R: case_network leaves FIFOs in its fixture, and a recursive read
             # of one blocks in the kernel forever waiting for a writer that never comes.
@@ -1101,7 +1101,7 @@ esac
 EOS
     cat > "$dir/bin/timeout" <<EOS
 #!/bin/sh
-if [ "\${1:-}" = -- ] && [ "\${2:-}" = 35 ] && [ "\${3:-}" = "$dir/bin/flea-gio-auth" ]; then
+if [ "\${1:-}" = -- ] && [ "\${2:-}" = 35 ] && [ "\${3:-}" = "$dir/bin/dlea-gio-auth" ]; then
     /usr/bin/timeout "\$@"
     result=\$?
     printf '%s\n' "\$result" >> "$attempt_log"
@@ -1118,7 +1118,7 @@ EOS
         done
         fail "networkauth: expected completed auth attempt $count with exit $code"
     }
-    cat > "$dir/bin/flea-gio-auth" <<'EOS'
+    cat > "$dir/bin/dlea-gio-auth" <<'EOS'
 #!/bin/sh
 [ "$#" -eq 1 ] || exit 2
 IFS= read -r secret || exit 3
@@ -1134,12 +1134,12 @@ printf 'argc=1 uri=%s stdin-lines=1\n' "$1" >> "$state/helper.log"
 printf '%s\n' "$1" > "$state/mounted"
 secret=
 EOS
-    chmod +x "$dir/bin/gio" "$dir/bin/flea-gio-auth" "$dir/bin/timeout"
+    chmod +x "$dir/bin/gio" "$dir/bin/dlea-gio-auth" "$dir/bin/timeout"
 
     local real_home="$HOME" saved_path="$PATH"
     export HOME="$fixture_home"
     export PATH="$dir/bin:$PATH"
-    export FLEA_GIO_AUTH="$dir/bin/flea-gio-auth"
+    export DLEA_GIO_AUTH="$dir/bin/dlea-gio-auth"
     launch "$dir"
     export HOME="$real_home"
     wait_listing_wall 3
@@ -1149,7 +1149,7 @@ EOS
     local want_entries='Own slot|network|share|true' seen_entries="" entries_deadline
     entries_deadline=$(( $(date +%s%3N) + 12000 ))
     while (( $(date +%s%3N) < entries_deadline )); do
-        seen_entries=$(timeout 1 "$FLEA_IPC_HELPER" drive -p "$flea_ui/boot" flea networkEntries 2>/dev/null || true)
+        seen_entries=$(timeout 1 "$DLEA_IPC_HELPER" drive -p "$dlea_ui/boot" dlea networkEntries 2>/dev/null || true)
         [[ "$seen_entries" == "$want_entries" ]] && break
         sleep 0.1
     done
@@ -1175,7 +1175,7 @@ EOS
     [[ "$(cat "$state/unmount-uri")" == 'sftp://tester@slot.test/' ]] \
         || fail "networkauth: projected row unmounted its saved descendant URI"
     printf 'NETWORKAUTH descendant-dedup=ok saved-uri=ok mount-uri=ok\n'
-    kill_flea
+    kill_dlea
     : > "$state/mounted"
     printf '%s\n' \
         'dav://tester@plain-default.test/ Plain 80' \
@@ -1199,7 +1199,7 @@ EOS
     [[ "$(ipc networkPort)" == 443 && "$(ipc networkUri)" == 'dav://tester@plain-secure-port.test:443/' ]] \
         || fail "networkauth: dav :443 reparsed as port $(ipc networkPort), URI $(ipc networkUri)"
     printf 'NETWORKAUTH dav-default=80 dav-explicit=443\n'
-    kill_flea
+    kill_dlea
     : > "$bookmarks"
     : > "$state/info-uri"
     export HOME="$fixture_home"
@@ -1257,7 +1257,7 @@ EOS
     key "tester" >/dev/null
     key -k Tab >/dev/null
     [[ "$(ipc networkFocus)" == "Password" ]] || fail "networkauth: Password did not follow Username"
-    printf '%s' "$runtime_canary" | omarchy-drive key --window com.thisisgm.flea - >/dev/null
+    printf '%s' "$runtime_canary" | omarchy-drive key --window com.nosDshell.dlea - >/dev/null
     [[ "$(ipc networkPasswordState)" == "masked|set" ]] \
         || fail "networkauth: typed password is not masked"
     shot networkauth-password-masked
@@ -1281,7 +1281,7 @@ EOS
     [[ "$(ipc dialogOpen)" == "false" ]] || fail "networkauth: successful save left dialog open"
     [[ "$(cat "$helper_log")" == "argc=1 uri=smb://tester@slot.test/data stdin-lines=1" ]] \
         || fail "networkauth: SMB helper route is $(cat "$helper_log")"
-    # A save lands in Flea Favorites, never the shared GTK file, and it carries no secret.
+    # A save lands in Dlea Favorites, never the shared GTK file, and it carries no secret.
     local saved_favourite
     saved_favourite=$(ipc uiSettings | jq -c '.places.favourites[-1]')
     [[ "$saved_favourite" == '{"label":"data","path":"smb://tester@slot.test/data"}' ]] \
@@ -1335,24 +1335,24 @@ EOS
     for _field in Port Share Domain Username Password; do key -k Tab >/dev/null; done
     [[ "$(ipc networkFocus)" == "Password" ]] \
         || fail "networkauth: missing-helper setup did not reach Password"
-    printf '%s' "$runtime_canary" | omarchy-drive key --window com.thisisgm.flea - >/dev/null
-    mv "$dir/bin/flea-gio-auth" "$dir/bin/flea-gio-auth.real"
+    printf '%s' "$runtime_canary" | omarchy-drive key --window com.nosDshell.dlea - >/dev/null
+    mv "$dir/bin/dlea-gio-auth" "$dir/bin/dlea-gio-auth.real"
     helper_attempts=$(wc -l < "$attempt_log")
     key -k Return >/dev/null
     networkauth_wait_attempt "$((helper_attempts + 1))" 127
-    wait_network_status "Could not connect: Flea could not ask for the password." 10
+    wait_network_status "Could not connect: Dlea could not ask for the password." 10
     [[ "$(ipc dialogOpen)" == "true" \
         && "$(ipc networkPasswordState)" == "masked|set" ]] \
         || fail "networkauth: missing helper did not fail closed and retain fields"
     [[ "$(wc -l < "$helper_log")" -eq "$helper_calls" ]] \
         || fail "networkauth: missing helper wrote helper output"
 
-    cp "$dir/bin/flea-gio-auth.real" "$dir/bin/flea-gio-auth"
-    chmod 0644 "$dir/bin/flea-gio-auth"
+    cp "$dir/bin/dlea-gio-auth.real" "$dir/bin/dlea-gio-auth"
+    chmod 0644 "$dir/bin/dlea-gio-auth"
     helper_attempts=$(wc -l < "$attempt_log")
     key -k Return >/dev/null
     networkauth_wait_attempt "$((helper_attempts + 1))" 126
-    wait_network_status "Could not connect: Flea could not ask for the password." 10
+    wait_network_status "Could not connect: Dlea could not ask for the password." 10
     [[ "$(ipc dialogOpen)" == "true" \
         && "$(ipc networkPasswordState)" == "masked|set" ]] \
         || fail "networkauth: permission-denied helper did not fail closed and retain fields"
@@ -1360,12 +1360,12 @@ EOS
         || fail "networkauth: permission-denied helper wrote helper output"
 
     # A helper that never exits must be stopped by the product deadline, not by this driver's wait.
-    cat > "$dir/bin/flea-gio-auth" <<'EOS'
+    cat > "$dir/bin/dlea-gio-auth" <<'EOS'
 #!/bin/sh
 IFS= read -r _password || exit 3
 sleep 120
 EOS
-    chmod +x "$dir/bin/flea-gio-auth"
+    chmod +x "$dir/bin/dlea-gio-auth"
     key -k Return >/dev/null
     wait_network_result mounting 5
     wait_network_result failed 40
@@ -1376,8 +1376,8 @@ EOS
 
     # After another restart the same saved row has no map entry. Submitting its populated form with
     # an empty password keeps it open and does not launch any helper.
-    cp "$dir/bin/flea-gio-auth.real" "$dir/bin/flea-gio-auth"
-    chmod +x "$dir/bin/flea-gio-auth"
+    cp "$dir/bin/dlea-gio-auth.real" "$dir/bin/dlea-gio-auth"
+    chmod +x "$dir/bin/dlea-gio-auth"
     key -k Escape >/dev/null
     export HOME="$fixture_home"
     launch "$dir"
@@ -1401,7 +1401,7 @@ EOS
     for _field in Port Share Domain Username Password; do key -k Tab >/dev/null; done
     [[ "$(ipc networkFocus)" == "Password" ]] \
         || fail "networkauth: corrected-retry setup did not reach Password"
-    printf '%s' "$runtime_canary" | omarchy-drive key --window com.thisisgm.flea - >/dev/null
+    printf '%s' "$runtime_canary" | omarchy-drive key --window com.nosDshell.dlea - >/dev/null
     key -k Return >/dev/null
     wait_network_result mounted
     [[ "$(cat "$state/info-uri")" == "smb://tester@slot.test/data" ]] \
@@ -1426,7 +1426,7 @@ EOS
     key -k Tab >/dev/null
     key "tester" >/dev/null
     key -k Tab >/dev/null
-    printf '%s' "$runtime_canary" | omarchy-drive key --window com.thisisgm.flea - >/dev/null
+    printf '%s' "$runtime_canary" | omarchy-drive key --window com.nosDshell.dlea - >/dev/null
     : > "$state/fail"
     key -k Return >/dev/null
     wait_network_result failed
@@ -1482,8 +1482,8 @@ EOS
         || fail "networkauth: corrected Retry retained stale error text"
 
     printf 'NETWORKAUTH artifact=ok stdin=one persistence=none retry=corrected refused=named eye=held missing-session=no-launch\n'
-    unset FLEA_GIO_AUTH
+    unset DLEA_GIO_AUTH
     export PATH="$saved_path"
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
 }

@@ -52,7 +52,7 @@ pub(super) fn raise_soft_to_hard() {
             }
             Ok(())
         });
-        if let Err(error) = result { eprintln!("flea: {}", error); }
+        if let Err(error) = result { eprintln!("dlea: {}", error); }
     });
 }
 
@@ -61,7 +61,7 @@ mod tests {
     use super::*;
     use std::io::{BufRead, Read, Write};
     use std::process::{Command, Stdio};
-    const CHILD_ENV: &str = "FLEA_PICKER_RAISE_LIMIT_CHILD";
+    const CHILD_ENV: &str = "DLEA_PICKER_RAISE_LIMIT_CHILD";
     const INITIAL_SOFT: c_ulong = 80;
     const HARD_LIMIT: c_ulong = 96;
 
@@ -121,7 +121,7 @@ mod tests {
 
     #[test]
     fn non_picker_backend_keeps_soft_limit_after_a_listing_in_a_child() {
-        const LIST_CHILD_ENV: &str = "FLEA_NON_PICKER_LIMIT_CHILD";
+        const LIST_CHILD_ENV: &str = "DLEA_NON_PICKER_LIMIT_CHILD";
         if std::env::var_os(LIST_CHILD_ENV).is_some() {
             let limit = Limit { soft: INITIAL_SOFT, hard: HARD_LIMIT };
             assert_eq!(unsafe { setrlimit(RLIMIT_NOFILE, &limit) }, 0);
@@ -135,7 +135,7 @@ mod tests {
             .env(LIST_CHILD_ENV, "1")
             .env("XDG_CACHE_HOME", std::env::temp_dir())
             .env_remove(crate::prefetch::LIST_ENV)
-            .env_remove("FLEA_UNDO_DIR")
+            .env_remove("DLEA_UNDO_DIR")
             .env_remove("XDG_RUNTIME_DIR")
             .stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::piped())
             .spawn().unwrap();
@@ -159,7 +159,7 @@ mod tests {
 
     #[test]
     fn picker_budget_uses_the_hard_limit_in_a_child() {
-        const BUDGET_CHILD_ENV: &str = "FLEA_PICKER_HARD_BUDGET_CHILD";
+        const BUDGET_CHILD_ENV: &str = "DLEA_PICKER_HARD_BUDGET_CHILD";
         if super::run_in_child("backend::picker::limits::tests::picker_budget_uses_the_hard_limit_in_a_child", BUDGET_CHILD_ENV) {
             return;
         }

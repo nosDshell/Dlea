@@ -2,7 +2,7 @@
 use super::*;
 use std::io::{Read, Seek};
 
-pub(crate) const PREFIX: &str = "trash:///.flea-topdir/";
+pub(crate) const PREFIX: &str = "trash:///.dlea-topdir/";
 // A record's Path line is at most three times PATH_MAX once encoded, so a larger file is not a record.
 const MAX_RECORD_BYTES: u64 = 16384;
 

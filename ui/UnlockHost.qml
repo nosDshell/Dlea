@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Unlock.js" as Unlock
 
 // Unlock (U039): the encrypted-drive dialog's host, over the whole window.
@@ -12,7 +12,7 @@ Item {
     property var sidebar: null
     property string pendingPath: ""
     property int lockedCursor: -1
-    // The device flea --unlock opened on, until a rail row names it.
+    // The device dlea --unlock opened on, until a rail row names it.
     property string unnamedDevice: ""
     // The pending poller answered once, so its Loader never runs again for this card.
     property bool _namePollDone: false
@@ -44,7 +44,7 @@ Item {
     function fallbackEntries() {
         return namePoller.item ? namePoller.item.entries : root._pollEntries
     }
-    // flea --unlock may open before the rail's first lsblk, so the card shows the device's leaf until its locked row names it.
+    // dlea --unlock may open before the rail's first lsblk, so the card shows the device's leaf until its locked row names it.
     function openForDevice(devicePath, rail) {
         var leaf = String(devicePath || "").split("/").pop()
         openFor(devicePath, leaf, 0, "LUKS", rail)
@@ -141,7 +141,7 @@ Item {
     }
     Component {
         id: pollerComponent
-        Flea.DeviceMounts {}
+        Dlea.DeviceMounts {}
     }
     Connections {
         target: namePoller.item

@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/SheetQuery.js" as SheetQuery
 
 // One result row of the keymap sheet's query: the cursor lift across the card's inner width, the cap, the label with its matched run washed, and the muted where.
@@ -58,7 +58,7 @@ Item {
             elide: Text.ElideRight
         }
     }
-    Flea.MatchText {
+    Dlea.MatchText {
         id: hitLabel
         anchors.left: hitCap.right
         anchors.leftMargin: hit.capGap

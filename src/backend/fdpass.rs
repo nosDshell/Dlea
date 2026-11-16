@@ -224,7 +224,7 @@ mod tests {
     use crate::backend::testdir::TestDir;
     use std::os::unix::fs::MetadataExt;
 
-    const CHILD_ENV: &str = "FLEA_FD_TRUNC_CHILD";
+    const CHILD_ENV: &str = "DLEA_FD_TRUNC_CHILD";
     const TEST_NAME: &str = "backend::fdpass::tests::truncated_stream_descriptors_are_closed";
     const ONE_TEST_PASSED: &str = "test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured;";
 

@@ -12,7 +12,7 @@ import unittest
 from unittest import mock
 
 REPO = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(REPO / "tools/flea-bench-thumbs-lib"))
+sys.path.insert(0, str(REPO / "tools/dlea-bench-thumbs-lib"))
 import cgroup_cpu
 import gpui
 import measure
@@ -20,7 +20,7 @@ import measure
 
 class Candidate(unittest.TestCase):
     def setUp(self):
-        self.root = Path(tempfile.mkdtemp(prefix="gpui-", dir=os.environ["FLEA_B7_TEST_ROOT"]))
+        self.root = Path(tempfile.mkdtemp(prefix="gpui-", dir=os.environ["DLEA_B7_TEST_ROOT"]))
         self.fixture = self.root / "fixture"
         self.fixture.mkdir()
         self.files = []
@@ -40,7 +40,7 @@ class Candidate(unittest.TestCase):
                     height=170 if kind == "thumbnail" else 533, bounds=[10, 10, 256, 170], frame=5, clock=1, **changes)
 
     def write(self, rows):
-        self.log.write_text("".join("FLEA-B7 " + json.dumps(row) + "\n" for row in rows))
+        self.log.write_text("".join("DLEA-B7 " + json.dumps(row) + "\n" for row in rows))
 
     def reader(self):
         reader = gpui.Receipts(self.log, self.token, self.fixture)
@@ -65,7 +65,7 @@ class Candidate(unittest.TestCase):
                 self.reader()
 
     def test_bench_thumbs_reader_never_promotes_diagnostics_or_foreign_tokens(self):
-        self.log.write_text("pixel-change complete\nPREVIEW-QUALITY {}\nflea: trace row=0 total=12\n")
+        self.log.write_text("pixel-change complete\nPREVIEW-QUALITY {}\ndlea: trace row=0 total=12\n")
         self.assertIsNone(self.reader().metrics(16)["all_thumbnails_ms"])
         self.write([dict(self.row(i), token="foreign") for i in range(16)])
         self.assertIsNone(self.reader().metrics(16)["all_thumbnails_ms"])
@@ -99,15 +99,15 @@ class Candidate(unittest.TestCase):
 
     def test_bench_thumbs_reader_cpu_starts_after_sandbox_and_before_private_bus(self):
         scope = cgroup_cpu.Scope(self.root)
-        command = scope.command(["dbus-run-session", "--", "/candidate"], {"FLEA_B7_BENCH": "sample"}, ["bwrap", "--unshare-pid"])
+        command = scope.command(["dbus-run-session", "--", "/candidate"], {"DLEA_B7_BENCH": "sample"}, ["bwrap", "--unshare-pid"])
         self.assertLess(command.index("bwrap"), command.index("--start"))
         self.assertLess(command.index("--start"), command.index("dbus-run-session"))
         self.assertEqual(command[-3:], ["dbus-run-session", "--", "/candidate"])
 
     def test_bench_thumbs_cgroup_membership_names_only_the_b7_scope(self):
-        line = "0::/user.slice/user-1000.slice/user@1000.service/app.slice/flea-b7-sample.scope\n"
+        line = "0::/user.slice/user-1000.slice/user@1000.service/app.slice/dlea-b7-sample.scope\n"
         self.assertEqual(str(cgroup_cpu.scope_group(line)), "/sys/fs/cgroup/" + line.strip().removeprefix("0::/"))
-        for membership in ["0::/user.slice/app.slice/other.scope\n", "0::/user.slice/flea-b7-sample.service\n", line + line, "1:name=systemd:/flea-b7-a.scope\n"]:
+        for membership in ["0::/user.slice/app.slice/other.scope\n", "0::/user.slice/dlea-b7-sample.service\n", line + line, "1:name=systemd:/dlea-b7-a.scope\n"]:
             with self.assertRaises(ValueError):
                 cgroup_cpu.scope_group(membership)
 
@@ -156,7 +156,7 @@ class Candidate(unittest.TestCase):
 
     def test_bench_thumbs_cgroup_start_marker_sees_helpers_bwrap_would_kill(self):
         group = self.fake_group()
-        lib = REPO / "tools/flea-bench-thumbs-lib"
+        lib = REPO / "tools/dlea-bench-thumbs-lib"
         for session, status, lingering in [("exit 0", 0, 0), ("sleep 30 & exit 3", 3, 1)]:
             script = (f"import sys; sys.path.insert(0, {str(lib)!r}); import pathlib, cgroup_cpu\n"
                       f"cgroup_cpu.current_group = lambda: pathlib.Path({str(group)!r}); cgroup_cpu.GRACE_S = 0.2\n"
@@ -169,7 +169,7 @@ class Candidate(unittest.TestCase):
             inside = json.loads((self.root / "cgroup-namespace.json").read_text())
             self.assertEqual((inside["status"], len(inside["remaining_pids"])), (status, lingering))
 
-    def test_bench_thumbs_reader_flea_reaches_collector_and_certifies_outputs(self):
+    def test_bench_thumbs_reader_dlea_reaches_collector_and_certifies_outputs(self):
         self.run_candidate()
 
     def test_bench_thumbs_reader_missing_presented_output_invalidates_run(self):
@@ -179,12 +179,12 @@ class Candidate(unittest.TestCase):
         self.run_candidate(late=True)
 
     def run_candidate(self, missing=False, late=False):
-        binary = self.root / "flea"
+        binary = self.root / "dlea"
         binary.write_text("stub binary")
-        sibling = self.root / "flea-gui"
+        sibling = self.root / "dlea-gui"
         sibling.write_text("stub gui")
         from inventory import digest
-        entrant = dict(id="flea", binary=str(binary), sha256=digest(binary), gui_sha256=digest(sibling), version="0.4.0")
+        entrant = dict(id="dlea", binary=str(binary), sha256=digest(binary), gui_sha256=digest(sibling), version="0.4.0")
         test = self
         launched = {}
         process = types.SimpleNamespace(pid=os.getpid(), poll=lambda: None, wait=lambda **kw: 0)
@@ -196,12 +196,12 @@ class Candidate(unittest.TestCase):
         def quit_entrant(*args):
             if late:
                 with self.log.open("a") as stream:
-                    stream.write("FLEA-B7 " + json.dumps(self.row(0, "preview")) + "\n")
+                    stream.write("DLEA-B7 " + json.dumps(self.row(0, "preview")) + "\n")
             return "close"
 
         def launch(argv, **kwargs):
             self.log = launched["root"] / "app.log"
-            self.token = launched["env"]["FLEA_B7_BENCH"]
+            self.token = launched["env"]["DLEA_B7_BENCH"]
             self.write([self.row(i) for i in range(15 if missing else 16)])
             (launched["root"] / "cgroup-cpu.json").write_text(json.dumps(dict(boundary="private-session-command", start_user_usec=0, end_user_usec=400000, status=0, remaining_pids=[])))
             return process
@@ -223,13 +223,13 @@ class Candidate(unittest.TestCase):
                 else:
                     return
                 with test.log.open("a") as stream:
-                    stream.write("FLEA-B7 " + json.dumps(test.row(self.index, "preview")) + "\n")
+                    stream.write("DLEA-B7 " + json.dumps(test.row(self.index, "preview")) + "\n")
 
             def screenshot(self, root, window, token, name):
                 (root / f"{name}.png").write_bytes(b"stub capture")
 
         with mock.patch.object(cgroup_cpu.Scope, "command", scope_command), mock.patch.object(cgroup_cpu.Scope, "stop"), \
-             mock.patch.object(measure.version_probe, "probe", return_value=dict(version="0.4.0", version_output="flea 0.4.0", version_method="cli")), \
+             mock.patch.object(measure.version_probe, "probe", return_value=dict(version="0.4.0", version_output="dlea 0.4.0", version_method="cli")), \
              mock.patch.object(measure.subprocess, "run", return_value=types.SimpleNamespace(returncode=1)), \
              mock.patch.object(measure.subprocess, "Popen", side_effect=launch), mock.patch.object(measure, "stop"), \
              mock.patch.object(measure, "quit_entrant", side_effect=quit_entrant), \

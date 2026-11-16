@@ -3,7 +3,7 @@ use crate::tui::parity17;
 
 #[test]
 fn a_raw_named_copy_reads_lossy_as_text_and_exact_as_a_uri() {
-    use flea::bytename::ExactText as _;
+    use dlea::bytename::ExactText as _;
     use std::os::unix::ffi::OsStrExt;
     let raw = std::path::Path::new(std::ffi::OsStr::from_bytes(b"/x/r\xff.txt"))
         .exact_text()

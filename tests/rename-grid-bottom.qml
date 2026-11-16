@@ -1,9 +1,9 @@
 import QtQuick
-import "flea"
-import "flea" as Flea
-import "flea/js/Filter.js" as Filter
-import "flea/js/Ops.js" as Ops
-import "flea/js/TextSize.js" as TextSize
+import "dlea"
+import "dlea" as Dlea
+import "dlea/js/Filter.js" as Filter
+import "dlea/js/Ops.js" as Ops
+import "dlea/js/TextSize.js" as TextSize
 // The real GridArea and GridTile must retain and contain a bottom editor through global cell reflow.
 Window {
     id: probe
@@ -95,7 +95,7 @@ Window {
         function showRow(index) { view.positionViewAtIndex(index, ListView.Contain); view.restartCoalesce() }
         function commitRename(name) {}
     }
-    Flea.GridArea {
+    Dlea.GridArea {
         id: view
         width: 1000
         height: 619

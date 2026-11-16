@@ -4,7 +4,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import Quickshell
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Keymap.js" as Keymap
 import "js/Menu.js" as Menu
 
@@ -64,7 +64,7 @@ Item {
 
     // The hover lift Row.qml uses, so a menu row and a list row read alike.
     readonly property real hoverOpacity: Theme.washHover
-    // The rail's mount-status square and the gap the Update Flea board puts between it and the version.
+    // The rail's mount-status square and the gap the Update Dlea board puts between it and the version.
     readonly property int statusSquareSize: 6
     readonly property int statusSquareGap: 7
     // Menus.html resolves the separator to rowGap + hairline, 10 px at base size 14.
@@ -139,7 +139,7 @@ Item {
         height: root.slotSize
 
         // A brand mark is a reproduction and takes its own component; every other row is a cut glyph.
-        Flea.Glyph {
+        Dlea.Glyph {
             anchors.fill: parent
             visible: root.entry.mark === undefined && !appMark.visible && root.entry.tagRow === undefined
             name: root.entry.glyph !== undefined ? root.entry.glyph : "file"
@@ -166,7 +166,7 @@ Item {
             anchors.centerIn: parent
             active: root.entry.mark === "tailscale"
             sourceComponent: Component {
-                Flea.TailscaleMark {
+                Dlea.TailscaleMark {
                     iconSize: root.slotSize
                     color: root.markColor
                 }
@@ -177,7 +177,7 @@ Item {
             anchors.centerIn: parent
             active: root.entry.mark === "dropbox"
             sourceComponent: Component {
-                Flea.DropboxMark {
+                Dlea.DropboxMark {
                     iconSize: root.slotSize
                     color: root.markColor
                 }
@@ -188,19 +188,19 @@ Item {
             anchors.centerIn: parent
             active: root.entry.mark === "localsend"
             sourceComponent: Component {
-                Flea.LocalSendMark {
+                Dlea.LocalSendMark {
                     iconSize: root.slotSize
                     color: root.markColor
                 }
             }
         }
 
-        // The shelf is Flea's own destination, so it carries Flea's own mark rather than a cut glyph.
+        // The shelf is Dlea's own destination, so it carries Dlea's own mark rather than a cut glyph.
         Loader {
             anchors.centerIn: parent
-            active: root.entry.mark === "flea"
+            active: root.entry.mark === "dlea"
             sourceComponent: Component {
-                Flea.FleaMark {
+                Dlea.DleaMark {
                     width: root.slotSize
                     height: root.slotSize
                     color: root.markColor
@@ -226,7 +226,7 @@ Item {
         elide: Text.ElideRight
     }
 
-    // The rail's 6 px mount-status square, borrowed by a row whose hint is a state rather than a key: Update Flea's newer version.
+    // The rail's 6 px mount-status square, borrowed by a row whose hint is a state rather than a key: Update Dlea's newer version.
     Rectangle {
         id: statusSquare
         visible: root.entry.hintSquare === true && root.hint.length > 0
@@ -276,7 +276,7 @@ Item {
         width: root.isSubmenu ? Theme.font.caption : 0
         height: Theme.font.caption
 
-        Flea.Glyph {
+        Dlea.Glyph {
             anchors.fill: parent
             visible: root.isSubmenu
             name: "chevron-right"

@@ -3,7 +3,7 @@ use super::actions::Id;
 use super::{Input, PRESET_KEYS, SHARED_KEYS};
 
 /// Where the file lives under the config home (`$XDG_CONFIG_HOME`, else `~/.config`).
-pub const FILE: &str = "flea/keys.toml";
+pub const FILE: &str = "dlea/keys.toml";
 pub const MAX_BYTES: usize = 64 * 1024;
 pub const MAX_BINDINGS: usize = 256;
 // Chords the window reads before the key table, so a binding there could never fire.
@@ -133,12 +133,12 @@ impl UserBinding {
     }
 }
 
-/// `plugin:action`, the leaf form a plugin menu row dispatches, as `flea --action` reads it.
+/// `plugin:action`, the leaf form a plugin menu row dispatches, as `dlea --action` reads it.
 pub fn is_plugin_id(id: &str) -> bool {
     matches!(super::actions::parse(id), Some(Id::Plugin { .. }))
 }
 
-/// The key table's own `&'static str` for a built-in action id, through the one resolver `flea --action` uses.
+/// The key table's own `&'static str` for a built-in action id, through the one resolver `dlea --action` uses.
 pub fn builtin(id: &str) -> Option<&'static str> {
     match super::actions::parse(id) {
         Some(Id::Builtin(action)) => Some(action),

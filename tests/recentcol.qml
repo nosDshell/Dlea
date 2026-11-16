@@ -1,6 +1,6 @@
 import QtQuick
-import "flea" as Flea
-import "flea/js/Columns.js" as Columns
+import "dlea" as Dlea
+import "dlea/js/Columns.js" as Columns
 
 // Sidebar040: inspect the actual Header and Row items, including the lazy path split.
 Item {
@@ -12,14 +12,14 @@ Item {
     readonly property int hiddenLocationFloor: 375
     readonly property int hiddenUsedFloor: 350
     readonly property var premiseTokens: ({rowPaddingX: 14, gap: 9, iconSize: 23, nameMin: 156, size: 70, date: 125, location: root.locationWidth})
-    readonly property real nameFloor: 2 * Flea.Theme.spacing.rowPaddingX + Flea.Theme.iconSize + Flea.Theme.spacing.gap + Flea.Theme.column.nameMin
-    readonly property real locationFloor: root.nameFloor + Flea.Theme.column.size + Flea.Theme.column.date + root.locationWidth + 3 * Flea.Theme.spacing.gap
-    readonly property real dualNameFloor: 2 * Flea.Theme.spacing.rowPaddingX + Flea.Theme.markSize + Flea.Theme.spacing.gap + Flea.Theme.dualColumn.nameMin
-    readonly property real dualLocationFloor: root.dualNameFloor + Flea.Theme.dualColumn.size + Flea.Theme.dualColumn.date + root.locationWidth + Flea.Theme.spacing.gap
+    readonly property real nameFloor: 2 * Dlea.Theme.spacing.rowPaddingX + Dlea.Theme.iconSize + Dlea.Theme.spacing.gap + Dlea.Theme.column.nameMin
+    readonly property real locationFloor: root.nameFloor + Dlea.Theme.column.size + Dlea.Theme.column.date + root.locationWidth + 3 * Dlea.Theme.spacing.gap
+    readonly property real dualNameFloor: 2 * Dlea.Theme.spacing.rowPaddingX + Dlea.Theme.markSize + Dlea.Theme.spacing.gap + Dlea.Theme.dualColumn.nameMin
+    readonly property real dualLocationFloor: root.dualNameFloor + Dlea.Theme.dualColumn.size + Dlea.Theme.dualColumn.date + root.locationWidth + Dlea.Theme.spacing.gap
     readonly property var file: ({n: "Documents/a-very-long-parent-directory/another-long-parent-directory/notes.txt", p: 33188, d: false, s: 18000, m: 1758835200})
     readonly property var longFile: Object.assign({}, root.file, {n: "Documents/a-very-long-parent-directory/another-long-parent-directory/a-very-long-filename-that-must-use-the-whole-name-column-and-keep-its-extension.txt"})
 
-    Flea.Header {
+    Dlea.Header {
         id: header
         width: root.paneWidth
         recent: true
@@ -28,24 +28,24 @@ Item {
         sortDesc: true
         pane: ({rows: [root.file], kindNames: []})
     }
-    Flea.Row { id: recent; width: header.contentWidth; row: root.file; recenting: true; hiddenCols: [] }
-    Flea.Row { id: longRecent; width: recent.width; row: root.longFile; recenting: true; hiddenCols: [] }
-    Flea.Header { id: floorHeader; width: root.locationFloor + Flea.Theme.spacing.rowPaddingX; recent: true; hiddenCols: [] }
-    Flea.Row { id: floorRow; width: floorHeader.contentWidth; row: root.file; recenting: true; hiddenCols: [] }
-    Flea.Header { id: narrowHeader; width: root.locationFloor - root.belowFloor + Flea.Theme.spacing.rowPaddingX; recent: true; hiddenCols: [] }
-    Flea.Row { id: narrow; width: narrowHeader.contentWidth; row: root.file; recenting: true; hiddenCols: [] }
-    Flea.Row { id: search; width: recent.width; row: root.file; searchQuery: "notes"; hiddenCols: [] }
-    Flea.Row { id: plain; width: recent.width; row: root.file; hiddenCols: [] }
-    Flea.Header { id: changingHeader; width: root.paneWidth; hiddenCols: [] }
-    Flea.Row { id: changing; row: root.file; hiddenCols: []; assignedCols: Flea.Theme.columns(width, hiddenCols) }
-    Flea.Header {
+    Dlea.Row { id: recent; width: header.contentWidth; row: root.file; recenting: true; hiddenCols: [] }
+    Dlea.Row { id: longRecent; width: recent.width; row: root.longFile; recenting: true; hiddenCols: [] }
+    Dlea.Header { id: floorHeader; width: root.locationFloor + Dlea.Theme.spacing.rowPaddingX; recent: true; hiddenCols: [] }
+    Dlea.Row { id: floorRow; width: floorHeader.contentWidth; row: root.file; recenting: true; hiddenCols: [] }
+    Dlea.Header { id: narrowHeader; width: root.locationFloor - root.belowFloor + Dlea.Theme.spacing.rowPaddingX; recent: true; hiddenCols: [] }
+    Dlea.Row { id: narrow; width: narrowHeader.contentWidth; row: root.file; recenting: true; hiddenCols: [] }
+    Dlea.Row { id: search; width: recent.width; row: root.file; searchQuery: "notes"; hiddenCols: [] }
+    Dlea.Row { id: plain; width: recent.width; row: root.file; hiddenCols: [] }
+    Dlea.Header { id: changingHeader; width: root.paneWidth; hiddenCols: [] }
+    Dlea.Row { id: changing; row: root.file; hiddenCols: []; assignedCols: Dlea.Theme.columns(width, hiddenCols) }
+    Dlea.Header {
         id: dualHeader
         width: floorHeader.width
         dualMode: true
         recent: true
         hiddenCols: []
     }
-    Flea.Row {
+    Dlea.Row {
         id: dualRow
         width: dualHeader.contentWidth
         row: root.file
@@ -53,14 +53,14 @@ Item {
         recenting: true
         hiddenCols: []
     }
-    Flea.Header {
+    Dlea.Header {
         id: dualFloorHeader
-        width: root.dualLocationFloor + Flea.Theme.spacing.rowPaddingX
+        width: root.dualLocationFloor + Dlea.Theme.spacing.rowPaddingX
         dualMode: true
         recent: true
         hiddenCols: []
     }
-    Flea.Row {
+    Dlea.Row {
         id: dualFloorRow
         width: dualFloorHeader.contentWidth
         row: root.file
@@ -68,14 +68,14 @@ Item {
         recenting: true
         hiddenCols: []
     }
-    Flea.Header {
+    Dlea.Header {
         id: dualNarrowHeader
-        width: root.dualLocationFloor - root.belowFloor + Flea.Theme.spacing.rowPaddingX
+        width: root.dualLocationFloor - root.belowFloor + Dlea.Theme.spacing.rowPaddingX
         dualMode: true
         recent: true
         hiddenCols: []
     }
-    Flea.Row {
+    Dlea.Row {
         id: dualNarrowRow
         width: dualNarrowHeader.contentWidth
         row: root.file
@@ -190,8 +190,8 @@ Item {
         check("Unlaid row has boolean Location", changing.cols.location, false)
         changing.width = recent.width
         var hidden = ["mode", "kind", "size", "date"]
-        var sets = [Flea.Theme.columns(changing.width, []), Flea.Theme.columns(changing.width, hidden),
-            Flea.Theme.dualColumns(changing.width, []), Flea.Theme.dualColumns(changing.width, hidden)]
+        var sets = [Dlea.Theme.columns(changing.width, []), Dlea.Theme.columns(changing.width, hidden),
+            Dlea.Theme.dualColumns(changing.width, []), Dlea.Theme.dualColumns(changing.width, hidden)]
         for (var i = 0; i < sets.length; i++) {
             changing.assignedCols = sets[i]
             changing.recenting = true
@@ -199,7 +199,7 @@ Item {
             check("Recent transition " + i + " reports the old assignment", changing.columnSet(), Columns.names(sets[i]))
             check("Recent transition " + i + " seam agrees with hidden Location", changing.columnSet().indexOf("location") >= 0, root.texts(changing, walk).location !== null)
             check("Recent transition " + i + " builds its location text", root.texts(changing, walk).locations, 1)
-            changing.assignedCols = Flea.Theme.columns(changing.width, i % 2 ? hidden : [], undefined, true)
+            changing.assignedCols = Dlea.Theme.columns(changing.width, i % 2 ? hidden : [], undefined, true)
             check("Recent transition " + i + " rebuilds Location", changing.cols.location, true)
             check("Recent transition " + i + " draws Location", root.texts(changing, walk).location !== null, true)
             check("Recent transition " + i + " reports the Recent assignment", changing.columnSet(), Columns.names(changing.assignedCols))
@@ -234,7 +234,7 @@ Item {
         check("Dual Recent header and row sets agree", dualRow.columnSet(), dualHeader.columnSet())
         check("Dual Recent builds its name", dualTexts.name !== null, true)
         if (dualTexts.name)
-            check("Dual Recent name stays above the dual floor", dualTexts.name.width >= Flea.Theme.dualColumn.nameMin, true)
+            check("Dual Recent name stays above the dual floor", dualTexts.name.width >= Dlea.Theme.dualColumn.nameMin, true)
         var full = root.texts(dualFloorRow, walk)
         check("Dual Recent draws Location at its exact floor", dualFloorHeader.columnSet(), "name,location,size,date")
         check("Dual Recent exact-floor row matches its header", dualFloorRow.columnSet(), dualFloorHeader.columnSet())
@@ -244,14 +244,14 @@ Item {
         check("Dual Recent below-floor row drops Location", dualNarrowRow.columnSet().indexOf("location"), -1)
         check("Dual Recent below-floor header and row sets agree", dualNarrowRow.columnSet(), dualNarrowHeader.columnSet())
         check("Dual Recent below-floor row draws no Location", below.location !== null, false)
-        check("Dual Recent uses the dual Size width", dualFloorRow.cell("size").width, Flea.Theme.dualColumn.size)
+        check("Dual Recent uses the dual Size width", dualFloorRow.cell("size").width, Dlea.Theme.dualColumn.size)
         check("Dual Recent Size header matches its row", dualFloorHeader.cell("size").width, dualFloorRow.cell("size").width)
         if (full.name && full.location) {
             var locationX = full.location.mapToItem(dualFloorRow, 0, 0).x
             check("Dual Recent Location header aligns with its row", dualFloorHeader.cell("location").x, locationX)
             check("Dual Recent keeps the zero Location-to-Size gap", locationX + full.location.width, dualFloorRow.cell("size").x)
             check("Dual Recent location keeps the board width", full.location.width, root.locationWidth)
-            check("Dual Recent exact-floor name stays above the dual minimum", full.name.width >= Flea.Theme.dualColumn.nameMin, true)
+            check("Dual Recent exact-floor name stays above the dual minimum", full.name.width >= Dlea.Theme.dualColumn.nameMin, true)
         }
     }
 
@@ -267,7 +267,7 @@ Item {
                 var missingMetadataWidth = -1
                 var disappearedWidth = -1
                 for (var width = 0; width <= root.paneWidth; width++) {
-                    var cols = Flea.Theme.columns(width, hidden, root.wideDateWidth, true, panes[p].dual)
+                    var cols = Dlea.Theme.columns(width, hidden, root.wideDateWidth, true, panes[p].dual)
                     if (cols.location && missingMetadataWidth < 0
                         && ((hidden.indexOf("size") < 0 && !cols.size)
                             || (hidden.indexOf("date") < 0 && !cols.date)))
@@ -311,10 +311,10 @@ Item {
             check("Recent location head elides", r.location.elide, Text.ElideLeft)
             check("Recent location is long enough to elide", r.location.truncated, true)
             check("Recent location is left aligned", r.location.horizontalAlignment, Text.AlignLeft)
-            check("Recent location uses caption type", r.location.font.pixelSize, Flea.Theme.font.caption)
+            check("Recent location uses caption type", r.location.font.pixelSize, Dlea.Theme.font.caption)
             check("Recent location uses row metadata ink", String(r.location.color), String(recent.cellInk))
-            check("Recent name fills its own column", r.name.width, r.location.x - Flea.Theme.spacing.gap)
-            check("Recent location ends before Size", locationX + r.location.width + Flea.Theme.spacing.gap, recent.cell("size").x)
+            check("Recent name fills its own column", r.name.width, r.location.x - Dlea.Theme.spacing.gap)
+            check("Recent location ends before Size", locationX + r.location.width + Dlea.Theme.spacing.gap, recent.cell("size").x)
             check("Recent short name no longer shrinks its slot", r.name.width > r.name.implicitWidth, true)
         }
         if (h) {
@@ -350,14 +350,14 @@ Item {
         check("Narrow Recent titles omit Location", narrowHeader.titles(), "Name|Size|Used")
         check("Narrow Recent draws no location", n.location ? n.location.visible && n.location.width > 0 : false, false)
         check("Narrow Recent draws its name", n.name !== null && n.name.visible, true)
-        if (n.name) check("Narrow Recent name fills the available slot", n.name.width, narrow.cell("size").x - n.name.mapToItem(narrow, 0, 0).x - Flea.Theme.spacing.gap)
+        if (n.name) check("Narrow Recent name fills the available slot", n.name.width, narrow.cell("size").x - n.name.mapToItem(narrow, 0, 0).x - Dlea.Theme.spacing.gap)
         check("Search builds both path texts", s.name !== null && s.location !== null, true)
         if (s.name && s.location) {
             check("Search keeps its inline name share", s.name.width, Math.min(s.name.implicitWidth, search.searchSlot * search.nameShare))
-            check("Search location follows its name", s.location.x, s.name.width + Flea.Theme.spacing.gap)
+            check("Search location follows its name", s.location.x, s.name.width + Dlea.Theme.spacing.gap)
             check("Search location keeps head elision", s.location.elide, Text.ElideLeft)
         }
         check("Ordinary row builds no location text", root.texts(plain, walk).locations, 0)
-        console.log("RECENTCOL floor=" + root.locationFloor + " row-width; pane-floor=" + (root.locationFloor + Flea.Theme.spacing.rowPaddingX))
+        console.log("RECENTCOL floor=" + root.locationFloor + " row-width; pane-floor=" + (root.locationFloor + Dlea.Theme.spacing.rowPaddingX))
     }
 }

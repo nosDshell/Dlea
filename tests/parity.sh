@@ -25,7 +25,7 @@ import sys
 
 repo, root = map(Path, sys.argv[1:])
 assert root.is_absolute() and (root / '.parity-test-root').is_file()
-tool = [sys.executable, '-B', str(repo / 'tools/flea-parity')]
+tool = [sys.executable, '-B', str(repo / 'tools/dlea-parity')]
 fixture = repo / 'tests/fixtures/parity'
 options = ['--tree', str(fixture), '--pending', str(fixture / 'PENDING.md'),
            '--design', str(fixture / 'design-hig'), '--layout', str(fixture / 'ci/default.layout')]
@@ -42,7 +42,7 @@ def run(args, code=0, reason=''):
     result = subprocess.run(tool + args, text=True, capture_output=True)
     check(result.returncode == code, f'exit {code}, got {result.returncode}: {result.stderr}')
     if code:
-        check(bool(reason) and result.stderr.startswith('flea-parity: ') and reason in result.stderr,
+        check(bool(reason) and result.stderr.startswith('dlea-parity: ') and reason in result.stderr,
               f'rejection needs {reason!r}, got {result.stderr!r}')
         check(not result.stdout, 'a rejected inventory emits no matrix')
     return result.stdout
@@ -65,8 +65,8 @@ check(all(row['status'] == 'open' for row in rows), 'status defaults to open')
 by_id = {row['id']: row for row in rows}
 check(by_id['qml:ui/Ipc.qml']['lines'] == str(len((fixture / 'ui/Ipc.qml').read_text().splitlines())),
       'QML line count comes from the input')
-check(by_id['ipc:flea.ready']['source'] == 'ui/Ipc.qml:7', 'IPC declaration line is exact')
-check(by_id['ipc:fleapicker.ready']['family'] == 'Picker', 'picker target has its own identity and owner')
+check(by_id['ipc:dlea.ready']['source'] == 'ui/Ipc.qml:7', 'IPC declaration line is exact')
+check(by_id['ipc:dleapicker.ready']['family'] == 'Picker', 'picker target has its own identity and owner')
 check(not any('nested' in row['id'] or 'commented' in row['id'] for row in rows), 'IPC helpers are excluded')
 binding = next(row for row in rows if row['kind'] == 'binding' and row['action'] == 'preview')
 check((binding['key'], binding['context'], binding['preset']) == ('ctrl+P', 'listing,preview', 'default'),
@@ -98,7 +98,7 @@ check(sum(row['source'].startswith('tests/preview-groups.qml:') for row in rows)
       'g06-r2-1 and r5: behavior assertions and primitive failure receipts are all inventoried')
 check(sum(row['source'].startswith('tests/preview-check-groups.qml:') for row in rows) == 17,
       'g06-r3-1 and r5: every behavior failure and primitive failure receipt stays visible')
-module = runpy.run_path(str(repo / 'tools/flea-parity'))
+module = runpy.run_path(str(repo / 'tools/dlea-parity'))
 for name, expected in [('preview-wrappers.qml', {'check', 'finish', 'see', 'seeView', 'relay', 'cycleA',
                                                'cycleB', 'forward', 'arrow', 'block', 'unused', 'demand', 'plan'}),
                        ('preview-wrappers.js', {'record', 'deferred', 'indirect', 'block', 'first', 'second',
@@ -140,22 +140,22 @@ check(len(preserved) == 64 and all(row['id'] in by_id and by_id[row['id']]['sour
 status = root / 'status.tsv'
 status.write_text('id\tstatus\nevidence-missing\tgreen\n')
 run(options + ['--status', str(status)], code=2, reason="unknown status row: ['evidence-missing', 'green']")
-status.write_text('id\tstatus\nipc:flea.ready\tgreen\n')
-run(options + ['--status', str(status)], code=2, reason='green row requires an existing evidence file: ipc:flea.ready')
-status.write_text('id\tstatus\tevidence\nipc:flea.ready\tgreen\t\n')
-run(options + ['--status', str(status)], code=2, reason='green row requires an existing evidence file: ipc:flea.ready')
-status.write_text('id\tstatus\tevidence\nipc:flea.ready\tgreen\tevidence.txt\nboard:picker\tgreen\t\n')
+status.write_text('id\tstatus\nipc:dlea.ready\tgreen\n')
+run(options + ['--status', str(status)], code=2, reason='green row requires an existing evidence file: ipc:dlea.ready')
+status.write_text('id\tstatus\tevidence\nipc:dlea.ready\tgreen\t\n')
+run(options + ['--status', str(status)], code=2, reason='green row requires an existing evidence file: ipc:dlea.ready')
+status.write_text('id\tstatus\tevidence\nipc:dlea.ready\tgreen\tevidence.txt\nboard:picker\tgreen\t\n')
 run(options + ['--status', str(status)], code=2, reason='green row requires an existing evidence file: board:picker')
-status.write_text('id\tstatus\tevidence\nipc:flea.ready\tgreen\tmissing.log\n')
+status.write_text('id\tstatus\tevidence\nipc:dlea.ready\tgreen\tmissing.log\n')
 rejected_output = root / 'rejected.tsv'
 run(options + ['--status', str(status), '--out', str(rejected_output)], code=2,
-    reason='green row requires an existing evidence file: ipc:flea.ready')
+    reason='green row requires an existing evidence file: ipc:dlea.ready')
 check(not rejected_output.exists(), 'green without existing evidence never writes a matrix')
-status.write_text('id\tstatus\tevidence\nipc:flea.ready\tgreen\tevidence.txt\nboard:picker\truled out\t\n')
+status.write_text('id\tstatus\tevidence\nipc:dlea.ready\tgreen\tevidence.txt\nboard:picker\truled out\t\n')
 overlay = parse(run(options + ['--status', str(status)]))
 check(sum(row['status'] == 'green' for row in overlay) == 1 and
       sum(row['status'] == 'ruled out' for row in overlay) == 1, 'exact status overlay')
-check(next(row for row in overlay if row['id'] == 'ipc:flea.ready')['evidence'] == 'evidence.txt',
+check(next(row for row in overlay if row['id'] == 'ipc:dlea.ready')['evidence'] == 'evidence.txt',
       'green evidence resolves against the tree and remains in the matrix')
 summary = run(options + ['--status', str(status), '--summary'])
 check('green\tpercent\t0.67\n' in summary and 'status\truled out\t1\n' in summary,
@@ -179,8 +179,8 @@ check(markdown.startswith('| kind | id | source |') and '\\|' in markdown, 'Mark
 check(len(markdown.splitlines()) == len(rows) + 2, 'one Markdown row per artifact')
 status.write_text('id\tstatus\nmissing:row\tgreen\n')
 run(options + ['--status', str(status)], code=2, reason="unknown status row: ['missing:row', 'green']")
-status.write_text('ipc:flea.ready\tgreen\tevidence.txt\nipc:flea.ready\topen\n')
-run(options + ['--status', str(status)], code=2, reason="duplicate or unknown status row: ['ipc:flea.ready', 'open']")
+status.write_text('ipc:dlea.ready\tgreen\tevidence.txt\nipc:dlea.ready\topen\n')
+run(options + ['--status', str(status)], code=2, reason="duplicate or unknown status row: ['ipc:dlea.ready', 'open']")
 
 # Two prefixed rows on one key ("m b" and ", b" in yazi) are two bindings, so neither collides with the other.
 prefixed = root / 'prefixed'
@@ -205,7 +205,7 @@ source = copy / 'ui/Ipc.qml'
 source.write_text('// source insertion\n' + source.read_text())
 modified = parse(run(modified_options))
 check({row['id'] for row in modified} == by_id.keys(), 'source insertions preserve all IDs')
-check(next(row for row in modified if row['id'] == 'ipc:flea.ready')['source'] == 'ui/Ipc.qml:8',
+check(next(row for row in modified if row['id'] == 'ipc:dlea.ready')['source'] == 'ui/Ipc.qml:8',
       'source insertion updates source line')
 group = copy / 'tests/preview-groups.qml'
 text = group.read_text()
@@ -245,7 +245,7 @@ for label in ('input-a', 'input-b'):
     shutil.copytree(fixture / 'ci', container / 'ci')
     shutil.copyfile(fixture / 'PENDING.md', container / 'PENDING.md')
     overlay_path = container / 'status.tsv'
-    overlay_path.write_text(f'id\tstatus\tevidence\nipc:flea.ready\tgreen\t{container}/tree/evidence.txt\n')
+    overlay_path.write_text(f'id\tstatus\tevidence\nipc:dlea.ready\tgreen\t{container}/tree/evidence.txt\n')
     relocated.append(run(['--tree', str(container / 'tree'), '--pending', str(container / 'PENDING.md'),
                           '--design', str(container / 'design-hig'), '--layout', str(container / 'ci/default.layout'),
                           '--status', str(overlay_path)]))
@@ -376,25 +376,25 @@ for form, (sites, represented) in sink_counts.items():
 print(f'parity exclusions: {excluded}; known successful Qt exits only; comments, literal data and declarations are not sink sites')
 # Neutral defaults: the tool names no operator path, so each board root and layout comes from a flag or its variable.
 def run_neutral(args, env=None):
-    inherited = {key: value for key, value in os.environ.items() if key not in ('FLEA_PARITY_DESIGN', 'FLEA_PARITY_LAYOUT')}
+    inherited = {key: value for key, value in os.environ.items() if key not in ('DLEA_PARITY_DESIGN', 'DLEA_PARITY_LAYOUT')}
     return subprocess.run(tool + args, text=True, capture_output=True, env={**inherited, **(env or {})})
 
 
 tree_only = ['--tree', str(fixture), '--pending', str(fixture / 'PENDING.md')]
 refused = run_neutral(tree_only)
-check(refused.returncode == 2 and refused.stderr == 'flea-parity: --design is required (or FLEA_PARITY_DESIGN)\n'
+check(refused.returncode == 2 and refused.stderr == 'dlea-parity: --design is required (or DLEA_PARITY_DESIGN)\n'
       and not refused.stdout, f'no design path refuses by name: {refused.returncode} {refused.stderr!r}')
 refused = run_neutral(tree_only + ['--design', str(fixture / 'design-hig')])
-check(refused.returncode == 2 and refused.stderr == 'flea-parity: --layout is required (or FLEA_PARITY_LAYOUT)\n'
+check(refused.returncode == 2 and refused.stderr == 'dlea-parity: --layout is required (or DLEA_PARITY_LAYOUT)\n'
       and not refused.stdout, f'no layout path refuses by name: {refused.returncode} {refused.stderr!r}')
-blank = run_neutral(tree_only, {'FLEA_PARITY_DESIGN': ''})
-check(blank.returncode == 2 and blank.stderr == 'flea-parity: --design is required (or FLEA_PARITY_DESIGN)\n',
+blank = run_neutral(tree_only, {'DLEA_PARITY_DESIGN': ''})
+check(blank.returncode == 2 and blank.stderr == 'dlea-parity: --design is required (or DLEA_PARITY_DESIGN)\n',
       'an empty design variable counts as unset')
-from_env = run_neutral(tree_only, {'FLEA_PARITY_DESIGN': str(fixture / 'design-hig'),
-                                   'FLEA_PARITY_LAYOUT': str(fixture / 'ci/default.layout')})
+from_env = run_neutral(tree_only, {'DLEA_PARITY_DESIGN': str(fixture / 'design-hig'),
+                                   'DLEA_PARITY_LAYOUT': str(fixture / 'ci/default.layout')})
 check(from_env.returncode == 0 and from_env.stdout == output, 'environment paths reproduce the flag inventory byte for byte')
-overridden = run_neutral(options, {'FLEA_PARITY_DESIGN': str(root / 'absent-design'),
-                                   'FLEA_PARITY_LAYOUT': str(root / 'absent.layout')})
+overridden = run_neutral(options, {'DLEA_PARITY_DESIGN': str(root / 'absent-design'),
+                                   'DLEA_PARITY_LAYOUT': str(root / 'absent.layout')})
 check(overridden.returncode == 0 and overridden.stdout == output, 'flags take precedence over environment paths')
 
 
@@ -405,7 +405,7 @@ XDG_BASES = ('.config', '.cache', '.local')
 HOME_PATH = re.compile(re.escape(HOME_TOKEN) + r'[A-Za-z0-9_][A-Za-z0-9._-]*')
 TILDE_PATH = re.compile(re.escape(TILDE_TOKEN) + r'([A-Za-z0-9_.][A-Za-z0-9._-]*)')
 # What the parity tool owns: the tool, its default --map, this suite and its fixture tree.
-PARITY_SCOPE = ('tools/flea-parity', 'tools/flea-parity.map', 'tests/parity.sh', 'tests/fixtures/parity')
+PARITY_SCOPE = ('tools/dlea-parity', 'tools/dlea-parity.map', 'tests/parity.sh', 'tests/fixtures/parity')
 # What this run wrote: the --out matrix and the completeness audit's sink report.
 PARITY_OUTPUTS = (saved.name, sink_report.name)
 

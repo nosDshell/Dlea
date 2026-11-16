@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Shapes
 
-// One mark on the Omarchy cut, drawn from a 24 unit path the way Flea's own ui/Glyph.qml draws it:
+// One mark on the Omarchy cut, drawn from a 24 unit path the way Dlea's own ui/Glyph.qml draws it:
 // 2px stroke, square caps, mitre joins, no fill. The shelf carries its own copy because it ships as
 // its own repository at release and a plugin cannot import the app's components.
 Item {

@@ -12,7 +12,7 @@ repo = Path(__file__).resolve().parents[3]
 parent = repo / ".superpowers/nr"
 parent.mkdir(parents=True, exist_ok=True)
 root = Path(tempfile.mkdtemp(prefix="c.", dir=parent)).resolve()
-(root / ".flea-test-sandbox").touch()
+(root / ".dlea-test-sandbox").touch()
 probe = '''import ctypes, os, socket
 from pathlib import Path
 runtime = Path(os.environ["XDG_RUNTIME_DIR"])
@@ -29,8 +29,8 @@ if not display:
 client.wl_display_disconnect(display)
 with socket.socket(socket.AF_UNIX) as input_socket:
     input_socket.connect(str(runtime / ".ydotool_socket"))
-with open(os.environ["FLEA_RUNTIME_PROBE_LOG"], "a") as report:
-    report.write(os.environ["FLEA_FRONTEND"] + " PASS\\n")
+with open(os.environ["DLEA_RUNTIME_PROBE_LOG"], "a") as report:
+    report.write(os.environ["DLEA_FRONTEND"] + " PASS\\n")
 '''
 adapters = ("op2", "mn2", "op3", "pk2", "pl4")
 picker_suites = ("picker-040", "picker-grid", "picker-header", "picker-hunt", "picker-recent",
@@ -40,7 +40,7 @@ picker_suites = ("picker-040", "picker-grid", "picker-header", "picker-hunt", "p
 def stage_at(label, adapter):
     stage = root / label
     (stage / "tests/native/g2").mkdir(parents=True)
-    (stage / ".flea-test-sandbox").touch()
+    (stage / ".dlea-test-sandbox").touch()
     (stage / "fixture/data").mkdir(parents=True)
     shutil.copyfile(repo / f"tests/native/g2/{adapter}.sh", stage / f"tests/native/g2/{adapter}.sh")
     (stage / "probe.py").write_text(probe)
@@ -57,8 +57,8 @@ def stage_at(label, adapter):
 def environment(stage, runtime, display):
     return dict(PATH="/usr/bin:/bin", HOME=str(stage / "operator-home"), W=str(stage),
                 Q_BIN="/usr/bin/true", G_BIN="/usr/bin/true", XDG_RUNTIME_DIR=str(runtime),
-                WAYLAND_DISPLAY=display, FLEA_VISUAL_DESIGN=str(stage),
-                FLEA_RUNTIME_PROBE_LOG=str(stage / "probe.log"))
+                WAYLAND_DISPLAY=display, DLEA_VISUAL_DESIGN=str(stage),
+                DLEA_RUNTIME_PROBE_LOG=str(stage / "probe.log"))
 
 
 def run_adapter(stage, env, adapter):
@@ -95,7 +95,7 @@ for adapter in adapters:
             (stage / "adapter.log").write_text(result.stdout + result.stderr)
             report = stage / "probe.log"
             lines = report.read_text().splitlines() if report.exists() else []
-            passed = (result.returncode == 2 and "scene CLI tools/flea-ci-visual is absent" in result.stderr
+            passed = (result.returncode == 2 and "scene CLI tools/dlea-ci-visual is absent" in result.stderr
                       and {"qml PASS", "gpui PASS"}.issubset(lines) and set(runtime.iterdir()) == entries)
             if not passed:
                 failures.append(label)

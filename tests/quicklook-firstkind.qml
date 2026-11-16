@@ -1,4 +1,4 @@
-//@ pragma ShellId flea-quicklook-firstkind-test
+//@ pragma ShellId dlea-quicklook-firstkind-test
 
 import QtQuick
 import QtTest

@@ -143,7 +143,7 @@ def shell_root(label):
         (root / directory).mkdir(parents=True, exist_ok=True)
     (root / "views/a.txt").write_text("source\n")
     (root / "previews/notes.md").write_text("# Release notes\n\nBody\n")
-    (root / "run/flea-second.log").touch()
+    (root / "run/dlea-second.log").touch()
     return root
 
 
@@ -156,14 +156,14 @@ def shell_run(root, script, argument):
 
 WINDOWS_STUBS = r'''
 sweep_launch() { :; }
-flea_pid() { printf '101\n'; }
+dlea_pid() { printf '101\n'; }
 xwdrag_qsid() { printf '%s\n' "$1"; }
 xwdrag_launch_second() { XW_SECOND_PID=202; XW_SECOND_ID=202; }
 xwdrag_cleanup() { :; }
 case_xwdrag_cleanup() { :; }
 xwdrag_signal_cleanup() { :; }
 xwdrag_kill_second() { :; }
-kill_flea() { :; }
+kill_dlea() { :; }
 xwdrag_focus() { :; }
 xwdrag_key() { :; }
 xwdrag_addr() { printf '0x%s\n' "$1"; }
@@ -262,8 +262,8 @@ ipc() {
 
 PICKER_STUBS = r"""
 fixture_root="$sweep_root"
-flea_bin=/nonexistent/flea
-flea_ui=/nonexistent/ui
+dlea_bin=/nonexistent/dlea
+dlea_ui=/nonexistent/ui
 sandbox_make() { mkdir -p "$1"; }
 fixture_home_make() { mkdir -p "$1"; }
 sweep_views() { :; }
@@ -538,9 +538,9 @@ def socket_depth_case():
     namespace = picker_functions(("socket_fits", "private_runtime"), {"os": os, "Path": Path, "tempfile": tempfile})
     fits = namespace["socket_fits"]
     # Sample input: the runtime dir of native-sweep038r4n, where Quickshell failed to start its IPC server.
-    deep = "/home/flea-sandbox/sweep038r4n.p23fAc3R/fixture/flea-ui-fixtures-2459770/capsweep-current/picker/run"
+    deep = "/home/dlea-sandbox/sweep038r4n.p23fAc3R/fixture/dlea-ui-fixtures-2459770/capsweep-current/picker/run"
     assert not fits(deep), "a runtime dir too deep for an IPC socket was accepted"
-    assert fits("/tmp/flea-ui-run.myJunPPO/picker-run-abcd1234"), "the suite's run root was refused"
+    assert fits("/tmp/dlea-ui-run.myJunPPO/picker-run-abcd1234"), "the suite's run root was refused"
     tail = f"/quickshell/by-id/{'x' * namespace['QS_INSTANCE_ID_CHARS']}/ipc.sock"
     room = namespace["SOCKET_PATH_MAX_BYTES"] - len(tail)
     assert fits("/" + "r" * (room - 1)), "a socket path of exactly the limit was refused"
@@ -565,16 +565,16 @@ def socket_depth_case():
 def reply_owner_case():
     # A child with a crafted environment stands in for the picker: owned_window reads /proc/<pid>/environ.
     with tempfile.TemporaryDirectory(prefix="capsweep-reply-") as base:
-        runtime, home, binary = Path(base) / "runtime", Path(base) / "home", Path(base) / "flea"
+        runtime, home, binary = Path(base) / "runtime", Path(base) / "home", Path(base) / "dlea"
         for directory in (runtime, home, Path(base) / "elsewhere"):
             directory.mkdir()
         for label, reply, refused in (("inside", runtime / "reply", False), ("outside", Path(base) / "elsewhere/reply", True)):
-            environment = {"HOME": str(home), "FLEA_PICKER_REPLY": str(reply), "FLEA_BIN": str(binary)}
+            environment = {"HOME": str(home), "DLEA_PICKER_REPLY": str(reply), "DLEA_BIN": str(binary)}
             child = subprocess.Popen(["sleep", str(CONTROL_TIMEOUT_SECONDS)], env=environment)
             try:
                 namespace = picker_functions(("owned_window",), {
                     "os": os, "Path": Path, "title": "Owned test picker", "picker_pid": child.pid,
-                    "runtime": runtime, "theme_home": home, "picker_env": {"FLEA_BIN": str(binary)},
+                    "runtime": runtime, "theme_home": home, "picker_env": {"DLEA_BIN": str(binary)},
                     "windows": lambda: [{"title": "Owned test picker", "pid": child.pid, "address": "0xabc"}]})
                 try:
                     namespace["owned_window"]()

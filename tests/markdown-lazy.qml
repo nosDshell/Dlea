@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-markdown-lazy-test
+//@ pragma ShellId dlea-markdown-lazy-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // Render about 560 KiB from 2500 sections of five source blocks through the real lazy preview.
 ShellRoot {
@@ -11,7 +11,7 @@ ShellRoot {
     function log(line) { console.log("MARKDOWN_LAZY " + line) }
     function quit() { Quickshell.execDetached(["kill", String(Quickshell.processId)]) }
 
-    property string fixture: Quickshell.env("FLEA_MARKDOWN_FIXTURE")
+    property string fixture: Quickshell.env("DLEA_MARKDOWN_FIXTURE")
     property bool done: false
 
     FloatingWindow {
@@ -20,7 +20,7 @@ ShellRoot {
         implicitHeight: 1120
         color: "#101315"
 
-        Flea.PreviewMarkdown {
+        Dlea.PreviewMarkdown {
             id: md
             anchors.top: parent.top
             anchors.left: parent.left
@@ -94,7 +94,7 @@ ShellRoot {
     }
 
     Component.onCompleted: {
-        if (shell.fixture.length === 0) shell.fail("no fixture arrived in FLEA_MARKDOWN_FIXTURE")
+        if (shell.fixture.length === 0) shell.fail("no fixture arrived in DLEA_MARKDOWN_FIXTURE")
         else if (md.contentReady) Qt.callLater(shell.report)
     }
 

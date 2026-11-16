@@ -2,7 +2,7 @@
 use super::plugins::{handle, Env};
 use super::testdir::TestDir;
 use crate::uistore::Store;
-use flea::ui_logic_plugin_settings::wire::{self, Listing, Outcome, Plugin, Reply, Source};
+use dlea::ui_logic_plugin_settings::wire::{self, Listing, Outcome, Plugin, Reply, Source};
 use std::cell::RefCell;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
@@ -18,9 +18,9 @@ fn synced(on: bool) -> Result<(), String> {
 
 pub(super) fn env(dir: &TestDir) -> Env {
     Env {
-        dir: dir.join("config/flea/plugins"),
+        dir: dir.join("config/dlea/plugins"),
         store: Store::at(&dir.join("state"), &dir.join("config")),
-        pile: dir.join("state/omarchy/flea-shelf/shelf.json"),
+        pile: dir.join("state/omarchy/dlea-shelf/shelf.json"),
         shelf_sync: synced,
         plugin_manager: PathBuf::from("omarchy"),
         ready_deadline: Duration::from_millis(1500),
@@ -72,10 +72,10 @@ fn st2_backend_a_fresh_list_is_the_five_built_ins_as_they_ship() {
     let (none, listing) = ask(&env(&dir), r#"{"c":"plugins","op":"list","id":4}"#);
     assert!(none.is_none() && listing.id == 4);
     let shipped: Vec<(&str, bool, &Source)> = listing.plugins.iter().map(|p| (p.manifest.id.as_str(), p.enabled, &p.source)).collect();
-    assert_eq!(shipped, [("flea.shelf", false, &Source::Builtin), ("flea.localsend", true, &Source::Builtin),
-                         ("flea.tailscale", true, &Source::Builtin), ("flea.dropbox", true, &Source::Builtin),
-                         ("flea.airdrop", false, &Source::Builtin)]);
-    let shelf = get(&listing, "flea.shelf").shelf.clone().expect("the Shelf's page input");
+    assert_eq!(shipped, [("dlea.shelf", false, &Source::Builtin), ("dlea.localsend", true, &Source::Builtin),
+                         ("dlea.tailscale", true, &Source::Builtin), ("dlea.dropbox", true, &Source::Builtin),
+                         ("dlea.airdrop", false, &Source::Builtin)]);
+    let shelf = get(&listing, "dlea.shelf").shelf.clone().expect("the Shelf's page input");
     assert_eq!((shelf.recent, shelf.rail.as_str(), shelf.pins.len()), (3, "off", 0));
 }
 
@@ -84,19 +84,19 @@ fn st2_backend_the_shelf_checkbox_is_shelf_enabled_and_moves_the_bar() {
     let dir = TestDir::new("st2-shelf");
     let env = env(&dir);
     SYNCED.with(|s| s.borrow_mut().clear());
-    let (done, listing) = ask(&env, r#"{"c":"plugins","op":"enable","id":1,"plugin":"flea.shelf"}"#);
+    let (done, listing) = ask(&env, r#"{"c":"plugins","op":"enable","id":1,"plugin":"dlea.shelf"}"#);
     assert_eq!(code(done), "");
-    assert!(get(&listing, "flea.shelf").enabled);
+    assert!(get(&listing, "dlea.shelf").enabled);
     assert!(stored(&env).contains(r#""shelf":{"enabled":true"#), "{}", stored(&env));
-    let (_, listing) = ask(&env, r#"{"c":"plugins","op":"enable","id":2,"plugin":"flea.shelf"}"#);
-    assert!(get(&listing, "flea.shelf").enabled);
-    ask(&env, r#"{"c":"plugins","op":"disable","id":3,"plugin":"flea.shelf"}"#);
+    let (_, listing) = ask(&env, r#"{"c":"plugins","op":"enable","id":2,"plugin":"dlea.shelf"}"#);
+    assert!(get(&listing, "dlea.shelf").enabled);
+    ask(&env, r#"{"c":"plugins","op":"disable","id":3,"plugin":"dlea.shelf"}"#);
     assert_eq!(SYNCED.with(|s| s.borrow().clone()), [true, false], "the bar follows a change of the switch, once each way");
-    let (done, _) = ask(&env, r#"{"c":"plugins","op":"set","id":4,"plugin":"flea.shelf","key":"rail","value":"left"}"#);
+    let (done, _) = ask(&env, r#"{"c":"plugins","op":"set","id":4,"plugin":"dlea.shelf","key":"rail","value":"left"}"#);
     assert_eq!(code(done), "");
-    let (refused, listing) = ask(&env, r#"{"c":"plugins","op":"set","id":5,"plugin":"flea.shelf","key":"recent","value":4}"#);
+    let (refused, listing) = ask(&env, r#"{"c":"plugins","op":"set","id":5,"plugin":"dlea.shelf","key":"recent","value":4}"#);
     assert_eq!(code(refused), "setting", "a count the row does not offer is refused");
-    assert_eq!(get(&listing, "flea.shelf").shelf.as_ref().unwrap().rail, "left");
+    assert_eq!(get(&listing, "dlea.shelf").shelf.as_ref().unwrap().rail, "left");
 }
 
 #[test]
@@ -104,13 +104,13 @@ fn st2_backend_switching_a_built_in_off_keeps_it_off_without_touching_the_bar() 
     let dir = TestDir::new("st2-builtin");
     let env = env(&dir);
     SYNCED.with(|s| s.borrow_mut().clear());
-    let (_, listing) = ask(&env, r#"{"c":"plugins","op":"disable","id":1,"plugin":"flea.tailscale"}"#);
-    assert!(!get(&listing, "flea.tailscale").enabled);
-    assert!(stored(&env).contains(r#""plugins":{"flea.tailscale":{"enabled":false}}"#));
+    let (_, listing) = ask(&env, r#"{"c":"plugins","op":"disable","id":1,"plugin":"dlea.tailscale"}"#);
+    assert!(!get(&listing, "dlea.tailscale").enabled);
+    assert!(stored(&env).contains(r#""plugins":{"dlea.tailscale":{"enabled":false}}"#));
     assert!(SYNCED.with(|s| s.borrow().is_empty()));
-    let (refused, _) = ask(&env, r#"{"c":"plugins","op":"remove","id":2,"plugin":"flea.tailscale"}"#);
-    assert_eq!(code(refused), "builtin", "a built-in comes with Flea and has no Remove");
-    let (refused, _) = ask(&env, r#"{"c":"plugins","op":"update","id":3,"plugin":"flea.dropbox"}"#);
+    let (refused, _) = ask(&env, r#"{"c":"plugins","op":"remove","id":2,"plugin":"dlea.tailscale"}"#);
+    assert_eq!(code(refused), "builtin", "a built-in comes with Dlea and has no Remove");
+    let (refused, _) = ask(&env, r#"{"c":"plugins","op":"update","id":3,"plugin":"dlea.dropbox"}"#);
     assert_eq!(code(refused), "builtin");
 }
 
@@ -147,7 +147,7 @@ fn st2_backend_an_add_refuses_what_is_not_a_plugin_by_its_own_code() {
     assert_eq!(add("relative/path"), "not_found");
     assert_eq!(add(&dir.join("absent").display().to_string()), "not_found");
     assert_eq!(add(&dir.dir("empty").display().to_string()), "no_manifest");
-    let reserved = plugin(&dir, "reserved", "flea.mine", READY);
+    let reserved = plugin(&dir, "reserved", "dlea.mine", READY);
     assert_eq!(add(&reserved.display().to_string()), "reserved");
     let broken = dir.dir("broken");
     dir.file("broken/manifest.json", "{\"schemaVersion\":1");
@@ -208,7 +208,7 @@ fn st2_backend_a_setting_is_clamped_before_it_is_stored_and_remove_forgets_it() 
     ask(&env, &format!(r#"{{"c":"plugins","op":"add","id":1,"source":"{}"}}"#, source.display()));
     let (done, listing) = ask(&env, r#"{"c":"plugins","op":"set","id":2,"plugin":"me.set","key":"n","value":99}"#);
     assert_eq!(code(done), "");
-    assert_eq!(get(&listing, "me.set").settings, [("n".into(), flea::ui_logic_plugin_settings::schema::Value::Int(10))]);
+    assert_eq!(get(&listing, "me.set").settings, [("n".into(), dlea::ui_logic_plugin_settings::schema::Value::Int(10))]);
     assert!(stored(&env).contains(r#""me.set":{"enabled":false,"settings":{"n":10}}"#), "{}", stored(&env));
     assert_eq!(code(ask(&env, r#"{"c":"plugins","op":"set","id":3,"plugin":"me.set","key":"missing","value":1}"#).0), "setting");
     assert_eq!(code(ask(&env, r#"{"c":"plugins","op":"set","id":3,"plugin":"me.nobody","key":"n","value":1}"#).0), "unknown");
@@ -224,9 +224,9 @@ fn st2_backend_a_setting_is_clamped_before_it_is_stored_and_remove_forgets_it() 
 fn st2_backend_a_broken_folder_lists_as_failed_under_its_folder_name() {
     let dir = TestDir::new("st2-broken");
     let env = env(&dir);
-    dir.dir("config/flea/plugins/half.done");
-    dir.file("config/flea/plugins/half.done/manifest.json", "{\"schemaVersion\":");
-    dir.dir("config/flea/plugins/.hidden");
+    dir.dir("config/dlea/plugins/half.done");
+    dir.file("config/dlea/plugins/half.done/manifest.json", "{\"schemaVersion\":");
+    dir.dir("config/dlea/plugins/.hidden");
     let (_, listing) = ask(&env, r#"{"c":"plugins","op":"list","id":1}"#);
     assert_eq!(listing.plugins.len(), 6, "a dot folder is not a plugin");
     let broken = get(&listing, "half.done");
@@ -253,11 +253,11 @@ fn st2_backend_a_request_it_cannot_read_is_refused_with_its_id() {
 fn plugin_runtime_builtin_shelf_requests_move_the_bar_each_way() {
     let dir = TestDir::new("plugin-runtime-builtin-shelf");
     let env = env(&dir);
-    let (done, _) = ask(&env, r#"{"c":"plugins","op":"enable","id":1,"plugin":"flea.shelf"}"#);
+    let (done, _) = ask(&env, r#"{"c":"plugins","op":"enable","id":1,"plugin":"dlea.shelf"}"#);
     assert_eq!(code(done), "");
     SYNCED.with(|s| s.borrow_mut().clear());
     for (id, action) in [(2, "enable"), (3, "disable")] {
-        let line = format!(r#"{{"c":"plugins","op":"runtime","id":{id},"plugin":"flea.shelf","request":{{"op":"shelf","action":"{action}"}}}}"#);
+        let line = format!(r#"{{"c":"plugins","op":"runtime","id":{id},"plugin":"dlea.shelf","request":{{"op":"shelf","action":"{action}"}}}}"#);
         let reply = handle(&line, &env);
         assert!(reply[0].contains(r#""ok":true"#), "{action}: {reply:?}");
     }
@@ -266,12 +266,12 @@ fn plugin_runtime_builtin_shelf_requests_move_the_bar_each_way() {
 
 #[test]
 fn plugin_ready_deadline_matches_the_published_contract() {
-    let contract = flea::jsondoc::parse(flea::plugin_runtime::protocol::CONTRACT).unwrap();
+    let contract = dlea::jsondoc::parse(dlea::plugin_runtime::protocol::CONTRACT).unwrap();
     assert_eq!(
         crate::backend::plugins::READY_DEADLINE.as_secs_f64(),
         contract
             .get("readyTimeoutSeconds")
-            .and_then(flea::jsondoc::Json::as_f64)
+            .and_then(dlea::jsondoc::Json::as_f64)
             .unwrap(),
     );
 }

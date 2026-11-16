@@ -214,7 +214,7 @@ case_cap_archives() {
         shot archives-free-space-refusal
     fi
     printf 'CAP_ARCHIVES submenu=with-password-last dialog=rest,mismatch,focus,encrypt-off,eye,cancel,submit,format,zip extract=card,cancel,submit,wrong iso=%s free-space=%s\n' "$iso_ok" "$huge_ok"
-    kill_flea
+    kill_dlea
 }
 
 # Hue by Theme's own rule, printed as one CAP_HSF line; refuse-hue fails on hue, record only notes it.
@@ -299,7 +299,7 @@ case_cap_archives_format_live() {
     settle
     assert_theme
     shot archives-format-focus-live
-    kill_flea
+    kill_dlea
 }
 
 # Format focus on kanagawa through a child HOME, one shot.
@@ -307,8 +307,8 @@ case_cap_archives_format_kanagawa() {
     local dir="$fixture_root/cap-archives-format-kanagawa" menus_checks=0 src="${kanagawa_colors:-/usr/share/omarchy/themes/kanagawa/colors.toml}"
     command -v 7z >/dev/null || { printf 'CAP SKIP cap-archives-format-kanagawa: 7z is not installed\n'; return 0; }
     [[ -f "$src" ]] || fail "cap_archives_format_kanagawa: kanagawa colors.toml absent at $src"
-    local sweep_root="$fixture_root/cap-archives-format-kanagawa-home" sweep_home="$fixture_root/cap-archives-format-kanagawa-home/home" sweep_real_bin="$flea_bin"
-    local real_foreground="" flea_bin="$flea_bin"
+    local sweep_root="$fixture_root/cap-archives-format-kanagawa-home" sweep_home="$fixture_root/cap-archives-format-kanagawa-home/home" sweep_real_bin="$dlea_bin"
+    local real_foreground="" dlea_bin="$dlea_bin"
     sandbox_make "$sweep_root"
     fixture_home_make "$sweep_home"
     local real_state_dir="$sweep_home/.local/state/omarchy/current"
@@ -316,13 +316,13 @@ case_cap_archives_format_kanagawa() {
     printf 'kanagawa\n' > "$sweep_home/.local/state/omarchy/current/theme.name"
     # Sample input, one line of colors.toml: foreground = "#dcd7ba"
     real_foreground=$(python3 -c 'import pathlib,sys,tomllib; print(tomllib.loads(pathlib.Path(sys.argv[1]).read_text())["foreground"].lower())' "$sweep_home/.local/state/omarchy/current/theme/colors.toml")
-    local -a flea_launch_wrap=()
+    local -a dlea_launch_wrap=()
     if [[ "$test_frontend" == gpui ]]; then
-        flea_launch_wrap=(env "HOME=$sweep_home" "XDG_CONFIG_HOME=$sweep_home/.config")
+        dlea_launch_wrap=(env "HOME=$sweep_home" "XDG_CONFIG_HOME=$sweep_home/.config")
     else
-        flea_bin="$sweep_root/launcher"
-        { printf '#!/usr/bin/env bash\n'; printf 'exec env HOME=%q %q "$@"\n' "$sweep_home" "$sweep_real_bin"; } > "$flea_bin"
-        chmod +x "$flea_bin"
+        dlea_bin="$sweep_root/launcher"
+        { printf '#!/usr/bin/env bash\n'; printf 'exec env HOME=%q %q "$@"\n' "$sweep_home" "$sweep_real_bin"; } > "$dlea_bin"
+        chmod +x "$dlea_bin"
     fi
     cap_archives_format_hue "$sweep_home/.local/state/omarchy/current/theme/colors.toml" refuse-hue
     cap_archives_format_open "$dir"
@@ -330,7 +330,7 @@ case_cap_archives_format_kanagawa() {
     settle
     assert_theme
     shot archives-format-focus-kanagawa
-    kill_flea
+    kill_dlea
 }
 
 # Issue 397: two marked archives offer Extract, and choosing it extracts each into its own folder.
@@ -370,7 +370,7 @@ case_cap_archives_several() {
     printf 'CAP several landed=%s\n' "$(ls -A "$dir" | tr '\n' ' ')"
     settle
     shot archives-several-done
-    kill_flea
+    kill_dlea
 }
 
 # Soak S1B-3, S1B-5, S1B-6: taken output names step to the next copy name, an extract says its own receipt, a climbing zip is refused.
@@ -438,5 +438,5 @@ case_cap_archives_names() {
     settle
     shot archives-names-extract-dotdot
     printf 'CAP names landed=%s\n' "$(ls -A "$dir" | tr '\n' ' ')"
-    kill_flea
+    kill_dlea
 }

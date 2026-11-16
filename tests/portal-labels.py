@@ -6,7 +6,7 @@ import unittest
 
 
 ROOT = Path(__file__).resolve().parents[1]
-request_for = runpy.run_path(str(ROOT / "tools/flea-portal"))["request_for"]
+request_for = runpy.run_path(str(ROOT / "tools/dlea-portal"))["request_for"]
 CASES = (
     ("_Open", "Open"),
     ("_OK", "OK"),

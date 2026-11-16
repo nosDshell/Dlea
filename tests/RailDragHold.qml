@@ -1,6 +1,6 @@
 import QtQuick
-import "flea" as Flea
-import "flea/js/Drag.js" as DragOps
+import "dlea" as Dlea
+import "dlea/js/Drag.js" as DragOps
 
 // A real internal row drag reaches child DropAreas without pointer hover, then leaves the overlay rail.
 Item {
@@ -59,9 +59,9 @@ Item {
             root.catcher = root.host.children.filter(function (item) { return item.objectName === "dragReveal" })[0] || null
             root.report("the rail catcher is found by name", root.catcher !== null, true)
             // An unrelated area before the catcher makes a depth-first first-area lookup read the wrong receiver.
-            var decoy = childTarget.createObject(root.host.children[0], { keys: ["application/x-flea-priority-decoy"] })
+            var decoy = childTarget.createObject(root.host.children[0], { keys: ["application/x-dlea-priority-decoy"] })
             root.report("an unrelated area precedes the named catcher", root.dropArea(root.host) === decoy, true)
-            Flea.ViewState.changeLeaf("places", { showTags: true, favourites: [{ label: "Drag hold", path: root.pane.path + "/Documents" }] })
+            Dlea.ViewState.changeLeaf("places", { showTags: true, favourites: [{ label: "Drag hold", path: root.pane.path + "/Documents" }] })
             root.pane.tags().take([{ n: "note.txt", tg: ["Red"] }], true)
             return true
         }]

@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-raildrop-undo-test
+//@ pragma ShellId dlea-raildrop-undo-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/Drag.js" as Drag
+import "dlea" as Dlea
+import "dlea/js/Drag.js" as Drag
 
 // A real pane receives a rail drop with the keyboard on the rail, then undoes it through Qt's key delivery.
 ShellRoot {
@@ -74,7 +74,7 @@ ShellRoot {
         id: window
         implicitWidth: 1000
         implicitHeight: 650
-        Flea.WindowBody { id: body; host: window }
+        Dlea.WindowBody { id: body; host: window }
         Item { anchors.fill: parent; TestEvent { id: driver } }
     }
     Timer {

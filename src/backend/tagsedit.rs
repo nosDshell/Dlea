@@ -1,13 +1,13 @@
 use super::tags::known;
-use crate::error::FleaError;
+use crate::error::DleaError;
 
 // Sample input: (["Custom", "Red"], "toggle", "Red") answers ["Custom"], the foreign name untouched.
-pub fn apply(names: &[String], op: &str, tag: &str) -> Result<Vec<String>, FleaError> {
+pub fn apply(names: &[String], op: &str, tag: &str) -> Result<Vec<String>, DleaError> {
     if op == "clear" {
         return Ok(Vec::new());
     }
     if !matches!(op, "add" | "remove" | "toggle") {
-        return Err(FleaError {
+        return Err(DleaError {
             where_: "settags".into(),
             path: op.into(),
             msg: "a tag change is add, remove, toggle or clear".into(),
@@ -33,9 +33,9 @@ pub fn apply(names: &[String], op: &str, tag: &str) -> Result<Vec<String>, FleaE
 }
 
 // Sample input: "red" answers "Red"; "Custom" answers "Custom"; "" and "a,b" refuse.
-fn check_tag(tag: &str) -> Result<String, FleaError> {
+fn check_tag(tag: &str) -> Result<String, DleaError> {
     let trimmed = tag.trim();
-    let refuse = |msg: &str| FleaError { where_: "settags".into(), path: tag.into(), msg: msg.into() };
+    let refuse = |msg: &str| DleaError { where_: "settags".into(), path: tag.into(), msg: msg.into() };
     if trimmed.contains(',') {
         return Err(refuse("a tag cannot contain a comma"));
     }

@@ -80,7 +80,7 @@ fn spawn_relayed(
 impl Process {
     // A reaped, harmless child lets the player's normal poll path observe a completed process.
     pub fn finished() -> Self {
-        let mut child = Command::new(flea::testpath::tool("/usr/bin/true")).env_clear().stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null()).spawn().expect("true starts");
+        let mut child = Command::new(dlea::testpath::tool("/usr/bin/true")).env_clear().stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null()).spawn().expect("true starts");
         child.wait().expect("true is reaped");
         let input = File::open("/dev/null").expect("/dev/null opens");
         Self { child, directory: PathBuf::from("/nonexistent"), _input: input, poster: Arc::new(AtomicBool::new(false)), forwarder: None }
@@ -278,7 +278,7 @@ fn arguments(
 }
 fn temporary() -> io::Result<PathBuf> {
     let output = crate::backend::locale::command("mktemp")
-        .args(["-d", "/tmp/flea-tui-XXXXXX"])
+        .args(["-d", "/tmp/dlea-tui-XXXXXX"])
         .output()?;
     if !output.status.success() {
         return Err(super::preview::words::issue("tui.preview.socket_create", "Could not create preview socket directory"));
@@ -288,15 +288,15 @@ fn temporary() -> io::Result<PathBuf> {
         || path.parent() != Some(Path::new("/tmp"))
         || !path
             .file_name()
-            .is_some_and(|p| p.to_string_lossy().starts_with("flea-tui-"))
+            .is_some_and(|p| p.to_string_lossy().starts_with("dlea-tui-"))
     {
         return Err(super::preview::words::issue("tui.preview.socket_sandbox", "Preview socket directory is outside its sandbox"));
     }
     OpenOptions::new()
         .write(true)
         .create_new(true)
-        .open(path.join(".flea-tui-owned"))?
-        .write_all(b"flea")?;
+        .open(path.join(".dlea-tui-owned"))?
+        .write_all(b"dlea")?;
     Ok(path)
 }
 fn cleanup(root: &Path) {
@@ -304,13 +304,13 @@ fn cleanup(root: &Path) {
         || root.parent() != Some(Path::new("/tmp"))
         || !root
             .file_name()
-            .is_some_and(|p| p.to_string_lossy().starts_with("flea-tui-"))
+            .is_some_and(|p| p.to_string_lossy().starts_with("dlea-tui-"))
         || !fs::symlink_metadata(root).is_ok_and(|m| m.file_type().is_dir())
-        || fs::read(root.join(".flea-tui-owned")).ok().as_deref() != Some(b"flea")
+        || fs::read(root.join(".dlea-tui-owned")).ok().as_deref() != Some(b"dlea")
     {
         return;
     }
-    for name in ["ipc", ".flea-tui-owned"] {
+    for name in ["ipc", ".dlea-tui-owned"] {
         let path = root.join(name);
         if path.is_absolute() && path.starts_with(root) && path != root {
             let _ = fs::remove_file(path);

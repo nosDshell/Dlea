@@ -10,7 +10,7 @@ ffmpeg -v error -f lavfi -i testsrc=size=1620x1080:rate=1 -frames:v 1 \
   -flags:v +bitexact -map_metadata -1 preview.jpg
 ```
 
-The committed seed makes generator output independent of the installed encoder version. Its decoded SHA-256 is `15df570e067e83527c5142010bdd416a032bbc7418d80960f558e3f85bdac85d`; `SHA256SUMS` pins the generated DNG. To rebuild, create a fresh absolute directory with its own `.flea-test-sandbox` marker, then run `python3 tests/fixtures/raw/generate.py /absolute/marked/root`. The generator refuses existing output.
+The committed seed makes generator output independent of the installed encoder version. Its decoded SHA-256 is `15df570e067e83527c5142010bdd416a032bbc7418d80960f558e3f85bdac85d`; `SHA256SUMS` pins the generated DNG. To rebuild, create a fresh absolute directory with its own `.dlea-test-sandbox` marker, then run `python3 tests/fixtures/raw/generate.py /absolute/marked/root`. The generator refuses existing output.
 
 IFD0 holds the uncompressed CFA plane, Make `Canon`, Model `Canon EOS R6`, Orientation 1, and pointers to the EXIF IFD and reduced-preview SubIFD. The latter carries Compression 7, StripOffsets and StripByteCounts for the real JPEG. EXIF carries ExposureTime 1/250, FNumber 28/10, ISO 400, LensModel `RF35mm F1.8 MACRO IS STM`, FocalLength 35/1, DateTimeOriginal `2026:09:12 18:31:00`, and PixelXDimension/PixelYDimension 6000/4000.
 

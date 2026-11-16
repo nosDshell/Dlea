@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-trash-view-test
+//@ pragma ShellId dlea-trash-view-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "qml-probe.js" as QmlProbe
 
 // tests/trash-view.sh's harness: the real ui/TrashHost.qml and ui/TrashView.qml over fixture replies, with the real ui/ContextMenu.qml. Rows keep the order the backend gives; the harness hands them in newest deleted first, and the backend's own order is tested in src/backend/trashbrowse.rs.
@@ -79,15 +79,15 @@ ShellRoot {
         implicitHeight: 560
         color: "#303030"
 
-        Flea.TrashHost {
+        Dlea.TrashHost {
             id: host
             // The host's own relative source does not resolve through the symlinked ui/ directory this harness imports.
-            source: Qt.resolvedUrl("flea/TrashView.qml")
+            source: Qt.resolvedUrl("dlea/TrashView.qml")
             width: 800
             height: 500
             pane: pane
         }
-        Flea.ContextMenu { id: menu; anchors.fill: parent }
+        Dlea.ContextMenu { id: menu; anchors.fill: parent }
         TestEvent { id: keys }
     }
 
@@ -107,7 +107,7 @@ ShellRoot {
     }
     function rowPoint(index) {
         var row = host.item.rowItemFor(index)
-        return row.mapToItem(menu, Flea.Theme.spacing.rowPaddingX, row.height)
+        return row.mapToItem(menu, Dlea.Theme.spacing.rowPaddingX, row.height)
     }
     function menuLabels() { return menu.railEntries.filter(function (e) { return !e.separator }).map(function (e) { return e.label }) }
     function placed() { return { x: Math.round(menu.placeX), y: Math.round(menu.placeY) } }
@@ -167,7 +167,7 @@ ShellRoot {
             keys.keyClickChar("m", Qt.NoModifier, -1)
             shell.step = 7
         } else if (shell.step === 7 && menu.opened) {
-            var top = host.item.mapToItem(menu, host.item.width / 2, Flea.Theme.chromeHeight)
+            var top = host.item.mapToItem(menu, host.item.width / 2, Dlea.Theme.chromeHeight)
             shell.check("m with two rows marked opens the marked rows' menu", shell.menuLabels(), ["Restore"])
             shell.check("where it opened before, at the top centre", shell.placed(), shell.at(top))
             shell.check("built once", shell.menuBuilds, 1)

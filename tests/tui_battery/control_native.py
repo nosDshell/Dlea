@@ -91,8 +91,8 @@ def _path(control, context, text, keys, owner, contract=None, mode="legacy", sco
                 contract=contract, mode=mode, scope=scope, flag=flag, states=states)
 
 
-# Every TUI-03 required key path (FLEA-REQUIRED-KEY-PATHS.tsv) names the control check that must observe it natively.
-KEY_PATH_AUDIT = {"source": "TUI-03 FLEA-REQUIRED-KEY-PATHS.tsv (id, preset, context, input)",
+# Every TUI-03 required key path (DLEA-REQUIRED-KEY-PATHS.tsv) names the control check that must observe it natively.
+KEY_PATH_AUDIT = {"source": "TUI-03 DLEA-REQUIRED-KEY-PATHS.tsv (id, preset, context, input)",
                   "sha256": "0d75ca4a72a8b40468a79c9f7bbe62a5b9d095904bbdff6cd38d43544f84091c",
                   "ids": ("open-tab-enhanced", "open-tab-plain", "redo-enhanced", "redo-plain", "mkdir-enhanced",
                           "mkdir-plain", "shift-delete-legacy", "E-editor", "I-detail", "print", "contents", "convert-F",
@@ -167,7 +167,7 @@ def key_path_coverage():
 def launch_flags(argv):
     for size in (0, 2):
         k = len(argv) - 3 - size
-        if k >= 0 and argv[k:k+2] == ["/opt/flea", "--tui"]:
+        if k >= 0 and argv[k:k+2] == ["/opt/dlea", "--tui"]:
             tail = argv[k+2:-1]
             if (not tail or (tail[0] in LAUNCH_FLAGS and tail[1].startswith("/"))
                     or tail == ["--tui-keymap", "yazi"]):
@@ -488,7 +488,7 @@ def native_case(proof, identity, terminal, control=None):
         raise Blocked("real command exit codes are required")
     launch, relay_spec = load(case / "launch-spec.json"), load(case / "relay-spec.json")
     argv = relay_spec.get("argv", [])
-    binding = ["--ro-bind", identity.get("binary"), "/opt/flea"]
+    binding = ["--ro-bind", identity.get("binary"), "/opt/dlea"]
     if (not launch.get("argv") or not argv or argv[0] != "bwrap" or "--unshare-all" not in argv
             or not any(argv[i:i+3] == binding for i in range(len(argv)-2))
             or len(argv) < 3 or launch_flags(argv) is None

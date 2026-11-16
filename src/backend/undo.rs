@@ -1,7 +1,7 @@
-// The undo journal, designed in from the first operation, which is why nothing in Flea needs a confirm dialog.
+// The undo journal, designed in from the first operation, which is why nothing in Dlea needs a confirm dialog.
 use crate::backend::renamecompat::rename_path;
 use crate::backend::trash;
-use crate::error::{from_io, FleaError};
+use crate::error::{from_io, DleaError};
 use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 
@@ -32,13 +32,13 @@ impl ItemIdentity {
     pub(crate) fn from_parts(dev: u64, ino: u64, kind: u32, len: u64, mtime: (i64, i64), changed: (i64, i64), born: Option<(u64, u32)>) -> Self {
         Self { dev, ino, kind, len, mtime, changed, born }
     }
-    pub fn inspect(path: &std::path::Path) -> Result<Self, FleaError> {
+    pub fn inspect(path: &std::path::Path) -> Result<Self, DleaError> {
         #[cfg(test)]
         super::opsprobe::table_read(path);
         Self::inspect_in(path, &std::fs::read_to_string("/proc/self/mountinfo").unwrap_or_default())
     }
     // The same against a mount table the caller read once, so a pass over a thousand names does not read it a thousand times.
-    pub fn inspect_in(path: &std::path::Path, body: &str) -> Result<Self, FleaError> {
+    pub fn inspect_in(path: &std::path::Path, body: &str) -> Result<Self, DleaError> {
         let owned = path.to_path_buf();
         super::iomount::call(path, body, "journal", move || {
             owned.symlink_metadata().map(|meta| Self::record(&meta))
@@ -173,7 +173,7 @@ pub struct Journal {
     recorded: Option<UndoToken>,
     // Entries a busy shared lock turned away, filed in order before any later entry.
     pending: Vec<Entry>,
-    redo: Vec<Result<super::redo::Replay, FleaError>>,
+    redo: Vec<Result<super::redo::Replay, DleaError>>,
     shared: Option<super::undoshare::Shared>,
     // Entries queue behind open trash or rename reservations, so they file in acceptance order.
     gate: super::journalgate::Gate,
@@ -424,11 +424,11 @@ impl Journal {
     }
 
     // A failing step stops the rest, mode and tag steps skip changed paths with a note, and shared entries reattach this backend's manifests.
-    pub fn undo(&mut self) -> Result<String, FleaError> {
+    pub fn undo(&mut self) -> Result<String, DleaError> {
         self.undo_matching(None)
     }
 
-    fn undo_matching(&mut self, token: Option<&UndoToken>) -> Result<String, FleaError> {
+    fn undo_matching(&mut self, token: Option<&UndoToken>) -> Result<String, DleaError> {
         self.last_touched = Reached::default();
         self.retry_pending();
         if self.has_pending() {
@@ -455,14 +455,14 @@ impl Journal {
                 }
                 Err(()) => {
                     self.shared = None;
-                    return Err(FleaError { where_: "undo".into(), path: String::new(), msg: "the undo history could not be read".into() });
+                    return Err(DleaError { where_: "undo".into(), path: String::new(), msg: "the undo history could not be read".into() });
                 }
             };
             self.revision = self.revision.wrapping_add(1);
             // The claim already spent the barrier, so this answers and never replays it.
             if is_barrier(&entry) {
                 self.prune();
-                return Err(FleaError { where_: "undo".into(), path: String::new(), msg: "That operation was too large to undo.".into() });
+                return Err(DleaError { where_: "undo".into(), path: String::new(), msg: "That operation was too large to undo.".into() });
             }
             for step in &mut entry.steps {
                 if let Step::Copied { manifest, manifest_nonce: Some(nonce), .. } = step {
@@ -527,7 +527,7 @@ impl Journal {
                 let partial = Entry { op: entry.op.clone(), steps: restored.clone() };
                 self.redo.push(super::redo::Replay::capture(partial));
             }
-            return Err(FleaError { where_: "undo".into(), path: String::new(),
+            return Err(DleaError { where_: "undo".into(), path: String::new(),
                 msg: match restored.len() {
                     0 => super::redo::left_in_place(&skipped),
                     1 => format!("{}; 1 item was restored for redo", super::redo::left_in_place(&skipped)),
@@ -539,7 +539,7 @@ impl Journal {
         Ok(op)
     }
 
-    pub fn redo_info(&mut self) -> Result<(String, usize), FleaError> {
+    pub fn redo_info(&mut self) -> Result<(String, usize), DleaError> {
         self.retry_pending();
         if self.has_pending() {
             return Err(err("the undo history is busy; try again"));
@@ -551,13 +551,13 @@ impl Journal {
         }
         match self.redo.last() {
             Some(Ok(replay)) => Ok((replay.op().to_string(), replay.len())),
-            Some(Err(error)) => Err(FleaError { where_: "redo".into(), path: error.path.clone(), msg: error.msg.clone() }),
-            None => Err(FleaError { where_: "redo".into(), path: String::new(), msg: "there is nothing to redo".into() }),
+            Some(Err(error)) => Err(DleaError { where_: "redo".into(), path: error.path.clone(), msg: error.msg.clone() }),
+            None => Err(DleaError { where_: "redo".into(), path: String::new(), msg: "there is nothing to redo".into() }),
         }
     }
 
     pub fn redo(&mut self, id: usize, cancel: &std::sync::atomic::AtomicBool,
-                tx: &std::sync::mpsc::Sender<super::opsreq::OpMsg>) -> Result<String, FleaError> {
+                tx: &std::sync::mpsc::Sender<super::opsreq::OpMsg>) -> Result<String, DleaError> {
         self.retry_pending();
         if self.has_pending() {
             return Err(err("the undo history is busy; try again"));
@@ -571,7 +571,7 @@ impl Journal {
             self.prune();
             return result;
         }
-        let replay = self.redo.pop().ok_or_else(|| FleaError { where_: "redo".into(), path: String::new(), msg: "there is nothing to redo".into() })??;
+        let replay = self.redo.pop().ok_or_else(|| DleaError { where_: "redo".into(), path: String::new(), msg: "there is nothing to redo".into() })??;
         let (entry, changes, result) = replay.run(id, cancel, tx);
         for (old, new) in changes { self.rebase(&old, &new); }
         self.last_touched = Reached::of(&entry.steps);
@@ -587,11 +587,11 @@ impl Journal {
 }
 
 // The shelf's one step back shares this no-clobber rename, its process having exited by then.
-pub fn move_back(to: &std::path::Path, from: &std::path::Path) -> Result<(), FleaError> {
+pub fn move_back(to: &std::path::Path, from: &std::path::Path) -> Result<(), DleaError> {
     rename_path(to, from)
 }
 
-pub fn copied(from: &std::path::Path, to: &std::path::Path, source: ItemIdentity) -> Result<Step, FleaError> {
+pub fn copied(from: &std::path::Path, to: &std::path::Path, source: ItemIdentity) -> Result<Step, DleaError> {
     Ok(copied_as(from, to, source, ItemIdentity::inspect(to)?))
 }
 
@@ -601,27 +601,27 @@ pub fn copied_as(from: &std::path::Path, to: &std::path::Path, source: ItemIdent
 }
 
 // A failed or cancelled tree copy carries what it managed to create; a success keeps the plain step.
-pub fn copied_partial(from: &std::path::Path, to: &std::path::Path, source: ItemIdentity, manifest: Option<super::copymanifest::Handle>) -> Result<Step, FleaError> {
+pub fn copied_partial(from: &std::path::Path, to: &std::path::Path, source: ItemIdentity, manifest: Option<super::copymanifest::Handle>) -> Result<Step, DleaError> {
     Ok(Step::Copied { from: from.to_path_buf(), to: to.to_path_buf(), source, created: ItemIdentity::inspect(to)?, manifest, manifest_nonce: None, merge: false, rename_fat: false })
 }
 
 // A merge top journals what it created the same way, but never takes the whole-tree fallback.
-pub fn merged_partial(from: &std::path::Path, to: &std::path::Path, source: ItemIdentity, manifest: Option<super::copymanifest::Handle>) -> Result<Step, FleaError> {
+pub fn merged_partial(from: &std::path::Path, to: &std::path::Path, source: ItemIdentity, manifest: Option<super::copymanifest::Handle>) -> Result<Step, DleaError> {
     Ok(Step::Copied { from: from.to_path_buf(), to: to.to_path_buf(), source, created: ItemIdentity::inspect(to)?, manifest, manifest_nonce: None, merge: true, rename_fat: false })
 }
 
-pub fn moved(from: &std::path::Path, to: &std::path::Path, before: ItemIdentity) -> Result<Step, FleaError> {
+pub fn moved(from: &std::path::Path, to: &std::path::Path, before: ItemIdentity) -> Result<Step, DleaError> {
     Ok(Step::Moved { from: from.to_path_buf(), to: to.to_path_buf(), before, after: ItemIdentity::inspect(to)?, rename_fat: false })
 }
 
-pub(crate) fn reverse(step: &Step) -> Result<Option<(ItemIdentity, ItemIdentity)>, FleaError> {
+pub(crate) fn reverse(step: &Step) -> Result<Option<(ItemIdentity, ItemIdentity)>, DleaError> {
     match step {
         // Back the way it came, and still refusing to clobber: something may occupy the old name now.
         // Only a RemovedEmptyDir step this entry recorded recreates a folder; a missing parent fails the rename and creates nothing.
         Step::Moved { from, to, after, .. } => {
             let current = ItemIdentity::inspect(to)?;
             if !after.same_item(&current) {
-                return Err(FleaError { where_: "undo".into(), path: to.to_string_lossy().into(), msg: "the moved item was replaced, so undo left it in place".into() });
+                return Err(DleaError { where_: "undo".into(), path: to.to_string_lossy().into(), msg: "the moved item was replaced, so undo left it in place".into() });
             }
             rename_path(to, from)?;
             return Ok(if after.unchanged_for_move(&current) { Some((current, ItemIdentity::inspect(from)?)) } else { None });
@@ -651,7 +651,7 @@ pub(crate) fn reverse(step: &Step) -> Result<Option<(ItemIdentity, ItemIdentity)
         }
         Step::MadeDir { path, identity } => {
             if !identity.same_item(&ItemIdentity::inspect(path)?) {
-                return Err(FleaError { where_: "undo".into(), path: path.to_string_lossy().into(), msg: "the new folder was replaced, so undo left it in place".into() });
+                return Err(DleaError { where_: "undo".into(), path: path.to_string_lossy().into(), msg: "the new folder was replaced, so undo left it in place".into() });
             }
             remove_empty(path)?;
         }
@@ -659,37 +659,37 @@ pub(crate) fn reverse(step: &Step) -> Result<Option<(ItemIdentity, ItemIdentity)
         Step::Trashed(entry) => trash::restore(entry)?,
         Step::Mode { path, before, after, dev, ino, born, generation } => restore_mode(path, *dev, *ino, (*born, *generation), *after, *before)?,
         // A claimed barrier never reaches a reversal; refusing here keeps it from running as a file.
-        Step::Barrier => return Err(FleaError { where_: "undo".into(), path: String::new(), msg: "That operation was too large to undo.".into() }),
+        Step::Barrier => return Err(DleaError { where_: "undo".into(), path: String::new(), msg: "That operation was too large to undo.".into() }),
         Step::Tags { path, before, after, dev, ino, born, generation } => super::tagsundo::reverse(path, before, after, (*dev, *ino), (*born, *generation))?,
     }
     Ok(None)
 }
 
 // Today's whole-tree check, kept for successes and for a manifest that never verified a record.
-fn remove_copied(to: &PathBuf, created: &ItemIdentity) -> Result<Option<(ItemIdentity, ItemIdentity)>, FleaError> {
+fn remove_copied(to: &PathBuf, created: &ItemIdentity) -> Result<Option<(ItemIdentity, ItemIdentity)>, DleaError> {
     if !created.unchanged_for_move(&ItemIdentity::inspect(to)?) {
-        return Err(FleaError { where_: "undo".into(), path: to.to_string_lossy().into(),
+        return Err(DleaError { where_: "undo".into(), path: to.to_string_lossy().into(),
             msg: "the copied item changed since this operation, so undo left it in place".into() });
     }
     if let Some(newer) = newer_inside(to, created.changed)? {
-        return Err(FleaError { where_: "undo".into(), path: newer.to_string_lossy().into(),
+        return Err(DleaError { where_: "undo".into(), path: newer.to_string_lossy().into(),
             msg: "something inside the copied folder changed since this operation, so undo left it in place".into() });
     }
     remove(to)?;
     Ok(None)
 }
 
-fn remove_new_file(path: &PathBuf, identity: &ItemIdentity) -> Result<(), FleaError> {
+fn remove_new_file(path: &PathBuf, identity: &ItemIdentity) -> Result<(), DleaError> {
     let meta = path.symlink_metadata().map_err(|e| from_io("undo", &path.to_string_lossy(), &e))?;
     if !meta.is_file() || meta.len() != 0 || !identity.unchanged_for_move(&ItemIdentity::record(&meta)) {
-        return Err(FleaError { where_: "undo".into(), path: path.to_string_lossy().into(),
+        return Err(DleaError { where_: "undo".into(), path: path.to_string_lossy().into(),
             msg: "the new file changed since creation, so undo left it in place".into() });
     }
     std::fs::remove_file(path).map_err(|e| from_io("undo", &path.to_string_lossy(), &e))
 }
 
 // Issue 111: a directory keeps its own ctime while a file inside it is edited, and the copy sets the root mode last, so the root identity alone cannot prove the tree untouched.
-fn newer_inside(root: &std::path::Path, copied: (i64, i64)) -> Result<Option<PathBuf>, FleaError> {
+fn newer_inside(root: &std::path::Path, copied: (i64, i64)) -> Result<Option<PathBuf>, DleaError> {
     let meta = root.symlink_metadata().map_err(|e| from_io("undo", &root.to_string_lossy(), &e))?;
     if !meta.is_dir() || meta.file_type().is_symlink() {
         return Ok(None);
@@ -713,7 +713,7 @@ fn newer_inside(root: &std::path::Path, copied: (i64, i64)) -> Result<Option<Pat
 }
 
 // Only ever a path this operation itself created, so a directory it made is removed with its contents.
-fn remove(path: &PathBuf) -> Result<(), FleaError> {
+fn remove(path: &PathBuf) -> Result<(), DleaError> {
     let meta = path
         .symlink_metadata()
         .map_err(|e| from_io("undo", &path.to_string_lossy(), &e))?;
@@ -726,7 +726,7 @@ fn remove(path: &PathBuf) -> Result<(), FleaError> {
 }
 
 // A link undo removes only the link made, never a folder put at its name since.
-fn remove_link(path: &Path, identity: &ItemIdentity, source: &Path, kind: &super::link::LinkKind) -> Result<(), FleaError> {
+fn remove_link(path: &Path, identity: &ItemIdentity, source: &Path, kind: &super::link::LinkKind) -> Result<(), DleaError> {
     let meta = path.symlink_metadata().map_err(|e| from_io("undo", &path.to_string_lossy(), &e))?;
     let current = ItemIdentity::record(&meta);
     let still_link = match kind {
@@ -734,7 +734,7 @@ fn remove_link(path: &Path, identity: &ItemIdentity, source: &Path, kind: &super
         _ => meta.file_type().is_symlink(),
     };
     if !identity.same_item(&current) || !still_link {
-        return Err(FleaError { where_: "undo".into(), path: path.to_string_lossy().into(),
+        return Err(DleaError { where_: "undo".into(), path: path.to_string_lossy().into(),
             msg: "the link changed since this operation, so undo left it in place".into() });
     }
     if *kind == super::link::LinkKind::Hard {
@@ -743,12 +743,12 @@ fn remove_link(path: &Path, identity: &ItemIdentity, source: &Path, kind: &super
             Ok(smeta) => {
                 let s = ItemIdentity::record(&smeta);
                 if s.dev != identity.dev || s.ino != identity.ino {
-                    return Err(FleaError { where_: "undo".into(), path: path.to_string_lossy().into(),
+                    return Err(DleaError { where_: "undo".into(), path: path.to_string_lossy().into(),
                         msg: "the link source was replaced, so undo left the last name in place".into() });
                 }
             }
             Err(_) => {
-                return Err(FleaError { where_: "undo".into(), path: path.to_string_lossy().into(),
+                return Err(DleaError { where_: "undo".into(), path: path.to_string_lossy().into(),
                     msg: "the link source is gone, so undo left the last name in place".into() });
             }
         }
@@ -757,10 +757,10 @@ fn remove_link(path: &Path, identity: &ItemIdentity, source: &Path, kind: &super
 }
 
 // Only ever an empty directory this operation made.
-fn remove_empty(path: &PathBuf) -> Result<(), FleaError> {
+fn remove_empty(path: &PathBuf) -> Result<(), DleaError> {
     match std::fs::remove_dir(path) {
         Ok(()) => Ok(()),
-        Err(e) if e.kind() == std::io::ErrorKind::DirectoryNotEmpty => Err(FleaError {
+        Err(e) if e.kind() == std::io::ErrorKind::DirectoryNotEmpty => Err(DleaError {
             where_: "undo".to_string(),
             path: path.to_string_lossy().to_string(),
             msg: "the new folder has been filled since, so undo left it in place".to_string(),
@@ -769,14 +769,14 @@ fn remove_empty(path: &PathBuf) -> Result<(), FleaError> {
     }
 }
 
-fn err(msg: &str) -> FleaError {
-    FleaError { where_: "undo".to_string(), path: String::new(), msg: msg.to_string() }
+fn err(msg: &str) -> DleaError {
+    DleaError { where_: "undo".to_string(), path: String::new(), msg: msg.to_string() }
 }
 
 // A mode undo restores bits through the held no-follow descriptor.
-pub(crate) fn restore_mode(path: &Path, dev: u64, ino: u64, born: super::filegen::Birth, expected: u32, target: u32) -> Result<(), FleaError> {
+pub(crate) fn restore_mode(path: &Path, dev: u64, ino: u64, born: super::filegen::Birth, expected: u32, target: u32) -> Result<(), DleaError> {
     super::permissions::chmod_pinned(path, dev, ino, born, expected, target).map_err(|msg| {
-        FleaError { where_: "undo".to_string(), path: path.to_string_lossy().to_string(), msg }
+        DleaError { where_: "undo".to_string(), path: path.to_string_lossy().to_string(), msg }
     })
 }
 

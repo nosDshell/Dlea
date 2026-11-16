@@ -8,7 +8,7 @@ use super::{
     render::frame_tests::model,
     wire::{self, count, text, Wire},
 };
-use flea::ui_logic_file_search::{ContentsMatch, ContentsMatches};
+use dlea::ui_logic_file_search::{ContentsMatch, ContentsMatches};
 
 fn press(m: &mut Model, w: &mut Wire, key: Key) {
     actions::key(m, &key, &Map::load(), w).unwrap();
@@ -48,7 +48,7 @@ fn settle(m: &mut Model, w: &mut Wire, operable: bool) {
     } else {
         b"raw-\xff.pdf".as_slice()
     };
-    let name = flea::bytename::name_text(bytes).into_owned();
+    let name = dlea::bytename::name_text(bytes).into_owned();
     let metadata = ContentsMatches {
         gen: gen as u64,
         listing: 40,
@@ -92,7 +92,7 @@ fn tui_print_held_find_refuses_every_entry_without_dispatching() {
     let root = crate::backend::testdir::TestDir::new("print-find-busy");
     root.dir("catalog/en");
     root.file(
-        "catalog/en/flea.json",
+        "catalog/en/dlea.json",
         r#"{"tui.operation.search_busy":"Wait for search to settle before a file operation"}"#,
     );
     for in_contents in [false, true] {

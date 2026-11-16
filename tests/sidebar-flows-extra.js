@@ -1,6 +1,6 @@
-.import "flea/js/Devices.js" as Devices
-.import "flea/js/TextSize.js" as TextSize
-.import "flea/js/Tap.js" as Tap
+.import "dlea/js/Devices.js" as Devices
+.import "dlea/js/TextSize.js" as TextSize
+.import "dlea/js/Tap.js" as Tap
 .import "sidebar-flows-rail.js" as RailPress
 
 // One rail row per trailing shape, each with the board's rule for where its label ends (see railBoardEdges).

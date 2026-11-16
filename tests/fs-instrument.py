@@ -7,7 +7,7 @@ import unittest
 from unittest import mock
 
 REPO = pathlib.Path(__file__).resolve().parents[1]
-HERE = REPO / 'tools/flea-searchbench'
+HERE = REPO / 'tools/dlea-searchbench'
 sys.path.insert(0, str(HERE))
 
 
@@ -20,21 +20,21 @@ def module(name, path):
 
 class Instrument(unittest.TestCase):
     def test_integrated_executor_ready(self):
-        patch = (HERE / 'engine/flea-metrics.patch').read_text()
+        patch = (HERE / 'engine/dlea-metrics.patch').read_text()
         self.assertIn('+++ b/src/backend/searchjobs.rs', patch)
         self.assertIn('done.landed', patch)
 
     def test_matcher_uses_integrated_candidate(self):
-        runner = module('matcher', REPO / 'tools/flea-matchbench/runner.py')
-        self.assertIn(('flea-search', 'native'), runner.ENTRANTS)
-        self.assertEqual(runner.REFERENCE, ('flea-search', 'native'))
+        runner = module('matcher', REPO / 'tools/dlea-matchbench/runner.py')
+        self.assertIn(('dlea-search', 'native'), runner.ENTRANTS)
+        self.assertEqual(runner.REFERENCE, ('dlea-search', 'native'))
         seam = (HERE / 'stage.rs').read_text()
         self.assertRegex(seam, r'session\s*\.query\(')
         self.assertIn('index.push(', seam)
 
     def test_walker_uses_product_walk(self):
-        source = (REPO / 'tools/flea-walkbench/src/adapters.rs').read_text()
-        self.assertIn('"flea-search"', source)
+        source = (REPO / 'tools/dlea-walkbench/src/adapters.rs').read_text()
+        self.assertIn('"dlea-search"', source)
         seam = (HERE / 'stage.rs').read_text()
         self.assertIn('searchwalk::walk(', seam)
 
@@ -46,7 +46,7 @@ class Instrument(unittest.TestCase):
         paths = {p for p, _ in manifest}
         for _, _, target in corpus.SOURCE_QUERIES:
             self.assertIn(target, paths)
-        self.assertEqual(str(corpus.DEFAULT_ROOT), '/home/gm/flea-work/bench-corpora')
+        self.assertEqual(str(corpus.DEFAULT_ROOT), '/home/gm/dlea-work/bench-corpora')
 
     def archive_manifest(self, text):
         import corpus
@@ -146,8 +146,8 @@ class Evidence(unittest.TestCase):
         import metrics
         root = self.scratch()
         records = []
-        for name, number in [('flea/native', 1), ('rival', 2)]:
-            records.append(dict(stage='engine', fixture='flea-source', cache='warm', rival='rival',
+        for name, number in [('dlea/native', 1), ('rival', 2)]:
+            records.append(dict(stage='engine', fixture='dlea-source', cache='warm', rival='rival',
                                 phase='measured', run=number, entrant=name, index_ms=1.0,
                                 status='ok', eligible=True, batch={'above_4': False}))
         result = metrics.summarize(root, records, 30)
@@ -184,7 +184,7 @@ class Evidence(unittest.TestCase):
         from types import SimpleNamespace
         root = self.scratch()
         args = SimpleNamespace(corpus_root=root, engine_build=None, matcher_bin=None,
-                               walker_bin=None, flea_bin=None, fzf=None, fd=None, rg=None, cache='warm')
+                               walker_bin=None, dlea_bin=None, fzf=None, fd=None, rg=None, cache='warm')
         with mock.patch.object(campaign.socket, 'gethostname', return_value='ultra-36'):
             result = campaign.preflight(args, root)
         for name in ['fzf', 'fd', 'rg']:
@@ -199,7 +199,7 @@ class Evidence(unittest.TestCase):
         binary = root / 'adapter'
         binary.touch()
         args = SimpleNamespace(corpus_root=root, engine_build=build, matcher_bin=binary,
-                               walker_bin=binary, flea_bin=binary, cache='warm')
+                               walker_bin=binary, dlea_bin=binary, cache='warm')
         with mock.patch.object(campaign.socket, 'gethostname', return_value='ultra-36'):
             result = campaign.preflight(args, root)
         self.assertNotIn('missing build input: ' + str(build), result['blockers'])
@@ -220,7 +220,7 @@ class Evidence(unittest.TestCase):
         root = self.scratch()
         records = [dict(stage='walk', fixture='source', cache='warm', rival='rival', phase='measured', run=0,
                         entrant=name, index_ms=value, status='ok', eligible=True, batch={'above_4':False})
-                   for name, value in [('flea-search',1),('rival',100)]]
+                   for name, value in [('dlea-search',1),('rival',100)]]
         rows = metrics.summarize(root, records, 1)
         self.assertEqual(rows[0]['winner'], 'unproven')
 
@@ -245,7 +245,7 @@ class Evidence(unittest.TestCase):
         root = self.scratch()
         records = []
         for number in range(30):
-            for name, value, comparable in [('flea-search',100,True),('ripgrep',1,False)]:
+            for name, value, comparable in [('dlea-search',100,True),('ripgrep',1,False)]:
                 records.append(dict(stage='walk', fixture='source', cache='warm', rival='ripgrep', phase='measured',
                                     run=number, entrant=name, index_ms=value, status='ok', eligible=True,
                                     comparable=comparable, batch={'above_4':False}))
@@ -264,10 +264,10 @@ class Evidence(unittest.TestCase):
         root = self.scratch()
         samples = []
         for number in range(30):
-            for entrant in ['flea/native', 'rival']:
-                samples.append(dict(stage='engine', fixture='flea-source', cache='warm', rival='rival',
-                                    phase='measured', run=number, entrant=entrant, index_ms=0 if entrant == 'flea/native' else 10,
-                                    eligible=entrant != 'flea/native', status='ok', batch={'above_4': True}))
+            for entrant in ['dlea/native', 'rival']:
+                samples.append(dict(stage='engine', fixture='dlea-source', cache='warm', rival='rival',
+                                    phase='measured', run=number, entrant=entrant, index_ms=0 if entrant == 'dlea/native' else 10,
+                                    eligible=entrant != 'dlea/native', status='ok', batch={'above_4': True}))
         rows = metrics.summarize(root, samples, 30)
         self.assertEqual(rows[0]['winner'], 'unproven')
         self.assertEqual(rows[0]['above_4_pairs'], 30)

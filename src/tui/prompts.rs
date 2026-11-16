@@ -2,7 +2,7 @@
 use super::{cells::{ellipsis, fit, text_width}, editor::Editor, model::Model, theme::Theme,
     wire::{count, flag, number, text, word, Wire}};
 use crate::jsondoc::Json;
-use flea::{i18n::I18n, ui_logic_file_search::{scope_label, Kind, Scope, Session}};
+use dlea::{i18n::I18n, ui_logic_file_search::{scope_label, Kind, Scope, Session}};
 use std::{collections::BTreeSet, io, path::{Path, PathBuf}, time::Duration};
 
 mod paste_question;
@@ -205,7 +205,7 @@ pub fn record(m: &mut Model, op: &'static str, paths: Vec<PathBuf>) {
 pub fn receipt(m: &mut Model, value: &Json) -> String {
     let i18n = &m.prompts.i18n;
     let (ok, failed, skipped) = (count(value, "ok"), count(value, "failed"), count(value, "skipped"));
-    let path = flea::bytename::exact(text(value, "path"));
+    let path = dlea::bytename::exact(text(value, "path"));
     match text(value, "t") {
         "renamed" => { record(m, "rename", vec![path]); undoable(m, m.prompts.i18n.tr("receipt.renamed")) }
         "made" => { record(m, "mkdir", vec![path]); undoable(m, m.prompts.i18n.tr("receipt.made")) }
@@ -237,7 +237,7 @@ pub fn receipt(m: &mut Model, value: &Json) -> String {
             }
             // An answer whose request this client no longer waits on records nothing, so no undo step is taken twice.
             if !m.prompts.trashing.remove(&count(value, "id")) || ok == 0 { return String::new(); }
-            let moved: Vec<PathBuf> = value.get("moved").and_then(Json::as_array).unwrap_or(&[]).iter().filter_map(Json::as_str).map(flea::bytename::exact).collect();
+            let moved: Vec<PathBuf> = value.get("moved").and_then(Json::as_array).unwrap_or(&[]).iter().filter_map(Json::as_str).map(dlea::bytename::exact).collect();
             let line = m.prompts.i18n.trn("receipt.trashed", ok as i64);
             record(m, "trash", moved);
             undoable(m, line)

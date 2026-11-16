@@ -107,7 +107,7 @@ function headerChecks(f, broken, check) {
                 return i;
         return -1;
     }
-    var h = holding("Flea"), p = holding("A file manager"), after = holding("A line after a break.");
+    var h = holding("Dlea"), p = holding("A file manager"), after = holding("A line after a break.");
     check("26 the HTML heading is a heading block", h >= 0 && f.geo.blocks[h].type === "heading");
     check("26 the heading and the paragraph are blocks of their own", h >= 0 && p >= 0 && h !== p);
     check("26 the paragraph sits below the heading across a gap",

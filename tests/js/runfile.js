@@ -70,7 +70,7 @@ function run(check) {
     check("a script keeps the board's code glyph whatever the listing draws",
           RunFile.glyphFor("script", "terminal"), "code")
     check("the title names the program",
-          RunFile.titleFor("flea-field-bench"), "flea-field-bench is a program")
+          RunFile.titleFor("dlea-field-bench"), "dlea-field-bench is a program")
     check("shown strings are whole templates filled in order, never joined fragments",
           Format.fill("%1 · %2", "a", "b") + "|" + RunFile.TITLE_PROGRAM + "|" + RunFile.SUBTITLE_PROGRAM,
           "a · b|%1 is a program|%1 · %2")
@@ -81,7 +81,7 @@ function run(check) {
     check("an unknown kind reads as a program",
           RunFile.subtitleFor("bogus", 10), "Program · 10 B")
     check("a path's leaf is its last segment",
-          RunFile.leafOf("/home/gm/flea-field-bench"), "flea-field-bench")
+          RunFile.leafOf("/home/gm/dlea-field-bench"), "dlea-field-bench")
     var ask = RunFile.parseAsk('{"ask":"run","kind":"script","size":9420,"handlerId":"","handlerName":"","dev":"8","ino":"9","mtimeS":11,"mtimeNs":12,"target":"/d/tool.sh"}')
     check("the ask line parses to its kind and size",
           ask && ask.kind + "|" + ask.size + "|" + ask.hasHandler, "script|9420|false")
@@ -129,10 +129,10 @@ function cardSource() {
     }
 }
 
-// Every Flea.Pane block in the window names overlayParent within its first lines, so no product pane has a null one.
+// Every Dlea.Pane block in the window names overlayParent within its first lines, so no product pane has a null one.
 function paneParents() {
     var text = Source.source("ui/WindowBody.qml")
-    var parts = text.split("Flea.Pane {")
+    var parts = text.split("Dlea.Pane {")
     var named = 0
     for (var i = 1; i < parts.length; i++) {
         if (parts[i].substring(0, 2000).indexOf("overlayParent:") >= 0) named++

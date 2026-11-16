@@ -49,7 +49,7 @@ pub(crate) fn from_source(
             ino.parse().ok()?,
             kind.parse::<u32>().ok()?,
         );
-        if !flea::bytename::view(path).is_absolute()
+        if !dlea::bytename::view(path).is_absolute()
             || !matches!(
                 kind,
                 S_IFREG | S_IFDIR | S_IFLNK | S_IFIFO | S_IFSOCK | S_IFCHR | S_IFBLK
@@ -73,7 +73,7 @@ pub(crate) fn from_source(
             ops,
             path,
             to,
-            super::super::menu_actions::Selected::retry_item(flea::bytename::exact(path), identity),
+            super::super::menu_actions::Selected::retry_item(dlea::bytename::exact(path), identity),
         ),
         None => {
             writeln!(
@@ -100,7 +100,7 @@ pub(crate) fn do_menu_rename(
         .menuactions
         .as_ref()
         .ok_or_else(|| super::super::menu_actions::SELECTION_CHANGED.to_string())
-        .and_then(|menu| menu.selected_path(id, &flea::bytename::view(path)));
+        .and_then(|menu| menu.selected_path(id, &dlea::bytename::view(path)));
     match captured {
         Ok(item) => selected(out, ops, path, to, item),
         Err(error) => {
@@ -127,7 +127,7 @@ fn selected(
     do_rename_with(out, ops, path, CALL_DEADLINE, move || {
         item.current()
             .map_err(|error| op_err("rename", &from, &error))?;
-        ops::rename(&flea::bytename::view(&from), &name)
+        ops::rename(&dlea::bytename::view(&from), &name)
     })
 }
 
@@ -140,6 +140,6 @@ pub(crate) fn do_rename(out: &mut impl Write, ops: &mut Ops, path: &str, to: &st
     let from = path.to_string();
     let name = to.to_string();
     do_rename_with(out, ops, path, CALL_DEADLINE, move || {
-        ops::rename(&flea::bytename::view(&from), &name)
+        ops::rename(&dlea::bytename::view(&from), &name)
     })
 }

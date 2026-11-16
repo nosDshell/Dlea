@@ -9,14 +9,14 @@ from types import SimpleNamespace
 from unittest import mock
 
 REPO = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(REPO / 'tools/flea-searchbench'))
+sys.path.insert(0, str(REPO / 'tools/dlea-searchbench'))
 import campaign
-if os.environ.get('FLEA_CONTROL_CAMPAIGN'):
+if os.environ.get('DLEA_CONTROL_CAMPAIGN'):
     import importlib.util
-    spec = importlib.util.spec_from_file_location('controlled_campaign_base', os.environ['FLEA_CONTROL_CAMPAIGN'])
+    spec = importlib.util.spec_from_file_location('controlled_campaign_base', os.environ['DLEA_CONTROL_CAMPAIGN'])
     campaign = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(campaign)
-    campaign.HERE = REPO / 'tools/flea-searchbench'
+    campaign.HERE = REPO / 'tools/dlea-searchbench'
     campaign.REPO = REPO
 from corpus import identity_digest
 
@@ -33,10 +33,10 @@ if args[:2]==['--search-stage','walk']:
 if args and args[0]=='adapter' and '--tree' in args:
  print('RESULT\t1000\t1\t0\t0\t'+digest+'\t1\t1\t0\t0')
  sys.exit(0)
-flea=bool(args and args[0]=='--backend')
-if not flea: say(dict(t='boot',cpus=2,capabilities={}))
+dlea=bool(args and args[0]=='--backend')
+if not dlea: say(dict(t='boot',cpus=2,capabilities={}))
 for line in sys.stdin:
- if flea:
+ if dlea:
   row=json.loads(line);command=row['c'];gen=row.get('gen',0)
   if command in ['list','window']:say(dict(t='rows',rows=[]))
   elif command=='searchopen':say(dict(t='searchready',n=1,ms=.001,capped=False))
@@ -78,7 +78,7 @@ def main():
     (root / 'manifest.json').write_text(json.dumps(manifest))
     fixture = dict(tree=str(tree), fixture=str(root), paths=str(paths), queries=[['exact','entry.rs','entry.rs']],
                    info={'entries':1}, identity_sha256=identity_digest(manifest), paths_sha256=hashlib.sha256(paths.read_bytes()).hexdigest())
-    (root / 'registry.json').write_text(json.dumps({'flea-source':fixture}))
+    (root / 'registry.json').write_text(json.dumps({'dlea-source':fixture}))
     binary = root / 'fake'
     binary.write_text(FAKE)
     binary.chmod(0o755)
@@ -86,17 +86,17 @@ def main():
     target.mkdir(parents=True)
     (target / 'fsearch-driver').write_text(FAKE)
     (target / 'fsearch-driver').chmod(0o755)
-    args = SimpleNamespace(engine_build=root, matcher_bin=binary, walker_bin=binary, flea_bin=binary,
-                           corpus_root=root, fixtures='flea-source', runs=1, stages='engine,match,walk',
+    args = SimpleNamespace(engine_build=root, matcher_bin=binary, walker_bin=binary, dlea_bin=binary,
+                           corpus_root=root, fixtures='dlea-source', runs=1, stages='engine,match,walk',
                            cache='warm', fzf=None, fd=None, rg=None)
     original_import = campaign.imported
     def imported(name, path):
         module = original_import(name, path)
         if name == 'matchbench_runner':
-            module.ENTRANTS = [('flea-search','native'),('nucleo','native')]
+            module.ENTRANTS = [('dlea-search','native'),('nucleo','native')]
         return module
-    with mock.patch.object(campaign, 'ENGINE_ROSTER', ['flea/native','fsearch/native']), \
-         mock.patch.object(campaign, 'WALK_ROSTER', ['flea-search','std-serial']), \
+    with mock.patch.object(campaign, 'ENGINE_ROSTER', ['dlea/native','fsearch/native']), \
+         mock.patch.object(campaign, 'WALK_ROSTER', ['dlea-search','std-serial']), \
          mock.patch.object(campaign, 'imported', side_effect=imported), \
          mock.patch('priors.prepare', return_value=root):
         code = campaign.run(args, root)
@@ -115,8 +115,8 @@ def main():
     (root / 'BAD-HEAD').touch()
     failed = Path(tempfile.mkdtemp(prefix='failed-control-', dir=parent)).resolve()
     (failed / '.findbench-root').write_text('test\n')
-    with mock.patch.object(campaign, 'ENGINE_ROSTER', ['flea/native','fsearch/native']), \
-         mock.patch.object(campaign, 'WALK_ROSTER', ['flea-search','std-serial']), \
+    with mock.patch.object(campaign, 'ENGINE_ROSTER', ['dlea/native','fsearch/native']), \
+         mock.patch.object(campaign, 'WALK_ROSTER', ['dlea-search','std-serial']), \
          mock.patch.object(campaign, 'imported', side_effect=imported), \
          mock.patch('priors.prepare', return_value=root):
         code = campaign.run(args, failed)
@@ -125,8 +125,8 @@ def main():
     cold_failed = Path(tempfile.mkdtemp(prefix='cold-failed-control-', dir=parent)).resolve()
     (cold_failed / '.findbench-root').write_text('test\n')
     from cold import clocks
-    with mock.patch.object(campaign, 'ENGINE_ROSTER', ['flea/native','fsearch/native']), \
-         mock.patch.object(campaign, 'WALK_ROSTER', ['flea-search','std-serial']), \
+    with mock.patch.object(campaign, 'ENGINE_ROSTER', ['dlea/native','fsearch/native']), \
+         mock.patch.object(campaign, 'WALK_ROSTER', ['dlea-search','std-serial']), \
          mock.patch.object(campaign, 'imported', side_effect=imported), \
          mock.patch('priors.prepare', return_value=root), \
          mock.patch('metrics.cache_gate', side_effect=clocks.ColdGateError('controlled denial')) as gate:
@@ -146,8 +146,8 @@ def main():
         if any('cold-controller.py' in str(arg) for arg in argv):
             raise AssertionError('external mode started an internal cache controller')
         return original_popen(argv, *positional, **keywords)
-    with mock.patch.object(campaign, 'ENGINE_ROSTER', ['flea/native','fsearch/native']), \
-         mock.patch.object(campaign, 'WALK_ROSTER', ['flea-search','std-serial']), \
+    with mock.patch.object(campaign, 'ENGINE_ROSTER', ['dlea/native','fsearch/native']), \
+         mock.patch.object(campaign, 'WALK_ROSTER', ['dlea-search','std-serial']), \
          mock.patch.object(campaign, 'imported', side_effect=imported), \
          mock.patch('priors.prepare', return_value=root), \
          mock.patch('metrics.cache_gate', side_effect=clocks.ColdGateError('controlled external denial')), \

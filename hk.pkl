@@ -13,24 +13,24 @@ hooks {
     steps {
       // First: with stash none Clippy reads the working tree, so unstaged gate inputs would mask staged bytes.
       ["partial-index-guard"] {
-        check = "tools/flea-hook-check guard"
+        check = "tools/dlea-hook-check guard"
       }
       // Every check reads guarded inputs and waits for the guard to pass.
       ["clippy"] {
         depends = "partial-index-guard"
-        check = "tools/flea-clippy tools/clippy-baseline.txt .flea-local/sandbox/tmp/hk-clippy"
+        check = "tools/dlea-clippy tools/clippy-baseline.txt .dlea-local/sandbox/tmp/hk-clippy"
       }
       ["file-budget"] {
         depends = "partial-index-guard"
-        check = "tools/flea-file-budget"
+        check = "tools/dlea-file-budget"
       }
       ["fmt-crates"] {
         depends = "partial-index-guard"
-        check = "cargo fmt --package flea-gui -- --check"
+        check = "cargo fmt --package dlea-gui -- --check"
       }
       ["gpui-lint"] {
         depends = "partial-index-guard"
-        check = "tools/flea-gpui-lint"
+        check = "tools/dlea-gpui-lint"
       }
     }
   }
@@ -39,7 +39,7 @@ hooks {
       // A structured command keeps the hook's file argument one literal argv entry on every filename.
       ["commit-rules"] {
         check = new Command {
-          argv = List("tools/flea-commit-msg", "{{commit_msg_file}}")
+          argv = List("tools/dlea-commit-msg", "{{commit_msg_file}}")
         }
       }
     }
@@ -47,16 +47,16 @@ hooks {
   ["check"] {
     steps {
       ["clippy"] {
-        check = "tools/flea-clippy tools/clippy-baseline.txt .flea-local/sandbox/tmp/hk-clippy"
+        check = "tools/dlea-clippy tools/clippy-baseline.txt .dlea-local/sandbox/tmp/hk-clippy"
       }
       ["file-budget"] {
-        check = "tools/flea-file-budget"
+        check = "tools/dlea-file-budget"
       }
       ["fmt-crates"] {
-        check = "cargo fmt --package flea-gui -- --check"
+        check = "cargo fmt --package dlea-gui -- --check"
       }
       ["gpui-lint"] {
-        check = "tools/flea-gpui-lint"
+        check = "tools/dlea-gpui-lint"
       }
     }
   }

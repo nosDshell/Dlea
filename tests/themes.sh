@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-. "$(dirname "${BASH_SOURCE[0]}")/../tools/flea-ipc"
+. "$(dirname "${BASH_SOURCE[0]}")/../tools/dlea-ipc"
 # The render sweep half of the theme battery: the candidate launched once per stock theme, with the
 # surfaces the colour rules govern shot and measured. tests/js/themes.js asserts the rules over the
 # palettes; this asserts that the roles the window really carries still satisfy them, which is what
@@ -8,13 +8,13 @@ set -u
 set -o pipefail
 # Hard rule 9's own guard owns every create and delete here, the way tests/mount-listing.sh does it:
 # a fixture lives outside $HOME and carries a marker, and nothing unmarked is ever removed.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 repo=$PWD
 themes_dir=${THEMES_DIR:-/usr/share/omarchy/themes}
-flea_ui="$repo/ui"
-flea_bin=${FLEA_BIN:-$repo/target/debug/flea}
-class=com.thisisgm.flea
+dlea_ui="$repo/ui"
+dlea_bin=${DLEA_BIN:-$repo/target/debug/dlea}
+class=com.nosDshell.dlea
 failures=0
 # The same floors tests/js/themes.js names, and the same rules behind them.
 text_min=4.5      # body text on its own ground, WCAG AA
@@ -23,7 +23,7 @@ role_steps=4      # how far a screenshot's round trip may move a role, measured 
 
 command -v omarchy-drive >/dev/null || { echo "themes.sh: omarchy-drive is not installed"; exit 1; }
 command -v magick >/dev/null || { echo "themes.sh: magick is not installed, and the pixel reads need it"; exit 1; }
-[ -x "$flea_bin" ] || { echo "themes.sh: no candidate at $flea_bin"; exit 1; }
+[ -x "$dlea_bin" ] || { echo "themes.sh: no candidate at $dlea_bin"; exit 1; }
 eval "$(omarchy-drive env)"
 
 . "$repo/tests/lib/stock-themes.sh"
@@ -35,11 +35,11 @@ if [ "$installed" != "$pinned" ]; then
     failures=$((failures + 1))
 fi
 
-sandbox="$FIXTURE_ROOT/flea-themes-$$"
+sandbox="$FIXTURE_ROOT/dlea-themes-$$"
 sandbox_make "$sandbox"
 # The PNGs outlive the run as its record, so they take one path the next run replaces rather than a
 # fresh mktemp nobody ever removes.
-shots="$FIXTURE_ROOT/flea-themeshots"
+shots="$FIXTURE_ROOT/dlea-themeshots"
 sandbox_make "$shots"
 # Only what this run launched: the candidate is started with setsid, so its own process group holds
 # it and the qs it spawns, and nothing the operator started is signalled.
@@ -84,11 +84,11 @@ cleanup() {
 }
 trap cleanup EXIT HUP INT TERM
 
-mkdir -p "$sandbox/files" "$sandbox/state/flea" "$sandbox/config"
+mkdir -p "$sandbox/files" "$sandbox/state/dlea" "$sandbox/config"
 printf 'one\n' > "$sandbox/files/alpha.txt"
 printf 'two\n' > "$sandbox/files/beta.txt"
 printf 'three\n' > "$sandbox/files/gamma-needle.txt"
-printf '{"view":"list","places":{"driveSize":true,"trashCount":true}}\n' > "$sandbox/state/flea/ui.json"
+printf '{"view":"list","places":{"driveSize":true,"trashCount":true}}\n' > "$sandbox/state/dlea/ui.json"
 # A palette that sets no muted of its own, which no installed theme does and a third-party theme can:
 # it is the one way to drive ui/Theme.qml's darkened-foreground fallback through the real window.
 synthetic="$sandbox/no-muted/colors.toml"
@@ -102,9 +102,9 @@ printf 'background = "#1e1e2e"\nforeground = "#cdd6f4"\naccent = "#89b4fa"\nred 
 # literal: the two halves meeting on this value is what binds that mirror to the running window.
 no_muted_caption="#9299ae"
 
-ipc() { flea_ipc_drive -p "$flea_ui/boot" flea "$@"; }
+ipc() { dlea_ipc_drive -p "$dlea_ui/boot" dlea "$@"; }
 # Filtered to the window under test, as tests/ui.sh does: an unfiltered send goes wherever focus is.
-key() { omarchy-drive key --window com.thisisgm.flea "$@" >/dev/null; }
+key() { omarchy-drive key --window com.nosDshell.dlea "$@" >/dev/null; }
 window_xy() { hyprctl clients -j | jq -r --arg c "$class" '[.[]|select(.class==$c)][0] | "\(.at[0]) \(.at[1])"'; }
 fail() { printf 'FAIL %s\n' "$1"; failures=$((failures + 1)); }
 
@@ -190,8 +190,8 @@ for colours in "$themes_dir"/*/colors.toml "$synthetic"; do
     stop
     real_home=$HOME
     export HOME="$home"
-    FLEA_UI="$flea_ui" FLEA_BIN="$flea_bin" XDG_STATE_HOME="$sandbox/state" XDG_CONFIG_HOME="$sandbox/config" \
-        setsid nohup "$flea_bin" --gui "$sandbox/files" >"$sandbox/flea-$theme.log" 2>&1 </dev/null &
+    DLEA_UI="$dlea_ui" DLEA_BIN="$dlea_bin" XDG_STATE_HOME="$sandbox/state" XDG_CONFIG_HOME="$sandbox/config" \
+        setsid nohup "$dlea_bin" --gui "$sandbox/files" >"$sandbox/dlea-$theme.log" 2>&1 </dev/null &
     launched=$!
     export HOME="$real_home"
     if ! omarchy-drive wait window "$class" --timeout 20 >/dev/null; then
@@ -200,7 +200,7 @@ for colours in "$themes_dir"/*/colors.toml "$synthetic"; do
     fi
     omarchy-drive focus "$class" >/dev/null
     # The seam is built after the first listing, so the window has mapped before it answers.
-    flea_ipc_wait -p "$flea_ui/boot" flea ready true --timeout 20 >/dev/null \
+    dlea_ipc_wait -p "$dlea_ui/boot" dlea ready true --timeout 20 >/dev/null \
         || { fail "$theme: the IPC seam never answered ready"; continue; }
     sleep 3
     [ "$(ipc themeLoaded)" = "true" ] || fail "$theme: the window did not load a palette"
@@ -258,7 +258,7 @@ for colours in "$themes_dir"/*/colors.toml "$synthetic"; do
     key j
     key v
     key j
-    if ! flea_ipc_wait -p "$flea_ui/boot" flea cursor 2 --timeout 10 >/dev/null; then
+    if ! dlea_ipc_wait -p "$dlea_ui/boot" dlea cursor 2 --timeout 10 >/dev/null; then
         fail "$theme: the cursor never reached row 2, so no shot of it can be measured"
         continue
     fi
@@ -285,7 +285,7 @@ for colours in "$themes_dir"/*/colors.toml "$synthetic"; do
         fails_before=$failures
         same_colour "$theme" "the cursor's accent edge" "$edge" "$accent"
         if [ "$failures" -gt "$fails_before" ]; then
-            # Sample input, clients -j: [{"class":"com.thisisgm.flea","workspace":{"id":1},"mapped":true,"hidden":false,"focusHistoryID":0}], activeworkspace -j: {"id":1,"name":"1"}
+            # Sample input, clients -j: [{"class":"com.nosDshell.dlea","workspace":{"id":1},"mapped":true,"hidden":false,"focusHistoryID":0}], activeworkspace -j: {"id":1,"name":"1"}
             printf 'NOTE %s: model cursor %s, window %s, active workspace %s\n' "$theme" "$(ipc cursor)" \
                 "$(hyprctl clients -j | jq -c --arg c "$class" '[.[] | select(.class == $c) | {ws: .workspace.id, mapped, hidden, focus: .focusHistoryID}]')" \
                 "$(hyprctl activeworkspace -j | jq .id)"

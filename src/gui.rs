@@ -21,11 +21,11 @@ pub(crate) fn launch_warm_command(exe: &Path, list: Option<&Path>, gvfs: Option<
     }
     let mut cmd = Command::new(exe);
     cmd.arg("--launch-warm");
-    // Sample args: "flea --launch-warm /cache/flea/prefetch /run/user/1000/gvfs/x/dir /run/user/1000/flea/gvfs-1.list"; "-" skips a job.
+    // Sample args: "dlea --launch-warm /cache/dlea/prefetch /run/user/1000/gvfs/x/dir /run/user/1000/dlea/gvfs-1.list"; "-" skips a job.
     cmd.arg(if has_list { list.unwrap().as_os_str() } else { OsStr::new("-") });
     match gvfs {
         Some((path, dest)) => {
-            cmd.arg(flea::bytename::text_name(path));
+            cmd.arg(dlea::bytename::text_name(path));
             cmd.arg(dest);
         }
         None => {
@@ -54,7 +54,7 @@ pub(crate) fn warm_all(list: Option<&Path>, gvfs: Option<(&str, &Path)>) -> bool
     }
 }
 
-// flea --launch-warm <list> <gvfs-path> <gvfs-dest>: one fork for both jobs; "-" skips a job.
+// dlea --launch-warm <list> <gvfs-path> <gvfs-dest>: one fork for both jobs; "-" skips a job.
 pub fn run_launch_warm(list: &str, gvfs_path: &str, gvfs_dest: &str) -> i32 {
     // corner: a fork that fails keeps the work here, and the launcher waits it out, which is still a launch.
     if unsafe { fork() } > 0 {
@@ -79,24 +79,24 @@ fn run_warm_jobs(list: &str, gvfs_path: &str, gvfs_dest: &str, gio: &str, runtim
     0
 }
 
-// flea --pick <reply>: the portal's chooser window on the same shell and renderer choice.
+// dlea --pick <reply>: the portal's chooser window on the same shell and renderer choice.
 pub fn pick(reply: &str) -> i32 {
     // Empty is absent, the rule paths::has_display() applies: a wrapper's unset variable is not a request.
-    if !std::env::var_os("FLEA_PICKER").is_some_and(|value| !value.is_empty()) {
-        eprintln!("flea: --pick needs FLEA_PICKER, the portal request tools/flea-portal puts in the environment");
+    if !std::env::var_os("DLEA_PICKER").is_some_and(|value| !value.is_empty()) {
+        eprintln!("dlea: --pick needs DLEA_PICKER, the portal request tools/dlea-portal puts in the environment");
         return 2;
     }
     if reply.is_empty() {
-        eprintln!("flea: --pick needs the reply file tools/flea-portal names, and it was empty");
+        eprintln!("dlea: --pick needs the reply file tools/dlea-portal names, and it was empty");
         return 2;
     }
     launch::exec_gpui_pick(reply)
 }
 
 // Old windows may pass this marker through an upgrade.
-pub const THEME_MARKER: &str = "FLEA_QT_THEME";
+pub const THEME_MARKER: &str = "DLEA_QT_THEME";
 
-// Give a program Flea opens the platform theme an old window's launcher traded away, and nothing else.
+// Give a program Dlea opens the platform theme an old window's launcher traded away, and nothing else.
 pub fn restore_platform_theme(command: &mut Command) {
     apply_theme_restore(command, std::env::var_os(THEME_MARKER).as_deref());
 }
@@ -159,10 +159,10 @@ mod tests {
     #[test]
     fn a_gvfs_launch_carries_both_jobs_in_one_helper_command() {
         let dir = crate::backend::testdir::TestDir::new("launch-warm-gvfs");
-        let list = dir.file("prefetch", "flea-prefetch 2\n");
+        let list = dir.file("prefetch", "dlea-prefetch 2\n");
         let dest = dir.join("gvfs-1.list");
         let share = "/run/user/1000/gvfs/smb-share:server=x,share=y/dir";
-        let cmd = launch_warm_command(Path::new("flea"), Some(list.as_path()), Some((share, dest.as_path())))
+        let cmd = launch_warm_command(Path::new("dlea"), Some(list.as_path()), Some((share, dest.as_path())))
             .expect("a gvfs launch with a list warms");
         assert_eq!(argv_of(&cmd), vec!["--launch-warm", list.to_str().unwrap(), share, dest.to_str().unwrap()]);
     }
@@ -170,8 +170,8 @@ mod tests {
     #[test]
     fn a_local_launch_carries_no_gvfs_job() {
         let dir = crate::backend::testdir::TestDir::new("launch-warm-local");
-        let list = dir.file("prefetch", "flea-prefetch 2\n");
-        let cmd = launch_warm_command(Path::new("flea"), Some(list.as_path()), None).expect("a local launch with a list warms");
+        let list = dir.file("prefetch", "dlea-prefetch 2\n");
+        let cmd = launch_warm_command(Path::new("dlea"), Some(list.as_path()), None).expect("a local launch with a list warms");
         assert_eq!(argv_of(&cmd), vec!["--launch-warm", list.to_str().unwrap(), "-", "-"]);
     }
 
@@ -181,8 +181,8 @@ mod tests {
         use std::sync::atomic::{AtomicBool, Ordering};
         use std::sync::Arc;
         let dir = crate::backend::testdir::TestDir::new("launch-warm-both");
-        let list = dir.file("prefetch", "flea-prefetch 2\n");
-        let runtime = dir.path().join("runtime/flea");
+        let list = dir.file("prefetch", "dlea-prefetch 2\n");
+        let runtime = dir.path().join("runtime/dlea");
         std::fs::create_dir_all(&runtime).unwrap();
         std::fs::set_permissions(&runtime, std::fs::Permissions::from_mode(0o700)).unwrap();
         let started = dir.join("warm-started");
@@ -220,7 +220,7 @@ mod tests {
     fn a_launch_with_nothing_to_warm_spawns_nothing() {
         let dir = crate::backend::testdir::TestDir::new("launch-warm-none");
         let missing = dir.join("no-such-list");
-        assert!(launch_warm_command(Path::new("flea"), Some(missing.as_path()), None).is_none());
-        assert!(launch_warm_command(Path::new("flea"), None, None).is_none());
+        assert!(launch_warm_command(Path::new("dlea"), Some(missing.as_path()), None).is_none());
+        assert!(launch_warm_command(Path::new("dlea"), None, None).is_none());
     }
 }

@@ -16,7 +16,7 @@ from .evidence import Blocked, MARKER
 
 class CleanupIntegrationTests(unittest.TestCase):
     def setUp(self):
-        self.root = Path(tempfile.mkdtemp(prefix="m9-cleanup.", dir=os.environ["FLEA_BATTERY_TEST_ROOT"]))
+        self.root = Path(tempfile.mkdtemp(prefix="m9-cleanup.", dir=os.environ["DLEA_BATTERY_TEST_ROOT"]))
         (self.root / MARKER).write_text("owned process cleanup regression\n")
         self.children = []
         self.addCleanup(self.reap_owned)

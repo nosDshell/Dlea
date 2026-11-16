@@ -103,8 +103,8 @@ fn a_collision_past_the_held_rows_locates_the_name() {
 // NC-1: a name that is not UTF-8 meets its own row and locate path through "x", never its lossy twin's.
 #[test]
 fn a_raw_collision_name_meets_its_own_row_not_its_lossy_twin() {
-    let exact = flea::bytename::name_text(b"col\xff").into_owned();
-    let lossy = flea::bytename::display(&exact).into_owned();
+    let exact = dlea::bytename::name_text(b"col\xff").into_owned();
+    let lossy = dlea::bytename::display(&exact).into_owned();
     assert_ne!(exact, lossy);
     let line = |id: usize| {
         format!(

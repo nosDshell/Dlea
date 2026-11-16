@@ -3,13 +3,13 @@
 # Real WindowBody, keys and QML models for the Sidebar040 and ClickAndRefresh bug hunt.
 set -u
 cd "$(dirname "$0")/.." || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 command -v qs >/dev/null || { echo 'FAIL sidebar-flows needs qs'; exit 1; }
 command -v dbus-run-session >/dev/null || { echo 'FAIL sidebar-flows needs a private D-Bus session'; exit 1; }
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [[ -x "$bin" ]] || { echo 'FAIL sidebar-flows needs the built backend'; exit 1; }
 sandbox_root_ok
-probe=$(mktemp -d "$SANDBOX_ROOT/flea-sidebar-flows.XXXXXX") || exit 1
+probe=$(mktemp -d "$SANDBOX_ROOT/dlea-sidebar-flows.XXXXXX") || exit 1
 : > "$probe/$SANDBOX_MARKER" || exit 1
 qs_pid=""
 stop_qs() {
@@ -61,20 +61,20 @@ cat > "$probe/data/recently-used.xbel" <<XML
 XML
 env HOME="$probe/home" XDG_STATE_HOME="$probe/state" "$bin" --ui-state \
     '{"preview":{"column":false,"thumbnails":"off"},"updates":{"autoCheck":false}}' >/dev/null || exit 1
-ln -s "$PWD/ui" "$probe/config/flea"
+ln -s "$PWD/ui" "$probe/config/dlea"
 headless_commons "$probe" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$probe/config/Ui"
 # The window loads its tab catcher from the shell directory, so the probe ships it as the product does.
-ln -s "$PWD/ui/boot/fleatab.qml" "$probe/config/fleatab.qml"
+ln -s "$PWD/ui/boot/dleatab.qml" "$probe/config/dleatab.qml"
 cp tests/sidebar-flows.qml "$probe/config/shell.qml"
 cp tests/sidebar-flows-extra.js "$probe/config/sidebar-flows-extra.js"
 cp tests/sidebar-flows-rail.js "$probe/config/sidebar-flows-rail.js"
 cp tests/sidebar-flows-palette.js "$probe/config/sidebar-flows-palette.js"
 log="$probe/qs.log"
-env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u FLEA_SELECT \
+env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u DLEA_SELECT \
     HOME="$probe/home" XDG_STATE_HOME="$probe/state" XDG_CONFIG_HOME="$probe/config" \
     XDG_DATA_HOME="$probe/data" XDG_CACHE_HOME="$probe/cache" XDG_RUNTIME_DIR="$probe/runtime" \
-    FLEA_PATH="$probe/home/fixture" FLEA_BIN="$bin" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
+    DLEA_PATH="$probe/home/fixture" DLEA_BIN="$bin" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
     QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 setsid dbus-run-session -- qs -p "$probe/config" >"$log" 2>&1 </dev/null &
 qs_pid=$!
 for ((tick = 0; tick < 600; tick++)); do
@@ -99,10 +99,10 @@ for variant in normalfill green mutant trashrow; do
     mkdir -p "$config" "$highlight"/{home,state,data,cache,runtime} || exit 1
     chmod 700 "$highlight/runtime"
     if [ "$variant" = mutant ]; then
-        cp -a ui "$config/flea" || exit 1
-        [ "$(grep -cF 'readonly property int highlightedIndex: root.cursorDrawn ? root.cursorIndex : root.litIndex' "$config/flea/Sidebar.qml")" -eq 1 ] || exit 1
-        sed -i 's/readonly property int highlightedIndex: root\.cursorDrawn ? root\.cursorIndex : root\.litIndex/readonly property int highlightedIndex: root.litIndex/' "$config/flea/Sidebar.qml" || exit 1
-        [ "$(grep -cF '    // The rail rounds nothing:' "$config/flea/SidebarRow.qml")" -eq 1 ] || exit 1
+        cp -a ui "$config/dlea" || exit 1
+        [ "$(grep -cF 'readonly property int highlightedIndex: root.cursorDrawn ? root.cursorIndex : root.litIndex' "$config/dlea/Sidebar.qml")" -eq 1 ] || exit 1
+        sed -i 's/readonly property int highlightedIndex: root\.cursorDrawn ? root\.cursorIndex : root\.litIndex/readonly property int highlightedIndex: root.litIndex/' "$config/dlea/Sidebar.qml" || exit 1
+        [ "$(grep -cF '    // The rail rounds nothing:' "$config/dlea/SidebarRow.qml")" -eq 1 ] || exit 1
         sed -i '/^    \/\/ The rail rounds nothing:/i\
     Rectangle {\
         visible: root.cursor\
@@ -113,19 +113,19 @@ for variant in normalfill green mutant trashrow; do
         border.color: Theme.color.foreground\
     }\
 
-' "$config/flea/SidebarRow.qml" || exit 1
+' "$config/dlea/SidebarRow.qml" || exit 1
     elif [ "$variant" = trashrow ]; then
-        cp -a ui "$config/flea" || exit 1
-        [ "$(grep -cF '    highlighted: root.railIndex === root.rail.highlightedIndex' "$config/flea/RailTrashRow.qml")" -eq 1 ] \
+        cp -a ui "$config/dlea" || exit 1
+        [ "$(grep -cF '    highlighted: root.railIndex === root.rail.highlightedIndex' "$config/dlea/RailTrashRow.qml")" -eq 1 ] \
             || { printf 'FAIL rail-highlight: RailTrashRow.qml no longer holds one shared highlighted binding\n'; exit 1; }
-        sed -i '/^    highlighted: root\.railIndex === root\.rail\.highlightedIndex$/d' "$config/flea/RailTrashRow.qml" \
+        sed -i '/^    highlighted: root\.railIndex === root\.rail\.highlightedIndex$/d' "$config/dlea/RailTrashRow.qml" \
             || { printf 'FAIL rail-highlight: the Trash row mutant could not edit RailTrashRow.qml\n'; exit 1; }
     elif [ "$variant" = normalfill ]; then
-        cp -a ui "$config/flea" || exit 1
-        [ "$(grep -cF 'root.focused ? Style.selectedFill : Style.normalFill' "$config/flea/SidebarRow.qml")" -eq 1 ] || exit 1
-        sed -i 's/root\.focused ? Style\.selectedFill : Style\.normalFill/Style.normalFill/' "$config/flea/SidebarRow.qml" || exit 1
+        cp -a ui "$config/dlea" || exit 1
+        [ "$(grep -cF 'root.focused ? Style.selectedFill : Style.normalFill' "$config/dlea/SidebarRow.qml")" -eq 1 ] || exit 1
+        sed -i 's/root\.focused ? Style\.selectedFill : Style\.normalFill/Style.normalFill/' "$config/dlea/SidebarRow.qml" || exit 1
     else
-        ln -s "$PWD/ui" "$config/flea" || exit 1
+        ln -s "$PWD/ui" "$config/dlea" || exit 1
     fi
     headless_commons "$probe" "$config/Commons" || exit 1
     ln -s "$(readlink -f ui/boot/Ui)" "$config/Ui" || exit 1

@@ -7,7 +7,7 @@ import math
 
 GRID_INSET = 8 # Keep the pointer away from monitor edges.
 GRID_STRIDE = 24 # Bound the bottom-up search without changing its coverage grid.
-CATCHER_NAMESPACE = "flea-tab-tearoff"
+CATCHER_NAMESPACE = "dlea-tab-tearoff"
 
 def number(value):
     return isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)

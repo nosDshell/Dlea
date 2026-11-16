@@ -7,7 +7,7 @@ use crate::{
 #[test]
 fn tui_words_properties_receive_and_refresh_keep_original_facts() {
     let fixture = Fixture::new();
-    fixture.write("catalog/ja/flea.json", r#"{"properties.size":"容量"}"#);
+    fixture.write("catalog/ja/dlea.json", r#"{"properties.size":"容量"}"#);
     let mut model = fixture.model();
     model.action_id = 11;
     model.sheet = true;
@@ -34,7 +34,7 @@ fn tui_words_properties_receive_and_refresh_keep_original_facts() {
 
 fn name_fixture() -> Fixture {
     let fixture = Fixture::new();
-    fixture.write("catalog/en/flea.json", r#"{
+    fixture.write("catalog/en/dlea.json", r#"{
         "tui.editor.invalid_name":"Enter a name that is not empty, . or .., and contains neither / nor a null character.",
         "tui.editor.name_empty":"A name cannot be empty.",
         "tui.editor.name_dots":"A name cannot be a single dot or a double dot.",
@@ -42,7 +42,7 @@ fn name_fixture() -> Fixture {
         "tui.editor.name_nul":"A name cannot contain a null character."
     }"#);
     fixture.write(
-        "catalog/ja/flea.json",
+        "catalog/ja/dlea.json",
         r#"{
         "tui.editor.invalid_name":"無効な名前",
         "tui.editor.name_empty":"空の名前"

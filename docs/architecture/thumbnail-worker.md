@@ -1,7 +1,7 @@
 ## Thumbnail worker
 
 **42 of the 97 ms a video thumbnail cost was `ffmpegthumbnailer` linking itself**, about a hundred
-shared libraries, once per file; the sandbox around it is about 5 ms. `flea --thumb-worker`
+shared libraries, once per file; the sandbox around it is about 5 ms. `dlea --thumb-worker`
 (`backend/thumbworker.rs`) links `libffmpegthumbnailer.so.4` once and forks one child per video,
 and `backend/workerlink.rs` is the backend's side. It changes how a video is decoded and nothing
 about what may be thumbnailed: the `.thumbnailer` files stay the only source of that.
@@ -16,18 +16,18 @@ and `-f` is the struct's `overlay_film_strip`; measured on minipc with ffmpegthu
 `generate_thumbnail_to_buffer` so set wrote the CLI's exact bytes for all 43 videos on the media
 fixture's first screen and for 360x640, 640x360, 200x200 and 1080x1920 test clips, each handed its
 real path. `set_size(N, 0)` differs on every portrait clip, so it is not the CLI's `-s`. **Through
-Flea the published entry differs in one optional key**: the program writes `Thumb::Mimetype` from
+Dlea the published entry differs in one optional key**: the program writes `Thumb::Mimetype` from
 the input's extension, and the worker's `/proc/self/fd/3` has none, so the worker's entry omits it.
 The pixels and every other key match, which `tests/thumbs.sh` asserts on the entries both paths
 publish for the same file, and the key's presence is what tells that test which path made each
-entry; the freedesktop spec makes the key optional and Flea's cache reads only `Thumb::URI` and
+entry; the freedesktop spec makes the key optional and Dlea's cache reads only `Thumb::URI` and
 `Thumb::MTime`. **libav does not lean on the missing extension**: on 2026-09-21 the program run on
 `/proc/self/fd/3` gave the same pixels as its run on the real path for all fifteen containers
 probed, mp4, mkv, webm, avi, mov, ts, mpg, flv, 3gp, wmv, m4v, ogv, m2ts, raw h264 and vob.
 
 **One worker for the pool, started lazily.** The first job that qualifies spawns it under the pool's
 own bwrap flags from `sandbox::wrap_worker`: every namespace flag, `--clearenv`, read-only `/usr`
-and `/etc`, and the flea executable itself bound read-only, and no input or output bind at all.
+and `/etc`, and the dlea executable itself bound read-only, and no input or output bind at all.
 There is no `prlimit` around it, because the limits are per job and every child sets its own after
 the fork. A cap on the worker would be inherited by every child anyway, and the 30 s `RLIMIT_CPU`
 would also count the worker's own CPU for the whole session, which `RLIMIT_CPU` accumulates and
@@ -37,7 +37,7 @@ first video together start one worker between them, because it is spawned under 
 **It stays resident for the rest of the backend's life**, and that is its cost: about 20 MB of PSS
 for the worker, 37.5 MB resident, and a third of a megabyte for its two `bwrap` processes, against
 the backend's 2.5 MB, in one sample on minipc after one video. The libraries it keeps linked are
-that number; nothing else in Flea maps them.
+that number; nothing else in Dlea maps them.
 
 **One job sees one file, and can write nothing else or signal anyone.** The backend opens the
 input read-only and the pre-created temp write-only and passes both, with a reply socket, over the
@@ -129,7 +129,7 @@ Completion settles cancellation under the job's identity lock before any publica
 not load, no Landlock that can deny a truncation, a request that cannot be sent, an `N`, a reply that closes with no byte, or
 no word within `JOB_TIMEOUT` plus 5 s all retire the worker for the rest of the process and send
 that job, and every later one, down the exec path. A job already cancelled by its client stays
-cancelled. One stderr line names the cause, such as `flea:
+cancelled. One stderr line names the cause, such as `dlea:
 the thumbnail worker did not start (libffmpegthumbnailer.so.4 did not load), so videos use the
 thumbnailer program`, or no Landlock, no answer within 5 s, an exit before any answer or `bwrap` not
 starting, and once it ran, `failed a job on this machine`, `stopped answering` or `stopped taking
@@ -146,11 +146,11 @@ path writes a `fail/` marker for a file it cannot read; `tests/thumbs.sh` assert
 marker for an unreadable video, which is what pins that branch. The request policy already answers
 a row that is not a regular file, so only a file swapped after that check reaches the other branch,
 and `workerlink::tests::an_input_that_is_not_a_file_to_judge_never_reaches_the_worker` drives a
-fifo and a vanished path through `generate` itself. `FLEA_THUMB_WORKER=off` starts with the worker retired:
+fifo and a vanished path through `generate` itself. `DLEA_THUMB_WORKER=off` starts with the worker retired:
 `tests/thumbs-exec.sh` runs all of `tests/thumbs.sh` that way inside `tests/run-all.sh`, and it is
 how an operator gets the exec path back.
 
-**Measured before it was built**, outside Flea, from the research session's `prefork.c`: the first
+**Measured before it was built**, outside Dlea, from the research session's `prefork.c`: the first
 43 videos of the media fixture took 828 ms at 4 at a time against 1489 through the sandboxed exec
 path, and 2595 against 4387 one at a time.
 

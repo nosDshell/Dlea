@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 
 // Absent history: no rows, no warning on either read; a directory: no rows, one warning (checked in picker-recent.sh).
 ShellRoot {
@@ -27,7 +27,7 @@ ShellRoot {
         console.log("FAIL " + label + ": got " + JSON.stringify(actual) + ", expected " + JSON.stringify(expected))
     }
 
-    Flea.PickerRecent {
+    Dlea.PickerRecent {
         id: recents
         onRefreshed: root.refreshed += 1
     }

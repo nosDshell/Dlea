@@ -56,7 +56,7 @@ fn every_protocol_state_is_valid_json_including_error_quotes() {
 
 #[test]
 fn worker_refusal_survives_diagnostic_changes_and_keeps_the_old_reply_shape() {
-    use flea::ui_logic_model_preview::wire::{self, State};
+    use dlea::ui_logic_model_preview::wire::{self, State};
     use std::os::unix::process::ExitStatusExt;
     let ask = Ask::parse(r#"{"token":3,"slot":"look","path":"/a.3mf"}"#);
     for reason in ["new diagnostic wording", "XML structure exceeds its bound"] {
@@ -116,8 +116,8 @@ fn waiting_for_another_parser_is_part_of_the_same_deadline() {
 fn cache_sweep_removes_only_dead_parser_work_and_preserves_live_jobs() {
     let root = TestDir::new("model3d-work-sweep");
     let old = std::time::SystemTime::now() - Duration::from_secs(120);
-    let dead = root.dir(".flea-work-model3d-4294967295-0");
-    let live = root.dir(&format!(".flea-work-model3d-{}-1", std::process::id()));
+    let dead = root.dir(".dlea-work-model3d-4294967295-0");
+    let live = root.dir(&format!(".dlea-work-model3d-{}-1", std::process::id()));
     let unrelated = root.dir("another-preview-cache");
     for dir in [&dead, &live, &unrelated] {
         root.assert_contains(dir);
@@ -136,7 +136,7 @@ fn cache_sweep_removes_only_dead_parser_work_and_preserves_live_jobs() {
 #[test]
 fn sandbox_argv_keeps_file_after_double_dash_and_binds_only_input_and_executable() {
     let inner = vec![
-        "/app/flea".into(),
+        "/app/dlea".into(),
         "--backend".into(),
         "--3d-worker".into(),
         "obj".into(),
@@ -145,7 +145,7 @@ fn sandbox_argv_keeps_file_after_double_dash_and_binds_only_input_and_executable
     ];
     let argv = sandbox::wrap_readonly_extra(
         &inner,
-        &[Path::new("/in/-part.obj"), Path::new("/app/flea")],
+        &[Path::new("/in/-part.obj"), Path::new("/app/dlea")],
     );
     assert_eq!(&argv[argv.len() - 6..], inner.as_slice());
     assert!(argv.iter().any(|v| v == "--cpu=30"));
@@ -164,16 +164,16 @@ fn a_raw_named_model_reaches_the_worker_as_its_own_file() {
     std::fs::write(&input, testdata::OBJ).unwrap();
     std::fs::write(root.path().join("part-\u{fffd}.obj"), b"twin").unwrap();
     let inner: Vec<String> = vec![
-        "/app/flea".into(),
+        "/app/dlea".into(),
         "--backend".into(),
         "--3d-worker".into(),
         "obj".into(),
         "--".into(),
         input.exact_text().into_owned(),
     ];
-    let args = worker_args(flea::bytename::args(&inner).map(|arg| arg.into_owned()));
+    let args = worker_args(dlea::bytename::args(&inner).map(|arg| arg.into_owned()));
     let mut bytes = Vec::new();
-    regfile::open_if_regular(&flea::bytename::view(&args[5]), 0)
+    regfile::open_if_regular(&dlea::bytename::view(&args[5]), 0)
         .unwrap()
         .read_to_end(&mut bytes)
         .unwrap();

@@ -8,7 +8,7 @@ mod parents;
 mod path;
 mod recovery;
 use cancel::remove_tree_cancellable;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use parents::parent_at;
 pub use path::PathReview;
 #[cfg(test)]
@@ -558,10 +558,10 @@ impl Reviewed {
     }
     fn read_saved(text: &str, manifest: &Manifest) -> Result<Self, Refusal> {
         Ok(Self {
-            path: flea::bytename::exact(
+            path: dlea::bytename::exact(
                 field_str(text, "path").changed("Missing Trash review path.")?,
             ),
-            info: flea::bytename::exact(
+            info: dlea::bytename::exact(
                 field_str(text, "info").changed("Missing Trash review metadata path.")?,
             ),
             payload: Identity::from_saved(

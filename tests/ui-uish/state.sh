@@ -5,7 +5,7 @@ case_xwsettings() {
     config="$root/config"
     state="$root/state"
     sandbox_scratch "$root"
-    [[ -f "$fixture_root/.flea-test-sandbox" ]] \
+    [[ -f "$fixture_root/.dlea-test-sandbox" ]] \
         || fail "xwsettings: the sandbox root carries no marker, so nothing here is deletable"
     mkdir -p "$dir/sub" "$config" "$state" || fail "xwsettings: the sandbox could not be made"
     : > "$dir/a.txt"
@@ -15,7 +15,7 @@ case_xwsettings() {
     local real_config="${XDG_CONFIG_HOME-}" real_state="${XDG_STATE_HOME-}"
     export XDG_CONFIG_HOME="$config"
     export XDG_STATE_HOME="$state"
-    env XDG_STATE_HOME="$state" "$flea_bin" --ui-state \
+    env XDG_STATE_HOME="$state" "$dlea_bin" --ui-state \
         '{"hidden":false,"density":"compact","view":"list"}' >/dev/null \
         || fail "xwsettings: the seeding write failed"
     printf 'XWSETTINGS setup=ok\n'
@@ -24,42 +24,42 @@ case_xwsettings() {
     launch_window "$dir"
     local addrA addrB pidA pidB
     pidA=$ipc_pid
-    addrA=$(omarchy-drive windows --json | jq -r '[.windows[] | select(.title == "Flea")] | .[0].address // empty')
-    [[ -n "$addrA" ]] || fail "xwsettings: no Flea window after launching A"
+    addrA=$(omarchy-drive windows --json | jq -r '[.windows[] | select(.title == "Dlea")] | .[0].address // empty')
+    [[ -n "$addrA" ]] || fail "xwsettings: no Dlea window after launching A"
     [[ "$(hyprctl clients -j | jq -r --arg a "$addrA" '.[] | select(.address == $a) | .pid')" == "$pidA" ]] \
         || fail "xwsettings: the window at $addrA does not belong to owned pid $pidA"
     omarchy-drive focus "$addrA" >/dev/null
     assert_window
     [[ "$pidA" =~ ^[1-9][0-9]*$ ]] || fail "xwsettings: A has no owned qs pid"
-    local -a ipcA=(timeout --kill-after="$ipc_call_kill_after" "$ipc_call_timeout" "$FLEA_IPC_HELPER" --pid "$pidA" call flea)
+    local -a ipcA=(timeout --kill-after="$ipc_call_kill_after" "$ipc_call_timeout" "$DLEA_IPC_HELPER" --pid "$pidA" call dlea)
     wait_listing 3
     [[ "$("${ipcA[@]}" path)" == "$dir" ]] || fail "xwsettings: A opened $("${ipcA[@]}" path), not $dir"
 
-    # Window B is a second owned launch over the same state file; flea-gui needs no second ui tree.
-    local b_log="$run_root/flea-xwsettings-b.log" before pid
-    before=$(flea_pids | tr '\n' ' ')
-    flea_test_launch "$dir" "$b_log" --ui "$flea_ui" --binary "$flea_bin" \
+    # Window B is a second owned launch over the same state file; dlea-gui needs no second ui tree.
+    local b_log="$run_root/dlea-xwsettings-b.log" before pid
+    before=$(dlea_pids | tr '\n' ' ')
+    dlea_test_launch "$dir" "$b_log" --ui "$dlea_ui" --binary "$dlea_bin" \
         || fail "xwsettings: the second owned window launch failed"
     local attempt count
     for (( attempt = 0; attempt < 150; attempt++ )); do
-        count=$(omarchy-drive windows --json | jq '[.windows[] | select(.title == "Flea")] | length')
+        count=$(omarchy-drive windows --json | jq '[.windows[] | select(.title == "Dlea")] | length')
         [[ "$count" == 2 ]] && break
         sleep 0.1
     done
     [[ "$count" == 2 ]] || fail "xwsettings: the second window never arrived, got $count"
     addrB=$(omarchy-drive windows --json \
-        | jq -r --arg a "$addrA" '[.windows[] | select(.title == "Flea" and .address != $a)] | .[0].address // empty')
+        | jq -r --arg a "$addrA" '[.windows[] | select(.title == "Dlea" and .address != $a)] | .[0].address // empty')
     [[ -n "$addrB" ]] || fail "xwsettings: the second window has no address of its own"
     pidB=""
-    for pid in $(flea_pids); do
+    for pid in $(dlea_pids); do
         [[ " $before " == *" $pid "* ]] || pidB=$pid
     done
     [[ -n "$pidB" ]] || fail "xwsettings: B has no owned qs pid"
-    flea_process_owned "$pidB" || fail "xwsettings: B has no owned qs pid"
+    dlea_process_owned "$pidB" || fail "xwsettings: B has no owned qs pid"
     [[ "$pidB" != "$pidA" ]] || fail "xwsettings: A and B share pid $pidA"
     [[ "$(hyprctl clients -j | jq -r --arg a "$addrB" '.[] | select(.address == $a) | .pid')" == "$pidB" ]] \
         || fail "xwsettings: the second window at $addrB does not belong to owned pid $pidB"
-    local -a ipcB=(timeout --kill-after="$ipc_call_kill_after" "$ipc_call_timeout" "$FLEA_IPC_HELPER" --pid "$pidB" call flea)
+    local -a ipcB=(timeout --kill-after="$ipc_call_kill_after" "$ipc_call_timeout" "$DLEA_IPC_HELPER" --pid "$pidB" call dlea)
     omarchy-drive focus "$addrB" >/dev/null
     for (( attempt = 0; attempt < 150; attempt++ )); do
         [[ "$("${ipcB[@]}" path 2>/dev/null)" == "$dir" ]] && break
@@ -160,7 +160,7 @@ case_xwsettings() {
     omarchy-drive key --window "$addrB" l >/dev/null
     for (( attempt = 0; attempt < 30; attempt++ )); do
         if "${ipcB[@]}" uiSettings 2>/dev/null | jq -e '.density == "normal"' >/dev/null \
-            && jq -e '.density == "normal"' "$state/flea/ui.json" >/dev/null; then break; fi
+            && jq -e '.density == "normal"' "$state/dlea/ui.json" >/dev/null; then break; fi
         sleep 0.1
     done
     "${ipcB[@]}" uiSettings | jq -e '.density == "normal"' >/dev/null \
@@ -190,17 +190,17 @@ case_xwsettings() {
     if [[ -n "$real_config" ]]; then export XDG_CONFIG_HOME="$real_config"; else unset XDG_CONFIG_HOME; fi
     if [[ -n "$real_state" ]]; then export XDG_STATE_HOME="$real_state"; else unset XDG_STATE_HOME; fi
     cat "$b_log" >> "$run_log" 2>/dev/null || true
-    kill_flea
+    kill_dlea
 }
 
 # Find the second owned GPUI launch by its new pid, as case_xwsettings does.
 xw_second_window_gpui() {
     local start_path="$1" before pid fresh="" attempt
-    before=" $(flea_pids | tr '\n' ' ') "
-    flea_test_launch "$start_path" "$run_root/flea.A.log" --ui "$flea_ui" --binary "$flea_bin" \
+    before=" $(dlea_pids | tr '\n' ' ') "
+    dlea_test_launch "$start_path" "$run_root/dlea.A.log" --ui "$dlea_ui" --binary "$dlea_bin" \
         || fail "xwwatch: the second owned window launch failed"
     for (( attempt = 0; attempt < xw_window_poll_tries; attempt++ )); do
-        for pid in $(flea_pids); do
+        for pid in $(dlea_pids); do
             [[ "$before" == *" $pid "* ]] || fresh=$pid
         done
         [[ -n "$fresh" ]] && break
@@ -246,7 +246,7 @@ case_xwwatch() {
     printf 'five\n' > "$dir/untouched.txt"
     launch "$dir"
     wait_listing 5
-    pidB=$(flea_pid)
+    pidB=$(dlea_pid)
     addrB=$(xw_addr_for_pid "$pidB") || fail "xwwatch: no B window address"
     [[ -n "$addrB" ]] || fail "xwwatch: no B window address"
 
@@ -269,7 +269,7 @@ case_xwwatch() {
         '[.[] | select(.address == $addr)] | select(length == 1) | .[0].pid
          | select(type == "number" and . == floor and . > 0)') \
         || fail "xwwatch: no single A pid at $addrA"
-    flea_process_owned "$pidA" || fail "xwwatch: A pid $pidA is not owned by this run"
+    dlea_process_owned "$pidA" || fail "xwwatch: A pid $pidA is not owned by this run"
     [[ "$pidA" != "$pidB" ]] || fail "xwwatch: A and B share pid $pidA"
     xw_wait_total "$pidA" 5 "second window listing"
     xw_settled "$pidA"
@@ -352,7 +352,7 @@ case_xwwatch() {
 }
 
 case_makedefault() {
-    local dir="$fixture_root/makedefault" box="$fixture_root/makedefault-box" real_bin="$flea_bin"
+    local dir="$fixture_root/makedefault" box="$fixture_root/makedefault-box" real_bin="$dlea_bin"
     sandbox_scratch "$dir"
     sandbox_scratch "$box"
     : > "$dir/a.txt"
@@ -371,23 +371,23 @@ case_makedefault() {
     printf 'ok\n' > "$mode"
     printf 'ok\n' > "$restart"
     makedefault_from_source "$box"
-    # The row looks for the packaged entry on the XDG data ladder before it offers a claim, as flea --default does.
-    printf '[Desktop Entry]\nType=Application\nName=Flea\nExec=flea %%U\n' > "$box/data/applications/com.thisisgm.flea.desktop"
+    # The row looks for the packaged entry on the XDG data ladder before it offers a claim, as dlea --default does.
+    printf '[Desktop Entry]\nType=Application\nName=Dlea\nExec=dlea %%U\n' > "$box/data/applications/com.nosDshell.dlea.desktop"
 
     # The two --default shapes are answered, other argv of a desktop-writing mode is refused, and the rest runs the real binary.
-    cat > "$box/bin/flea" <<'STUB'
+    cat > "$box/bin/dlea" <<'STUB'
 #!/bin/sh
-# Sample input: flea --default off
-box="$FLEA_MAKEDEFAULT_BOX"
+# Sample input: dlea --default off
+box="$DLEA_MAKEDEFAULT_BOX"
 if [ "$#" -eq 1 ] && [ "$1" = --default ]; then
     shape=claim
 elif [ "$#" -eq 2 ] && [ "$1" = --default ] && [ "$2" = off ]; then
     shape=release
 elif [ "$#" -gt 0 ] && grep -q -x -F -e "$1" "$box/guarded"; then
-    printf 'REFUSED flea %s\n' "$*" >> "$box/refused.log"
+    printf 'REFUSED dlea %s\n' "$*" >> "$box/refused.log"
     exit 64
 else
-    exec "$FLEA_MAKEDEFAULT_REAL" "$@"
+    exec "$DLEA_MAKEDEFAULT_REAL" "$@"
 fi
 printf 'RAN %s\n' "$*" >> "$box/ran.log"
 printf 'RAN %s\n' "$*" >> "$box/events.log"
@@ -397,21 +397,21 @@ sleep 2
 mode=$(cat "$box/mode")
 case "$mode" in
     refuse) cat "$box/refusal" >&2; exit "$(cat "$box/refusal-status")" ;;
-    fail) echo "flea: xdg-mime default exited 0 but inode/directory still resolves to org.gnome.Nautilus.desktop" >&2; exit 1 ;;
+    fail) echo "dlea: xdg-mime default exited 0 but inode/directory still resolves to org.gnome.Nautilus.desktop" >&2; exit 1 ;;
 esac
 if [ "$shape" = claim ]; then
-    echo com.thisisgm.flea.desktop > "$box/handler"
+    echo com.nosDshell.dlea.desktop > "$box/handler"
     [ "$mode" != partly ] || cat "$box/skipped" >&2
-    echo "undo both with: flea --default off"
+    echo "undo both with: dlea --default off"
 else
     echo org.gnome.Nautilus.desktop > "$box/handler"
 fi
 STUB
-    chmod +x "$box/bin/flea"
+    chmod +x "$box/bin/dlea"
     cat > "$box/bin/xdg-mime" <<'STUB'
 #!/bin/sh
 # Sample input: xdg-mime query default inode/directory
-box="$FLEA_MAKEDEFAULT_BOX"
+box="$DLEA_MAKEDEFAULT_BOX"
 if [ "$#" -ne 3 ] || [ "$1" != query ] || [ "$2" != default ] || [ "$3" != inode/directory ]; then
     printf 'REFUSED xdg-mime %s\n' "$*" >> "$box/refused.log"
     exit 1
@@ -433,9 +433,9 @@ STUB
     cat > "$box/bin/systemctl" <<'STUB'
 #!/bin/sh
 # Sample input: systemctl --user try-restart xdg-desktop-portal.service
-printf 'SYSTEMCTL %s\n' "$*" >> "$FLEA_MAKEDEFAULT_BOX/systemctl.log"
+printf 'SYSTEMCTL %s\n' "$*" >> "$DLEA_MAKEDEFAULT_BOX/systemctl.log"
 [ "$*" = "--user try-restart xdg-desktop-portal.service" ] || exit 1
-[ "$(cat "$FLEA_MAKEDEFAULT_BOX/restart")" = ok ]
+[ "$(cat "$DLEA_MAKEDEFAULT_BOX/restart")" = ok ]
 STUB
     chmod +x "$box/bin/systemctl"
 
@@ -455,12 +455,12 @@ STUB
     # Keyboard: Space claims, and a second Space while the run lasts runs nothing.
     settings_focus_row makeDefault
     key -k space >/dev/null
-    makedefault_wait "false|true|Making Flea the default|muted" "Space did not start the claim"
+    makedefault_wait "false|true|Making Dlea the default|muted" "Space did not start the claim"
     key -k space >/dev/null
-    makedefault_wait "true|false|Folders, Show in folder and file dialogs open Flea.|foreground" "the claim did not settle ticked"
+    makedefault_wait "true|false|Folders, Show in folder and file dialogs open Dlea.|foreground" "the claim did not settle ticked"
     [[ "$(makedefault_ran)" == "RAN --default;" ]] \
         || fail "makedefault: the stub ran '$(makedefault_ran)', so a press during the run was not ignored"
-    makedefault_wait_handler com.thisisgm.flea.desktop
+    makedefault_wait_handler com.nosDshell.dlea.desktop
     [[ "$(makedefault_restarts)" == 1 ]] || fail "makedefault: a claim that went through did not restart the portal once"
     [[ "$(grep -c . "$queries")" == 2 ]] \
         || fail "makedefault: xdg-mime was asked $(grep -c . "$queries") times, so the handler was not read again after the run"
@@ -479,8 +479,8 @@ STUB
     # Enter claims too; a build with no portal files says the file dialogs are left out.
     printf 'partly\n' > "$mode"
     key -k Return >/dev/null
-    makedefault_wait "false|true|Making Flea the default|muted" "Enter did not start the claim"
-    makedefault_wait "true|false|File dialogs need the flea package's portal files.|foreground" "a claim that skipped the chooser step did not say so"
+    makedefault_wait "false|true|Making Dlea the default|muted" "Enter did not start the claim"
+    makedefault_wait "true|false|File dialogs need the dlea package's portal files.|foreground" "a claim that skipped the chooser step did not say so"
     shot makedefault-partly
     printf 'ok\n' > "$mode"
     key -k space >/dev/null
@@ -497,31 +497,31 @@ STUB
     makedefault_wait "false|false||" "the claim with the late portal was not handed back"
     [[ "$(makedefault_restarts)" == 6 ]] || fail "makedefault: the portal was not restarted after each switch that went through"
 
-    # A failed claim shows flea's own line in the error role, and the box stays what xdg-mime answers.
+    # A failed claim shows dlea's own line in the error role, and the box stays what xdg-mime answers.
     printf 'fail\n' > "$mode"
     key -k space >/dev/null
     makedefault_wait "false|false|xdg-mime default exited 0 but inode/directory still resolves to org.gnome.Nautilus.desktop|error" \
-        "a failed claim did not show flea's own line"
+        "a failed claim did not show dlea's own line"
     [[ "$(makedefault_restarts)" == 6 ]] || fail "makedefault: a failed run restarted the portal"
     shot makedefault-failed
 
     # A refused claim, the build with no desktop entry, leaves the row inert to Space and to a click.
     printf 'refuse\n' > "$mode"
     key -k space >/dev/null
-    makedefault_wait "false|true|Install a Flea package to make it the default.|foreground" "a refused claim did not make the row inert"
+    makedefault_wait "false|true|Install a Dlea package to make it the default.|foreground" "a refused claim did not make the row inert"
     runs=$(grep -c . "$makedefault_log")
     key -k space >/dev/null
     settings_click_control makeDefault
     sleep 1
     [[ "$(grep -c . "$makedefault_log")" == "$runs" ]] || fail "makedefault: the inert row still ran '$(makedefault_ran)'"
-    makedefault_wait "false|true|Install a Flea package to make it the default.|foreground" "the inert row changed under a press"
+    makedefault_wait "false|true|Install a Dlea package to make it the default.|foreground" "the inert row changed under a press"
     [[ "$(makedefault_restarts)" == 6 ]] || fail "makedefault: a refused run restarted the portal"
     shot makedefault-unpackaged
 
     # An action with a live state, never a setting: nothing reached ui.json, at any depth, and no save was refused.
     ipc uiSettings | jq -e "$no_key" >/dev/null \
         || fail "makedefault: the session state carries makeDefault, or did not read as an object: $(ipc uiSettings)"
-    [[ ! -e "$XDG_STATE_HOME/flea/ui.json" ]] || jq -e "$no_key" "$XDG_STATE_HOME/flea/ui.json" >/dev/null \
+    [[ ! -e "$XDG_STATE_HOME/dlea/ui.json" ]] || jq -e "$no_key" "$XDG_STATE_HOME/dlea/ui.json" >/dev/null \
         || fail "makedefault: ui.json carries makeDefault, or does not parse"
     [[ "$(ipc lastMessage)" != "That setting could not be saved." ]] || fail "makedefault: a press was sent to the settings writer"
 
@@ -535,16 +535,16 @@ STUB
     settings_section about
     settings_focus_row makeDefault
     key -k space >/dev/null
-    makedefault_wait "false|true|Making Flea the default|muted" "Space did not start the claim over a held read"
+    makedefault_wait "false|true|Making Dlea the default|muted" "Space did not start the claim over a held read"
     makedefault_wait_event EXITED
     # Time for the window to take the exit in before the held answer lands.
     settle
     [[ "$(makedefault_events)" == "ASKED;RAN --default;EXITED;" ]] \
         || fail "makedefault: the claim did not exit inside the held read, the stubs logged '$(makedefault_events)'"
     : > "$box/gate"
-    makedefault_wait "true|false|Folders, Show in folder and file dialogs open Flea.|foreground" \
+    makedefault_wait "true|false|Folders, Show in folder and file dialogs open Dlea.|foreground" \
         "the answer from before the claim settled it" 200
-    [[ "$(makedefault_events)" == "ASKED;RAN --default;EXITED;ANSWERED org.gnome.Nautilus.desktop;ASKED;ANSWERED com.thisisgm.flea.desktop;" ]] \
+    [[ "$(makedefault_events)" == "ASKED;RAN --default;EXITED;ANSWERED org.gnome.Nautilus.desktop;ASKED;ANSWERED com.nosDshell.dlea.desktop;" ]] \
         || fail "makedefault: the handler was not read again behind the held read, the stubs logged '$(makedefault_events)'"
     [[ "$(makedefault_restarts)" == 7 ]] || fail "makedefault: the claim behind the held read did not restart the portal"
     shot makedefault-held
@@ -563,7 +563,7 @@ STUB
     [[ "$(makedefault_handler)" == "Not reported" ]] || fail "makedefault: with no xdg-mime the File manager row states '$(makedefault_handler)'"
     settings_focus_row makeDefault
     key -k space >/dev/null
-    makedefault_wait "false|true|Making Flea the default|muted" "Space did not start the claim with no xdg-mime"
+    makedefault_wait "false|true|Making Dlea the default|muted" "Space did not start the claim with no xdg-mime"
     makedefault_wait "false|false||" "the claim stayed working behind a re-read whose xdg-mime could not start"
     [[ "$(makedefault_events)" == "RAN --default;EXITED;" ]] \
         || fail "makedefault: with no xdg-mime on PATH the stubs logged '$(makedefault_events)'"
@@ -577,5 +577,5 @@ STUB
 
     printf 'MAKEDEFAULT keyboard=ok pointer=ok enter=ok partly=ok portal=ok failed=ok unpackaged=ok stored=none held=ok nomime=ok runs=%s restarts=%s\n' \
         "$runs" "$(makedefault_restarts)"
-    kill_flea
+    kill_dlea
 }

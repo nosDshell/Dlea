@@ -15,7 +15,7 @@ Item {
         }
     }
 
-    // Sample input: "Flea.DropInto { dest: root.pane.dropPath }".
+    // Sample input: "Dlea.DropInto { dest: root.pane.dropPath }".
     function block(text, marker) {
         var start = text.indexOf(marker)
         if (start < 0) throw new Error("missing shipped block " + marker)
@@ -32,7 +32,7 @@ Item {
 
     // The shipped floor bindings and drop handler without Quickshell singletons, over the shipped key record in ui/js/DragOut.js.
     function floor(file, pane) {
-        var wiring = block(Source.source(file), "Flea.DropInto {")
+        var wiring = block(Source.source(file), "Dlea.DropInto {")
         var handler = block(Source.source("ui/DropInto.qml"), "onDropped: function (drop)")
             .replace("onDropped: function (drop)", "function performDrop(drop)")
             .replace(/\bDropKeys\./g, "dropKeys.")
@@ -89,7 +89,7 @@ Item {
 
     function dragOf(marker, lift) {
         return { urls: ["file:///source/a.txt"], proposedAction: Qt.MoveAction, accepted: false, accept: function () {},
-            getDataAsString: function (type) { return type === "application/x-flea-rows" ? marker : type === "application/x-flea-lift" ? lift : "" } }
+            getDataAsString: function (type) { return type === "application/x-dlea-rows" ? marker : type === "application/x-dlea-lift" ? lift : "" } }
     }
 
     // A refused entry never reaches the area's exit, which alone ends the band, so only an accepted entry may start it.

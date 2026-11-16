@@ -3,7 +3,7 @@
 # The first grid tile's frame stands a gap plus a hairline off the rail and the chrome.
 # Offscreen and with no compositor, so this needs neither the display nor the display lock.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -11,15 +11,15 @@ if ! command -v qs >/dev/null; then
     exit 1
 fi
 
-test_root="$FIXTURE_ROOT/flea-grid-gap-$$"
+test_root="$FIXTURE_ROOT/dlea-grid-gap-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/grid-gap.qml "$test_root/config/shell.qml" || exit 1
@@ -46,7 +46,7 @@ cp -r "$PWD/ui" "$mutant_ui" || exit 1
 sed -i 's#if (root.contentHeight + root.topMargin + root.bottomMargin <= root.height || root.columns < 1 || view < 0) return#return // mutant-nolift: the lift stays off#' "$mutant_ui/GridArea.qml" || exit 1
 [ "$(grep -c 'mutant-nolift' "$mutant_ui/GridArea.qml")" = 1 ] || { printf 'FAIL the nolift mutant patch missed\n'; exit 1; }
 mkdir -p "$test_root/mutant-config" || exit 1
-ln -s "$mutant_ui" "$test_root/mutant-config/flea" || exit 1
+ln -s "$mutant_ui" "$test_root/mutant-config/dlea" || exit 1
 headless_commons "$test_root" "$test_root/mutant-config/Commons" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/mutant-config/Ui" || exit 1
 cp tests/grid-gap.qml "$test_root/mutant-config/shell.qml" || exit 1
@@ -70,7 +70,7 @@ cp -r "$PWD/ui" "$restore_ui" || exit 1
 sed -i 's#root.keepLastRowClear(view)#// mutant-norestore-lift: the restore lift stays off#' "$restore_ui/GridArea.qml" || exit 1
 [ "$(grep -c 'mutant-norestore-lift' "$restore_ui/GridArea.qml")" = 1 ] || { printf 'FAIL the norestore-lift mutant patch missed\n'; exit 1; }
 mkdir -p "$test_root/restore-mutant-config" || exit 1
-ln -s "$restore_ui" "$test_root/restore-mutant-config/flea" || exit 1
+ln -s "$restore_ui" "$test_root/restore-mutant-config/dlea" || exit 1
 headless_commons "$test_root" "$test_root/restore-mutant-config/Commons" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/restore-mutant-config/Ui" || exit 1
 cp tests/grid-gap.qml "$test_root/restore-mutant-config/shell.qml" || exit 1

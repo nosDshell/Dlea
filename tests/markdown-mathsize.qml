@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-markdown-mathsize-test
+//@ pragma ShellId dlea-markdown-mathsize-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "markdown-figures-render.js" as Checks
 import "markdown-mathsize.js" as Size
 
@@ -29,8 +29,8 @@ ShellRoot {
     // The font the body text uses: MarkdownText takes this family at the pane's body pixel size.
     FontMetrics {
         id: bodyFont
-        font.family: Flea.Theme.font.family
-        font.pixelSize: Flea.Theme.font.body
+        font.family: Dlea.Theme.font.family
+        font.pixelSize: Dlea.Theme.font.body
     }
 
     FloatingWindow {
@@ -38,11 +38,11 @@ ShellRoot {
         implicitWidth: 560
         implicitHeight: 600
         color: "#101315"
-        Flea.PreviewMarkdown {
+        Dlea.PreviewMarkdown {
             id: md
             anchors.fill: parent
             active: true
-            path: Quickshell.env("FLEA_MARKDOWN_FIGURE_FIXTURE")
+            path: Quickshell.env("DLEA_MARKDOWN_FIGURE_FIXTURE")
             size: 1
             view: "rendered"
         }
@@ -50,7 +50,7 @@ ShellRoot {
 
     // A font whose x-height the container cannot supply: the seam forces the measured height, here the 9 px the defect capture showed at body 14.
     readonly property real forcedXHeight: 9
-    Flea.MarkdownFigure {
+    Dlea.MarkdownFigure {
         id: forced
         parent: window.contentItem
         opacity: 0
@@ -60,19 +60,19 @@ ShellRoot {
         fgHex: "#c0caf5"
     }
     Component.onCompleted: {
-        Flea.ViewState.setTextSize({ mode: shell.sizes[0] })
+        Dlea.ViewState.setTextSize({ mode: shell.sizes[0] })
         forced.xHeight = shell.forcedXHeight
     }
 
     // Every formula has answered the current size's ask and decoded its image.
     function ready() {
-        if (!md.contentReady || md.blockList.length !== 4 || Flea.Theme.font.body !== shell.sizes[shell.sizeAt])
+        if (!md.contentReady || md.blockList.length !== 4 || Dlea.Theme.font.body !== shell.sizes[shell.sizeAt])
             return false
         for (var i = 1; i <= 3; i++) {
             var fig = Checks.figure(md, i)
             var image = Checks.imageOf(fig)
             if (!fig || !fig.ready || fig.working || fig.askPending || fig.askRuns <= shell.askMark
-                    || fig.bodyPx !== Flea.Theme.font.body || !image || image.status !== Image.Ready || image.height <= 0)
+                    || fig.bodyPx !== Dlea.Theme.font.body || !image || image.status !== Image.Ready || image.height <= 0)
                 return false
         }
         var held = Checks.imageOf(forced)
@@ -81,7 +81,7 @@ ShellRoot {
     }
 
     function measure() {
-        var body = Flea.Theme.font.body
+        var body = Dlea.Theme.font.body
         var xHeight = bodyFont.xHeight
         shell.log("body " + body + "px x-height " + xHeight.toFixed(2) + "px")
         shell.check(xHeight > 0 ? "" : "the body font reports no x-height", "body x-height measured at " + body)
@@ -101,7 +101,7 @@ ShellRoot {
         shell.sizeAt++
         if (shell.sizeAt < shell.sizes.length) {
             shell.askMark = Math.max(Checks.figure(md, 1).askRuns, Checks.figure(md, 2).askRuns, Checks.figure(md, 3).askRuns)
-            Flea.ViewState.setTextSize({ mode: shell.sizes[shell.sizeAt] })
+            Dlea.ViewState.setTextSize({ mode: shell.sizes[shell.sizeAt] })
             shell.settling = false
         } else {
             shell.done = true

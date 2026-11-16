@@ -2,7 +2,7 @@ use super::meta::Meta;
 use super::proto::error_line;
 use super::run::say;
 use super::state::{Held, State, Tables};
-use crate::error::FleaError;
+use crate::error::DleaError;
 use std::io::Write;
 
 pub fn write_window(out: &mut impl Write, st: &mut State, start: usize, count: usize, tb: &Tables) {
@@ -65,7 +65,7 @@ pub(crate) fn window_line(st: &mut State, tb: &Tables, metas: &[Meta], start: us
 }
 
 // One window's metas: remoteness is decided before anything is moved, so a local window stats inline with no clone and a remote one moves only its rows to the worker.
-pub(crate) fn window_metas(st: &mut State, start: usize, count: usize) -> Result<(Vec<Meta>, f64), FleaError> {
+pub(crate) fn window_metas(st: &mut State, start: usize, count: usize) -> Result<(Vec<Meta>, f64), DleaError> {
     if st.held == Held::Walk {
         if let Some(session) = st.search_session.as_mut() {
             if st.base == session.scope && !super::iomount::is_remote(&st.base, &session.body) {

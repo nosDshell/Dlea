@@ -3,7 +3,7 @@ use std::path::Path;
 
 #[test]
 fn fxi18n3_actual_unheld_reasons_and_summaries_keep_their_catalog_identity() {
-    use flea::ui_logic_status_feedback::errors::passthrough;
+    use dlea::ui_logic_status_feedback::errors::passthrough;
     for why in [
         super::LINKS,
         super::NODES,
@@ -75,7 +75,7 @@ fn a_raw_named_tree_keeps_its_exact_path_and_shows_its_lossy_name() {
         "the entry strips the raw top and reads lossy"
     );
     assert_eq!(
-        flea::bytename::text_path(&summary.path),
+        dlea::bytename::text_path(&summary.path),
         top,
         "the path decodes to the raw top"
     );

@@ -13,7 +13,7 @@ fn red(path: &std::path::Path) {
     let args = [
         "magick".into(),
         "-read".into(),
-        flea::bytename::path_text(path).into_owned(),
+        dlea::bytename::path_text(path).into_owned(),
         "-format".into(),
         "%[pixel:p{0,0}]".into(),
         "info:".into(),
@@ -30,7 +30,7 @@ fn holds_red(path: &std::path::Path) {
     let args = [
         "magick".into(),
         "-read".into(),
-        flea::bytename::path_text(path).into_owned(),
+        dlea::bytename::path_text(path).into_owned(),
         "-format".into(),
         "%[fx:minima.b]".into(),
         "info:".into(),
@@ -192,7 +192,7 @@ fn magick_font_paths_and_intermediate_writes_remain_literal() {
         .join(std::ffi::OsStr::from_bytes(b"a%%-%[fx:1]-\xff.ttf"));
     std::fs::write(
         &font,
-        include_bytes!("../../crates/flea-gui/tests/fonts/JetBrainsMono-Regular.ttf"),
+        include_bytes!("../../crates/dlea-gui/tests/fonts/JetBrainsMono-Regular.ttf"),
     )
     .unwrap();
     let ask = render::Ask {
@@ -206,7 +206,7 @@ fn magick_font_paths_and_intermediate_writes_remain_literal() {
     let outputs = [d.join("a%%-%[fx:1].png"), d.join("b%%-%d.png")];
     let args = render::argv("magick", &font, &ask, "Sample", &outputs);
     let result = std::process::Command::new(&args[0])
-        .args(flea::bytename::args(&args[1..]))
+        .args(dlea::bytename::args(&args[1..]))
         .output()
         .unwrap();
     assert!(
@@ -240,7 +240,7 @@ fn magick_relative_prefixes_and_expressions_remain_file_names() {
             false,
         );
         let result = std::process::Command::new(&args[0])
-            .args(flea::bytename::args(&args[1..]))
+            .args(dlea::bytename::args(&args[1..]))
             .current_dir(d.join(""))
             .output()
             .unwrap();

@@ -1,5 +1,5 @@
 .pragma library
-.import "flea/js/Contrast.js" as Contrast
+.import "dlea/js/Contrast.js" as Contrast
 
 // Matches interleave with non-matches in name order, so a step from a kept row skips a hidden row: "ap" keeps rows 0, 2, 4, 6, 8 and 10, 6 of the 12 below.
 function buildRows() {

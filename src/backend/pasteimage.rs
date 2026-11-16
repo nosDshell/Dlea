@@ -3,7 +3,7 @@ use crate::backend::opsreq::{op_err, usable_dest, OpMsg};
 use crate::backend::proto::{error_line, error_line_with_code};
 use crate::backend::undo::{Entry, Step};
 use crate::json::field_str;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::io::{Read, Write};
 use std::os::unix::fs::OpenOptionsExt;
 use std::path::Path;
@@ -127,7 +127,7 @@ fn execute(dest: &Path, name: &str, argv: &[String]) -> (String, Option<Entry>) 
     };
     // Per paste, so two pastes in flight never share a temp and neither unlinks the other's.
     static PASTE_TMP_NEXT: AtomicUsize = AtomicUsize::new(0);
-    let tmp = dest.join(format!(".flea-paste-{}-{}.tmp", std::process::id(), PASTE_TMP_NEXT.fetch_add(1, Ordering::SeqCst)));
+    let tmp = dest.join(format!(".dlea-paste-{}-{}.tmp", std::process::id(), PASTE_TMP_NEXT.fetch_add(1, Ordering::SeqCst)));
     let write = (|| -> Result<std::path::PathBuf, String> {
         let mut file = std::fs::OpenOptions::new().write(true).create_new(true).mode(0o666).open(&tmp)
             .map_err(|e| format!("could not write a temp file: {}", io_message(&e)))?;
@@ -259,8 +259,8 @@ mod tests {
         assert!(line.contains("Pasted image 2026-09-23 at 10.14.32.png"), "got {}", line);
         assert_eq!(std::fs::read(dest.join(&leaf)).unwrap(), png);
         assert!(entry.is_some(), "a paste journals its file so z undoes it");
-        // The per-paste temp is renamed away, so no .flea-paste- leftover stays behind.
-        assert!(std::fs::read_dir(&dest).unwrap().all(|e| !e.unwrap().file_name().to_string_lossy().starts_with(".flea-paste-")), "the temp is gone");
+        // The per-paste temp is renamed away, so no .dlea-paste- leftover stays behind.
+        assert!(std::fs::read_dir(&dest).unwrap().all(|e| !e.unwrap().file_name().to_string_lossy().starts_with(".dlea-paste-")), "the temp is gone");
     }
 
     #[test]
@@ -289,7 +289,7 @@ mod tests {
     fn a_missing_tool_names_itself() {
         let d = TestDir::new("pasteimage-notool");
         let dest = d.dir("dest");
-        let (line, _) = execute(&dest, "a.png", &["flea-definitely-not-a-program".to_string()]);
+        let (line, _) = execute(&dest, "a.png", &["dlea-definitely-not-a-program".to_string()]);
         assert!(line.contains("wl-clipboard is not installed"), "got {}", line);
     }
 }

@@ -33,7 +33,7 @@ Window {
     Component.onCompleted: {
         var list = Markdown.blocks("- [ ] a\n- [x] a\n", "/doc", "#181825", "#c0caf5")[0]
         for (var i = 0; i < list.items.length; i++)
-            Qt.createQmlObject('import QtQuick\nimport "' + win.module + '" as Flea\nFlea.MarkdownText {\ny: ' + i * win.rowHeight
+            Qt.createQmlObject('import QtQuick\nimport "' + win.module + '" as Dlea\nDlea.MarkdownText {\ny: ' + i * win.rowHeight
                 + '\nwidth: 200\ncolor: "#cccccc"\ntext: ' + JSON.stringify(list.items[i].replace(/ a$/, "")) + '\n}', sheet)
     }
 }

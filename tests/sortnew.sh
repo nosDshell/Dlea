@@ -3,18 +3,18 @@
 # Real browser views, column peeks and picker lists over localized XDG folders, then a fresh process reads an explicit Name choice.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
-. tools/flea-sandbox-guard
+. tools/dlea-sandbox-guard
 command -v qs >/dev/null || { echo 'FAIL sortnew: qs is required'; exit 1; }
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [ -x "$bin" ] || { echo "FAIL sortnew: no backend at $bin"; exit 1; }
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-sortnew.XXXXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-sortnew.XXXXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER" || exit 1
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
-mkdir -p "$test_root"/{config,xdg,state/flea,cache,data,runtime,tmp,home/.config} || exit 1
+mkdir -p "$test_root"/{config,xdg,state/dlea,cache,data,runtime,tmp,home/.config} || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/sortnew.qml "$test_root/config/shell.qml" || exit 1
@@ -39,7 +39,7 @@ for phase in fresh restart; do
         HOME="$test_root/home" XDG_CONFIG_HOME="$test_root/xdg" XDG_STATE_HOME="$test_root/state" \
         XDG_CACHE_HOME="$test_root/cache" XDG_DATA_HOME="$test_root/data" XDG_RUNTIME_DIR="$test_root/runtime" TMPDIR="$test_root/tmp" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
-        FLEA_BIN="$bin" FLEA_PICKER="$request" FLEA_PICKER_REPLY="$test_root/reply.json" SORTNEW_PHASE="$phase" \
+        DLEA_BIN="$bin" DLEA_PICKER="$request" DLEA_PICKER_REPLY="$test_root/reply.json" SORTNEW_PHASE="$phase" \
         timeout 90 qs -p "$test_root/config" > "$log" 2>&1
     code=$?
     sed -n '/SORTNEW/p' "$log"
@@ -53,7 +53,7 @@ for phase in fresh restart; do
         exit 1
     fi
     if [ "$phase" = fresh ]; then
-        python3 - "$test_root/state/flea/ui.json" "$test_root/home/Inbox" <<'PY'
+        python3 - "$test_root/state/dlea/ui.json" "$test_root/home/Inbox" <<'PY'
 import json, sys
 state = json.load(open(sys.argv[1]))
 assert state['folderSorts'] == {sys.argv[2]: {'key': 'name', 'reverse': False}}, state['folderSorts']

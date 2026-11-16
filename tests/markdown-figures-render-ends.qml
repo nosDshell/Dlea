@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-markdown-ends-test
+//@ pragma ShellId dlea-markdown-ends-test
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 
 ShellRoot {
     id: shell
@@ -53,7 +53,7 @@ ShellRoot {
             Repeater {
                 id: ends
                 model: shell.endCases
-                Flea.MarkdownFigure {
+                Dlea.MarkdownFigure {
                     required property var modelData
                     required property int index
                     x: (index % shell.columns) * shell.cellWidth

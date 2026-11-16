@@ -227,7 +227,7 @@ function openableRow(pane) {
     return row
 }
 
-// Enter on the cursor row: a directory navigates, an archive opens Flea's own view, anything else goes to the opener.
+// Enter on the cursor row: a directory navigates, an archive opens Dlea's own view, anything else goes to the opener.
 function openCursor(pane, opener) {
     var row = openableRow(pane)
     if (!row) return
@@ -245,7 +245,7 @@ function openCursor(pane, opener) {
     opener.open(path)
 }
 
-// The run card's entrances always reach the opener, so Run asks through flea --open like Enter does.
+// The run card's entrances always reach the opener, so Run asks through dlea --open like Enter does.
 function runCursor(pane, opener, verb) {
     var row = openableRow(pane)
     if (!row) return

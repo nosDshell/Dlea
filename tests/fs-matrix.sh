@@ -5,7 +5,7 @@ set -u
 self=$(readlink -f "$0")
 cd "$(dirname "$0")/.." || exit 1
 
-BIN=${BIN:-./target/debug/flea}
+BIN=${BIN:-./target/debug/dlea}
 DRY=0
 SMOKE=0
 for arg in "$@"; do
@@ -74,10 +74,10 @@ cleanup() {
     done < "$ROOT/loops"
   fi
   if [ -n "$ROOT" ]; then
-    case "$ROOT" in /*/*) [ -f "$ROOT/.flea-test-sandbox" ] && rm -rf "$ROOT" ;; esac
+    case "$ROOT" in /*/*) [ -f "$ROOT/.dlea-test-sandbox" ] && rm -rf "$ROOT" ;; esac
   fi
   if [ -n "${SMOKE_XDEV:-}" ]; then
-    case "$SMOKE_XDEV" in /*/*) [ -f "$SMOKE_XDEV/.flea-test-sandbox" ] && rm -rf "$SMOKE_XDEV" ;; esac
+    case "$SMOKE_XDEV" in /*/*) [ -f "$SMOKE_XDEV/.dlea-test-sandbox" ] && rm -rf "$SMOKE_XDEV" ;; esac
   fi
 }
 trap cleanup EXIT HUP INT TERM
@@ -150,16 +150,16 @@ seed_tree() {
 # Filesystem shape: mkfs tool, image MiB, mkfs argv, fstype, class (all sizes MiB, named).
 fs_config() {
   case "$1" in
-    vfat) printf 'mkfs.vfat|5120|mkfs.vfat -F 32 -n FLEA-VFAT|vfat|vfatlike' ;;
-    exfat) printf 'mkfs.exfat|2048|mkfs.exfat -L FLEA-EXFAT|exfat|vfatlike' ;;
-    ntfs3) printf 'mkntfs|2048|mkntfs -F -L FLEA-NTFS|ntfs3|ntfslike' ;;
-    ntfs-3g) printf 'mkntfs|2048|mkntfs -F -L FLEA-NTFS3G|ntfs-3g|ntfsfuselike' ;;
-    ext4) printf 'mkfs.ext4|2048|mkfs.ext4 -q -L FLEA-EXT4|ext4|native' ;;
-    btrfs) printf 'mkfs.btrfs|2048|mkfs.btrfs -q -L FLEA-BTRFS|btrfs|native' ;;
-    xfs) printf 'mkfs.xfs|2048|mkfs.xfs -q -L FLEA-XFS|xfs|native' ;;
-    f2fs) printf 'mkfs.f2fs|2048|mkfs.f2fs -f -l FLEA-F2FS|f2fs|native' ;;
-    iso9660) printf 'xorrisofs|0|xorrisofs -J -R -V FLEA-ISO|iso9660|readonly' ;;
-    udf) printf 'mkudffs|2048|mkudffs --utf8 --media-type=hd -b 512 -l FLEA-UDF|udf|native' ;;
+    vfat) printf 'mkfs.vfat|5120|mkfs.vfat -F 32 -n DLEA-VFAT|vfat|vfatlike' ;;
+    exfat) printf 'mkfs.exfat|2048|mkfs.exfat -L DLEA-EXFAT|exfat|vfatlike' ;;
+    ntfs3) printf 'mkntfs|2048|mkntfs -F -L DLEA-NTFS|ntfs3|ntfslike' ;;
+    ntfs-3g) printf 'mkntfs|2048|mkntfs -F -L DLEA-NTFS3G|ntfs-3g|ntfsfuselike' ;;
+    ext4) printf 'mkfs.ext4|2048|mkfs.ext4 -q -L DLEA-EXT4|ext4|native' ;;
+    btrfs) printf 'mkfs.btrfs|2048|mkfs.btrfs -q -L DLEA-BTRFS|btrfs|native' ;;
+    xfs) printf 'mkfs.xfs|2048|mkfs.xfs -q -L DLEA-XFS|xfs|native' ;;
+    f2fs) printf 'mkfs.f2fs|2048|mkfs.f2fs -f -l DLEA-F2FS|f2fs|native' ;;
+    iso9660) printf 'xorrisofs|0|xorrisofs -J -R -V DLEA-ISO|iso9660|readonly' ;;
+    udf) printf 'mkudffs|2048|mkudffs --utf8 --media-type=hd -b 512 -l DLEA-UDF|udf|native' ;;
   esac
 }
 
@@ -447,8 +447,8 @@ round_fs() {
   if [ "$fs" = "iso9660" ]; then
     command -v xorrisofs >/dev/null 2>&1 || command -v genisoimage >/dev/null 2>&1 || { skip_line "$fs needs xorriso or genisoimage"; return; }
     seed_tree "$ROOT/seed-iso" 0
-    if command -v xorrisofs >/dev/null 2>&1; then as_root xorrisofs -J -R -V FLEA-ISO -o "$img" "$ROOT/seed-iso" >/dev/null || { check "$fs iso tool failed" "iso built" "iso tool failed"; return; }
-    else as_root genisoimage -J -R -V FLEA-ISO -o "$img" "$ROOT/seed-iso" >/dev/null || { check "$fs iso tool failed" "iso built" "iso tool failed"; return; }; fi
+    if command -v xorrisofs >/dev/null 2>&1; then as_root xorrisofs -J -R -V DLEA-ISO -o "$img" "$ROOT/seed-iso" >/dev/null || { check "$fs iso tool failed" "iso built" "iso tool failed"; return; }
+    else as_root genisoimage -J -R -V DLEA-ISO -o "$img" "$ROOT/seed-iso" >/dev/null || { check "$fs iso tool failed" "iso built" "iso tool failed"; return; }; fi
     loop=$(as_root losetup --find --show "$img") || { check "$fs losetup failed" "loop ready" "losetup failed"; return; }
     [ -n "$loop" ] || { check "$fs losetup failed" "loop ready" "losetup failed"; return; }
     track_loops "$loop"
@@ -599,8 +599,8 @@ make_scratch() {
 }
 
 if [ "$SMOKE" = 1 ]; then
-  make_scratch "flea-fs-smoke.XXXXXX"
-  : > "$ROOT/.flea-test-sandbox"
+  make_scratch "dlea-fs-smoke.XXXXXX"
+  : > "$ROOT/.dlea-test-sandbox"
   HARNESS="$ROOT/harness"
   mkdir -p "$HARNESS" "$HARNESS/xdev"
   mnt="$ROOT/native"
@@ -608,9 +608,9 @@ if [ "$SMOKE" = 1 ]; then
   seed_tree "$mnt" 1
   # A cross-device side on another st_dev (/dev/shm is tmpfs), or the move guard skips honestly.
   SMOKE_XDEV=""
-  if SHM_TMP=$(mktemp -d /dev/shm/flea-fs-smoke-xdev.XXXXXX 2>/dev/null); then
+  if SHM_TMP=$(mktemp -d /dev/shm/dlea-fs-smoke-xdev.XXXXXX 2>/dev/null); then
     SMOKE_XDEV="$SHM_TMP"
-    : > "$SMOKE_XDEV/.flea-test-sandbox"
+    : > "$SMOKE_XDEV/.dlea-test-sandbox"
   fi
   if [ -n "$SMOKE_XDEV" ] && [ "$(stat -c %d "$mnt")" != "$(stat -c %d "$SMOKE_XDEV")" ]; then SMOKE_OTHER="$SMOKE_XDEV"; else SMOKE_OTHER="$HARNESS/xdev"; fi
   start_backend
@@ -629,8 +629,8 @@ if [ "$SMOKE" = 1 ]; then
   exit $?
 fi
 
-make_scratch "flea-fs-matrix.XXXXXX"
-: > "$ROOT/.flea-test-sandbox"
+make_scratch "dlea-fs-matrix.XXXXXX"
+: > "$ROOT/.dlea-test-sandbox"
 HARNESS="$ROOT/harness"
 mkdir -p "$HARNESS" "$HARNESS/xdev" "$HARNESS/xdg"
 # One private home for every backend and its gio children, exported before the first fork.

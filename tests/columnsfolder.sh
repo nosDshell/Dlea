@@ -3,7 +3,7 @@
 # w24 folder data hold: the real ColumnsArea keeps the old column by data while a folder
 # peek is out, hands a live picture hold to that wait, and lands empty folders settled.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -11,15 +11,15 @@ if ! command -v qs >/dev/null; then
     exit 1
 fi
 
-test_root="$FIXTURE_ROOT/flea-columnsfolder-$$"
+test_root="$FIXTURE_ROOT/dlea-columnsfolder-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/columnsfolder.qml "$test_root/config/shell.qml" || exit 1

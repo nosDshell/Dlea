@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-csv-preview-test
+//@ pragma ShellId dlea-csv-preview-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "CsvRecords.js" as RecordChecks
 
 // tests/csv-preview.sh's harness: CSV and TSV as a table in the preview column and in Quick Look, over the real backend. Every ask passes a spy first, so the raw flag is read off what the tables send.
@@ -122,7 +122,7 @@ ShellRoot {
     }
 
     // The table the preview column and Quick Look both draw, asked through the spy.
-    Flea.Backend {
+    Dlea.Backend {
         id: realBackend
     }
     QtObject {
@@ -239,7 +239,7 @@ ShellRoot {
             root.check("quicklook: the grid is flush below the shared bar", [gridAt.x, gridAt.y, t.width], [0, bar.height, quick.width])
             var numbers = root.drawn(t, "1")
             root.check("quicklook: a muted right-aligned row number is drawn", numbers.some(function (n) {
-                return n.horizontalAlignment === Text.AlignRight && String(n.color) === String(Flea.Theme.color.muted)
+                return n.horizontalAlignment === Text.AlignRight && String(n.color) === String(Dlea.Theme.color.muted)
             }), true)
             var gutters = root.descendants(t).filter(function (n) {
                 return n.visible && typeof n.text === "string" && /^[0-9]+$/.test(n.text) && n.mapToItem(t.list, 0, 0).x === 0
@@ -445,7 +445,7 @@ ShellRoot {
         onTriggered: root.tick()
     }
 
-    Flea.CsvTable {
+    Dlea.CsvTable {
         id: plainCsv
         width: 400
         height: 600
@@ -453,7 +453,7 @@ ShellRoot {
         text: "a,b\n1,2\n"
         path: "plain.csv"
     }
-    Flea.CodeLines {
+    Dlea.CodeLines {
         id: plainCode
         width: 400
         height: 600
@@ -491,7 +491,7 @@ ShellRoot {
             id: frameProbe
             anchors.fill: parent
 
-            Flea.PreviewLines {
+            Dlea.PreviewLines {
                 id: column
                 x: 0
                 y: 0
@@ -501,7 +501,7 @@ ShellRoot {
                 built: true
                 active: false
             }
-            Flea.PreviewText {
+            Dlea.PreviewText {
                 id: quick
                 x: 420
                 y: 0

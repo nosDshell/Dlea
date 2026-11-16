@@ -317,14 +317,14 @@ mod tests {
 
     #[test]
     fn every_btrfs_subvolume_of_the_root_filesystem_is_on_the_system_volume() {
-        // Sample from a btrfs root: stat gives / 0:31 and /home/flea-sandbox 0:73, while every line of that one filesystem names 0:29.
+        // Sample from a btrfs root: stat gives / 0:31 and /home/dlea-sandbox 0:73, while every line of that one filesystem names 0:29.
         let info = "1 0 0:29 /@ / rw - btrfs /dev/mapper/root rw\n\
                     2 1 0:29 /@home /home rw - btrfs /dev/mapper/root rw\n\
                     3 1 0:29 /@log /var/log rw - btrfs /dev/mapper/root rw\n\
-                    4 2 0:29 /@home/flea-sandbox /home/flea-sandbox rw - btrfs /dev/mapper/root rw\n\
+                    4 2 0:29 /@home/dlea-sandbox /home/dlea-sandbox rw - btrfs /dev/mapper/root rw\n\
                     5 1 0:52 / /mnt/backup rw - btrfs /dev/sdc1 rw\n";
         assert!(on_system("/etc", info), "the root subvolume");
-        assert!(on_system("/home/flea-sandbox/cap-sysrefusal/listing", info), "a subvolume mounted under home shares the filesystem's number with /");
+        assert!(on_system("/home/dlea-sandbox/cap-sysrefusal/listing", info), "a subvolume mounted under home shares the filesystem's number with /");
         assert!(!on_system("/mnt/backup/photos", info), "a second btrfs filesystem has its own number and is judged alone");
     }
 

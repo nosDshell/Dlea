@@ -7,7 +7,7 @@ import QtQuick
 Singleton {
     id: root
 
-    // Tabs040.html data-flea="hint": padding 4px 14px 2px 42px, 12px type, line-height 1.5.
+    // Tabs040.html data-dlea="hint": padding 4px 14px 2px 42px, 12px type, line-height 1.5.
     readonly property int boardHintTop: 4
     readonly property int boardHintBottom: 2
     readonly property real boardHintLineRatio: 1.5

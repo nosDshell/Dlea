@@ -1,4 +1,4 @@
-//! The executable plugin protocol and supervised, bounded sessions shared by Flea hosts.
+//! The executable plugin protocol and supervised, bounded sessions shared by Dlea hosts.
 mod process;
 pub mod protocol;
 mod session;

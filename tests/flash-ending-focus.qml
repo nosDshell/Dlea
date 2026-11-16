@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-flash-ending-focus-test
+//@ pragma ShellId dlea-flash-ending-focus-test
 
 import QtQuick
 import Quickshell
 import qs.Commons
-import "flea" as Flea
+import "dlea" as Dlea
 
 // tests/flash-ending-focus.sh's harness: a failed flash with a Flash again ending parks the keyboard frame on the drawn end button.
 ShellRoot {
@@ -54,7 +54,7 @@ ShellRoot {
         implicitHeight: 480
         color: "#303030"
 
-        Flea.FlashView {
+        Dlea.FlashView {
             id: view
             pane: stubPane
         }
@@ -72,7 +72,7 @@ ShellRoot {
         var out = [], queue = [root]
         while (queue.length > 0) {
             var o = queue.shift()
-            if (o.visible && o.horizontalAlignment === Text.AlignRight && o.width === Flea.Theme.column.size && o.parent && o.parent.parent) out.push(o)
+            if (o.visible && o.horizontalAlignment === Text.AlignRight && o.width === Dlea.Theme.column.size && o.parent && o.parent.parent) out.push(o)
             var kids = o.children !== undefined ? o.children : []
             for (var i = 0; i < kids.length; i++) queue.push(kids[i])
         }
@@ -99,8 +99,8 @@ ShellRoot {
             // The image row and the drive row each end their Size cell one rowPaddingX inside the row, the flasher board's rule.
             var cells = shell.sizeCells(view)
             var gaps = cells.map(function (c) { return Math.round(c.parent.parent.width - c.mapToItem(c.parent.parent, c.width, 0).x) })
-            shell.check("flash-size-cells-end-one-padding-in", cells.length === 2 && gaps.every(function (g) { return g === Flea.Theme.spacing.rowPaddingX }),
-                "cells=" + cells.length + " gaps=" + JSON.stringify(gaps) + " want=" + Flea.Theme.spacing.rowPaddingX)
+            shell.check("flash-size-cells-end-one-padding-in", cells.length === 2 && gaps.every(function (g) { return g === Dlea.Theme.spacing.rowPaddingX }),
+                "cells=" + cells.length + " gaps=" + JSON.stringify(gaps) + " want=" + Dlea.Theme.spacing.rowPaddingX)
             view.pressFlash()
             shell.flashId = stubBackend.flashed.length === 1 ? stubBackend.flashed[0].id : 0
             if (shell.flashId > 0)

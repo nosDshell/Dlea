@@ -9,7 +9,7 @@ for line in sys.stdin:
     if request["op"] == "hello":
         answer = {"op": "ready", "protocolVersion": 1}
     elif request["op"] == "section":
-        base = os.environ.get("FLEA_EXAMPLE_FOLDERS", "/tmp/flea-example-syncthing")
+        base = os.environ.get("DLEA_EXAMPLE_FOLDERS", "/tmp/dlea-example-syncthing")
         answer = {"op": "section", "rows": [
             {"id": name.lower(), "label": name, "glyph": "folder",
              "state": state, "opens": base + "/" + name}

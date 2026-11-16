@@ -110,7 +110,7 @@ impl Thumbnailers {
     // A camera RAW no thumbnailer declares is thumbnailed by the image/jpeg spec on the JPEG it embeds; none when the type is not a RAW, a thumbnailer declares it, or no image/jpeg thumbnailer is installed.
     pub fn raw_route(&self, mime: &str, aliases: &Aliases) -> Option<&Spec> {
         let canonical = aliases.canonical(mime);
-        let raw = flea::rawname::FORMATS
+        let raw = dlea::rawname::FORMATS
             .iter()
             .any(|(_, mime)| aliases.canonical(mime) == canonical);
         if raw && !self.by_mime.contains_key(canonical) {

@@ -45,7 +45,7 @@ pub const FACT_SEP: &str = " \u{b7} ";
 // English from the compiled catalog alone, so a test reads no installed language or Omarchy data.
 #[cfg(test)]
 pub(crate) fn english() -> crate::i18n::I18n {
-    let none = std::path::PathBuf::from("/nonexistent/flea-pv1");
+    let none = std::path::PathBuf::from("/nonexistent/dlea-pv1");
     crate::i18n::I18n::load(crate::i18n::Paths {
         omarchy: none.clone(),
         language_file: none,

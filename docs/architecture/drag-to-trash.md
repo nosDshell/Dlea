@@ -4,7 +4,7 @@ A row drag dropped on the rail's Trash row sends the backend's existing `trash` 
 `dd` sends, so it journals the same `Trashed` step and `z` restores it. `ui/RailTrashRow.qml` is the
 Trash row, a `SidebarRow` with a `DropArea`, and `ui/js/TrashDrop.js` decides.
 
-**Only a drag this window lifted may trash.** A foreign drop, another Flea's or the shelf's carries
+**Only a drag this window lifted may trash.** A foreign drop, another Dlea's or the shelf's carries
 files this window did not lift, so the Trash drop refuses them rather than deleting files on the
 strength of another sender's offer. A drag carrying paths trashes those
 paths. A selection too wide to carry paths trashes by index, only through the backend that lifted

@@ -5,10 +5,10 @@
 .import "MdHtmlImage.js" as HtmlImage
 .import "MdHtmlBlock.js" as HtmlBlock
 
-// Sample input: drawn heading text '![](file:///d/logo.png)Flea' or '<img src="a.png">' holds a picture; 'Flea' and 'Wow!\[beta]' hold none.
+// Sample input: drawn heading text '![](file:///d/logo.png)Dlea' or '<img src="a.png">' holds a picture; 'Dlea' and 'Wow!\[beta]' hold none.
 var DRAWN_PICTURE = /<img\b|!\[(?:\\.|[^\]\\])*\]\(/i
 
-// Sample input: ['<div align="center">', '<h1>Flea</h1>', '<p>x</p>', '</div>'] at 0 answers { head, end: 3, wrapper: ['<div align="center"><p>x</p></div>'] }; a heading with no lone wrapper before it, or a wrapper that cannot be matched, answers null.
+// Sample input: ['<div align="center">', '<h1>Dlea</h1>', '<p>x</p>', '</div>'] at 0 answers { head, end: 3, wrapper: ['<div align="center"><p>x</p></div>'] }; a heading with no lone wrapper before it, or a wrapper that cannot be matched, answers null.
 // The heading lifts out with its own align, else the wrapper's centre; what the wrapper held after it is drawn centred as it was.
 function headingUnit(lines, at) {
     var open = String(lines[at]).trim()
@@ -37,7 +37,7 @@ function nestDepth(line, depth) {
     return depth
 }
 
-// Sample input: '<a href="https://x/"><img src="logo.png" width="120"></a><br>Flea' answers { block: the linked image, rest: 'Flea' }; text first answers null.
+// Sample input: '<a href="https://x/"><img src="logo.png" width="120"></a><br>Dlea' answers { block: the linked image, rest: 'Dlea' }; text first answers null.
 var HEADING_PICTURE = /^\s*(<a\b[^<>]*>)?\s*(<img\b[^<>]*>)\s*(<\/a>)?\s*(?:<br\s*\/?>\s*)*/i
 // A picture opening a heading's text draws through the picture path, so it is sized and fetched there and never sits in a text line.
 function headingPicture(inner, dir) {

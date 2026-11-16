@@ -165,7 +165,7 @@ fn groups(m: &Model, map: &Map) -> Vec<Vec<Line>> {
 }
 // Resolve a complete display epoch before replacing any held key labels.
 #[allow(dead_code, reason = "called by the retained I50-11 snapshot consumer")]
-pub fn resolve(m: &Model, map: &Map, snapshot: &flea::keys::display::KeycapSnapshot) -> Result<std::collections::HashMap<String, String>, flea::keys::display::KeycapError> {
+pub fn resolve(m: &Model, map: &Map, snapshot: &dlea::keys::display::KeycapSnapshot) -> Result<std::collections::HashMap<String, String>, dlea::keys::display::KeycapError> {
     let mut labels = std::collections::HashMap::new();
     for row in ROWS.iter().filter(|row| listed(row, &m.preset)) {
         let canonical = spelling(map, &m.preset, row);
@@ -178,11 +178,11 @@ pub fn resolve(m: &Model, map: &Map, snapshot: &flea::keys::display::KeycapSnaps
     Ok(labels)
 }
 // New editor chords compose existing immutable keycap atoms; an ambiguous atom keeps its canonical legend, an unavailable one still fails the epoch.
-fn label(canonical: &str, snapshot: &flea::keys::display::KeycapSnapshot) -> Result<String, flea::keys::display::KeycapError> {
+fn label(canonical: &str, snapshot: &dlea::keys::display::KeycapSnapshot) -> Result<String, dlea::keys::display::KeycapError> {
     canonical.split(" / ").map(|alternative| alternative.split(' ').map(|part| {
         match snapshot.legend(part) {
             Ok(label) => Ok(label.to_owned()),
-            Err(flea::keys::display::KeycapError::UnknownChord(_)) if matches!(part, "alt-b" | "alt-f" | "alt-d" | "ctrl-left" | "ctrl-right" | "ctrl-backspace") => {
+            Err(dlea::keys::display::KeycapError::UnknownChord(_)) if matches!(part, "alt-b" | "alt-f" | "alt-d" | "ctrl-left" | "ctrl-right" | "ctrl-backspace") => {
                 let (modifier, key) = part.split_once('-').unwrap();
                 snapshot.legend(key).map(|key| format!("{modifier}-{key}"))
             }

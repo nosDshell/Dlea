@@ -37,8 +37,8 @@ Item {
         var drag = Source.source("ui/RowDrag.qml")
         if (drag.indexOf("DragHandler {") < 0) return false
         var area = Source.source("ui/GridArea.qml")
-        var delegateAt = area.indexOf("delegate: Flea.GridTile {")
-        var rowDragAt = area.indexOf("Flea.RowDrag {", delegateAt)
+        var delegateAt = area.indexOf("delegate: Dlea.GridTile {")
+        var rowDragAt = area.indexOf("Dlea.RowDrag {", delegateAt)
         if (delegateAt < 0 || rowDragAt < 0) return false
         var between = area.substring(delegateAt, rowDragAt)
         var loader = between.lastIndexOf("Loader {")

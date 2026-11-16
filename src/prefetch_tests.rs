@@ -44,7 +44,7 @@ fn a_list_needs_its_header_skips_bad_lines_and_is_capped() {
 #[test]
 fn the_list_is_written_whole_private_and_read_back() {
     let dir = crate::backend::testdir::TestDir::new("prefetch-write");
-    let list = dir.path().join("cache/flea/prefetch");
+    let list = dir.path().join("cache/dlea/prefetch");
     write_list(&list, "shell 4242 1234567", &[Range { path: "/usr/lib/libc.so.6".into(), offset: 0, length: 4096 }]);
     let text = read_bounded(&list).unwrap();
     let parsed: Vec<(&str, u64, u64)> = parse_list(&text).iter().map(|r| (r.path, r.offset, r.length)).collect();
@@ -135,7 +135,7 @@ fn a_live_shell_is_named_by_its_pid_and_a_real_start_time() {
 fn foreign_and_newer_lists_survive_warm_and_first_record() {
     let d = crate::backend::testdir::TestDir::new("prefetch-preserve");
     let path = d.join("prefetch");
-    for original in ["{\"foreign\":true}\n", "flea-prefetch 999\nshell 1 1\n0 4096 /a\n", "unparsable"] {
+    for original in ["{\"foreign\":true}\n", "dlea-prefetch 999\nshell 1 1\n0 4096 /a\n", "unparsable"] {
         std::fs::write(&path, original).unwrap();
         do_warm(&path);
         assert_eq!(std::fs::read_to_string(&path).unwrap(), original);

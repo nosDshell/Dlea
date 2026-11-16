@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-glass-mode-test
+//@ pragma ShellId dlea-glass-mode-test
 import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Commons as Commons
-import "flea" as Flea
-import "flea/js/Contrast.js" as Contrast
+import "dlea" as Dlea
+import "dlea/js/Contrast.js" as Contrast
 
 // Omarchy's Window Transparency precedence through Glass, and a Hyprland config reload reaching Style and Glass with no theme switch.
 ShellRoot {
@@ -38,8 +38,8 @@ ShellRoot {
             console.log("GLASSM FAIL " + label)
         }
     }
-    function eight() { return Math.round(Flea.Glass.alpha * 255) }
-    function reload() { Flea.Theme.hyprEvent("configreloaded") }
+    function eight() { return Math.round(Dlea.Glass.alpha * 255) }
+    function reload() { Dlea.Theme.hyprEvent("configreloaded") }
     function act(fn) { return function () { fn(); return true } }
     function wait(test) { return function () { return test() } }
     function settle(ms) {
@@ -53,12 +53,12 @@ ShellRoot {
     }
 
     function buildSteps() {
-        var s = [root.act(function () { Flea.Glass.focused = true; if (root.glass !== "-") Flea.Glass.glassAlpha = Number(root.glass); Flea.Glass.launch() }),
+        var s = [root.act(function () { Dlea.Glass.focused = true; if (root.glass !== "-") Dlea.Glass.glassAlpha = Number(root.glass); Dlea.Glass.launch() }),
                  root.act(function () {
                      root.check(root.eight() === root.expect, root.mode + " launch alpha " + root.eight() + " is not " + root.expect)
-                     root.check(Flea.Glass.on === (root.expect < 255), "on does not follow the alpha " + root.expect)
-                     if (!Flea.Glass.usesDefault || Flea.Glass.mode === "opaque") {
-                         var c = Flea.Theme.color, opaque = c.opaquePalette
+                     root.check(Dlea.Glass.on === (root.expect < 255), "on does not follow the alpha " + root.expect)
+                     if (!Dlea.Glass.usesDefault || Dlea.Glass.mode === "opaque") {
+                         var c = Dlea.Theme.color, opaque = c.opaquePalette
                          root.check(String(c.foreground) === String(opaque.foreground) && String(c.muted) === String(opaque.muted) && String(c.metadata) === String(opaque.metadata), "an override or Opaque lifted the palette's text")
                      }
                  })]
@@ -74,23 +74,23 @@ ShellRoot {
         return [
             root.wait(function () { return Commons.Style.cornerRadius === 10 }),
             root.settle(root.startupSettleMs),
-            root.act(function () { rounding.setText("0\n"); Flea.Theme.hyprEvent("workspace") }),
+            root.act(function () { rounding.setText("0\n"); Dlea.Theme.hyprEvent("workspace") }),
             root.settle(root.eventSettleMs),
             root.act(function () { root.check(Commons.Style.cornerRadius === 10, "a workspace event moved the corner radius") }),
             root.act(function () { Quickshell.execDetached(["rm", "-f", root.toggles + "/window-glassy.lua"]) }),
             root.settle(root.toggleRemoveSettleMs),
-            root.act(function () { root.check(Flea.Glass.mode === "glassy", "the mode moved before any reload"); root.reload() }),
+            root.act(function () { root.check(Dlea.Glass.mode === "glassy", "the mode moved before any reload"); root.reload() }),
             root.wait(function () { return Commons.Style.cornerRadius === 0 }),
             root.act(function () {
-                root.check(Flea.Glass.mode === "transparent", "a reload without the toggle left mode " + Flea.Glass.mode)
+                root.check(Dlea.Glass.mode === "transparent", "a reload without the toggle left mode " + Dlea.Glass.mode)
                 root.check(root.eight() === 255, "bare transparent without a theme value drew " + root.eight())
                 opaque.setText("return\n")
             }),
             root.act(function () { root.reload() }),
-            root.wait(function () { return Flea.Glass.mode === "opaque" }),
+            root.wait(function () { return Dlea.Glass.mode === "opaque" }),
             root.act(function () { root.check(root.eight() === 255, "opaque drew " + root.eight()); glassy.setText("return -- written again\n") }),
             root.act(function () { root.reload() }),
-            root.wait(function () { return Flea.Glass.mode === "glassy" }),
+            root.wait(function () { return Dlea.Glass.mode === "glassy" }),
             root.act(function () { root.check(root.eight() === 191, "glassy again drew " + root.eight()) })
         ]
     }
@@ -121,14 +121,14 @@ ShellRoot {
     function dispatches() { dispatchLog.reload(); return dispatchLog.text().split("\n").filter(function (l) { return l.length > 0 }) }
     // Each opacity read the stand-in answered, so a check that nothing was tagged waits until the window was asked about.
     function probes() { probeLog.reload(); return probeLog.text().split("\n").filter(function (l) { return l.length > 0 }) }
-    function opened(cls) { Flea.Theme.hyprEvent("openwindow", "abc123,1," + cls + ",Flea") }
+    function opened(cls) { Dlea.Theme.hyprEvent("openwindow", "abc123,1," + cls + ",Dlea") }
 
-    // Bare Transparent with Hyprland at 1: another app's window asks nothing, Flea's own takes the tag, Glassy takes it off, Transparent puts it back.
+    // Bare Transparent with Hyprland at 1: another app's window asks nothing, Dlea's own takes the tag, Glassy takes it off, Transparent puts it back.
     function tagSteps() {
         return [
             root.act(function () { root.opened("org.gnome.Nautilus") }),
             root.settle(root.eventSettleMs),
-            root.act(function () { root.check(root.probes().length === 0 && root.dispatches().length === 0, "another app's window was asked about"); root.opened("com.thisisgm.flea") }),
+            root.act(function () { root.check(root.probes().length === 0 && root.dispatches().length === 0, "another app's window was asked about"); root.opened("com.nosDshell.dlea") }),
             root.wait(function () { return root.dispatches().length === 1 }),
             root.act(function () {
                 var d = root.dispatches()[0]
@@ -147,10 +147,10 @@ ShellRoot {
             root.act(function () { root.check(root.dispatches().length === 3, "a settled window was dispatched again") })
         ]
     }
-    // Stable Omarchy's catch-all rule already draws the window at 0.985, so Flea adds no tag of its own and nothing stacks.
+    // Stable Omarchy's catch-all rule already draws the window at 0.985, so Dlea adds no tag of its own and nothing stacks.
     function stableSteps() {
         return [
-            root.act(function () { root.opened("com.thisisgm.flea") }),
+            root.act(function () { root.opened("com.nosDshell.dlea") }),
             root.wait(function () { return root.probes().length >= 2 }),
             root.settle(root.eventSettleMs),
             root.act(function () { root.check(root.dispatches().length === 0, "a window Hyprland already draws below 1 was tagged") })

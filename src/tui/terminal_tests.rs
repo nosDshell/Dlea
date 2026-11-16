@@ -6,9 +6,9 @@ use std::os::unix::fs::{symlink, PermissionsExt};
 fn the_shared_memory_query_names_a_fresh_private_pixel() {
     let dir = TestDir::new("shm");
     let root = dir.path();
-    let query = shm_query(root, "flea-tui-shm-1", 32).expect("query");
-    assert_eq!(query, format!("\x1b_Gi=32,s=1,v=1,a=q,t=s,f=24;{}\x1b\\", crate::tui::graphics::base64(b"/flea-tui-shm-1")));
-    let made = root.join("flea-tui-shm-1");
+    let query = shm_query(root, "dlea-tui-shm-1", 32).expect("query");
+    assert_eq!(query, format!("\x1b_Gi=32,s=1,v=1,a=q,t=s,f=24;{}\x1b\\", crate::tui::graphics::base64(b"/dlea-tui-shm-1")));
+    let made = root.join("dlea-tui-shm-1");
     assert_eq!(std::fs::read(&made).unwrap(), [0, 0, 0]);
     assert_eq!(std::fs::metadata(&made).unwrap().permissions().mode() & 0o777, 0o600);
 }
@@ -19,17 +19,17 @@ fn a_planted_link_at_the_name_is_replaced_never_followed() {
     let root = dir.path();
     let target = root.join("bystander");
     std::fs::write(&target, b"keep").unwrap();
-    symlink(&target, root.join("flea-tui-shm-2")).unwrap();
-    assert!(shm_query(root, "flea-tui-shm-2", 32).is_some());
+    symlink(&target, root.join("dlea-tui-shm-2")).unwrap();
+    assert!(shm_query(root, "dlea-tui-shm-2", 32).is_some());
     assert_eq!(std::fs::read(&target).unwrap(), b"keep");
-    assert!(!std::fs::symlink_metadata(root.join("flea-tui-shm-2")).unwrap().file_type().is_symlink());
+    assert!(!std::fs::symlink_metadata(root.join("dlea-tui-shm-2")).unwrap().file_type().is_symlink());
 }
 
 #[test]
 fn opening_and_closing_balance_only_the_negotiated_keyboard_stack() {
     use crate::tui::{capabilities::{Negotiation, KEYBOARD_ENABLE, KEYBOARD_DISABLE}, tmux::Transport};
     let dir = TestDir::new("shm");
-    let shared = shm_query(dir.path(), "flea-tui-shm-3", 32).unwrap();
+    let shared = shm_query(dir.path(), "dlea-tui-shm-3", 32).unwrap();
     let negotiation = Negotiation::begin(Transport::Direct, (31, 32), true, std::time::Instant::now());
     let bytes = String::from_utf8(opening(&shared, &negotiation)).unwrap();
     assert!(bytes.find("\x1b_Gi=32,").unwrap() < bytes.find("\x1b_Gi=31,").unwrap());
@@ -65,11 +65,11 @@ fn a_failed_stty_call_says_what_it_was_for() {
 
 #[test]
 fn terminal_session_child() {
-    let Some(root) = std::env::var_os("FLEA_T1_TEST_ROOT") else { return; };
+    let Some(root) = std::env::var_os("DLEA_T1_TEST_ROOT") else { return; };
     let root = std::path::PathBuf::from(root);
-    assert!(root.is_absolute() && root.join(".flea-test-sandbox").is_file());
+    assert!(root.is_absolute() && root.join(".dlea-test-sandbox").is_file());
     let mut terminal = Terminal::enter_at(&root).unwrap();
-    if std::env::var("FLEA_T1_RESIZE_TEST").as_deref() == Ok("1") {
+    if std::env::var("DLEA_T1_RESIZE_TEST").as_deref() == Ok("1") {
         extern "C" {
             fn pthread_self() -> u64;
             fn pthread_kill(thread: u64, signal: i32) -> i32;
@@ -124,9 +124,9 @@ fn real_pty_startup_resize_legacy_quit_and_signaled_quit_restore_the_terminal() 
         let saved = mode(&slave);
         let mut child = pty_test_command()
             .args(["--exact", "tui::terminal::tests::terminal_session_child", "--nocapture"])
-            .env("FLEA_T1_TEST_ROOT", dir.path()).env("TERM", "kitty").env_remove("TMUX")
-            .env("FLEA_TUI_CAPABILITIES", "1")
-            .env("FLEA_T1_RESIZE_TEST", if name == "resize" { "1" } else { "" })
+            .env("DLEA_T1_TEST_ROOT", dir.path()).env("TERM", "kitty").env_remove("TMUX")
+            .env("DLEA_TUI_CAPABILITIES", "1")
+            .env("DLEA_T1_RESIZE_TEST", if name == "resize" { "1" } else { "" })
             .stdin(slave.try_clone().unwrap()).stdout(slave.try_clone().unwrap()).stderr(slave.try_clone().unwrap())
             .process_group(0).spawn().unwrap();
         let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);
@@ -154,7 +154,7 @@ fn real_pty_startup_resize_legacy_quit_and_signaled_quit_restore_the_terminal() 
         };
         drain_exited_pty(&mut master, &mut transcript);
         assert!(status.success(), "PTY child failed: {}", String::from_utf8_lossy(&transcript));
-        assert!(String::from_utf8_lossy(&transcript).contains("flea: terminal capabilities Capabilities { graphics: None"));
+        assert!(String::from_utf8_lossy(&transcript).contains("dlea: terminal capabilities Capabilities { graphics: None"));
         assert_eq!(mode(&slave), saved);
         assert!(transcript.windows(LEAVE.len()).any(|p| p == LEAVE));
         assert_eq!(transcript.windows(super::super::capabilities::KEYBOARD_ENABLE.len()).filter(|p| *p == super::super::capabilities::KEYBOARD_ENABLE).count(), usize::from(enhanced));
@@ -189,7 +189,7 @@ fn an_exited_pty_child_still_has_its_final_terminal_write_to_drain() {
     assert_eq!(unsafe { openpty(&mut master, &mut slave, std::ptr::null_mut(), std::ptr::null(), std::ptr::null()) }, 0);
     let mut master = unsafe { std::fs::File::from_raw_fd(master) };
     let slave = unsafe { std::fs::File::from_raw_fd(slave) };
-    let mut child = Command::new(flea::testpath::tool("/usr/bin/printf")).args(["%s", std::str::from_utf8(LEAVE).unwrap()])
+    let mut child = Command::new(dlea::testpath::tool("/usr/bin/printf")).args(["%s", std::str::from_utf8(LEAVE).unwrap()])
         .stdout(slave.try_clone().unwrap()).spawn().unwrap();
     assert!(child.wait().unwrap().success());
     assert!(wait_input(master.as_raw_fd(), -1, 0).unwrap(), "exited child must have unread output");
@@ -205,10 +205,10 @@ include!("terminal_suspend_tests.rs");
 
 #[test]
 fn review_positive_lifecycle_child() {
-    let Some(root) = std::env::var_os("FLEA_T1_REVIEW_LIFECYCLE_ROOT") else { return; };
+    let Some(root) = std::env::var_os("DLEA_T1_REVIEW_LIFECYCLE_ROOT") else { return; };
     let root = std::path::PathBuf::from(root);
-    assert!(root.is_absolute() && root.join(".flea-test-sandbox").is_file());
-    let mode = std::env::var("FLEA_T1_REVIEW_LIFECYCLE_MODE").unwrap();
+    assert!(root.is_absolute() && root.join(".dlea-test-sandbox").is_file());
+    let mode = std::env::var("DLEA_T1_REVIEW_LIFECYCLE_MODE").unwrap();
     let mut terminal = Terminal::enter_at(&root).unwrap();
     if mode == "silent" {
         let started = std::time::Instant::now();
@@ -275,7 +275,7 @@ fn review_positive_panic_editor_handoff_and_silent_terminal_cleanup() {
         let saved = mode(&slave);
         let mut command = pty_test_command();
         command.args(["--exact", "tui::terminal::tests::review_positive_lifecycle_child", "--nocapture"])
-            .env("FLEA_T1_REVIEW_LIFECYCLE_ROOT", dir.path()).env("FLEA_T1_REVIEW_LIFECYCLE_MODE", name).env_remove("TMUX")
+            .env("DLEA_T1_REVIEW_LIFECYCLE_ROOT", dir.path()).env("DLEA_T1_REVIEW_LIFECYCLE_MODE", name).env_remove("TMUX")
             .stdin(slave.try_clone().unwrap()).stdout(slave.try_clone().unwrap()).stderr(slave.try_clone().unwrap());
         unsafe { command.pre_exec(|| {
             if setsid() < 0 { return Err(io::Error::last_os_error()); }
@@ -335,7 +335,7 @@ fn suspension_reenters_with_fresh_queries_and_balances_the_second_keyboard_push(
     assert!(saved.status.success());
     let mut child = pty_test_command()
         .args(["--exact", "tui::terminal::tests::review_suspend_child", "--nocapture"])
-        .env("FLEA_T1_REVIEW_SUSPEND_ROOT", dir.path()).env_remove("TMUX")
+        .env("DLEA_T1_REVIEW_SUSPEND_ROOT", dir.path()).env_remove("TMUX")
         .stdin(slave.try_clone().unwrap()).stdout(slave.try_clone().unwrap()).stderr(slave.try_clone().unwrap())
         .process_group(0).spawn().unwrap();
     let deadline = std::time::Instant::now() + std::time::Duration::from_secs(5);

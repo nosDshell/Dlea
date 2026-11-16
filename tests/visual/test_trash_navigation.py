@@ -90,9 +90,9 @@ class TrashNavigation(unittest.TestCase):
         source = SOURCE.read_text()
         opener = re.search(r'^open_trash\(\) \{\n.*?^\}', source, re.M | re.S)
         self.assertIsNotNone(opener, 'the real visual Trash opener must exist')
-        with tempfile.TemporaryDirectory(prefix='flea-trash-navigation.') as root:
+        with tempfile.TemporaryDirectory(prefix='dlea-trash-navigation.') as root:
             model = Path(root)
-            (model / '.flea-test-sandbox').touch()
+            (model / '.dlea-test-sandbox').touch()
             result = subprocess.run(
                 ['bash'], input=MOCKS + '\n' + opener.group() + f'\nopen_trash {expected}\n',
                 text=True, capture_output=True,
@@ -200,9 +200,9 @@ snap() { printf 'snap %s\n' "$(ipc trashState)" >> "$model/trace"; }
 
 class VisualStatePairs(unittest.TestCase):
     def run_case(self, name, scenario='ready', source=None):
-        with tempfile.TemporaryDirectory(prefix='flea-visual-pairs.') as root:
+        with tempfile.TemporaryDirectory(prefix='dlea-visual-pairs.') as root:
             model = Path(root)
-            (model / '.flea-test-sandbox').touch()
+            (model / '.dlea-test-sandbox').touch()
             result = subprocess.run(
                 ['bash'], input=f'. "{source or REPO / "ci/visual/lane/cases.sh"}"\n' + PAIR_MOCKS + f'\n{name}\n',
                 text=True, capture_output=True, timeout=10,

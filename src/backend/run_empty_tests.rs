@@ -35,7 +35,7 @@ fn run_search_empty_windows_leave_tables_unloaded_and_preserve_rich_rows() {
 fn run_search_empty_remote_window_never_enters_the_mount_worker() {
     let (events, _) = crate::backend::events::channel();
     let mut st = State::new(super::super::dirsizeworker::Worker::new(events));
-    st.base = PathBuf::from("/run/user/flea-empty-test/gvfs/smb-share:server=test,share=wire");
+    st.base = PathBuf::from("/run/user/dlea-empty-test/gvfs/smb-share:server=test,share=wire");
     let before = super::super::iomount::test_calls();
     let (metas, ms) = window_metas(&mut st, 0, 0).unwrap();
     assert!(metas.is_empty());
@@ -45,14 +45,14 @@ fn run_search_empty_remote_window_never_enters_the_mount_worker() {
 
 #[test]
 fn run_search_lazy_thumbnail_pool_reports_its_first_job() {
-    const CHILD: &str = "FLEA_TEST_DISABLED_THUMB_CHILD";
+    const CHILD: &str = "DLEA_TEST_DISABLED_THUMB_CHILD";
     if std::env::var_os(CHILD).is_none() {
         let output = std::process::Command::new(std::env::current_exe().unwrap())
             .args(["--exact", "backend::run::empty_tests::run_search_lazy_thumbnail_pool_reports_its_first_job", "--nocapture"])
             .env(CHILD, "1").env("PATH", "").output().unwrap();
         let stderr = String::from_utf8(output.stderr).unwrap();
         assert!(output.status.success(), "{stderr}");
-        assert_eq!(stderr.matches("flea: thumbnails are disabled, bwrap or prlimit is not on PATH").count(), 1, "{stderr}");
+        assert_eq!(stderr.matches("dlea: thumbnails are disabled, bwrap or prlimit is not on PATH").count(), 1, "{stderr}");
         return;
     }
     let d = TestDir::new("lazy-thumbnail-pool");
@@ -66,7 +66,7 @@ fn run_search_lazy_thumbnail_pool_reports_its_first_job() {
     assert!(tb.aliases.get().is_none() && tb.thumbs.get().is_none());
     for name in ["first-not-decoded", "second-not-decoded"] {
         let path = d.join(name);
-        pool.submit(super::super::thumbs::Job { replies: None, path: path.clone(), mtime: 0, mime: "application/x-flea-no-thumbnailer".into(), trace: None, trash_identity: None });
+        pool.submit(super::super::thumbs::Job { replies: None, path: path.clone(), mtime: 0, mime: "application/x-dlea-no-thumbnailer".into(), trace: None, trash_identity: None });
         let reply = replies.recv_timeout(Duration::from_secs(5)).expect("each lazy job reaches the loop");
         assert!(matches!(reply, Event::Thumb(Done { path: got, result: super::super::thumbs::Outcome::Failed, .. }) if got == path));
     }
@@ -77,7 +77,7 @@ fn a_remote_window_whose_stat_fails_answers_its_rows_then_says_why() {
     let (events, _) = crate::backend::events::channel();
     let tb = Tables::load();
     let mut st = State::new(super::super::dirsizeworker::Worker::new(events));
-    st.base = PathBuf::from("/run/user/flea-empty-test/gvfs/smb-share:server=test,share=lost");
+    st.base = PathBuf::from("/run/user/dlea-empty-test/gvfs/smb-share:server=test,share=lost");
     st.listing.push("a.txt", false);
     st.listing.push("b.txt", false);
     let mount = super::super::iomount::mount_key(&st.base, "");

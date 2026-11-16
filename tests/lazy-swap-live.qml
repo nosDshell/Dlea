@@ -1,4 +1,4 @@
-//@ pragma ShellId flea-lazy-swap-test
+//@ pragma ShellId dlea-lazy-swap-test
 import QtQuick
 import Quickshell
 // Live swap gate: wrapper absent at launch, whole (non-zero size) on first open.

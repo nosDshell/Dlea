@@ -4,10 +4,10 @@
 # (a provisional ask at once, then the whole ask once the history read lands), a held Enter, a stale
 # answer, a Tab-completed path, a name with no match, a backend that never answers.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 command -v qs >/dev/null || { echo "jump-ui.sh: qs is not installed, cannot load the bar"; exit 1; }
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [ -x "$bin" ] || { echo "jump-ui.sh: build the candidate backend first: $bin"; exit 1; }
 
 fixture="$FIXTURE_ROOT/jump-ui-$$"
@@ -23,7 +23,7 @@ cleanup() {
 trap cleanup EXIT
 
 home="$fixture/home"
-mkdir -p "$home/Projects" "$home/Documents/claude/flea" "$home/Documents/claude/omarchy" "$home/Downloads" \
+mkdir -p "$home/Projects" "$home/Documents/claude/dlea" "$home/Documents/claude/omarchy" "$home/Downloads" \
     "$home/Pictures/screenshots" "$home/Work/field" "$home/.local/share" "$home/.local/state" "$home/.config" "$fixture/cache"
 : > "$home/Pictures/screenshots/shot.png"
 : > "$home/Work/field/notes.md"
@@ -35,14 +35,14 @@ cat > "$home/.local/share/recently-used.xbel" <<EOF
   <bookmark href="file://$home/Pictures/screenshots/shot.png" added="2026-09-22T10:00:00Z" modified="2026-09-22T10:00:00Z" visited="2026-09-22T10:00:00Z"/>
 </xbel>
 EOF
-for favourite in Projects Documents/claude/flea Documents/claude/omarchy; do
+for favourite in Projects Documents/claude/dlea Documents/claude/omarchy; do
     HOME="$home" XDG_STATE_HOME="$home/.local/state" XDG_CONFIG_HOME="$home/.config" \
         "$bin" --favourites "{\"op\":\"add\",\"record\":{\"label\":\"${favourite##*/}\",\"path\":\"$home/$favourite\"}}" >/dev/null \
         || { echo "FAIL could not seed the favourite $favourite"; exit 1; }
 done
 
 # The real ui/ as the module under test, and the Omarchy modules its qs.* imports resolve to at the config root.
-cp -a ui "$fixture/flea"
+cp -a ui "$fixture/dlea"
 headless_commons "$fixture" "$fixture/Commons" || exit 1
 ln -s "$(readlink -f ui/Ui)" "$fixture/Ui"
 cp tests/jump-ui.qml "$fixture/shell.qml"
@@ -50,7 +50,7 @@ cp tests/jump-ui.qml "$fixture/shell.qml"
 log="$fixture/qs.log"
 env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u YDOTOOL_SOCKET \
     HOME="$home" XDG_STATE_HOME="$home/.local/state" XDG_DATA_HOME="$home/.local/share" \
-    XDG_CONFIG_HOME="$home/.config" XDG_CACHE_HOME="$fixture/cache" FLEA_BIN="$bin" \
+    XDG_CONFIG_HOME="$home/.config" XDG_CACHE_HOME="$fixture/cache" DLEA_BIN="$bin" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
     setsid qs -p "$fixture/shell.qml" >"$log" 2>&1 </dev/null &
 qs_pid=$!

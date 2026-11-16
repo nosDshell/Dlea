@@ -5,17 +5,17 @@ that opens is whichever backend owns `org.freedesktop.impl.portal.FileChooser`. 
 reason the Tailscale bar widget raised a GTK dialog in the middle of Omarchy: its Panel calls
 `omarchy-tailscale-send` with no file arguments, that script runs `omarchy-file-select`, and
 `omarchy-file-select` is a 124-line portal client. Nothing about it is Tailscale specific, so
-neither is the answer: Flea implements the backend interface, and every portal caller on the box
+neither is the answer: Dlea implements the backend interface, and every portal caller on the box
 gets the same chooser.
 
 **Three moving parts.**
 
-- `tools/flea-portal` owns the bus name `org.freedesktop.impl.portal.desktop.flea`, exports
+- `tools/dlea-portal` owns the bus name `org.freedesktop.impl.portal.desktop.dlea`, exports
   `FileChooser` at `/org/freedesktop/portal/desktop` and a `Request` object at each request's own
-  handle, turns one call into one JSON request, runs `flea --pick`, and turns the reply into a
+  handle, turns one call into one JSON request, runs `dlea --pick`, and turns the reply into a
   response code and results. It exits after 30 s with no request open, because D-Bus starts it
   again on the next call.
-- `flea --pick <reply>` is `gui::pick`: it refuses without `FLEA_PICKER` or a reply path, refuses
+- `dlea --pick <reply>` is `gui::pick`: it refuses without `DLEA_PICKER` or a reply path, refuses
   without a display, resolves the UI with the same `paths::ui_dir()` the window uses, and `exec`s
   `qs -p <ui>/boot/picker.qml` with the same renderer choice `--gui` makes. One code path chooses Vulkan
   for both front doors.
@@ -39,7 +39,7 @@ failed spawn and process reaping under offscreen Quickshell; it needs no product
 **Recent, and why it is read-only.** `SendPicker.html` draws a Recent row above Home in the rail,
 says the location's own name where the path would be, and draws Parent disabled with the words
 "unavailable in Recent". The history it lists is the desktop's own,
-`$XDG_DATA_HOME/recently-used.xbel` and `~/.local/share` when the session set no data home: Flea
+`$XDG_DATA_HOME/recently-used.xbel` and `~/.local/share` when the session set no data home: Dlea
 keeps no history of its own, writes nothing to that file, and reads it only when the location is
 opened. Qt's XML reader does the parsing in `ui/PickerRecent.qml`, because a hand-rolled XBEL
 reader would be a second implementation of a file this application does not own. Every application
@@ -53,7 +53,7 @@ backend through `listpaths`, which stats each path and drops the ones that are g
 removed rather than drawn against a failed stat; the listing's base is `/` and each row is named by
 its path under it, which is why `ui/PickerList.qml` draws a Recent row by its own leaf and
 `Picker.rowPath` answers with the whole path. Recent is a location and never a directory: it is
-named by the token `flea:recent`, which no absolute path can equal, Parent refuses in it, Back
+named by the token `dlea:recent`, which no absolute path can equal, Parent refuses in it, Back
 works out of it, a caller's own `folder` still wins at startup, and a save is not offered it at all
 because a history is not a directory to write into. The window's Recent listing draws each file's folder in its
 Location column through `Recent.locationUnder`: relative to home with no leading `~/` ("Documents/claude"), `~` for a
@@ -62,7 +62,7 @@ home test every path display shares, and Settings, Places draws a favourite's pa
 row's `value` keeps the stored path for removal, reorder and the keyboard seam.
 
 **Why the backend is Python.** It is the second non-Rust helper in this tree, after
-`tools/flea-gio-auth`. A portal backend has to own a bus name, export objects, answer calls out of
+`tools/dlea-gio-auth`. A portal backend has to own a bus name, export objects, answer calls out of
 order and stay reachable while a window is open; this crate has no dependencies at all, so the Rust
 answer was a hand-rolled D-Bus marshaller. `python-gobject` is what `omarchy-file-select`, the
 client this serves, is already written against, so it is an already-installed dependency rather
@@ -83,9 +83,9 @@ trying the interface key and then that file's own `default` before moving to the
 one in `$XDG_CONFIG_HOME/xdg-desktop-portal`, `claim()` writes the same one key into that file, the
 only user file the portal reads. Omarchy ships no user portal configuration in any release from
 3.0.0 to 4.0.4, so such a file is the user's own or another tool's, and 0.3.3's refusal to touch it
-left `flea --default` exiting 1 with file dialogs still on Nautilus for everyone who had one. A value
-the claim replaces is kept on a `# flea replaced: <key>=<value>` comment above Flea's line, and
-`release()` puts it back in every user portal file it finds, reading the directory rather than the session, because an older Flea wrote `portals.conf` there. A claim with no `XDG_CURRENT_DESKTOP` beside a desktop file refuses rather than guess which file the portal reads, before either half writes, so the picker's window rule is not left behind a routing that never happened.
+left `dlea --default` exiting 1 with file dialogs still on Nautilus for everyone who had one. A value
+the claim replaces is kept on a `# dlea replaced: <key>=<value>` comment above Dlea's line, and
+`release()` puts it back in every user portal file it finds, reading the directory rather than the session, because an older Dlea wrote `portals.conf` there. A claim with no `XDG_CURRENT_DESKTOP` beside a desktop file refuses rather than guess which file the portal reads, before either half writes, so the picker's window rule is not left behind a routing that never happened.
 
 **The two exit codes the caller distinguishes, and which of ours map to them.** In
 `omarchy-file-select`, exit 1 is nothing picked, a decision, and `omarchy-tailscale-send` exits 0
@@ -95,7 +95,7 @@ the wire is a response code: 0 with `uris`, 1 for the user's own refusal, 2 for 
 xdg-desktop-portal collapses 1 and 2 into the same client exit, so 2 is still the honest answer for
 a request the caller withdrew, a window that died and a chooser that could not open: the pair is
 never mixed at the boundary that can tell them apart. A response that never arrives is the real
-defect, because the client waits 600 s for it, so `flea --pick` refuses loudly before opening
+defect, because the client waits 600 s for it, so `dlea --pick` refuses loudly before opening
 anything and every path out of `Pick.answer` answers exactly once.
 
 **The reply is a file, not the child's stdout.** `qs` writes its own logs to stdout, so the answer

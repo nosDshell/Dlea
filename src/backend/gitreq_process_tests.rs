@@ -48,7 +48,7 @@ fn stalled_script(d: &Fixture, delayed: bool) -> Vec<String> {
 
     let script = d.path("probe");
     d.check(&script);
-    flea::executable_file::write(&script, &std::fs::read(&script).unwrap(), 0o700).unwrap();
+    dlea::executable_file::write(&script, &std::fs::read(&script).unwrap(), 0o700).unwrap();
     vec![
         script.to_str().unwrap().to_string(),
         d.path("ready").to_str().unwrap().to_string(),
@@ -148,7 +148,7 @@ fn git_deadline_kills_sandbox_and_keeps_stderr_and_exit_failures() {
 
     let script = d.path("probe");
     d.check(&script);
-    flea::executable_file::write(&script, &std::fs::read(&script).unwrap(), 0o700).unwrap();
+    dlea::executable_file::write(&script, &std::fs::read(&script).unwrap(), 0o700).unwrap();
     let inner = vec![script.to_str().unwrap().to_string()];
     let mut argv = sandbox::wrap_readonly(&inner, &d.0);
     sandbox::add_status(&mut argv, inner.len());

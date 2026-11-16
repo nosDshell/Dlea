@@ -3,9 +3,9 @@
 // The loop's longest wait for a key, and how long a lone Escape waits for the rest of a sequence.
 const INPUT_TIMEOUT_MS: i32 = 100;
 
-// FLEA_TUI_INPUT_TIMEOUT_MS lengthens the wait for tests/tui-wake.sh, so a backend event that does not wake the loop shows.
+// DLEA_TUI_INPUT_TIMEOUT_MS lengthens the wait for tests/tui-wake.sh, so a backend event that does not wake the loop shows.
 pub(super) fn input_timeout() -> std::time::Duration {
-    let ms = std::env::var("FLEA_TUI_INPUT_TIMEOUT_MS").ok().and_then(|v| v.parse().ok()).filter(|&ms: &u64| ms > 0);
+    let ms = std::env::var("DLEA_TUI_INPUT_TIMEOUT_MS").ok().and_then(|v| v.parse().ok()).filter(|&ms: &u64| ms > 0);
     std::time::Duration::from_millis(ms.unwrap_or(INPUT_TIMEOUT_MS as u64))
 }
 

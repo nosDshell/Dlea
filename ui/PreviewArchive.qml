@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Facts.js" as Facts
 import "js/Format.js" as Format
 
@@ -30,7 +30,7 @@ Item {
                 height: root.lineHeight
                 spacing: Theme.spacing.gap
 
-                Flea.Glyph {
+                Dlea.Glyph {
                     anchors.verticalCenter: parent.verticalCenter
                     width: Theme.font.caption
                     height: Theme.font.caption

@@ -131,7 +131,7 @@ pub fn user_dirs_entry(text: &str, key: &str, home: &str) -> Option<String> {
     None
 }
 
-// flea shelf captures [count] [both|screenshots|recordings]: one line per capture, newest first,
+// dlea shelf captures [count] [both|screenshots|recordings]: one line per capture, newest first,
 // the mtime then the path.
 pub fn command(rest: &[String]) -> i32 {
     let count = match rest.first() {
@@ -141,14 +141,14 @@ pub fn command(rest: &[String]) -> i32 {
             // Refused rather than defaulted: a word here would slide the kinds argument along and
             // answer with both kinds at the default count, which is not what was asked for.
             Err(_) => {
-                eprintln!("flea: shelf captures takes a count first, and {} is not one", asked);
+                eprintln!("dlea: shelf captures takes a count first, and {} is not one", asked);
                 return 2;
             }
         },
     };
     let kinds = rest.get(1).map(String::as_str).unwrap_or("both");
     if !matches!(kinds, "both" | "screenshots" | "recordings") {
-        eprintln!("flea: shelf captures takes both, screenshots or recordings, and {} is none of them", kinds);
+        eprintln!("dlea: shelf captures takes both, screenshots or recordings, and {} is none of them", kinds);
         return 2;
     }
     let screenshots = kinds == "both" || kinds == "screenshots";

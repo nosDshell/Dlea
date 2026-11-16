@@ -292,7 +292,7 @@ fn the_reply_counts_left_out_entries_the_sweep_could_not_remove() {
     )
     .unwrap();
     // A claim's quarantine that appears after the review keeps its Trash's records.
-    d.dir("files/.flea-delete-9-9");
+    d.dir("files/.dlea-delete-9-9");
     let fields = delete_with(
         &confirmation,
         &Ok(d.path().to_path_buf()),

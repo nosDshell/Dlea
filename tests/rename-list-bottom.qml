@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-rename-list-bottom-test
+//@ pragma ShellId dlea-rename-list-bottom-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Filter.js" as Filter
+import "dlea" as Dlea
+import "dlea/js/Filter.js" as Filter
 
 // The real ui/List.qml renames the last row of a long listing; its grown error editor must stay inside the viewport.
 ShellRoot {
@@ -58,7 +58,7 @@ ShellRoot {
         function onCursorClamped(first, last) { Filter.clampCursor(root.stubPane, first, last) }
     }
 
-    Component { id: listComponent; Flea.List {} }
+    Component { id: listComponent; Dlea.List {} }
     // A Grid or Columns editor showing an error line, which the hidden List must not read.
     QtObject {
         id: otherEditor

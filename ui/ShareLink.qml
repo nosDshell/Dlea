@@ -19,7 +19,7 @@ Item {
             return
         }
         if (typeof path !== "string" || path.charAt(0) !== "/" || path.indexOf("\u0000") >= 0) {
-            root.failed("Flea could not find that file's location, so no share link was made.")
+            root.failed("Dlea could not find that file's location, so no share link was made.")
             return
         }
         root.pending = path

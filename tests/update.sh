@@ -1,11 +1,11 @@
 #!/bin/bash
-# Drives flea --update against stub pacman, checkupdates, vercmp and Omarchy's presenter, plus a curl that only records; nothing here touches a network or a package.
+# Drives dlea --update against stub pacman, checkupdates, vercmp and Omarchy's presenter, plus a curl that only records; nothing here touches a network or a package.
 set -u
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete below.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
-BIN=./target/debug/flea
+BIN=./target/debug/dlea
 [ -x "$BIN" ] || { echo "update.sh: $BIN is missing, run cargo build" >&2; exit 1; }
 # current_exe() answers with the kernel's resolved path, which is what the stub pacman is asked to own.
 BIN_REAL=$(readlink -f "$BIN")
@@ -35,7 +35,7 @@ wait_for_line() {
   return 1
 }
 
-D=$(sandbox_root_ok && mktemp -d "$SANDBOX_ROOT/flea-update-test-XXXXXX") || exit 1
+D=$(sandbox_root_ok && mktemp -d "$SANDBOX_ROOT/dlea-update-test-XXXXXX") || exit 1
 sandbox_require "$D"
 : > "$D/$SANDBOX_MARKER"
 mkdir -p "$D/bin" "$D/empty" "$D/home" "$D/data" "$D/config" "$D/cache"
@@ -50,7 +50,7 @@ stub() {
   chmod +x "$D/bin/$name"
 }
 
-# Sample input: pacman -Qqo /src/target/debug/flea, then pacman -Qi flea.
+# Sample input: pacman -Qqo /src/target/debug/dlea, then pacman -Qi dlea.
 stub pacman '
 case "$1" in
   -Qqo) [ -n "${STUB_OWNER-}" ] || exit 1; [ -z "${STUB_OWNED_PATH-}" ] || [ "$2" = "$STUB_OWNED_PATH" ] || exit 1; printf "%s\n" "$STUB_OWNER" ;;
@@ -83,38 +83,38 @@ check "and asked pacman who owns the running binary" "1" "$(grep -Fxc "pacman -Q
 check "and asked no mirror and ran no curl" "0|0" "$(called checkupdates)|$(called curl)"
 
 # A local makepkg build carries OPR's name and no signature.
-run_check STUB_OWNER=flea STUB_INSTALLED=0.3.3-1 STUB_VALIDATED=None
+run_check STUB_OWNER=dlea STUB_INSTALLED=0.3.3-1 STUB_VALIDATED=None
 check "a local build prints unchecked local with its version" "unchecked local 0.3.3-1 -" "$out"
 check "and exits with nothing to install" "3" "$rc"
-check "and pacman described it in the C.UTF-8 locale" "1" "$(grep -Fxc 'pacman -Qi flea LC_ALL=C.UTF-8 LANGUAGE=unset NARGS=2 ENV=exact' "$calls")"
+check "and pacman described it in the C.UTF-8 locale" "1" "$(grep -Fxc 'pacman -Qi dlea LC_ALL=C.UTF-8 LANGUAGE=unset NARGS=2 ENV=exact' "$calls")"
 check "and asked no source" "0|0" "$(called checkupdates)|$(called curl)"
 
 # An installed package must not claim a checkout or an unpacked release beside it.
-for relative in installed/usr/bin/flea checkout/target/debug/flea home/.local/bin/flea; do
+for relative in installed/usr/bin/dlea checkout/target/debug/dlea home/.local/bin/dlea; do
   mkdir -p "$D/$(dirname "$relative")"
   cp "$BIN_REAL" "$D/$relative"
 done
-installed_binary=$D/installed/usr/bin/flea
+installed_binary=$D/installed/usr/bin/dlea
 for validated in Signature None; do
   check_binary=$installed_binary
-  run_check STUB_OWNER=flea STUB_OWNED_PATH="$installed_binary" STUB_INSTALLED=0.4.2-2 STUB_VALIDATED="$validated"
+  run_check STUB_OWNER=dlea STUB_OWNED_PATH="$installed_binary" STUB_INSTALLED=0.4.2-2 STUB_VALIDATED="$validated"
   expected='unchecked local 0.4.2-2 -'
   [ "$validated" != Signature ] || expected='current opr 0.4.2-2 -'
   check "the pacman-owned path ($validated) names its package kind" "$expected" "$out"
 done
-for relative in checkout/target/debug/flea home/.local/bin/flea; do
+for relative in checkout/target/debug/dlea home/.local/bin/dlea; do
   check_binary=$D/$relative
-  run_check STUB_OWNER=flea STUB_OWNED_PATH="$installed_binary" STUB_INSTALLED=0.4.2-2 STUB_VALIDATED=Signature
+  run_check STUB_OWNER=dlea STUB_OWNED_PATH="$installed_binary" STUB_INSTALLED=0.4.2-2 STUB_VALIDATED=Signature
   check "$relative is unowned beside an installed package" 'unchecked unowned - -' "$out"
   check "$relative queried its own resolved path" '1' "$(grep -Fxc "pacman -Qqo $check_binary LC_ALL=C.UTF-8 LANGUAGE=unset NARGS=2 ENV=exact" "$calls")"
   check "$relative asked no package source" '0|0' "$(called checkupdates)|$(called curl)"
 done
 check_binary=$BIN
 
-# flea-bin is the prebuilt release, and other names are local; signed or not, none asks a release source.
-for owner in flea-bin flea-git flea-custom; do
+# dlea-bin is the prebuilt release, and other names are local; signed or not, none asks a release source.
+for owner in dlea-bin dlea-git dlea-custom; do
   kind=local
-  if [ "$owner" = flea-bin ]; then kind=release; fi
+  if [ "$owner" = dlea-bin ]; then kind=release; fi
   for validated in None Signature; do
     run_check STUB_OWNER="$owner" STUB_INSTALLED=0.3.3-1 STUB_VALIDATED="$validated"
     check "$owner ($validated) is $kind" "unchecked $kind 0.3.3-1 -" "$out"
@@ -124,14 +124,14 @@ for owner in flea-bin flea-git flea-custom; do
   done
 done
 
-run_check STUB_OWNER=flea-git STUB_INSTALLED=0.3.1.r0.g6433131-2 STUB_VALIDATED=None
+run_check STUB_OWNER=dlea-git STUB_INSTALLED=0.3.1.r0.g6433131-2 STUB_VALIDATED=None
 check "a describe-style local version is not compared" "unchecked local - -" "$out"
 check "and asked no source" "0|0" "$(called checkupdates)|$(called curl)"
 
 # OPR's signed package asks checkupdates, which syncs its own database copy and is never given --nosync.
-opr=(STUB_OWNER=flea STUB_INSTALLED=0.3.2-1 STUB_VALIDATED=Signature)
+opr=(STUB_OWNER=dlea STUB_INSTALLED=0.3.2-1 STUB_VALIDATED=Signature)
 run_check "${opr[@]}" STUB_UPDATES_CODE=0 STUB_ORDER=1 \
-  STUB_UPDATES='linux 6.16.8.arch1-1 -> 6.16.9.arch1-1\nflea 0.3.2-1 -> 0.3.3-1\n'
+  STUB_UPDATES='linux 6.16.8.arch1-1 -> 6.16.9.arch1-1\ndlea 0.3.2-1 -> 0.3.3-1\n'
 check "an OPR update prints available with both versions" "available opr 0.3.2-1 0.3.3-1" "$out"
 check "and exits 0" "0" "$rc"
 check "checkupdates ran with no arguments" "1" "$(grep -Fxc 'checkupdates  LC_ALL=C.UTF-8 LANGUAGE=unset NARGS=0 ENV=exact' "$calls")"
@@ -139,7 +139,7 @@ check "vercmp was asked whether the offer is newer than the installed" "1" "$(gr
 check "and never ran curl" "0" "$(called curl)"
 
 run_check "${opr[@]}" STUB_UPDATES_CODE=0 STUB_UPDATES='linux 6.16.8.arch1-1 -> 6.16.9.arch1-1\n'
-check "other packages' updates leave OPR Flea current" "current opr 0.3.2-1 -" "$out"
+check "other packages' updates leave OPR Dlea current" "current opr 0.3.2-1 -" "$out"
 check "and exit with nothing to install" "3" "$rc"
 
 run_check "${opr[@]}" STUB_UPDATES_CODE=2
@@ -149,18 +149,18 @@ check "and needs no vercmp" "0" "$(called vercmp)"
 run_check "${opr[@]}" STUB_UPDATES_CODE=1
 check "checkupdates' error status prints failed" "failed opr 0.3.2-1 -" "$out"
 check "and exits 2" "2" "$rc"
-check "with one sentence naming the mirrors" "flea: the package mirrors could not be asked for a newer Flea" "$err"
+check "with one sentence naming the mirrors" "dlea: the package mirrors could not be asked for a newer Dlea" "$err"
 
-run_check "${opr[@]}" STUB_UPDATES_CODE=0 STUB_ORDER=0 STUB_UPDATES='flea 0.3.2-1 -> 0.3.2-1\n'
+run_check "${opr[@]}" STUB_UPDATES_CODE=0 STUB_ORDER=0 STUB_UPDATES='dlea 0.3.2-1 -> 0.3.2-1\n'
 check "the installed version is current" "current opr 0.3.2-1 0.3.2-1" "$out"
-run_check "${opr[@]}" STUB_UPDATES_CODE=0 STUB_ORDER=-1 STUB_UPDATES='flea 0.3.2-1 -> 0.3.1-1\n'
+run_check "${opr[@]}" STUB_UPDATES_CODE=0 STUB_ORDER=-1 STUB_UPDATES='dlea 0.3.2-1 -> 0.3.1-1\n'
 check "an older mirror is current, never an offer to downgrade" "current opr 0.3.2-1 0.3.1-1" "$out"
 check "and exits with nothing to install" "3" "$rc"
 
-run_check "${opr[@]}" STUB_UPDATES_CODE=0 STUB_UPDATES='flea 0.3.2-1 -> 0.3.4-1$(reboot)\n'
+run_check "${opr[@]}" STUB_UPDATES_CODE=0 STUB_UPDATES='dlea 0.3.2-1 -> 0.3.4-1$(reboot)\n'
 check "a version that fails the strict pattern prints failed" "failed opr 0.3.2-1 -" "$out"
 check "and never reaches vercmp" "0" "$(called vercmp)"
-check "and names the version problem" "flea: the package source answered with a version this check cannot compare" "$err"
+check "and names the version problem" "dlea: the package source answered with a version this check cannot compare" "$err"
 
 # The two usage shapes a malformed --update takes, on an empty PATH so a parse that ran either could launch nothing real.
 out=$(env -i HOME="$D/home" XDG_DATA_HOME="$D/data" XDG_CONFIG_HOME="$D/config" XDG_CACHE_HOME="$D/cache" PATH="$D/empty" "$BIN" --update now 2>&1 >/dev/null); rc=$?
@@ -193,7 +193,7 @@ check "the presenter is Omarchy's own floating terminal launcher" "omarchy-launc
 chmod +x "$D/bin/$presenter"
 
 : > "$ran"
-# Quickshell hands flea --update a pipe and closes it, so a pipe is what the updater must not inherit.
+# Quickshell hands dlea --update a pipe and closes it, so a pipe is what the updater must not inherit.
 env -i HOME="$D/home" XDG_DATA_HOME="$D/data" XDG_CONFIG_HOME="$D/config" XDG_CACHE_HOME="$D/cache" PATH="$D/bin" "$BIN" --update 2>&1 | cat >/dev/null
 check "--update returns success once the presenter is started" "0" "${PIPESTATUS[0]}"
 wait_for_line "$ran" '^THP_enabled'
@@ -208,18 +208,18 @@ check "the updater runs with huge pages on" "1" "$(echo "$out" | grep -c '^THP_e
 # The window inherits huge pages off, so the updater it starts must get them back.
 : > "$ran"
 mkdir -p "$D/gui"
-cp "$BIN_REAL" "$D/gui/flea"
-printf '#!/bin/sh\n/usr/bin/grep -i "^THP_enabled" /proc/self/status | /usr/bin/sed "s/^/GUI /" >> %q\nexec %q --update\n' "$ran" "$BIN_REAL" > "$D/gui/flea-gui"
-chmod +x "$D/gui/flea-gui"
-env -i HOME="$D/home" XDG_DATA_HOME="$D/data" XDG_CONFIG_HOME="$D/config" XDG_CACHE_HOME="$D/cache" XDG_STATE_HOME="$D/home/state" WAYLAND_DISPLAY=flea-update-test-display PATH="$D/bin" \
-  "$D/gui/flea" --gui >"$D/gui.log" 2>&1 </dev/null
+cp "$BIN_REAL" "$D/gui/dlea"
+printf '#!/bin/sh\n/usr/bin/grep -i "^THP_enabled" /proc/self/status | /usr/bin/sed "s/^/GUI /" >> %q\nexec %q --update\n' "$ran" "$BIN_REAL" > "$D/gui/dlea-gui"
+chmod +x "$D/gui/dlea-gui"
+env -i HOME="$D/home" XDG_DATA_HOME="$D/data" XDG_CONFIG_HOME="$D/config" XDG_CACHE_HOME="$D/cache" XDG_STATE_HOME="$D/home/state" WAYLAND_DISPLAY=dlea-update-test-display PATH="$D/bin" \
+  "$D/gui/dlea" --gui >"$D/gui.log" 2>&1 </dev/null
 wait_for_line "$ran" '^THP_enabled'
 check "the window inherited huge pages off" "1" "$(grep -c '^GUI THP_enabled:[[:space:]]*0' "$ran")"
 check "and the updater it started got them back" "1" "$(grep -c '^THP_enabled:[[:space:]]*1' "$ran")"
 
 out=$(env -i HOME="$D/home" XDG_DATA_HOME="$D/data" XDG_CONFIG_HOME="$D/config" XDG_CACHE_HOME="$D/cache" PATH="$D/empty" "$BIN" --update 2>&1); rc=$?
 check "a box with no presenter is the failure status" "2" "$rc"
-check "and one sentence saying nothing was updated" "flea: Omarchy's updater could not be started, so nothing was updated" "$out"
+check "and one sentence saying nothing was updated" "dlea: Omarchy's updater could not be started, so nothing was updated" "$out"
 
 # The presenter ships in the omarchy package, which PKGBUILD must depend on or the row opens nothing.
 check "PKGBUILD depends on omarchy, which ships $presenter" "1" "$( (. ./PKGBUILD && printf '%s\n' "${depends[@]}") | grep -cxF omarchy)"

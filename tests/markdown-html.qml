@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-markdown-html-test
+//@ pragma ShellId dlea-markdown-html-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "markdown-html.js" as Checks
 import "markdown-html-pictures.js" as Pictures
 import "markdown-html-chips.js" as Chips
@@ -14,8 +14,8 @@ ShellRoot {
     function log(line) { console.log("MARKDOWN_HTML " + line) }
     function quit() { Quickshell.execDetached(["kill", String(Quickshell.processId)]) }
 
-    readonly property string dir: Quickshell.env("FLEA_MDHTML_DIR")
-    readonly property var names: Quickshell.env("FLEA_MDHTML_DOCS").split(",")
+    readonly property string dir: Quickshell.env("DLEA_MDHTML_DIR")
+    readonly property var names: Quickshell.env("DLEA_MDHTML_DOCS").split(",")
     readonly property string shotBase: Quickshell.env("XDG_RUNTIME_DIR") + "/markdown-html-" + Quickshell.processId
     readonly property int paneW: 560
     readonly property int paneH: 1060
@@ -52,7 +52,7 @@ ShellRoot {
 
             Rectangle { anchors.fill: parent; color: shell.ground }
 
-            Flea.PreviewMarkdown {
+            Dlea.PreviewMarkdown {
                 id: md
                 anchors.fill: parent
                 active: true
@@ -80,8 +80,8 @@ ShellRoot {
             TextMetrics {
                 id: hMetrics
                 text: "H"
-                font.family: Flea.Theme.font.family
-                font.pixelSize: Flea.Theme.font.body
+                font.family: Dlea.Theme.font.family
+                font.pixelSize: Dlea.Theme.font.body
             }
         }
     }
@@ -197,7 +197,7 @@ ShellRoot {
         var noticeAt = notice !== null ? notice.mapToItem(md, 0, 0) : null
         var noticeRect = notice !== null && notice.visible ? { x: noticeAt.x, y: noticeAt.y, w: notice.width, h: notice.height } : null
         geo = { name: names[step], w: shell.paneW, h: shell.paneH, ground: rgb(shell.ground), chrome: hexRgb(String(md.chromeHex)),
-            blocks: blocks, texts: texts, blockGap: md.blockGap, lineBox: Math.round(Flea.Theme.font.body * shell.lineBoxRatio), hAdvance: Math.floor(hMetrics.advanceWidth),
+            blocks: blocks, texts: texts, blockGap: md.blockGap, lineBox: Math.round(Dlea.Theme.font.body * shell.lineBoxRatio), hAdvance: Math.floor(hMetrics.advanceWidth),
             tooDeep: md.tooDeep, notice: noticeRect, noticeInkWidth: notice === null ? 0 : Math.min(notice.width, Math.ceil(notice.contentWidth)), noticeText: notice === null ? "" : notice.text }
         grabRoot.grabToImage(function (result) {
             var path = shell.shotBase + "-" + shell.step + ".png"
@@ -259,7 +259,7 @@ ShellRoot {
 
     Component.onCompleted: {
         if (shell.dir.length === 0 || names.length === 0)
-            fail("no fixture directory arrived in FLEA_MDHTML_DIR")
+            fail("no fixture directory arrived in DLEA_MDHTML_DIR")
         else
             Qt.callLater(shell.next)
     }

@@ -39,7 +39,7 @@ function run(check) {
     check("md3t F6 paletteError sample", /\/\/ Sample input:[^\n]*fill=[^\n]*\nfunction paletteError/.test(figureModule), true)
     check("md3v F2 one module header", !/^\/\/[^\n]*\n\/\//.test(Source.source("tests/markdown-render.js")), true)
     var source = Source.source("tests/markdown-source-render.qml")
-    var geometry = new Function("sourcePane", "reference", "Flea", "Text", "check", "sourceParts",
+    var geometry = new Function("sourcePane", "reference", "Dlea", "Text", "check", "sourceParts",
         Source.slice(source, "function readBack(markup)", "    Timer {") + "\ngeometry()")
     function sourceCase(widths, wheel) {
         var flick = { children: [], width: 520, height: 240, contentHeight: 268, count: 1,
@@ -131,9 +131,9 @@ function run(check) {
 
     var figureSource = Source.source("tests/markdown-figures-render.qml")
     check("md3t F5 one QML header", !/\/\/[^\n]*\n\/\/[^\n]*\nShellRoot/.test(figureSource), true)
-    var drive = new Function("shell", "md", "Flea", "Checks", "poll", "grabRoot",
+    var drive = new Function("shell", "md", "Dlea", "Checks", "poll", "grabRoot",
         Source.slice(figureSource, "function drive()", "function grabbed(") + "\ndrive()")
-    var checkHistory = new Function("shell", "md", "Flea", "Checks",
+    var checkHistory = new Function("shell", "md", "Dlea", "Checks",
         Source.slice(figureSource, "function checkHistory()", "function drive()") + "\nreturn checkHistory()")
     function figureCase(mode, imgW, history, step) {
         var failure = ""
@@ -193,7 +193,7 @@ function run(check) {
     var renderer = Source.source("tests/markdown-render.qml")
     check("md3z F6 board ratio is 1.7", Render.BOARD_LINE_BOX_RATIO, 1.7)
     check("md3z F6 ratio never read from the renderer", renderer.indexOf("Checks.lineBoxError(texts)") >= 0 && renderer.indexOf("boxRatio") < 0, true)
-    check("md3v F3 rhythm read from the board's margin", renderer.indexOf("Checks.rhythmError(rects, Board.boardPx(Board.BOARD_BLOCK_GAP, Flea.Theme.font.body))") >= 0, true)
+    check("md3v F3 rhythm read from the board's margin", renderer.indexOf("Checks.rhythmError(rects, Board.boardPx(Board.BOARD_BLOCK_GAP, Dlea.Theme.font.body))") >= 0, true)
     // The board's 6, 8, 12, 20 and 15 are resolved at body 14 and follow the body from there.
     check("mdfid N6 the board's margin and fence padding at body 14",
         [Board.BOARD_BLOCK_GAP, Board.BOARD_FENCE_PAD_Y, Board.BOARD_FENCE_PAD_X].map(function (px) { return Board.boardPx(px, 14) }).join(","), "6,8,12")
@@ -201,7 +201,7 @@ function run(check) {
         [Render.BOARD_H1, Render.BOARD_H2].map(function (px) { return Board.boardPx(px, 14) + "/" + Board.boardPx(px, 12) }).join(" "), "20/17 15/13")
     // Sample input: shell.check(Checks.rhythmError(rects, md.blockGap), "block rhythm").
     var rhythmCall = renderer.match(/shell\.check\(Checks\.rhythmError\([^\n]+/)[0]
-    var rhythm = new Function("rects", "md", "Flea", "Checks", "Board", "shell", rhythmCall)
+    var rhythm = new Function("rects", "md", "Dlea", "Checks", "Board", "shell", rhythmCall)
     var rhythmError = ""
     rhythm([{ y: 0, h: 24 }, { y: 34, h: 24 }], { blockGap: 10 },
         { Theme: { font: { body: 14 } } }, Render, Board,

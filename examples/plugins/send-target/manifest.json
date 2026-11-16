@@ -3,7 +3,7 @@
   "id": "example.send-target",
   "name": "Selection Receiver",
   "version": "1.0.0",
-  "author": "Flea contributors",
+  "author": "Dlea contributors",
   "license": "MIT",
   "description": "A local protocol fixture that acknowledges the selected paths.",
   "kinds": [

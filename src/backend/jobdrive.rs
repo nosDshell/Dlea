@@ -4,7 +4,7 @@ use std::path::Path;
 pub(super) fn drive_of(
     target: &Path,
     body: &str,
-) -> Result<(String, String), crate::error::FleaError> {
+) -> Result<(String, String), crate::error::DleaError> {
     let owned = target.to_path_buf();
     let mounts = body.to_string();
     probe(target, body, super::iomount::CALL_DEADLINE, move || {
@@ -18,7 +18,7 @@ fn probe(
     body: &str,
     deadline: std::time::Duration,
     work: impl FnOnce() -> (String, String) + Send + 'static,
-) -> Result<(String, String), crate::error::FleaError> {
+) -> Result<(String, String), crate::error::DleaError> {
     super::iomount::call_with(
         target,
         body,

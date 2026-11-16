@@ -23,7 +23,7 @@ Item {
         // setpriv ties the exec'd helper to this UI; the PPID check covers death before signal registration.
         return ["setpriv", "--pdeathsig", "TERM", "--", "sh", "-c",
             '[ "$PPID" = "$1" ] || exit 1; shift; exec "$@"',
-            "flea-trash", String(Quickshell.processId)].concat(args)
+            "dlea-trash", String(Quickshell.processId)].concat(args)
     }
     function refresh() {
         if (!watching) return
@@ -73,7 +73,7 @@ Item {
         stdout: SplitParser { onRead: settle.restart() }
         stderr: StdioCollector {}
         onExited: function(code, status) {
-            if (root.watching && code !== 0) root.failed("Flea cannot watch the Trash, so its count may be out of date.")
+            if (root.watching && code !== 0) root.failed("Dlea cannot watch the Trash, so its count may be out of date.")
         }
     }
     Process {

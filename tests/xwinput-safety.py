@@ -47,9 +47,9 @@ check('key extraction ignores an earlier hotkey declaration',
 # Sample input: if key -k Escape; then :; fi, or omarchy-drive key -k Escape.
 def ambiguous_input(body):
     prefix = r'(?:^|&&|\|\||;|\||\$\(|[(){`])\s*(?:(?:if|then|elif|else|while|until|do|!)\s+)*'
-    pattern = (prefix + r'(?:key|hotkey)\s|--window(?:\s+|=)["\']?(?:flea|com[.]thisisgm[.]flea)\b|'
+    pattern = (prefix + r'(?:key|hotkey)\s|--window(?:\s+|=)["\']?(?:dlea|com[.]thisisgm[.]dlea)\b|'
                + prefix + r'omarchy-drive\s+(?:key|hotkey)\b(?![^;&|\n]*--window(?:\s|=))')
-    # Sample input: key -k Escape >/dev/null, or omarchy-drive key --window flea /fixture.
+    # Sample input: key -k Escape >/dev/null, or omarchy-drive key --window dlea /fixture.
     return re.search(pattern, body, re.M)
 
 
@@ -65,14 +65,14 @@ for prefix in ('', 'xwdrag_focus "$bid" && ', 'xwdrag_focus "$bid" || ', 'true; 
         check('ambiguity guard accepts ' + fixture, ambiguous_input(fixture) is None)
 for fixture in ('echo key -k Escape', 'printf hotkey', 'hotkey() { :; }', 'key() { :; }'):
     check('ambiguity guard accepts argument or declaration ' + fixture, ambiguous_input(fixture) is None)
-for spelling in ('--window flea', '--window=flea', '--window "flea"', "--window 'flea'",
-                 '--window="flea"', "--window='flea'", '--window  flea',
-                 '--window com.thisisgm.flea', '--window=com.thisisgm.flea',
-                 '--window "com.thisisgm.flea"', "--window 'com.thisisgm.flea'", '--window  com.thisisgm.flea'):
+for spelling in ('--window dlea', '--window=dlea', '--window "dlea"', "--window 'dlea'",
+                 '--window="dlea"', "--window='dlea'", '--window  dlea',
+                 '--window com.nosDshell.dlea', '--window=com.nosDshell.dlea',
+                 '--window "com.nosDshell.dlea"', "--window 'com.nosDshell.dlea'", '--window  com.nosDshell.dlea'):
     fixture = 'omarchy-drive input ' + spelling + ' /fixture'
     check('ambiguity guard refuses the class target spelled ' + spelling, ambiguous_input(fixture) is not None)
 for fixture in ('omarchy-drive input --window "$addr" /fixture', 'omarchy-drive input --window=$addr /fixture',
-                'omarchy-drive input --window fleas /fixture', 'omarchy-drive input --window=fleas /fixture'):
+                'omarchy-drive input --window dleas /fixture', 'omarchy-drive input --window=dleas /fixture'):
     check('ambiguity guard accepts the addressed target ' + fixture, ambiguous_input(fixture) is None)
 check('ambiguity guard refuses driver key without window',
       ambiguous_input('omarchy-drive key -k Escape') is not None)
@@ -96,8 +96,8 @@ with tempfile.TemporaryDirectory() as temporary:
     driver.write_text('''#!/bin/bash
 printf '%s\\n' "$*" >> "$DRIVER_CALLS"
 refusal_status=1
-if [[ "$2" != --window || "$3" == flea ]]; then
-    printf "omarchy-drive: 'flea' matches 2 windows, narrow it\\n" >&2
+if [[ "$2" != --window || "$3" == dlea ]]; then
+    printf "omarchy-drive: 'dlea' matches 2 windows, narrow it\\n" >&2
     exit "$refusal_status"
 fi
 [[ "$3" == 0xa || "$3" == 0xb ]] || exit "$refusal_status"

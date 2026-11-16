@@ -2,7 +2,7 @@
 use crate::backend::opsreq::OpMsg;
 use crate::json::escape;
 use crate::backend::mountinfo::{enclosing, mounts_in};
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::io::Read;
 use std::path::PathBuf;
@@ -97,7 +97,7 @@ fn kept_ranking(ranking: usize) -> Option<Vec<(String, f64)>> {
     kept.as_ref().filter(|(id, _)| ranking != 0 && *id == ranking).map(|(_, rows)| rows.clone())
 }
 
-// --all keeps zoxide from pruning its database on a query Flea made, --score is the frecency the client ranks by, and None means no run of its own answered (one in flight, or past its limit).
+// --all keeps zoxide from pruning its database on a query Dlea made, --score is the frecency the client ranks by, and None means no run of its own answered (one in flight, or past its limit).
 fn zoxide(program: &str, limit: Duration) -> Option<Vec<(String, f64)>> {
     if ZOXIDE_RUNNING.swap(true, Ordering::SeqCst) {
         return None;
@@ -214,7 +214,7 @@ fn recent_parents(recent: &[String]) -> (Vec<String>, Vec<(String, String)>) {
     let mut parents = Vec::new();
     let mut files = Vec::new();
     for file in recent.iter().filter(|path| path.starts_with('/')) {
-        let parent = flea::bytename::view(file)
+        let parent = dlea::bytename::view(file)
             .parent()
             .map(|parent| parent.exact_text().into_owned())
             .unwrap_or_default();
@@ -228,7 +228,7 @@ fn recent_parents(recent: &[String]) -> (Vec<String>, Vec<(String, String)>) {
 
 // What one recent file stands for: itself when it is a folder, else the parent the caller already resolved.
 fn recent_folder(candidate: &Candidate) -> Option<String> {
-    let path = flea::bytename::view(&candidate.path);
+    let path = dlea::bytename::view(&candidate.path);
     let path = &*path;
     if path.is_dir() {
         return Some(candidate.path.clone());
@@ -246,7 +246,7 @@ fn resolve_parents(parents: Vec<String>, limit: Duration, mounts: &[(PathBuf, St
 
 // A folder stands for itself when it is one.
 fn is_dir_path(candidate: &Candidate) -> Option<String> {
-    flea::bytename::view(&candidate.path)
+    dlea::bytename::view(&candidate.path)
         .is_dir()
         .then(|| candidate.path.clone())
 }
@@ -258,7 +258,7 @@ fn remote(kind: &str) -> bool {
 
 // What a check is known by: the mount on a remote filesystem, else the path itself; lexical, never a stat.
 fn key_for(path: &str, mounts: &[(PathBuf, String)]) -> String {
-    match enclosing(&flea::bytename::view(path), mounts) {
+    match enclosing(&dlea::bytename::view(path), mounts) {
         Some((point, kind)) if remote(kind) => format!("mount {}", point.display()),
         _ => path.to_string(),
     }

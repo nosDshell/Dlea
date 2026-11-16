@@ -1,8 +1,8 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
-import "flea/js/Format.js" as Format
+import "dlea" as Dlea
+import "dlea/js/Format.js" as Format
 
 ShellRoot {
     id: root
@@ -12,7 +12,7 @@ ShellRoot {
     property string fileSource: ""
     readonly property string folder: Quickshell.env("HTML_ROOT")
     readonly property string picturePath: root.folder + "/reload.png"
-    readonly property string output: Quickshell.env("FLEA_CI_SUITE_LOGS") || root.folder
+    readonly property string output: Quickshell.env("DLEA_CI_SUITE_LOGS") || root.folder
     function check(name, good) {
         if (!good) root.failures++
         console.warn("HTML_PREVIEW " + (good ? "PASS " : "FAIL ") + name)
@@ -80,7 +80,7 @@ ShellRoot {
         implicitHeight: 200
         visible: true
         color: "transparent"
-        Flea.PreviewHtml {
+        Dlea.PreviewHtml {
             id: document
             anchors.fill: parent
             active: true

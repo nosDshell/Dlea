@@ -104,12 +104,12 @@ def run(binary, sandbox):
 
 scratch_parent = (Path.cwd() / ".superpowers" / "fb1").resolve()
 scratch_parent.mkdir(parents=True, exist_ok=True)
-root = Path(subprocess.check_output(["mktemp", "-d", str(scratch_parent / "flea-search-coverage.XXXXXX")], text=True).strip())
-marker = root / ".flea-test-sandbox"
-marker.write_text("flea test sandbox\n")
+root = Path(subprocess.check_output(["mktemp", "-d", str(scratch_parent / "dlea-search-coverage.XXXXXX")], text=True).strip())
+marker = root / ".dlea-test-sandbox"
+marker.write_text("dlea test sandbox\n")
 try:
     run(sys.argv[1], root)
 finally:
-    assert str(root) and root.is_absolute() and root.name.startswith("flea-search-coverage.")
-    assert root.parent == scratch_parent and marker.read_text() == "flea test sandbox\n"
+    assert str(root) and root.is_absolute() and root.name.startswith("dlea-search-coverage.")
+    assert root.parent == scratch_parent and marker.read_text() == "dlea test sandbox\n"
     shutil.rmtree(root)

@@ -3,7 +3,7 @@
 # The real ui/PreviewMarkdown.qml over a fixture document, grabbed offscreen and judged on pixel facts: the chrome chip behind inline code, the table's rules without verticals, no Qt default link blue, and the quote bar's muted ink.
 set -u
 script_path=$(readlink -f -- "$0") || exit 1
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 check_warnings() {
@@ -59,15 +59,15 @@ fi
 
 python3 tests/markdown-gates.py || exit 1
 
-test_root="$FIXTURE_ROOT/flea-markdown-render-$$"
+test_root="$FIXTURE_ROOT/dlea-markdown-render-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/cache" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/markdown-render.js tests/markdown-centre.js tests/markdown-board.js tests/markdown-bar.js tests/markdown-mark.js "$test_root/config/" || exit 1
@@ -112,13 +112,13 @@ cp "$test_root/notes.md" "$long_fixture" || exit 1
 # The harness ends itself with a kill, so the subshell keeps bash's "Terminated" notice out of the report.
 output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_MARKDOWN_FIXTURE="$test_root/notes.md" FLEA_MARKDOWN_LONG="$long_fixture" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_MARKDOWN_FIXTURE="$test_root/notes.md" DLEA_MARKDOWN_LONG="$long_fixture" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 \
     timeout 60 qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 
 # Sample input, the verdict line: "  INFO qml: MARKDOWN_RENDER PASS chip, rules, bar and links all read"
-if [ -n "${FLEA_CI_SUITE_LOGS:-}" ]; then
-    printf '%s\n' "$output" > "$FLEA_CI_SUITE_LOGS/markdown-render-ui.log"
+if [ -n "${DLEA_CI_SUITE_LOGS:-}" ]; then
+    printf '%s\n' "$output" > "$DLEA_CI_SUITE_LOGS/markdown-render-ui.log"
 fi
 if [ "$(printf '%s\n' "$output" | grep -c 'MARKDOWN_RENDER PASS')" -ne 1 ] || printf '%s\n' "$output" | grep -q 'MARKDOWN_RENDER FAIL'; then
     printf 'FAIL the rendered preview missed a pixel fact\n'
@@ -127,16 +127,16 @@ if [ "$(printf '%s\n' "$output" | grep -c 'MARKDOWN_RENDER PASS')" -ne 1 ] || pr
 fi
 check_warnings "$output" 0 || exit 1
 shot=$(ls "$test_root/runtime"/markdown-render-*-base.png 2>/dev/null | head -1)
-if [ -n "${FLEA_CI_SUITE_LOGS:-}" ] && [ -n "$shot" ]; then
-    mkdir -p "$FLEA_CI_SUITE_LOGS" || exit 1
-    cp "$shot" "$FLEA_CI_SUITE_LOGS/markdown-render.png" || exit 1
+if [ -n "${DLEA_CI_SUITE_LOGS:-}" ] && [ -n "$shot" ]; then
+    mkdir -p "$DLEA_CI_SUITE_LOGS" || exit 1
+    cp "$shot" "$DLEA_CI_SUITE_LOGS/markdown-render.png" || exit 1
     large_shot=$(ls "$test_root/runtime"/markdown-render-*-large.png 2>/dev/null | head -1)
     if [ -z "$large_shot" ]; then
         printf 'FAIL markdown-render: large shot expected %s/runtime/markdown-render-*-large.png; arrived [<missing>]\n' "$test_root" >&2
         exit 1
     fi
-    cp "$large_shot" "$FLEA_CI_SUITE_LOGS/markdown-render-large.png" || exit 1
-    printf 'shot %s\n' "$FLEA_CI_SUITE_LOGS/markdown-render.png"
+    cp "$large_shot" "$DLEA_CI_SUITE_LOGS/markdown-render-large.png" || exit 1
+    printf 'shot %s\n' "$DLEA_CI_SUITE_LOGS/markdown-render.png"
 elif [ -n "$shot" ]; then
     printf 'shot %s\n' "$shot"
 fi
@@ -145,7 +145,7 @@ printf '%s\n' "$output" | grep -oE 'MARKDOWN_RENDER (CHECK|body=|PASS).*'
 cp tests/markdown-source-render.qml "$test_root/config/shell.qml" || exit 1
 source_output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_MARKDOWN_FIXTURE="$test_root/notes.md" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_MARKDOWN_FIXTURE="$test_root/notes.md" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 \
     timeout 20 qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 printf '%s\n' "$source_output" | grep -oE 'MARKDOWN_SOURCE .*'
@@ -156,8 +156,8 @@ if ! printf '%s\n' "$source_output" | grep -qF "MARKDOWN_SOURCE $expected_source
     printf 'FAIL markdown-render: Source expected %s checks, 0 failed for %s/notes.md; arrived [%s]\n' "$expected_source_checks" "$test_root" "${source_output:-<empty>}" >&2
     exit 1
 fi
-if [ -n "${FLEA_CI_SUITE_LOGS:-}" ]; then
-    cp "$test_root/runtime/markdown-source.png" "$FLEA_CI_SUITE_LOGS/markdown-source.png" || exit 1
+if [ -n "${DLEA_CI_SUITE_LOGS:-}" ]; then
+    cp "$test_root/runtime/markdown-source.png" "$DLEA_CI_SUITE_LOGS/markdown-source.png" || exit 1
 fi
 
 # The heading ink as ui/Theme.qml derives it, over palettes where each source wins and where none does.
@@ -202,8 +202,8 @@ PY
 cp tests/markdown-endfit.qml "$test_root/config/shell.qml" || exit 1
 endfit_output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_ENDFIT_DOC="$endfit_dir/endfit.md" \
-    FLEA_ENDFIT_BYTES="$endfit_dir/late.bytes" FLEA_ENDFIT_FIFO="$endfit_dir/late.png" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_ENDFIT_DOC="$endfit_dir/endfit.md" \
+    DLEA_ENDFIT_BYTES="$endfit_dir/late.bytes" DLEA_ENDFIT_FIFO="$endfit_dir/late.png" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 \
     timeout 60 qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 printf '%s\n' "$endfit_output" | grep -oE 'MARKDOWN_ENDFIT .*'
@@ -237,7 +237,7 @@ PY
 cp tests/markdown-teardown.qml "$test_root/config/shell.qml" || exit 1
 teardown_output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_TEARDOWN_DOC="$teardown_dir/teardown.md" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_TEARDOWN_DOC="$teardown_dir/teardown.md" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 \
     timeout 60 qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 printf '%s\n' "$teardown_output" | grep -oE 'MARKDOWN_TEARDOWN .*'

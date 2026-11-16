@@ -27,7 +27,7 @@ const RAF_MAGIC: &[u8] = b"FUJIFILMCCD-RAW ";
 const CR3_FTYP: &[u8] = b"ftyp";
 const CR3_BRAND: &[u8] = b"crx ";
 
-pub use flea::rawname::is_raw_name;
+pub use dlea::rawname::is_raw_name;
 
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct Preview {

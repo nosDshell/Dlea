@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-reveal-test
+//@ pragma ShellId dlea-reveal-test
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Motion.js" as Motion
+import "dlea" as Dlea
+import "dlea/js/Motion.js" as Motion
 import "qml-probe.js" as QmlProbe
 
 // tests/reveal.sh's harness: the real dialog, share browser and context menu fade in and out on the one shared curve, snap under reduced motion, and never move their card while they fade out.
@@ -71,12 +71,12 @@ ShellRoot {
                 x: 20; y: 20; width: 100; height: 60
                 opacity: 0
                 Item { id: bareCard; width: 100; height: 60 }
-                Flea.Reveal { id: bareReveal; target: bare; shown: false; lift: bareCard }
+                Dlea.Reveal { id: bareReveal; target: bare; shown: false; lift: bareCard }
             }
-            Flea.TrashConfirm { id: trash }
-            Flea.ShareBrowser { id: shares }
-            Flea.ContextMenu { id: menu }
-            Flea.NetworkDialog { id: net }
+            Dlea.TrashConfirm { id: trash }
+            Dlea.ShareBrowser { id: shares }
+            Dlea.ContextMenu { id: menu }
+            Dlea.NetworkDialog { id: net }
         }
     }
 
@@ -133,7 +133,7 @@ ShellRoot {
         shell.surfaces().forEach(function (s, index) {
             var tag = s.name
             function surface() { return shell.surfaces()[index] }
-            out.push({ name: tag + ": open", act: function () { Flea.Theme.reducedMotion = false; surface().open() }, record: function (samples) {
+            out.push({ name: tag + ": open", act: function () { Dlea.Theme.reducedMotion = false; surface().open() }, record: function (samples) {
                 var want = Motion.durMs.open
                 var settled = shell.settledAt(samples, 1)
                 shell.check(tag + ": opening reaches full opacity", settled >= 0, true)
@@ -173,7 +173,7 @@ ShellRoot {
                 shell.check(tag + ": the reopened surface is full", samples[samples.length - 1].op, 1)
             } })
             out.push({ name: tag + ": reduced", watch: 0, act: function () {
-                Flea.Theme.reducedMotion = true
+                Dlea.Theme.reducedMotion = true
                 surface().close()
                 var closed = shell.snap(surface(), 0)
                 shell.check(tag + ": under reduced motion a close is instant", closed.op, 0)
@@ -183,7 +183,7 @@ ShellRoot {
                 shell.check(tag + ": under reduced motion an open is instant", opened.op, 1)
                 shell.check(tag + ": and the card sits at rest at once", shell.sameRect(opened.rect, shell.carry[tag]), true)
                 surface().close()
-                Flea.Theme.reducedMotion = false
+                Dlea.Theme.reducedMotion = false
             }, record: function () {} })
             out.push({ name: tag + ": closed", watch: shell.afterCloseMs, act: function () {}, record: function (samples) {
                 shell.check(tag + ": the reduced-motion close left it closed", samples[samples.length - 1].op, 0)
@@ -198,7 +198,7 @@ ShellRoot {
     // A close cut inside the rise leaves no offset: a reopen in the fade rises on to rest, and a close waited out rests the card.
     function riseSteps(out) {
         function lone(t) { return { t: t, op: bare.opacity, rise: bareReveal.rise.y } }
-        out.push({ name: "rise: open", sample: lone, act: function () { Flea.Theme.reducedMotion = false; bareReveal.shown = true }, watch: shell.riseCutMs, record: function (samples) {
+        out.push({ name: "rise: open", sample: lone, act: function () { Dlea.Theme.reducedMotion = false; bareReveal.shown = true }, watch: shell.riseCutMs, record: function (samples) {
             var cut = samples[samples.length - 1].rise
             shell.check("rise: a close at half the rise lands mid rise", cut > 0 && cut < Motion.translateUpPx, true)
             shell.carry.riseCut = cut
@@ -228,7 +228,7 @@ ShellRoot {
     // The Network card rises as it opens; once risen, picking a protocol leaves the chip row where it stood.
     function networkSteps(out) {
         function chipRow(t) { var chip = net.formChip("SMB"); return { t: t, y: Math.round(chip.mapToItem(null, chip.width / 2, chip.height / 2).y), op: net.opacity } }
-        out.push({ name: "network: open", sample: chipRow, act: function () { Flea.Theme.reducedMotion = false; net.open() }, record: function (samples) {
+        out.push({ name: "network: open", sample: chipRow, act: function () { Dlea.Theme.reducedMotion = false; net.open() }, record: function (samples) {
             shell.carry.chipRest = samples[samples.length - 1].y
             shell.check("network: the card is full once risen", samples[samples.length - 1].op, 1)
         } })
@@ -248,7 +248,7 @@ ShellRoot {
             return -1
         }
         out.push({ name: "flyout: open", sample: flyoutOf, act: function () {
-            Flea.Theme.reducedMotion = false
+            Dlea.Theme.reducedMotion = false
             menu.rowMode = 0o100644
             menu.selectionCount = 1
             menu.rowIsFile = true

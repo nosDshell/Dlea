@@ -19,7 +19,7 @@ version = next(line for line in manifest.splitlines() if line.startswith("versio
 _, header, rest = manifest.partition("\n[dependencies]\n")
 assert header, f"no [dependencies] table in {repo / 'Cargo.toml'}"
 dependencies = rest.split("\n[", 1)[0]
-(root / "Cargo.toml").write_text('[package]\nname = "flea"\n' + version + '\nedition = "2021"\n[workspace]\n[dependencies]\n' + dependencies + '\n[features]\nflash-test-seam = []\n')
+(root / "Cargo.toml").write_text('[package]\nname = "dlea"\n' + version + '\nedition = "2021"\n[workspace]\n[dependencies]\n' + dependencies + '\n[features]\nflash-test-seam = []\n')
 shutil.copyfile(repo / "Cargo.lock", root / "Cargo.lock")
 mutants = [
     ("unknown", "usage.rs", '    exit(2)\n}', '    exit(0)\n}'),
@@ -37,9 +37,9 @@ env["CARGO_TARGET_DIR"] = str(root / "target")
 # A run that checked no mutant must fail, never print a vacuous pass.
 assert mutants, "no mutants defined: refusing a zero-check run"
 # The unmutated scratch crate must pass every row, so a rejection can only come from its mutation.
-build = subprocess.run(["cargo", "build", "--offline", "--manifest-path", str(root / "Cargo.toml"), "--bin", "flea"], env=env, capture_output=True, timeout=300)
+build = subprocess.run(["cargo", "build", "--offline", "--manifest-path", str(root / "Cargo.toml"), "--bin", "dlea"], env=env, capture_output=True, timeout=300)
 assert build.returncode == 0, build.stderr.decode(errors="replace")
-baseline = subprocess.run(["python3", str(repo / "tests/compat/cli_contract.py"), str(root / "target/debug/flea")], capture_output=True, timeout=120)
+baseline = subprocess.run(["python3", str(repo / "tests/compat/cli_contract.py"), str(root / "target/debug/dlea")], capture_output=True, timeout=120)
 assert baseline.returncode == 0, ("unmutated scratch crate fails the contract", baseline.stdout, baseline.stderr)
 for row, filename, before, after in mutants:
     source = root / "src" / filename
@@ -47,9 +47,9 @@ for row, filename, before, after in mutants:
     assert original.count(before) == 1, f"mutation anchor changed: {row}"
     source.write_text(original.replace(before, after, 1))
     try:
-        build = subprocess.run(["cargo", "build", "--offline", "--manifest-path", str(root / "Cargo.toml"), "--bin", "flea"], env=env, capture_output=True, timeout=120)
+        build = subprocess.run(["cargo", "build", "--offline", "--manifest-path", str(root / "Cargo.toml"), "--bin", "dlea"], env=env, capture_output=True, timeout=120)
         assert build.returncode == 0, build.stderr.decode(errors="replace")
-        check = subprocess.run(["python3", str(repo / "tests/compat/cli_contract.py"), str(root / "target/debug/flea"), "--case", row], capture_output=True, timeout=15)
+        check = subprocess.run(["python3", str(repo / "tests/compat/cli_contract.py"), str(root / "target/debug/dlea"), "--case", row], capture_output=True, timeout=15)
         assert check.returncode != 0 and (row + ": expected").encode() in check.stderr, (row, check.stdout, check.stderr)
         print(f"mutation {row}: contract rejected source change")
     finally:

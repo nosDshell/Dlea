@@ -2,13 +2,13 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Quick Look's font page over a stub backend: the page whole in one turn, one ask per theme change, a stale answer dropped, a refusal shown as the unsupported state.
 set -uo pipefail
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 . "$(dirname "$0")/qslog-gate.sh"
 cd "$(dirname "$0")/.." || exit 1
 for tool in qs python3; do
     command -v "$tool" >/dev/null || { printf 'FAIL fontpane: %s is required\n' "$tool"; exit 1; }
 done
-test_root="$FIXTURE_ROOT/flea-fontpane-$$"
+test_root="$FIXTURE_ROOT/dlea-fontpane-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
@@ -40,14 +40,14 @@ printf 'dark\n' > "$palette/theme.name" || exit 1
 probe() {
     local name=$1 ui=$2 config="$test_root/config-$1"
     mkdir -p "$config" || return 1
-    ln -s "$ui" "$config/flea" || return 1
+    ln -s "$ui" "$config/dlea" || return 1
     headless_commons "$test_root" "$config/Commons" || exit 1
     ln -s "$(readlink -f ui/boot/Ui)" "$config/Ui" || return 1
     cp tests/fontpane.qml "$config/shell.qml" || return 1
     cp "$test_root/colors-dark.toml" "$palette/theme/colors.toml" || return 1
     ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
         HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" XDG_RUNTIME_DIR="$test_root/runtime" \
-        FLEA_REDUCED_MOTION=1 FONTPANE_DIR="$test_root/fixture" FONTPANE_ALT="$test_root/alt-colors.toml" \
+        DLEA_REDUCED_MOTION=1 FONTPANE_DIR="$test_root/fixture" FONTPANE_ALT="$test_root/alt-colors.toml" \
         FONTPANE_DARK="$test_root/colors-dark.toml" FONTPANE_COLORS="$palette/theme/colors.toml" FONTPANE_NAME="$palette/theme.name" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
         QT_LOGGING_RULES="$(qslog_rules)" \
@@ -71,7 +71,7 @@ cp "$palette/theme/colors.toml" "$test_root/colors-dark.toml" || exit 1
 
 probe run "$PWD/ui" || exit 1
 log="$test_root/run.log"
-[ -z "${FLEA_CI_SUITE_LOGS:-}" ] || cp "$log" "$FLEA_CI_SUITE_LOGS/fontpane-engine.log" 2>/dev/null
+[ -z "${DLEA_CI_SUITE_LOGS:-}" ] || cp "$log" "$DLEA_CI_SUITE_LOGS/fontpane-engine.log" 2>/dev/null
 # Sample input, one probe line: "  INFO qml: FONTPANE STEP 4 the theme change asked once, with both colours of the new palette"
 grep -a 'FONTPANE \(STEP\|FAIL\|DONE\)' "$log"
 failures=0
@@ -91,7 +91,7 @@ control() {
         return
     fi
     probe "$name" "$test_root/ui-$name" || { failures=$((failures + 1)); return; }
-    [ -z "${FLEA_CI_SUITE_LOGS:-}" ] || cp "$test_root/$name.log" "$FLEA_CI_SUITE_LOGS/fontpane-engine-$name.log" 2>/dev/null
+    [ -z "${DLEA_CI_SUITE_LOGS:-}" ] || cp "$test_root/$name.log" "$DLEA_CI_SUITE_LOGS/fontpane-engine-$name.log" 2>/dev/null
     if grep -aq "FONTPANE FAIL $want" "$test_root/$name.log"; then
         printf 'fontpane: control %s is red as it must be (%s)\n' "$name" "$want"
     else

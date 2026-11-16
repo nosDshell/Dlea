@@ -1,8 +1,8 @@
 //! One supervised session per installed identity in this host process.
 use super::plugins::{self, Env, Installed};
-use flea::jsondoc::Json;
-use flea::plugin_runtime::{protocol, Config, Reply, Runtime};
-use flea::ui_logic_plugin_settings::{
+use dlea::jsondoc::Json;
+use dlea::plugin_runtime::{protocol, Config, Reply, Runtime};
+use dlea::ui_logic_plugin_settings::{
     manifest::{Invalid, Manifest},
     wire,
 };
@@ -83,7 +83,7 @@ fn session_at(
     if running.len() >= MAX_PLUGINS {
         return Err(Invalid::new("start", "too many running plugins"));
     }
-    let hello = flea::jsondoc::parse(&plugins::hello(env, manifest))
+    let hello = dlea::jsondoc::parse(&plugins::hello(env, manifest))
         .map_err(|e| Invalid::new("start", e))?;
     let runtime = Runtime::new(Config {
         folder,

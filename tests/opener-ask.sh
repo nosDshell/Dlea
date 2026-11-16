@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 . "$(dirname "$0")/headless-commons.sh"
-# The opener's own contract, on the real ui/Opener.qml against a stub flea, offscreen.
+# The opener's own contract, on the real ui/Opener.qml against a stub dlea, offscreen.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -11,7 +11,7 @@ if ! command -v qs >/dev/null; then
 fi
 
 # A marked sandbox of its own under the fixture root, so cleanup deletes only what this run owns.
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-opener-ask-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-opener-ask-XXXXXX") || exit 1
 # GNU mktemp -d keeps a relative TMPDIR verbatim, so the path is checked absolute and two components deep.
 case $test_root in
   /*/*) ;;
@@ -24,31 +24,31 @@ trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/runtime" "$test_root/bin" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/opener-ask.qml "$test_root/config/shell.qml" || exit 1
 
-# The stub flea answers by path: an ask line with 4, a bare 4 with no line, Open with with 5, a directory with 3, silence with 0, refusal otherwise, and one slow lane held until the probe releases it.
-cat > "$test_root/bin/flea" <<'EOF'
+# The stub dlea answers by path: an ask line with 4, a bare 4 with no line, Open with with 5, a directory with 3, silence with 0, refusal otherwise, and one slow lane held until the probe releases it.
+cat > "$test_root/bin/dlea" <<'EOF'
 #!/bin/sh
-# Sample argv: flea --open /ask/tool.sh answers the run card's own ask line.
+# Sample argv: dlea --open /ask/tool.sh answers the run card's own ask line.
 ask='{"ask":"run","kind":"script","size":8,"handlerId":"","handlerName":"","dev":"8","ino":"9","mtimeS":11,"mtimeNs":12,"target":"/real/tool.sh"}'
 case "$2" in
   /noline/*) exit 4;;
   /ask/*) printf '%s' "$ask"; exit 4;;
   /with/*) exit 5;;
   /dir/*) exit 3;;
-  /slow/*) while [ ! -e "$FLEA_TEST_RELEASE" ] && [ -d "${FLEA_TEST_RELEASE%/*}" ]; do sleep 0.05; done; exit 0;;
+  /slow/*) while [ ! -e "$DLEA_TEST_RELEASE" ] && [ -d "${DLEA_TEST_RELEASE%/*}" ]; do sleep 0.05; done; exit 0;;
   /ok/*) exit 0;;
   *) exit 1;;
 esac
 EOF
-chmod +x "$test_root/bin/flea" || exit 1
+chmod +x "$test_root/bin/dlea" || exit 1
 
 output=$(env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
-    FLEA_BIN="$test_root/bin/flea" FLEA_TEST_RELEASE="$test_root/release" \
+    DLEA_BIN="$test_root/bin/dlea" DLEA_TEST_RELEASE="$test_root/release" \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_RUNTIME_DIR="$test_root/runtime" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
     timeout 60 qs -p "$test_root/config" 2>&1)

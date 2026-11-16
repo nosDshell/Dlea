@@ -15,10 +15,10 @@ import time
 
 
 REPO = Path(__file__).resolve().parent.parent
-NAME = "org.freedesktop.impl.portal.desktop.flea"
+NAME = "org.freedesktop.impl.portal.desktop.dlea"
 OBJECT = "/org/freedesktop/portal/desktop"
 IFACE = "org.freedesktop.impl.portal.FileChooser"
-MARKER = ".flea-test-sandbox"
+MARKER = ".dlea-test-sandbox"
 IDLE_BOUND_SEC = 1
 # Allow 300 ms for second-timer coalescing and the activation/PID query round trips.
 IDLE_TOLERANCE_SEC = 0.3
@@ -37,7 +37,7 @@ def isolated():
             (root / directory).mkdir(parents=True, exist_ok=True)
         (root / "run").chmod(0o700)
         (root / "config/xdg-desktop-portal/portals.conf").write_text(
-            "[preferred]\norg.freedesktop.impl.portal.FileChooser=flea;gtk\n")
+            "[preferred]\norg.freedesktop.impl.portal.FileChooser=dlea;gtk\n")
         (root / "backend").write_text(
             "#!/usr/bin/python3\nimport json, pathlib, runpy, subprocess, sys, time\n"
             "if len(sys.argv) == 2:\n"
@@ -61,12 +61,12 @@ def isolated():
             "sys.exit(module['main']())\n")
         (root / "backend").chmod(0o700)
         service = (REPO / f"packaging/{NAME}.service").read_text()
-        command = " ".join(shlex.quote(str(p)) for p in [root / "backend", REPO / "tools/flea-portal"])
+        command = " ".join(shlex.quote(str(p)) for p in [root / "backend", REPO / "tools/dlea-portal"])
         service = "\n".join("Exec=" + command if line.startswith("Exec=") else line for line in service.splitlines()) + "\n"
         (root / f"data/dbus-1/services/{NAME}.service").write_text(service)
         portal = root / "data/xdg-desktop-portal/portals"
         portal.mkdir(parents=True)
-        shutil.copyfile(REPO / "packaging/flea.portal", portal / "flea.portal")
+        shutil.copyfile(REPO / "packaging/dlea.portal", portal / "dlea.portal")
         (root / "picker").write_text(
             "#!/usr/bin/python3\nimport os, pathlib, sys, time\n"
             "pathlib.Path(os.environ['XDG_RUNTIME_DIR'], 'picked').touch()\n"
@@ -74,8 +74,8 @@ def isolated():
         (root / "picker").chmod(0o700)
         env = dict(os.environ, HOME=str(root / "home"), XDG_CONFIG_HOME=str(root / "config"),
                    XDG_DATA_HOME=str(root / "data"), XDG_DATA_DIRS=str(root / "empty"),
-                   XDG_RUNTIME_DIR=str(root / "run"), FLEA_BIN=str(root / "picker"),
-                   FLEA_PORTAL_LIFETIME_ROOT=str(root))
+                   XDG_RUNTIME_DIR=str(root / "run"), DLEA_BIN=str(root / "picker"),
+                   DLEA_PORTAL_LIFETIME_ROOT=str(root))
         env.pop("DBUS_SESSION_BUS_ADDRESS", None)
         session = subprocess.Popen(["dbus-run-session", "--", sys.executable, __file__, str(root)],
                                    env=env, start_new_session=True)
@@ -98,7 +98,7 @@ def exercise(root):
     from gi.repository import Gio, GLib
 
     if not (root.is_absolute() and root.parent == (REPO / ".superpowers/k123").resolve()
-            and (root / MARKER).is_file() and os.environ.get("FLEA_PORTAL_LIFETIME_ROOT") == str(root)):
+            and (root / MARKER).is_file() and os.environ.get("DLEA_PORTAL_LIFETIME_ROOT") == str(root)):
         raise RuntimeError("the lifetime checks require their own marked private-bus sandbox")
     bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
     failures = []
@@ -137,7 +137,7 @@ def exercise(root):
               f"{(time.monotonic() - start) * 1000:.1f} ms, {value}")
 
     with (root / "export-failure.log").open("w") as log:
-        broken = subprocess.Popen([str(root / "backend"), str(REPO / "tools/flea-portal"), "fail-export"], stderr=log)
+        broken = subprocess.Popen([str(root / "backend"), str(REPO / "tools/dlea-portal"), "fail-export"], stderr=log)
         acquired_name = False
         deadline = time.monotonic() + 3
         while broken.poll() is None and time.monotonic() < deadline:

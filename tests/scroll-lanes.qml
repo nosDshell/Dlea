@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-scroll-lanes-test
+//@ pragma ShellId dlea-scroll-lanes-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // tests/scroll-lanes.sh's harness: non-file surfaces draw no bar anywhere and keep pixel
 // scrolling with rows at full width; the .sh sweeps the sources for the same rule.
@@ -42,14 +42,14 @@ ShellRoot {
         implicitHeight: 480
         color: "#303030"
 
-        Flea.SettingsRail {
+        Dlea.SettingsRail {
             id: rail
             width: 200
             height: 40
             section: "display"
         }
 
-        Flea.CardScroll {
+        Dlea.CardScroll {
             id: body
             width: 320
             height: 200

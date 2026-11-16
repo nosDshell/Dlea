@@ -26,7 +26,7 @@ impl PrivateRoot {
         for _ in 0..PRIVATE_ATTEMPTS {
             let id = PRIVATE_SEQUENCE.fetch_add(1, Ordering::Relaxed);
             let path = parent.join(format!(
-                ".flea-work-tui-combine-preview-private-{}-{id}",
+                ".dlea-work-tui-combine-preview-private-{}-{id}",
                 std::process::id()
             ));
             match std::fs::DirBuilder::new().mode(0o700).create(&path) {
@@ -234,7 +234,7 @@ fn render(
         .map(|path| sources.iter().find(|s| &s.path == path).unwrap())
         .collect::<Vec<_>>();
     let sizes = ordered.iter().map(|s| s.size).collect::<Vec<_>>();
-    let composition = flea::ui_logic_print_convert::geometry::Composition::new(&sizes, &settings)
+    let composition = dlea::ui_logic_print_convert::geometry::Composition::new(&sizes, &settings)
         .map_err(Text::Key)?;
     if !native {
         return Ok(Reply {
@@ -246,7 +246,7 @@ fn render(
     let output = work.dir.join("encoded");
     let (width, height) = ticket.pixels;
     let mut args: Vec<String> = vec!["magick".into()];
-    args.extend(flea::ui_logic_print_convert::output::MAGICK_LITERAL.map(String::from));
+    args.extend(dlea::ui_logic_print_convert::output::MAGICK_LITERAL.map(String::from));
     args.extend([
         "-size".into(),
         format!("{width}x{height}"),
@@ -275,7 +275,7 @@ fn render(
         args.extend([
             "(".into(),
             "-read".into(),
-            flea::ui_logic_print_convert::output::magick_input(&input),
+            dlea::ui_logic_print_convert::output::magick_input(&input),
             "-resize".into(),
             format!("{}x{}!", rect.width as usize, rect.height as usize),
             ")".into(),
@@ -332,7 +332,7 @@ fn render(
         } else {
             "sixel"
         },
-        flea::ui_logic_print_convert::output::magick_output(&output)
+        dlea::ui_logic_print_convert::output::magick_output(&output)
     ));
     printtool::boxed(args, &mut work, cancel)?;
     let file = crate::backend::regfile::open_if_regular(&output, 0)

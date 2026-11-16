@@ -5,14 +5,14 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Picker.js" as Picker
 import "js/Keymap.js" as Keymap
 import "js/Thumbs.js" as Thumbs
 // ControlReader.js loads with IpcControls.qml on the first cohesionControls call, never with the picker's first frame.
 
 // One portal request, one window: the org.freedesktop.impl.portal.FileChooser dialog every caller on
-// the box gets, opened by flea --pick and answered through the reply file tools/flea-portal reads.
+// the box gets, opened by dlea --pick and answered through the reply file tools/dlea-portal reads.
 // The same Backend, Row, Theme and places the browser window draws with, and none of its operations:
 // a chooser that can rename or delete is a file manager wearing a dialog's clothes.
 ShellRoot {
@@ -20,7 +20,7 @@ ShellRoot {
     FloatingWindow {
         id: win
 
-        readonly property var req: Picker.request(Quickshell.env("FLEA_PICKER"))
+        readonly property var req: Picker.request(Quickshell.env("DLEA_PICKER"))
         readonly property string home: Quickshell.env("HOME")
 
         title: Picker.title(win.req)
@@ -407,7 +407,7 @@ ShellRoot {
 
         FileView {
             id: replyFile
-            path: Quickshell.env("FLEA_PICKER_REPLY")
+            path: Quickshell.env("DLEA_PICKER_REPLY")
             atomicWrites: true
             // The reply file does not exist until this window writes it, and a preload read of a
             // path that is not there is not an error worth a line; onSaveFailed below is.
@@ -431,17 +431,17 @@ ShellRoot {
         }
 
         // The saved reply can leave once both chooser-owned read processes have exited.
-        Flea.PickerLifecycle {
+        Dlea.PickerLifecycle {
             id: lifecycle; checks: backend; listing: listing
             onStopped: Quickshell.execDetached(["kill", String(Quickshell.processId)])
         }
-        Flea.PickerListing {
+        Dlea.PickerListing {
             id: listing
             onFailed: function(reason) { backend.failed("scan", win.path, reason, 0) }
             onMessage: function(message) { backend.receive(JSON.stringify(message)) }
         }
 
-        Flea.Backend {
+        Dlea.Backend {
             id: backend
             pickerOnly: true
             // Each listing resolves its folder explicitly; between requests the mark must keep describing the held rows.
@@ -488,8 +488,8 @@ ShellRoot {
                     win.acceptMarks = false
                     win.marksDirty = false
                     win.saveReview = ({})
-                    win.saveError = "Flea stopped responding."
-                    win.say("Flea stopped responding. Cancel and reopen this request.", true)
+                    win.saveError = "Dlea stopped responding."
+                    win.say("Dlea stopped responding. Cancel and reopen this request.", true)
                     win.stepFocus(null, false)
                     return
                 }
@@ -526,7 +526,7 @@ ShellRoot {
             }
         }
 
-        Flea.PickerSelection {
+        Dlea.PickerSelection {
             id: selection
             picker: win
             listing: listing
@@ -535,7 +535,7 @@ ShellRoot {
 
         // The history the Recent location lists, read only when that location is opened. The listing
         // is the client's own order, so the backend is asked for these paths and never to sort them.
-        Flea.PickerRecent {
+        Dlea.PickerRecent {
             id: recents
             onRefreshed: if (win.recent) win.requestListing({c: "listpaths", paths: recents.paths, first: win.windowSize})
         }
@@ -547,7 +547,7 @@ ShellRoot {
             // The save field takes the keyboard from the list, and Escape has to refuse from there too.
             Keys.onEscapePressed: win.cancel()
 
-            Flea.PickerChrome {
+            Dlea.PickerChrome {
                 id: chrome
                 anchors.left: parent.left
                 anchors.right: parent.right
@@ -560,7 +560,7 @@ ShellRoot {
                 onViewChosen: function (mode) { win.setView(mode) }
             }
 
-            Flea.PickerPlaces {
+            Dlea.PickerPlaces {
                 id: places
                 anchors.left: parent.left
                 anchors.top: chrome.bottom
@@ -576,7 +576,7 @@ ShellRoot {
                 }
             }
 
-            Flea.PickerHeader {
+            Dlea.PickerHeader {
                 id: header
                 anchors.left: places.right
                 anchors.right: parent.right
@@ -589,7 +589,7 @@ ShellRoot {
                 height: visible ? implicitHeight : 0
             }
 
-            Flea.PickerList {
+            Dlea.PickerList {
                 id: list
                 visible: win.viewMode === "list"
                 anchors.left: places.right
@@ -605,7 +605,7 @@ ShellRoot {
 
             // The grid draws the same rows through the main window's tiles, with its own
             // visible-only thumbnail plan; see ui/PickerGrid.qml.
-            Flea.PickerGrid {
+            Dlea.PickerGrid {
                 id: grid
                 visible: win.viewMode === "grid"
                 anchors.left: places.right
@@ -625,7 +625,7 @@ ShellRoot {
             }
 
             // The same empty hero the browser window draws, over the list area alone.
-            Flea.EmptyState {
+            Dlea.EmptyState {
                 id: hero
                 x: list.x
                 y: list.y
@@ -664,7 +664,7 @@ ShellRoot {
                 }
             }
 
-            Flea.PickerSave {
+            Dlea.PickerSave {
                 id: save
                 keyTarget: win.viewItem()
                 anchors.left: parent.left
@@ -677,7 +677,7 @@ ShellRoot {
             }
 
             // The answer row stands under the listing and the save area in every mode; the footer is under it.
-            Flea.PickerAnswers { id: answers; anchors.bottom: status.top; picker: win }
+            Dlea.PickerAnswers { id: answers; anchors.bottom: status.top; picker: win }
 
             // The footer: what is checked on the left, the keys that act on it on the right.
             Item {
@@ -736,7 +736,7 @@ ShellRoot {
                 anchors.fill: parent
                 active: false
                 sourceComponent: Component {
-                    Flea.NetworkDialog {
+                    Dlea.NetworkDialog {
                         onClosed: win.focusDefault()
                         onMountRequested: function(requestId, uri, label, password) { places.retry(requestId, uri, label, password) }
                         onCancelRequested: function(requestId) { places.cancelNetwork(requestId) }
@@ -761,7 +761,7 @@ ShellRoot {
             var start = win.req.folder.charAt(0) === "/" ? win.req.folder : win.home
             win.showHidden = typeof win.req.hidden === "boolean" ? win.req.hidden : ViewState.state.hidden === true
             win.viewMode = Picker.rememberedView(ViewState.pickerView)
-            // A one-time seed of a filename only: a binding would read first inside saveReady, and flea-portal passes current_name verbatim.
+            // A one-time seed of a filename only: a binding would read first inside saveReady, and dlea-portal passes current_name verbatim.
             win.saveName = Picker.validName(win.req.name) ? win.req.name : ""
             win.openWithoutHistory(start)
             // Seed focus explicitly: saves start on Filename, other requests on the listing.
@@ -770,7 +770,7 @@ ShellRoot {
 
         // The seam tests/picker.sh drives, the same read-only shape ui/Ipc.qml has for the window.
         IpcHandler {
-            target: "fleapicker"
+            target: "dleapicker"
             function ready(): bool { return true }
             function path(): string { return win.path }
             function total(): int { return win.total }
@@ -812,7 +812,7 @@ ShellRoot {
                     canAccept: win.canAccept, saveReady: win.saveReady, collision: win.saveCollision, collisionReview: win.collisionReview,
                     saveName: win.saveName, saveError: win.saveError, message: win.message, messageError: win.messageError, hints: statusHints.text,
                     controls: chrome.controls().concat(answers.controls(), header.controls(), save.controls(), places.controls()), headerMark: header.sortBy, listFocus: list.activeFocus, gridFocus: grid.activeFocus,
-                    railFocus: places.focusItem.activeFocus, preset: Flea.ViewState.keysPreset,
+                    railFocus: places.focusItem.activeFocus, preset: Dlea.ViewState.keysPreset,
                     bodySmall: Theme.font.bodySmall, body: Theme.font.body, width: win.width, height: win.height,
                     themeLoaded: Theme.ready, themeForeground: String(Theme.color.foreground),
                     geometry: {chrome: chrome.height, header: header.height, rail: places.width, row: Theme.rowHeight, footer: status.height,

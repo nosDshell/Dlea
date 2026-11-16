@@ -6,8 +6,8 @@ use std::time::Duration;
 fn ar_tui_copy_real_footer_keeps_few_noun_and_complete_shortcut_word() {
     let f = Fixture::new();
     f.write(
-        "catalog/ar/flea.json",
-        include_str!("../../i18n/ar/flea.json"),
+        "catalog/ar/dlea.json",
+        include_str!("../../i18n/ar/dlea.json"),
     );
     f.write("language", "ar\n");
     let mut model = f.model();

@@ -52,7 +52,7 @@ fn held_by_lights_the_deepest_row_holding_the_view() {
     let ejected = row(Kind::Volume, "", Some(false));
     let rail = vec![
         home.clone(),
-        row(Kind::Recent, "flea:recent", None),
+        row(Kind::Recent, "dlea:recent", None),
         documents.clone(),
         row(Kind::Trash, "trash:///", None),
         fav_work,

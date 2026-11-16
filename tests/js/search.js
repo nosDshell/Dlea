@@ -24,7 +24,7 @@ function run(check) {
     check("and nothing found still says so", Search.statusLine(false, 0, 18204, 412), "0 found in 0.4 s")
 
 
-    check("the home prefix reads as a tilde", Search.scope("/home/gm/Work/claude/flea", "/home/gm"), "~/Work/claude/flea")
+    check("the home prefix reads as a tilde", Search.scope("/home/gm/Work/claude/dlea", "/home/gm"), "~/Work/claude/dlea")
     check("home itself is the bare tilde", Search.scope("/home/gm", "/home/gm"), "~")
     check("a path outside home keeps its own form", Search.scope("/usr/share", "/home/gm"), "/usr/share")
 
@@ -275,7 +275,7 @@ function run(check) {
         join: function (base, name) { return base + "/" + name } }
     check("a cursor row with no selection joins against the search scope",
           targetsFn({ pane: scopedPane }, Search, null).join(","), "/home/u/docs/notes-old.md")
-    var performFn = new Function("root", "Flea", "LocalSendJs", "CopyAs", "Menu", "Ops", "ViewState", "Search",
+    var performFn = new Function("root", "Dlea", "LocalSendJs", "CopyAs", "Menu", "Ops", "ViewState", "Search",
         "action", "menuId", "paths",
         Source.block(actionsSrc, "function perform(", "ui/PaneMenuActions.qml"))
     var copied = []

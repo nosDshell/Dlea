@@ -2,23 +2,23 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Gate that a block nested in a list item or a quote draws with its top-level recipe, and that an empty heading or quote has no height.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
     echo "markdown-nest.sh: qs is not installed, cannot render the preview"
     exit 1
 fi
-fleabin=""
-for cand in "$PWD/target/debug/flea" "$PWD/target/release/flea"; do
+dleabin=""
+for cand in "$PWD/target/debug/dlea" "$PWD/target/release/dlea"; do
     if [ -x "$cand" ]; then
-        fleabin="$cand"
+        dleabin="$cand"
         break
     fi
 done
 # The nested formulas ask the real figure helper, which needs quickjs-ng and this checkout's binary.
-if [ -n "${FLEA_QJS:-}" ] && [ -x "${FLEA_QJS}" ]; then
-    qjs=$FLEA_QJS
+if [ -n "${DLEA_QJS:-}" ] && [ -x "${DLEA_QJS}" ]; then
+    qjs=$DLEA_QJS
 elif command -v qjs >/dev/null 2>&1; then
     qjs=$(command -v qjs)
 elif [ -x "$PWD/.superpowers/tools/qjs" ]; then
@@ -27,15 +27,15 @@ else
     echo 'FAIL missing qjs: the real figure helper requires quickjs-ng'
     exit 1
 fi
-[ -n "$fleabin" ] || { echo 'FAIL missing flea binary: build this checkout before rendering figures'; exit 1; }
+[ -n "$dleabin" ] || { echo 'FAIL missing dlea binary: build this checkout before rendering figures'; exit 1; }
 
-test_root="$FIXTURE_ROOT/flea-markdown-nest-$$"
+test_root="$FIXTURE_ROOT/dlea-markdown-nest-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/cache" "$test_root/runtime" "$test_root/docs" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/markdown-nest.js "$test_root/config/" || exit 1
@@ -80,8 +80,8 @@ printf 'Inline maths $x^2 + y^2$ in a line.\n\n&#49;. ol\n' > "$test_root/docs/g
 
 output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_NEST_DIR="$test_root/docs" \
-    FLEA_BIN="$fleabin" FLEA_QJS="$qjs" FLEA_UI="$PWD/ui" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_NEST_DIR="$test_root/docs" \
+    DLEA_BIN="$dleabin" DLEA_QJS="$qjs" DLEA_UI="$PWD/ui" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 \
     timeout 90 qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 printf '%s\n' "$output" | grep -oE 'MARKDOWN_NEST .*'

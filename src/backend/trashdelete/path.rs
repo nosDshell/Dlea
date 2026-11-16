@@ -103,7 +103,7 @@ impl PathReview {
             )?)
         };
         let quarantine_name = format!(
-            ".flea-delete-{}-{}",
+            ".dlea-delete-{}-{}",
             std::process::id(),
             NEXT.fetch_add(1, Ordering::Relaxed)
         );

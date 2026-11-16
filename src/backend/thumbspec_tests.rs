@@ -200,16 +200,16 @@ fn a_bare_name_resolves_to_the_first_path_hit_that_is_a_runnable_file() {
 fn a_relative_or_empty_path_entry_is_not_searched() {
     // A repository executable that a relative entry would find from the test's cwd.
     let here = std::env::current_dir().unwrap().join("tools");
-    let absolute = here.join("flea-file-budget").to_string_lossy().to_string();
+    let absolute = here.join("dlea-file-budget").to_string_lossy().to_string();
     assert_eq!(
-        resolve_in("flea-file-budget", &here.to_string_lossy()),
+        resolve_in("dlea-file-budget", &here.to_string_lossy()),
         Some(absolute.clone()),
         "the control: an absolute entry finds it"
     );
-    assert_eq!(resolve_in("flea-file-budget", "tools"), None);
-    assert_eq!(resolve_in("flea-file-budget", ":./tools"), None);
+    assert_eq!(resolve_in("dlea-file-budget", "tools"), None);
+    assert_eq!(resolve_in("dlea-file-budget", ":./tools"), None);
     assert_eq!(
-        resolve_in("flea-file-budget", &format!("tools:{}", here.display())),
+        resolve_in("dlea-file-budget", &format!("tools:{}", here.display())),
         Some(absolute)
     );
 }

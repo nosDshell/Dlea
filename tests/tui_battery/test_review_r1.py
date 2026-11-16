@@ -21,7 +21,7 @@ HERE = Path(__file__).resolve().parent
 class ReviewTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.scratch = Path(tempfile.mkdtemp(prefix="review-r1.", dir=Path(os.environ.get("FLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))))
+        cls.scratch = Path(tempfile.mkdtemp(prefix="review-r1.", dir=Path(os.environ.get("DLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))))
         (cls.scratch / MARKER).write_text("review regression checks\n")
 
     def setUp(self):

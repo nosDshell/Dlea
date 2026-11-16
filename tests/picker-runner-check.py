@@ -101,7 +101,7 @@ with tempfile.TemporaryDirectory(prefix="picker-selection-runner-check-") as scr
 printf '%s\\n' 'selection runner sentinel' >&2
 printf '%s\\n' 'picker-selection QML: 1 checks, 0 failed'
 scratch=$(dirname "$1")
-if [ -f "$scratch/.flea-test-sandbox" ]; then marked=marked; else marked=unmarked; fi
+if [ -f "$scratch/.dlea-test-sandbox" ]; then marked=marked; else marked=unmarked; fi
 printf 'selection scratch %s %s\\n' "$marked" "$scratch"
 exit "$PICKER_QML_STATUS"
 ''')
@@ -116,7 +116,7 @@ exit "$PICKER_QML_STATUS"
         failures += not ok
         print(("PASS " if ok else "FAIL ") + "picker-selection preserves output and exit=" + str(status)
               + " observed=" + str(result.returncode) + " printed=" + str(bool(result.stdout)))
-        # Sample input: selection scratch marked /home/flea-sandbox/flea-picker-selection.AbC123
+        # Sample input: selection scratch marked /home/dlea-sandbox/dlea-picker-selection.AbC123
         scratch_line = re.search(r"selection scratch (marked|unmarked) (\S+)", result.stdout)
         checks += 1
         ok = bool(scratch_line) and scratch_line.group(1) == "marked" and not Path(scratch_line.group(2)).exists()

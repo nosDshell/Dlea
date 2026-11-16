@@ -19,7 +19,7 @@ capture = "--capture" in sys.argv
 root = sandbox.make("state-")
 for name in ("home", "config", "state", "data", "cache", "runtime", "bin", "files"):
     (root / name).mkdir(mode=0o700)
-env = {"PATH": str(root / "bin") + ":/usr/bin:/bin", "HOME": str(root / "home"), "XDG_CONFIG_HOME": str(root / "config"), "XDG_STATE_HOME": str(root / "state"), "XDG_DATA_HOME": str(root / "data"), "XDG_CACHE_HOME": str(root / "cache"), "XDG_RUNTIME_DIR": str(root / "runtime"), "XDG_DATA_DIRS": str(root / "missing"), "FLEA_UI": str(repo / "ui"), "LC_ALL": "C"}
+env = {"PATH": str(root / "bin") + ":/usr/bin:/bin", "HOME": str(root / "home"), "XDG_CONFIG_HOME": str(root / "config"), "XDG_STATE_HOME": str(root / "state"), "XDG_DATA_HOME": str(root / "data"), "XDG_CACHE_HOME": str(root / "cache"), "XDG_RUNTIME_DIR": str(root / "runtime"), "XDG_DATA_DIRS": str(root / "missing"), "DLEA_UI": str(repo / "ui"), "LC_ALL": "C"}
 for name in ("hyprctl", "zoxide"):
     p = root / "bin" / name
     p.write_text("#!/bin/sh\nexit 0\n")
@@ -129,21 +129,21 @@ else:
         expected_reads[name] = deltas.apply(name, expected_reads[name], changes)
     assert reads() == expected_reads, "0.3.12 state reader output changed"
     assert snapshot() == before, "reading 0.3.12 state rewrote a persisted file"
-    shutil.copy2(binary, root / "bin/flea")
-    binary = root / "bin/flea"
-    gui = root / "bin/flea-gui"
+    shutil.copy2(binary, root / "bin/dlea")
+    binary = root / "bin/dlea"
+    gui = root / "bin/dlea-gui"
     gui.write_text("#!/bin/sh\nexit 0\n")
     gui.chmod(0o700)
-    state = root / "state/flea/ui.json"
+    state = root / "state/dlea/ui.json"
     from persisted_docs import check_documents
     check_documents(root, binary, env, file, run)
     for unknown in (b'{"stateVersion":999,"future":{"opaque":[1,2,3]}}\n', b'{"not": "a supported document"', b'[1,2,3]\n'):
         state.write_bytes(unknown)
         run(["--ui-state"])
         assert state.read_bytes() == unknown, "reading unknown state rewrote its source"
-        run(["--gui"], extra={"FLEA_FRONTEND": "gpui", "WAYLAND_DISPLAY": "fixture", "QSG_RHI_BACKEND": "opengl", "VK_DRIVER_FILES": str(root / "missing.json")})
+        run(["--gui"], extra={"DLEA_FRONTEND": "gpui", "WAYLAND_DISPLAY": "fixture", "QSG_RHI_BACKEND": "opengl", "VK_DRIVER_FILES": str(root / "missing.json")})
         assert state.read_bytes() == unknown, "launching on unknown state rewrote its source"
-    state.write_bytes(base64.b64decode(fixture["files"]["state/flea/ui.json"]).replace(b"@ROOT@", str(root).encode()))
+    state.write_bytes(base64.b64decode(fixture["files"]["state/dlea/ui.json"]).replace(b"@ROOT@", str(root).encode()))
     run(["--ui-state", '{"keyHints":true}'])
     saved = json.loads(state.read_text())
     assert saved["keys"] == "vim" and saved["lastTabs"]["index"] == 1

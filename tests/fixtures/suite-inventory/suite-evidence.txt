@@ -445,10 +445,10 @@ volume-udisks|^VOLUME_UDISKS PASS tests=3[46]$|1
 tui-detail|^PASS tui-detail: four modes, local dates, properties, folder-name size sorting, clean TTY quit$|1
 tui-owner-stall|^PASS tui-owner-stall: held-stat deadline, healthy navigation, release control, clean TTY quit$|1
 unzip-progress|^PASS unzip-progress: 17 cases passed$|1
-gpui-lint|^flea-gpui-lint: PASS files=[0-9]+ findings=0$|1
-gpui-gates|^(GATE (fmt-crates|clippy|gpui-lint) rc=0|ok strict flea-gui warning mutant rejected(; cargo rc=101| by tools/flea-clippy; rc=1))$|4
+gpui-lint|^dlea-gpui-lint: PASS files=[0-9]+ findings=0$|1
+gpui-gates|^(GATE (fmt-crates|clippy|gpui-lint) rc=0|ok strict dlea-gui warning mutant rejected(; cargo rc=101| by tools/dlea-clippy; rc=1))$|4
 rclone|^PASS [a-zA-Z]|30
-rclone-ci|^PASS rclone (workspace build has zero warnings|flea-clippy has no rise and no denied findings|CI environment and process isolation assertions|CI parity: clean environment, no controlling tty, private PID namespace)$|4
+rclone-ci|^PASS rclone (workspace build has zero warnings|dlea-clippy has no rise and no denied findings|CI environment and process isolation assertions|CI parity: clean environment, no controlling tty, private PID namespace)$|4
 print-office-real|^ok   print-office-real: [a-z]|1
 tui-editor-stop|^tui-editor-stop: all passed$|1
 matchtext-zerowidth|^MATCHTEXT ok: green passes all [0-9]+ cases; the revert fails the [0-9]+ late cases and holds the [0-9]+ controls$|1

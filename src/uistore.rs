@@ -10,7 +10,7 @@ use std::os::unix::fs::{DirBuilderExt, OpenOptionsExt};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
-const DIR: &str = "flea";
+const DIR: &str = "dlea";
 const FILE: &str = "ui.json";
 const LOCK: &str = "ui.json.lock";
 const LEGACY: &str = "view.json";
@@ -21,9 +21,9 @@ const STATE_NOT_WRITTEN: &str = "the state file was not written";
 const OWNER_ONLY_FILE: u32 = 0o600;
 const OWNER_ONLY_DIR: u32 = 0o700;
 
-// Far past any file Flea writes (it caps every map), so a hand-made file of any size it can parse still loads.
+// Far past any file Dlea writes (it caps every map), so a hand-made file of any size it can parse still loads.
 pub const MAX_BYTES: u64 = 64 << 20;
-// Far past one Flea's own hold, its sync_all included; a holder past it is stuck, and a caller goes on without the lock.
+// Far past one Dlea's own hold, its sync_all included; a holder past it is stuck, and a caller goes on without the lock.
 pub const LOCK_WAIT: Duration = Duration::from_secs(2);
 // The longest pause between tries, so a lock freed mid-wait is taken within a frame or so.
 const LOCK_PAUSE_MAX: Duration = Duration::from_millis(20);
@@ -93,7 +93,7 @@ impl Store {
     }
 
     // The lock is held across the re-read, the validation, the merge, the temp write and the rename,
-    // so a second Flea cannot land between this one's read and its write.
+    // so a second Dlea cannot land between this one's read and its write.
     pub fn update(&self, patch: &Json) -> Result<Json, String> {
         self.transform(|state| uistate::patched(state, patch))
     }

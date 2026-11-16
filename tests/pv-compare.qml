@@ -1,13 +1,13 @@
-//@ pragma ShellId flea-pv-compare-test
+//@ pragma ShellId dlea-pv-compare-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Ops.js" as Ops
-import "flea/js/Focus.js" as Focus
-import "flea/js/Icons.js" as Icons
-import "flea/js/Menu.js" as Menu
-import "flea/js/PreviewKeys.js" as PreviewKeys
+import "dlea" as Dlea
+import "dlea/js/Ops.js" as Ops
+import "dlea/js/Focus.js" as Focus
+import "dlea/js/Icons.js" as Icons
+import "dlea/js/Menu.js" as Menu
+import "dlea/js/PreviewKeys.js" as PreviewKeys
 
 // tests/pv-compare.sh's harness: the real Quick Look overlay hosts the Compare kind. Stub answers draw the board's hunk and each refusal at the recipe's geometry; the live backend then answers a real pair in its jail.
 ShellRoot {
@@ -128,8 +128,8 @@ ShellRoot {
     readonly property var steps: [].concat([
         function () {
             // Compare.html resolves its pixels at body 14 and caption 12, so the run is pinned there and every number below is the board's own.
-            Flea.ViewState.state = { display: { textSize: { mode: 14 } } }
-            root.check("the suite runs at the board's text size", [Flea.Theme.font.body, Flea.Theme.font.caption], [14, 12])
+            Dlea.ViewState.state = { display: { textSize: { mode: 14 } } }
+            root.check("the suite runs at the board's text size", [Dlea.Theme.font.body, Dlea.Theme.font.caption], [14, 12])
             root.check("nothing is built or asked before a compare is opened", [stub.asked.length, look.surfaceItem(), look.active], [0, null, false])
             root.clicker = Qt.createQmlObject("import QtTest; TestEvent {}", look)
             root.expectedAsks = 1
@@ -151,12 +151,12 @@ ShellRoot {
             root.check("the bar's mark is the markdown mark, 14 in", [g.markName, g.mark.x], ["markdown", 14])
             root.check("the title follows the mark by 9", g.title.x, g.mark.x + g.mark.width + 9)
             root.check("the title reads the board's count", g.title.text, "notes-a.md and notes-b.md · 12 lines differ")
-            root.check("the title is the foreground", root.same(g.title.color, Flea.Theme.color.foreground), true)
+            root.check("the title is the foreground", root.same(g.title.color, Dlea.Theme.color.foreground), true)
             // The shared button: its frame is the board's 20 high, and its caption the board's 12, with the 1 px frame inside 8 either side.
             var frame = root.named(g.copy, "buttonFrame"), caption = root.named(g.copy, "buttonLabel")
             root.check("Copy patch is the shared strip button, a 20 high frame", frame.height, 20)
-            root.check("Copy patch keeps 8 either side of its caption and rounds its 1 px muted frame", [g.copy.width - caption.implicitWidth, frame.width, frame.border.width, root.same(frame.border.color, Flea.Theme.color.muted)], [2 * 8 + 2, Math.round(caption.implicitWidth + 2 * 8 + 2), 1, true])
-            root.check("Copy patch has a foreground caption at the board's 12", [caption.text, root.same(caption.color, Flea.Theme.color.foreground), caption.font.pixelSize], ["Copy patch", true, Flea.Theme.font.caption])
+            root.check("Copy patch keeps 8 either side of its caption and rounds its 1 px muted frame", [g.copy.width - caption.implicitWidth, frame.width, frame.border.width, root.same(frame.border.color, Dlea.Theme.color.muted)], [2 * 8 + 2, Math.round(caption.implicitWidth + 2 * 8 + 2), 1, true])
+            root.check("Copy patch has a foreground caption at the board's 12", [caption.text, root.same(caption.color, Dlea.Theme.color.foreground), caption.font.pixelSize], ["Copy patch", true, Dlea.Theme.font.caption])
             root.check("the close sits in its 24 slot, 9 after Copy patch, 14 from the edge", [g.close.width, g.close.x - (g.copy.x + g.copy.width), g.bar.width - (g.close.x + g.close.width)], [24, 9, 14])
             root.check("the body holds the hunk header and eighteen lines", rows.length, 19)
             var pitch = root.item().rowHeight
@@ -164,12 +164,12 @@ ShellRoot {
             var head = root.textsOf(rows[0]), context = root.textsOf(rows[1]), removed = root.textsOf(rows[4]), added = root.textsOf(rows[10])
             var inks = root.item().inks
             root.check("the hunk header starts at the text column, 107 in, in the cyan ink", [head[3].text, head[3].x, root.same(head[3].color, inks[6])], ["@@ -9,12 +9,12 @@", 107, true])
-            root.check("a context row has both numbers in the muted ink", [context[0].text, context[1].text, context[0].visible, context[1].visible, root.same(context[0].color, Flea.Theme.color.muted)], ["9", "9", true, true, true])
-            root.check("a context row has no sign and the foreground text", [context[2].text, context[3].text, root.same(context[3].color, Flea.Theme.color.foreground)], ["", "## Previews", true])
+            root.check("a context row has both numbers in the muted ink", [context[0].text, context[1].text, context[0].visible, context[1].visible, root.same(context[0].color, Dlea.Theme.color.muted)], ["9", "9", true, true, true])
+            root.check("a context row has no sign and the foreground text", [context[2].text, context[3].text, root.same(context[3].color, Dlea.Theme.color.foreground)], ["", "## Previews", true])
             root.check("the gutter is 34 wide twice, 10 apart, then a 9 sign column", [context[0].x + context[0].width, context[1].x, context[1].x + context[1].width, context[2].x, context[2].width], [34, 34 + 10, 2 * 34 + 10, 2 * (34 + 10), 9])
             root.check("a removed row shows only its old number, in red", [removed[0].text, removed[0].visible, removed[1].visible, removed[2].text, root.same(removed[2].color, inks[1]), root.same(removed[3].color, inks[1])], ["12", true, false, "-", true, true])
             root.check("an added row shows only its new number, in green", [added[1].text, added[0].visible, added[1].visible, added[2].text, root.same(added[2].color, inks[2]), root.same(added[3].color, inks[2])], ["12", false, true, "+", true, true])
-            root.check("the inks are the code renderer's red, green and cyan", [root.same(inks[1], Flea.Theme.color.foreground), root.same(inks[2], Flea.Theme.color.foreground), root.same(inks[6], Flea.Theme.color.foreground)], [false, false, false])
+            root.check("the inks are the code renderer's red, green and cyan", [root.same(inks[1], Dlea.Theme.color.foreground), root.same(inks[2], Dlea.Theme.color.foreground), root.same(inks[6], Dlea.Theme.color.foreground)], [false, false, false])
             root.check("a row is text alone, with no fill", rows.every(function (r) { return r.children.every(function (n) { return String(n).indexOf("Rectangle") < 0 }) }), true)
             root.check("the text is plain, whitespace kept", [removed[3].textFormat, added[3].text], [Text.PlainText, "Thumbnails stay cache-only on phones."])
             // j and k, Down and Up, neither move the listing cursor nor swap either of the overlay's two files.
@@ -179,7 +179,7 @@ ShellRoot {
             root.check("j and k leave the cursor and both files alone", [keyRoot.cursorIndex, look.path, look.comparePath], [0, root.stubA, root.stubB])
             // The diff scrolls by the text preview's own wheel handler: one FastScrollHandler parented to the list, not the bars' own.
             var list = root.item().children.filter(function (n) { return n.contentItem !== undefined })[0]
-            root.check("the diff's wheel is the text preview's FastScrollHandler", root.descendants(root.item()).filter(function (n) { return n.objectName === "fleaScroll" && n.parent === list }).length, 1)
+            root.check("the diff's wheel is the text preview's FastScrollHandler", root.descendants(root.item()).filter(function (n) { return n.objectName === "dleaScroll" && n.parent === list }).length, 1)
             root.previewKey(Qt.Key_Backtab, "", Qt.ShiftModifier)
             root.check("initial Shift+Tab enters Close with its own focus ring", [g.close.activeFocus, g.close.ringItem.visible], [true, true])
             root.clicker.keyClick(Qt.Key_Tab, Qt.NoModifier, -1)
@@ -346,7 +346,7 @@ ShellRoot {
         property var listArea: QtObject { function forceActiveFocus() {} }
     }
 
-    Flea.Backend { id: realBackend }
+    Dlea.Backend { id: realBackend }
     Connections {
         target: realBackend
         function onCompareResult(message) {
@@ -358,10 +358,10 @@ ShellRoot {
         id: win
         implicitWidth: 1200
         implicitHeight: 800
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
         Item {
             anchors.fill: parent
-            Flea.Preview {
+            Dlea.Preview {
                 id: look
                 pane: stubPane
             }

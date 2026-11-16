@@ -1,12 +1,12 @@
-//@ pragma AppId com.thisisgm.flea.glasspick.backdrop
-//@ pragma ShellId flea-glasspick-backdrop
+//@ pragma AppId com.nosDshell.dlea.glasspick.backdrop
+//@ pragma ShellId dlea-glasspick-backdrop
 import QtQuick
 import Quickshell
 
 // An owned native window under the capture pair, so the operator's wallpaper is never changed.
 ShellRoot {
     FloatingWindow {
-        title: "Flea material backdrop"
+        title: "Dlea material backdrop"
         implicitWidth: 1584
         implicitHeight: 740
         color: "#000000"

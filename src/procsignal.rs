@@ -1,4 +1,4 @@
-// The one place Flea signals a process by pid, refusing any pid <= 1 before the syscall.
+// The one place Dlea signals a process by pid, refusing any pid <= 1 before the syscall.
 use std::io;
 
 extern "C" {

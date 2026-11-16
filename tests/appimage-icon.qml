@@ -1,15 +1,15 @@
-//@ pragma ShellId flea-appimage-icon-test
+//@ pragma ShellId dlea-appimage-icon-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Thumbs.js" as Thumbs
+import "dlea" as Dlea
+import "dlea/js/Thumbs.js" as Thumbs
 
 // An AppImage row draws its published icon in List, Grid and Columns, and the terminal mark when none exists; Off draws neither.
 ShellRoot {
     id: root
 
-    property string iconPath: Quickshell.env("FLEA_APPICON_PNG")
+    property string iconPath: Quickshell.env("DLEA_APPICON_PNG")
     property var appRow: ({ n: "Obsidian-1.9.AppImage", d: false, i: "application-x-executable", p: 493, s: 123456789, m: 1758835200, t: true, a: true, k: 0, v: 0 })
     // An executable with a thumbnailer of its own: the same generic icon, and no a, so Images keeps it a mark.
     property var exeRow: ({ n: "setup.exe", d: false, i: "application-x-executable", p: 493, s: 1234567, m: 1758835200, t: true, k: 0, v: 0 })
@@ -94,12 +94,12 @@ ShellRoot {
     property var paneNone: paneStub.createObject(root, { backend: root.stubBackend, rows: [root.appRow] })
 
     Column {
-        Flea.List { id: listMade; width: 500; height: 80; pane: root.paneMade; menu: menuStub.createObject(root) }
-        Flea.List { id: listNone; width: 500; height: 80; pane: root.paneNone; menu: menuStub.createObject(root) }
-        Flea.GridArea { id: gridMade; width: 500; height: 220; pane: root.paneMade; menu: menuStub.createObject(root) }
-        Flea.GridArea { id: gridNone; width: 500; height: 220; pane: root.paneNone; menu: menuStub.createObject(root) }
-        Flea.ColumnPane { id: colsMade; width: 366; height: 80; pane: root.paneMade }
-        Flea.ColumnPane { id: colsNone; width: 366; height: 80; pane: root.paneNone }
+        Dlea.List { id: listMade; width: 500; height: 80; pane: root.paneMade; menu: menuStub.createObject(root) }
+        Dlea.List { id: listNone; width: 500; height: 80; pane: root.paneNone; menu: menuStub.createObject(root) }
+        Dlea.GridArea { id: gridMade; width: 500; height: 220; pane: root.paneMade; menu: menuStub.createObject(root) }
+        Dlea.GridArea { id: gridNone; width: 500; height: 220; pane: root.paneNone; menu: menuStub.createObject(root) }
+        Dlea.ColumnPane { id: colsMade; width: 366; height: 80; pane: root.paneMade }
+        Dlea.ColumnPane { id: colsNone; width: 366; height: 80; pane: root.paneNone }
     }
 
     function drawn(item) {
@@ -137,15 +137,15 @@ ShellRoot {
         repeat: true
         onTriggered: {
             if (root.step === 0) {
-                Flea.ViewState.changeSetting("preview.thumbnails", "media")
+                Dlea.ViewState.changeSetting("preview.thumbnails", "media")
                 root.step = 1
             } else if (root.step === 1) {
                 root.check("media", "icon", "mark")
-                Flea.ViewState.changeSetting("preview.thumbnails", "images")
+                Dlea.ViewState.changeSetting("preview.thumbnails", "images")
                 root.step = 2
             } else if (root.step === 2) {
                 root.check("images", "icon", "mark")
-                Flea.ViewState.changeSetting("preview.thumbnails", "off")
+                Dlea.ViewState.changeSetting("preview.thumbnails", "off")
                 root.step = 3
             } else {
                 driver.stop()

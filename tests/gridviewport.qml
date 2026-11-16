@@ -1,15 +1,15 @@
-//@ pragma ShellId flea-gridviewport-test
+//@ pragma ShellId dlea-gridviewport-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // A switch to Grid builds only the viewport's tiles before its first frame, the cache rows after it, and draws no half-built frame: a real pane, counted, never timed.
 // Sample output: "GRIDVIEWPORT SWITCH first to=grid frames=2 partial=0 held=0 built=66 firstFrame=52 reused=0 cols=7 vrows=7 plan=66 live=66".
 ShellRoot {
     id: root
-    readonly property string fixture: Quickshell.env("FLEA_GV_DIR") || ""
-    readonly property int entries: Number(Quickshell.env("FLEA_GV_ENTRIES") || "0")
+    readonly property string fixture: Quickshell.env("DLEA_GV_DIR") || ""
+    readonly property int entries: Number(Quickshell.env("DLEA_GV_ENTRIES") || "0")
     property int checks: 0
     property int failures: 0
     property int frames: 0
@@ -144,10 +144,10 @@ ShellRoot {
         id: win
         implicitWidth: 1200
         implicitHeight: 800
-        Flea.Backend { id: probeBackend }
+        Dlea.Backend { id: probeBackend }
         Component {
             id: paneComponent
-            Flea.Pane {
+            Dlea.Pane {
                 width: 1200
                 height: 800
                 backend: probeBackend

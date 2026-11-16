@@ -1,4 +1,4 @@
-"""Tests for tools/flea-keymap-lint."""
+"""Tests for tools/dlea-keymap-lint."""
 
 import json
 from pathlib import Path
@@ -8,7 +8,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
-LINT = ROOT / "tools/flea-keymap-lint"
+LINT = ROOT / "tools/dlea-keymap-lint"
 KEYS = ROOT / "keys.toml"
 
 ONE_ROW = (

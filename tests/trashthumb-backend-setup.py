@@ -19,36 +19,36 @@ assert real_mktemp and real_realpath
 
 mktemp_wrapper = r'''#!/usr/bin/python3
 import os, pathlib, subprocess, sys
-root = pathlib.Path(os.environ['FLEA_SETUP_ROOT'])
-assert root.is_absolute() and (root / '.flea-test-sandbox').is_file()
-box = pathlib.Path(subprocess.check_output([os.environ['FLEA_REAL_MKTEMP'], *sys.argv[1:]], text=True).strip())
+root = pathlib.Path(os.environ['DLEA_SETUP_ROOT'])
+assert root.is_absolute() and (root / '.dlea-test-sandbox').is_file()
+box = pathlib.Path(subprocess.check_output([os.environ['DLEA_REAL_MKTEMP'], *sys.argv[1:]], text=True).strip())
 assert box.is_absolute() and box.parent == root
 (root / 'created-box').write_text(str(box))
-if os.environ['FLEA_SETUP_MODE'] == 'nonempty':
+if os.environ['DLEA_SETUP_MODE'] == 'nonempty':
     (box / 'keep').write_text('preserve this unmarked file')
-if os.environ['FLEA_SETUP_MODE'] in ['readonly', 'nonempty']:
+if os.environ['DLEA_SETUP_MODE'] in ['readonly', 'nonempty']:
     box.chmod(0o500)
 print(box)
 '''
 realpath_wrapper = r'''#!/usr/bin/python3
 import os, pathlib, sys
-root = pathlib.Path(os.environ['FLEA_SETUP_ROOT'])
-assert root.is_absolute() and (root / '.flea-test-sandbox').is_file()
+root = pathlib.Path(os.environ['DLEA_SETUP_ROOT'])
+assert root.is_absolute() and (root / '.dlea-test-sandbox').is_file()
 record = root / 'created-box'
 once = root / 'guard-refused'
-if os.environ['FLEA_SETUP_MODE'] == 'guard' and record.exists():
+if os.environ['DLEA_SETUP_MODE'] == 'guard' and record.exists():
     box = pathlib.Path(record.read_text())
-    if str(box) in sys.argv[1:] and (box / '.flea-test-sandbox').is_file() and not once.exists():
+    if str(box) in sys.argv[1:] and (box / '.dlea-test-sandbox').is_file() and not once.exists():
         once.write_text('refused the first marked-box check')
         raise SystemExit(1)
-os.execv(os.environ['FLEA_REAL_REALPATH'], [os.environ['FLEA_REAL_REALPATH'], *sys.argv[1:]])
+os.execv(os.environ['DLEA_REAL_REALPATH'], [os.environ['DLEA_REAL_REALPATH'], *sys.argv[1:]])
 '''
 probe = "\npython3 -c 'import json,os; print(json.dumps({key:os.environ.get(key) for key in [\"CARGO_HOME\",\"CARGO_TARGET_DIR\",\"TMPDIR\"]}))'\n"
 errors = []
 for label, mode in [("F2 inherited CARGO_HOME", "normal"), ("F6 failed marker write", "readonly"),
                     ("F6 refused marked box", "guard"), ("F6 nonempty unmarked box preserved", "nonempty")]:
     root = Path(tempfile.mkdtemp(prefix="trashthumb-setup-", dir=fixture))
-    root.joinpath(".flea-test-sandbox").write_text("suite setup control\n")
+    root.joinpath(".dlea-test-sandbox").write_text("suite setup control\n")
     try:
         tools = root / "tools"
         tools.mkdir()
@@ -58,8 +58,8 @@ for label, mode in [("F2 inherited CARGO_HOME", "normal"), ("F6 failed marker wr
             path.chmod(0o755)
         cargo_home = root / "registered-cargo-home"
         cargo_home.mkdir()
-        env = dict(os.environ, FLEA_FIXTURE_ROOT=str(root), FLEA_SETUP_ROOT=str(root),
-                   FLEA_SETUP_MODE=mode, FLEA_REAL_MKTEMP=real_mktemp, FLEA_REAL_REALPATH=real_realpath,
+        env = dict(os.environ, DLEA_FIXTURE_ROOT=str(root), DLEA_SETUP_ROOT=str(root),
+                   DLEA_SETUP_MODE=mode, DLEA_REAL_MKTEMP=real_mktemp, DLEA_REAL_REALPATH=real_realpath,
                    CARGO_HOME=str(cargo_home), PATH=str(tools) + os.pathsep + os.environ["PATH"])
         result = subprocess.run(["/bin/bash", "-c", setup + probe, str(suite)],
                                 env=env, text=True, capture_output=True)
@@ -75,7 +75,7 @@ for label, mode in [("F2 inherited CARGO_HOME", "normal"), ("F6 failed marker wr
         elif mode == "nonempty":
             assert result.returncode != 0
             assert (box / "keep").read_text() == "preserve this unmarked file"
-            assert not (box / ".flea-test-sandbox").exists()
+            assert not (box / ".dlea-test-sandbox").exists()
         else:
             assert result.returncode != 0, "the injected setup failure must refuse the suite"
             assert not box.exists(), "an early setup failure left its empty or marked box"
@@ -89,10 +89,10 @@ for label, mode in [("F2 inherited CARGO_HOME", "normal"), ("F6 failed marker wr
         record = root / "created-box"
         if record.exists():
             box = Path(record.read_text())
-            assert box.is_absolute() and box.parent == root and root.joinpath(".flea-test-sandbox").is_file()
+            assert box.is_absolute() and box.parent == root and root.joinpath(".dlea-test-sandbox").is_file()
             if box.is_dir():
                 box.chmod(0o700)
-        assert str(root) and root.is_absolute() and root.parent == fixture and root.joinpath(".flea-test-sandbox").is_file()
+        assert str(root) and root.is_absolute() and root.parent == fixture and root.joinpath(".dlea-test-sandbox").is_file()
         shutil.rmtree(root)
 if errors:
     raise SystemExit(1)

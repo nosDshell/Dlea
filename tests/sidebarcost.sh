@@ -2,20 +2,20 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Sidebar object counts and deferred menu work through real QML.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 command -v qs >/dev/null || { echo 'FAIL sidebarcost: qs is missing'; exit 1; }
 root=$(mktemp -d "$FIXTURE_ROOT/sidebarcost-XXXXXXXX") || exit 1
 sandbox_require "$root" || exit 1
 : > "$root/$SANDBOX_MARKER" || exit 1
 trap 'sandbox_remove "$root"' EXIT
-mkdir -p "$root/config" "$root/home" "$root/state/flea" "$root/cache" "$root/runtime" "$root/data" "$root/home/a" "$root/home/b" "$root/home/c" || exit 1
+mkdir -p "$root/config" "$root/home" "$root/state/dlea" "$root/cache" "$root/runtime" "$root/data" "$root/home/a" "$root/home/b" "$root/home/c" || exit 1
 chmod 700 "$root/runtime" || exit 1
-ln -s "$PWD/ui" "$root/config/flea" || exit 1
+ln -s "$PWD/ui" "$root/config/dlea" || exit 1
 headless_commons "$root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$root/config/Ui" || exit 1
 cp tests/sidebarcost.qml "$root/config/shell.qml" || exit 1
-printf '%s\n' '{"updates":{"autoCheck":false},"places":{"showTrash":false,"showNetwork":false,"showDevices":false,"rail":"hidden","favourites":[{"label":"A","path":"~/a"},{"label":"B","path":"~/b"},{"label":"C","path":"~/c"}]}}' > "$root/state/flea/ui.json" || exit 1
+printf '%s\n' '{"updates":{"autoCheck":false},"places":{"showTrash":false,"showNetwork":false,"showDevices":false,"rail":"hidden","favourites":[{"label":"A","path":"~/a"},{"label":"B","path":"~/b"},{"label":"C","path":"~/c"}]}}' > "$root/state/dlea/ui.json" || exit 1
 printf '<xbel><bookmark href="file://%s/a/example.txt" visited="2026-09-30T12:00:00Z"/></xbel>\n' "$root/home" > "$root/data/recently-used.xbel" || exit 1
 if grep -qE '^import "js/(Picker|Recent)\.js"' ui/Sidebar.qml; then
     echo 'FAIL sidebarcost: Sidebar still imports an action library at settle'
@@ -24,7 +24,7 @@ fi
 env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$root/home" XDG_STATE_HOME="$root/state" XDG_CACHE_HOME="$root/cache" XDG_RUNTIME_DIR="$root/runtime" \
     XDG_DATA_HOME="$root/data" \
-    FLEA_BIN="$PWD/target/debug/flea" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
+    DLEA_BIN="$PWD/target/debug/dlea" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
     timeout 20 qs -p "$root/config" > "$root/probe.log" 2>&1
 status=$?
 cat "$root/probe.log"

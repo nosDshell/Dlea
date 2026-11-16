@@ -250,7 +250,7 @@ pub(super) fn receive(model: &mut super::model::Model, value: &crate::jsondoc::J
         // A failed extraction says why, whichever job owns the status row.
         if text(job, "kind") == "extract" && text(job, "state") == "failed" {
             let reason = text(job, "reason");
-            match flea::ui_logic_status_feedback::errors::extract_refusal(reason) {
+            match dlea::ui_logic_status_feedback::errors::extract_refusal(reason) {
                 Some(refusal) => model.fail_text(super::words::sentence(refusal)),
                 None => model.fail(reason.into()),
             }

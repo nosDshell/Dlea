@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Compositor-free proof of tests/lib/pointer-glide.sh against a fake hyprctl and an accelerating fake ydotool.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 # A marked sandbox of its own under the fixture root, so cleanup deletes only what this run owns.
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-pointer-glide-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-pointer-glide-XXXXXX") || exit 1
 case $test_root in
   /*/*) ;;
   *) echo "FAIL: mktemp -d gave '$test_root', which is not an absolute path two components deep"; exit 1 ;;

@@ -1,5 +1,5 @@
 // Actions and legacy scripts are discovered only for an explicit selection request, off the loop.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::actionmanifest::{self, Manifest, MAX_MANIFEST};
 use super::opsreq::OpMsg;
 use crate::json::{escape, field_str, field_str_array, field_usize};
@@ -25,11 +25,11 @@ pub(crate) struct Action {
 fn config() -> PathBuf {
     std::env::var_os("XDG_CONFIG_HOME")
         .filter(|p| !p.is_empty())
-        .map(flea::bytename::exact)
+        .map(dlea::bytename::exact)
         .unwrap_or_else(|| {
             PathBuf::from(std::env::var_os("HOME").unwrap_or_default()).join(".config")
         })
-        .join("flea")
+        .join("dlea")
 }
 
 pub(crate) fn load() -> (Vec<Action>, Vec<(String, String)>) {
@@ -86,7 +86,7 @@ fn load_from(root: &Path) -> (Vec<Action>, Vec<(String, String)>) {
                 continue;
             }
             let name = entry.file_name().exact_text().to_string();
-            let label = flea::bytename::view(&name)
+            let label = dlea::bytename::view(&name)
                 .file_stem()
                 .unwrap_or_default()
                 .exact_text()
@@ -164,7 +164,7 @@ impl Action {
                 if template.starts_with('{') && output.starts_with(b"-") {
                     output.splice(0..0, *b"./");
                 }
-                flea::bytename::path_text(Path::new(OsStr::from_bytes(&output))).into_owned()
+                dlea::bytename::path_text(Path::new(OsStr::from_bytes(&output))).into_owned()
             })
             .collect()
     }
@@ -180,7 +180,7 @@ pub(crate) fn request(line: String, mime: Arc<super::mime::Db>, tx: Sender<OpMsg
         let valid = paths.len() <= MAX_SELECTION
             && paths
                 .iter()
-                .all(|p| flea::bytename::view(p).is_absolute() && !flea::bytename::is_refused(p));
+                .all(|p| dlea::bytename::view(p).is_absolute() && !dlea::bytename::is_refused(p));
         let (actions, errors) = load();
         let matching: Vec<_> = actions
             .into_iter()
@@ -290,9 +290,9 @@ pub(crate) fn ready(
                 move || {
                     let mut error = String::new();
                     for path in &paths {
-                        let argv = action.argv(&flea::bytename::view(path));
+                        let argv = action.argv(&dlea::bytename::view(path));
                         if let Err(e) = crate::terminal::open_argv(
-                            flea::bytename::view(path)
+                            dlea::bytename::view(path)
                                 .parent()
                                 .unwrap_or(Path::new("/")),
                             &argv,

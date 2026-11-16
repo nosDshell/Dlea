@@ -19,7 +19,7 @@ fn cpu() -> u64 {
     now[0] as u64 * 1_000_000_000 + now[1] as u64
 }
 
-// A wavy sheet of `n` or a few more triangles over 60 by 40 mm, the same as flea-gui's frame_tests.
+// A wavy sheet of `n` or a few more triangles over 60 by 40 mm, the same as dlea-gui's frame_tests.
 fn sheet(n: usize) -> Scene {
     let k = ((n / 2) as f32).sqrt().ceil() as u32;
     let mut s = Scene::default();
@@ -39,7 +39,7 @@ fn sheet(n: usize) -> Scene {
     s
 }
 
-// A print of `layers` layers of `per_layer` extrusions spiralling out from the centre, the same as flea-gui's frame_tests.
+// A print of `layers` layers of `per_layer` extrusions spiralling out from the centre, the same as dlea-gui's frame_tests.
 fn spiral(layers: usize, per_layer: usize) -> Scene {
     let mut s = Scene { bed: Some([250., 210.]), ..Scene::default() };
     for l in 0..layers {

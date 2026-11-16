@@ -56,7 +56,7 @@ def main():
             var found = variants[n], colors = {}, labels = ["Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Gray"]
             var roles = ["red", "orange", "yellow", "green", "blue", "magenta", "dark_foreground"]
             for (var i = 0; i < labels.length; i++) colors[labels[i]] = found[roles[i]]
-            Flea.Theme.tag = {colors: colors, menuColors: colors}
+            Dlea.Theme.tag = {colors: colors, menuColors: colors}
             root.palettes = [{name: names[n]}]
             root.dumpTags(found, "#000000", "#000000")
         }

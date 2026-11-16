@@ -15,7 +15,7 @@ struct Backend {
 
 impl Backend {
     fn new(root: &TestDir, data: &Path, folder: &str) -> Self {
-        let binary = PathBuf::from(env!("CARGO_BIN_EXE_flea"));
+        let binary = PathBuf::from(env!("CARGO_BIN_EXE_dlea"));
         assert!(binary.is_file(), "Cargo must build the production backend for this integration target: {}", binary.display());
         let mut child = Command::new(binary).arg("--backend")
             .env("HOME", root.path()).env("XDG_DATA_HOME", data).env("XDG_CONFIG_HOME", root.join("config"))
@@ -117,7 +117,7 @@ fn searchprior_protocol_real_backend_protects_exact_and_ranks_files_folders_and_
     assert_eq!(backend.query(2, "render", 100)[0], "render");
     assert_eq!(backend.query(3, "project", 100), ["z/project", "a/project"]);
     assert_eq!(provider_before, (std::fs::read(history).unwrap(), std::fs::read(folders).unwrap()));
-    assert!(!d.join("state/flea/search-opens.v1").exists());
+    assert!(!d.join("state/dlea/search-opens.v1").exists());
     assert!(!d.join("zoxide-data").exists(), "the provider double never creates or updates a database");
 }
 

@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-gridmark-test
+//@ pragma ShellId dlea-gridmark-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Filter.js" as Filter
+import "dlea" as Dlea
+import "dlea/js/Filter.js" as Filter
 
 // A real ui/GridArea.qml draws List's match mark on each label's matched letters, read back as boxes, in every tile state.
 ShellRoot {
@@ -103,9 +103,9 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 900
         implicitHeight: 500
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
-        Flea.GridArea {
+        Dlea.GridArea {
             id: grid
             width: 760
             height: 420
@@ -168,7 +168,7 @@ ShellRoot {
 
     // Visible accent rectangles short of covering the caption: List's wash wherever the tile builds or places it; a tile-wide fill covers it.
     function washesOf(tile) {
-        var cap = tile.captionItem, accent = Flea.Theme.color.accent, out = [], stack = [tile]
+        var cap = tile.captionItem, accent = Dlea.Theme.color.accent, out = [], stack = [tile]
         while (stack.length > 0) {
             var o = stack.pop()
             var kids = o.children !== undefined ? o.children : []
@@ -218,7 +218,7 @@ ShellRoot {
             root.fail(label + ": " + name + " draws " + got.length + " mark boxes, want " + want.length + " on " + JSON.stringify(query) + " in " + JSON.stringify(tile.captionItem.text))
             return
         }
-        var ink = Flea.Theme.color.accent.a * Flea.Theme.washActive * dim
+        var ink = Dlea.Theme.color.accent.a * Dlea.Theme.washActive * dim
         for (var i = 0; i < want.length; i++) {
             var g = got[i], w = want[i]
             if (Math.abs(g.x - w.x) > 0.01 || Math.abs(g.y - w.y) > 0.01 || Math.abs(g.width - w.width) > 0.01 || Math.abs(g.height - w.height) > 0.01)
@@ -316,20 +316,20 @@ ShellRoot {
         var ds = root.drawn(), cut = ds["piano.md"], drop = ds["notes.txt"]
         if (!root.need(ds, ["piano.md", "notes.txt"])) return
         if (cut.clipMark !== "scissors") root.fail("the cut fixture marks piano.md " + JSON.stringify(cut.clipMark))
-        root.checkMark("cut", cut, "no", Flea.Theme.disabledOpacity)
+        root.checkMark("cut", cut, "no", Dlea.Theme.disabledOpacity)
         if (String(drop.captionItem.text).indexOf("\n") >= 0) root.fail("a drop target draws its caption on two lines")
         root.checkMark("drop", drop, "no", 1)
         drop.dropTarget = false
         root.stubPane.clipboard = { paths: [], moving: false }
         // The rewrap check needs both captions drawing their mark now, before their letters widen.
         if ([ds[root.longName], drop].some(function (t) { return root.washesOf(t).length === 0 })) root.fail("rewrap: a caption draws no mark box before its letters widen, so the rewrap check proves nothing")
-        // Wider letters than the cells Flea broke the captions by make Qt lay them out again, as a wide-glyph name would.
-        ds[root.longName].captionItem.font.letterSpacing = Flea.Theme.font.bodySmall
-        drop.captionItem.font.letterSpacing = Flea.Theme.font.bodySmall
+        // Wider letters than the cells Dlea broke the captions by make Qt lay them out again, as a wide-glyph name would.
+        ds[root.longName].captionItem.font.letterSpacing = Dlea.Theme.font.bodySmall
+        drop.captionItem.font.letterSpacing = Dlea.Theme.font.bodySmall
         root.then(root.measureRewrap)
     }
 
-    // Captions Qt laid out again, one elided and one wrapped past Flea's breaks, draw no box rather than one off their letters.
+    // Captions Qt laid out again, one elided and one wrapped past Dlea's breaks, draw no box rather than one off their letters.
     function measureRewrap() {
         var ds = root.drawn(), elided = ds[root.longName], wrapped = ds["notes.txt"]
         if (!root.need(ds, [root.longName, "notes.txt"])) return

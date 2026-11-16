@@ -4,7 +4,7 @@ import Quickshell.Io
 import "Model.js" as Model
 
 // The only thing here that touches the outside world: the pile's own state file, which the
-// `flea shelf` backend writes and this reads. The widget never learns how a file got into the pile.
+// `dlea shelf` backend writes and this reads. The widget never learns how a file got into the pile.
 Item {
   id: root
   visible: false
@@ -13,7 +13,7 @@ Item {
 
   readonly property string home: Quickshell.env("HOME") || ""
   // XDG_STATE_HOME is what the driven tests point at a sandbox, the way every other plugin reads it.
-  readonly property string stateDir: (Quickshell.env("XDG_STATE_HOME") || root.home + "/.local/state") + "/omarchy/flea-shelf"
+  readonly property string stateDir: (Quickshell.env("XDG_STATE_HOME") || root.home + "/.local/state") + "/omarchy/dlea-shelf"
   readonly property string statePath: root.stateDir + "/shelf.json"
 
   property var pile: Model.empty()
@@ -35,14 +35,14 @@ Item {
   // the manifest keeps only the two technical values and Settings offers no row for a dwell.
   readonly property int railDwellMs: 120
   property string barPosition: "top"
-  // SettingsRest rule 2: the edge is Flea's own setting, and the master takes the rail away with it.
+  // SettingsRest rule 2: the edge is Dlea's own setting, and the master takes the rail away with it.
   readonly property string railEdge: root.shelfSettings.enabled ? root.shelfSettings.rail : "off"
-  // The command that owns the pile. It is "flea" on an installed box and a path on a development
+  // The command that owns the pile. It is "dlea" on an installed box and a path on a development
   // tree, and it is a setting because the plugin ships as its own repository beside the app.
-  readonly property string fleaCommand: {
-    var raw = root.settings ? root.settings["fleaCommand"] : undefined
+  readonly property string dleaCommand: {
+    var raw = root.settings ? root.settings["dleaCommand"] : undefined
     var name = String(raw === undefined || raw === null ? "" : raw).trim()
-    return name.length > 0 ? name : "flea"
+    return name.length > 0 ? name : "dlea"
   }
   readonly property int millisecondsPerSecond: 1000
 
@@ -77,7 +77,7 @@ Item {
 
   // DragOut rule 1: the token is minted before the platform loop starts, and the backend binds it to
   // these entries and this intent. The shelf is another process, so this is a command and not a wire
-  // line; flea answers with the token on stdout and nothing else.
+  // line; dlea answers with the token on stdout and nothing else.
   signal minted(string token, bool moving)
   signal failed(string why)
 
@@ -90,7 +90,7 @@ Item {
       return false
     }
     root.moving = wantsMove
-    var argv = [root.fleaCommand, "shelf", "drag-begin", wantsMove ? "move" : "copy"]
+    var argv = [root.dleaCommand, "shelf", "drag-begin", wantsMove ? "move" : "copy"]
     for (var i = 0; i < paths.length; i++) {
       argv.push(paths[i])
     }
@@ -105,7 +105,7 @@ Item {
   property var queued: []
 
   function runQuiet(argv, complaint) {
-    root.queued = root.queued.concat([{ argv: [root.fleaCommand].concat(argv), complaint: complaint }])
+    root.queued = root.queued.concat([{ argv: [root.dleaCommand].concat(argv), complaint: complaint }])
     root.nextQuiet()
   }
 
@@ -175,20 +175,20 @@ Item {
     }
   }
 
-  // Rule 11 and directive 59: the key hints toggle and the Shelf section are Flea's own settings,
-  // read from the file Flea writes rather than duplicated in this plugin's manifest.
-  readonly property string fleaStatePath: (Quickshell.env("XDG_STATE_HOME") || root.home + "/.local/state") + "/flea/ui.json"
+  // Rule 11 and directive 59: the key hints toggle and the Shelf section are Dlea's own settings,
+  // read from the file Dlea writes rather than duplicated in this plugin's manifest.
+  readonly property string dleaStatePath: (Quickshell.env("XDG_STATE_HOME") || root.home + "/.local/state") + "/dlea/ui.json"
   property bool keyHints: false
   property var shelfSettings: Model.shelfDefaults()
 
   FileView {
-    id: fleaState
-    path: root.fleaStatePath
+    id: dleaState
+    path: root.dleaStatePath
     watchChanges: true
     printErrors: false
     onFileChanged: reload()
-    onLoaded: root.readSettings(fleaState.text())
-    // No Flea has ever run here, so every setting is its own default.
+    onLoaded: root.readSettings(dleaState.text())
+    // No Dlea has ever run here, so every setting is its own default.
     onLoadFailed: root.readSettings("")
   }
 
@@ -241,7 +241,7 @@ Item {
       return
     }
     root.asked = wanted
-    thumber.command = [root.fleaCommand, "shelf", "thumb"].concat(wanted)
+    thumber.command = [root.dleaCommand, "shelf", "thumb"].concat(wanted)
     thumber.running = true
   }
 
@@ -271,7 +271,7 @@ Item {
       return
     }
     root.asking = path
-    measure.command = [root.fleaCommand, "shelf", "size", path]
+    measure.command = [root.dleaCommand, "shelf", "size", path]
     measure.running = true
   }
 
@@ -308,7 +308,7 @@ Item {
     if (list.running || !root.drawing) {
       return
     }
-    list.command = [root.fleaCommand, "shelf", "captures",
+    list.command = [root.dleaCommand, "shelf", "captures",
                     String(root.shelfSettings.recent), Model.kindsArg(root.shelfSettings)]
     list.running = true
   }
@@ -333,8 +333,8 @@ Item {
     stderr: StdioCollector { waitForEnd: true }
   }
 
-  // Keys: enter opens the file with its own handler, or reveals a folder in Flea. Actions rule 1: it
-  // is a flea shelf call like every other, because the plugin draws and nothing else.
+  // Keys: enter opens the file with its own handler, or reveals a folder in Dlea. Actions rule 1: it
+  // is a dlea shelf call like every other, because the plugin draws and nothing else.
   function open(path) {
     root.runQuiet(["shelf", "open", path], "That item could not be opened.")
   }
@@ -414,7 +414,7 @@ Item {
       return
     }
     root.pending = name
-    verb.command = [root.fleaCommand].concat(argv)
+    verb.command = [root.dleaCommand].concat(argv)
     verb.running = true
   }
 
@@ -450,7 +450,7 @@ Item {
     if (pileList.running) {
       return
     }
-    pileList.command = [root.fleaCommand, "shelf", "piles"]
+    pileList.command = [root.dleaCommand, "shelf", "piles"]
     pileList.running = true
   }
 

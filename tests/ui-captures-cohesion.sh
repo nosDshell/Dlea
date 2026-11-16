@@ -122,7 +122,7 @@ coh_cancel_press() {
     after=$(window_box) || fail "cohesion: post-release window coordinates unavailable"
     if [[ "$before" != "$after" ]]; then
         cap_resize "$ww" "$wh"
-        address=$(window_addr_of_pid "$(flea_pid)") || fail "cohesion: owned window address unavailable"
+        address=$(window_addr_of_pid "$(dlea_pid)") || fail "cohesion: owned window address unavailable"
         hypr_window_move "$address" "$wx" "$wy" || fail "cohesion: window position restore failed"
         end=$((SECONDS + coh_wait_s))
         restored=$(window_box) || fail "cohesion: restored window coordinates unavailable"
@@ -222,13 +222,13 @@ coh_open_qlpdf() { seek_row_named manual.pdf || fail "cohesion: no manual.pdf ro
 coh_open_qlmd() { seek_row_named guide.md || fail "cohesion: no guide.md row"; key -k space >/dev/null; coh_until previewOpen true; sleep 1; }
 coh_open_menu() { menus_file_menu notes.txt key; }
 coh_open_main() { settle; }
-# The Trash strip needs ui-trash.sh's private session bus and GIO Trash, so this opener launches Flea itself.
+# The Trash strip needs ui-trash.sh's private session bus and GIO Trash, so this opener launches Dlea itself.
 coh_open_trash_self() {
     local root real_home="$HOME" home
     [[ "$(realpath -e "$(command -v gio)")" == /usr/bin/gio ]] || fail "cohesion: product gio resolves to a stub"
     sandbox_require "$fixture_root"
     trash_box=$(mktemp -d "$fixture_root/coh-trash.XXXXXXXX") || fail "cohesion: trash fixture creation failed"
-    printf 'native private Trash\n' > "$trash_box/.flea-test-sandbox"
+    printf 'native private Trash\n' > "$trash_box/.dlea-test-sandbox"
     export XDG_DATA_HOME="$trash_box/data" XDG_CONFIG_HOME="$trash_box/config"
     export XDG_STATE_HOME="$trash_box/state" XDG_CACHE_HOME="$trash_box/cache"
     for root in "$XDG_DATA_HOME" "$XDG_CONFIG_HOME" "$XDG_STATE_HOME" "$XDG_CACHE_HOME"; do
@@ -243,7 +243,7 @@ coh_open_trash_self() {
     if [[ "$coh_theme" != live ]]; then
         real_foreground=$(grep -E '^foreground' "$home/.local/state/omarchy/current/theme/colors.toml" | grep -oE '#[0-9A-Fa-f]{6}')
     fi
-    "$flea_bin" --ui-state '{"view":"list","keys":"default","preview":{"column":false},"menu":{"hidden":[]}}' >/dev/null \
+    "$dlea_bin" --ui-state '{"view":"list","keys":"default","preview":{"column":false},"menu":{"hidden":[]}}' >/dev/null \
         || fail "cohesion: trash preferences could not be stored inside the fixture"
     payload="$trash_box/payload"
     trash_guard "$payload"
@@ -327,14 +327,14 @@ coh_transfer_cleanup() {
     coh_release_held
     operations_close_gate || result=1
     permissions_resume_stopped "$operations_stopped" || result=1
-    kill_flea || result=1
+    kill_dlea || result=1
     [[ -n "$root" ]] || { (( result == 0 )) || fail "cohesion: transfer cleanup could not release the gate, backend or window"; return 0; }
-    [[ "$root" =~ ^/tmp/flea-coh-transfer\.[[:alnum:]]{8}$ && "$root" == "$(realpath -e "$root")"
+    [[ "$root" =~ ^/tmp/dlea-coh-transfer\.[[:alnum:]]{8}$ && "$root" == "$(realpath -e "$root")"
         && "$(stat -c '%u:%a' "$root")" == "$(id -u):700"
-        && -f "$root/.flea-test-sandbox" && ! -L "$root/.flea-test-sandbox" ]] || fail "cohesion: transfer cleanup root differs"
+        && -f "$root/.dlea-test-sandbox" && ! -L "$root/.dlea-test-sandbox" ]] || fail "cohesion: transfer cleanup root differs"
     FIXTURE_ROOT="$root"
     sandbox_remove "$root/fixtures"
-    unlink "$root/.flea-test-sandbox" && rmdir "$root" || fail "cohesion: transfer root cleanup failed"
+    unlink "$root/.dlea-test-sandbox" && rmdir "$root" || fail "cohesion: transfer root cleanup failed"
     # An EXIT trap's return status is discarded, so a failed release must fail loudly here.
     (( result == 0 )) || fail "cohesion: transfer cleanup could not release the gate, backend or window"
 }
@@ -354,8 +354,8 @@ coh_open_transfer_self() {
     available_bytes=$(awk '/^MemAvailable:/ {printf "%.0f\n", $2 * 1024}' /proc/meminfo)
     (( free_bytes > 2 * coh_transfer_bytes + coh_bytes_per_gib && available_bytes > 2 * coh_transfer_bytes + 2 * coh_bytes_per_gib )) \
         || fail "cohesion: insufficient tmpfs or memory headroom for transfer"
-    coh_transfer_root=$(mktemp -d /tmp/flea-coh-transfer.XXXXXXXX) || fail "cohesion: transfer root failed"
-    printf 'owned native transfer fixture\n' > "$coh_transfer_root/.flea-test-sandbox"
+    coh_transfer_root=$(mktemp -d /tmp/dlea-coh-transfer.XXXXXXXX) || fail "cohesion: transfer root failed"
+    printf 'owned native transfer fixture\n' > "$coh_transfer_root/.dlea-test-sandbox"
     FIXTURE_ROOT="$coh_transfer_root" fixture_root="$coh_transfer_root/fixtures"
     sandbox_make "$fixture_root"
     operations_footer_fixture "cohesion-$coh_theme"
@@ -596,9 +596,9 @@ coh_surface() {
 # The picker is the portal's own process, so its walk runs in Python against the picker's IPC. Each run takes a fresh root, so no picker state carries over.
 coh_picker_work() {
     local home
-    kill_flea
+    kill_dlea
     home=$(coh_home "$coh_theme")
-    FLEA_BIN="$flea_bin" FLEA_UI="$flea_ui" python3 "$repo/tests/ui-captures-cohesion-picker.py" \
+    DLEA_BIN="$dlea_bin" DLEA_UI="$dlea_ui" python3 "$repo/tests/ui-captures-cohesion-picker.py" \
         "$fixture_root/coh-$coh_theme/picker-$RANDOM$RANDOM" "$home" "$evidence_dir" "$coh_theme"
 }
 
@@ -625,8 +625,8 @@ coh_fixture() {
     printf '# Guide\n\nA paragraph with a [link](https://example.com).\n\n- one\n- two\n' > "$dir/guide.md"
     chmod 0644 "$dir/notes.txt" "$dir/other.txt" || fail "cohesion: fixture modes failed"
     magick -size 320x200 gradient:'#336699-#99ccff' "$dir/photo.png" || fail "cohesion: magick produced no photo.png"
-    magick \( -size 400x560 xc:white -fill black "${flea_magick_font_args[@]}" -pointsize 40 -annotate +40+80 'PAGEONE' \) \
-           \( -size 400x560 xc:white -fill black "${flea_magick_font_args[@]}" -pointsize 40 -annotate +40+80 'PAGETWO' \) \
+    magick \( -size 400x560 xc:white -fill black "${dlea_magick_font_args[@]}" -pointsize 40 -annotate +40+80 'PAGEONE' \) \
+           \( -size 400x560 xc:white -fill black "${dlea_magick_font_args[@]}" -pointsize 40 -annotate +40+80 'PAGETWO' \) \
            "$dir/manual.pdf" || fail "cohesion: magick produced no manual.pdf"
 }
 
@@ -640,11 +640,11 @@ case_cap_cohesion() {
     if [[ "$want" == all ]] && (( ${#theme_words[@]} > 1 )); then
         fail "cohesion: split full capture into ui:cap_cohesion_live ui:cap_cohesion_gruvbox ui:cap_cohesion_latte ui:cap_cohesion_kanagawa (one 900s slot each)"
     fi
-    local flea_ui
-    flea_ui=$(coh_capture_ui) || fail "cohesion: the UI fixture could not be prepared"
+    local dlea_ui
+    dlea_ui=$(coh_capture_ui) || fail "cohesion: the UI fixture could not be prepared"
     # Sample input: sha256sum answers "0123456789abcdef...  tests/ui-captures-reader.qml"; the first field names the source.
     printf 'COH_HARNESS helper=%s reader=%s ui=%s\n' "$(sha256sum "$repo/tests/ui-captures-cohesion.sh" | cut -d' ' -f1)" \
-        "$(sha256sum "$flea_ui/IpcControls.qml" | cut -d' ' -f1)" "$flea_ui"
+        "$(sha256sum "$dlea_ui/IpcControls.qml" | cut -d' ' -f1)" "$dlea_ui"
     coh_fixture "$coh_dir"
     mkdir -p "$evidence_dir" || fail "cohesion: the evidence directory could not be created"
     : > "$evidence_dir/coh-manifest.tsv"
@@ -680,7 +680,7 @@ rename coh_open_rename list tab -
 ql-md coh_open_qlmd list tab -
 cols-pdf coh_open_colpdf cols none 640,40,1100,670
 EOF
-        kill_flea
+        kill_dlea
         real_foreground="$live_foreground"
     done
     printf 'CAP_COHESION shots=%s failed=%s\n' "$(wc -l < "$evidence_dir/coh-manifest.tsv")" "${coh_failed:-none}"

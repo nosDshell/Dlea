@@ -3,7 +3,7 @@ import Quickshell
 import Quickshell.Io
 import qs.Commons
 import qs.Ui
-import "." as Flea
+import "." as Dlea
 import "js/Mounts.js" as Mounts
 import "js/Protocols.js" as Protocols
 
@@ -279,7 +279,7 @@ Item {
     }
 
     // The fade and the rise are the shared reveal of ui/Reveal.qml.
-    Flea.Reveal { target: root; shown: root.opened; lift: root.cardItem }
+    Dlea.Reveal { target: root; shown: root.opened; lift: root.cardItem }
 
     Rectangle {
         id: scrim
@@ -316,7 +316,7 @@ Item {
             onWheel: function (wheel) { wheel.accepted = true }
         }
 
-        Flea.CardFrame {
+        Dlea.CardFrame {
             id: body
             anchors.fill: parent
             anchors.topMargin: card.contentTopInset - Theme.focusClearance
@@ -328,7 +328,7 @@ Item {
             // Outer rhythm and each section's own header-to-content gap read exact off tailscale/dropbox Panel.qml.
             spacing: Style.space(12)
 
-            title: Flea.DialogTitle {
+            title: Dlea.DialogTitle {
                 width: parent.width
                 text: root.dialogTitle
             }
@@ -342,7 +342,7 @@ Item {
                     anchors.right: parent.right
                     spacing: Theme.spacing.gap
 
-                    Flea.DialogButton {
+                    Dlea.DialogButton {
                         id: cancelButton
                         label: "Cancel"
                         available: !root.saving
@@ -351,7 +351,7 @@ Item {
                         onActivated: root.close()
                     }
 
-                    Flea.DialogButton {
+                    Dlea.DialogButton {
                         id: actionButton
                         label: root.formAction()
                         primary: true
@@ -376,7 +376,7 @@ Item {
                         text: "DROPBOX"
                     }
 
-                    Flea.DialogButton {
+                    Dlea.DialogButton {
                         id: dropboxButton
                         label: "Install Dropbox"
                         available: !root.busy
@@ -409,7 +409,7 @@ Item {
                     height: Theme.rowHeight
                     spacing: Theme.spacing.gap
 
-                    Flea.Glyph {
+                    Dlea.Glyph {
                         visible: root.statusText.length > 0
                         width: Theme.font.caption
                         height: Theme.font.caption

@@ -12,14 +12,14 @@ ROOT = pathlib.Path(__file__).resolve().parents[1]
 
 @contextlib.contextmanager
 def fixture():
-    root = pathlib.Path(tempfile.mkdtemp(prefix="flea-plugin-examples-", dir="/tmp"))
-    marker = root / ".flea-test-sandbox"
+    root = pathlib.Path(tempfile.mkdtemp(prefix="dlea-plugin-examples-", dir="/tmp"))
+    marker = root / ".dlea-test-sandbox"
     marker.write_text("plugin example fixture\n")
     try:
         yield root
     finally:
         if (root.is_absolute() and str(root) and root.parent == pathlib.Path("/tmp")
-                and root.name.startswith("flea-plugin-examples-") and marker.is_file()):
+                and root.name.startswith("dlea-plugin-examples-") and marker.is_file()):
             shutil.rmtree(root)
         else:
             raise RuntimeError("refused unmarked plugin example cleanup")

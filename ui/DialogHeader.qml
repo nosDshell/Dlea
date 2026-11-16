@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 
 // A 0.4.0 dialog card's header (MergeFolders, RunFile, Unlock): DialogTitle, the boards' air, then a hairline rule.
 Item {
@@ -15,7 +15,7 @@ Item {
     readonly property real referenceBody: 13
     implicitHeight: title.implicitHeight + Math.round(root.boardAir * Theme.font.bodySmall / root.referenceBody) + Theme.spacing.hairline
 
-    Flea.DialogTitle {
+    Dlea.DialogTitle {
         id: title
         width: parent.width
     }

@@ -1,14 +1,14 @@
-//@ pragma ShellId flea-sidebar-flows-test
+//@ pragma ShellId dlea-sidebar-flows-test
 import QtQuick
 import QtTest
 import Quickshell
 import Quickshell.Io
 import qs.Commons
 import qs.Commons as Commons
-import "flea" as Flea
-import "flea/js/Filter.js" as Filter
-import "flea/js/Format.js" as Format
-import "flea/js/Search.js" as Search
+import "dlea" as Dlea
+import "dlea/js/Filter.js" as Filter
+import "dlea/js/Format.js" as Format
+import "dlea/js/Search.js" as Search
 import "sidebar-flows-extra.js" as Extra
 import "sidebar-flows-palette.js" as PaletteFlow
 
@@ -105,42 +105,42 @@ ShellRoot {
         id: window
         implicitWidth: 1000
         implicitHeight: 650
-        Flea.WindowBody { id: body; host: window }
+        Dlea.WindowBody { id: body; host: window }
         Item { anchors.fill: parent; TestEvent { id: driver } }
     }
     // Rail square-row gap probes, one SidebarRow per trailing-slot shape; the label's ink ends at its anchor edge.
     Item {
         id: railGap
         width: 240
-        height: 4 * Flea.Theme.railRowHeight
-        Flea.SidebarRow {
+        height: 4 * Dlea.Theme.railRowHeight
+        Dlea.SidebarRow {
             id: probeSquare
             width: parent.width
-            height: Flea.Theme.railRowHeight
+            height: Dlea.Theme.railRowHeight
             index: 0
             modelData: ({ label: "Archive", path: "", group: "network", kind: "share", uri: "smb://example.com/data", mounted: false, glyph: "server" })
         }
-        Flea.SidebarRow {
+        Dlea.SidebarRow {
             id: probeMark
-            y: Flea.Theme.railRowHeight
+            y: Dlea.Theme.railRowHeight
             width: parent.width
-            height: Flea.Theme.railRowHeight
+            height: Dlea.Theme.railRowHeight
             index: 1
             modelData: ({ label: "NAS", path: "", group: "network", kind: "share", uri: "smb://example.com/data", mounted: true, glyph: "server" })
         }
-        Flea.SidebarRow {
+        Dlea.SidebarRow {
             id: probeNumber
-            y: 2 * Flea.Theme.railRowHeight
+            y: 2 * Dlea.Theme.railRowHeight
             width: parent.width
-            height: Flea.Theme.railRowHeight
+            height: Dlea.Theme.railRowHeight
             index: 2
             modelData: ({ label: "Trash", path: "trash:///", group: "trash", kind: "trash", glyph: "trash", count: 3 })
         }
-        Flea.SidebarRow {
+        Dlea.SidebarRow {
             id: probeEmpty
-            y: 3 * Flea.Theme.railRowHeight
+            y: 3 * Dlea.Theme.railRowHeight
             width: parent.width
-            height: Flea.Theme.railRowHeight
+            height: Dlea.Theme.railRowHeight
             index: 3
             modelData: ({ label: "Home", path: "/home", group: "home", kind: "home", glyph: "house" })
         }
@@ -152,7 +152,7 @@ ShellRoot {
             var c = row.children[i]
             if (c.color === undefined || c.border === undefined || !c.visible) continue
             if (c.color.a === 0) look.frame = look.frame || (c.width < row.width && c.height === row.height)
-            else if (c.width === Flea.Theme.spacing.hairline * 2) look.edge = true
+            else if (c.width === Dlea.Theme.spacing.hairline * 2) look.edge = true
             else if (c.width === row.width && c.opacity === 1) { look.fill = true; look.color = c.color }
         }
         return look
@@ -179,7 +179,7 @@ ShellRoot {
         Repeater {
             id: railBoardRows
             model: Extra.RAIL_BOARD
-            Flea.SidebarRow { }
+            Dlea.SidebarRow { }
         }
     }
     function railBoardReady() {
@@ -191,14 +191,14 @@ ShellRoot {
     function railBoardChecks() {
         for (var i = 0; i < railBoardRows.count; i++) {
             var row = railBoardRows.itemAt(i), kind = Extra.RAIL_BOARD[i]
-            var edges = Extra.railBoardEdges(row, kind.want, Style.spacing.rowPaddingX, Style.spacing.rowGap, Flea.Theme.font.caption, Flea.Theme.railIconSize)
+            var edges = Extra.railBoardEdges(row, kind.want, Style.spacing.rowPaddingX, Style.spacing.rowGap, Dlea.Theme.font.caption, Dlea.Theme.railIconSize)
             check("rail-board: " + kind.name + " starts its label after the mark", row.labelItem.x, edges.left)
             check("rail-board: " + kind.name + " ends its label on the board's edge", row.labelItem.x + row.labelItem.width, edges.right)
             check("rail-board: " + kind.name + " elides at the end of its label", row.labelItem.elide, Text.ElideRight)
         }
     }
     // The drive sizes land after the Trash count and a poll, the way a reply lands in the real rail.
-    Timer { id: lateSizes; interval: 250; onTriggered: Flea.ViewState.changeLeaf("places", { driveSize: true }) }
+    Timer { id: lateSizes; interval: 250; onTriggered: Dlea.ViewState.changeLeaf("places", { driveSize: true }) }
     Connections {
         target: root.pane
         // keyClick can deliver rows before returning, so record arming when it happens.
@@ -280,7 +280,7 @@ ShellRoot {
         },
         function () {
             if (!ready(fixture)) return false
-            Flea.ViewState.changeLeaf("places", {rail: "hidden"})
+            Dlea.ViewState.changeLeaf("places", {rail: "hidden"})
             return true
         },
         function () {
@@ -289,7 +289,7 @@ ShellRoot {
             s.query = "home"
             check("sheet-hidden-rail: exact Home place remains reachable", s.queryResults.some(function(e) { return e.section === 2 && e.name === "Home" }), true)
             s.close()
-            Flea.ViewState.changeLeaf("places", {rail: "shown", showRecent: true})
+            Dlea.ViewState.changeLeaf("places", {rail: "shown", showRecent: true})
             return true
         },
         function () {
@@ -309,7 +309,7 @@ ShellRoot {
         },
         function () {
             if (!ready(fixture)) return false
-            Flea.ViewState.changeLeaf("places", { showTags: true })
+            Dlea.ViewState.changeLeaf("places", { showTags: true })
             pane.tags().take([{ n: "tagged.txt", tg: ["Red"] }], true)
             return true
         },
@@ -409,7 +409,7 @@ ShellRoot {
         },
         function () {
             if (!ready(Quickshell.env("HOME"))) return false
-            Flea.ViewState.changeLeaf("places", {autoHide: true})
+            Dlea.ViewState.changeLeaf("places", {autoHide: true})
             return true
         },
         function () {
@@ -431,7 +431,7 @@ ShellRoot {
         function () {
             if (pane.listInFlight) return false
             check("autohide-click: rail consumes its click without selecting the covered row", pane.cursorRow.n, root.cursorBeforeRail)
-            Flea.ViewState.changeLeaf("places", {autoHide: false})
+            Dlea.ViewState.changeLeaf("places", {autoHide: false})
             pane.open(fixture)
             return true
         },
@@ -454,7 +454,7 @@ ShellRoot {
             var rail = pane.sidebar
             check("lit-place: the landed Recent listing lights the Recent row", rail.litIndex, root.railRecent)
             check("lit-place: the rows follow the lit place", root.railLit(), [root.railRecent])
-            return PaletteFlow.litPlace(root, pane, Flea.Theme, Style, Commons.Color, driver)
+            return PaletteFlow.litPlace(root, pane, Dlea.Theme, Style, Commons.Color, driver)
         },
         function () {
             if (!ready(fixture)) return false
@@ -543,7 +543,7 @@ ShellRoot {
             check("shift-range: extend keeps earlier block", pane.selectedIndices(), [1, 2, 3])
             root.press(Qt.Key_Down, Qt.ShiftModifier)
             check("shift-range: shrinking keeps earlier block", pane.selectedIndices(), [1, 3])
-            Flea.ViewState.changeKey("escapeUp", true)
+            Dlea.ViewState.changeKey("escapeUp", true)
             pane.message("Probe error", true)
             root.press(Qt.Key_Escape)
             check("escape-up: error closes before climbing", pane.path, fixture)
@@ -555,7 +555,7 @@ ShellRoot {
         function () {
             if (!ready(Quickshell.env("HOME"))) return false
             check("escape-up: idle Escape climbs", pane.path, Quickshell.env("HOME"))
-            Flea.ViewState.changeKey("openMode", "single")
+            Dlea.ViewState.changeKey("openMode", "single")
             pane.chooseView("grid")
             pane.open(fixture)
             return true
@@ -570,11 +570,11 @@ ShellRoot {
             check("single-click: one grid tap opens its folder", pane.path, fixture + "/sub")
             return true
         }
-    ].concat(Extra.steps(root, pane, Flea.ViewState, Flea.Theme), [
+    ].concat(Extra.steps(root, pane, Dlea.ViewState, Dlea.Theme), [
         function () {
-            root.trashCountWas = (Flea.ViewState.state.places || {}).trashCount === true
-            root.driveSizeWas = (Flea.ViewState.state.places || {}).driveSize === true
-            Flea.ViewState.changeLeaf("places", { trashCount: true, driveSize: false })
+            root.trashCountWas = (Dlea.ViewState.state.places || {}).trashCount === true
+            root.driveSizeWas = (Dlea.ViewState.state.places || {}).driveSize === true
+            Dlea.ViewState.changeLeaf("places", { trashCount: true, driveSize: false })
             return true
         },
         function () {
@@ -589,7 +589,7 @@ ShellRoot {
             var waiting = probeNumber.detail !== "3" ? "the number probe" : Extra.railBoardWaiting(railBoardRows, railBoard.width)
             if (waiting !== "" && Date.now() - root.started < root.settleGraceMs) return false
             check("rail-board: no row still waits on its width or detail", waiting, "")
-            if (waiting === "") Extra.railBoardChecks(root, railBoardRows, Style.spacing.rowPaddingX, Style.spacing.rowGap, Flea.Theme.font.caption, Flea.Theme.railIconSize)
+            if (waiting === "") Extra.railBoardChecks(root, railBoardRows, Style.spacing.rowPaddingX, Style.spacing.rowGap, Dlea.Theme.font.caption, Dlea.Theme.railIconSize)
             var gap = Style.spacing.rowGap
             check("control: the square probe reserves its slot", probeSquare.indicatorSlot.width > 0, true)
             check("control: the mark probe reserves its slot", probeMark.indicatorSlot.width > 0, true)
@@ -607,7 +607,7 @@ ShellRoot {
             check("rail-gap: the rename editor keeps one gap on a square row",
                 probeSquare.indicatorSlot.x - (editor.x + editor.width), Style.spacing.rowGap)
             probeSquare.renaming = false
-            Flea.ViewState.changeLeaf("places", { trashCount: root.trashCountWas, driveSize: root.driveSizeWas })
+            Dlea.ViewState.changeLeaf("places", { trashCount: root.trashCountWas, driveSize: root.driveSizeWas })
             return true
         }
     ])

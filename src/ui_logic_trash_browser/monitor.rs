@@ -10,7 +10,7 @@ pub const QUERY: [&str; 4] = ["gio", "info", "--attributes=trash::item-count", "
 
 /// setpriv ties the helper to this UI, and the PPID check covers a death before the signal is registered.
 pub fn owned_command(ui_pid: u32, args: &[&str]) -> Vec<String> {
-    let mut command: Vec<String> = ["setpriv", "--pdeathsig", "TERM", "--", "sh", "-c", r#"[ "$PPID" = "$1" ] || exit 1; shift; exec "$@""#, "flea-trash"]
+    let mut command: Vec<String> = ["setpriv", "--pdeathsig", "TERM", "--", "sh", "-c", r#"[ "$PPID" = "$1" ] || exit 1; shift; exec "$@""#, "dlea-trash"]
         .iter().map(|s| s.to_string()).collect();
     command.push(ui_pid.to_string());
     command.extend(args.iter().map(|s| s.to_string()));

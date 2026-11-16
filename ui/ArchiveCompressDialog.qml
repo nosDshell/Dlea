@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Archive.js" as Archive
 import "js/ArchiveCard.js" as ArchiveCard
 
@@ -48,7 +48,7 @@ Item {
     opacity: 0
     z: 2
 
-    Flea.Reveal { target: root; shown: root.opened; lift: card }
+    Dlea.Reveal { target: root; shown: root.opened; lift: card }
     // The name clears once the fade ended, so the card stays still while it fades out; open() sets it again.
     onOpacityChanged: if (root.opacity === 0 && !root.opened) nameField.text = ""
 
@@ -167,7 +167,7 @@ Item {
         root.close()
     }
 
-    Flea.DialogScrim {
+    Dlea.DialogScrim {
         onDismissed: root.close()
     }
 
@@ -191,7 +191,7 @@ Item {
             onWheel: function (wheel) { wheel.accepted = true }
         }
 
-        Flea.CardFrame {
+        Dlea.CardFrame {
             id: body
             bleedY: Theme.focusClearance
             anchors.fill: parent
@@ -203,7 +203,7 @@ Item {
                 width: parent.width
                 height: header.implicitHeight + Theme.spacing.gap
 
-                Flea.DialogTitle {
+                Dlea.DialogTitle {
                     id: header
                     anchors.left: parent.left
                     anchors.right: parent.right
@@ -231,7 +231,7 @@ Item {
                     anchors.rightMargin: Theme.spacing.rowPaddingX
                     spacing: Theme.spacing.gap
 
-                    Flea.DialogButton {
+                    Dlea.DialogButton {
                         id: cancelButton
                         label: "Cancel"
                         focused: root.focusPart === 5
@@ -239,7 +239,7 @@ Item {
                         onTabbed: function (from, back) { root.stepTab(back) }
                     }
 
-                    Flea.DialogButton {
+                    Dlea.DialogButton {
                         id: compressButton
                         label: "Compress"
                         primary: true
@@ -270,7 +270,7 @@ Item {
                         textFormat: Text.PlainText
                     }
 
-                    Flea.SettingsSegment {
+                    Dlea.SettingsSegment {
                         id: formatRow
                         tabStop: true
                         options: root.formats
@@ -279,7 +279,7 @@ Item {
                     }
                 }
 
-                Flea.DialogField {
+                Dlea.DialogField {
                     id: nameField
                     x: Theme.spacing.rowPaddingX
                     width: parent.width - 2 * Theme.spacing.rowPaddingX
@@ -289,7 +289,7 @@ Item {
                     onTabbed: function (from, back) { root.stepTab(back) }
                 }
 
-                Flea.DialogField {
+                Dlea.DialogField {
                     id: passwordField
                     x: Theme.spacing.rowPaddingX
                     width: parent.width - 2 * Theme.spacing.rowPaddingX
@@ -307,7 +307,7 @@ Item {
                     width: parent.width - 2 * Theme.spacing.rowPaddingX
                     spacing: Theme.spacing.gap
 
-                    Flea.DialogField {
+                    Dlea.DialogField {
                         id: confirmField
                         width: parent.width
                         label: "Confirm"
@@ -348,7 +348,7 @@ Item {
                         width: ruleBox.implicitWidth
                         height: ruleBox.implicitHeight
 
-                        Flea.CheckBox {
+                        Dlea.CheckBox {
                             id: ruleBox
                             value: root.encryptNames ? "on" : "off"
                             focused: root.focusPart === 4

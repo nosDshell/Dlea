@@ -199,7 +199,7 @@ fn typed_language(root: &crate::backend::testdir::TestDir, code: &str) -> crate:
     for (lang, body) in [("en", TYPED_ENGLISH)].into_iter().chain(TYPED_CATALOGS) {
         root.dir(&format!("catalog/{lang}"));
         // The catalogs' own isolates around a hole, as the shipped Arabic and Hebrew catalogs write them.
-        root.file(&format!("catalog/{lang}/flea.json"), &body.replace("<FSI>", "\u{2068}").replace("<PDI>", "\u{2069}"));
+        root.file(&format!("catalog/{lang}/dlea.json"), &body.replace("<FSI>", "\u{2068}").replace("<PDI>", "\u{2069}"));
     }
     root.file("language", code);
     crate::i18n::I18n::load(crate::i18n::Paths {

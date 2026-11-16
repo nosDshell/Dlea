@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-keyreach-test
+//@ pragma ShellId dlea-keyreach-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/ChromeKeys.js" as ChromeKeys
+import "dlea" as Dlea
+import "dlea/js/ChromeKeys.js" as ChromeKeys
 
 // Tab walks list, rail, chrome bar and tab strip in the real WindowBody; each stop answers its keys, draws its own frame inside its host, and Right Arrow reaches a mounted row's eject mark.
 ShellRoot {
@@ -12,7 +12,7 @@ ShellRoot {
     readonly property var pane: body.currentPane
     readonly property var chrome: body.currentPane.chromeBar
     readonly property var strip: body.currentPane.tabStrip
-    readonly property int hairline: Flea.Theme.spacing.hairline
+    readonly property int hairline: Dlea.Theme.spacing.hairline
     // The chrome controls with the first one disabled: no history yet, a parent above the fixture, not the grid.
     readonly property string listControls: "arrow-up,search,list,columns,grid,dual,sliders"
     readonly property int stallTicks: 200
@@ -50,7 +50,7 @@ ShellRoot {
         return box
     }
     function foregroundFrame(tag, frame) {
-        root.check(frame.visible && Qt.colorEqual(frame.border.color, Flea.Theme.color.foreground) && frame.border.width === root.hairline,
+        root.check(frame.visible && Qt.colorEqual(frame.border.color, Dlea.Theme.color.foreground) && frame.border.width === root.hairline,
                    tag + " frame is not one foreground hairline")
     }
     function tabFrame(tag, i) {
@@ -58,7 +58,7 @@ ShellRoot {
         var box = root.inside(tag, tab.focusFrame, tab, tab.width, tab.height)
         root.foregroundFrame(tag, tab.focusFrame)
         // The accent edge fills the tab's bottom rows and the separator its right column.
-        root.check(box.y + box.height <= tab.height - Flea.Theme.accentEdge - 1, tag + " frame touches the accent edge")
+        root.check(box.y + box.height <= tab.height - Dlea.Theme.accentEdge - 1, tag + " frame touches the accent edge")
         root.check(box.x + box.width <= tab.width - 1 - 1, tag + " frame touches the separator")
     }
     function ringsOnBar() {
@@ -96,7 +96,7 @@ ShellRoot {
                 root.check(ring.visible, live[i] + " ring is not visible")
                 root.check(root.ringsOnBar() === 1, live[i] + " is not the only framed control")
                 root.inside(live[i], ring, chrome, chrome.width, chrome.height - root.hairline)
-                root.check(Qt.colorEqual(ring.border.color, Flea.Theme.color.foreground), live[i] + " frame is not foreground")
+                root.check(Qt.colorEqual(ring.border.color, Dlea.Theme.color.foreground), live[i] + " frame is not foreground")
             }
         })
         act("Home, End and the ends of the bar", function () {
@@ -246,7 +246,7 @@ ShellRoot {
         id: window
         implicitWidth: 1000
         implicitHeight: 650
-        Flea.WindowBody { id: body; host: window }
+        Dlea.WindowBody { id: body; host: window }
         Item { anchors.fill: parent; TestEvent { id: driver } }
     }
 

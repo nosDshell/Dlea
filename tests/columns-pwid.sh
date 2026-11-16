@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # The Columns view's preview column edge on the real ui/ColumnsArea.qml, offscreen: no line at rest, the board's line and mark on hover, a live drag with one save on release, both clamps, a double click back to the default third, a click and a jitter that save nothing, a grab lost or an edge hidden mid-drag, and a relaunch that restores the width on its first frame.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -11,7 +11,7 @@ if ! command -v qs >/dev/null; then
 fi
 
 # A marked sandbox of its own under the fixture root, so cleanup deletes only what this run owns.
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-columns-pwid-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-columns-pwid-XXXXXX") || exit 1
 # GNU mktemp -d keeps a relative TMPDIR verbatim, so the path is checked absolute and two components deep.
 case $test_root in
   /*/*) ;;
@@ -22,10 +22,10 @@ sandbox_require "$test_root" || exit 1
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
-mkdir -p "$test_root/config" "$test_root/home" "$test_root/state/flea" "$test_root/runtime" "$test_root/bin" || exit 1
+mkdir -p "$test_root/config" "$test_root/home" "$test_root/state/dlea" "$test_root/runtime" "$test_root/bin" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/columns-pwid.qml "$test_root/config/shell.qml" || exit 1
@@ -33,15 +33,15 @@ cp tests/columns-pwid-pane.qml "$test_root/config/PwidPane.qml" || exit 1
 cp tests/columns-pwid-legs.js "$test_root/config/columns-pwid-legs.js" || exit 1
 
 saves="$test_root/saves.log"
-# Stands for flea --ui-state PATCH: it records the patch it was asked to store and stores nothing.
-printf '#!/bin/sh\nprintf "%%s\\n" "$2" >> "$PWID_SAVES"\n' > "$test_root/bin/flea-stub" || exit 1
-chmod +x "$test_root/bin/flea-stub" || exit 1
+# Stands for dlea --ui-state PATCH: it records the patch it was asked to store and stores nothing.
+printf '#!/bin/sh\nprintf "%%s\\n" "$2" >> "$PWID_SAVES"\n' > "$test_root/bin/dlea-stub" || exit 1
+chmod +x "$test_root/bin/dlea-stub" || exit 1
 
 verdict=0
 # One qs run: $1 is the phase, $2 the stored percent the probe expects. Prints the probe's lines and sets run_status.
 run_probe() {
     output=$(env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
-        FLEA_BIN="$test_root/bin/flea-stub" PWID_SAVES="$saves" PWID_PHASE="$1" PWID_STORED="$2" \
+        DLEA_BIN="$test_root/bin/dlea-stub" PWID_SAVES="$saves" PWID_PHASE="$1" PWID_STORED="$2" \
         HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_RUNTIME_DIR="$test_root/runtime" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
         timeout 60 qs -p "$test_root/config" 2>&1)
@@ -79,7 +79,7 @@ if [ -z "$stored" ]; then
     printf 'FAIL the drag run saved no width to restore\n'
     verdict=1
 else
-    printf '%s\n' "$last_save" > "$test_root/state/flea/ui.json" || exit 1
+    printf '%s\n' "$last_save" > "$test_root/state/dlea/ui.json" || exit 1
     : > "$saves" || exit 1
     run_probe restore "$stored"
 fi

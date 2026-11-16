@@ -34,7 +34,7 @@ fn an_empty_or_cut_short_listing_is_swept() {
     let (_dir, runtime) = runtime_fixture("gvfs-torn");
     for (name, torn) in [
         ("gvfs-empty.list", ""),
-        ("gvfs-marker.list", "flea-gvfs-f"),
+        ("gvfs-marker.list", "dlea-gvfs-f"),
         ("gvfs-rows.list", &TWO_ROWS[..TWO_ROWS.len() - 9]),
     ] {
         let dest = write_prefetch(&runtime, name, torn);

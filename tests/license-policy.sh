@@ -4,8 +4,8 @@ set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 mkdir -p .superpowers/g10l || exit 1
 root=$(mktemp -d "$PWD/.superpowers/g10l/licenses.XXXXXX") || exit 1
-touch "$root/.flea-test-sandbox" || exit 1
-trap 'case "$root" in /*/.superpowers/g10l/licenses.?*) [ -n "$root" ] && [ -f "$root/.flea-test-sandbox" ] && rm -rf -- "$root" ;; esac' EXIT
+touch "$root/.dlea-test-sandbox" || exit 1
+trap 'case "$root" in /*/.superpowers/g10l/licenses.?*) [ -n "$root" ] && [ -f "$root/.dlea-test-sandbox" ] && rm -rf -- "$root" ;; esac' EXIT
 cp deny.toml "$root/deny.toml" || exit 1
 mkdir "$root/src" || exit 1
 printf '%s\n' 'pub fn license_fixture() {}' > "$root/src/lib.rs"

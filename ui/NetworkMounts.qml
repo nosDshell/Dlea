@@ -301,7 +301,7 @@ Item {
             bridgeLoader.active = true
         return bridgeLoader.item
     }
-    // A null bridge is a missing component, not a refused mount, so the reason says Flea did not load.
+    // A null bridge is a missing component, not a refused mount, so the reason says Dlea did not load.
     function bridgeMissingReason() {
         return Format.fill(Mounts.WORDS.bridgeMissing, root._pendingLabel || root._pendingUri)
     }
@@ -441,7 +441,7 @@ Item {
     }
 
     // A favourite's path is already real; a share needs mounting (if not live) then resolving.
-    // A cloud row's path is already real too: its mount is the tool that made it, not Flea's.
+    // A cloud row's path is already real too: its mount is the tool that made it, not Dlea's.
     // origin rides along explicitly, because this service outlives the rail that renders it and
     // the rail's own origin is gone by the time a hidden-rail answer lands.
     function activate(index, origin) {
@@ -535,7 +535,7 @@ Item {
             root._authAwaitingStart = true
             root.result = "mounting"
             authProcess.command = ["timeout", String(root.authTimeoutSeconds),
-                                   Quickshell.env("FLEA_GIO_AUTH") || "/usr/lib/flea/flea-gio-auth", root._pendingUri]
+                                   Quickshell.env("DLEA_GIO_AUTH") || "/usr/lib/dlea/dlea-gio-auth", root._pendingUri]
             authProcess.running = true
             return
         }

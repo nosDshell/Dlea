@@ -13,7 +13,7 @@ function run(check) {
     var entryBlock = Source.slice(chromeSrc, "id: entryLoader", "onLoaded:")
     check("the main chrome holds the shared entry",
         entryBlock.indexOf('source: "PathEntry.qml"') >= 0 && entryBlock.indexOf("asynchronous: false") >= 0, true)
-    check("the picker holds the shared entry", logicSrc.indexOf("Flea.PathEntry") >= 0, true)
+    check("the picker holds the shared entry", logicSrc.indexOf("Dlea.PathEntry") >= 0, true)
     check("the entry carries the frame", entrySrc.indexOf("id: editFrame") >= 0, true)
     check("the entry carries the field", entrySrc.indexOf("id: field") >= 0, true)
     check("the entry carries the Jump dropdown", entrySrc.indexOf('source: "PathJump.qml"') >= 0, true)
@@ -76,7 +76,7 @@ function run(check) {
     // The board's strip: the chrome's own 27 px at base size 14, so the field and its dropdown sit as in ChromeBar.
     var strip = logicSrc.substring(logicSrc.indexOf("id: where"), logicSrc.indexOf("id: where") + 600)
     check("the path strip takes the chrome's height", /^\s*height: Theme\.chromeHeight\s*$/m.test(strip), true)
-    var slot = logicSrc.substring(logicSrc.indexOf("Flea.PathEntry {"), logicSrc.indexOf("Flea.PickerPathBar {"))
+    var slot = logicSrc.substring(logicSrc.indexOf("Dlea.PathEntry {"), logicSrc.indexOf("Dlea.PickerPathBar {"))
     check("the entry hangs from the strip's top and leaves its rule", slot.indexOf("anchors.top: parent.top") >= 0
         && slot.indexOf("anchors.bottomMargin: Theme.spacing.hairline") >= 0, true)
     check("the entry carries no height of its own", /^\s*height:/m.test(slot), false)

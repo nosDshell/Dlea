@@ -1,8 +1,8 @@
-# Flea
+# Dlea
 
 A GUI file manager for Linux, keyboard first, native to Omarchy.
-P0 is the local browser, and remotes, search, disk operations and Flea's own terminal
-interface (`flea --tui`, `src/tui`) have since landed on top of it. An encrypted drive
+P0 is the local browser, and remotes, search, disk operations and Dlea's own terminal
+interface (`dlea --tui`, `src/tui`) have since landed on top of it. An encrypted drive
 unlocks and locks from its rail row through `src/unlock.rs`.
 
 ## Reading the architecture reference
@@ -24,8 +24,8 @@ Markdown navigation links are relative to the document containing them.
 1. **Every per-file operation stays scoped to the viewport.** Icons, MIME sniffing and
    thumbnails all stay inside the visible rows. Most of the measured difference on a large
    directory comes from this: the other file managers measured stat every entry in the
-   directory and Flea stats only the ones a screen can hold. Measured: the compared apps stat
-   100,000 entries, Flea's first window stats 350. `ui/Pane.qml` owns the viewport-sized held window and calls
+   directory and Dlea stats only the ones a screen can hold. Measured: the compared apps stat
+   100,000 entries, Dlea's first window stats 350. `ui/Pane.qml` owns the viewport-sized held window and calls
    `ui/Backend.qml`'s `window(start, count)` request only when that window drifts.
 
 2. **The QML model is an integer count, never a list.** `ui/Pane.qml` binds its
@@ -43,31 +43,31 @@ Markdown navigation links are relative to the document containing them.
    client ask for it separately costs a full round trip that lands mid first-paint.
    Measured: 64 ms if asked for afterward, 4 ms riding along with the listing.
 
-4. **Prewarm stays disabled until it is both safe and faster.** The `flea --prewarm`
+4. **Prewarm stays disabled until it is both safe and faster.** The `dlea --prewarm`
    producer exists, but the proposed UI reader measured a 485 ms median against 439 ms
    for the live path. After its removal, ignored experimental generation measured
    469 ms against 437 ms live. Production `ui/WindowBody.qml` intentionally calls only
-   `pane.open(start)`, and `tools/flea-first-paint` preserves the comparison. The reader
+   `pane.open(start)`, and `tools/dlea-first-paint` preserves the comparison. The reader
    was rejected as slower and stale-capable; it remains disabled until the prewarm file
    can prove it is still fresh and a new measurement proves a real win.
 
 5. **The GPUI launcher leaves adapter selection to GPUI.** `src/main.rs` sends a window
-   launch to `gui::exec_gpui`, which finds `flea-gui` beside the launcher first and then on
+   launch to `gui::exec_gpui`, which finds `dlea-gui` beside the launcher first and then on
    `PATH`, settles the shared view state and replaces the launcher with that executable.
-   `FLEA_FRONTEND=qml` is refused; `ui/boot/shell.qml` is no longer a launch route.
-   `src/gui/gpui_renderer.rs` removes `QSG_RHI_BACKEND`, `FLEA_RENDERER_AUTOMATIC` and
+   `DLEA_FRONTEND=qml` is refused; `ui/boot/shell.qml` is no longer a launch route.
+   `src/gui/gpui_renderer.rs` removes `QSG_RHI_BACKEND`, `DLEA_RENDERER_AUTOMATIC` and
    `QT_VK_PHYSICAL_DEVICE_INDEX` from the child environment, drops an inherited
-   `FLEA_VK_PIN` and its ICD list, and adds no display GPU pin or Vulkan probe cache.
+   `DLEA_VK_PIN` and its ICD list, and adds no display GPU pin or Vulkan probe cache.
    GPUI uses compositor feedback and checks adapters against the window surface.
 
    **The ICD filter remains.** Before the exec, `src/icdexclude.rs` can set
    `VK_LOADER_DRIVERS_DISABLE` for known driver manifests whose hardware is absent or idle, with
-   `FLEA_VK_DISABLE` holding the filter Flea wrote. `src/icdidle.rs` adds NVIDIA's
+   `DLEA_VK_DISABLE` holding the filter Dlea wrote. `src/icdidle.rs` adds NVIDIA's
    manifests while an NVIDIA GPU drives no display beside one that does and has its own
-   driver, so the dGPU stays suspended; `FLEA_VK_KEEP_NVIDIA=1` or a PRIME offload variable keeps them.
+   driver, so the dGPU stays suspended; `DLEA_VK_KEEP_NVIDIA=1` or a PRIME offload variable keeps them.
    An operator's nonempty driver override or a loader settings file prevents that automatic
-   exclusion; an inherited filter still matching Flea's marker is reconsidered.
-   `src/open.rs` and `src/terminal.rs` remove Flea's marked filter and legacy display pin
+   exclusion; an inherited filter still matching Dlea's marker is reconsidered.
+   `src/open.rs` and `src/terminal.rs` remove Dlea's marked filter and legacy display pin
    from programs they launch, preserving an operator's unmarked choices.
    The remaining hasvk classification in `src/vulkan.rs` serves the absent-driver filter,
    rather than selecting an OpenGL launch for an older Intel GPU.
@@ -90,18 +90,18 @@ Markdown navigation links are relative to the document containing them.
    `focus:` is toggled explicitly beside `visible:`. A hidden view that can steal a
    keystroke is a hidden view that is fully alive.
 
-7. **The media comparison measured `strata` fully on 2026-09-03, and two of Flea's figures moved.**
-   Measuring `strata`'s work properly moved it from unranked into the table, and Flea's relative
-   figures moved with it: Flea's memory went from fifth of six to **sixth of seven** at 112.6 MiB
-   against strata's **70.3 MiB**, and Flea's CPU time, which was 3.61x lower than `nemo`'s, is now
-   **1.28x lower than strata's**, 1.42 s against 1.82 s. Flea still has the lowest settled listing time
+7. **The media comparison measured `strata` fully on 2026-09-03, and two of Dlea's figures moved.**
+   Measuring `strata`'s work properly moved it from unranked into the table, and Dlea's relative
+   figures moved with it: Dlea's memory went from fifth of six to **sixth of seven** at 112.6 MiB
+   against strata's **70.3 MiB**, and Dlea's CPU time, which was 3.61x lower than `nemo`'s, is now
+   **1.28x lower than strata's**, 1.42 s against 1.82 s. Dlea still has the lowest settled listing time
    of six and the lowest CPU time of seven, and the 100,000 file group did not move at all. This
    was accepted with an optimization pass to follow, so it is a deferred ticket and not a defect.
    Item 6 above is the first place to look: its `Loader` gating was MEASURED to recover 14.7 MB at
    100k and is not in the tree, and memory is the figure whose position changed. Read its
    caveat first, because that figure is a list-view number rather than a whole-product one, and
    the split it needs broke `tests/ui.sh` twice. The CPU figures in this rule predate 0.3.2 and are the
-   reaped-tick column, which counted no sandboxed decode for Flea or strata; see "Testing" for the
+   reaped-tick column, which counted no sandboxed decode for Dlea or strata; see "Testing" for the
    control-group column that replaced it.
 
 ## Architecture section routes
@@ -169,9 +169,9 @@ Each link names the destination of the original top-level section. The
 
 - [Updates](docs/architecture/updates.md)
 
-<a id="make-flea-the-default-in-settings--about"></a>
+<a id="make-dlea-the-default-in-settings--about"></a>
 
-- [Make Flea the default, in Settings > About](docs/architecture/make-flea-the-default-in-settings--about.md)
+- [Make Dlea the default, in Settings > About](docs/architecture/make-dlea-the-default-in-settings--about.md)
 
 <a id="module-map"></a>
 

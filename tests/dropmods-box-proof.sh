@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Compositor-free proof of cap_dropmods_box and of the case trap surviving the shared hold helpers.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 # A marked sandbox of its own under the fixture root, so cleanup deletes only what this run owns.
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-dropmods-box-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-dropmods-box-XXXXXX") || exit 1
 case $test_root in
   /*/*) ;;
   *) echo "FAIL: mktemp -d gave '$test_root', which is not an absolute path two components deep"; exit 1 ;;
@@ -16,8 +16,8 @@ cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
 mkdir -p "$test_root/bin" || exit 1
-# The fake compositor answers clients -j from a file (two Flea windows and the probe), so the pid select is pinned; the marker files make it fail, or fail on its second call.
-printf '%s' '[{"class":"com.thisisgm.flea","pid":5,"at":[10,20],"size":[800,600]},{"class":"com.thisisgm.flea","pid":9,"at":[30,40],"size":[640,480]},{"class":"qml6","title":"DropProbe","pid":7,"at":[100,100],"size":[420,300]}]' > "$test_root/clients.json" || exit 1
+# The fake compositor answers clients -j from a file (two Dlea windows and the probe), so the pid select is pinned; the marker files make it fail, or fail on its second call.
+printf '%s' '[{"class":"com.nosDshell.dlea","pid":5,"at":[10,20],"size":[800,600]},{"class":"com.nosDshell.dlea","pid":9,"at":[30,40],"size":[640,480]},{"class":"qml6","title":"DropProbe","pid":7,"at":[100,100],"size":[420,300]}]' > "$test_root/clients.json" || exit 1
 cat > "$test_root/bin/hyprctl" <<'EOF'
 #!/usr/bin/env bash
 [[ -s "$XDG_RUNTIME_DIR/clients-fail" ]] && exit 1
@@ -97,7 +97,7 @@ printf 'DROPMODSBOX PASS doublepress=first-save-kept\n'
 out=$( fail() { printf '%s' "$*"; exit 9; }; cap_dropmods_probe_clear_of 200 200 )
 [[ $? -eq 9 && "$out" == "cap_dropmods: the parked probe covers the source point 200,200, so the press would miss the row" ]] || fail "a point inside the probe read '$out'"
 clients_ok=$(cat "$test_root/clients.json")
-printf '%s' '[{"class":"com.thisisgm.flea","pid":5,"at":[10,20],"size":[800,600]}]' > "$test_root/clients.json"
+printf '%s' '[{"class":"com.nosDshell.dlea","pid":5,"at":[10,20],"size":[800,600]}]' > "$test_root/clients.json"
 out=$( fail() { printf '%s' "$*"; exit 9; }; cap_dropmods_probe_clear_of 50 50 )
 [[ $? -eq 9 && "$out" == "cap_dropmods: expected one parked DropProbe window, found 0" ]] || fail "a missing probe read '$out'"
 printf '%s' '[{"title":"DropProbe","pid":7,"at":[100,100],"size":[4,3]},{"title":"DropProbe","pid":8,"at":[900,900],"size":[4,3]}]' > "$test_root/clients.json"

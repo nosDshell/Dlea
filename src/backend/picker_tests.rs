@@ -25,7 +25,7 @@ fn batch_selection_skips_a_dangling_link_and_keeps_valid_files() {
 #[test]
 fn batch_selection_budget_refuses_before_opening_in_a_low_limit_child() {
     use super::limits::{DESCRIPTOR_RESERVE, RLIMIT_NOFILE, Limit, setrlimit};
-    const CHILD_ENV: &str = "FLEA_PICKER_BUDGET_TEST_CHILD";
+    const CHILD_ENV: &str = "DLEA_PICKER_BUDGET_TEST_CHILD";
     const CHILD_LIMIT: u64 = 80;
     const SYMLINK_MARKS: usize = 8;
     if super::limits::run_in_child("backend::picker::tests::batch_selection_budget_refuses_before_opening_in_a_low_limit_child", CHILD_ENV) {
@@ -187,7 +187,7 @@ fn filters_keep_symlink_navigation_without_inspecting_targets() {
 
 #[test]
 fn a_raw_named_recent_path_lists_its_own_file() {
-    use flea::bytename::ExactText as _;
+    use dlea::bytename::ExactText as _;
     use std::os::unix::ffi::OsStrExt;
     let dir = TestDir::new("picker-recent-raw");
     let raw = dir

@@ -17,8 +17,8 @@ Item {
     signal canceled()
     signal doubleClicked()
 
-    // FLEA_TRACE_RESIZE=1 logs each press, held move, release and cancel the zone hears.
-    readonly property bool trace: Quickshell.env("FLEA_TRACE_RESIZE") === "1"
+    // DLEA_TRACE_RESIZE=1 logs each press, held move, release and cancel the zone hears.
+    readonly property bool trace: Quickshell.env("DLEA_TRACE_RESIZE") === "1"
     function note(what) { if (root.trace) console.log("RESIZE " + (root.columnKey || "divider") + " " + what) }
 
     width: 9 // ui/Header.qml offsets each zone by floor(width / 2), so this is the only number.

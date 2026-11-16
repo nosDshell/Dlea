@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-menu-snapshot-retire-test
+//@ pragma ShellId dlea-menu-snapshot-retire-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // tests/menu-snapshot-retire.sh's harness: a snapshot reply after its dismissed menu retires silently.
 ShellRoot {
@@ -90,7 +90,7 @@ ShellRoot {
         implicitHeight: 480
         color: "#303030"
 
-        Flea.PaneMenuActions {
+        Dlea.PaneMenuActions {
             id: actions
             pane: stubPane
         }

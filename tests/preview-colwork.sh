@@ -8,9 +8,9 @@ for tool in qs magick ffmpeg inotifywait; do
     command -v "$tool" >/dev/null || { echo "preview-colwork.sh: $tool is not installed"; exit 1; }
 done
 
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 sandbox_root_ok
-test_root="$SANDBOX_ROOT/flea-preview-colwork-$$"
+test_root="$SANDBOX_ROOT/dlea-preview-colwork-$$"
 sandbox_make "$test_root"
 cleanup() {
     local result=$?
@@ -45,7 +45,7 @@ qs_self_stop_status=143
 mkdir -p "$fx" "$cache" "$config_dir" "$test_root/home" "$runtime" "$test_root/tmp" || exit 1
 chmod 700 "$runtime" || exit 1
 ln -s "$PWD/tests/preview-colwork.qml" "$config_dir/shell.qml" || exit 1
-ln -s "$PWD/ui" "$config_dir/flea" || exit 1
+ln -s "$PWD/ui" "$config_dir/dlea" || exit 1
 headless_commons "$test_root" "$config_dir/Commons" || exit 1
 ln -s /usr/share/omarchy/shell/Ui "$config_dir/Ui" || exit 1
 

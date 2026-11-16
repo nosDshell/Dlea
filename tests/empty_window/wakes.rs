@@ -50,7 +50,7 @@ fn woken(pid: u32, before: &[(String, u64, u64)]) -> (u64, u64) {
     (own, others)
 }
 
-// Sample input: "5581a000-5581b000 r-xp 00000000 fd:01 42 /usr/bin/flea" then "Rss: 400 kB" and "Pss: 120 kB".
+// Sample input: "5581a000-5581b000 r-xp 00000000 fd:01 42 /usr/bin/dlea" then "Rss: 400 kB" and "Pss: 120 kB".
 fn mappings(pid: u32) -> Vec<(String, usize, usize, usize)> {
     let body = std::fs::read_to_string(format!("/proc/{pid}/smaps")).unwrap();
     let mut groups: Vec<(String, usize, usize, usize)> = Vec::new();
@@ -128,7 +128,7 @@ fn an_empty_window_wakes_only_the_loop_thread() {
     let deadline = Instant::now() + std::time::Duration::from_secs(5);
     loop {
         let stat = std::fs::read_to_string(format!("/proc/{pid}/task/{pid}/stat")).unwrap();
-        // Sample input: "4242 (flea (worker)) S 1 ..."; the state follows the final ')' ending comm.
+        // Sample input: "4242 (dlea (worker)) S 1 ..."; the state follows the final ')' ending comm.
         let state = stat
             .rsplit_once(')')
             .unwrap()

@@ -1,8 +1,8 @@
 // The converter's argv. The preview's PDF is the document's first pages only, under its own key; Print and Convert keep the whole document under the plain key.
 use super::*;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 
-// Sample output: soffice --headless --norestore --nolockcheck -env:UserInstallation=file:///tmp/flea-office-profile --convert-to pdf --outdir /out /in.docx
+// Sample output: soffice --headless --norestore --nolockcheck -env:UserInstallation=file:///tmp/dlea-office-profile --convert-to pdf --outdir /out /in.docx
 #[cfg(test)]
 pub fn argv(program: &str, input: &Path, outdir: &Path) -> Vec<String> {
     convert_argv(program, "pdf", input, outdir)

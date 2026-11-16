@@ -11,10 +11,10 @@ import tempfile
 repo = Path(__file__).resolve().parents[3]
 parent = Path(sys.argv[1]).resolve()
 if not (parent.is_relative_to(repo / ".superpowers/g2-mn2")
-        and (parent / ".flea-test-sandbox").is_file()):
+        and (parent / ".dlea-test-sandbox").is_file()):
     sys.exit(f"mn2-boundary: refusing unmarked root {parent}")
 root = Path(tempfile.mkdtemp(prefix="native-boundary.", dir=parent))
-(root / ".flea-test-sandbox").touch()
+(root / ".dlea-test-sandbox").touch()
 names = ("fixture_root", "thumb_fixture", "hash_fixture", "stale_fixture")
 assignments = []
 source = (repo / "tests/ui.sh").read_text()
@@ -25,10 +25,10 @@ for name in names:
 probe = "\n".join([
     "#!/bin/bash",
     "set -euo pipefail",
-    ". " + shlex.quote(str(repo / "tools/flea-sandbox-guard")),
+    ". " + shlex.quote(str(repo / "tools/dlea-sandbox-guard")),
     *assignments,
     'expected=$(realpath -m -- "$HOME/../fixtures")',
-    'test -f "$HOME/../../.flea-test-sandbox"',
+    'test -f "$HOME/../../.dlea-test-sandbox"',
     "status=0",
     'for path in "$fixture_root" "$thumb_fixture" "$hash_fixture" "$stale_fixture"; do',
     '    sandbox_require "$path"',
@@ -47,7 +47,7 @@ for inherited in (False, True):
     label = "inherited" if inherited else "unset"
     stage = root / label
     (stage / "tests/native/g2").mkdir(parents=True)
-    (stage / ".flea-test-sandbox").touch()
+    (stage / ".dlea-test-sandbox").touch()
     shutil.copyfile(repo / "tests/native/g2/mn2.sh", stage / "tests/native/g2/mn2.sh")
     (stage / "tests/ui.sh").write_text(probe)
     env = {
@@ -60,7 +60,7 @@ for inherited in (False, True):
     }
     override = root / "inherited-fixtures"
     if inherited:
-        env["FLEA_FIXTURE_ROOT"] = str(override)
+        env["DLEA_FIXTURE_ROOT"] = str(override)
     result = subprocess.run(
         ["/bin/bash", "tests/native/g2/mn2.sh"], cwd=stage, env=env,
         stdin=subprocess.DEVNULL, capture_output=True, text=True,
@@ -68,11 +68,11 @@ for inherited in (False, True):
     )
     (stage / "adapter.log").write_text(result.stdout + result.stderr)
     assert result.returncode == 2, result
-    assert "BLOCKED: the GPUI scene CLI tools/flea-ci-visual is absent" in result.stderr
+    assert "BLOCKED: the GPUI scene CLI tools/dlea-ci-visual is absent" in result.stderr
     adapters = list((stage / ".superpowers/g2-mn2").glob("native.*"))
     assert len(adapters) == 1
     adapter = adapters[0]
-    assert (adapter / ".flea-test-sandbox").is_file()
+    assert (adapter / ".dlea-test-sandbox").is_file()
     for arm in ("qml", "gpui"):
         output = (adapter / arm / "ui.log").read_text()
         passed = output.count("containment: INSIDE ") == len(names)
@@ -81,7 +81,7 @@ for inherited in (False, True):
         if not passed:
             failures.append(f"{label}/{arm}")
     assert not override.exists(), "an inherited fixture path was written"
-    assert not list(stage.rglob("flea-ui-*-*")), "read-only guard probe created fixtures"
+    assert not list(stage.rglob("dlea-ui-*-*")), "read-only guard probe created fixtures"
 print(f"evidence: {root}", flush=True)
 if failures:
     sys.exit("G2MN2 BOUNDARY FAIL: " + ", ".join(failures))

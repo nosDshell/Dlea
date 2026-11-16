@@ -23,21 +23,21 @@ impl Fixture {
         let root = Self(PathBuf::from(
             String::from_utf8(made.stdout).unwrap().trim(),
         ));
-        std::fs::write(root.0.join(".flea-test-sandbox"), "TUI12 words fixture\n").unwrap();
+        std::fs::write(root.0.join(".dlea-test-sandbox"), "TUI12 words fixture\n").unwrap();
         root.write(
             "omarchy/default/i18n/locales.json",
             include_str!("../i18n/fixtures/locales.json"),
         );
         root.write("language", "en\n");
-        root.write("catalog/en/flea.json", r#"{"tui.frame.keys":"%1 keys","tui.frame.selected":{"one":"%1 selected","other":"%1 selected"},"tui.layout.make_the_window_at_least_12_columns_wide_and_5_rows_tall":"Make the window at least 12 columns wide and 5 rows tall."}"#);
-        root.write("catalog/ru/flea.json", r#"{"items.count":{"one":"%1 предмет","few":"%1 предмета","many":"%1 предметов","other":"%1 предмета"},"prompt.rename":"Переименовать","keys.title":"Сочетания клавиш","window.column_name":"Имя","tui.frame.keys":"%1 клавиши","paste.nothing":"Буфер пуст","paste.waiting":"Дождитесь ответа"}"#);
-        root.write("catalog/ja/flea.json", r#"{"items.count":{"other":"%1 項目"},"window.column_name":"名前","prompt.rename":"名前を変更する","keys.title":"キーバインド","keys.keymapSheet":"キーバインド","tui.frame.keys":"%1 キーバインド","paste.nothing":"何もありません","paste.waiting":"回答を待ってください"}"#);
+        root.write("catalog/en/dlea.json", r#"{"tui.frame.keys":"%1 keys","tui.frame.selected":{"one":"%1 selected","other":"%1 selected"},"tui.layout.make_the_window_at_least_12_columns_wide_and_5_rows_tall":"Make the window at least 12 columns wide and 5 rows tall."}"#);
+        root.write("catalog/ru/dlea.json", r#"{"items.count":{"one":"%1 предмет","few":"%1 предмета","many":"%1 предметов","other":"%1 предмета"},"prompt.rename":"Переименовать","keys.title":"Сочетания клавиш","window.column_name":"Имя","tui.frame.keys":"%1 клавиши","paste.nothing":"Буфер пуст","paste.waiting":"Дождитесь ответа"}"#);
+        root.write("catalog/ja/dlea.json", r#"{"items.count":{"other":"%1 項目"},"window.column_name":"名前","prompt.rename":"名前を変更する","keys.title":"キーバインド","keys.keymapSheet":"キーバインド","tui.frame.keys":"%1 キーバインド","paste.nothing":"何もありません","paste.waiting":"回答を待ってください"}"#);
         root
     }
     pub(super) fn write(&self, name: &str, body: &str) {
         assert!(
             self.0.is_absolute()
-                && self.0.join(".flea-test-sandbox").is_file()
+                && self.0.join(".dlea-test-sandbox").is_file()
                 && Path::new(name)
                     .components()
                     .all(|c| matches!(c, std::path::Component::Normal(_)))
@@ -73,7 +73,7 @@ impl Drop for Fixture {
                 && !self.0.as_os_str().is_empty()
                 && self.0.starts_with(&parent)
                 && self.0 != parent
-                && self.0.join(".flea-test-sandbox").is_file()
+                && self.0.join(".dlea-test-sandbox").is_file()
         );
         std::fs::remove_dir_all(&self.0).unwrap();
     }
@@ -194,11 +194,11 @@ fn tui_words_keycaps_follow_shared_layout_policy() {
     let f = Fixture::new();
     let mut m = f.model();
     let map = Map::load();
-    let snapshot = flea::keys::display::KeycapSnapshot::new("ru", None, None, 7).unwrap();
+    let snapshot = dlea::keys::display::KeycapSnapshot::new("ru", None, None, 7).unwrap();
     m.set_keycaps(snapshot, &map).unwrap();
     assert_eq!(
         m.keycap_labels["j / down"],
-        flea::keys::display::chord_label("j / down", &snapshot)
+        dlea::keys::display::chord_label("j / down", &snapshot)
             .unwrap()
             .text
     );
@@ -213,7 +213,7 @@ fn tui_words_keycaps_follow_shared_layout_policy() {
         map.action(&crate::tui::input::Key::character('j', ""), "default"),
         "cursorDown"
     );
-    assert!(flea::keys::display::KeycapSnapshot::new("unknown", None, None, 8).is_err());
+    assert!(dlea::keys::display::KeycapSnapshot::new("unknown", None, None, 8).is_err());
 }
 
 #[test]
@@ -324,11 +324,11 @@ fn tui_words_review_successful_launch_releases_held_label() {
 fn tui_words_review_taildrop_fallback_keeps_semantic_identity() {
     let f = Fixture::new();
     f.write(
-        "catalog/en/flea.json",
+        "catalog/en/dlea.json",
         r#"{"tui.model.taildrop_device_is_unreachable":"Taildrop device is unreachable"}"#,
     );
     f.write(
-        "catalog/ja/flea.json",
+        "catalog/ja/dlea.json",
         r#"{"tui.model.taildrop_device_is_unreachable":"到達できません"}"#,
     );
     let mut m = f.model();

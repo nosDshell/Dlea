@@ -3,9 +3,9 @@
 `ui/qmldir` is the type authority for that directory, and **the qualifier decides whether a
 reference goes through it**. An unqualified name resolves only through the qmldir, so a bare
 `Backend` is a type only because a line declares one, however correct `Backend.qml` itself is.
-A namespace-qualified name does not: under `import "." as Flea` an undeclared sibling still
-resolves by file name, so `Flea.StatusBar` loads `StatusBar.qml` with no qmldir line at all.
-`WindowBody.qml` carries both `import "."` and `import "." as Flea`, so both spellings are in scope
+A namespace-qualified name does not: under `import "." as Dlea` an undeclared sibling still
+resolves by file name, so `Dlea.StatusBar` loads `StatusBar.qml` with no qmldir line at all.
+`WindowBody.qml` carries both `import "."` and `import "." as Dlea`, so both spellings are in scope
 and only the qualified one falls back to the file on disk. Deleting the `Header`, `Row` or
 `StatusBar` line therefore does nothing whatever with the caches cleared, not an error and not
 a warning, while deleting the `Backend` line breaks the load outright: `StatusBar` and

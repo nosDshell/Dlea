@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.."
 test_parent="$PWD/.superpowers/bench-gate-provenance"
 mkdir -p "$test_parent"
 scratch=$(mktemp -d "$test_parent/test.XXXXXX")
-: > "$scratch/.flea-test-sandbox"
-trap 'case $scratch in "$test_parent"/test.?*) [ -f "$scratch/.flea-test-sandbox" ] && rm -rf -- "$scratch" ;; esac' EXIT
-python3 -B tests/bench-gate-provenance.py "$PWD" "$scratch" "${BENCH_GATE:-$PWD/tools/flea-bench-gate}"
+: > "$scratch/.dlea-test-sandbox"
+trap 'case $scratch in "$test_parent"/test.?*) [ -f "$scratch/.dlea-test-sandbox" ] && rm -rf -- "$scratch" ;; esac' EXIT
+python3 -B tests/bench-gate-provenance.py "$PWD" "$scratch" "${BENCH_GATE:-$PWD/tools/dlea-bench-gate}"
 printf 'BENCH_GATE_PROVENANCE PASS\n'

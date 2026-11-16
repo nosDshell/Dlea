@@ -4,7 +4,7 @@ use std::os::unix::ffi::OsStrExt;
 
 #[test]
 fn an_absolute_path_needs_no_cwd_but_a_relative_path_does() {
-    const CHILD: &str = "FLEA_SHELF_ABSOLUTE_NO_CWD";
+    const CHILD: &str = "DLEA_SHELF_ABSOLUTE_NO_CWD";
     if let Some(root) = std::env::var_os(CHILD) {
         let root = std::path::PathBuf::from(root);
         let cwd = std::env::current_dir().unwrap();
@@ -18,8 +18,8 @@ fn an_absolute_path_needs_no_cwd_but_a_relative_path_does() {
             .unwrap()
             .to_str()
             .unwrap()
-            .starts_with("flea-test-"));
-        assert!(root.join(".flea-test-sandbox").is_file());
+            .starts_with("dlea-test-"));
+        assert!(root.join(".dlea-test-sandbox").is_file());
         assert_eq!(cwd.file_name().unwrap(), "vanishing");
         std::fs::remove_dir(&cwd).unwrap();
         assert!(std::env::current_dir().is_err());

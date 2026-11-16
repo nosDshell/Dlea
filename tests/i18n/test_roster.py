@@ -10,7 +10,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
-TOOL = ROOT / "tools/flea-i18n-roster"
+TOOL = ROOT / "tools/dlea-i18n-roster"
 PRIVATE = ROOT / ".superpowers/m9-i50-03"
 
 
@@ -18,7 +18,7 @@ class RosterTests(unittest.TestCase):
     def setUp(self):
         PRIVATE.mkdir(parents=True, exist_ok=True)
         self.root = Path(tempfile.mkdtemp(prefix="roster.", dir=PRIVATE))
-        (self.root / ".flea-test-sandbox").touch()
+        (self.root / ".dlea-test-sandbox").touch()
         self.addCleanup(self.cleanup_root)
         self.omarchy = self.root / "omarchy"
         self.catalogs = self.root / "i18n"
@@ -31,7 +31,7 @@ class RosterTests(unittest.TestCase):
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes((ROOT / "src/i18n/fixtures" / name).read_bytes())
         for code in self.registry:
-            self.write(self.catalogs / code / "flea.json", {"cancel": "omarchy:shell.common.cancel"})
+            self.write(self.catalogs / code / "dlea.json", {"cancel": "omarchy:shell.common.cancel"})
             for kind in ("shell", "cli", "menu", "keybindings"):
                 value = {"common.cancel": "Cancel", "count": {"other": "%1 items"}}
                 if kind == "menu":
@@ -44,12 +44,12 @@ class RosterTests(unittest.TestCase):
     def cleanup_root(self):
         root = self.root
         assert root.is_absolute() and str(root) and root.parent == PRIVATE
-        assert not root.is_symlink() and (root / ".flea-test-sandbox").is_file()
+        assert not root.is_symlink() and (root / ".dlea-test-sandbox").is_file()
         shutil.rmtree(root)
 
     def write(self, path, value):
         assert path.is_absolute() and path.is_relative_to(self.root) and ".." not in path.parts
-        assert (self.root / ".flea-test-sandbox").is_file()
+        assert (self.root / ".dlea-test-sandbox").is_file()
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(value, ensure_ascii=False), encoding="utf-8")
 
@@ -94,7 +94,7 @@ class RosterTests(unittest.TestCase):
     def test_i50_roster_direct_and_catalog_plural_references(self):
         (self.source / "main.rs").write_text('fn main() { tr("omarchy:menu.apps.fileManager.label");\n'
                                             'tr(r#"omarchy:keybindings.Close window"#); }\n')
-        self.write(self.catalogs / "fr/flea.json", {"count": {"other": "omarchy:shell.count"}})
+        self.write(self.catalogs / "fr/dlea.json", {"count": {"other": "omarchy:shell.count"}})
         self.assertIn("4 installed references", self.run_tool("--check-installed").stdout)
         self.write(self.omarchy / "default/i18n/de/menu.json", {"apps.fileManager": {"hint": "Open"}})
         self.assertIn("omarchy:menu.apps.fileManager.label", self.run_tool("--check-installed", status=1).stderr)
@@ -170,7 +170,7 @@ fn main<'a>() { let brace = '}'; tr(r##"omarchy:keybindings.Close window"##); }
                                                     "--check-installed", status=1).stderr)
         path = self.omarchy / "default/i18n/plural.jq"
         assert path.is_absolute() and str(path) and path.is_relative_to(self.root)
-        assert (self.root / ".flea-test-sandbox").is_file()
+        assert (self.root / ".dlea-test-sandbox").is_file()
         path.unlink()
         self.assertIn("plural.jq", self.run_tool("--check-installed", status=1).stderr)
 
@@ -205,7 +205,7 @@ fn main<'a>() { let brace = '}'; tr(r##"omarchy:keybindings.Close window"##); }
         self.assertEqual(subprocess.check_output([*git, "log", "-1", "--format=%an <%ae>"], text=True).strip(),
                          "GM <gianmarcomorales@icloud.com>")
         project = self.root / "project"
-        tool = project / "tools/flea-i18n-roster"
+        tool = project / "tools/dlea-i18n-roster"
         tool.parent.mkdir(parents=True)
         shutil.copyfile(TOOL, tool)
         shutil.copytree(ROOT / "src/i18n/fixtures", project / "src/i18n/fixtures")
@@ -257,9 +257,9 @@ fn main<'a>() { let brace = '}'; tr(r##"omarchy:keybindings.Close window"##); }
         self.assertIn("installed plural.jq differs", self.run_tool("--check-installed", status=1).stderr)
 
     def test_i50_roster_warn_only_is_development_only(self):
-        path = self.catalogs / "de/flea.json"
+        path = self.catalogs / "de/dlea.json"
         assert path.is_absolute() and str(path) and path.is_relative_to(self.root)
-        assert (self.root / ".flea-test-sandbox").is_file()
+        assert (self.root / ".dlea-test-sandbox").is_file()
         path.unlink()
         self.assertIn("1 missing catalogs: de", self.run_tool(status=1).stderr)
         self.assertIn("warning: 1 missing catalogs: de", self.run_tool("--warn-only").stderr)
@@ -275,9 +275,9 @@ fn main<'a>() { let brace = '}'; tr(r##"omarchy:keybindings.Close window"##); }
         self.assertIn("missing catalogs", result.stderr)
 
     def remove_de_catalog(self):
-        path = self.catalogs / "de/flea.json"
+        path = self.catalogs / "de/dlea.json"
         assert path.is_absolute() and str(path) and path.is_relative_to(self.root)
-        assert (self.root / ".flea-test-sandbox").is_file()
+        assert (self.root / ".dlea-test-sandbox").is_file()
         path.unlink()
 
     def test_i50_roster_warn_only_installed_hash_mismatch_fails(self):
@@ -295,8 +295,8 @@ fn main<'a>() { let brace = '}'; tr(r##"omarchy:keybindings.Close window"##); }
         self.assertIn("--warn-only is development-only and cannot bypass the final-pin check", result.stderr)
 
     def test_i50_roster_unknown_catalog_fails(self):
-        self.write(self.catalogs / "zz/flea.json", {"label": "Unknown"})
-        self.assertIn("unknown Flea catalog codes: zz", self.run_tool("--check-installed", status=1).stderr)
+        self.write(self.catalogs / "zz/dlea.json", {"label": "Unknown"})
+        self.assertIn("unknown Dlea catalog codes: zz", self.run_tool("--check-installed", status=1).stderr)
 
     def test_i50_roster_duplicate_json_fails(self):
         (self.omarchy / "default/i18n/de/shell.json").write_text('{"common.cancel":"Cancel","common.cancel":"Other"}')

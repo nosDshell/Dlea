@@ -2,7 +2,7 @@
 use super::plugins::Env;
 use super::plugins_tests::{ask, code, env, get, plugin, READY};
 use super::testdir::TestDir;
-use flea::ui_logic_plugin_settings::wire::Source;
+use dlea::ui_logic_plugin_settings::wire::Source;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
@@ -158,7 +158,7 @@ fn st2_fix_update_refuses_a_git_plugin_whose_config_turns_hostile() {
         let installed = env.dir.join("me.dev");
         let marker = dir.join("ran");
         let touch = format!("#!/bin/sh\ntouch '{}'\n", marker.display());
-        dir.script("config/flea/plugins/me.dev/.git/hooks/post-merge", &touch);
+        dir.script("config/dlea/plugins/me.dev/.git/hooks/post-merge", &touch);
         let hooks = dir.dir("hooks");
         dir.script("hooks/post-merge", &touch);
         let monitor = dir.script("monitor", &touch);
@@ -230,7 +230,7 @@ fn st2_fix_the_git_page_fixture_reaches_up_to_date_offline() {
         .output()
         .unwrap();
     let branch = String::from_utf8(head.stdout).unwrap().trim().to_string();
-    let board = "https://github.com/mtorvik/flea-checksums";
+    let board = "https://github.com/mtorvik/dlea-checksums";
     git(&installed, &["config", "remote.origin.url", board]);
     git(
         &installed,

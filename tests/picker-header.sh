@@ -2,26 +2,26 @@
 . "$(dirname "$0")/headless-commons.sh"
 # The picker's grid mode draws no column header; the probe drives the real window against a stub backend.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 if ! command -v qs >/dev/null; then
     echo "picker-header.sh: qs is not installed, cannot drive the header probe"
     exit 1
 fi
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-picker-header.XXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-picker-header.XXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER" || exit 1
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/picker-header.qml "$test_root/config/shell.qml" || exit 1
 # The real window launches in grid, from the remembered view, at base size 14 where the strip is the board's 27 px.
-mkdir -p "$test_root/state/flea" || exit 1
-printf '{"pickerView":"grid","display":{"textSize":{"mode":14}}}' > "$test_root/state/flea/ui.json" || exit 1
+mkdir -p "$test_root/state/dlea" || exit 1
+printf '{"pickerView":"grid","display":{"textSize":{"mode":14}}}' > "$test_root/state/dlea/ui.json" || exit 1
 : > "$test_root/reply.json" || exit 1
 # Stub answers a folder with rows and fsinfo as local, so the grid asks no cache-only thumbs.
 cat > "$test_root/stub-backend" <<'PYEND'
@@ -69,8 +69,8 @@ probe_timeout_margin=10
 probe_timeout=$((probe_timeout_ms / 1000 + probe_timeout_margin))
 output=$(env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_RUNTIME_DIR="$test_root/runtime" \
-    FLEA_BIN="$test_root/stub-backend" \
-    FLEA_PICKER='{"mode":"open","title":"header probe","folder":"/winprobe"}' FLEA_PICKER_REPLY="$test_root/reply.json" \
+    DLEA_BIN="$test_root/stub-backend" \
+    DLEA_PICKER='{"mode":"open","title":"header probe","folder":"/winprobe"}' DLEA_PICKER_REPLY="$test_root/reply.json" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
     timeout "$probe_timeout" qs -p "$test_root/config" 2>&1)
 # Sample input, one probe line: 'PICKERHEADER PASS grid header hidden, tiles under the strip, list header restored'.

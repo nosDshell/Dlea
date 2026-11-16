@@ -87,9 +87,9 @@ function run(check) {
             check: function (passed) { this.results.push(passed) },
             askFresh: function (source) { this.asked.push(source) },
             finish: function (status) { this.finished.push(status) } }
-        var Flea = { FigureService: { helperRunning: running, helperExits: exits } }
+        var Dlea = { FigureService: { helperRunning: running, helperExits: exits } }
         var Date = { now: function () { return 0 } }
-        new Function("shell", "Flea", "Date", block(harness, "function drive()", "tests/markdown-figures.qml"))(shell, Flea, Date)
+        new Function("shell", "Dlea", "Date", block(harness, "function drive()", "tests/markdown-figures.qml"))(shell, Dlea, Date)
         return shell
     }
     var idle = idleProbe(false, 1)
@@ -101,8 +101,8 @@ function run(check) {
     check("idle wait failure is driven by its timer event", hasWaitEvent, true)
     if (hasWaitEvent) {
         idle = idleProbe(true, 0)
-        var Flea = { FigureService: { helperRunning: true, helperExits: 0 } }
-        new Function("shell", "Flea", block(harness, "function idleWaitExpired()", "tests/markdown-figures.qml"))(idle, Flea)
+        var Dlea = { FigureService: { helperRunning: true, helperExits: 0 } }
+        new Function("shell", "Dlea", block(harness, "function idleWaitExpired()", "tests/markdown-figures.qml"))(idle, Dlea)
         check("idle wait event fails a helper with no observed exit", idle.results[0], false)
         check("idle wait failure ends the harness immediately", idle.finished.length, 1)
         check("idle wait failure sends no new request", idle.asked.length, 0)
@@ -113,10 +113,10 @@ function run(check) {
             exitAskedAt: 0, exitAnswerBoundMs: 2000, results: [],
             check: function (passed) { this.results.push(passed) },
             writePhase: function () {} }
-        var Flea = { FigureService: { available: true, deadlineExpirations: deadlines, helperExits: exits } }
+        var Dlea = { FigureService: { available: true, deadlineExpirations: deadlines, helperExits: exits } }
         var Date = { now: function () { return 0 } }
-        new Function("shell", "Flea", "Date", "ticket", "svg", "error", block(harness, "else if (shell.step === 14)", "tests/markdown-figures.qml"))(
-            shell, Flea, Date, 1, "", "figure engine exited 42 (status 0)")
+        new Function("shell", "Dlea", "Date", "ticket", "svg", "error", block(harness, "else if (shell.step === 14)", "tests/markdown-figures.qml"))(
+            shell, Dlea, Date, 1, "", "figure engine exited 42 (status 0)")
         return shell.results
     }
     var exitChecks = exitProbe(1, 0)

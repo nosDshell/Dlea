@@ -12,7 +12,7 @@ assert data[:8] == b"\x89PNG\r\n\x1a\n"
 width, height, bits, color, compression, filtering, interlace = struct.unpack_from(">IIBBBBB", data, 16)
 assert (bits, color, compression, filtering, interlace) == (8, 6, 0, 0, 0)
 # The protocol test's marker sits beside this file outside the jail, so seeing it means the decoder ran unsandboxed.
-jailed = not Path(__file__).with_name(".flea-test-sandbox").exists()
+jailed = not Path(__file__).with_name(".dlea-test-sandbox").exists()
 # Sample input: the 8-byte PNG signature, then chunks of u32be length, 4-byte type, payload and u32be CRC32 of type and payload.
 at = 8
 compressed = bytearray()

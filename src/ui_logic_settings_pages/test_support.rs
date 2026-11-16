@@ -3,7 +3,7 @@ use crate::i18n::{I18n, Paths};
 use std::path::PathBuf;
 
 pub(crate) fn english() -> I18n {
-    let missing = PathBuf::from("/nonexistent/flea-st1-test");
+    let missing = PathBuf::from("/nonexistent/dlea-st1-test");
     I18n::load(Paths {
         omarchy: PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/i18n/fixtures/omarchy"),
         language_file: missing.join("language"),

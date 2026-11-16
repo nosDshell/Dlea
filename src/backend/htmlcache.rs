@@ -25,7 +25,7 @@ thread_local! {
 }
 
 pub fn root() -> PathBuf {
-    thumbcache::default_root().join("flea-html")
+    thumbcache::default_root().join("dlea-html")
 }
 
 // Sample key: path /a/index.html, 120 bytes, mtime 9 s and 20 ns, width 984; each dimension invalidates independently.
@@ -91,7 +91,7 @@ fn trim(dir: &Path, files: usize, bytes: u64, now: SystemTime) {
         let Ok(meta) = path.symlink_metadata() else { continue };
         if meta.is_dir() {
             let name = entry.file_name().to_string_lossy().into_owned();
-            let pid = name.strip_prefix(".flea-work-html-").and_then(|tail| tail.split('-').next()).and_then(|n| n.parse::<u32>().ok());
+            let pid = name.strip_prefix(".dlea-work-html-").and_then(|tail| tail.split('-').next()).and_then(|n| n.parse::<u32>().ok());
             if pid.is_some_and(|pid| !Path::new(&format!("/proc/{pid}")).exists())
                 && now.duration_since(used(&meta)).is_ok_and(|age| age > READER_GRACE) {
                 let _ = std::fs::remove_dir_all(&path);

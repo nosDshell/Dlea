@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Format.js" as Format
 
 // Favourite records keep their exact label/path; only the drag handle initiates reordering.
@@ -15,7 +15,7 @@ Item {
     // The remove button's accessible name, filled by Format.fill.
     readonly property string removeWord: "Remove %1"
 
-    Flea.Glyph {
+    Dlea.Glyph {
         id: icon
         anchors.left: parent.left
         anchors.leftMargin: Theme.spacing.rowPaddingX
@@ -72,7 +72,7 @@ Item {
             gesturePolicy: TapHandler.ReleaseWithinBounds
             onTapped: root.removed()
         }
-        Flea.Glyph {
+        Dlea.Glyph {
             anchors.centerIn: parent
             width: Theme.markSize
             height: Theme.markSize
@@ -88,7 +88,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         width: Theme.hitMin
         height: Theme.hitMin
-        Flea.Glyph {
+        Dlea.Glyph {
             anchors.centerIn: parent
             width: Theme.markSize
             height: Theme.markSize

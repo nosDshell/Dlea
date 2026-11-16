@@ -12,7 +12,7 @@ impl TestDir {
         assert!(made.status.success());
         let root = PathBuf::from(String::from_utf8(made.stdout).unwrap().trim());
         assert!(root.is_absolute() && root.starts_with(base));
-        std::fs::write(root.join(".flea-test-sandbox"), "fixture\n").unwrap();
+        std::fs::write(root.join(".dlea-test-sandbox"), "fixture\n").unwrap();
         Self(root)
     }
     fn dir(&self, name: &str) -> PathBuf {
@@ -159,7 +159,7 @@ fn m9_g2rows_03_icons_explicit_hicolor_keeps_parent_order() {
 
 #[test]
 fn m9_g2rows_03_icons_blank_theme_uses_gtk() {
-    const PROBE: &str = "FLEA_MENU_ROWS_ICON_THEME_PROBE";
+    const PROBE: &str = "DLEA_MENU_ROWS_ICON_THEME_PROBE";
     if let Some(root) = std::env::var_os(PROBE) {
         let lookup = Icons::session();
         assert_eq!(lookup.theme, "Fixture");

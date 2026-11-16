@@ -84,7 +84,7 @@ pub enum Outcome {
 
 // The detail goes to stderr, and in a test also to a list the test can read, since libtest drops stderr.
 pub fn log(line: &str) {
-    eprintln!("flea: {line}");
+    eprintln!("dlea: {line}");
     #[cfg(test)]
     LOGGED.with(|lines| lines.borrow_mut().push(line.to_string()));
 }
@@ -144,8 +144,8 @@ impl Refusal {
             Outcome::Kept(at) => format!("The Trash changed, so nothing was done. Kept items are in {}.", at.display()),
             Outcome::Prepare(Delete) => format!("Could not prepare the deletion, so nothing was deleted: {why}."),
             Outcome::Prepare(Restore) => format!("Could not prepare the restore, so nothing was restored: {why}."),
-            Outcome::NoRecord(Delete) => format!("Flea could not keep a record of this deletion, so nothing was deleted: {why}."),
-            Outcome::NoRecord(Restore) => format!("Flea could not keep a record of this restore, so nothing was restored: {why}."),
+            Outcome::NoRecord(Delete) => format!("Dlea could not keep a record of this deletion, so nothing was deleted: {why}."),
+            Outcome::NoRecord(Restore) => format!("Dlea could not keep a record of this restore, so nothing was restored: {why}."),
             Outcome::Stuck(Delete, at) => format!("The deletion could not finish: {why}. The remaining items are kept at {}.", at.display()),
             Outcome::Stuck(Restore, at) => format!("The restore could not finish: {why}. The remaining items are kept at {}.", at.display()),
             Outcome::StuckInTrash(Delete, at) => format!("The deletion could not finish: {why}. The remaining items are kept in the Trash and at {}.", at.display()),
@@ -156,23 +156,23 @@ impl Refusal {
             Outcome::PartialAtOriginal => format!("The item could not be fully deleted: {why}. What is left stays where it was, and a folder may be partly deleted."),
             Outcome::InfoLeft(Delete, at) => format!("The item was deleted, but a Trash record at {} could not be removed: {why}.", at.display()),
             Outcome::InfoLeft(Restore, at) => format!("The item was restored, but a Trash record at {} could not be removed: {why}.", at.display()),
-            Outcome::FolderLeft(Delete, Some(at)) => format!("The item was deleted, but Flea could not remove its temporary folder at {}: {why}.", at.display()),
-            Outcome::FolderLeft(Restore, Some(at)) => format!("The item was restored, but Flea could not remove its temporary folder at {}: {why}.", at.display()),
-            Outcome::FolderLeft(Delete, None) => format!("The item was deleted, but Flea could not remove its temporary folder: {why}."),
-            Outcome::FolderLeft(Restore, None) => format!("The item was restored, but Flea could not remove its temporary folder: {why}."),
-            Outcome::RecordLeft(Some(Delete)) => format!("The item was deleted, but Flea could not remove its recovery record: {why}."),
-            Outcome::RecordLeft(Some(Restore)) => format!("The item was restored, but Flea could not remove its recovery record: {why}."),
-            Outcome::RecordLeft(None) => format!("The interrupted operation was recovered, but Flea could not remove its recovery record: {why}."),
-            Outcome::RecordUnconfirmed(Some(Delete)) => format!("The item was deleted, but after removing its recovery record, Flea could not confirm the removal on disk: {why}."),
-            Outcome::RecordUnconfirmed(Some(Restore)) => format!("The item was restored, but after removing its recovery record, Flea could not confirm the removal on disk: {why}."),
-            Outcome::RecordUnconfirmed(None) => format!("The interrupted operation was recovered, but after removing its recovery record, Flea could not confirm the removal on disk: {why}."),
+            Outcome::FolderLeft(Delete, Some(at)) => format!("The item was deleted, but Dlea could not remove its temporary folder at {}: {why}.", at.display()),
+            Outcome::FolderLeft(Restore, Some(at)) => format!("The item was restored, but Dlea could not remove its temporary folder at {}: {why}.", at.display()),
+            Outcome::FolderLeft(Delete, None) => format!("The item was deleted, but Dlea could not remove its temporary folder: {why}."),
+            Outcome::FolderLeft(Restore, None) => format!("The item was restored, but Dlea could not remove its temporary folder: {why}."),
+            Outcome::RecordLeft(Some(Delete)) => format!("The item was deleted, but Dlea could not remove its recovery record: {why}."),
+            Outcome::RecordLeft(Some(Restore)) => format!("The item was restored, but Dlea could not remove its recovery record: {why}."),
+            Outcome::RecordLeft(None) => format!("The interrupted operation was recovered, but Dlea could not remove its recovery record: {why}."),
+            Outcome::RecordUnconfirmed(Some(Delete)) => format!("The item was deleted, but after removing its recovery record, Dlea could not confirm the removal on disk: {why}."),
+            Outcome::RecordUnconfirmed(Some(Restore)) => format!("The item was restored, but after removing its recovery record, Dlea could not confirm the removal on disk: {why}."),
+            Outcome::RecordUnconfirmed(None) => format!("The interrupted operation was recovered, but after removing its recovery record, Dlea could not confirm the removal on disk: {why}."),
             Outcome::ChildChanged => "An item in the Trash changed, so the rest was kept.".into(),
             Outcome::ChildLeft => format!("Some items in the Trash folder could not be deleted: {why}."),
             Outcome::Blocked => format!("The item could not be restored: {why}."),
             Outcome::OriginalChanged => "The item's original folder changed; select it again.".into(),
-            Outcome::Held(at) => format!("Flea found an interrupted Trash operation; its items are kept at {}.", at.display()),
-            Outcome::RecoveryUnreadable(at) => format!("Flea could not read the recovery folder at {}: {why}; records not yet read were left in place.", at.display()),
-            Outcome::NothingMoved => "Flea found an interrupted Trash operation; nothing was moved.".into(),
+            Outcome::Held(at) => format!("Dlea found an interrupted Trash operation; its items are kept at {}.", at.display()),
+            Outcome::RecoveryUnreadable(at) => format!("Dlea could not read the recovery folder at {}: {why}; records not yet read were left in place.", at.display()),
+            Outcome::NothingMoved => "Dlea found an interrupted Trash operation; nothing was moved.".into(),
             Outcome::Unreadable => "The Trash could not be read.".into(),
             Outcome::TookTooLong => "The Trash took too long to answer.".into(),
             Outcome::SelectionChanged => "The Trash selection changed; select the items again.".into(),

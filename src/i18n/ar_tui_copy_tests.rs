@@ -9,12 +9,12 @@ fn shipped(code: &str) -> (crate::backend::testdir::TestDir, I18n) {
     )
     .unwrap();
     for (code, text) in [
-        ("en", include_str!("../../i18n/en/flea.json")),
-        ("ar", include_str!("../../i18n/ar/flea.json")),
-        ("ru", include_str!("../../i18n/ru/flea.json")),
+        ("en", include_str!("../../i18n/en/dlea.json")),
+        ("ar", include_str!("../../i18n/ar/dlea.json")),
+        ("ru", include_str!("../../i18n/ru/dlea.json")),
     ] {
         let catalog = root.dir(&format!("catalog/{code}"));
-        std::fs::write(catalog.join("flea.json"), text).unwrap();
+        std::fs::write(catalog.join("dlea.json"), text).unwrap();
     }
     let paths = Paths {
         omarchy: root.join("omarchy"),

@@ -4,13 +4,13 @@
 set -u
 set -o pipefail
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete below.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
-BIN=./target/release/flea
-FIXTURE="${FLEA_MEDIA_DIR:-$FIXTURE_ROOT/flea-media-btrfs}"
+BIN=./target/release/dlea
+FIXTURE="${DLEA_MEDIA_DIR:-$FIXTURE_ROOT/dlea-media-btrfs}"
 # A scratch copy, so nothing this suite generates lands against a file the operator's cache knows.
-D=$FIXTURE_ROOT/flea-thumbs-test-$$
+D=$FIXTURE_ROOT/dlea-thumbs-test-$$
 # The cache this suite fills is its own, redirected inside that sandbox: src/backend/thumbcache.rs
 # honours XDG_CACHE_HOME, so nothing here reads or writes the operator's real cache at all.
 export XDG_CACHE_HOME="$D/cache"
@@ -73,9 +73,9 @@ if command -v magick >/dev/null; then
   icc_key=$(printf 'file://%s' "$D/icc/large.jpg" | md5sum | cut -d' ' -f1)
   out=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"thumb","rows":[0]}\n{"c":"quit"}\n' "$D/icc" | timeout 120 $BIN --backend)
   check "a 20-megapixel decode fits inside the address-space cap" "1" "$(echo "$out" | grep -c '"row":0,"file":"/')"
-  # The positive control on this key and this cache root; the corrupt-file case below pins the fail/flea path the negative check names.
+  # The positive control on this key and this cache root; the corrupt-file case below pins the fail/dlea path the negative check names.
   check "and the same key names the thumbnail it published" "1" "$([ -e "$CACHE/large/$icc_key.png" ] && echo 1 || echo 0)"
-  check "and records no failure marker against it" "0" "$([ -e "$CACHE/fail/flea/$icc_key.png" ] && echo 1 || echo 0)"
+  check "and records no failure marker against it" "0" "$([ -e "$CACHE/fail/dlea/$icc_key.png" ] && echo 1 || echo 0)"
 else
   echo "skip the 20-megapixel decode: magick is absent and imagemagick is an optdepends"
 fi
@@ -103,13 +103,13 @@ head -c 4096 /dev/urandom > "$D/corrupt/broken.jpg"
 broken_key=$(printf 'file://%s' "$D/corrupt/broken.jpg" | md5sum | cut -d' ' -f1)
 out=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"thumb","rows":[0]}\n{"c":"quit"}\n' "$D/corrupt" | timeout 120 $BIN --backend)
 check "an undecodable file answers empty" "1" "$(echo "$out" | grep -c '"row":0,"file":""')"
-check "and the decoder verdict is recorded" "0" "$([ -e "$CACHE/fail/flea/$broken_key.png" ] && echo 0 || echo 1)"
+check "and the decoder verdict is recorded" "0" "$([ -e "$CACHE/fail/dlea/$broken_key.png" ] && echo 0 || echo 1)"
 # record_failure publishes by rename, so a second job would leave a different inode here; an unchanged one proves no child ran.
-marker_inode=$(stat -c %i "$CACHE/fail/flea/$broken_key.png" 2>/dev/null || echo missing-before)
+marker_inode=$(stat -c %i "$CACHE/fail/dlea/$broken_key.png" 2>/dev/null || echo missing-before)
 # The inode below, not a time, proves the marker answered: a lost marker decodes again and publishes a new one.
 out=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"thumb","rows":[0]}\n{"c":"quit"}\n' "$D/corrupt" | timeout 120 $BIN --backend)
 check "the second request is answered from the marker" "1" "$(echo "$out" | grep -c '"row":0,"file":""')"
-check "and no second child ran" "$marker_inode" "$(stat -c %i "$CACHE/fail/flea/$broken_key.png" 2>/dev/null || echo missing-after)"
+check "and no second child ran" "$marker_inode" "$(stat -c %i "$CACHE/fail/dlea/$broken_key.png" 2>/dev/null || echo missing-after)"
 
 # A fifo named like a video is not a regular file: the 10 s bound is well under the 20 s job timeout it used to burn.
 mkdir -p "$D/special"
@@ -140,7 +140,7 @@ key=$(printf 'file://%s' "$D/unconfined/u.jpg" | md5sum | cut -d' ' -f1)
 out=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"thumb","rows":[0]}\n{"c":"quit"}\n' "$D/unconfined" | timeout 120 env PATH="$D/nopath" $BIN --backend 2>/dev/null)
 check "a missing sandbox refuses the job" "1" "$(echo "$out" | grep -c '"row":0,"file":""')"
 check "and publishes nothing to the shared cache" "0" "$([ -e "$CACHE/large/$key.png" ] && echo 1 || echo 0)"
-check "and records no failure marker" "0" "$([ -e "$CACHE/fail/flea/$key.png" ] && echo 1 || echo 0)"
+check "and records no failure marker" "0" "$([ -e "$CACHE/fail/dlea/$key.png" ] && echo 1 || echo 0)"
 
 # A cancel-all must leave the map holding exactly what is still running, or every cancelled row is skipped for good.
 mkdir -p "$D/cancelall"
@@ -161,15 +161,15 @@ check "every row of a request larger than the queue is answered" "80" "$(echo "$
 mkdir -p "$D/probe"
 for i in 0 1 2; do cp "$FIXTURE/photo_0.jpg" "$D/probe/p$i.jpg"; done
 ask() { printf '{"c":"list","path":"%s","first":10}\n{"c":"thumb","rows":[%s]}\n{"c":"quit"}\n' "$D/probe" "$1"; }
-out=$(ask 0 | FLEA_THUMB_TRACE=1 timeout 120 $BIN --backend 2>/dev/null)
+out=$(ask 0 | DLEA_THUMB_TRACE=1 timeout 120 $BIN --backend 2>/dev/null)
 check "the trace never reaches stdout" "0" "$(echo "$out" | grep -c 'trace')"
-err=$(ask 1 | FLEA_THUMB_TRACE=1 timeout 120 $BIN --backend 2>&1 >/dev/null)
+err=$(ask 1 | DLEA_THUMB_TRACE=1 timeout 120 $BIN --backend 2>&1 >/dev/null)
 check "the trace reaches stderr when asked for" "1" "$(echo "$err" | grep -c 'trace row=1 ')"
 off=$(ask 2 | timeout 120 $BIN --backend 2>&1 >/dev/null)
 check "and nothing at all when it is not" "0" "$(echo "$off" | grep -c 'trace')"
 
 # The pre-linked worker, see AGENTS.md "Thumbnail worker"; tests/thumbs-exec.sh runs this whole file again with it off.
-echo "worker mode: ${FLEA_THUMB_WORKER:-on}"
+echo "worker mode: ${DLEA_THUMB_WORKER:-on}"
 # Sample input: /proc/123/status "PPid:	45", one tab after the colon.
 parent_of() { grep '^PPid:' "/proc/$1/status" 2>/dev/null | cut -f2; }
 descends_from() {
@@ -180,11 +180,11 @@ descends_from() {
   done
   return 1
 }
-# The worker's own comm is flea; bwrap carries --thumb-worker in its argv too and must not be counted.
+# The worker's own comm is dlea; bwrap carries --thumb-worker in its argv too and must not be counted.
 workers_under() {
   local pid
   for pid in $(pgrep -f -- '--thumb-worker'); do
-    [ "$(cat "/proc/$pid/comm" 2>/dev/null)" = flea ] && descends_from "$pid" "$1" && echo "$pid"
+    [ "$(cat "/proc/$pid/comm" 2>/dev/null)" = dlea ] && descends_from "$pid" "$1" && echo "$pid"
   done
 }
 # Reads backend lines into ANSWER until row $1 is answered or ten seconds pass; never inside $(), which is not promised the coprocess's descriptors.
@@ -204,7 +204,7 @@ printf '{"c":"list","path":"%s","first":10}\n{"c":"thumb","rows":[0]}\n' "$D/wor
 answer_for 0
 check "a video is answered with a thumbnail" "1" "$(echo "$ANSWER" | grep -c '"file":"/')"
 live=$(workers_under "$BK_PID" | wc -l | tr -d ' ')
-if [ "${FLEA_THUMB_WORKER:-on}" = off ]; then
+if [ "${DLEA_THUMB_WORKER:-on}" = off ]; then
   check "the off switch starts no worker" "0" "$live"
 else
   check "the video went through one worker" "1" "$live"
@@ -214,9 +214,9 @@ answer_for 3
 check "an unreadable video answers empty" "1" "$(echo "$ANSWER" | grep -c '"file":""')"
 w3_key=$(printf 'file://%s' "$D/worker/w3-unreadable.mp4" | md5sum | cut -d' ' -f1)
 # The exec path records a failure for a file it cannot read, which makes the off run this check's positive control.
-if [ "${FLEA_THUMB_WORKER:-on}" = off ]; then w3_marked=1; else w3_marked=0; fi
-check "it has a failure marker only on the exec path, because the worker branch judges nothing" "$w3_marked" "$(ls "$CACHE/fail/flea/$w3_key.png" 2>/dev/null | wc -l | tr -d ' ')"
-if [ "${FLEA_THUMB_WORKER:-on}" != off ]; then
+if [ "${DLEA_THUMB_WORKER:-on}" = off ]; then w3_marked=1; else w3_marked=0; fi
+check "it has a failure marker only on the exec path, because the worker branch judges nothing" "$w3_marked" "$(ls "$CACHE/fail/dlea/$w3_key.png" 2>/dev/null | wc -l | tr -d ' ')"
+if [ "${DLEA_THUMB_WORKER:-on}" != off ]; then
   check "and leaves the same worker serving" "1" "$(workers_under "$BK_PID" | wc -l | tr -d ' ')"
   kill -9 $(workers_under "$BK_PID") 2>/dev/null
   printf '{"c":"thumb","rows":[1]}\n' >&"${BK[1]}"
@@ -225,8 +225,8 @@ if [ "${FLEA_THUMB_WORKER:-on}" != off ]; then
   check "and no worker is started again" "0" "$(workers_under "$BK_PID" | wc -l | tr -d ' ')"
 fi
 # Retiring a running worker says so once on stderr; a worker that was never started has nothing to retire.
-if [ "${FLEA_THUMB_WORKER:-on}" = off ]; then retired=0; else retired=1; fi
-check "the backend says the worker is gone exactly when it retired one" "$retired" "$(grep -c 'flea: the thumbnail worker .*, so videos use the thumbnailer program' "$D/worker.err")"
+if [ "${DLEA_THUMB_WORKER:-on}" = off ]; then retired=0; else retired=1; fi
+check "the backend says the worker is gone exactly when it retired one" "$retired" "$(grep -c 'dlea: the thumbnail worker .*, so videos use the thumbnailer program' "$D/worker.err")"
 printf '{"c":"quit"}\n' >&"${BK[1]}"
 wait "$BK_PID" 2>/dev/null
 # The two paths publish the same image: set_size(N, N) and the film strip are the CLI's -s and -f.
@@ -237,7 +237,7 @@ answer_for 2
 worker_pid=$(workers_under "$BK_PID")
 printf '{"c":"quit"}\n' >&"${BK[1]}"
 wait "$BK_PID" 2>/dev/null
-if [ "${FLEA_THUMB_WORKER:-on}" != off ]; then
+if [ "${DLEA_THUMB_WORKER:-on}" != off ]; then
   # The worker takes its request socket closing as the end of work, so it must not outlive the backend that started it.
   worker_exit_s=10
   check "a fresh backend made row 2 through one worker" "1" "$(echo "$worker_pid" | grep -c .)"
@@ -245,7 +245,7 @@ if [ "${FLEA_THUMB_WORKER:-on}" != off ]; then
 fi
 mkdir -p "$D/exec-cache"
 printf '{"c":"list","path":"%s","first":10}\n{"c":"thumb","rows":[2]}\n{"c":"quit"}\n' "$D/worker" \
-  | XDG_CACHE_HOME="$D/exec-cache" FLEA_THUMB_WORKER=off timeout 120 $BIN --backend >/dev/null 2>&1
+  | XDG_CACHE_HOME="$D/exec-cache" DLEA_THUMB_WORKER=off timeout 120 $BIN --backend >/dev/null 2>&1
 # Sample input: a PNG, whose IDAT chunks are the pixels and whose tEXt chunks are "key\0value", a binary walk no plain tool makes.
 # Thumb::Mimetype comes from the input's extension, which the worker's /proc/self/fd/3 lacks, so it is left out.
 png_facts() {
@@ -269,8 +269,8 @@ exec_png=$D/exec-cache/thumbnails/large/$w_key.png
 check "both paths published an entry for the same video" "2" "$(ls "$worker_png" "$exec_png" 2>/dev/null | wc -l | tr -d ' ')"
 # Only the program writes Thumb::Mimetype, so the key names the path that made each entry.
 check "the exec path made its entry" "1" "$(grep -ac 'Thumb::Mimetype' "$exec_png")"
-if [ "${FLEA_THUMB_WORKER:-on}" = off ]; then made_by_program=1; else made_by_program=0; fi
-check "and the default run made the other through the ${FLEA_THUMB_WORKER:-on} path" "$made_by_program" "$(grep -ac 'Thumb::Mimetype' "$worker_png")"
+if [ "${DLEA_THUMB_WORKER:-on}" = off ]; then made_by_program=1; else made_by_program=0; fi
+check "and the default run made the other through the ${DLEA_THUMB_WORKER:-on} path" "$made_by_program" "$(grep -ac 'Thumb::Mimetype' "$worker_png")"
 exec_facts=$(png_facts "$exec_png")
 check "the exec entry's chunks were read" "1" "$(echo "$exec_facts" | grep -c '^[0-9a-f]\{64\} ')"
 check "the two publish the same image and keys" "$exec_facts" "$(png_facts "$worker_png")"
@@ -316,13 +316,13 @@ out=$(ask_user_thumbnailer "$U" 0)
 check "a thumbnailer outside /usr is asked for its row" "1" "$(echo "$out" | grep -c '"row":0,"file":"/')"
 user_png=$CACHE/large/$(key_of "$U/files/a.url").png
 check "and the thumbnail it wrote is cached with its own pixels" "$png_a" "$(png_facts "$user_png" 2>/dev/null | cut -d' ' -f1)"
-check "and no failure marker is recorded" "0" "$([ -e "$CACHE/fail/flea/$(key_of "$U/files/a.url").png" ] && echo 1 || echo 0)"
+check "and no failure marker is recorded" "0" "$([ -e "$CACHE/fail/dlea/$(key_of "$U/files/a.url").png" ] && echo 1 || echo 0)"
 # A program another user can rewrite is refused before the jail starts, so no marker either: a refusal is not a verdict on the file.
 chmod 775 "$U/bin/drive-url-thumbnail"
 out=$(ask_user_thumbnailer "$U" 1)
 check "a group-writable thumbnailer program is refused" "1" "$(echo "$out" | grep -c '"row":1,"file":""')"
 check "and publishes nothing" "0" "$([ -e "$CACHE/large/$(key_of "$U/files/b.url").png" ] && echo 1 || echo 0)"
-check "and records no failure marker" "0" "$([ -e "$CACHE/fail/flea/$(key_of "$U/files/b.url").png" ] && echo 1 || echo 0)"
+check "and records no failure marker" "0" "$([ -e "$CACHE/fail/dlea/$(key_of "$U/files/b.url").png" ] && echo 1 || echo 0)"
 
 # The same shape as a jail probe: PNG A is written only when a sibling read, a write to the input and a TCP connection were all refused; a file made beside the input is judged from the host.
 V=$D/user-b
@@ -375,8 +375,8 @@ prefetch_log="$D/qlprefetch.log"
 mkdir -p "$prefetch_root/config" "$prefetch_root/runtime" || { sandbox_remove "$D"; exit 1; }
 chmod 700 "$prefetch_root/runtime" || { sandbox_remove "$D"; exit 1; }
 ln -s "$PWD/tests/thumbs-qlprefetch.qml" "$prefetch_root/config/shell.qml" || { sandbox_remove "$D"; exit 1; }
-# The probe plans with production Thumbs and ExtThumbs, so it reads ui/ as flea.
-ln -s "$PWD/ui" "$prefetch_root/config/flea" || { sandbox_remove "$D"; exit 1; }
+# The probe plans with production Thumbs and ExtThumbs, so it reads ui/ as dlea.
+ln -s "$PWD/ui" "$prefetch_root/config/dlea" || { sandbox_remove "$D"; exit 1; }
 headless_commons "$prefetch_root" || { sandbox_remove "$D"; exit 1; }
 ln -s /usr/share/omarchy/shell/Ui "$prefetch_root/config/Ui" || { sandbox_remove "$D"; exit 1; }
 ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
@@ -396,7 +396,7 @@ if [ "$prefetch_done" != 1 ]; then
 fi
 
 # -A, never ls: the one kind of litter this subsystem leaves is a dotfile temp a bare ls cannot see.
-check "no temp file is left in the cache this run filled" "0" "$(ls -A "$CACHE/large" 2>/dev/null | grep -c '^\.flea-')"
+check "no temp file is left in the cache this run filled" "0" "$(ls -A "$CACHE/large" 2>/dev/null | grep -c '^\.dlea-')"
 sandbox_remove "$D"
 
 # The redirect is what makes this structural rather than a promise, so it is asserted.

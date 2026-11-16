@@ -4,7 +4,7 @@ import qs.Commons as Commons
 
 // The shared control, Containers rule 14 and the Keys board: a 14 unit interior inside two 2px
 // borders, filled in the foreground with the tick cut out of it, so no palette has to tell accent
-// from foreground. The shelf carries its own copy because a plugin cannot import Flea's components.
+// from foreground. The shelf carries its own copy because a plugin cannot import Dlea's components.
 Item {
   id: root
 

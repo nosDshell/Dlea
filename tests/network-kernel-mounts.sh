@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Issue #257: fake gio and mountinfo text into the real NetworkMounts.rebuild; the stub gio logs every call, so kernel rows classify from text and release once.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
-test_root="$FIXTURE_ROOT/flea-network-kernel-mounts-$$"
+test_root="$FIXTURE_ROOT/dlea-network-kernel-mounts-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
@@ -26,7 +26,7 @@ fuse_log="$test_root/fuse.log"
 
 cat > "$test_root/bin/gio" <<'EOS'
 #!/bin/sh
-echo "$*" >> "$FLEA_TEST_GIO_LOG"
+echo "$*" >> "$DLEA_TEST_GIO_LOG"
 case "$1 $2" in
   "mount -u") exit 0 ;;
   "mount -li") exit 0 ;;
@@ -37,18 +37,18 @@ chmod +x "$test_root/bin/gio"
 
 cat > "$test_root/bin/fusermount3" <<'EOS'
 #!/bin/sh
-echo "$*" >> "$FLEA_TEST_FUSE_LOG"
+echo "$*" >> "$DLEA_TEST_FUSE_LOG"
 exit 0
 EOS
 chmod +x "$test_root/bin/fusermount3"
 
 command -v strace >/dev/null || { echo "FAIL strace is not installed, so the automount trace cannot run"; exit 1; }
-idle_path=/mnt/flea-idle-automount
+idle_path=/mnt/dlea-idle-automount
 # One leg: qs under strace, every call that names a path traced, so a stat, statfs or open of the idle automount shows in the file.
 run_leg() {
     env \
-        FLEA_TEST_GIO_LOG="$gio_log" \
-        FLEA_TEST_FUSE_LOG="$fuse_log" \
+        DLEA_TEST_GIO_LOG="$gio_log" \
+        DLEA_TEST_FUSE_LOG="$fuse_log" \
         HOME="$test_root/home" \
         PATH="$test_root/bin:/usr/bin:/bin" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \

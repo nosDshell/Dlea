@@ -26,7 +26,7 @@
     "cancel": "Cancel, Escape and window close send no run request",
     "selection": "Revalidate the original captured selection after submit"
   },
-  "hello": ["op", "protocolVersion", "flea", "language", "decimal", "settings", "kinds"],
+  "hello": ["op", "protocolVersion", "dlea", "language", "decimal", "settings", "kinds"],
   "operations": [
     {"op": "targets", "kind": "send-target", "response": "targets"},
     {"op": "send", "kind": "send-target", "response": "done"},

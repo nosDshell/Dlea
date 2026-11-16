@@ -12,7 +12,7 @@ use super::{
     wire::{self, count, text},
 };
 use crate::jsondoc::Json;
-use flea::ui_logic_file_search::{
+use dlea::ui_logic_file_search::{
     scope_label, ContentsMatch, ContentsMatches, Kind, Scope, Session,
 };
 use std::{io::Write, process::Stdio, time::Duration};
@@ -271,7 +271,7 @@ fn tui_contents_fix1_held_kitty_graphics_through_stage() {
 #[test]
 #[ignore = "private captured-stdout stage entry point"]
 fn tui_contents_fix1_kitty_child() {
-    if std::env::var_os("FLEA_TUI_CONTENTS_CHILD").is_none() {
+    if std::env::var_os("DLEA_TUI_CONTENTS_CHILD").is_none() {
         return;
     }
     let (mut wire, reader) = wire::echo_wire();

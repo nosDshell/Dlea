@@ -1,6 +1,6 @@
 import QtQuick
 import Quickshell
-import "." as Flea
+import "." as Dlea
 import "js/DirSizes.js" as DirSizes
 import "js/Dropbox.js" as Dropbox
 import "js/ExtThumbs.js" as ExtThumbs
@@ -36,7 +36,7 @@ FocusScope {
     enabled: !root.settingsPanel || !root.settingsPanel.opened
     property var backend: null
     property string path: ""
-    // Set once by shell.qml from FLEA_SELECT; applied to the first `rows` this pane receives, then forgotten.
+    // Set once by shell.qml from DLEA_SELECT; applied to the first `rows` this pane receives, then forgotten.
     property string pendingSelect: ""
     // Set with pendingSelect by a right click on a peeked column row: the menu opens on the row once it is the cursor.
     property bool pendingMenu: false
@@ -812,10 +812,10 @@ FocusScope {
     // A path the caller already resolved, for the columns view's neighbour rows, which have no cursor.
     function openFile(path) { wire.opener.open(path) }
 
-    // A terminal in the caller's place or the directory being shown, through flea --terminal.
+    // A terminal in the caller's place or the directory being shown, through dlea --terminal.
     function openTerminal(path) { wire.opener.openTerminal(path || root.path) }
 
-    function newWindow() { Quickshell.execDetached(Tabs.freshLaunch([Quickshell.env("FLEA_BIN") || "flea", root.path])) }
+    function newWindow() { Quickshell.execDetached(Tabs.freshLaunch([Quickshell.env("DLEA_BIN") || "dlea", root.path])) }
 
     // Quoted when it holds whitespace, because this one is pasted into a shell: see ui/js/Format.js.
     function copyDirPath() { wire.opener.copyText(Format.shellQuoted(root.path)) }
@@ -833,12 +833,12 @@ FocusScope {
         return base === "/" ? "/" + name : base + "/" + name
     }
 
-    Flea.PaneWire {
+    Dlea.PaneWire {
         id: wire
         pane: root
     }
 
-    Flea.PaneRail {
+    Dlea.PaneRail {
         id: railHost
         anchors.left: parent.left
         // Over the listing, because with auto-hide on the rail is an overlay and not a column.
@@ -854,7 +854,7 @@ FocusScope {
         color: Glass.listBackground
     }
 
-    Flea.PanePath {
+    Dlea.PanePath {
         id: panePath
         anchors { left: railHost.right; right: parent.right; top: parent.top }
         height: root.dualMode && !trashHost.opened ? Theme.chromeHeight : 0
@@ -876,7 +876,7 @@ FocusScope {
         onActiveChanged: if (active) railHost.focusPress(focusPointer.point.position)
     }
 
-    Flea.Header {
+    Dlea.Header {
         id: header
         // Only the list view has columns to head, and neither the grid board nor the columns board
         // draws one; the strip collapses rather than hiding, so the view below starts at the top of
@@ -917,7 +917,7 @@ FocusScope {
     readonly property Item listSlot: root.viewMode === "grid" ? gridLoader : root.viewMode === "columns" ? columnsLoader : list
     readonly property int cursorStride: root.viewMode === "grid" && gridLoader.item ? gridLoader.item.columns : 1
 
-    Flea.FilterStrip {
+    Dlea.FilterStrip {
         id: filterStrip
         anchors.top: header.bottom
         anchors.left: railHost.right
@@ -1023,7 +1023,7 @@ FocusScope {
     signal switchPane()
     signal switchToRail()
 
-    Flea.List {
+    Dlea.List {
         id: list
         visible: !trashHost.opened && !root.flashActive && root.viewMode === "list"
         focus: visible
@@ -1048,7 +1048,7 @@ FocusScope {
         color: Theme.color.accent
     }
 
-    Flea.TrashHost {
+    Dlea.TrashHost {
         id: trashHost
         pane: root
         overlayParent: root.overlayParent
@@ -1069,7 +1069,7 @@ FocusScope {
     readonly property bool menuValuesLive: menu.preparing || menu.opened || root.sheetReadsMenu
     readonly property var menuPermissionRow: root.menuValuesLive ? root.permissionSelection() : null
 
-    Flea.MenuHost {
+    Dlea.MenuHost {
         id: menu
         pane: root
         parent: root.overlayParent || root
@@ -1097,7 +1097,7 @@ FocusScope {
         clipboardAvailable: root.clipboard.paths.length > 0
         clipboardWatchFailed: root.clipboardWatchFailed
         // Scripts, send peers and the shebang are requested only when a row menu opens.
-        onSnapshotRequested: { menuActions.snapshot(); Flea.Scripts.refresh(); menuActions.localSend.refresh(menu.localSend.installed); root.checkShebang(); if (root.canTag) root.tags().ask() }
+        onSnapshotRequested: { menuActions.snapshot(); Dlea.Scripts.refresh(); menuActions.localSend.refresh(menu.localSend.installed); root.checkShebang(); if (root.canTag) root.tags().ask() }
         onRefused: function(reason) { root.message(reason, true) }
         onNoticed: function(text) { root.message(text, false) }
         rowIsArchive: root.menuValuesLive && root.cursorRow !== null && !root.cursorRow.d && Archive.isArchive(root.cursorRow.n)
@@ -1147,7 +1147,7 @@ FocusScope {
         onLockedChosen: function (action, path) { root.performLocked(path, action) }
     }
 
-    Flea.PaneMenuActions {
+    Dlea.PaneMenuActions {
         id: menuActions
         parent: root.overlayParent || root
         pane: root
@@ -1185,7 +1185,7 @@ FocusScope {
     // are read off it directly, so a new reader costs the seam a line and this file none.
     function contextMenu() { return menu.item || menu }
 
-    Flea.PaneStates {
+    Dlea.PaneStates {
         id: paneStates
         pane: root
         trashOpen: trashHost.opened

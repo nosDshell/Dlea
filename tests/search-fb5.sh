@@ -11,13 +11,13 @@ cleanup() {
         printf 'search-fb5: logs kept in %s\n' "$root" >&2
         return 0
     fi
-    if [ -f "$root/.flea-test-sandbox" ]; then rm -rf -- "$root"; fi
+    if [ -f "$root/.dlea-test-sandbox" ]; then rm -rf -- "$root"; fi
 }
 if [ "${1:-}" != --isolated ]; then
     mkdir -p "$repo/.superpowers/fb5"
     root=$(mktemp -d "$repo/.superpowers/fb5/ci.XXXXXX")
     trap cleanup EXIT
-    : > "$root/.flea-test-sandbox"
+    : > "$root/.dlea-test-sandbox"
     mkdir -p "$root/home" "$root/tmp" "$root/config" "$root/data" "$root/state" "$root/cache" "$root/runtime"
     chmod 700 "$root/runtime"
     setsid -w env -i PATH="$PATH" HOME="$root/home" USER=gm LOGNAME=gm LANG=C.UTF-8 \
@@ -29,7 +29,7 @@ if [ "${1:-}" != --isolated ]; then
     exit 0
 fi
 root=${2:?isolated invocation needs its marked root}
-[ -f "$root/.flea-test-sandbox" ]
+[ -f "$root/.dlea-test-sandbox" ]
 python3 -B - <<'PY'
 import os
 try:
@@ -55,15 +55,15 @@ gate() {
     printf 'GATE %s exit=%s\n' "$name" "$rc"
     [ "$rc" -eq 0 ] || failed=$((failed + 1))
 }
-gate clippy tools/flea-clippy tools/clippy-baseline.txt "$root"
-# Its own target dir: the workspace's unified features would rebuild the shared target's debug flea mid-run.
+gate clippy tools/dlea-clippy tools/clippy-baseline.txt "$root"
+# Its own target dir: the workspace's unified features would rebuild the shared target's debug dlea mid-run.
 gate workspace cargo build --locked --workspace --target-dir "$root/workspace-target"
-if [ -f "$root/.flea-test-sandbox" ]; then rm -rf -- "$root/workspace-target"; fi
+if [ -f "$root/.dlea-test-sandbox" ]; then rm -rf -- "$root/workspace-target"; fi
 if grep -E '^warning(\[|:)' "$root/workspace.log"; then
     printf 'FAIL workspace emitted a warning\n'
     failed=$((failed + 1))
 fi
-gate release-build cargo build --release --locked --bin flea
+gate release-build cargo build --release --locked --bin dlea
 # cargo exits 0 when a name filter matches nothing, so each filtered gate states how many tests it runs.
 must_run() {
     local name=$1 want=$2 exact=${3:-} got
@@ -75,17 +75,17 @@ must_run() {
         failed=$((failed + 1))
     fi
 }
-gate regressions cargo test --release --locked --bin flea -- search_fix2 --nocapture
+gate regressions cargo test --release --locked --bin dlea -- search_fix2 --nocapture
 must_run regressions 3 exact
-gate stream cargo test --release --locked --bin flea -- search_streams_completed_blocks_before_the_last_directory_lands
+gate stream cargo test --release --locked --bin dlea -- search_streams_completed_blocks_before_the_last_directory_lands
 must_run stream 1 exact
-gate search cargo test --release --locked --bin flea -- search
+gate search cargo test --release --locked --bin dlea -- search
 must_run search 1
 gate protocol cargo test --release --locked --test search-fb5 -- --nocapture
 for run in 1 2 3; do
-    gate "probe-$run" cargo test --release --locked --bin flea -- --exact backend::searchjobs::tests::search_fb5_probe_worker_scale_pressure --ignored --nocapture --test-threads=1
+    gate "probe-$run" cargo test --release --locked --bin dlea -- --exact backend::searchjobs::tests::search_fb5_probe_worker_scale_pressure --ignored --nocapture --test-threads=1
     must_run "probe-$run" 1 exact
-    gate "rows-$run" cargo test --release --locked --bin flea -- --exact backend::searchrowcache::tests::search_fb5_probe_rich_rows_latency --ignored --nocapture --test-threads=1
+    gate "rows-$run" cargo test --release --locked --bin dlea -- --exact backend::searchrowcache::tests::search_fb5_probe_rich_rows_latency --ignored --nocapture --test-threads=1
     must_run "rows-$run" 1 exact
 done
 [ "$failed" -eq 0 ] || { printf 'search-fb5: FAIL %s gate(s)\n' "$failed"; exit 1; }

@@ -26,7 +26,7 @@ empty-string vector green, because a zero length has the same eight bytes in eit
 non-interactive ssh here. Under it, `large/<md5>.png` holds the 256 px thumbnails and
 `fail/<application>/<md5>.png` holds the markers that say a file could not be thumbnailed.
 `fail/` is namespaced by application because one program failing on a file says nothing
-about another; Flea's namespace is `flea`, and the only namespace this box already carries
+about another; Dlea's namespace is `dlea`, and the only namespace this box already carries
 is `gnome-thumbnail-factory`. `Cache::new` computes that root, and `Cache::at` takes one,
 so a test writes its markers into a temporary directory and never into the shared cache.
 
@@ -44,10 +44,10 @@ the spec's whole staleness rule: the thumbnail carries the modification time of 
 was made from, so an edited file misses and gets regenerated rather than showing its old
 picture. A missing, unparsable or different `Thumb::MTime` is a miss, never a hit.
 
-A `fail/flea` marker also carries an `X-Flea-Table` `tEXt` key, a 16 character `xxh64` hex
+A `fail/dlea` marker also carries an `X-Dlea-Table` `tEXt` key, a 16 character `xxh64` hex
 digest of the loaded thumbnailer table's sorted (MIME type, resolved program, arguments)
 entries that `Thumbnailers` computes once when it is built and hands to `lookup` and
-`record_failure`. A marker is `Hit::Failed` only when its mtime and its `X-Flea-Table` both
+`record_failure`. A marker is `Hit::Failed` only when its mtime and its `X-Dlea-Table` both
 match, so a marker from another table, or one with no such key (every marker written before it
 existed), is a `Hit::Miss`, the file is tried once more and a new failure rewrites the marker
 under the current table; nothing sweeps old markers.
@@ -109,20 +109,20 @@ remeasure rather than quoting a constant.
 
 The writer lives next to this reader on purpose: the two agreeing is the only property either
 of them has, so a change to one that is not made to the other is invisible until the desktop
-stops matching Flea's entries. `png_text` above reads a `tEXt` chunk; `thumbwrite.rs` writes
+stops matching Dlea's entries. `png_text` above reads a `tEXt` chunk; `thumbwrite.rs` writes
 one, and `a_stamped_png_reads_back_through_the_cache_parser` is the test that pins them
 together against a real file on disk.
 
 It owns the whole of publishing one entry safely: `exclusive_temp` opens
-`.flea-<pid>-<16 hex>.png` with `create_new` at 0600, `stamp` reads back the bare PNG a
+`.dlea-<pid>-<16 hex>.png` with `create_new` at 0600, `stamp` reads back the bare PNG a
 thumbnailer wrote and inserts three `tEXt` chunks directly after IHDR, and `write_marker`
-puts the same three chunks, and `X-Flea-Table` when it is given a table, in a 67-byte 1x1
+puts the same three chunks, and `X-Dlea-Table` when it is given a table, in a 67-byte 1x1
 greyscale PNG for the `fail/` namespace. The keys are `Thumb::URI`, `Thumb::MTime`,
-`Software` and, on a marker given a table, `X-Flea-Table`.
+`Software` and, on a marker given a table, `X-Dlea-Table`.
 
 **The CRC-32 is in-tree because the cache is shared.** A `tEXt` chunk needs a CRC that `std`
-does not have, and the alternative, skipping the chunks and keeping the mtime in a Flea-owned
-sidecar, was rejected: `lookup` reads `Thumb::MTime` out of the PNG itself, so a cache Flea
+does not have, and the alternative, skipping the chunks and keeping the mtime in a Dlea-owned
+sidecar, was rejected: `lookup` reads `Thumb::MTime` out of the PNG itself, so a cache Dlea
 writes but cannot re-read is worthless, and a `fail/` entry no other application honours
 defeats the only reason for using the shared cache. It is twenty lines, its table is built
 once in a `OnceLock` because it runs three times per stamped file, and

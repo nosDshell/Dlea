@@ -5,7 +5,7 @@
 var BLOCK_TAGS = { blockquote: 1, ul: 1, ol: 1, li: 1, p: 1, h1: 1, h2: 1, h3: 1, h4: 1, h5: 1, h6: 1,
     pre: 1, hr: 1, table: 1, thead: 1, tbody: 1, tr: 1, th: 1, td: 1 }
 var VOID_TAGS = { br: 1, hr: 1, img: 1, input: 1, source: 1 }
-// Tags Flea's sanitiser drops with their content (MdHtml DROP_CONTENT).
+// Tags Dlea's sanitiser drops with their content (MdHtml DROP_CONTENT).
 var DROP_CONTENT = { script: 1, style: 1, iframe: 1, object: 1, embed: 1, template: 1, noscript: 1, svg: 1, math: 1 }
 var ENTITIES = { amp: "&", lt: "<", gt: ">", quot: "\"", apos: "'", nbsp: " " }
 var INLINE_FORMAT = { strong: "b", b: "b", em: "i", i: "i", code: "code", kbd: "code", del: "s", s: "s",
@@ -217,7 +217,7 @@ function blockOf(n, design) {
     return "<" + t + attrs + ">" + flow(n.kids, loose, design) + "</" + t + ">"
 }
 
-// Sample input: "<p>a  <em>b</em></p>" answers "<p>a ⟦i|b⟧</p>"; design maps what Flea never draws out of the expected side.
+// Sample input: "<p>a  <em>b</em></p>" answers "<p>a ⟦i|b⟧</p>"; design maps what Dlea never draws out of the expected side.
 function canon(html, design) {
     return flow(parse(html).kids, false, design === true)
 }

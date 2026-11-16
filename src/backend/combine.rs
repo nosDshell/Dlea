@@ -1,7 +1,7 @@
 // Image layout math and ImageMagick commands are shared by the window and terminal cards.
 use super::{archivework::Work, convertbatch, opsreq::OpMsg, printconvert, printtool};
 use crate::json::{field_str, field_usize};
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::path::{Path, PathBuf};
 use std::sync::{
     atomic::{AtomicBool, Ordering},
@@ -9,7 +9,7 @@ use std::sync::{
     Arc,
 };
 
-pub use flea::ui_logic_print_convert::composition::*;
+pub use dlea::ui_logic_print_convert::composition::*;
 
 pub struct Ask {
     pub request_id: usize,

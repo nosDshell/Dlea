@@ -91,7 +91,7 @@ ShellRoot {
             root.check("second startup keeps A's pane", pane === root.heldPane)
             root.check("second startup keeps A's focus item", win.contentItem.Window.window.activeFocusItem === root.heldFocus)
             root.check("second startup keeps A's cursor", pane.cursorIndex === root.heldCursor)
-            root.check("second startup keeps A's path", pane.path === Quickshell.env("FLEA_PATH"))
+            root.check("second startup keeps A's path", pane.path === Quickshell.env("DLEA_PATH"))
             root.check("second startup never relists A", pane.backend.listRequests === root.heldLists)
             console.log("PROBE A done failures=" + root.failures.length + " settles=" + root.settles)
             body.quitBackends()

@@ -1,8 +1,8 @@
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Drag.js" as DragOps
-import "flea/js/Messages.js" as Messages
+import "dlea" as Dlea
+import "dlea/js/Drag.js" as DragOps
+import "dlea/js/Messages.js" as Messages
 
 // A peek column row lifts its own path, with the column's device and writability in the marker and no listing rows, and takes drops only on a folder row; a column with no peek source lifts nothing.
 ShellRoot {
@@ -68,31 +68,31 @@ ShellRoot {
         return null
     }
 
-    Flea.FileDrag { id: lone; pane: null; peekSource: root.source(true) }
-    Flea.FileDrag { id: locked; pane: null; peekSource: root.source(false) }
+    Dlea.FileDrag { id: lone; pane: null; peekSource: root.source(true) }
+    Dlea.FileDrag { id: locked; pane: null; peekSource: root.source(false) }
 
     FloatingWindow {
         implicitWidth: 1600
         implicitHeight: 400
-        Flea.ColumnPane {
+        Dlea.ColumnPane {
             id: peekColumn
             x: 0; width: 400; height: 400
             rows: root.names.map(function (n) { return { n: n, d: false, i: "text-x-generic" } })
             peekSource: root.source(true)
         }
-        Flea.ColumnPane {
+        Dlea.ColumnPane {
             id: bareColumn
             x: 400; width: 400; height: 400
             rows: root.names.map(function (n) { return { n: n, d: false, i: "text-x-generic" } })
         }
-        Flea.ColumnPane {
+        Dlea.ColumnPane {
             id: folderColumn
             x: 800; width: 400; height: 400
             rows: [{ n: "inbox", d: true, i: "folder" }]
             peekSource: root.source(true)
         }
         // A peek column of a file, a folder with a device, a folder with none, and far below the viewport a folder with none.
-        Flea.ColumnPane {
+        Dlea.ColumnPane {
             id: askColumn
             x: 1200; width: 400; height: 400
             rows: [{ n: "a.txt", d: false, i: "text-x-generic" }, { n: "big", d: true, v: 5 }, { n: "deep", d: true, i: "folder" }]

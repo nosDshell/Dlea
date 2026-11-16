@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-scroll-bounds-test
+//@ pragma ShellId dlea-scroll-bounds-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/Scroll.js" as Scroll
+import "dlea" as Dlea
+import "dlea/js/Scroll.js" as Scroll
 
 // tp2-r2: grid margin lanes and axis lanes on bare views, offscreen. A grid rests at -gap on
 // both axes and never reads overscrolled there; an axis with no scroll range takes no delta,
@@ -15,7 +15,7 @@ ShellRoot {
 
     property var failures: []
     property double fakeT: 1000
-    property real gap: Flea.Theme.spacing.gap
+    property real gap: Dlea.Theme.spacing.gap
     // Bar fixtures: a list whose content is shorter than the view by less than its two margins, a long one, and a bare one.
     readonly property real barTop: 40
     readonly property real barBottom: 30
@@ -35,7 +35,7 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 900
         implicitHeight: root.barViewY + root.barViewHeight
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
         GridView {
             id: grid
@@ -50,7 +50,7 @@ ShellRoot {
             cellHeight: 140
             boundsBehavior: Flickable.StopAtBounds
             delegate: Rectangle { required property int index; width: 110; height: 132 }
-            Flea.FastScrollHandler { parent: grid; flickable: grid }
+            Dlea.FastScrollHandler { parent: grid; flickable: grid }
         }
 
         ListView {
@@ -63,7 +63,7 @@ ShellRoot {
             clip: true
             boundsBehavior: Flickable.StopAtBounds
             delegate: Rectangle { required property int index; width: list.width; height: 28 }
-            Flea.FastScrollHandler { parent: list; flickable: list }
+            Dlea.FastScrollHandler { parent: list; flickable: list }
         }
 
         TestEvent { id: driver }
@@ -80,7 +80,7 @@ ShellRoot {
             clip: true
             boundsBehavior: Flickable.StopAtBounds
             delegate: Rectangle { required property int index; width: shortList.width; height: root.barRow }
-            Flea.ViewportScrollBar { id: shortBar; parent: shortList; anchors { top: parent.top; right: parent.right } flickable: shortList }
+            Dlea.ViewportScrollBar { id: shortBar; parent: shortList; anchors { top: parent.top; right: parent.right } flickable: shortList }
         }
 
         ListView {
@@ -95,7 +95,7 @@ ShellRoot {
             clip: true
             boundsBehavior: Flickable.StopAtBounds
             delegate: Rectangle { required property int index; width: longList.width; height: root.barRow }
-            Flea.ViewportScrollBar { id: longBar; parent: longList; anchors { top: parent.top; right: parent.right } flickable: longList }
+            Dlea.ViewportScrollBar { id: longBar; parent: longList; anchors { top: parent.top; right: parent.right } flickable: longList }
         }
 
         ListView {
@@ -108,7 +108,7 @@ ShellRoot {
             clip: true
             boundsBehavior: Flickable.StopAtBounds
             delegate: Rectangle { required property int index; width: bareList.width; height: root.barRow }
-            Flea.ViewportScrollBar { id: bareBar; parent: bareList; anchors { top: parent.top; right: parent.right } flickable: bareList }
+            Dlea.ViewportScrollBar { id: bareBar; parent: bareList; anchors { top: parent.top; right: parent.right } flickable: bareList }
         }
     }
 
@@ -119,7 +119,7 @@ ShellRoot {
     function bodyOf(view) {
         var kids = view.children
         for (var i = 0; i < kids.length; i++)
-            if (kids[i] && kids[i].objectName === "fleaScroll")
+            if (kids[i] && kids[i].objectName === "dleaScroll")
                 return kids[i]
         return null
     }
@@ -273,7 +273,7 @@ ShellRoot {
         var content = view.contentHeight + view.topMargin + view.bottomMargin
         var span = content - view.height
         if (!bar.overflow) { fail(label + " bar reads no overflow though the view scrolls " + span.toFixed(1)); return }
-        var length = Math.min(track, Math.max(Flea.Theme.hitMin, track * view.height / content))
+        var length = Math.min(track, Math.max(Dlea.Theme.hitMin, track * view.height / content))
         var travel = track - length
         if (Math.abs(bar.handleLength - length) > root.barTolerance)
             fail(label + " knob length " + bar.handleLength.toFixed(1) + ", want " + length.toFixed(1))

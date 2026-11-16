@@ -32,7 +32,7 @@ impl Text {
                 .format_count((*count).min(i64::MAX as usize) as i64),
             Self::Size(bytes) => i18n.locale().format_size(*bytes as u64),
             Self::Joined(parts) => parts.iter().map(|part| part.render(i18n)).collect(),
-            Self::Cause(words) => flea::ui_logic_status_feedback::errors::clause(words, i18n),
+            Self::Cause(words) => dlea::ui_logic_status_feedback::errors::clause(words, i18n),
         }
     }
 }
@@ -183,7 +183,7 @@ pub fn args(key: &'static str, args: Vec<Text>) -> Text {
     Text::Args(key, args)
 }
 // A backend sentence read back into its key; its cause argument stays a cause, so it re-renders in a new language too.
-pub fn sentence(sentence: flea::ui_logic_status_feedback::errors::Sentence) -> Text {
+pub fn sentence(sentence: dlea::ui_logic_status_feedback::errors::Sentence) -> Text {
     let cause = sentence.cause;
     let args = sentence
         .args
@@ -201,7 +201,7 @@ pub fn sentence(sentence: flea::ui_logic_status_feedback::errors::Sentence) -> T
 }
 // A backend message as the footer says it: a drive's name refusal in the current language, anything else as sent.
 pub fn said(message: &str) -> Text {
-    match flea::ui_logic_status_feedback::errors::drive_refusal(message) {
+    match dlea::ui_logic_status_feedback::errors::drive_refusal(message) {
         Some(refusal) => sentence(refusal),
         None => Text::Data(message.into()),
     }
@@ -217,9 +217,9 @@ impl super::model::Model {
     )]
     pub fn set_keycaps(
         &mut self,
-        snapshot: flea::keys::display::KeycapSnapshot,
+        snapshot: dlea::keys::display::KeycapSnapshot,
         map: &super::keymap::Map,
-    ) -> Result<(), flea::keys::display::KeycapError> {
+    ) -> Result<(), dlea::keys::display::KeycapError> {
         if self.keycaps == Some(snapshot) {
             return Ok(());
         }
@@ -233,7 +233,7 @@ impl super::model::Model {
             &mut hints.undo,
         ] {
             if !hint.is_empty() {
-                *hint = flea::keys::display::chord_legend(
+                *hint = dlea::keys::display::chord_legend(
                     &super::render::key_sheet::lowercase(hint),
                     &snapshot,
                 )?

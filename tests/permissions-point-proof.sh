@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Compositor-free proof that permissions_point fails closed and permissions_menu_point reveals a clipped menu row before it clicks.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-permpoint-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-permpoint-XXXXXX") || exit 1
 case $test_root in
   /*/*) ;;
   *) echo "FAIL: mktemp -d gave '$test_root', which is not an absolute path two components deep"; exit 1 ;;

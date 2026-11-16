@@ -80,7 +80,7 @@ fn publish(
         .filter(|p| !p.as_os_str().is_empty())
         .unwrap_or(Path::new("."));
     let directory = parent.join(format!(
-        ".flea-executable-{}-{}",
+        ".dlea-executable-{}-{}",
         std::process::id(),
         NEXT.fetch_add(1, Ordering::Relaxed)
     ));
@@ -97,7 +97,7 @@ fn publish(
     let (mut input, reader) = UnixStream::pair()?;
     // CLOEXEC still leaves a writer in a forked child until exec; only this isolated child opens the file.
     let mut writer = Writer(
-        Command::new(flea::testpath::tool("/bin/sh"))
+        Command::new(dlea::testpath::tool("/bin/sh"))
             .args(["-c", "set -C; mask=$(umask); /bin/cat > \"$1\" && /bin/chmod -- \"$(printf '%o' \"$(($2 & ~$mask))\")\" \"$1\"", "sh"])
             .arg(&body)
             .arg(mode.to_string())

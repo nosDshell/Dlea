@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # matchtext-zerowidth: a late match draws no zero-width run over the cells after the name in Columns, the list, a search row and a row with no match; the controls hold, and a ui tree without the fix fails the late cases.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -11,21 +11,21 @@ if ! command -v qs >/dev/null; then
 fi
 
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-matchtext-zerowidth.XXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-matchtext-zerowidth.XXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER" || exit 1
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
-# One config root per run: the driver as shell.qml, its stub pane and probes, the Commons and Ui singletons, and a ui tree as flea.
+# One config root per run: the driver as shell.qml, its stub pane and probes, the Commons and Ui singletons, and a ui tree as dlea.
 setup_config() {
     local name=$1 uitree=$2 config="$test_root/$1/config"
     mkdir -p "$config" "$test_root/$1/home" "$test_root/$1/state" "$test_root/$1/runtime" || return 1
     chmod 700 "$test_root/$1/runtime" || return 1
-    ln -s "$uitree" "$config/flea" || return 1
+    ln -s "$uitree" "$config/dlea" || return 1
     headless_commons "$test_root" "$config/Commons" || exit 1
     ln -s "$(readlink -f ui/boot/Ui)" "$config/Ui" || return 1
     # One ShellId per config, so the green and revert processes never share an instance id.
-    sed "s/ShellId flea-matchtext-zerowidth-test/ShellId flea-matchtext-zerowidth-$1-test/" tests/matchtext-zerowidth.qml > "$config/shell.qml" || return 1
+    sed "s/ShellId dlea-matchtext-zerowidth-test/ShellId dlea-matchtext-zerowidth-$1-test/" tests/matchtext-zerowidth.qml > "$config/shell.qml" || return 1
     cp tests/matchtext-pane.qml "$config/MatchtextPane.qml" || return 1
     cp tests/matchtext-zerowidth.js "$config/matchtext-zerowidth.js" || return 1
 }
@@ -49,9 +49,9 @@ fix_lines=$(grep -c '^[[:space:]]*visible: width > 0$' ui/MatchText.qml)
 revert=""
 if [ "$fix_lines" -eq 3 ]; then
     mkdir -p "$test_root/revert" || exit 1
-    cp -a ui "$test_root/revert/flea" || exit 1
-    sed -i '/^[[:space:]]*visible: width > 0$/d' "$test_root/revert/flea/MatchText.qml" || exit 1
-    setup_config revert "$test_root/revert/flea" || exit 1
+    cp -a ui "$test_root/revert/dlea" || exit 1
+    sed -i '/^[[:space:]]*visible: width > 0$/d' "$test_root/revert/dlea/MatchText.qml" || exit 1
+    setup_config revert "$test_root/revert/dlea" || exit 1
     revert=$(run_config revert)
 fi
 

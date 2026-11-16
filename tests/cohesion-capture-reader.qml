@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-cohesion-capture-reader-test
+//@ pragma ShellId dlea-cohesion-capture-reader-test
 import QtQuick
 import Quickshell
 import QtTest
-import "flea" as Flea
-import "flea/js/Buttons.js" as Buttons
-import "flea/js/Scroll.js" as Scroll
+import "dlea" as Dlea
+import "dlea/js/Buttons.js" as Buttons
+import "dlea/js/Scroll.js" as Scroll
 import "button-probe.js" as Probe
 
 // Real controls exercise the capture-only reader, including geometry while pressed and an item outside its clipping parent.
@@ -66,8 +66,8 @@ ShellRoot {
         Quickshell.execDetached(["kill", String(Quickshell.processId)])
     }
     Component.onCompleted: {
-        Flea.Theme.reducedMotion = false
-        root.reader = Qt.createComponent("flea/IpcControls.qml").createObject(root)
+        Dlea.Theme.reducedMotion = false
+        root.reader = Qt.createComponent("dlea/IpcControls.qml").createObject(root)
     }
 
     FloatingWindow {
@@ -78,16 +78,16 @@ ShellRoot {
             id: stage
             anchors.fill: parent
             visible: root.stage < 3
-            Flea.DialogButton { id: button; x: 100; y: 100; width: 100; height: 30; label: "Press" }
+            Dlea.DialogButton { id: button; x: 100; y: 100; width: 100; height: 30; label: "Press" }
             Item {
                 x: 100; y: 160; width: 40; height: 30; clip: true
-                Flea.DialogButton { x: 50; width: 80; height: 30; label: "Clipped" }
+                Dlea.DialogButton { x: 50; width: 80; height: 30; label: "Clipped" }
             }
-            Flea.MediaStrip { id: media; x: 10; y: 220; width: 480 }
-            Flea.MenuRow { x: 100; y: 280; width: 100; entry: ({label: "Images", action: "1"}); current: true }
-            Flea.SettingsRow { x: 100; y: 330; width: 200; row: ({kind: "hint", label: "Information"}) }
+            Dlea.MediaStrip { id: media; x: 10; y: 220; width: 480 }
+            Dlea.MenuRow { x: 100; y: 280; width: 100; entry: ({label: "Images", action: "1"}); current: true }
+            Dlea.SettingsRow { x: 100; y: 330; width: 200; row: ({kind: "hint", label: "Information"}) }
         }
-        Flea.SelectionPreview {
+        Dlea.SelectionPreview {
             id: pdf
             anchors.fill: parent
             visible: root.stage === 3 || root.stage === 4 || root.stage === 6 || root.stage === 7
@@ -95,7 +95,7 @@ ShellRoot {
             meta: ({})
             path: Quickshell.env("HOME") + "/fixture/manual.pdf"
         }
-        Flea.KeymapSheet {
+        Dlea.KeymapSheet {
             anchors.fill: parent
             opened: root.stage === 5
         }
@@ -143,8 +143,8 @@ ShellRoot {
                     [root.rest.x, root.rest.y, root.rest.w, root.rest.h, root.rest.targetX, root.rest.targetY].join(), "a press keeps the hit box and coordinate signature fixed")
                 root.check(button.scale === 1 && held.x === root.rest.x && held.y === root.rest.y
                     && held.w === root.rest.w && held.h === root.rest.h, "press keeps the root unscaled and coordinate signature stable")
-                var insetX = Flea.Theme.reducedMotion ? 0 : Math.round(button.width * (1 - Buttons.PRESS_SCALE) / 2)
-                var insetY = Flea.Theme.reducedMotion ? 0 : Math.round(button.frameHeight * (1 - Buttons.PRESS_SCALE) / 2)
+                var insetX = Dlea.Theme.reducedMotion ? 0 : Math.round(button.width * (1 - Buttons.PRESS_SCALE) / 2)
+                var insetY = Dlea.Theme.reducedMotion ? 0 : Math.round(button.frameHeight * (1 - Buttons.PRESS_SCALE) / 2)
                 root.check(root.rect(root.named(button, "buttonFrame"), button).join() ===
                     [insetX, button.frameY + insetY, Math.round(button.width) - 2 * insetX, Math.round(button.frameHeight) - 2 * insetY].join(), "only the frame takes the exact whole-pixel press inset")
                 root.check(root.rect(root.named(button, "buttonLabel"), stage).join() === root.restLabel.join(), "a press keeps the caption geometry fixed")
@@ -186,7 +186,7 @@ ShellRoot {
                 console.log("COH_SLEEP headless cols-pdf bar=false type=" + String(pdf).split("(")[0])
                 root.wakeAt = Date.now()
                 var frame = pdf.frameItem, centre = frame.mapToItem(pdf, frame.width / 2, frame.height / 2)
-                if (Quickshell.env("FLEA_COH_SKIP_WHEEL") !== "true")
+                if (Quickshell.env("DLEA_COH_SKIP_WHEEL") !== "true")
                     driver.mouseWheel(pdf, centre.x, centre.y, Qt.NoButton, Qt.NoModifier, 0, -120, 1)
                 root.stage = 6
                 return

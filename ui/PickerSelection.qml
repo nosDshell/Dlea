@@ -64,7 +64,7 @@ Item {
         picker.markRequest = -1
         if (!listing.paths(indices, pending.request)) {
             reset()
-            picker.say("Flea stopped responding. Reopen this folder.", true)
+            picker.say("Dlea stopped responding. Reopen this folder.", true)
         }
     }
     function validate(accepting) {
@@ -132,7 +132,7 @@ Item {
         running: root.pending !== null && root.picker.markRequest === -1
         onTriggered: {
             root.reset()
-            root.picker.say("Flea did not confirm the selection. Try again.", true)
+            root.picker.say("Dlea did not confirm the selection. Try again.", true)
         }
     }
     Connections {

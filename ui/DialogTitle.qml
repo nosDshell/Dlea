@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 
 // A dialog's header line: what the dialog is doing on the left, and the word that closes it on the
 // right. Dialogs rule 7 puts that word in the same corner on every dialog, which is the corner
@@ -28,7 +28,7 @@ Item {
         elide: root.elide
     }
 
-    Flea.EscapeHint {
+    Dlea.EscapeHint {
         id: escHint
         anchors.right: parent.right
         anchors.baseline: label.baseline

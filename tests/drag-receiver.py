@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """One Wayland drop target. Logs the offer and exits.
 
-tests/drag.sh starts this beside Flea. It is not a file manager: it accepts the
+tests/drag.sh starts this beside Dlea. It is not a file manager: it accepts the
 drop, writes the MIME types, the uri-list body and the action mask, and quits.
 
 Safety: the log path must be an absolute path inside a directory carrying the
-.flea-test-sandbox marker (the run's own sandbox root or directly inside one).
+.dlea-test-sandbox marker (the run's own sandbox root or directly inside one).
 Anything else is refused before GTK starts, so a bad argv cannot append to an
 operator file. The drop body is capped at 1 MiB. Only this process quits.
 """
@@ -20,11 +20,11 @@ from gi.repository import Gdk, Gio, GLib, Gtk
 
 from drag_read import DropReader, MIME_TYPES, RECEIVER_LIFETIME
 
-MARKER = ".flea-test-sandbox"
-# Sample input: FLEA_RECV_W="420" sets the receiver width to 420 pixels.
-RECEIVER_WIDTH = int(os.environ.get("FLEA_RECV_W", "420"))
-# Sample input: FLEA_RECV_H="320" sets the receiver height to 320 pixels.
-RECEIVER_HEIGHT = int(os.environ.get("FLEA_RECV_H", "320"))
+MARKER = ".dlea-test-sandbox"
+# Sample input: DLEA_RECV_W="420" sets the receiver width to 420 pixels.
+RECEIVER_WIDTH = int(os.environ.get("DLEA_RECV_W", "420"))
+# Sample input: DLEA_RECV_H="320" sets the receiver height to 320 pixels.
+RECEIVER_HEIGHT = int(os.environ.get("DLEA_RECV_H", "320"))
 
 
 def owned_log_path(argv):
@@ -57,10 +57,10 @@ class Receiver(Gtk.Application):
     finish_action = Gdk.DragAction.COPY
 
     def __init__(self):
-        super().__init__(application_id="com.thisisgm.FleaDragReceiver")
+        super().__init__(application_id="com.thisisgm.DleaDragReceiver")
 
     def do_activate(self):
-        window = Gtk.ApplicationWindow(application=self, title="flea-drag-receiver")
+        window = Gtk.ApplicationWindow(application=self, title="dlea-drag-receiver")
         window.set_default_size(RECEIVER_WIDTH, RECEIVER_HEIGHT)
         label = Gtk.Label(label="drop here")
         label.set_hexpand(True)

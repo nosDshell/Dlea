@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-preview-settle-test
+//@ pragma ShellId dlea-preview-settle-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // Production previews use the real 120ms timer; count backend asks and loads in automatic and seeded manual modes.
 ShellRoot {
@@ -17,7 +17,7 @@ ShellRoot {
     property int pollNext: -1
     property int qlLoads: 0
     property var flow: []
-    property bool manual: Quickshell.env("FLEA_PREVIEWSETTLE_MANUAL") === "1"
+    property bool manual: Quickshell.env("DLEA_PREVIEWSETTLE_MANUAL") === "1"
     // e80q: the held Quick Look move's pre-landing path and mid-frame count.
     property string qlOld: ""
     property int qlMid0: 0
@@ -72,7 +72,7 @@ ShellRoot {
         console.log("PREVIEWSETTLE " + (cond ? "PASS" : "FAIL") + " " + name
             + " meta=" + backend.metaCalls + " loaded=" + preview.loadedIndex
             + " canRead=" + preview.canRead + " visible=" + preview.visible
-            + " automatic=" + Flea.ViewState.previewAutomatic + " storage=" + pane.storageClass
+            + " automatic=" + Dlea.ViewState.previewAutomatic + " storage=" + pane.storageClass
             + " known=" + pane.storageKnown + (detail ? " " + detail : ""))
     }
 
@@ -124,7 +124,7 @@ ShellRoot {
             return false
         var earlier = root.failures.length
         console.log("PREVIEWSETTLE " + (earlier > 0 ? "STALL" : "VOID") + " " + name + " span=" + span
-            + " earlier=" + earlier + " attempt=" + Quickshell.env("FLEA_PREVIEWSETTLE_ATTEMPT"))
+            + " earlier=" + earlier + " attempt=" + Quickshell.env("DLEA_PREVIEWSETTLE_ATTEMPT"))
         if (earlier > 0)
             root.done()
         else
@@ -190,7 +190,7 @@ ShellRoot {
 
     QtObject {
         id: pane
-        property string path: Quickshell.env("FLEA_PREVIEWSETTLE_DIR")
+        property string path: Quickshell.env("DLEA_PREVIEWSETTLE_DIR")
         property int cursorIndex: -1
         property int selectionVersion: 0
         property var rows: root.buildRows()
@@ -214,7 +214,7 @@ ShellRoot {
         width: 800
         height: 600
 
-        Flea.SelectionPreview {
+        Dlea.SelectionPreview {
             id: preview
             width: 800
             height: 600
@@ -229,7 +229,7 @@ ShellRoot {
         width: 800
         height: 600
 
-        Flea.Preview {
+        Dlea.Preview {
             id: quick
             width: 800
             height: 600

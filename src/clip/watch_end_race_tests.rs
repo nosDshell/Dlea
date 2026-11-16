@@ -20,13 +20,13 @@ fn gone_owner(reaped: bool) -> Reaped {
 
 fn fresh_selection(conn: &mut Conn, token: &str, pid: u32) {
     let callback = read_start(conn);
-    offer(conn, INITIAL_OFFER, &[format::FLEA, format::GNOME]);
+    offer(conn, INITIAL_OFFER, &[format::DLEA, format::GNOME]);
     conn.send(callback, CALLBACK_DONE, &[], &[]).unwrap();
     let answers = HashMap::from([
-        (format::FLEA.into(), format!("cut {} {}", token, pid).into_bytes()),
+        (format::DLEA.into(), format!("cut {} {}", token, pid).into_bytes()),
         (format::GNOME.into(), format::build_gnome("cut", &["/tmp/a".into()])),
     ]);
-    serve_n(conn, &answers, FLEA_RECEIVES);
+    serve_n(conn, &answers, DLEA_RECEIVES);
 }
 
 fn no_more_reads(watching: &mut Watching) {
@@ -90,7 +90,7 @@ fn gone_at_report_dedupes_reserved_token() {
 #[test]
 fn foreign_live_pids_do_not_read() {
     if isolated("races::foreign_live_pids_do_not_read") { return; }
-    let foreign = Reaped(Some(std::process::Command::new(flea::testpath::tool("/bin/cat"))
+    let foreign = Reaped(Some(std::process::Command::new(dlea::testpath::tool("/bin/cat"))
         .stdin(std::process::Stdio::piped()).stdout(std::process::Stdio::null()).spawn().unwrap()));
     let mut watching = Watching::new();
     watching.report(INITIAL_OFFER, TOKEN, Some(foreign.0.as_ref().unwrap().id()));
@@ -106,8 +106,8 @@ fn a_delayed_offer_cannot_restore_an_ended_token() {
     let mut watching = Watching::new();
     watching.report(INITIAL_OFFER, TOKEN, Some(owner.0.as_ref().unwrap().id()));
     let conn = watching.conn.as_mut().unwrap();
-    offer(conn, DELAYED_OFFER, &[format::FLEA, format::GNOME]);
-    let answers = HashMap::from([(format::FLEA.into(), format!("cut {} {}", TOKEN, owner.0.as_ref().unwrap().id()).into_bytes())]);
+    offer(conn, DELAYED_OFFER, &[format::DLEA, format::GNOME]);
+    let answers = HashMap::from([(format::DLEA.into(), format!("cut {} {}", TOKEN, owner.0.as_ref().unwrap().id()).into_bytes())]);
     serve_n(conn, &answers, ONE_RECEIVE);
     let request = conn.next_raw(WATCHDOG_MS).unwrap().expect("the delayed GNOME receive");
     assert_eq!((request.sender, request.opcode), (DELAYED_OFFER, OFFER_RECEIVE));

@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-button-heldmask-test
+//@ pragma ShellId dlea-button-heldmask-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // tests/button-system.sh's fourth harness: a wrong archive password keeps its bullets as DialogField's heldMask, and clearing them is an edit, so the error sentence goes with them.
 ShellRoot {
@@ -38,7 +38,7 @@ ShellRoot {
         implicitHeight: 80
         color: "#303030"
 
-        Flea.DialogField { id: field; x: 20; y: 10; width: 360; label: "Password"; secret: true; onEdited: shell.edits += 1 }
+        Dlea.DialogField { id: field; x: 20; y: 10; width: 360; label: "Password"; secret: true; onEdited: shell.edits += 1 }
         TestEvent { id: driver }
     }
 

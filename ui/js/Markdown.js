@@ -10,7 +10,7 @@
 
 // Whole sentences with "%1" for a value, filled by fill so each translates as one.
 var WORDS = {
-    deepNotice: "This file nests deeper than %1 levels, so Flea shows its source."
+    deepNotice: "This file nests deeper than %1 levels, so Dlea shows its source."
 }
 
 var RENDERED = "rendered"

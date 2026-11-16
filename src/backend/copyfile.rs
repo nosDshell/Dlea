@@ -1,5 +1,5 @@
 // The copy primitives every transfer is built from: streaming, symlink-preserving, and refusing to overwrite.
-use crate::error::{from_io, FleaError};
+use crate::error::{from_io, DleaError};
 use std::io::{Seek, SeekFrom, Write};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -75,11 +75,11 @@ fn here(path: &Path) -> At<'_> {
 // Copies one regular file, creating the destination exclusively so an existing file is never destroyed.
 // Test only: copy_any routes the product's copies, and copynode's fifo test is the last caller by path.
 #[cfg(test)]
-pub fn copy_file(src: &Path, dst: &Path, total: u64, p: &mut Progress) -> Result<(), FleaError> {
+pub fn copy_file(src: &Path, dst: &Path, total: u64, p: &mut Progress) -> Result<(), DleaError> {
     copy_file_at(here(src), here(dst), total, p, false)
 }
 
-fn copy_file_at(src: At, dst: At, total: u64, p: &mut Progress, inside: bool) -> Result<(), FleaError> {
+fn copy_file_at(src: At, dst: At, total: u64, p: &mut Progress, inside: bool) -> Result<(), DleaError> {
     // Anything reaching here that is not a regular file was swapped in after copy_any's stat:
     // O_NOFOLLOW refuses a symlink, and regfile's non-blocking open and fstat refuse every other kind.
     let (r, src_meta) = crate::backend::regfile::open_if_regular_with_meta(src.at, O_NOFOLLOW)
@@ -280,7 +280,7 @@ fn copy_file_at(src: At, dst: At, total: u64, p: &mut Progress, inside: bool) ->
 }
 
 // gvfs answers fsync and close before a WebDAV upload ends, so the file counts once close succeeds and a fresh stat shows all of it.
-fn land(p: &mut Progress, len: u64, dst: At, w: std::fs::File) -> Result<(), FleaError> {
+fn land(p: &mut Progress, len: u64, dst: At, w: std::fs::File) -> Result<(), DleaError> {
     let landed = landed::close_file(w).map_err(landed::Unlanded::Failed).and_then(|()| landed::await_landed(dst.at, len, p.cancel));
     landed.map_err(|e| left_partial(p, dst.named, e.error("copy", dst.named)))
 }
@@ -395,8 +395,8 @@ fn refuse_for_size(name: &str, magic: Option<i64>, free: u64, blocks: u64, size:
     None
 }
 
-fn copy_err(path: &Path, msg: &str) -> FleaError {
-    FleaError { where_: "copy".to_string(), path: path.to_string_lossy().to_string(), msg: msg.to_string() }
+fn copy_err(path: &Path, msg: &str) -> DleaError {
+    DleaError { where_: "copy".to_string(), path: path.to_string_lossy().to_string(), msg: msg.to_string() }
 }
 
 // The permission bits a copy carries: the source's own, minus anything the umask withholds, and never
@@ -456,13 +456,13 @@ fn umask() -> u32 {
 }
 
 // A failure after the destination was created, and not a cancel: the partial stays, and is reported for the journal.
-fn left_partial(p: &mut Progress, dst: &Path, e: FleaError) -> FleaError {
+fn left_partial(p: &mut Progress, dst: &Path, e: DleaError) -> DleaError {
     p.partial = Some(dst.to_path_buf());
     e
 }
 
 // A hidden sibling goes as a cancel's does; an in-place file or a sibling that would not go stays for the journal.
-fn left_half_written(p: &mut Progress, dst: At, stage: &Stage, w: &std::fs::File, e: FleaError) -> FleaError {
+fn left_half_written(p: &mut Progress, dst: At, stage: &Stage, w: &std::fs::File, e: DleaError) -> DleaError {
     if stage.staged() && stage.discard().is_ok() {
         return e;
     }
@@ -475,7 +475,7 @@ fn left_half_written(p: &mut Progress, dst: At, stage: &Stage, w: &std::fs::File
 }
 
 // A staged folder that failed goes whole, so its name never holds part of a tree; one that will not go is journaled.
-fn drop_folder(p: &mut Progress, dst: At, folder: &Folder, e: FleaError) -> FleaError {
+fn drop_folder(p: &mut Progress, dst: At, folder: &Folder, e: DleaError) -> DleaError {
     let leaf = folder.at().file_name().map(|leaf| dst.named.with_file_name(leaf));
     #[cfg(test)]
     let removed = if STUCK_FOLDER.with(|v| v.replace(false)) { Err(()) } else { remove_tree(folder.at()) };
@@ -491,7 +491,7 @@ fn drop_folder(p: &mut Progress, dst: At, folder: &Folder, e: FleaError) -> Flea
 }
 
 // Inside a tree the torn file is named and skipped like a refusal; at the top it is the item's own failure.
-fn torn(p: &mut Progress, dst: At, stage: &Stage, w: std::fs::File) -> FleaError {
+fn torn(p: &mut Progress, dst: At, stage: &Stage, w: std::fs::File) -> DleaError {
     let e = super::unheld::marked(dst.named, if p.for_move { "changed during the move" } else { "changed during the copy" }.to_string());
     if stage.discard().is_ok() {
         return e;
@@ -500,7 +500,7 @@ fn torn(p: &mut Progress, dst: At, stage: &Stage, w: std::fs::File) -> FleaError
 }
 
 // The whole file takes its name; a name taken meanwhile, or one the drive refuses, answers as the create would have.
-fn publish(p: &Progress, src: At, dst: At, stage: &Stage) -> Result<(), FleaError> {
+fn publish(p: &Progress, src: At, dst: At, stage: &Stage) -> Result<(), DleaError> {
     stage.publish(dst.at).map_err(|e| {
         let _ = stage.discard();
         super::unheld::refused(Kind::Entry, &e, dst, p.tree.is_some().then_some(src.at))
@@ -518,7 +518,7 @@ fn record_open(p: &mut Progress, named: &Path, w: &std::fs::File) {
 }
 
 // A symlink is copied as a symlink and never followed, matching cp -a and every file manager in the parity audit.
-fn copy_symlink_at(src: At, dst: At, p: &mut Progress) -> Result<(), FleaError> {
+fn copy_symlink_at(src: At, dst: At, p: &mut Progress) -> Result<(), DleaError> {
     let target = std::fs::read_link(src.at).map_err(|e| from_io("copy", &src.named.to_string_lossy(), &e))?;
     super::unheld::fault(dst.named, Kind::Link)
         .and_then(|()| std::os::unix::fs::symlink(&target, dst.at))
@@ -535,7 +535,7 @@ fn copy_symlink_at(src: At, dst: At, p: &mut Progress) -> Result<(), FleaError> 
 
 // Copies a file, a symlink, a whole directory tree, or any other node by recreating it. The
 // destination must not already exist.
-pub fn copy_any(src: &Path, dst: &Path, p: &mut Progress) -> Result<(), FleaError> {
+pub fn copy_any(src: &Path, dst: &Path, p: &mut Progress) -> Result<(), DleaError> {
     // A move whose source its folder will not give up fails before the first byte, with the source whole.
     if p.for_move {
         movable(src)?;
@@ -556,7 +556,7 @@ pub fn copy_any(src: &Path, dst: &Path, p: &mut Progress) -> Result<(), FleaErro
     }
 }
 
-fn copy_at(src: At, dst: At, p: &mut Progress, inside: bool) -> Result<(), FleaError> {
+fn copy_at(src: At, dst: At, p: &mut Progress, inside: bool) -> Result<(), DleaError> {
     let meta = src
         .at
         .symlink_metadata()
@@ -614,7 +614,7 @@ pub(crate) fn test_force_exdev(force: bool) {
 }
 
 // Same filesystem is a rename; a different one is copy-then-remove, and the source only goes once the copy is complete.
-pub fn move_any(src: &Path, dst: &Path, p: &mut Progress) -> Result<(), FleaError> {
+pub fn move_any(src: &Path, dst: &Path, p: &mut Progress) -> Result<(), DleaError> {
     // A case twin reverses through the temp sibling, so redo shares the path the rename took.
     if crate::backend::renamecompat::is_same_item_for_move(src, dst) {
         crate::backend::renamecompat::case_twin_move(src, dst)?;
@@ -649,7 +649,7 @@ pub fn move_any(src: &Path, dst: &Path, p: &mut Progress) -> Result<(), FleaErro
 }
 
 // The copy's folders are confirmed before the source goes, or a crash before the caller's flush loses the file.
-pub(crate) fn move_cross_device(src: &Path, dst: &Path, p: &mut Progress) -> Result<(), FleaError> {
+pub(crate) fn move_cross_device(src: &Path, dst: &Path, p: &mut Progress) -> Result<(), DleaError> {
     copy_any(src, dst, p)?;
     // An unconfirmed copy is journaled like a partial one, so undo can take it back while the source stays whole.
     if let Err(e) = confirm_dest(p, dst) {
@@ -670,13 +670,13 @@ pub(crate) fn move_cross_device(src: &Path, dst: &Path, p: &mut Progress) -> Res
 
 // Where a move's removal of its source stopped: before anything went, or partway through a folder.
 pub(crate) enum Unremoved {
-    Whole(FleaError),
-    Part(FleaError),
+    Whole(DleaError),
+    Part(DleaError),
 }
 
 // A move whose source would not go; copy_to_undo marks a whole source whose copy would not go back either.
 pub(crate) struct Unmoved {
-    pub error: FleaError,
+    pub error: DleaError,
     pub copy_to_undo: bool,
 }
 
@@ -700,7 +700,7 @@ pub(crate) fn finish_move(src: &Path, dst: &Path, durability: Option<&mut super:
 }
 
 // The folder must let this process take the item out; a sticky folder only lets the item's owner or its own.
-pub(crate) fn movable(src: &Path) -> Result<(), FleaError> {
+pub(crate) fn movable(src: &Path) -> Result<(), DleaError> {
     let meta = src.symlink_metadata().map_err(|e| from_io("move", &src.to_string_lossy(), &e))?;
     match src.parent().filter(|parent| !parent.as_os_str().is_empty()) {
         Some(parent) => deep::removable_from(parent, &meta).map_err(|e| from_io("move", &src.to_string_lossy(), &e)),
@@ -719,12 +719,12 @@ pub(crate) fn remove_moved(src: &Path) -> Result<(), Unremoved> {
     removed.map_err(|e| match (gone, src.symlink_metadata().is_ok()) {
         (0, true) => Unremoved::Whole(e),
         (0, false) => Unremoved::Part(e),
-        _ => Unremoved::Part(FleaError { msg: format!("{}; part of it was removed, and the copy holds all of it", e.msg), ..e }),
+        _ => Unremoved::Part(DleaError { msg: format!("{}; part of it was removed, and the copy holds all of it", e.msg), ..e }),
     })
 }
 
 // The folders copy_any touched; held files settle first so the source goes only after the bytes.
-fn confirm_dest(p: &mut Progress, dst: &Path) -> Result<(), FleaError> {
+fn confirm_dest(p: &mut Progress, dst: &Path) -> Result<(), DleaError> {
     let failed = match p.durability.as_mut() {
         Some(durability) => durability.flush_dirs_for(dst).is_err(),
         None => dst
@@ -740,16 +740,16 @@ fn confirm_dest(p: &mut Progress, dst: &Path) -> Result<(), FleaError> {
 }
 
 // One unconfirmed copy keeps its source, so a crash never loses the file.
-fn unconfirmed(dst: &Path) -> FleaError {
-    FleaError {
+fn unconfirmed(dst: &Path) -> DleaError {
+    DleaError {
         where_: "move".to_string(),
         path: dst.to_string_lossy().to_string(),
         msg: crate::backend::durable::DIR_UNCONFIRMED.to_string(),
     }
 }
 
-fn cancel_err(path: &Path) -> FleaError {
-    FleaError {
+fn cancel_err(path: &Path) -> DleaError {
+    DleaError {
         where_: "copy".to_string(),
         path: path.to_string_lossy().to_string(),
         msg: "cancelled".to_string(),

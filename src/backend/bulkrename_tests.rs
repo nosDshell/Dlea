@@ -52,7 +52,7 @@ fn names(names: &[&str]) -> Vec<String> {
 fn listing(directory: &TestDir) -> Vec<String> {
     let mut out: Vec<String> = std::fs::read_dir(directory.path()).unwrap()
         .map(|entry| entry.unwrap().file_name().to_string_lossy().to_string())
-        .filter(|name| name != ".flea-test-sandbox").collect();
+        .filter(|name| name != ".dlea-test-sandbox").collect();
     out.sort();
     out
 }
@@ -165,7 +165,7 @@ fn a_second_loop_failure_names_the_stranded_temp() {
     let (steps, result) = execute(items);
     let error = result.expect_err("the taken destination fails the second loop");
     assert!(!steps.is_empty(), "the staged occupant is journalled: {:?}", steps);
-    let temps: Vec<String> = listing(&directory).into_iter().filter(|n| n.starts_with(".flea-bulk-")).collect();
+    let temps: Vec<String> = listing(&directory).into_iter().filter(|n| n.starts_with(".dlea-bulk-")).collect();
     assert_eq!(temps.len(), 1, "one occupant is stranded: {:?}", listing(&directory));
     assert!(error.msg.contains(&temps[0]), "the error names the stranded temp: {}", error.msg);
     assert_eq!(std::fs::read_to_string(directory.join(&temps[0])).unwrap(), "bbb");
@@ -184,7 +184,7 @@ fn a_landed_staged_item_is_not_named_when_a_later_move_fails() {
     let error = result.expect_err("the taken destination fails the last move");
     assert_eq!(steps.len(), 3, "the temp move and both landed moves are journalled: {:?}", steps);
     assert_eq!(listing(&directory), ["b.txt", "c.txt", "x.txt", "y.txt"], "no temp is left behind");
-    assert!(!error.msg.contains(".flea-bulk-") && !error.msg.contains("Staged copies"), "the error names no temp that is gone: {}", error.msg);
+    assert!(!error.msg.contains(".dlea-bulk-") && !error.msg.contains("Staged copies"), "the error names no temp that is gone: {}", error.msg);
     assert_eq!(std::fs::read_to_string(directory.join("x.txt")).unwrap(), "bbb");
 }
 
@@ -223,7 +223,7 @@ fn a_raw_named_item_renames_and_its_twin_stays() {
     std::fs::write(&raw, "raw").unwrap();
     let twin = directory.file("r\u{fffd}.txt", "twin");
     let (items, _) = plan(
-        &[flea::bytename::path_text(&raw).into_owned()],
+        &[dlea::bytename::path_text(&raw).into_owned()],
         &names(&["kept.txt"]),
     )
     .unwrap();

@@ -457,7 +457,7 @@ fn available(e: &mut Entry, spec: &Spec, p: &Context, kind: Kind) -> bool {
     if action == "sort" {
         e.submenu = Some(rows::sort_entries(p.has_folder_sort, &p.sort_by));
     }
-    if action == "updateFlea" {
+    if action == "updateDlea" {
         if p.update_version.is_empty() {
             return false;
         }

@@ -39,7 +39,7 @@ QtObject {
 
     function item(module, text, plain) {
         var format = plain ? "Text.PlainText" : "Text.MarkdownText"
-        var made = Qt.createQmlObject('import QtQuick\nimport "' + module + '" as Flea\nFlea.MarkdownText {\nwidth: ' + geometryWidth
+        var made = Qt.createQmlObject('import QtQuick\nimport "' + module + '" as Dlea\nDlea.MarkdownText {\nwidth: ' + geometryWidth
             + '\ntextFormat: ' + format + '\n}', sandbox)
         made.text = text
         made.forceLayout()

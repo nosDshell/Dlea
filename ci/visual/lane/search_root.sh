@@ -35,7 +35,7 @@ case_search_root_folder() (
     local original_home=$HOME input
     export HOME=$C/search-root
     mkdir -p "$HOME/Here" "$HOME/Elsewhere" || return 1
-    : > "$HOME/.flea-test-sandbox"
+    : > "$HOME/.dlea-test-sandbox"
     for input in .local/state/omarchy/current/theme/{colors.toml,shell.toml,icons.theme} \
         .local/state/omarchy/current/theme.name .config/omarchy/shell.toml \
         .config/fontconfig/{fonts.conf,conf.d/50-omarchy-input-method.conf}; do

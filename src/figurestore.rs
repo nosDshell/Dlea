@@ -1,4 +1,4 @@
-// `flea --figure-store`: the persistent SVG cache beside the bytecode, answering get, put and known lines; see AGENTS.md "Markdown figures".
+// `dlea --figure-store`: the persistent SVG cache beside the bytecode, answering get, put and known lines; see AGENTS.md "Markdown figures".
 use crate::figurecache;
 use crate::json;
 use crate::oflags::O_NOFOLLOW;
@@ -9,7 +9,7 @@ use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime};
 
 // The first line of an entry, so a future layout or engine is a different file and not a misread one (2: Pele, 3: SW-19, 4: v0.3.12 geometry).
-const FORMAT: &str = "flea-figure-svg 4";
+const FORMAT: &str = "dlea-figure-svg 4";
 const SVG_DIR: &str = "svg";
 const EXTENSION: &str = ".svg";
 const SCRATCH_MARK: &str = ".tmp-";
@@ -73,7 +73,7 @@ fn encode(key: &str, svg: &str) -> Vec<u8> {
     bytes
 }
 
-// Sample input: "flea-figure-svg 4\n5 3\nhello<s/>" is key "hello" and svg "<s/>"; any other length or key is refused.
+// Sample input: "dlea-figure-svg 4\n5 3\nhello<s/>" is key "hello" and svg "<s/>"; any other length or key is refused.
 fn decode(bytes: &[u8], key: &str) -> Option<String> {
     let body = bytes.strip_prefix(FORMAT.as_bytes())?.strip_prefix(b"\n")?;
     let end = body.iter().position(|&b| b == b'\n')?;
@@ -134,9 +134,9 @@ fn evict(dir: &Path, entries: usize, bytes: u64) {
     evict_leaf(dir, entries, bytes, &Names { entry: &|name| is_entry(name) && recognized(&dir.join(name)), scratch: &is_scratch, age: &|meta| meta.modified().unwrap_or(SystemTime::UNIX_EPOCH) });
 }
 
-// An entry an earlier Flea figure format wrote is still ours, so it is redrawn and evicted.
+// An entry an earlier Dlea figure format wrote is still ours, so it is redrawn and evicted.
 fn earlier_format(bytes: &[u8]) -> bool {
-    [&b"flea-figure-svg 1\n"[..], b"flea-figure-svg 2\n", b"flea-figure-svg 3\n"].iter().any(|format| bytes.starts_with(format))
+    [&b"dlea-figure-svg 1\n"[..], b"dlea-figure-svg 2\n", b"dlea-figure-svg 3\n"].iter().any(|format| bytes.starts_with(format))
 }
 
 fn recognized(path: &Path) -> bool {
@@ -190,7 +190,7 @@ fn known(dir: &Path, keys: &[String]) -> bool {
     !keys.is_empty() && keys.iter().all(|key| entry_name(key).is_some_and(|name| current(&dir.join(name))))
 }
 
-// Sample input: a plain file opening "flea-figure-svg 4\n" is current; a link, a directory or an entry an earlier format wrote is not.
+// Sample input: a plain file opening "dlea-figure-svg 4\n" is current; a link, a directory or an entry an earlier format wrote is not.
 fn current(path: &Path) -> bool {
     let mut head = [0u8; FORMAT.len() + 1];
     fs::symlink_metadata(path).is_ok_and(|meta| meta.is_file())

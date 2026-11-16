@@ -52,14 +52,14 @@ function run(check) {
           menus.filter(function (row) { return row.label === "Compress to .7z"; })[0].disabled, true)
     // The rail's places read "Open <name>" with the group name the rail shows.
     var rail = [
-        { label: "flea", group: "favourite", kind: "favourite", path: "/home/gm/flea" },
+        { label: "dlea", group: "favourite", kind: "favourite", path: "/home/gm/dlea" },
         { label: "Trash", group: "trash", kind: "trash", path: "trash:///" },
         { label: "NAS", group: "network", kind: "share", uri: "smb://host/data" },
-        { label: "Recent", group: "recent", kind: "recent", path: "flea:recent" }
+        { label: "Recent", group: "recent", kind: "recent", path: "dlea:recent" }
     ]
     var places = SheetQuery.placeCandidates(rail)
     check("a favourite says Favorites",
-          places.filter(function (row) { return row.name === "flea"; })[0].where, "Favorites")
+          places.filter(function (row) { return row.name === "dlea"; })[0].where, "Favorites")
     check("trash says Places",
           places.filter(function (row) { return row.name === "Trash"; })[0].where, "Places")
     check("a share keeps its group name",

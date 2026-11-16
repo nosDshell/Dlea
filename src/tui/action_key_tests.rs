@@ -205,7 +205,7 @@ fn check_unsupported_actions_and_sequences(map: &Map) {
     assert_eq!(requests(&drain(&mut wire), "list").len(), 1);
     m.pending = None;
     press(&mut m, &mut wire, Key::character(',', ""));
-    assert_eq!(m.error, "Settings are available in the Flea window");
+    assert_eq!(m.error, "Settings are available in the Dlea window");
     press(&mut m, &mut wire, Key::named("Escape", ""));
     m.preset = "yazi".into();
     m.total = 3;

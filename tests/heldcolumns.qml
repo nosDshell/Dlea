@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-heldcolumns-test
+//@ pragma ShellId dlea-heldcolumns-test
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Startup.js" as Startup
-import "flea/js/Swap.js" as Swap
+import "dlea" as Dlea
+import "dlea/js/Startup.js" as Startup
+import "dlea/js/Swap.js" as Swap
 
 // A Columns pane whose first listing is held reads loading, then waiting after the wait, then lands whole; the native case needs this and its shots wait on it. Held rows read no column count, so one run at the shipped limit covers it; the native case shoots every limit.
 ShellRoot {
@@ -40,8 +40,8 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 1200
         implicitHeight: 800
-        Flea.Backend { id: be }
-        Component { id: pc; Flea.Pane { width: 1200; height: 800; backend: be } }
+        Dlea.Backend { id: be }
+        Component { id: pc; Dlea.Pane { width: 1200; height: 800; backend: be } }
         Item { id: holder; anchors.fill: parent }
         Component.onCompleted: { root.pane = pc.createObject(holder); root.pane.open(root.fixture); root.t0 = Date.now() }
     }

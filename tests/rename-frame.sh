@@ -3,13 +3,13 @@
 # The rename editor's frame in every host (list, dual, columns, grid, rail) against its row, in the real WindowBody, offscreen.
 set -u
 cd "$(dirname "$0")/.." || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 command -v qs >/dev/null || { echo 'FAIL rename-frame needs qs'; exit 1; }
 command -v dbus-run-session >/dev/null || { echo 'FAIL rename-frame needs a private D-Bus session'; exit 1; }
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [[ -x "$bin" ]] || { echo 'FAIL rename-frame needs the built backend'; exit 1; }
 sandbox_root_ok
-probe=$(mktemp -d "$SANDBOX_ROOT/flea-rename-frame.XXXXXX") || exit 1
+probe=$(mktemp -d "$SANDBOX_ROOT/dlea-rename-frame.XXXXXX") || exit 1
 : > "$probe/$SANDBOX_MARKER" || exit 1
 qs_pid=""
 stop_qs() {
@@ -63,11 +63,11 @@ printf '#!/bin/sh\nexit 0\n' > "$probe/bin/gio"
 chmod +x "$probe/bin/gio"
 env HOME="$probe/home" XDG_STATE_HOME="$probe/state" "$bin" --ui-state \
     '{"preview":{"column":false,"thumbnails":"off"},"updates":{"autoCheck":false}}' >/dev/null || exit 1
-ln -s "$PWD/ui" "$probe/config/flea"
+ln -s "$PWD/ui" "$probe/config/dlea"
 headless_commons "$probe" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$probe/config/Ui"
 # The window loads its tab catcher from the shell directory, so the probe ships it as the product does.
-ln -s "$PWD/ui/boot/fleatab.qml" "$probe/config/fleatab.qml"
+ln -s "$PWD/ui/boot/dleatab.qml" "$probe/config/dleatab.qml"
 cp tests/rename-frame.qml "$probe/config/shell.qml"
 cp tests/rename-frame-checks.js "$probe/config/rename-frame-checks.js"
 # Qt 6.12 lays the CI face's 9 px line at 12 px, filling the Tight row, so a second stop 9 Tight pass under Noto Sans Mono (13 px) measures the overhang.
@@ -87,10 +87,10 @@ run_pass() {
     local name=$1 tick tally
     shift
     log="$probe/qs-$name.log"
-    env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u FLEA_SELECT \
+    env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u DLEA_SELECT \
         PATH="$probe/bin:$PATH" HOME="$probe/home" XDG_STATE_HOME="$probe/state" XDG_CONFIG_HOME="$probe/config" \
         XDG_DATA_HOME="$probe/data" XDG_CACHE_HOME="$probe/cache" XDG_RUNTIME_DIR="$probe/runtime" \
-        FLEA_PATH="$probe/home/fixture" FLEA_BIN="$bin" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
+        DLEA_PATH="$probe/home/fixture" DLEA_BIN="$bin" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
         QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 "$@" setsid dbus-run-session -- qs -p "$probe/config" >"$log" 2>&1 </dev/null &
     qs_pid=$!
     # The every-stop pass is 28 stops and densities across six hosts, a seventh at one stop; each pass is polled every 0.1 s for at most three minutes.

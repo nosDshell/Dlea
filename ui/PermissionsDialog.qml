@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Format.js" as Format
 import "js/Permissions.js" as Permissions
 
@@ -12,7 +12,7 @@ FocusScope {
     // Closed means no input, even while the fade-out is still drawn.
     enabled: opened
     opacity: 0
-    Flea.Reveal { target: root; shown: root.opened; lift: card }
+    Dlea.Reveal { target: root; shown: root.opened; lift: card }
     property bool opened: false
     property int requestId: 0
     // Inspect ids are request blocks of this width; a wider selection reserves whole blocks.
@@ -247,8 +247,8 @@ FocusScope {
         busy = false
         cancelButton.forceActiveFocus()
         errorText = applying
-            ? "Flea stopped responding, so the permission change may not have finished. Restart Flea and reopen Permissions to check."
-            : "Permissions is unavailable because Flea stopped responding. Restart Flea and reopen Permissions."
+            ? "Dlea stopped responding, so the permission change may not have finished. Restart Dlea and reopen Permissions to check."
+            : "Permissions is unavailable because Dlea stopped responding. Restart Dlea and reopen Permissions."
     }
     function close() {
         // An issued fchmod cannot be cancelled; retain its result before allowing dismissal.
@@ -366,7 +366,7 @@ FocusScope {
             height: Theme.chromeHeight
             // The board centres the marks and title in the strip above its rule, so the rule's row is never part of the centring band.
             Item { id: titleBand; anchors.left: parent.left; anchors.right: parent.right; anchors.top: parent.top; height: parent.height - Theme.spacing.hairline }
-            Flea.Glyph {
+            Dlea.Glyph {
                 id: lockMark
                 x: Theme.spacing.rowPaddingX
                 y: Math.floor((titleBand.height - height) / 2)
@@ -380,14 +380,14 @@ FocusScope {
                 color: Theme.color.foreground; textFormat: Text.PlainText; font { family: Theme.font.family; pixelSize: Theme.font.caption; bold: true }
             }
             // Dialogs rule 7: the way out is named beside the mark that performs it, the settings panel's own corner.
-            Flea.EscapeHint {
+            Dlea.EscapeHint {
                 id: escHint
                 anchors.right: closeMark.left
                 anchors.rightMargin: Theme.spacing.gap
                 y: Math.floor((titleBand.height - height) / 2) - root.stripTextRise
             }
 
-            Flea.ChromeButton {
+            Dlea.ChromeButton {
                 id: closeMark
                 ruleRows: Theme.spacing.hairline
                 anchors.right: parent.right
@@ -406,7 +406,7 @@ FocusScope {
             }
             Rule { anchors.bottom: parent.bottom }
         }
-        Flea.CardFrame {
+        Dlea.CardFrame {
             id: body
             anchors.left: parent.left
             anchors.right: parent.right
@@ -427,12 +427,12 @@ FocusScope {
                     spacing: Theme.spacing.gap
                     // For several items the grid and Apply are the whole card, so the name row drops out.
                     visible: !root.isMulti
-                    Flea.Glyph { width: Theme.markSize; height: nameLabel.height; anchors.verticalCenter: parent.verticalCenter; name: root.facts.directory ? "folder" : "file"; color: Theme.color.mutedFrame }
+                    Dlea.Glyph { width: Theme.markSize; height: nameLabel.height; anchors.verticalCenter: parent.verticalCenter; name: root.facts.directory ? "folder" : "file"; color: Theme.color.mutedFrame }
                     Text { id: nameLabel; width: parent.width - Theme.markSize - kindLabel.width - 2 * parent.spacing; anchors.verticalCenter: parent.verticalCenter; text: root.path.split("/").pop(); elide: Text.ElideMiddle; textFormat: Text.PlainText; color: Theme.color.foreground; font { family: Theme.font.family; pixelSize: Theme.font.body } }
                     Text { id: kindLabel; anchors.verticalCenter: parent.verticalCenter; text: root.facts.ok ? (root.facts.directory ? "directory" : "file") : ""; textFormat: Text.PlainText; color: Theme.color.foreground; font { family: Theme.font.family; pixelSize: Theme.font.caption } }
                 }
                 Rule { visible: !root.isMulti }
-                Flea.PermissionsHeadings { width: parent.width; card: root; enter: !root.isMulti && root.facts.directory === true }
+                Dlea.PermissionsHeadings { width: parent.width; card: root; enter: !root.isMulti && root.facts.directory === true }
                 Repeater {
                     id: permissionRows
                     model: ["Owner", "Group", "Everyone"]
@@ -474,7 +474,7 @@ FocusScope {
                                 Keys.onSpacePressed: toggle()
                                 Keys.onTabPressed: function(event) { root.stepFocus((event.modifiers & Qt.ShiftModifier) !== 0) }
                                 Keys.onBacktabPressed: root.stepFocus(true)
-                                Flea.CheckBox {
+                                Dlea.CheckBox {
                                     x: root.boxLead(checkbox.index, width)
                                     y: Math.round((parent.height - height) / 2)
                                     // A bit differing across the files shows a bar until it is clicked.
@@ -555,7 +555,7 @@ FocusScope {
                     color: Theme.color.background
                     border.width: Theme.spacing.hairline
                     border.color: Theme.color.mutedFrame
-                    Flea.Glyph { id: scopeMark; x: Theme.spacing.gap; y: Theme.spacing.gap; width: Theme.font.bodySmall; height: width; name: "check"; color: Theme.color.accent }
+                    Dlea.Glyph { id: scopeMark; x: Theme.spacing.gap; y: Theme.spacing.gap; width: Theme.font.bodySmall; height: width; name: "check"; color: Theme.color.accent }
                     Text {
                         id: directoryScope
                         x: scopeMark.x + scopeMark.width + Theme.spacing.gap
@@ -631,7 +631,7 @@ FocusScope {
                 Row {
                     anchors.right: parent.right
                     spacing: Theme.spacing.gap
-                    Flea.DialogButton {
+                    Dlea.DialogButton {
                         id: cancelButton
                         label: "Cancel"
                         available: !root.applyLocked
@@ -640,7 +640,7 @@ FocusScope {
                         onTabbed: function(from, back) { root.stepFocus(back) }
                         onActivated: root.close()
                     }
-                    Flea.DialogButton {
+                    Dlea.DialogButton {
                         id: applyButton
                         label: "Apply"
                         primary: true

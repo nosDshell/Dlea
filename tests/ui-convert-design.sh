@@ -59,7 +59,7 @@ convert_backend_death() {
         # started simply cannot start now.
         expected='(.error | contains("conversion may not have finished") and contains("Check the converted file"))'
     else
-        expected='(.error | contains("Flea stopped responding") and contains("Reopen Flea, then convert again"))'
+        expected='(.error | contains("Dlea stopped responding") and contains("Reopen Dlea, then convert again"))'
     fi
     request=$(ipc convertState | jq -er .requestId)
     permissions_backend_owned "$pid" || fail "convert: backend identity changed before the failure signal"
@@ -89,7 +89,7 @@ case_convertdesign() (
     local -a pids
     sandbox_require "$fixture_root"
     menu_box=$(mktemp -d "$fixture_root/convert-design.XXXXXXXX") || fail "convert: fixture creation failed"
-    printf 'native Convert fixture\n' > "$menu_box/.flea-test-sandbox"
+    printf 'native Convert fixture\n' > "$menu_box/.dlea-test-sandbox"
     [[ "$menu_box" == "$(realpath -e "$menu_box")" ]] || fail "convert: fixture is not canonical"
     for path in state config cache data pictures; do menus_guard "$menu_box/$path"; mkdir "$menu_box/$path"; done
     permissions_listing="$menu_box/pictures"
@@ -97,12 +97,12 @@ case_convertdesign() (
     jpeg="$permissions_listing/photo (converted).jpg"
     webp="$permissions_listing/photo (converted).webp"
     menus_guard "$source"
-    magick -size 32x32 xc:steelblue -set comment 'Flea metadata fixture' "$source" || fail "convert: real image fixture creation failed"
+    magick -size 32x32 xc:steelblue -set comment 'Dlea metadata fixture' "$source" || fail "convert: real image fixture creation failed"
     contents=$(sha256sum < "$source")
     menus_guard "$jpeg"
     printf 'original JPEG collision\n' > "$jpeg"
     export XDG_STATE_HOME="$menu_box/state" XDG_CONFIG_HOME="$menu_box/config" XDG_CACHE_HOME="$menu_box/cache" XDG_DATA_HOME="$menu_box/data"
-    "$flea_bin" --ui-state '{"view":"list","keys":"default","menu":{"hidden":[]}}' >/dev/null || fail "convert: fixture settings failed"
+    "$dlea_bin" --ui-state '{"view":"list","keys":"default","menu":{"hidden":[]}}' >/dev/null || fail "convert: fixture settings failed"
     launch "$permissions_listing"
     wait_listing 2
     permissions_viewport
@@ -221,7 +221,7 @@ case_convertdesign() (
     menus_expect convertState '.opened | not' 'small viewport cancels through the actual focused control'
     convert_backend_death idle
     convert_backend_death pending
-    kill_flea
+    kill_dlea
     printf 'CONVERT_DESIGN native_checks=%s collision=ok selection=ok keyboard=ok pending=ok late_collision=ok success=ok metadata=ok backend_death=ok source_preserved=ok\n' "$menus_checks"
 )
 
@@ -230,7 +230,7 @@ case_combinepdf() (
     local menu_box menus_checks=0 listing pdf name info ww wh
     sandbox_require "$fixture_root"
     menu_box=$(mktemp -d "$fixture_root/combine-pdf.XXXXXXXX") || fail "combine: fixture creation failed"
-    printf 'native Combine fixture\n' > "$menu_box/.flea-test-sandbox"
+    printf 'native Combine fixture\n' > "$menu_box/.dlea-test-sandbox"
     [[ "$menu_box" == "$(realpath -e "$menu_box")" ]] || fail "combine: fixture is not canonical"
     for name in state config cache data pictures; do menus_guard "$menu_box/$name"; mkdir "$menu_box/$name"; done
     listing="$menu_box/pictures"
@@ -238,7 +238,7 @@ case_combinepdf() (
     magick -size 120x80 xc:steelblue "$listing/a.png" && magick -size 80x80 xc:orange "$listing/b.png" \
         && magick -size 80x120 xc:seagreen "$listing/c.png" || fail "combine: real image fixture creation failed"
     export XDG_STATE_HOME="$menu_box/state" XDG_CONFIG_HOME="$menu_box/config" XDG_CACHE_HOME="$menu_box/cache" XDG_DATA_HOME="$menu_box/data"
-    "$flea_bin" --ui-state '{"view":"list","keys":"default","menu":{"hidden":[]}}' >/dev/null || fail "combine: fixture settings failed"
+    "$dlea_bin" --ui-state '{"view":"list","keys":"default","menu":{"hidden":[]}}' >/dev/null || fail "combine: fixture settings failed"
     launch "$listing"
     wait_listing 3
     key -M ctrl -k a -m ctrl >/dev/null
@@ -260,7 +260,7 @@ case_combinepdf() (
     grep -Eq '^Pages: +1$' <<< "$info" || fail "combine: the PDF is not one page: $info"
     grep -Eq '^Page size: +253 x 80 pts' <<< "$info" || fail "combine: the page is not the 253x80 row: $info"
     shot combine-pdf-written
-    kill_flea
+    kill_dlea
     printf 'COMBINE_PDF native_checks=%s pages=1 size=253x80 written=ok\n' "$menus_checks"
 )
 
@@ -271,14 +271,14 @@ case_ey367() (
     local menu_box menus_checks=0 listing name target
     sandbox_require "$fixture_root"
     menu_box=$(mktemp -d "$fixture_root/ey367.XXXXXXXX") || fail "ey367: fixture creation failed"
-    printf 'EY-367 native fixture\n' > "$menu_box/.flea-test-sandbox"
+    printf 'EY-367 native fixture\n' > "$menu_box/.dlea-test-sandbox"
     for name in state config cache data pictures; do menus_guard "$menu_box/$name"; mkdir "$menu_box/$name"; done
     listing="$menu_box/pictures"
     magick -size 120x80 xc:steelblue "$listing/a.png"
     magick -size 80x80 xc:orange "$listing/b.png"
     magick -size 80x120 xc:seagreen "$listing/c.png"
     export XDG_STATE_HOME="$menu_box/state" XDG_CONFIG_HOME="$menu_box/config" XDG_CACHE_HOME="$menu_box/cache" XDG_DATA_HOME="$menu_box/data"
-    "$flea_bin" --ui-state '{"view":"list","keys":"default","display":{"textSize":{"mode":14}},"menu":{"hidden":[]}}' >/dev/null
+    "$dlea_bin" --ui-state '{"view":"list","keys":"default","display":{"textSize":{"mode":14}},"menu":{"hidden":[]}}' >/dev/null
     launch "$listing"
     wait_listing 3
     readme_float_size 1100 700
@@ -327,6 +327,6 @@ case_ey367() (
     key -k Escape >/dev/null
     menus_expect combineState '.opened == false' 'ey367 Escape closes card'
     [[ $(find "$listing" -maxdepth 1 -type f | wc -l) == 3 ]] || fail "ey367: navigation wrote an output"
-    kill_flea
+    kill_dlea
     printf 'EY367 native_checks=%s\n' "$menus_checks"
 )

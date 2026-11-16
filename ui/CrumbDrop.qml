@@ -1,9 +1,9 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/DropDev.js" as DropDev
 
 // One crumb's drop target: the floor's own receiver, naming the crumb, with a frame inside the crumb's own advance so it never reaches the "/" either side.
-Flea.DropInto {
+Dlea.DropInto {
     id: root
 
     required property var crumb

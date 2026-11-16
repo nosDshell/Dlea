@@ -19,7 +19,7 @@ pub(crate) fn reap_or_hand_off(child: &mut std::process::Child) {
     }
     let pid = child.id() as i32;
     // A failed spawn leaves the zombie until the process exits, which costs less than a pool thread held for good.
-    let _ = std::thread::Builder::new().name("flea-jail-reap".to_string()).spawn(move || {
+    let _ = std::thread::Builder::new().name("dlea-jail-reap".to_string()).spawn(move || {
         hold_until_released(pid);
         reap_pid(pid);
     });

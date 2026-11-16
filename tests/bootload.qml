@@ -1,4 +1,4 @@
-//@ pragma ShellId flea-bootload-test
+//@ pragma ShellId dlea-bootload-test
 
 import QtQuick
 import Quickshell
@@ -71,10 +71,10 @@ ShellRoot {
 
     function check() {
         try {
-            var files = root.names(Quickshell.env("FLEA_BOOTLOAD_FILES"))
+            var files = root.names(Quickshell.env("DLEA_BOOTLOAD_FILES"))
             // An empty derivation passes vacuously, so it fails instead.
-            if (files.length === 0) root.fail("FLEA_BOOTLOAD_FILES is empty")
-            var entries = root.names(Quickshell.env("FLEA_BOOTLOAD_ENTRIES"))
+            if (files.length === 0) root.fail("DLEA_BOOTLOAD_FILES is empty")
+            var entries = root.names(Quickshell.env("DLEA_BOOTLOAD_ENTRIES"))
             for (var i = 0; i < files.length; i++) root.checkOne(files[i], entries)
         } catch (e) {
             root.fail("check threw " + e)

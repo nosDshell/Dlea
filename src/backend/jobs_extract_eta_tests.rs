@@ -1,8 +1,8 @@
 // #264: an extraction's entry samples reach the job line with a rate and a time left, and the Jobs card reads them as the extracting board draws them.
 use super::opsdispatch::{report_op, Ops};
 use super::opsreq::OpMsg;
-use flea::i18n::{I18n, Paths};
-use flea::ui_logic_file_ops::{jobs, joined, parse, Event};
+use dlea::i18n::{I18n, Paths};
+use dlea::ui_logic_file_ops::{jobs, joined, parse, Event};
 use std::sync::atomic::AtomicBool;
 use std::sync::{mpsc::channel, Arc};
 use std::time::{Duration, Instant};

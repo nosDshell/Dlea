@@ -4,7 +4,7 @@
 worker above, and it generates one only for a `Job` a caller submits. **Nothing in it enumerates
 a directory**, at any
 priority: the load-bearing rule that every per-file operation stays scoped to the viewport
-is what keeps Flea's cost on a large directory low, and a sweep here would forfeit it.
+is what keeps Dlea's cost on a large directory low, and a sweep here would forfeit it.
 
 `Pool::new(workers, results, root, aliases, specs)` spawns `workers.max(1)` threads that pop from
 one `Mutex<VecDeque<Job>>` under a `Condvar` and report every finished job down one `Sender<Done>`.
@@ -29,7 +29,7 @@ no shipped file declares.
 **The cache root is a constructor argument, not `Cache::new()`.** Production passes
 `thumbcache::default_root()`; every test in this module passes a per-pid directory under the
 temp dir. The shared cache at `~/.cache/thumbnails` is the operator's, and a suite that
-records a `fail/flea/<md5>.png` marker there on every run would poison it for every other
+records a `fail/dlea/<md5>.png` marker there on every run would poison it for every other
 application on the box.
 
 `submit`, `cancel` and `cancel_all` each return the queued `Job`s they dropped, taken under the
@@ -139,7 +139,7 @@ about, not a test to schedule on the box.
 
 Only a SIGKILL of the sandbox launcher itself arrives as `signal=9`, and that process decodes
 nothing, allocates nothing and burns no CPU, so it can reach neither rlimit; with
-`--die-with-parent` the realistic producer of that signal is something killing Flea's whole
+`--die-with-parent` the realistic producer of that signal is something killing Dlea's whole
 process tree, at which point nothing records anything. The probe's six rows are `inner_sigkill`
 exit 137, `as_rlimit_bomb` exit 1, `cpu_rlimit_ignoring_xcpu` exit 137, `inner_exit_1` exit 1,
 `outer_sigkill` signal 9 and `cpu_rlimit_plain` exit 137.

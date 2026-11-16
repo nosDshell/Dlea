@@ -9,8 +9,8 @@ import sandbox
 
 repo = Path(__file__).resolve().parents[2]
 failures = []
-# flea prefers a flea-gui beside its own executable, so a copy with no sibling is what reaches the stub on PATH.
-launcher = sandbox.make("chooser-launcher-") / "flea"
+# dlea prefers a dlea-gui beside its own executable, so a copy with no sibling is what reaches the stub on PATH.
+launcher = sandbox.make("chooser-launcher-") / "dlea"
 shutil.copy2(sys.argv[1], launcher)
 
 
@@ -19,12 +19,12 @@ def fixture():
     for area in ("home", "config", "state", "data", "cache", "runtime", "bin", "chosen"):
         (root / area).mkdir(mode=0o700)
     (root / "chosen/image.iso").write_text("chosen image\n")
-    stub = root / "bin/flea-gui"
+    stub = root / "bin/dlea-gui"
     stub.write_text('''#!/usr/bin/python3
 import json, os, sys
 from pathlib import Path
 root = Path(os.environ["CHOOSER_ROOT"]).resolve()
-assert root.is_absolute() and (root / ".flea-test-sandbox").is_file()
+assert root.is_absolute() and (root / ".dlea-test-sandbox").is_file()
 assert sys.argv[1] == "--pick"
 reply = Path(sys.argv[2]).resolve()
 assert reply.is_absolute() and reply.is_relative_to(root)
@@ -42,7 +42,7 @@ with (root / "invocations").open("a") as log:
            "XDG_CONFIG_HOME": str(root / "config"), "XDG_STATE_HOME": str(root / "state"),
            "XDG_DATA_HOME": str(root / "data"), "XDG_CACHE_HOME": str(root / "cache"),
            "XDG_RUNTIME_DIR": str(root / "runtime"), "XDG_DATA_DIRS": str(root / "missing"),
-           "FLEA_UI": str(repo / "ui"), "QSG_RHI_BACKEND": "opengl",
+           "DLEA_UI": str(repo / "ui"), "QSG_RHI_BACKEND": "opengl",
            "VK_DRIVER_FILES": str(root / "missing.json"), "WAYLAND_DISPLAY": "fixture",
            "CHOOSER_ROOT": str(root)}
     return root, env
@@ -53,7 +53,7 @@ def invoke(root, env, consumer, index, accepted, label):
     result = subprocess.run([str(launcher), consumer, "choose"],
                             env=env | {"CHOOSER_FILTER": index, "CHOOSER_CHOSEN": str(chosen)},
                             cwd=root, capture_output=True, timeout=8)
-    reply = root / "state/omarchy/flea-shelf/reply.json"
+    reply = root / "state/omarchy/dlea-shelf/reply.json"
     expected = (str(chosen) + "\n").encode() if accepted else b""
     clean = not reply.exists()
     print(f"{label}: exit={result.returncode}, stdout={result.stdout!r}, reply_absent={clean}, stderr={result.stderr!r}")

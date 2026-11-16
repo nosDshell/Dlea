@@ -9,18 +9,18 @@ import time
 import tomllib
 
 root, binary, fixture = map(lambda s: Path(s).resolve(), sys.argv[1:])
-assert root.is_absolute() and (root / ".flea-test-sandbox").is_file()
+assert root.is_absolute() and (root / ".dlea-test-sandbox").is_file()
 repo = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(repo / "tools"))
-from flea_ipc import Client
+from dlea_ipc import Client
 
-# The fixture answers flea-gui's CARGO_PKG_VERSION, so the expectation follows the crate a bump edits.
-version = tomllib.loads((repo / "crates/flea-gui/Cargo.toml").read_text())["package"]["version"]
+# The fixture answers dlea-gui's CARGO_PKG_VERSION, so the expectation follows the crate a bump edits.
+version = tomllib.loads((repo / "crates/dlea-gui/Cargo.toml").read_text())["package"]["version"]
 
 runtime = root / "r"
 runtime.mkdir(mode=0o700)
-(runtime / ".flea-test-sandbox").write_text("private IPC fixture runtime\n")
-environment = dict(os.environ, XDG_RUNTIME_DIR=str(runtime), FLEA_BIN=str(binary), FLEA_UI=str(repo / "ui"))
+(runtime / ".dlea-test-sandbox").write_text("private IPC fixture runtime\n")
+environment = dict(os.environ, XDG_RUNTIME_DIR=str(runtime), DLEA_BIN=str(binary), DLEA_UI=str(repo / "ui"))
 client = Client(binary, "gpui")
 environment = client.environment(environment)
 windows = []
@@ -34,7 +34,7 @@ def check(condition, detail):
     checks += 1
 
 
-def call(pid, function, *arguments, target="flea"):
+def call(pid, function, *arguments, target="dlea"):
     started = time.monotonic_ns()
     result = subprocess.run([str(binary), "ipc", "--pid", str(pid), "call", target,
                            function, *map(str, arguments)], env=environment,
@@ -43,14 +43,14 @@ def call(pid, function, *arguments, target="flea"):
     return result
 
 
-def value(pid, function, expected, *arguments, target="flea"):
+def value(pid, function, expected, *arguments, target="dlea"):
     result = call(pid, function, *arguments, target=target)
     check((result.returncode, result.stdout, result.stderr) == (0, expected, b""),
           (function, result.returncode, result.stdout, result.stderr))
 
 
 def registry_inventory():
-    # Sample declaration: function!("flea", "show", "void", &[]).
+    # Sample declaration: function!("dlea", "show", "void", &[]).
     declaration = re.compile(
         r'function!\(\s*"([^"]+)",\s*"([^"]+)",\s*"([^"]+)",\s*&\[(.*?)\]\s*,?\s*\)',
         re.DOTALL,
@@ -63,7 +63,7 @@ def registry_inventory():
         check(len(entries) == source.count("function!("), (path, "unparsed registry declaration"))
         for entry in entries:
             target, name, result, arguments = entry.groups()
-            check(target in ("flea", "fleapicker", "fleatab"), (path, target))
+            check(target in ("dlea", "dleapicker", "dleatab"), (path, target))
             check(not parameter.sub("", arguments).strip(" \t\r\n,"),
                   (path, name, "unparsed registry parameters"))
             arguments = ", ".join(f"{name}: {kind}" for name, kind in parameter.findall(arguments))
@@ -72,7 +72,7 @@ def registry_inventory():
           "duplicate registry function")
     return "".join(
         f"target {target}\n" + "".join(signature for owner, _, signature in functions if owner == target)
-        for target in ("flea", "fleapicker", "fleatab")
+        for target in ("dlea", "dleapicker", "dleatab")
     ).encode()
 
 
@@ -83,12 +83,12 @@ def helper_forwarding():
         path = stub / name
         path.write_text('#!/bin/bash\nprintf "<%s>\\n" "$@"\nprintf "stderr stays\\n" >&2\nexit "${STUB_STATUS:-0}"\n')
         path.chmod(0o700)
-    env = dict(environment, PATH=str(stub) + ":" + os.environ["PATH"], FLEA_IPC_KIND="qml")
-    helper = str(repo / "tools/flea-ipc")
-    cases = [(["qs", "ipc"], [], ["--pid", "17", "call", "flea", "path", " a\nb "]),
+    env = dict(environment, PATH=str(stub) + ":" + os.environ["PATH"], DLEA_IPC_KIND="qml")
+    helper = str(repo / "tools/dlea-ipc")
+    cases = [(["qs", "ipc"], [], ["--pid", "17", "call", "dlea", "path", " a\nb "]),
              (["qs", "ipc"], [], ["-i", "abc", "show"]),
-             (["omarchy-drive", "ipc"], ["drive"], ["-p", "/x", "flea", "total"]),
-             (["omarchy-drive", "wait", "ipc"], ["wait"], ["-p", "/x", "flea", "ready", "true", "--timeout", "0"]),
+             (["omarchy-drive", "ipc"], ["drive"], ["-p", "/x", "dlea", "total"]),
+             (["omarchy-drive", "wait", "ipc"], ["wait"], ["-p", "/x", "dlea", "ready", "true", "--timeout", "0"]),
              (["qs"], [], ["list", "--all", "--json"])]
     for status in (0, 1, 3, 255):
         for command, prefix, arguments in cases:
@@ -96,9 +96,9 @@ def helper_forwarding():
             forwarded = subprocess.run([helper] + prefix + arguments, env=dict(env, STUB_STATUS=str(status)), capture_output=True)
             check((direct.returncode, direct.stdout, direct.stderr) ==
                   (forwarded.returncode, forwarded.stdout, forwarded.stderr), (command, arguments, forwarded))
-    script = '. "$1"; flea_ipc_init qs; export FLEA_FRONTEND=gpui; "$FLEA_IPC_HELPER" call flea ready'
+    script = '. "$1"; dlea_ipc_init qs; export DLEA_FRONTEND=gpui; "$DLEA_IPC_HELPER" call dlea ready'
     result = subprocess.run(["bash", "-c", script, "bash", helper], env=env, capture_output=True)
-    check(result.stdout == b"<ipc>\n<call>\n<flea>\n<ready>\n", result)
+    check(result.stdout == b"<ipc>\n<call>\n<dlea>\n<ready>\n", result)
 
 
 try:
@@ -109,13 +109,13 @@ try:
         log.close()
         windows.append(window)
         deadline = time.monotonic() + 10
-        while not (runtime / "flea-ipc" / f"{window.pid}.sock").exists():
+        while not (runtime / "dlea-ipc" / f"{window.pid}.sock").exists():
             check(window.poll() is None, f"fixture exited {window.returncode}")
             assert time.monotonic() < deadline, "fixture did not publish its endpoint"
             time.sleep(0.02)
     first, second = windows
-    check((runtime / "flea-ipc").stat().st_mode & 0o777 == 0o700, "directory permissions")
-    endpoint = runtime / "flea-ipc" / f"{first.pid}.sock"
+    check((runtime / "dlea-ipc").stat().st_mode & 0o777 == 0o700, "directory permissions")
+    endpoint = runtime / "dlea-ipc" / f"{first.pid}.sock"
     check(endpoint.stat().st_mode & 0o777 == 0o600, "socket permissions")
     value(first.pid, "path", b"/first path\nnext\n")
     value(second.pid, "path", b"/second\n")
@@ -127,13 +127,13 @@ try:
     value(first.pid, "selectionCount", b"2\n")
     value(first.pid, "missing", b"Function not found.\n")
     value(first.pid, "path", b"Target not found.\n", target="missing")
-    for target, function in [("flea", "palette"), ("fleapicker", "path")]:
+    for target, function in [("dlea", "palette"), ("dleapicker", "path")]:
         refused = call(first.pid, function, target=target)
         check((refused.returncode, refused.stdout, refused.stderr) ==
-              (3, b"", f"FLEA_IPC_NOT_PORTED {target}.{function}\n".encode()), refused)
+              (3, b"", f"DLEA_IPC_NOT_PORTED {target}.{function}\n".encode()), refused)
     show = subprocess.run([str(binary), "ipc", "--pid", str(first.pid), "show"], env=environment, capture_output=True, timeout=6)
-    check(show.returncode == 0 and b"target flea\n" in show.stdout and b"target fleapicker\n" in show.stdout
-          and b"target fleatab\n  function taken(token: string): bool\n" in show.stdout, show)
+    check(show.returncode == 0 and b"target dlea\n" in show.stdout and b"target dleapicker\n" in show.stdout
+          and b"target dleatab\n  function taken(token: string): bool\n" in show.stdout, show)
     expected_registry = registry_inventory()
     check(show.stdout == expected_registry, "exact registry targets, signatures and declaration order")
     for name in (b"scene(", b"nativeGeometry(", b"pendingRequests(", b"previewReadiness(", b"sceneState(", b"presentedFrame("):
@@ -146,20 +146,20 @@ try:
         idle.close()
     disconnected = socket.socket(socket.AF_UNIX)
     disconnected.connect(str(endpoint))
-    disconnected.sendall(b'{"call":["flea","path"]}\n')
+    disconnected.sendall(b'{"call":["dlea","path"]}\n')
     disconnected.close()
     value(first.pid, "path", b"/first path\nnext\n")
-    forwarded = subprocess.run(client.command("--pid", first.pid, "call", "flea", "path"), env=environment, capture_output=True, timeout=6)
+    forwarded = subprocess.run(client.command("--pid", first.pid, "call", "dlea", "path"), env=environment, capture_output=True, timeout=6)
     check(forwarded.stdout == b"/first path\nnext\n" and forwarded.returncode == 0, forwarded)
-    ambiguous = subprocess.run(client.command("-p", repo / "ui/boot", "call", "flea", "path"), env=environment, capture_output=True, timeout=6)
+    ambiguous = subprocess.run(client.command("-p", repo / "ui/boot", "call", "dlea", "path"), env=environment, capture_output=True, timeout=6)
     check(ambiguous.returncode == 255 and b"2 native windows" in ambiguous.stderr, ambiguous)
-    any_window = subprocess.run([str(binary), "ipc", "--any", "call", "flea", "total"], env=environment, capture_output=True, timeout=6)
+    any_window = subprocess.run([str(binary), "ipc", "--any", "call", "dlea", "total"], env=environment, capture_output=True, timeout=6)
     check(any_window.stdout == b"3\n" and any_window.returncode == 0, any_window)
     check(call(2147483647, "path").returncode == 255, "missing pid fell back to a live window")
     for window in windows:
         value(window.pid, "quit", b"")
         check(window.wait(timeout=5) == 0, "quit did not stop the window")
-        check(not (runtime / "flea-ipc" / f"{window.pid}.sock").exists(), "endpoint survived clean shutdown")
+        check(not (runtime / "dlea-ipc" / f"{window.pid}.sock").exists(), "endpoint survived clean shutdown")
     print(f"GUI_IPC checks={checks} failed=0 roundtrip-ms={min(roundtrips):.3f}..{max(roundtrips):.3f}")
 finally:
     for window in windows:

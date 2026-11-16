@@ -1,5 +1,5 @@
 //! Optional creation correlation leaves each original operation, journal and wire reply intact.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::{busy, land_mkdir, menu_sources, pending_busy_for, report_op, Ops, SlowClaim};
 use crate::backend::{
     iomount::{
@@ -9,7 +9,7 @@ use crate::backend::{
     proto::{error_line, slow_line},
     undo::Step,
 };
-use crate::{error::FleaError, json::escape};
+use crate::{error::DleaError, json::escape};
 use std::{
     io::Write,
     path::PathBuf,
@@ -94,7 +94,7 @@ pub(crate) fn duplicate(
             return;
         }
     };
-    let mut sources = vec![flea::bytename::exact(path)];
+    let mut sources = vec![dlea::bytename::exact(path)];
     if let Some(items) = &selection {
         sources.extend(items.iter().map(|item| item.path.clone()));
     }
@@ -117,9 +117,9 @@ pub(super) fn mkdir_with<F>(
     work: F,
 ) -> Vec<PathBuf>
 where
-    F: FnOnce() -> Result<(PathBuf, Vec<Step>), FleaError> + Send + 'static,
+    F: FnOnce() -> Result<(PathBuf, Vec<Step>), DleaError> + Send + 'static,
 {
-    let key = flea::bytename::exact(parent);
+    let key = dlea::bytename::exact(parent);
     let mut legacy = Vec::new();
     if pending_busy_for(&mut legacy, ops, "mkdir", std::slice::from_ref(&key), &[]) {
         refused(out, request, "made", legacy);
@@ -150,7 +150,7 @@ where
                 mount,
             });
             let tx = ops.tx.clone();
-            let failed = internal_failure("mkdir", &flea::bytename::view(parent));
+            let failed = internal_failure("mkdir", &dlea::bytename::view(parent));
             thread::spawn(move || {
                 let result = rx.recv().unwrap_or(Err(failed));
                 let _ = tx.send(wrap(request, OpMsg::MkdirDone { id, result }));

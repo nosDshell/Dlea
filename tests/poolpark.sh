@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # poolpark: a real list, grid and columns view over a stub pane reuse their pooled delegates on a warm Enter, with nothing stale.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -11,15 +11,15 @@ if ! command -v qs >/dev/null; then
 fi
 
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-poolpark.XXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-poolpark.XXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER" || exit 1
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/poolpark.qml "$test_root/config/shell.qml" || exit 1
@@ -42,7 +42,7 @@ for view in list grid columns; do
         continue
     fi
     printf '%s\n' "$output" | grep -o 'POOLPARK .*'
-    errors=$(printf '%s\n' "$output" | grep -aE 'qml: .*(Error|TypeError|ReferenceError|Unable)|QML .*(Error|error)|@flea/[^ ]*: (Error|TypeError|ReferenceError)|Binding loop' | head -5)
+    errors=$(printf '%s\n' "$output" | grep -aE 'qml: .*(Error|TypeError|ReferenceError|Unable)|QML .*(Error|error)|@dlea/[^ ]*: (Error|TypeError|ReferenceError)|Binding loop' | head -5)
     if [ -n "$errors" ]; then
         printf 'FAIL poolpark %s logged QML errors\n%s\n' "$view" "$errors"
         rc=1

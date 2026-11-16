@@ -1,4 +1,4 @@
-"""Gate-shell regressions: the strict flea-gui mutant is judged only through tools/flea-clippy."""
+"""Gate-shell regressions: the strict dlea-gui mutant is judged only through tools/dlea-clippy."""
 import os
 from pathlib import Path
 import re
@@ -51,9 +51,9 @@ def count_failure(got):
 
 
 WRAPPER = """#!/bin/bash
-# Stand-in tools/flea-clippy: the control tree is clean, and the mutant tree behaves as MODE says.
+# Stand-in tools/dlea-clippy: the control tree is clean, and the mutant tree behaves as MODE says.
 if [ "$(basename "$PWD")" != mutant ]; then
-  echo "clippy flea-gui: PASS cargo_rc=0; see clippy-gui.log"
+  echo "clippy dlea-gui: PASS cargo_rc=0; see clippy-gui.log"
   exit 0
 fi
 mkdir -p "$2"
@@ -62,7 +62,7 @@ case "$MODE" in
   unrelated) printf 'warning: unused variable: `g10l_injected_warning`\\nerror: unrelated core compile failure\\n' > "$2/clippy-gui.log" ;;
   *) printf 'error: unused variable: `g10l_injected_warning`\\n' > "$2/clippy-gui.log" ;;
 esac
-echo "clippy flea-gui: FAIL cargo_rc=101; see clippy-gui.log"
+echo "clippy dlea-gui: FAIL cargo_rc=101; see clippy-gui.log"
 exit 1
 """
 
@@ -72,12 +72,12 @@ class GateShell(unittest.TestCase):
         parent = REPO / ".superpowers/g10l"
         parent.mkdir(parents=True, exist_ok=True)
         self.root = Path(tempfile.mkdtemp(prefix="gates-regress.", dir=parent))
-        (self.root / ".flea-test-sandbox").touch()
+        (self.root / ".dlea-test-sandbox").touch()
 
     def tearDown(self):
         # Hard rule 9: only this test's own marked root is ever deleted.
         assert self.root.is_absolute() and self.root.name.startswith("gates-regress.")
-        if (self.root / ".flea-test-sandbox").is_file():
+        if (self.root / ".dlea-test-sandbox").is_file():
             shutil.rmtree(self.root)
 
     def write(self, path, text, mode=0o644):
@@ -89,14 +89,14 @@ class GateShell(unittest.TestCase):
 
     def run_gate(self, mode):
         self.write("tests/gpui-gates.sh", GATE.read_text(), 0o755)
-        self.write("tools/flea-clippy", WRAPPER, 0o755)
-        self.write("tools/flea-gpui-lint", "#!/bin/bash\nexit 0\n", 0o755)
+        self.write("tools/dlea-clippy", WRAPPER, 0o755)
+        self.write("tools/dlea-gpui-lint", "#!/bin/bash\nexit 0\n", 0o755)
         self.write("tools/clippy-baseline.txt", "")
         self.write("bin/cargo", CARGO, 0o755)
         self.write("Cargo.toml", "[workspace]\n")
         self.write("Cargo.lock", "version = 4\n")
         self.write("src/lib.rs", "pub fn gate_fixture() {}\n")
-        self.write("crates/flea-gui/src/main.rs", "fn main() {}\n")
+        self.write("crates/dlea-gui/src/main.rs", "fn main() {}\n")
         self.write("ui/Main.qml", "import QtQuick\n")
         self.write("shelf/Shelf.qml", "import QtQuick\n")
         self.write("tests/gpui_gates_regressions.py", "raise SystemExit(0)\n")
@@ -134,17 +134,17 @@ class GateShell(unittest.TestCase):
     def test_silent_wrapper_cannot_accept_the_strict_gui_mutant(self):
         p = self.run_gate("silent")
         self.assertNotEqual(0, p.returncode, p.stdout)
-        self.assertIn("not rejected by tools/flea-clippy", p.stdout)
+        self.assertIn("not rejected by tools/dlea-clippy", p.stdout)
 
     def test_unrelated_error_beside_a_warning_fails(self):
         p = self.run_gate("unrelated")
         self.assertNotEqual(0, p.returncode, p.stdout)
-        self.assertIn("not rejected by tools/flea-clippy", p.stdout)
+        self.assertIn("not rejected by tools/dlea-clippy", p.stdout)
 
     def test_genuine_injected_denial_passes(self):
         p = self.run_gate("injected")
         self.assertEqual(0, p.returncode, p.stdout + p.stderr)
-        self.assertIn("ok strict flea-gui warning mutant rejected", p.stdout)
+        self.assertIn("ok strict dlea-gui warning mutant rejected", p.stdout)
 
     def test_system_font_failure_fails_the_existing_gui_lane(self):
         p = self.run_gate("font-failure")

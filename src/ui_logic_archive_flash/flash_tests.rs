@@ -66,7 +66,7 @@ fn refusal_hints_use_the_boards_wording() {
     );
     assert_eq!(
         i18n.tr(refused_hint_key(&Drive { dev: "sda".into(), refused: "readonly".into(), ..Drive::default() })),
-        "It is read-only, so Flea cannot write to it."
+        "It is read-only, so Dlea cannot write to it."
     );
     assert_eq!(
         i18n.tr(refused_hint_key(&Drive { dev: "sda".into(), refused: "holdsimage".into(), ..Drive::default() })),

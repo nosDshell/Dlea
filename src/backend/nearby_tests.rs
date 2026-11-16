@@ -22,7 +22,7 @@ impl Fixture {
         assert!(output.status.success());
         let root = PathBuf::from(String::from_utf8(output.stdout).unwrap().trim());
         dir.assert_contains(&root);
-        std::fs::write(root.join(".flea-nearby-test"), b"nearby test tools\n").unwrap();
+        std::fs::write(root.join(".dlea-nearby-test"), b"nearby test tools\n").unwrap();
         Self { dir, root }
     }
 
@@ -30,7 +30,7 @@ impl Fixture {
         let file = self.root.join(name);
         self.dir.assert_contains(&file);
         let relative = file.strip_prefix(self.dir.path()).unwrap().to_str().unwrap();
-        let guarded = format!("#!/bin/sh\nroot=${{0%/*}}\ncase \"$root\" in /*) ;; *) exit 96 ;; esac\n[ -n \"$root\" ] && [ -f \"$root/.flea-nearby-test\" ] || exit 97\nprintf 'call %s %s\\n' \"$$\" \"$*\" >> \"$root/calls\"\n{body}\n");
+        let guarded = format!("#!/bin/sh\nroot=${{0%/*}}\ncase \"$root\" in /*) ;; *) exit 96 ;; esac\n[ -n \"$root\" ] && [ -f \"$root/.dlea-nearby-test\" ] || exit 97\nprintf 'call %s %s\\n' \"$$\" \"$*\" >> \"$root/calls\"\n{body}\n");
         self.dir.script(relative, &guarded);
     }
 
@@ -205,10 +205,10 @@ exit 0"#);
 
 #[test]
 fn backend_worker_entry() {
-    if std::env::var_os("FLEA_NEARBY_REVIEW_EXIT").is_some() {
+    if std::env::var_os("DLEA_NEARBY_REVIEW_EXIT").is_some() {
         std::process::exit(crate::backend::run::run());
     }
-    if std::env::var_os("FLEA_NEARBY_BACKEND_TEST").is_some() {
+    if std::env::var_os("DLEA_NEARBY_BACKEND_TEST").is_some() {
         assert_eq!(crate::backend::run::run(), 0);
     }
 }
@@ -222,7 +222,7 @@ case "$6" in _smb._tcp) printf '=;eth0;IPv4;NAS;_smb._tcp;local;nas.local;192.0.
 printf '%s\n' '{"BackendState":"Running","Peer":{}}'"#);
     let mut child = Command::new(std::env::current_exe().unwrap())
         .args(["--exact", "backend::nearby::tests::backend_worker_entry", "--nocapture"])
-        .env("FLEA_NEARBY_BACKEND_TEST", "1").env("PATH", &fixture.root).env("HOME", &fixture.root)
+        .env("DLEA_NEARBY_BACKEND_TEST", "1").env("PATH", &fixture.root).env("HOME", &fixture.root)
         .env("XDG_CONFIG_HOME", &fixture.root).env("XDG_CACHE_HOME", &fixture.root)
         .env("XDG_DATA_HOME", &fixture.root).env("XDG_RUNTIME_DIR", &fixture.root)
         .stdin(Stdio::piped()).stdout(Stdio::piped()).stderr(Stdio::null()).spawn().unwrap();
@@ -271,7 +271,7 @@ fn reviewer_backend_exit_stops_active_helpers() {
             fixture.script("tailscale", "exec /usr/bin/sleep 30");
             let mut child = Command::new(std::env::current_exe().unwrap())
                 .args(["--exact", "backend::nearby::tests::backend_worker_entry", "--nocapture"])
-                .env("FLEA_NEARBY_REVIEW_EXIT", "1").env("PATH", &fixture.root).env("HOME", &fixture.root)
+                .env("DLEA_NEARBY_REVIEW_EXIT", "1").env("PATH", &fixture.root).env("HOME", &fixture.root)
                 .env("XDG_CONFIG_HOME", &fixture.root).env("XDG_CACHE_HOME", &fixture.root)
                 .env("XDG_DATA_HOME", &fixture.root).env("XDG_RUNTIME_DIR", &fixture.root)
                 .stdin(Stdio::piped()).stdout(Stdio::null()).stderr(Stdio::null()).spawn().unwrap();
@@ -291,7 +291,7 @@ fn reviewer_backend_exit_stops_active_helpers() {
                 eprintln!("REVIEW active helpers survived backend exit: eof={eof}, attempt={attempt}, pids={live:?}");
                 fixture.dir.assert_contains(&fixture.root);
                 for pid in &live {
-                    assert!(Command::new(flea::testpath::tool("/usr/bin/kill")).args(["-KILL", "--", pid]).status().unwrap().success());
+                    assert!(Command::new(dlea::testpath::tool("/usr/bin/kill")).args(["-KILL", "--", pid]).status().unwrap().success());
                 }
                 survivors.push((eof, attempt, live));
             }

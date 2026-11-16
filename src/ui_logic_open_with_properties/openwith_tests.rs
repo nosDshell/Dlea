@@ -91,13 +91,13 @@ fn the_reply_parses_and_a_malformed_row_is_dropped() {
 #[test]
 fn the_opener_routes_each_exit_and_drops_a_second_open() {
     let mut opener = Opener::default();
-    let argv = opener.start("flea", &["/ask/tool.sh".into()]).unwrap();
-    assert_eq!(argv, vec!["flea", "--open", "/ask/tool.sh"]);
-    assert_eq!(opener.start("flea", &["/slow/second.sh".into()]), None, "a second open while one is pending is dropped");
+    let argv = opener.start("dlea", &["/ask/tool.sh".into()]).unwrap();
+    assert_eq!(argv, vec!["dlea", "--open", "/ask/tool.sh"]);
+    assert_eq!(opener.start("dlea", &["/slow/second.sh".into()]), None, "a second open while one is pending is dropped");
     assert_eq!(opener.exited(Some(4), "{\"ask\":\"run\"}"), Some(Opened::AskRun { path: "/ask/tool.sh".into(), text: "{\"ask\":\"run\"}".into() }));
     assert_eq!(opener.exited(Some(4), "late"), None, "a stale exit lands nowhere");
     let cycle = |opener: &mut Opener, path: &str, status: Option<i32>, out: &str| {
-        opener.start("flea", &[path.to_string()]).unwrap();
+        opener.start("dlea", &[path.to_string()]).unwrap();
         opener.exited(status, out).unwrap()
     };
     assert_eq!(cycle(&mut opener, "/with/data.bin", Some(5), ""), Opened::AskOpenWith("/with/data.bin".into()));
@@ -107,6 +107,6 @@ fn the_opener_routes_each_exit_and_drops_a_second_open() {
     assert_eq!(cycle(&mut opener, "/ask/never.sh", None, ""), Opened::Failed("/ask/never.sh".into()), "a launch that never started fails");
     assert!(!opener.pending(), "and releases the lane");
     assert_eq!(cycle(&mut opener, "/dir/sub", Some(3), ""), Opened::Directory("/dir/sub".into()));
-    let gallery = opener.start("flea", &["/i/b.png".into(), "/i/a.png".into()]).unwrap();
-    assert_eq!(gallery, vec!["flea", "--open", "/i/b.png", "/i/a.png"], "a gallery keeps its order and boundaries");
+    let gallery = opener.start("dlea", &["/i/b.png".into(), "/i/a.png".into()]).unwrap();
+    assert_eq!(gallery, vec!["dlea", "--open", "/i/b.png", "/i/a.png"], "a gallery keeps its order and boundaries");
 }

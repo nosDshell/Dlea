@@ -17,7 +17,7 @@ STUB
 chmod +x "$tmp/bin/hyprctl" || exit 1
 eval "$(sed -n '/^xw_window_addr_now()/,/^}/p' tests/ui.sh)" || exit 1
 cat > "$tmp/two.json" <<'JSON'
-[{"address":"0xaaa","pid":111,"title":"Flea"},{"address":"0xbbb","pid":222,"title":"Flea"}]
+[{"address":"0xaaa","pid":111,"title":"Dlea"},{"address":"0xbbb","pid":222,"title":"Dlea"}]
 JSON
 addr=$(HYPRCTL_FIXTURE="$tmp/two.json" PATH="$tmp/bin:$PATH" xw_window_addr_now 111) || exit 1
 if [ "$addr" != "0xaaa" ]
@@ -32,7 +32,7 @@ echo "xw-addr: absent pid gave $addr, not empty"
 exit 1
 fi
 cat > "$tmp/dup.json" <<'JSON'
-[{"address":"0xaaa","pid":111,"title":"Flea"},{"address":"0xccc","pid":111,"title":"Flea"}]
+[{"address":"0xaaa","pid":111,"title":"Dlea"},{"address":"0xccc","pid":111,"title":"Dlea"}]
 JSON
 addr=$(HYPRCTL_FIXTURE="$tmp/dup.json" PATH="$tmp/bin:$PATH" xw_window_addr_now 111) || exit 1
 case "$addr" in

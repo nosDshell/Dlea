@@ -60,7 +60,7 @@ fn fixed_origins_read_their_own_sentence() {
     assert_eq!(said("sort", "some later refusal", ""), sort);
     assert_eq!(
         said("read", "EOF", ""),
-        "Flea stopped responding. Reopen Flea and try again."
+        "Dlea stopped responding. Reopen Dlea and try again."
     );
     assert_eq!(said("state", "", ""), "That setting could not be saved.");
     assert_eq!(
@@ -115,10 +115,10 @@ fn write_operations_keep_the_backend_sentence_as_a_diagnostic_argument() {
     assert_eq!(
         said(
             "rename-stranded",
-            "the file was left as .flea-case-1-0 in this folder: input/output failed",
+            "the file was left as .dlea-case-1-0 in this folder: input/output failed",
             ""
         ),
-        "The file was left as .flea-case-1-0 in this folder: input/output failed."
+        "The file was left as .dlea-case-1-0 in this folder: input/output failed."
     );
     let backend = sentence("transfer", "the destination is not a folder", "");
     assert_eq!(backend.key, "feedback.error.backend");
@@ -194,11 +194,11 @@ fn duplicate_trash_and_a_stopped_archive_name_the_operation() {
     );
     assert_eq!(
         said("archive", "the backend is not running", "doc.zip"),
-        "doc.zip could not be opened because the Flea backend stopped; reopen Flea and try again."
+        "doc.zip could not be opened because the Dlea backend stopped; reopen Dlea and try again."
     );
     assert_eq!(
         said("archive", "the backend is not running", ""),
-        "This archive could not be opened because the Flea backend stopped; reopen Flea and try again."
+        "This archive could not be opened because the Dlea backend stopped; reopen Dlea and try again."
     );
 }
 
@@ -273,11 +273,11 @@ fn a_mount_helper_status_names_its_cause_and_never_echoes_the_uri() {
     assert_eq!(say(124), "Could not connect: the server did not respond.");
     assert_eq!(
         say(126),
-        "Could not connect: Flea could not ask for the password."
+        "Could not connect: Dlea could not ask for the password."
     );
     assert_eq!(
         say(127),
-        "Could not connect: Flea could not ask for the password."
+        "Could not connect: Dlea could not ask for the password."
     );
     assert_eq!(
         say(77),

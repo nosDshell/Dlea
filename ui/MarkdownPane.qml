@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 
 // The Markdown bar and pane load only for a Markdown file.
 Item {
@@ -46,7 +46,7 @@ Item {
         return g
     }
 
-    Flea.QuickLookBar {
+    Dlea.QuickLookBar {
         id: bar
         anchors.top: parent.top
         anchors.left: parent.left
@@ -58,7 +58,7 @@ Item {
         onCloseRequested: root.closeRequested()
     }
 
-    Flea.PreviewMarkdown {
+    Dlea.PreviewMarkdown {
         id: doc
         anchors.fill: parent
         anchors.topMargin: bar.height

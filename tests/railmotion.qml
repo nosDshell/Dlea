@@ -1,15 +1,15 @@
-//@ pragma ShellId flea-railmotion-test
+//@ pragma ShellId dlea-railmotion-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
-// The auto-hidden rail slides in and out on x: the real window offscreen, a synthetic pointer, and a fast sampler of x, visible, width and row y; FLEA_REDUCED_MOTION=1 runs the snap leg only.
+// The auto-hidden rail slides in and out on x: the real window offscreen, a synthetic pointer, and a fast sampler of x, visible, width and row y; DLEA_REDUCED_MOTION=1 runs the snap leg only.
 ShellRoot {
     id: root
     readonly property var pane: body.currentPane
     readonly property string home: Quickshell.env("HOME")
-    readonly property bool reduced: Quickshell.env("FLEA_REDUCED_MOTION") === "1"
+    readonly property bool reduced: Quickshell.env("DLEA_REDUCED_MOTION") === "1"
     readonly property string tag: root.reduced ? "RAILMOTION reduced " : "RAILMOTION "
     property var host: null
     property int checks: 0
@@ -61,8 +61,8 @@ ShellRoot {
     function devicePolls() { var d = root.find(root.sidebar(), "DeviceMounts"); return d ? d._listingsStarted : -1 }
     // The keep-running cases of DeviceMounts' poll, each held on a withdrawn rail; a release reveals the rail at once, so it is held on the parked poll itself.
     readonly property var holds: [
-        { name: "a mount awaiting its folder", set: function (d) { d._pendingOpenDevice = "/dev/flea-rail-test" }, clear: function (d) { d._pendingOpenDevice = "" } },
-        { name: "a power-off chain", set: function (d) { d._powerOffDisk = "/dev/flea-rail-test" }, clear: function (d) { d._powerOffDisk = "" } },
+        { name: "a mount awaiting its folder", set: function (d) { d._pendingOpenDevice = "/dev/dlea-rail-test" }, clear: function (d) { d._pendingOpenDevice = "" } },
+        { name: "a power-off chain", set: function (d) { d._powerOffDisk = "/dev/dlea-rail-test" }, clear: function (d) { d._powerOffDisk = "" } },
         { name: "no first answer yet", set: function (d) { d.firstAnswered = false }, clear: function (d) { } },
         { name: "a release in flight", set: function (d) { d.polling = false; d._unmounting = true },
           clear: function (d) { d._unmounting = false; d.polling = Qt.binding(function () { return root.sidebar().polling }) } }
@@ -156,7 +156,7 @@ ShellRoot {
         id: window
         implicitWidth: 1000
         implicitHeight: 650
-        Flea.WindowBody { id: body; host: window }
+        Dlea.WindowBody { id: body; host: window }
         Item { anchors.fill: parent; TestEvent { id: driver } }
         RailDragHold {
             id: dragHold
@@ -183,7 +183,7 @@ ShellRoot {
         function () { return until("the first listing", ready(root.home)) },
         function () {
             root.host = root.find(pane, "PaneRail")
-            check("the reduced leg opens in the single view with the switch on", [body.dualMode, Flea.Theme.reducedMotion], [false, true])
+            check("the reduced leg opens in the single view with the switch on", [body.dualMode, Dlea.Theme.reducedMotion], [false, true])
             root.mark("settle")
             return true
         },
@@ -412,7 +412,7 @@ ShellRoot {
             return true
         },
         // Dual: the primary list holds its width through a reveal.
-        function () { Flea.ViewState.changeKey("view", "dual"); root.mark("dual"); return true },
+        function () { Dlea.ViewState.changeKey("view", "dual"); root.mark("dual"); return true },
         function () {
             if (since("dual") < 700 || !until("the dual view", body.dualMode && ready(root.home))) return false
             root.listWidth = pane.listArea.width

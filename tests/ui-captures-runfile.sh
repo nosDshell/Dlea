@@ -177,7 +177,7 @@ case_cap_runfile() {
 #!/bin/sh
 case "$1" in
 open) printf '%s\n' "$2" >> "$(dirname "$0")/gio-open.argv"; case "$2" in */plain.sh) exit 0 ;; esac; exit 1 ;;
-launch) case "$2" in */zzflea-appimage.desktop) exec /usr/bin/gio "$@" ;; esac; printf '%s\n' "$@" > "$(dirname "$0")/gio-launch.argv"; exit 0 ;;
+launch) case "$2" in */zzdlea-appimage.desktop) exec /usr/bin/gio "$@" ;; esac; printf '%s\n' "$@" > "$(dirname "$0")/gio-launch.argv"; exit 0 ;;
 esac
 exec /usr/bin/gio "$@"
 SH
@@ -359,7 +359,7 @@ PY
     runfile_open changed.sh
     printf '# touched\n' >> "$dir/changed.sh"
     runfile_run
-    wait_message "That file changed after Flea checked it, so it was not run."
+    wait_message "That file changed after Dlea checked it, so it was not run."
     [[ ! -e "$dir/changed.ran" ]] || fail "runfile: the changed file still ran"
     runfile_not_terminal
     shot cap-runfile-refused-changed
@@ -381,7 +381,7 @@ PY
     for poll in $(seq 1 200); do [[ -s "$dir/slow.ran" ]] && break; sleep 0.05; done
     [[ "$(wc -l < "$dir/slow.ran" 2>/dev/null)" == 1 ]] || fail "runfile: the first run never landed, bar says $(ipc lastMessage)"
     runfile_not_terminal
-    # The lane is per-press by detached-launch design: flea --run spawns and exits, so a second Run starts a second copy instead of refusing one already running.
+    # The lane is per-press by detached-launch design: dlea --run spawns and exits, so a second Run starts a second copy instead of refusing one already running.
     runfile_open slow.sh
     runfile_run
     runfile_wait_card false
@@ -393,11 +393,11 @@ PY
     touch "$dir/slow.go"
     # The desktop now names a default for the AppImage type, so the card offers that application by its own Name first.
     printf '[Desktop Entry]\nType=Application\nName=AppImage Manager\nExec=%s %%f\nMimeType=application/vnd.appimage;application/x-iso9660-appimage;\n' "$dir/bin/handler.sh" \
-        > "$dir/bin/share/applications/zzflea-appimage.desktop"
-    printf '[Default Applications]\napplication/vnd.appimage=zzflea-appimage.desktop\napplication/x-iso9660-appimage=zzflea-appimage.desktop\n' \
+        > "$dir/bin/share/applications/zzdlea-appimage.desktop"
+    printf '[Default Applications]\napplication/vnd.appimage=zzdlea-appimage.desktop\napplication/x-iso9660-appimage=zzdlea-appimage.desktop\n' \
         > "$dir/bin/share/applications/mimeapps.list"
     # The default must be the sandbox entry, not one a user config outranks it with.
-    LC_ALL=C XDG_DATA_HOME="$dir/bin/share" /usr/bin/gio mime application/vnd.appimage 2>/dev/null | grep -q "^Default application.*zzflea-appimage.desktop" \
+    LC_ALL=C XDG_DATA_HOME="$dir/bin/share" /usr/bin/gio mime application/vnd.appimage 2>/dev/null | grep -q "^Default application.*zzdlea-appimage.desktop" \
         || fail "runfile: the AppImage default is not the sandbox entry: $(LC_ALL=C XDG_DATA_HOME="$dir/bin/share" /usr/bin/gio mime application/vnd.appimage 2>&1 | head -1)"
     runfile_open app.AppImage
     runfile_expect '.opened == true and .kind == "appimage" and (.buttons | join(",") == "cancel,handler,terminal") and .focus == "handler" and .default == "handler" and ([.controls[] | select(.name == "handler")][0] | .label == "AppImage Manager" and .primary)' "appimage handler default"
@@ -415,5 +415,5 @@ PY
     # needs a noexec volume, driven by the controller
     printf 'CAP SKIP runfile-refused-noexec: a noexec volume cannot be made safely here\n'
     printf 'CAP_RUNFILE script=12 elf=3 appimage=3 handler=8 plain=1 menu=3 openwith=1 text=1 terminal=1 run=2 refused=2\n'
-    kill_flea
+    kill_dlea
 }

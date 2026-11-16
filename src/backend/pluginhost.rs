@@ -1,6 +1,6 @@
 //! A single application-wide plugin owner, without listing or thumbnail machinery.
-use flea::plugin_runtime::protocol::{self, MAX_MESSAGE};
-use flea::ui_logic_plugin_settings::manifest::Invalid;
+use dlea::plugin_runtime::protocol::{self, MAX_MESSAGE};
+use dlea::ui_logic_plugin_settings::manifest::Invalid;
 use std::io::{BufRead, Write};
 use std::sync::{
     atomic::{AtomicUsize, Ordering},
@@ -48,14 +48,14 @@ where
         let Ok(doc) = protocol::parse(&line) else {
             break;
         };
-        if doc.get("c").and_then(flea::jsondoc::Json::as_str) != Some("plugins") {
+        if doc.get("c").and_then(dlea::jsondoc::Json::as_str) != Some("plugins") {
             break;
         }
         let Ok(line) = String::from_utf8(line) else {
             break;
         };
         if live.load(Ordering::Acquire) >= 16 {
-            let code = if doc.get("op").and_then(flea::jsondoc::Json::as_str) == Some("runtime") {
+            let code = if doc.get("op").and_then(dlea::jsondoc::Json::as_str) == Some("runtime") {
                 "busy"
             } else {
                 "write"

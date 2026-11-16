@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 # Counts real delegates and builds the reference sheet through its original symlink harness.
 set -uo pipefail
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 . "$(dirname "$0")/headless-commons.sh"
 cd "$(dirname "$0")/.." || exit 1
 command -v qs >/dev/null || { printf 'FAIL langmarks3: qs is required\n'; exit 1; }
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-langmarks.XXXXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-langmarks.XXXXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 mkdir -p "$test_root"/{config,spec,home,state,cache,runtime} || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 env HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" "$bin" --ui-state '{"langMarks":true}' > "$test_root/seed.json" || exit 1
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 ln -s "$PWD/tests/langmark-count.js" "$test_root/config/langmark-count.js" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
@@ -47,12 +47,12 @@ grep -ao 'LANGMARK_SPEC .*' "$test_root/spec.log"
 # Shift the loaded mark while keeping its Loader and the mark's dimensions unchanged.
 mutant="$test_root/mutant"
 mkdir -p "$mutant" || exit 1
-cp -a ui "$mutant/flea" || exit 1
+cp -a ui "$mutant/dlea" || exit 1
 cp tests/langmarks3.qml "$mutant/shell.qml" || exit 1
 cp tests/langmark-count.js "$mutant/langmark-count.js" || exit 1
 headless_commons "$test_root" "$mutant/Commons" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$mutant/Ui" || exit 1
-python3 - "$mutant/flea/LangMarkLoader.qml" <<'PY' || exit 1
+python3 - "$mutant/dlea/LangMarkLoader.qml" <<'PY' || exit 1
 from pathlib import Path
 import sys
 path = Path(sys.argv[1])
@@ -68,14 +68,14 @@ for surface in Row GridTile ColumnRow; do
     grep -aq "LANGCOST FAIL $surface loaded mark leaves its glyph slot" "$test_root/mutant.log" \
         || { cat "$test_root/mutant-wrapper.log"; printf 'FAIL langmarks3: %s missed the displaced mark\n' "$surface"; exit 1; }
 done
-[ -z "${FLEA_CI_SUITE_LOGS:-}" ] || cp "$test_root/mutant.log" "$FLEA_CI_SUITE_LOGS/langmarks3-displaced.log" || exit 1
+[ -z "${DLEA_CI_SUITE_LOGS:-}" ] || cp "$test_root/mutant.log" "$DLEA_CI_SUITE_LOGS/langmarks3-displaced.log" || exit 1
 printf 'LANGCOST MUTANT displaced-mark rejected Row,GridTile,ColumnRow\n'
 
 # A slug-dependent visibility binding must survive the live reuse sequence until Python is checked.
 binding="$test_root/binding"
 cp -a "$mutant" "$binding" || exit 1
-cp ui/LangMarkLoader.qml "$binding/flea/LangMarkLoader.qml" || exit 1
-python3 - "$binding/flea/LangMark.qml" "$binding/shell.qml" <<'PY' || exit 1
+cp ui/LangMarkLoader.qml "$binding/dlea/LangMarkLoader.qml" || exit 1
+python3 - "$binding/dlea/LangMark.qml" "$binding/shell.qml" <<'PY' || exit 1
 from pathlib import Path
 import sys
 mark, caller = map(Path, sys.argv[1:])
@@ -106,8 +106,8 @@ for surface in Row GridTile ColumnRow; do
         && grep -aq "LANGCOST FAIL $surface language mark is invisible" "$test_root/binding-fixed.log" \
         || { cat "$test_root/binding-fixed-wrapper.log"; printf 'FAIL langmarks3: %s missed the later Python visibility binding\n' "$surface"; exit 1; }
 done
-if [[ -n "${FLEA_CI_SUITE_LOGS:-}" ]]; then
-    cp "$test_root/binding-old.log" "$FLEA_CI_SUITE_LOGS/langmarks3-binding-old.log" || exit 1
-    cp "$test_root/binding-fixed.log" "$FLEA_CI_SUITE_LOGS/langmarks3-binding-fixed.log" || exit 1
+if [[ -n "${DLEA_CI_SUITE_LOGS:-}" ]]; then
+    cp "$test_root/binding-old.log" "$DLEA_CI_SUITE_LOGS/langmarks3-binding-old.log" || exit 1
+    cp "$test_root/binding-fixed.log" "$DLEA_CI_SUITE_LOGS/langmarks3-binding-fixed.log" || exit 1
 fi
 printf 'LANGCOST MUTANT python-invisible old-accepted=1 fixed-phase3-rejected=Row,GridTile,ColumnRow\n'

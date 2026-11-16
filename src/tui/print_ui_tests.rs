@@ -240,8 +240,8 @@ fn tui_fix_1101_print_card_names_the_printer_by_its_backend_name() {
             r#","printerName":"Brother HL-L3270CDW""#,
             "Brother HL-L3270CDW",
         ),
-        ("", "flea-private"),
-        (r#","printerName":"   ""#, "flea-private"),
+        ("", "dlea-private"),
+        (r#","printerName":"   ""#, "dlea-private"),
     ] {
         let (mut w, reader) = wire::echo_wire();
         let mut m = model();
@@ -266,7 +266,7 @@ fn tui_fix_1101_print_card_names_the_printer_by_its_backend_name() {
             &mut m,
             &mut w,
             &format!(
-                r#"{{"t":"printoptions","id":{query},"ok":true,"destinations":[{{"name":"flea-private","default":true}}],"printer":"flea-private"{field},"duplex":true,"twoSided":false,"color":true,"grayscale":false,"setupArgv":[]}}"#
+                r#"{{"t":"printoptions","id":{query},"ok":true,"destinations":[{{"name":"dlea-private","default":true}}],"printer":"dlea-private"{field},"duplex":true,"twoSided":false,"color":true,"grayscale":false,"setupArgv":[]}}"#
             ),
         );
         drain(&mut w);
@@ -283,7 +283,7 @@ fn tui_fix_1101_print_card_names_the_printer_by_its_backend_name() {
         press(&mut m, &mut w, Key::named("Return", ""));
         let sent = drain(&mut w);
         let request = sent.iter().find(|v| text(v, "c") == "print").unwrap();
-        assert_eq!(text(request, "printer"), "flea-private", "{field}");
+        assert_eq!(text(request, "printer"), "dlea-private", "{field}");
         assert_eq!(text(request, "printerName"), shown, "{field}");
         let request = count(request, "requestId");
         answer(

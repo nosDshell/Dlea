@@ -199,7 +199,7 @@ fn the_windows_send_line_parses_as_an_airdrop_request_and_the_facts_carry_owly()
         _ => panic!("{line} did not parse as an AirDrop send"),
     }
     let facts = crate::backend::providers::facts();
-    let parsed = flea::ui_logic_send_share::providers::parse_facts(&facts).expect("facts parse");
+    let parsed = dlea::ui_logic_send_share::providers::parse_facts(&facts).expect("facts parse");
     assert!(facts.contains(r#""owly":{"installed":"#), "{facts}");
     assert_eq!(
         parsed.owly_command.is_empty(),
@@ -228,7 +228,7 @@ fn the_job_card_names_the_device_the_window_chose_not_its_service_id() {
         let work = crate::backend::jobwork::Work::Send {
             peer: "3a9f0c2be41d".into(),
             name: name.into(),
-            paths: vec!["/nonexistent/flea-airdrop-head/a.png".into()],
+            paths: vec!["/nonexistent/dlea-airdrop-head/a.png".into()],
             request: job,
             selection: Some(Vec::new()),
             airdrop: true,

@@ -23,7 +23,7 @@ from .fixtures import WORK, build, discard, import_family, inventory
 from .bundle import build as bundle_build, office, standin
 
 HERE = Path(__file__).resolve().parent
-TOOL = HERE.parents[1] / "tools/flea-tui-fixture-bundle"
+TOOL = HERE.parents[1] / "tools/dlea-tui-fixture-bundle"
 FAMILIES = ("work", "office", "prints", "ja", "ar", "trash")
 WORK_STATE = [{"id": "tui-list", "family": "work", "requires": []}]
 
@@ -45,7 +45,7 @@ def builder(output, *extra):
 class FixtureBundleTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        parent = Path(os.environ.get("FLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
+        parent = Path(os.environ.get("DLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
         cls.scratch = Path(tempfile.mkdtemp(prefix="bundle.", dir=parent.absolute()))
         (cls.scratch / MARKER).write_text("fixture bundle tests\n")
         # Stand-in seeds keep the offline suite free of encoders; the native run seeds real bench media.
@@ -120,9 +120,9 @@ class FixtureBundleTests(unittest.TestCase):
             import_family(tampered, "ja", self.case() / "target")
 
     def listing(self, bundle):
-        boards = os.environ.get("FLEA_BATTERY_BOARDS")
+        boards = os.environ.get("DLEA_BATTERY_BOARDS")
         if not boards:
-            raise Blocked("FLEA_BATTERY_BOARDS is unset: set it to the design-hig directory that holds boards/")
+            raise Blocked("DLEA_BATTERY_BOARDS is unset: set it to the design-hig directory that holds boards/")
         out = io.StringIO()
         with contextlib.redirect_stdout(out), contextlib.redirect_stderr(io.StringIO()):
             code = battery(["--boards", boards, "--fixtures", str(bundle), "--list"])

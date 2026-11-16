@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.."
 
 if [[ "${1:-}" == --controls ]]; then
     root=${2:?marked root required}
-    [[ "$root" == "$PWD/.superpowers/m9-uish-04/"?* && -f "$root/.flea-test-sandbox" ]] || exit 2
+    [[ "$root" == "$PWD/.superpowers/m9-uish-04/"?* && -f "$root/.dlea-test-sandbox" ]] || exit 2
     fail() { printf '%s\n' "$*" >&2; exit 1; }
     assert_theme() { printf 'QML oracle\n'; }
     test_frontend=qml
@@ -15,9 +15,9 @@ if [[ "${1:-}" == --controls ]]; then
     source tests/ui-uish/common-observers.sh
     real_state_dir="$root/current"
     mkdir -p "$real_state_dir/theme"
-    flea_ui="$root/unused"
+    dlea_ui="$root/unused"
     ipc_pid=42
-    flea_ipc_wait() { [[ "$1 $2" == '--pid 42' ]]; }
+    dlea_ipc_wait() { [[ "$1 $2" == '--pid 42' ]]; }
     sleep() { :; }
     observed_loaded=true
     observed_foreground='#c1c497'
@@ -51,8 +51,8 @@ fi
 scratch="$PWD/.superpowers/m9-uish-04"
 mkdir -p "$scratch"
 root=$(mktemp -d "$scratch/controls.XXXXXXXX")
-: > "$root/.flea-test-sandbox"
-trap 'case $root in "$scratch"/controls.?*) [ -f "$root/.flea-test-sandbox" ] && rm -rf -- "$root" ;; esac' EXIT
+: > "$root/.dlea-test-sandbox"
+trap 'case $root in "$scratch"/controls.?*) [ -f "$root/.dlea-test-sandbox" ] && rm -rf -- "$root" ;; esac' EXIT
 mkdir -p "$root"/{home,config,state,cache,runtime}
 setsid -w env -i PATH="$PATH" HOME="$root/home" \
     XDG_CONFIG_HOME="$root/config" XDG_STATE_HOME="$root/state" \
@@ -67,6 +67,6 @@ for target in integration mounted; do
         CARGO_HOME="${CARGO_HOME:-$HOME/.cargo}" RUSTUP_HOME="${RUSTUP_HOME:-$HOME/.rustup}" \
         CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$PWD/target}" \
         CARGO_PROFILE_TEST_DEBUG=line-tables-only CARGO_PROFILE_DEV_DEBUG=line-tables-only \
-        cargo test --locked -p flea-gui "${args[@]}" -- --nocapture < /dev/null
+        cargo test --locked -p dlea-gui "${args[@]}" -- --nocapture < /dev/null
 done
 printf 'UISH_04 PASS live palette, 34 tokens, applied wheel gain and refusal controls\n'

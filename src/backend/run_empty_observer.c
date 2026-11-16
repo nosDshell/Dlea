@@ -25,7 +25,7 @@ enum CounterSlot {
 static uint64_t *counts;
 
 __attribute__((constructor)) static void observe(void) {
-    const char *path = getenv("FLEA_TEST_COUNTS");
+    const char *path = getenv("DLEA_TEST_COUNTS");
     if (!path) return;
     int fd = syscall(SYS_openat, AT_FDCWD, path, O_RDWR, 0);
     if (fd < 0) _exit(86);

@@ -29,7 +29,7 @@ served from the heap and never leaves the process.** Naming a threshold is what 
 glibc sets `no_dyn_threshold` the moment a program sets one, through the tunable or `mallopt`.
 
 **So the size of the win depends entirely on the sequence, and any single number quoted without
-its sequence is wrong.** Measured through the REAL path, a live Flea window driven by `h`,
+its sequence is wrong.** Measured through the REAL path, a live Dlea window driven by `h`,
 `g`, `j` and `Return` to list the 100,000-file fixture, leave it, and list it again, with a
 negative control on the same tree and the arms alternating over six interleaved pairs. `Pss` from
 `smaps_rollup` in KiB, divide by 1024 for MiB:
@@ -44,7 +44,7 @@ negative control on the same tree and the arms alternating over six interleaved 
 lever, listing a large directory a second time roughly DOUBLES the backend, and with it the second
 listing costs what the first did.**
 
-**The field bench will not show this and must not be expected to.** `tools/flea-field-bench`
+**The field bench will not show this and must not be expected to.** `tools/dlea-field-bench`
 launches an entrant once and lists one directory, so its `child_pss_kb` column is the first row of
 that table and moves by about 50 KiB. This is a session property, not a cold-start one. **The
 2026-08-30 field run confirmed it**: the whole branch, this lever plus the shared table parse's
@@ -94,7 +94,7 @@ fails on those. But a wrong parameter number or a wrong threshold value warns ab
 silently LOSES the 4.81 MiB above, which is why `src/heap.rs` now carries its own test.
 
 **The guard is a re-exec.** `a_freed_large_block_does_not_ratchet_the_mmap_threshold` spawns the test
-binary again behind `FLEA_HEAP_PROBE`, ratchets the threshold the way a first large listing does with
+binary again behind `DLEA_HEAP_PROBE`, ratchets the threshold the way a first large listing does with
 one 8 MiB allocation and free, and asserts a 1 MiB allocation landed outside `[heap]` in
 `/proc/self/maps`. A fresh process is what makes it not flaky: a heap already holding a free chunk of
 that size would answer from the arena for a reason that has nothing to do with the lever. 0 red in 50
@@ -128,7 +128,7 @@ both were measured head to head over ten interleaved pairs, 1453.5 KiB against 1
 half KiB apart with the distributions fully overlapping. `Process` on Quickshell 0.3.1 does carry
 `environment` and it does MERGE rather than replace: with the map set, the backend's
 `/proc/<pid>/environ` holds the tunable and still holds `HOME`, `PATH`, `XDG_RUNTIME_DIR`,
-`WAYLAND_DISPLAY` and `FLEA_BIN`, 26 variables in all, verified live. `mallopt` wins on reach
+`WAYLAND_DISPLAY` and `DLEA_BIN`, 26 variables in all, verified live. `mallopt` wins on reach
 rather than on numbers: it applies however the backend is started, including `tests/protocol.sh`,
 `tests/thumbs.sh` and any second front end, whereas the QML property covers only the process the
 GUI spawns; and it keeps an allocator decision in the module whose allocation pattern was measured

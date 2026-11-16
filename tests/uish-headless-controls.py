@@ -10,9 +10,9 @@ import sys
 import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "lib"))
-from flea_transport import TransportError, endpoint, exchange
-from flea_transport_lifecycle import identity
-from flea_uish_headless import Host
+from dlea_transport import TransportError, endpoint, exchange
+from dlea_transport_lifecycle import identity
+from dlea_uish_headless import Host
 
 checks = 0
 
@@ -145,7 +145,7 @@ def real_window(driver):
         commands = [dict(op="open", path="."), dict(op="wait", function="state", expected="ready"),
                     dict(op="read", function="cursor"), dict(op="close")]
         replay.write_text("".join(json.dumps(command) + "\n" for command in commands))
-        result = subprocess.run([sys.executable, "-B", str(Path(__file__).parent / "lib/flea_uish_headless.py"),
+        result = subprocess.run([sys.executable, "-B", str(Path(__file__).parent / "lib/dlea_uish_headless.py"),
                                  "--driver", str(driver), "--replay", str(replay)],
                                 stdin=subprocess.DEVNULL, capture_output=True, timeout=20)
         check(result.returncode == 0, f"self-contained replay failed: {result.stderr.decode()}")
@@ -168,8 +168,8 @@ def rejects_stale_or_foreign(driver):
         refused(lambda: first.input("key", key="down", window=second.id), TransportError, "foreign input identity accepted")
         refused(lambda: host.send(dict(op="key", window="foreign", key="down")), TransportError, "host accepted foreign window")
         refused(lambda: first.close(window=second.id), TransportError, "foreign teardown accepted")
-        reply = first.call("path", target="fleapicker")
-        check(reply.returncode == 3 and b"FLEA_IPC_NOT_PORTED fleapicker.path" in reply.stderr,
+        reply = first.call("path", target="dleapicker")
+        check(reply.returncode == 3 and b"DLEA_IPC_NOT_PORTED dleapicker.path" in reply.stderr,
               "refused reader was replaced with a success")
         refused(lambda: first.call("quit"), TransportError, "production IPC mutation accepted")
         refused(lambda: first.input("invented"), TransportError, "malformed control operation accepted")
@@ -207,7 +207,7 @@ def rejects_stale_or_foreign(driver):
             saved.rename(original)
         first.close()
         refused(lambda: first.value("cursor"), TransportError, "closed window still readable")
-        refused(lambda: exchange(record, ["call", "flea", "cursor"], 1), FileNotFoundError,
+        refused(lambda: exchange(record, ["call", "dlea", "cursor"], 1), FileNotFoundError,
                 "closed window socket still served production IPC")
         refused(lambda: host.send(dict(op="key", window=first.id, key="down")), TransportError, "closed host identity accepted")
         check(second.value("total") == "7", "closing one window closed its neighbour")

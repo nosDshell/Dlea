@@ -166,10 +166,10 @@ def execute_pair(args, root, display, terminal_name, state, variant, colors, ide
         if missing:
             raise Blocked("fixture integration required: " + ", ".join(sorted(missing)))
         environment = seam.get("environment", {})
-        if any(not key.startswith("FLEA_TUI_") for key in environment):
-            raise Blocked("test seams may only set FLEA_TUI_ variables")
+        if any(not key.startswith("DLEA_TUI_") for key in environment):
+            raise Blocked("test seams may only set DLEA_TUI_ variables")
         theme_hash = private_theme(fx, colors)
-        settings = fx / "state/flea/ui.json"
+        settings = fx / "state/dlea/ui.json"
         settings.parent.mkdir(parents=True, exist_ok=True)
         content = json.loads(settings.read_text()) if settings.is_file() else {}
         content["keys"] = args.preset
@@ -349,7 +349,7 @@ def parser():
     result.add_argument("--profiles", type=Path)
     result.add_argument("--steps", type=Path, help="logical setup steps keyed by state, for integrated keymap changes")
     result.add_argument("--reviews", type=Path, help="native visual approvals keyed by terminal/state/variant and image hashes")
-    result.add_argument("--seams", type=Path, help="explicit test-only fixture features and FLEA_TUI_ environment by state")
+    result.add_argument("--seams", type=Path, help="explicit test-only fixture features and DLEA_TUI_ environment by state")
     result.add_argument("--identity-inputs", type=Path, help="additional named catalog/roster/font input paths to hash")
     result.add_argument("--supplement", type=Path, help="identity-matched controller control/calendar evidence bundle")
     result.add_argument("--reconcile", type=Path, help="review retained captures from this run directory instead of launching terminals")

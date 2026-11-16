@@ -28,7 +28,7 @@ thumbnailpolicy_release() {
     python3 - "$menu_box" <<'PY'
 import os, pathlib, sys
 root = pathlib.Path(sys.argv[1])
-assert root.is_absolute() and root.resolve() == root and (root / '.flea-test-sandbox').is_file()
+assert root.is_absolute() and root.resolve() == root and (root / '.dlea-test-sandbox').is_file()
 (root / 'released').touch()
 for gate in (root / 'gates').iterdir():
     assert gate.resolve().is_relative_to(root) and gate.is_fifo()
@@ -56,8 +56,8 @@ import json, os, pathlib, sys, time
 arguments = sys.argv[1:]
 binds = [arguments[index + 1:index + 3] for index, value in enumerate(arguments) if value == '--bind']
 if binds:
-    root = pathlib.Path(os.environ['FLEA_THUMB_POLICY_BOX'])
-    assert root.is_absolute() and root.resolve() == root and (root / '.flea-test-sandbox').is_file()
+    root = pathlib.Path(os.environ['DLEA_THUMB_POLICY_BOX'])
+    assert root.is_absolute() and root.resolve() == root and (root / '.dlea-test-sandbox').is_file()
     assert len(binds) == 1 and len(binds[0]) == 2 and binds[0][0] == binds[0][1]
     output = pathlib.Path(binds[0][0])
     assert output.resolve().is_relative_to(root / 'cache/thumbnails/large') and output.is_file()
@@ -65,7 +65,7 @@ if binds:
     source = pathlib.Path(inputs[-1][0])
     assert inputs[-1][0] == inputs[-1][1] and source.resolve().parent == root / 'listing' and source.is_file()
     name = source.name
-    workers = int(os.environ['FLEA_THUMB_POLICY_WORKERS'])
+    workers = int(os.environ['DLEA_THUMB_POLICY_WORKERS'])
     assert workers >= 1
     assert name in ['a-ready.png', *['b-block%d.png' % number for number in range(1, workers + 1)], 'c-image.png', 'd-video.mp4']
     record = {'name': name, 'pid': os.getpid(), 'parent': os.getppid(), 'argv': arguments, 'started': time.monotonic()}
@@ -107,7 +107,7 @@ case_thumbnailpolicy() (
     for mode in list grid columns; do
         menu_box=$(mktemp -d "$fixture_root/thumbnail-policy-$mode.XXXXXXXX") || fail "thumbnailpolicy: fixture creation failed"
         permissions_listing="$menu_box/listing"
-        printf 'native thumbnail policy fixture\n' > "$menu_box/.flea-test-sandbox"
+        printf 'native thumbnail policy fixture\n' > "$menu_box/.dlea-test-sandbox"
         [[ "$menu_box" == "$(realpath -e "$menu_box")" ]] || fail "thumbnailpolicy: fixture path is not canonical"
         for path in listing sources state config cache data bin gates; do
             menus_guard "$menu_box/$path"
@@ -123,7 +123,7 @@ case_thumbnailpolicy() (
         menus_guard "$menu_box/listing/a-ready.png"
         cp "$menu_box/sources/image.png" "$menu_box/listing/a-ready.png" || fail "thumbnailpolicy: warm image setup failed"
         thumbnailpolicy_wrapper
-        export FLEA_THUMB_POLICY_BOX="$menu_box" FLEA_THUMB_POLICY_WORKERS="$workers"
+        export DLEA_THUMB_POLICY_BOX="$menu_box" DLEA_THUMB_POLICY_WORKERS="$workers"
         export XDG_CONFIG_HOME="$menu_box/config" XDG_CACHE_HOME="$menu_box/cache" XDG_DATA_HOME="$menu_box/data"
         export PATH="$menu_box/bin:$PATH"
         seed_ui_state "$menu_box/state" "{\"view\":\"$mode\",\"keys\":\"default\",\"preview\":{\"column\":true,\"loadOn\":\"manual\",\"thumbnails\":\"media\"}}"
@@ -134,7 +134,7 @@ case_thumbnailpolicy() (
         menus_guard "$cached"
         digest=$(sha256sum < "$cached") || fail "thumbnailpolicy: completed cache file is unreadable"
         thumbnailpolicy_helper_inventory '["a-ready.png"]'
-        kill_flea
+        kill_dlea
 
         # Every production worker is held before decoding; two further visible rows remain queued.
         for index in $(seq 1 "$workers"); do
@@ -147,7 +147,7 @@ case_thumbnailpolicy() (
         menus_guard "$menu_box/listing/d-video.mp4"
         cp "$menu_box/sources/image.png" "$menu_box/listing/c-image.png" || fail "thumbnailpolicy: queued image setup failed"
         cp "$menu_box/sources/video.mp4" "$menu_box/listing/d-video.mp4" || fail "thumbnailpolicy: queued video setup failed"
-        "$flea_bin" --ui-state '{"preview":{"thumbnails":"off"}}' >/dev/null || fail "thumbnailpolicy: disabled launch state failed"
+        "$dlea_bin" --ui-state '{"preview":{"thumbnails":"off"}}' >/dev/null || fail "thumbnailpolicy: disabled launch state failed"
         launch "$menu_box/listing"
         wait_listing "$rows"
         permissions_viewport 1280 900
@@ -210,7 +210,7 @@ PY
         thumbnailpolicy_expect ".pending == [] and (.files | keys | sort) == ([range(0; $queued_image) | tostring] | sort) and all(.files[]; type == \"string\" and length > 0)" "$mode lets running real helpers finish while canceled jobs stay absent"
         if [[ "$mode" == columns ]]; then
             thumbnailpolicy_expect '.previewIndex == 1 and (.previewPath | endswith("/b-block1.png")) and .previewReady' 'Columns decodes its owned thumbnail after gate release'
-            flea_ipc_wait -p "$flea_ui/boot" flea columnThumbShown true --timeout 15 >/dev/null \
+            dlea_ipc_wait -p "$dlea_ui/boot" dlea columnThumbShown true --timeout 15 >/dev/null \
                 || fail "thumbnailpolicy: completed selected thumbnail is not drawn in the Columns frame"
             baseline=$(jq -c '.previewReady = true' <<< "$baseline") || fail "thumbnailpolicy: invalid preview baseline"
         fi
@@ -249,7 +249,7 @@ PY
         shot "thumbnail-policy-$mode-restored"
         printf 'THUMBNAIL_POLICY_HELPER_LOG mode=%s\n' "$mode"
         cat "$menu_box/helpers.jsonl"
-        kill_flea
+        kill_dlea
     done
     trap - EXIT
 )

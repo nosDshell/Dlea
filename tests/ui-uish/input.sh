@@ -185,5 +185,5 @@ case_overlays() {
         [[ "$(ipc settingsOpen)" == "false" && "$(ipc cursor)" == "0" ]] || fail "$mode: a left click on the ground left settings $(ipc settingsOpen) and the cursor on $(ipc cursor)"
         printf 'OVERLAYS %s menu=ok settings=ok\n' "$mode"
     done
-    kill_flea
+    kill_dlea
 }

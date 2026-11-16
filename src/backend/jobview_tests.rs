@@ -2,16 +2,16 @@
 use super::super::jobs::{Jobs, State};
 use std::sync::{atomic::AtomicBool, Arc};
 
-fn rebuilt(json: &str) -> (flea::ui_logic_file_ops::JobRow, String) {
+fn rebuilt(json: &str) -> (dlea::ui_logic_file_ops::JobRow, String) {
     let line = format!(r#"{{"t":"job","job":{json},"unfinished":1}}"#);
-    let Some(flea::ui_logic_file_ops::Event::Job { mut job, .. }) =
-        flea::ui_logic_file_ops::parse(&line)
+    let Some(dlea::ui_logic_file_ops::Event::Job { mut job, .. }) =
+        dlea::ui_logic_file_ops::parse(&line)
     else {
         panic!("not a job line: {line}");
     };
     // The backend's head is replaced, so a match proves the rebuild, never the fallback.
     job.head = "unbuilt".into();
-    let head = flea::ui_logic_file_ops::jobs::head_line(
+    let head = dlea::ui_logic_file_ops::jobs::head_line(
         &crate::i18n::test_catalogs::library_english(),
         &job,
     );

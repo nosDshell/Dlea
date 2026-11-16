@@ -19,7 +19,7 @@ cap_iso_session_exec() {
                 *) printf 'cap_iso: unknown session command %s\n' "$verb" >&2; break ;;
             esac
             [[ "$iso_root" == /* && -d "$iso_root" && ! -L "$iso_root" \
-                && -f "$iso_root/.flea-test-sandbox" && "$iso_file" == "$iso_root/image.iso" \
+                && -f "$iso_root/.dlea-test-sandbox" && "$iso_file" == "$iso_root/image.iso" \
                 && -f "$iso_file" && ! -L "$iso_file" \
                 && "$(realpath -e -- "$iso_file")" == "$iso_file" ]] \
                 || { printf 'cap_iso: session command needs the marked ISO fixture\n' >&2; break; }
@@ -95,8 +95,8 @@ SH
 
 # Only loops still backed by this marked fixture belong to this case, even if a loop number was reused.
 cap_iso_loops() {
-    [[ -n "$iso_root" && "$iso_root" == /home/flea-sandbox/* && ! -L "$iso_root" \
-        && -f "$iso_root/.flea-test-sandbox" && "$iso_file" == "$iso_root/image.iso" ]] \
+    [[ -n "$iso_root" && "$iso_root" == /home/dlea-sandbox/* && ! -L "$iso_root" \
+        && -f "$iso_root/.dlea-test-sandbox" && "$iso_file" == "$iso_root/image.iso" ]] \
         || return 1
     [[ "$iso_attach_started" == true ]] || return 0
     [[ -f "$iso_file" && ! -L "$iso_file" && "$(realpath -e -- "$iso_file")" == "$iso_file" ]] || return 1
@@ -107,7 +107,7 @@ cap_iso_loops() {
 cap_iso_cleanup() {
     local result="$1" loops device mounted left teardown_failed=0
     trap - EXIT INT TERM
-    if [[ "$iso_launched" == true ]] && ! ( kill_flea ); then teardown_failed=1; fi
+    if [[ "$iso_launched" == true ]] && ! ( kill_dlea ); then teardown_failed=1; fi
     if [[ "$iso_session_incomplete" == true ]]; then
         printf 'FAIL cap_iso: session command completion unknown; fixture kept at %s\n' "$iso_root" >&2
         exit 1
@@ -135,8 +135,8 @@ cap_iso_cleanup() {
         printf 'FAIL cap_iso: teardown incomplete; fixture kept at %s, loops=[%s]\n' "$iso_root" "$left" >&2
         exit 1
     fi
-    [[ -n "$iso_root" && "$iso_root" == /home/flea-sandbox/* && ! -L "$iso_root" \
-        && -f "$iso_root/.flea-test-sandbox" ]] || exit 1
+    [[ -n "$iso_root" && "$iso_root" == /home/dlea-sandbox/* && ! -L "$iso_root" \
+        && -f "$iso_root/.dlea-test-sandbox" ]] || exit 1
     sandbox_remove "$iso_root" || exit 1
     printf 'CAP_ISO cleanup=detached-and-deleted duration_s=%s\n' "$((SECONDS - iso_started))"
     exit "$result"
@@ -158,13 +158,13 @@ case_cap_iso() (
     [[ -n "$builder" ]] || fail "cap_iso: no ISO builder installed; need xorriso, genisoimage or mkisofs"
     sandbox_root_ok
     case "$SANDBOX_ROOT" in
-        /home/flea-sandbox|/home/flea-sandbox/*) ;;
-        *) fail "cap_iso: fixture root must resolve under /home/flea-sandbox, got $SANDBOX_ROOT" ;;
+        /home/dlea-sandbox|/home/dlea-sandbox/*) ;;
+        *) fail "cap_iso: fixture root must resolve under /home/dlea-sandbox, got $SANDBOX_ROOT" ;;
     esac
-    iso_root=$(mktemp -d "$SANDBOX_ROOT/flea-cap-iso.XXXXXXXX") || fail "cap_iso: mktemp failed"
-    [[ "$iso_root" == /home/flea-sandbox/* && -d "$iso_root" && ! -L "$iso_root" ]] \
+    iso_root=$(mktemp -d "$SANDBOX_ROOT/dlea-cap-iso.XXXXXXXX") || fail "cap_iso: mktemp failed"
+    [[ "$iso_root" == /home/dlea-sandbox/* && -d "$iso_root" && ! -L "$iso_root" ]] \
         || fail "cap_iso: invalid temporary root $iso_root"
-    : > "$iso_root/.flea-test-sandbox" || fail "cap_iso: cannot mark temporary root"
+    : > "$iso_root/.dlea-test-sandbox" || fail "cap_iso: cannot mark temporary root"
     iso_file="$iso_root/image.iso"
     trap 'cap_iso_cleanup "$?"' EXIT
     trap 'exit 130' INT

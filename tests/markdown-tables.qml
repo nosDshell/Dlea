@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-markdown-tables-test
+//@ pragma ShellId dlea-markdown-tables-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "markdown-tables.js" as Tables
 import "markdown-tables-scroll.js" as Sideways
 import "markdown-markers.js" as Markers
@@ -15,9 +15,9 @@ ShellRoot {
     function log(line) { console.log("MARKDOWN_TABLES " + line) }
     function quit() { Quickshell.execDetached(["kill", String(Quickshell.processId)]) }
 
-    readonly property string dir: Quickshell.env("FLEA_TABLES_DIR")
+    readonly property string dir: Quickshell.env("DLEA_TABLES_DIR")
     readonly property string outDir: Quickshell.env("XDG_RUNTIME_DIR")
-    readonly property var cases: Quickshell.env("FLEA_TABLES_CASES").split(",")
+    readonly property var cases: Quickshell.env("DLEA_TABLES_CASES").split(",")
     // The board's text size, and the two widths: Quick Look's card, and the column's markdown frame.
     readonly property int boardText: 14
     readonly property int cardWidth: 840
@@ -60,7 +60,7 @@ ShellRoot {
     property int cardShot: paneHeight
     property int columnShot: paneHeight
 
-    Component.onCompleted: Flea.ViewState.state = { display: { textSize: { mode: shell.boardText } } }
+    Component.onCompleted: Dlea.ViewState.state = { display: { textSize: { mode: shell.boardText } } }
 
     function check(error, name) {
         checks++
@@ -96,9 +96,9 @@ ShellRoot {
             width: shell.cardWidth
             height: shell.cardShot
             clip: true
-            color: Flea.Theme.color.background
+            color: Dlea.Theme.color.background
 
-            Flea.MarkdownPane {
+            Dlea.MarkdownPane {
                 id: card
                 width: parent.width
                 height: shell.paneHeight
@@ -115,9 +115,9 @@ ShellRoot {
             width: shell.columnWidth
             height: shell.columnShot
             clip: true
-            color: Flea.Theme.color.background
+            color: Dlea.Theme.color.background
 
-            Flea.PreviewMarkdown {
+            Dlea.PreviewMarkdown {
                 id: column
                 width: parent.width
                 height: shell.paneHeight
@@ -158,7 +158,7 @@ ShellRoot {
     // Where every text and rule of a case's pane sits in its grabbed frame, for the picture-line judge that reads the pixels.
     function logInk(name, label, pane, frame) {
         var ink = Tables.inkRects(pane.bodyItem.contentItem, frame)
-        ink.bg = String(Flea.Theme.color.background)
+        ink.bg = String(Dlea.Theme.color.background)
         ink.lists = Markers.listInk(pane.bodyItem.contentItem, frame, name)
         shell.log("INK " + name + " " + label + " " + JSON.stringify(ink))
     }
@@ -198,7 +198,7 @@ ShellRoot {
                 x: shell.hostX
                 y: shell.hostY
                 Item { width: 1; height: shell.hostSpacer }
-                Flea.MarkdownTable {
+                Dlea.MarkdownTable {
                     block: column.blockList.filter(function (b) { return b.type === "table" })[0]
                     preview: column
                     availableWidth: shell.columnWidth
@@ -320,7 +320,7 @@ ShellRoot {
                     var name = shell.cases[shell.at]
                     shell.judge(name, card, "card", cardFrame)
                     shell.judge(name, column, "column", columnFrame)
-                    shell.cardShot = shell.shotHeight(card, Flea.Theme.chromeHeight)
+                    shell.cardShot = shell.shotHeight(card, Dlea.Theme.chromeHeight)
                     shell.columnShot = shell.shotHeight(column, 0)
                     shell.save(cardFrame, shell.outDir + "/tables-" + name + "-card.png")
                     shell.save(columnFrame, shell.outDir + "/tables-" + name + "-column.png")

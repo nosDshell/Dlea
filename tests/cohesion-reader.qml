@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-cohesion-reader-test
+//@ pragma ShellId dlea-cohesion-reader-test
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Tabs.js" as Tabs
-import "flea/js/Scroll.js" as Scroll
+import "dlea" as Dlea
+import "dlea/js/Tabs.js" as Tabs
+import "dlea/js/Scroll.js" as Scroll
 import QtTest
 
 // the montage's reader names each control with a box inside the window, at rest and with a dialog open.
@@ -60,7 +60,7 @@ ShellRoot {
             var at = item.mapToItem(window.contentItem, 0, 0)
             return Math.round(at.x) + " " + Math.round(at.y) + " " + Math.round(item.width) + " " + Math.round(item.height)
         }
-        Flea.WindowBody { id: body; host: window }
+        Dlea.WindowBody { id: body; host: window }
         TestEvent { id: driver }
     }
 
@@ -109,7 +109,7 @@ ShellRoot {
                 var primaries = open.st.controls.filter(function (c) { return c.kind === "DialogButton" && c.primary })
                 root.check(primaries.length === 1, "one primary button: " + primaries.length)
                 root.check(open.st.controls.every(function (c) { return c.kind !== "DialogButton" || (c.hoverable && c.pressable) }), "every dialog button reports hover and press")
-                if (Quickshell.env("FLEA_COH_CAPTURE") === "true") {
+                if (Quickshell.env("DLEA_COH_CAPTURE") === "true") {
                     var targets = open.st.controls.filter(function(c) { return c.surface === "PermissionsDialog" && c.exposed })
                     root.check(targets.filter(function(c) { return c.kind === "DialogButton" && c.pressLive }).length === 2, "capture buttons belong to the open Permissions surface")
                     root.check(targets.filter(function(c) { return c.kind === "CheckBox" && c.hoverLive && c.pressLive }).length === 9, "capture checkboxes read their parent's actual handlers")
@@ -119,9 +119,9 @@ ShellRoot {
                 root.check(!!focus && (focus.via === "owner" || focus.via === "flag"), "the focus is found by the owner walk or the focused flag, not the fallback: " + JSON.stringify(focus))
                 root.check(!!focus && (["DialogButton", "CheckBox"].indexOf(focus.kind) >= 0 || (focus.kind === "ChromeButton" && focus.name === root.closeMark)),
                     "the focus entry names a Permissions control, not a window mark: " + JSON.stringify(focus))
-                if (Quickshell.env("FLEA_COH_CAPTURE") !== "true") { root.report(); return }
+                if (Quickshell.env("DLEA_COH_CAPTURE") !== "true") { root.report(); return }
                 d.close()
-                Flea.ViewState.changeLeaf("preview", {column: true, loadOn: "automatic"})
+                Dlea.ViewState.changeLeaf("preview", {column: true, loadOn: "automatic"})
                 pane.chooseView("columns")
                 for (var i = 0; i < pane.total; i++)
                     if (pane.rowFor(i) && pane.rowFor(i).n === "manual.pdf") { pane.setCursor(i, 0); break }

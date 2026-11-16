@@ -3,7 +3,7 @@ use crate::backend::copyfile::{copy_any, finish_move, Progress};
 use crate::backend::durable::{fsync_dir, Durability, DIR_UNCONFIRMED};
 use crate::backend::opsreq::{OpMsg, PROGRESS_EVERY};
 use crate::backend::undo::{self, ItemIdentity, Step};
-use crate::error::{from_io, FleaError};
+use crate::error::{from_io, DleaError};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::mpsc::Sender;
@@ -117,7 +117,7 @@ pub(crate) struct MoveBatch {
 
 // What one moving item did: answered now, or copied and waiting on its batch's confirm.
 pub(crate) enum MoveOutcome {
-    Done(Result<(), FleaError>),
+    Done(Result<(), DleaError>),
     Deferred,
 }
 
@@ -169,8 +169,8 @@ fn journal_partial(
     source: &ItemIdentity,
     manifest: Option<crate::backend::copymanifest::Writer>,
     steps: &mut Vec<Step>,
-    err: &mut FleaError,
-) -> Result<(), FleaError> {
+    err: &mut DleaError,
+) -> Result<(), DleaError> {
     let (manifest, loud) = crate::backend::copymanifest::finish_loud(manifest);
     if let Some(e) = loud {
         err.msg = crate::backend::ops::manifest_failed(&err.msg, &e);
@@ -180,7 +180,7 @@ fn journal_partial(
 }
 
 // The folders a batch filled, confirmed once; held files settle first so sources go after the bytes.
-fn confirm_batch(durability: &mut Durability, dsts: &[PathBuf]) -> Result<(), FleaError> {
+fn confirm_batch(durability: &mut Durability, dsts: &[PathBuf]) -> Result<(), DleaError> {
     let failed = if durability.durable {
         durability.flush_dirs_for_many(dsts).is_err()
     } else {
@@ -203,7 +203,7 @@ fn confirm_batch(durability: &mut Durability, dsts: &[PathBuf]) -> Result<(), Fl
     };
     if failed {
         let first = dsts.first().map(|dst| dst.to_string_lossy().to_string()).unwrap_or_default();
-        return Err(FleaError { where_: "move".to_string(), path: first, msg: DIR_UNCONFIRMED.to_string() });
+        return Err(DleaError { where_: "move".to_string(), path: first, msg: DIR_UNCONFIRMED.to_string() });
     }
     Ok(())
 }
@@ -321,7 +321,7 @@ fn journal_unconfirmed(
     let mut counts = CloseCounts::default();
     let mut retry = Vec::new();
     for item in batch.pending.drain(..) {
-        let mut err = FleaError {
+        let mut err = DleaError {
             where_: "move".to_string(),
             path: item.dst.to_string_lossy().to_string(),
             msg: DIR_UNCONFIRMED.to_string(),

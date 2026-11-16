@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Drag.js" as DragOps
 import "js/Icons.js" as Icons
 import "js/LangMarks.js" as LangMarks
@@ -147,7 +147,7 @@ Item {
             source: root.thumb.length > 0 ? Format.fileUri(root.thumb) : ""
         }
 
-        Flea.Glyph {
+        Dlea.Glyph {
             id: markGlyph
             anchors.fill: parent
             visible: !root.thumbDrawn && root.langSlug === ""
@@ -225,7 +225,7 @@ Item {
                     readonly property string path: root.row ? root.row.n : ""
                     readonly property string shownName: markParts.locating ? Match.base(path) : path
                     readonly property var run: Match.run(shownName, root.markQuery)
-                    Flea.MatchText {
+                    Dlea.MatchText {
                         id: matchName
                         anchors.left: parent.left
                         anchors.verticalCenter: parent.verticalCenter
@@ -281,7 +281,7 @@ Item {
                         textFormat: Text.PlainText
                     }
                     // The board's own nudge: the mark sits one pixel above the text centre line.
-                    Flea.Glyph {
+                    Dlea.Glyph {
                         id: clipMarkGlyph
                         visible: root.clipMark.length > 0
                         width: root.clipPx
@@ -324,7 +324,7 @@ Item {
             active: built || drawn
             onDrawnChanged: if (drawn) built = true
             Component.onCompleted: if (drawn) built = true
-            sourceComponent: Flea.Glyph {
+            sourceComponent: Dlea.Glyph {
                 name: "chevron-right"
                 color: root.cursor ? Theme.color.accent : Theme.color.mutedFrame
             }

@@ -1,4 +1,4 @@
-// Ports tests/js/uistate.js (Flea 0.3.12) lines 367-416 and records the QML-driven checks at 418-487 as BLOCKED.
+// Ports tests/js/uistate.js (Dlea 0.3.12) lines 367-416 and records the QML-driven checks at 418-487 as BLOCKED.
 use super::*;
 use crate::jsondoc::{parse, Json};
 

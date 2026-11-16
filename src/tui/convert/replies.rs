@@ -36,7 +36,7 @@ pub fn receive(m: &mut Model, value: &Json, w: &mut Wire) -> io::Result<bool> {
                 });
             let valid = paths.as_ref().is_some_and(|ps| {
                 ps.iter()
-                    .all(|p| p.starts_with('/') && !flea::bytename::is_refused(p))
+                    .all(|p| p.starts_with('/') && !dlea::bytename::is_refused(p))
             });
             if !valid {
                 cancel(m, w)?;

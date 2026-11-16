@@ -15,7 +15,7 @@ const TWO_ROWS: &str = "smb://h/share/a.txt\t3\t(regular)\ttime::modified=100\ns
 
 fn runtime_fixture(tag: &str) -> (TestDir, PathBuf) {
     let dir = TestDir::new(tag);
-    let runtime = dir.path().join("runtime/flea");
+    let runtime = dir.path().join("runtime/dlea");
     std::fs::create_dir_all(&runtime).unwrap();
     std::fs::set_permissions(&runtime, std::fs::Permissions::from_mode(0o700)).unwrap();
     (dir, runtime)
@@ -106,7 +106,7 @@ fn a_completed_prefetch_adopts_through_scan_with_no_gio_child() {
     let _lock = hold_consumed();
     reset_consumed();
     let dir = TestDir::new("gvfs-adopt");
-    let runtime = dir.path().join("runtime/flea");
+    let runtime = dir.path().join("runtime/dlea");
     std::fs::create_dir_all(&runtime).unwrap();
     std::fs::set_permissions(&runtime, std::fs::Permissions::from_mode(0o700)).unwrap();
     let runtime_root = dir.path().join("runtime");
@@ -115,7 +115,7 @@ fn a_completed_prefetch_adopts_through_scan_with_no_gio_child() {
     let dest = write_prefetch(&runtime, "gvfs-1.list", TWO_ROWS);
     let mtime_ms = dest.metadata().unwrap().modified().unwrap().duration_since(UNIX_EPOCH).unwrap().as_millis() as u64;
     let prefetch = Prefetch { dest: dest.clone(), path: SHARE.to_string(), start_ms: mtime_ms - 1000 };
-    let (listing, _) = crate::backend::scan::scan_in(SHARE, false, Some(prefetch), &gio, &|| Some(runtime_root.join("flea"))).unwrap();
+    let (listing, _) = crate::backend::scan::scan_in(SHARE, false, Some(prefetch), &gio, &|| Some(runtime_root.join("dlea"))).unwrap();
     assert_eq!((listing.len(), listing.name(0)), (1, "a.txt"), "the hidden row is filtered at parse time");
     assert!(!marker.exists(), "adoption through scan_with spawns no gio child at all");
     assert!(!dest.exists(), "the file is claimed on read and never read again");
@@ -333,7 +333,7 @@ fn the_scan_adopts_once_then_falls_back_to_gio() {
     let _lock = hold_consumed();
     reset_consumed();
     let dir = TestDir::new("gvfs-once");
-    let runtime = dir.path().join("runtime/flea");
+    let runtime = dir.path().join("runtime/dlea");
     std::fs::create_dir_all(&runtime).unwrap();
     std::fs::set_permissions(&runtime, std::fs::Permissions::from_mode(0o700)).unwrap();
     let runtime_root = dir.path().join("runtime");
@@ -343,12 +343,12 @@ fn the_scan_adopts_once_then_falls_back_to_gio() {
     let dest = runtime.join("gvfs-1.list");
     std::fs::write(&dest, TWO_ROWS).unwrap();
     let prefetch = Prefetch { dest: dest.clone(), path: SHARE.to_string(), start_ms };
-    let (first, _) = crate::backend::scan::scan_in(SHARE, false, Some(prefetch), &gio, &|| Some(runtime_root.join("flea"))).unwrap();
+    let (first, _) = crate::backend::scan::scan_in(SHARE, false, Some(prefetch), &gio, &|| Some(runtime_root.join("dlea"))).unwrap();
     assert_eq!((first.len(), first.name(0)), (1, "a.txt"), "the first scan of the path spawns no gio child");
     assert!(!marker.exists());
     std::fs::write(&dest, TWO_ROWS).unwrap();
     let again = Prefetch { dest, path: SHARE.to_string(), start_ms };
-    let (second, _) = crate::backend::scan::scan_in(SHARE, false, Some(again), &gio, &|| Some(runtime_root.join("flea"))).unwrap();
+    let (second, _) = crate::backend::scan::scan_in(SHARE, false, Some(again), &gio, &|| Some(runtime_root.join("dlea"))).unwrap();
     assert_eq!((second.len(), second.name(0)), (1, "from-gio.txt"));
     assert!(marker.exists(), "the second listing takes today's gio path");
     reset_consumed();
@@ -359,7 +359,7 @@ fn the_launcher_arms_only_a_gvfs_path() {
     let dir = TestDir::new("gvfs-prepare");
     let root = dir.path().join("runtime");
     let runtime = runtime_dir_from(Some(root.clone().into_os_string()));
-    assert_eq!(runtime, Some(root.join("flea")), "the session's runtime root names Flea's own dir under it");
+    assert_eq!(runtime, Some(root.join("dlea")), "the session's runtime root names Dlea's own dir under it");
     assert!(runtime_dir_from(Some("".into())).is_none() && runtime_dir_from(None).is_none(), "a session naming no runtime root names no dir");
     // prepare_for is the gate prepare runs with the session's dir, so both arms are driven here.
     assert!(prepare_for("/home/gm", runtime.clone()).is_none(), "a local launch does nothing new");
@@ -367,7 +367,7 @@ fn the_launcher_arms_only_a_gvfs_path() {
     assert!(prepare_for(SHARE, None).is_none(), "a gvfs launch in a session without a runtime dir arms nothing");
     let (dest, start_ms) = prepare_for(SHARE, runtime).expect("a gvfs launch names its file");
     assert!(start_ms > 0);
-    assert_eq!(dest.parent(), Some(root.join("flea").as_path()));
+    assert_eq!(dest.parent(), Some(root.join("dlea").as_path()));
     assert!(dest.file_name().unwrap().to_string_lossy().starts_with("gvfs-"));
     assert_eq!(dest.parent().unwrap().metadata().unwrap().permissions().mode() & 0o777, 0o700);
 }
@@ -376,7 +376,7 @@ fn the_launcher_arms_only_a_gvfs_path() {
 fn the_environment_names_all_three_or_nothing() {
     let env = |start: &'static str, path: bool| move |name: &str| -> Option<std::ffi::OsString> {
         match name {
-            PREFETCH_ENV => Some("/run/user/1000/flea/gvfs-1.list".into()),
+            PREFETCH_ENV => Some("/run/user/1000/dlea/gvfs-1.list".into()),
             PATH_ENV if path => Some(SHARE.into()),
             START_ENV => Some(start.into()),
             _ => None,

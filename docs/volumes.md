@@ -1,11 +1,11 @@
 # Volume helper
 
-The installed `flea-udisks` helper exposes filesystem volumes through UDisks2.
+The installed `dlea-udisks` helper exposes filesystem volumes through UDisks2.
 Call it in a child process, since authorization and device operations can wait.
 Its existing `drives`, `open` and `eject` commands retain the image flasher's
 whole-disk checks. These volume commands do not open block devices for writing.
 
-`flea-udisks volumes` returns `{"volumes":[...]}`. Mounted volumes and removable
+`dlea-udisks volumes` returns `{"volumes":[...]}`. Mounted volumes and removable
 media appear by default. `volumes --unmounted` also includes eligible unmounted
 internal filesystems. Neither command mounts anything. Ignore and system hints,
 firmware and recovery partitions, partition-table containers and blocks without
@@ -20,11 +20,11 @@ Each row carries `kind`, `device`, `path`, `label`, `mounted`, `removable`,
 `unmount` for fixed storage, `eject` for removable storage, or empty when
 unmounted. The view draws named icons rather than interpreting font code points.
 
-`flea-udisks mount /dev/sdb2` mounts an eligible filesystem and returns
+`dlea-udisks mount /dev/sdb2` mounts an eligible filesystem and returns
 `{"ok":true,"path":"/run/media/user/Data"}`. An already mounted filesystem
 returns its current path without mounting it again.
 
-`flea-udisks release /mnt/data/subdir` finds the deepest containing mount,
+`dlea-udisks release /mnt/data/subdir` finds the deepest containing mount,
 independently of the unmounted-volume setting. A fixed volume is unmounted.
 Each Unmount removes one alias. The helper reads MountPoints again after every
 call and drains all aliases, with at most 32 attempts per filesystem. A call

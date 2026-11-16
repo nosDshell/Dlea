@@ -1,5 +1,5 @@
 // Feature requests stay off the listing loop and share its detached-job shutdown registry.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::{aliases::Aliases, mime::Db, opsdispatch::Ops, opsreq::OpMsg, pagerange::Pages, printconvert, printing, printtool};
 use crate::json::{escape, field_bool, field_str, field_str_array, field_usize};
 use std::io::Write;
@@ -30,10 +30,10 @@ pub fn paths(line: &str) -> Vec<PathBuf> {
     if paths.is_empty() {
         field_str(line, "path")
             .into_iter()
-            .map(flea::bytename::exact)
+            .map(dlea::bytename::exact)
             .collect()
     } else {
-        paths.into_iter().map(flea::bytename::exact).collect()
+        paths.into_iter().map(dlea::bytename::exact).collect()
     }
 }
 

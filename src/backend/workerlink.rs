@@ -1,4 +1,4 @@
-// The backend's side of `flea --thumb-worker`: one worker for the pool, started on the first video that qualifies and retired for good at its first failure; see AGENTS.md "Thumbnail worker".
+// The backend's side of `dlea --thumb-worker`: one worker for the pool, started on the first video that qualifies and retired for good at its first failure; see AGENTS.md "Thumbnail worker".
 use crate::backend::child::Ran;
 use crate::backend::fdpass;
 use crate::backend::sandbox;
@@ -26,7 +26,7 @@ const O_NOCTTY: i32 = 0o400;
 const POLLIN: i16 = 1;
 const EINTR: i32 = 4;
 // The operator's way back to the exec path, and the battery's way to run it on purpose.
-const OFF_SWITCH: &str = "FLEA_THUMB_WORKER";
+const OFF_SWITCH: &str = "DLEA_THUMB_WORKER";
 
 #[repr(C)]
 struct PollFd {
@@ -164,7 +164,7 @@ impl WorkerLink {
             .map_err(|e| format!("/proc/self/exe did not resolve: {}", e))?;
         let exe_text = exe
             .to_str()
-            .ok_or("the flea executable's path is not UTF-8")?
+            .ok_or("the dlea executable's path is not UTF-8")?
             .to_string();
         let (mine, theirs) = fdpass::pair().map_err(|e| format!("no socket pair: {}", e))?;
         let inner = vec![exe_text, "--thumb-worker".to_string()];
@@ -192,7 +192,7 @@ impl WorkerLink {
             *state = match WorkerLink::spawn() {
                 Ok((jailed, requests)) => State::Running { jailed, requests },
                 Err(why) => {
-                    eprintln!("flea: the thumbnail worker did not start ({}), so videos use the thumbnailer program", why);
+                    eprintln!("dlea: the thumbnail worker did not start ({}), so videos use the thumbnailer program", why);
                     State::Gone
                 }
             };
@@ -213,7 +213,7 @@ impl WorkerLink {
         if let State::Running { jailed, .. } = state {
             crate::backend::jail::kill_tree(jailed);
             eprintln!(
-                "flea: the thumbnail worker {}, so videos use the thumbnailer program",
+                "dlea: the thumbnail worker {}, so videos use the thumbnailer program",
                 why
             );
         }

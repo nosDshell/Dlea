@@ -45,7 +45,7 @@ fn an_original_that_is_not_utf8_lists_as_its_exact_text_and_names_its_raw_bytes(
     let raw: Vec<_> = items
         .iter()
         .map(|item| {
-            flea::bytename::exact(&item.original)
+            dlea::bytename::exact(&item.original)
                 .into_os_string()
                 .into_encoded_bytes()
         })
@@ -58,7 +58,7 @@ fn an_original_that_is_not_utf8_lists_as_its_exact_text_and_names_its_raw_bytes(
         ]
     );
     assert_eq!(
-        flea::bytename::display(&items[0].original),
+        dlea::bytename::display(&items[0].original),
         "/tmp/caf\u{fffd} \\x41.txt"
     );
 }

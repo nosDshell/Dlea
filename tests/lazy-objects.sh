@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Bridge and wrapper arrive off launch; the host builds with the window, so its Loader stays active.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 tree=${1:-$PWD}
 for f in ui/NetworkMounts.qml ui/Preview.qml ui/WindowBody.qml ui/js/Mounts.js tests/lazy-live.qml tests/lazy-swap-live.qml; do [ -f "$tree/$f" ] || { printf 'FAIL missing %s\n' "$f"; exit 1; }; done
@@ -19,12 +19,12 @@ missing ui/NetworkMounts.qml '|| bridge.flow.waiter'
 # f036net: the host builds with the window again, so no gate orders it after rows.
 missing ui/WindowBody.qml 'NetworkHostGate'
 have ui/WindowBody.qml 'id: networkHost'
-# Sample input: "    Flea.NetworkMounts {" directly above "        id: networkHost"; no Loader may wrap it again.
-grep -B1 '^        id: networkHost$' "$tree/ui/WindowBody.qml" | head -n 1 | grep -q '^    Flea.NetworkMounts {$' || fail 'ui/WindowBody.qml networkHost is not a plain Flea.NetworkMounts child'
+# Sample input: "    Dlea.NetworkMounts {" directly above "        id: networkHost"; no Loader may wrap it again.
+grep -B1 '^        id: networkHost$' "$tree/ui/WindowBody.qml" | head -n 1 | grep -q '^    Dlea.NetworkMounts {$' || fail 'ui/WindowBody.qml networkHost is not a plain Dlea.NetworkMounts child'
 stale=$(grep -rnE 'networkHost\.(item|active|status)' "$tree/ui" --include='*.qml' --include='*.js' || true)
 [ -z "$stale" ] || fail "a Loader read of the plain networkHost remains: $stale"
 command -v qs >/dev/null 2>&1 || { printf 'lazy-objects: no qs here, live halves not run\n'; exit 0; }
-test_root="$FIXTURE_ROOT/flea-lazy-objects-$$"
+test_root="$FIXTURE_ROOT/dlea-lazy-objects-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT

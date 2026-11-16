@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Picker.js" as Picker
 
 // The one row under the listing in every mode: the filter at the left, Cancel and the answer at the right.
@@ -17,7 +17,7 @@ Item {
     height: root.lead + Theme.spacing.rowPaddingX + cancelButton.height
 
     // Every answer is the one body control every dialog draws; the picker owns Tab.
-    component Answer: Flea.DialogButton {
+    component Answer: Dlea.DialogButton {
         id: answer
         property string name: answer.label
         tabHandle: true
@@ -38,7 +38,7 @@ Item {
         color: root.picker.edge
     }
 
-    Flea.PickerFilter {
+    Dlea.PickerFilter {
         id: filter
         picker: root.picker
         x: Theme.spacing.rowPaddingX

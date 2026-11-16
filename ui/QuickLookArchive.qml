@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Facts.js" as Facts
 
 // The canvas's Archive tile at Quick Look size: the name, the count the index gave, then the entries.
@@ -30,7 +30,7 @@ Column {
         textFormat: Text.PlainText
     }
 
-    Flea.PreviewArchive {
+    Dlea.PreviewArchive {
         width: parent.width
         height: parent.height - y
         meta: root.meta

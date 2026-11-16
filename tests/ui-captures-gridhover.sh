@@ -77,5 +77,5 @@ case_cap_gridhover() {
     printf 'ipc rowHovered %s %s\n' "$tile" "$margin_hover"
     shot gridhover-margin
     printf 'CAP_GRIDHOVER tile=%s icon=%s caption=%s margin=%s\n' "$tile" "$icon_hover" "$caption_hover" "$margin_hover"
-    kill_flea
+    kill_dlea
 }

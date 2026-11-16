@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-preview-select-test
+//@ pragma ShellId dlea-preview-select-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // A selection change without a cursor move reloads the column; a lone version bump loads nothing.
 ShellRoot {
@@ -68,7 +68,7 @@ ShellRoot {
 
     QtObject {
         id: pane
-        property string path: "/tmp/flea-preview-select"
+        property string path: "/tmp/dlea-preview-select"
         property string searchBase: ""
         property int cursorIndex: -1
         property int selectionVersion: 0
@@ -97,7 +97,7 @@ ShellRoot {
         width: 800
         height: 600
 
-        Flea.SelectionPreview {
+        Dlea.SelectionPreview {
             id: preview
             width: 800
             height: 600
@@ -105,7 +105,7 @@ ShellRoot {
             swap: null
         }
 
-        Flea.Preview {
+        Dlea.Preview {
             id: quick
             pane: pane
         }

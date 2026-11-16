@@ -70,8 +70,8 @@ function run(plain) {
 
     var shelver = {}
     body("ui/PaneMenuActions.qml", "function startAdd(", "shelver,Quickshell,paths")
-        (shelver, {env: function () { return "flea" }}, message.paths)
-    check("var signal: shelf command has separate path arguments", shelver.command, ["flea","shelf","add","/a","/b"])
+        (shelver, {env: function () { return "dlea" }}, message.paths)
+    check("var signal: shelf command has separate path arguments", shelver.command, ["dlea","shelf","add","/a","/b"])
     shelver.command.push("/c")
     check("concat: shelf command construction does not mutate received paths", message.paths, ["/a", "/b"])
     var runner = {}

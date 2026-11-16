@@ -1,5 +1,5 @@
 use crate::backend::proto::thumbed_line;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 #[path = "thumbidentity.rs"]
 pub mod identity;
 use crate::backend::state::{State, Tables};
@@ -80,7 +80,7 @@ pub(crate) fn thumb_rows(
                             .map(str::to_string)
                             .or_else(|| {
                                 super::model3d::embedded_thumbnail_supported(name)
-                                    .then(|| "model/x-flea-3d".to_string())
+                                    .then(|| "model/x-dlea-3d".to_string())
                             })
                     })
                     .flatten();
@@ -133,7 +133,7 @@ pub(crate) fn thumb_rows(
                 .map(str::to_string)
                 .or_else(|| {
                     super::model3d::embedded_thumbnail_supported(&name)
-                        .then(|| "model/x-flea-3d".to_string())
+                        .then(|| "model/x-dlea-3d".to_string())
                 })
         });
         let mime = match declared {
@@ -257,7 +257,7 @@ pub(crate) fn report_done(out: &mut impl Write, st: &mut State, pool: &Pool, don
         Outcome::Cancelled => {
             identity::complete(out, st, &done.replies, "", done.ms);
             if let Some(t) = &done.trace {
-                eprintln!("flea: cancelled active video row={}", t.row);
+                eprintln!("dlea: cancelled active video row={}", t.row);
             }
             return;
         }
@@ -298,7 +298,7 @@ fn trace_line(t: &Trace) {
     let exited = if t.exited.is_zero() { whole } else { t.exited };
     let ms = |d: Duration| d.as_secs_f64() * 1000.0;
     eprintln!(
-        "flea: trace row={} depth={} queued={:.2} setup={:.2} child={:.2} after={:.2} total={:.2}",
+        "dlea: trace row={} depth={} queued={:.2} setup={:.2} child={:.2} after={:.2} total={:.2}",
         t.row,
         t.depth,
         ms(t.popped),

@@ -3,7 +3,7 @@ pragma ComponentBehavior: Bound
 import QtQuick
 import qs.Commons
 import "js/Csv.js" as Csv
-import "." as Flea
+import "." as Dlea
 
 // CSV or TSV as a sticky table, with raw line windows aligned to whole records by the backend.
 Item {
@@ -382,12 +382,12 @@ Item {
         }
     }
 
-    Flea.FastScrollHandler {
+    Dlea.FastScrollHandler {
         visible: root.look
         flickable: view
     }
 
-    Flea.ViewportScrollBars {
+    Dlea.ViewportScrollBars {
         visible: root.look
         flickable: view
     }

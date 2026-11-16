@@ -4,7 +4,7 @@ use std::ffi::{OsStr, OsString};
 use std::path::Path;
 
 // The operator keeps NVIDIA's drivers with this set to 1, for a GPUI that should run on the dGPU.
-const KEEP_NVIDIA: &str = "FLEA_VK_KEEP_NVIDIA";
+const KEEP_NVIDIA: &str = "DLEA_VK_KEEP_NVIDIA";
 // The compositor's own GPU list, primary first: Hyprland reads the first, wlroots compositors the second.
 const COMPOSITOR_DEVICES: [&str; 2] = ["AQ_DRM_DEVICES", "WLR_DRM_DEVICES"];
 

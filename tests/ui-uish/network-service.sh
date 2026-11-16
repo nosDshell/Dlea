@@ -25,7 +25,7 @@ esac
 EOS
     chmod +x "$dir/bin/gio"
     # The credentialed leg exits with the status file's code, so one stub drives both connect failure sentences.
-    cat > "$dir/bin/flea-gio-auth" <<EOS
+    cat > "$dir/bin/dlea-gio-auth" <<EOS
 #!/bin/sh
 [ "\$#" -eq 1 ] || exit 2
 IFS= read -r secret || exit 3
@@ -34,7 +34,7 @@ printf 'uri=%s stdin-lines=1\n' "\$1" >> "$dir/auth-calls"
 code=\$(cat "$dir/auth-status")
 exit "\$code"
 EOS
-    chmod +x "$dir/bin/flea-gio-auth"
+    chmod +x "$dir/bin/dlea-gio-auth"
     : > "$dir/auth-calls"
     printf '124\n' > "$dir/auth-status"
 
@@ -44,7 +44,7 @@ EOS
     local saved_path="$PATH"
     export PATH="$dir/bin:$PATH"
     export HOME="$fixture_home"
-    export FLEA_GIO_AUTH="$dir/bin/flea-gio-auth"
+    export DLEA_GIO_AUTH="$dir/bin/dlea-gio-auth"
     launch "$dir"
     export HOME="$real_home"
 
@@ -66,7 +66,7 @@ EOS
         || fail "networktimeout: polling never recovered, got $(ipc networkEntries)"
     [[ "$(cat "$calls")" -ge 3 ]] || fail "networktimeout: expected three list attempts"
 
-    printf '%s\n' 'flea-gui: device probe gio mount -li failed: timed out after 10000 ms' >> "$expected_warnings"
+    printf '%s\n' 'dlea-gui: device probe gio mount -li failed: timed out after 10000 ms' >> "$expected_warnings"
     printf 'NETWORKTIMEOUT retained=ok retry=ok\n'
 
     # One connect failure sentence per stub status, each shot with its draft held.
@@ -85,7 +85,7 @@ EOS
     settle
     [[ "$(ipc networkFocus)" == "Password" ]] \
         || fail "networktimeout: Password did not follow Username, focus is $(ipc networkFocus)"
-    printf '%s' "fixture-password" | omarchy-drive key --window com.thisisgm.flea - >/dev/null
+    printf '%s' "fixture-password" | omarchy-drive key --window com.nosDshell.dlea - >/dev/null
     [[ "$(ipc networkPasswordState)" == "masked|set" ]] \
         || fail "networktimeout: typed password is not masked"
     key -k Return >/dev/null
@@ -103,7 +103,7 @@ EOS
             settle
         done
         [[ "$(ipc networkFocus)" == Password ]] || fail "networktimeout: retry could not focus Password"
-        printf '%s' "fixture-password" | omarchy-drive key --window com.thisisgm.flea - >/dev/null
+        printf '%s' "fixture-password" | omarchy-drive key --window com.nosDshell.dlea - >/dev/null
         [[ "$(ipc networkPasswordState)" == "masked|set" ]] || fail "networktimeout: retry password was not accepted"
     fi
     printf '60\n' > "$dir/auth-status"
@@ -119,9 +119,9 @@ EOS
     settle
     [[ "$(ipc dialogOpen)" == "false" ]] || fail "networktimeout: Escape did not close the failed dialog"
     printf 'NETWORKTIMEOUT connect-failure=124-then-open\n'
-    unset FLEA_GIO_AUTH
+    unset DLEA_GIO_AUTH
     export PATH="$saved_path"
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
 }
 
@@ -133,14 +133,14 @@ case_gvfs() {
     local share_dir="$fixture_root/gvfs-share"
     local fixture_home="$fixture_root/gvfs-home"
     fixture_home_make "$fixture_home"
-    FLEA_GVFS_CASE_DIR="$share_dir"
-    FLEA_GVFS_CASE_HOME="$fixture_home"
+    DLEA_GVFS_CASE_DIR="$share_dir"
+    DLEA_GVFS_CASE_HOME="$fixture_home"
     trap case_gvfs_cleanup EXIT HUP INT TERM
     local real_home="$HOME"
     local uri local_path
 
-    uri=$(DIR="$share_dir" ./tools/flea-gvfs-fixture make)
-    DIR="$share_dir" ./tools/flea-gvfs-fixture mount
+    uri=$(DIR="$share_dir" ./tools/dlea-gvfs-fixture make)
+    DIR="$share_dir" ./tools/dlea-gvfs-fixture mount
     local_path=$(gio info "$uri" | sed -n 's/^local path: //p')
     [[ "$local_path" == "/run/user/$(id -u)/gvfs/"* ]] \
         || fail "gvfs: fixture has no FUSE path, got $local_path"
@@ -168,7 +168,7 @@ case_gvfs() {
     wait_path "$local_path"
     wait_listing 2
     [[ "$(ipc rowAt 0)" == "alpha.txt|"* || "$(ipc rowAt 1)" == "alpha.txt|"* ]] \
-        || fail "gvfs: alpha.txt absent from Flea listing"
+        || fail "gvfs: alpha.txt absent from Dlea listing"
 
     key -k Escape >/dev/null
     open_row alpha.txt
@@ -193,7 +193,7 @@ case_gvfs() {
     done
     [[ "$(ipc networkEntries)" != *"share.zip"* ]] \
         || fail "gvfs: the row survived unmount, the rail carries $(ipc networkEntries)"
-    ! gio mount -l | grep -Fq -- "-> ${uri%/}" || fail "gvfs: GIO mount survived Flea unmount"
+    ! gio mount -l | grep -Fq -- "-> ${uri%/}" || fail "gvfs: GIO mount survived Dlea unmount"
 
     printf 'GVFS rail=ok browse=ok preview=ok unmount=ok\n'
     case_gvfs_cleanup
@@ -329,7 +329,7 @@ EOS
         || fail "unmount: Remove took a live mount off the rail, got $(ipc networkEntries)"
 
     printf 'UNMOUNT menu=ok escape=ok fire=ok no-menu-on-favourite=ok keyboard=ok unsaved=ok\n'
-    kill_flea
+    kill_dlea
 
     # The next two need a saved place, so the file goes in before the launch that reads it: one line
     # for the share the stub reports live, one for a place nothing mounts.
@@ -408,7 +408,7 @@ EOS
         || fail "unmount: the refused press rewrote the file, mtime moved from $before_press4"
 
     printf 'UNMOUNT remove saved-mounted=ok saved-only=ok pressed-again=ok\n'
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
 }
 
@@ -519,7 +519,7 @@ EOS
     # against a product that never ended the listing at all. A bare server root ends in gio list,
     # which hangs here exactly as gio info did, and nothing else in the chain is left to end it.
     # The stub and the fixture home are exported around this launch exactly as they were around the
-    # first: a relaunch that inherits the restored HOME starts Flea on the operator's own rail.
+    # first: a relaunch that inherits the restored HOME starts Dlea on the operator's own rail.
     export PATH="$dir/bin:$PATH"
     export HOME="$fixture_home"
     launch "$dir"
@@ -550,7 +550,7 @@ EOS
     [[ "$(ipc path)" == "$dir" ]] || fail "hangshare: the timed-out listing navigated to $(ipc path)"
 
     printf 'HANGSHARE busy-refusal=ok deadline=ok next-share-opens=ok list-deadline=ok\n'
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"; sandbox_remove "$good_dir"
 }
 
@@ -559,12 +559,12 @@ case_hanglisting() {
     sandbox_scratch "$dir"
     : > "$dir/one.txt"
     : > "$dir/two.txt"
-    hanglisting_write_proxy "$dir/flea-proxy"
-    local real_bin="$flea_bin"
-    export FLEA_HANGLISTING_REAL="$real_bin" FLEA_HANGLISTING_DELAY=15 FLEA_HANGLISTING_MARKER="$dir/delayed"
-    flea_bin="$dir/flea-proxy"
+    hanglisting_write_proxy "$dir/dlea-proxy"
+    local real_bin="$dlea_bin"
+    export DLEA_HANGLISTING_REAL="$real_bin" DLEA_HANGLISTING_DELAY=15 DLEA_HANGLISTING_MARKER="$dir/delayed"
+    dlea_bin="$dir/dlea-proxy"
     launch "$dir"
-    flea_bin="$real_bin"
+    dlea_bin="$real_bin"
     wait_marker "$dir/delayed" "hanglisting: the proxy never saw the listing"
     local seen="" deadline=$(( $(date +%s%3N) + 25000 ))
     while (( $(date +%s%3N) < deadline )); do
@@ -577,20 +577,20 @@ case_hanglisting() {
     [[ "$(ipc state)" == "waiting" ]] \
         || fail "hanglisting: the pane is not waiting, state is $(ipc state)"
     shot hanglisting-waiting
-    # flea-proxy and delayed are the stub entries beside the two files under test.
+    # dlea-proxy and delayed are the stub entries beside the two files under test.
     wait_listing 4
     [[ "$(ipc path)" == "$dir" ]] || fail "hanglisting: the landed listing navigated to $(ipc path)"
     [[ -z "$(ipc stateMessage)" ]] || fail "hanglisting: the landed listing kept $(ipc stateMessage)"
 
     # Past the deadline a second held listing escapes through the rail's Home row, and its late rows never draw over Home.
-    export FLEA_HANGLISTING_MARKER="$dir/escape-delayed"
-    flea_bin="$dir/flea-proxy"
+    export DLEA_HANGLISTING_MARKER="$dir/escape-delayed"
+    dlea_bin="$dir/dlea-proxy"
     launch "$dir"
-    flea_bin="$real_bin"
+    dlea_bin="$real_bin"
     wait_marker "$dir/escape-delayed" "hanglisting: the proxy never held the second listing"
     local held_at=$(date +%s%3N) home_path seen_path="" escape_by
     home_path=$(window_home) || fail "hanglisting: the window's isolated Home is unavailable"
-    [[ "$home_path" == "$FLEA_TEST_WINDOWS_ROOT/"*/home && -f "$FLEA_TEST_WINDOWS_ROOT/.flea-test-sandbox" && -O "$home_path" ]] \
+    [[ "$home_path" == "$DLEA_TEST_WINDOWS_ROOT/"*/home && -f "$DLEA_TEST_WINDOWS_ROOT/.dlea-test-sandbox" && -O "$home_path" ]] \
         || fail "hanglisting: Home is outside the owned window sandbox"
     : > "$home_path/hanglisting-home.txt"
     wait_pane_waiting hanglisting
@@ -604,7 +604,7 @@ case_hanglisting() {
     [[ "$seen_path" == "$home_path" ]] \
         || fail "hanglisting: Home never opened past the wait, path is $seen_path"
     # Home's list sends the held one first, so its stale rows arrive while Home's listing is out; the wait spans the hold too.
-    local late_by=$(( held_at + FLEA_HANGLISTING_DELAY * 1000 + 2000 ))
+    local late_by=$(( held_at + DLEA_HANGLISTING_DELAY * 1000 + 2000 ))
     while (( $(date +%s%3N) < late_by )); do sleep 0.2; done
     [[ "$(ipc path)" == "$home_path" ]] \
         || fail "hanglisting: the late rows drew over Home: $(ipc path)"
@@ -618,10 +618,10 @@ case_hanglisting() {
     shot hanglisting-escaped
 
     # F5 on a waiting pane re-lists the folder instead of refusing; the proxy holds only a session's first list.
-    export FLEA_HANGLISTING_MARKER="$dir/reload-delayed"
-    flea_bin="$dir/flea-proxy"
+    export DLEA_HANGLISTING_MARKER="$dir/reload-delayed"
+    dlea_bin="$dir/dlea-proxy"
     launch "$dir"
-    flea_bin="$real_bin"
+    dlea_bin="$real_bin"
     wait_marker "$dir/reload-delayed" "hanglisting: the proxy never held the third listing"
     wait_pane_waiting hanglisting
     key -k F5 >/dev/null
@@ -635,10 +635,10 @@ case_hanglisting() {
     shot hanglisting-reloaded
 
     # Up on a waiting pane climbs from the folder it waited on, with the waited folder's row as cursor.
-    export FLEA_HANGLISTING_MARKER="$dir/up-delayed"
-    flea_bin="$dir/flea-proxy"
+    export DLEA_HANGLISTING_MARKER="$dir/up-delayed"
+    dlea_bin="$dir/dlea-proxy"
     launch "$dir"
-    flea_bin="$real_bin"
+    dlea_bin="$real_bin"
     wait_marker "$dir/up-delayed" "hanglisting: the proxy never held the fourth listing"
     wait_pane_waiting hanglisting
     key -k BackSpace >/dev/null
@@ -656,12 +656,12 @@ case_hanglisting() {
     shot hanglisting-up
 
     # A rail click inside the wait is the newest request, taken not refused; the proxy holds the Up listing of the parent for 8 s, below the 10 s wait.
-    export FLEA_HANGLISTING_MARKER="$dir/newest-delayed" FLEA_HANGLISTING_DELAY=8 FLEA_HANGLISTING_PATH="$fixture_root"
-    flea_bin="$dir/flea-proxy"
+    export DLEA_HANGLISTING_MARKER="$dir/newest-delayed" DLEA_HANGLISTING_DELAY=8 DLEA_HANGLISTING_PATH="$fixture_root"
+    dlea_bin="$dir/dlea-proxy"
     launch "$dir"
-    flea_bin="$real_bin"
+    dlea_bin="$real_bin"
     home_path=$(window_home) || fail "hanglisting: the fifth window's isolated Home is unavailable"
-    [[ "$home_path" == "$FLEA_TEST_WINDOWS_ROOT/"*/home && -f "$FLEA_TEST_WINDOWS_ROOT/.flea-test-sandbox" && -O "$home_path" ]] \
+    [[ "$home_path" == "$DLEA_TEST_WINDOWS_ROOT/"*/home && -f "$DLEA_TEST_WINDOWS_ROOT/.dlea-test-sandbox" && -O "$home_path" ]] \
         || fail "hanglisting: the fifth Home is outside the owned window sandbox"
     : > "$home_path/hanglisting-home.txt"
     key -k BackSpace >/dev/null
@@ -686,7 +686,7 @@ case_hanglisting() {
     done
     [[ "$seen_path" == "$home_path" ]] \
         || fail "hanglisting: Home never landed inside the wait, path is $seen_path"
-    late_by=$(( held_at + FLEA_HANGLISTING_DELAY * 1000 + 2000 ))
+    late_by=$(( held_at + DLEA_HANGLISTING_DELAY * 1000 + 2000 ))
     while (( $(date +%s%3N) < late_by )); do sleep 0.2; done
     [[ "$(ipc path)" == "$home_path" && -z "$(ipc stateMessage)" ]] \
         || fail "hanglisting: the late rows drew over Home: $(ipc path) with $(ipc stateMessage)"
@@ -695,9 +695,9 @@ case_hanglisting() {
     # As in the second listing, Home's list sent the held one ahead of its own, so its stale rows came while Home was out.
     grep -qx flushed "$dir/newest-delayed" 2>/dev/null \
         || fail "hanglisting: Home's list never flushed the held fifth listing, the proxy wrote $(tr '\n' ' ' 2>/dev/null < "$dir/newest-delayed" || echo 'no marker file')"
-    unset FLEA_HANGLISTING_PATH
-    export FLEA_HANGLISTING_DELAY=15
+    unset DLEA_HANGLISTING_PATH
+    export DLEA_HANGLISTING_DELAY=15
 
     printf 'HANGLISTING deadline=ok rows-land-after=ok wait-escape=ok late-rows-dropped=ok reload-escape=ok up-climb=ok newest-wins=ok\n'
-    kill_flea
+    kill_dlea
 }

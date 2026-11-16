@@ -23,7 +23,7 @@ Scope {
     }
     Process {
         id: ask
-        command: [Quickshell.env("FLEA_IPC_HELPER"), "-p", Quickshell.shellDir, "call", "flea", "railState"]
+        command: [Quickshell.env("DLEA_IPC_HELPER"), "-p", Quickshell.shellDir, "call", "dlea", "railState"]
         stdout: StdioCollector { waitForEnd: true; onStreamFinished: if (this.text.charAt(0) === "{") root.json = this.text }
     }
 }

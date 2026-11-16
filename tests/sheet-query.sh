@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # The real KeymapSheet over a stub pane draws CommandPalette's query states, then over the real pane runs its menu rows, offscreen with no display or lock.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -11,15 +11,15 @@ if ! command -v qs >/dev/null; then
 fi
 
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-sheetquery.XXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-sheetquery.XXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER" || exit 1
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/sheet-query.qml "$test_root/config/shell.qml" || exit 1
@@ -65,7 +65,7 @@ printf '%s\n' "$output" | grep -o 'SHEETQUERY PASS.*'
 printf 'SHEETQUERY STATUS qs_exit=%s done=1\n' "$qs_status"
 
 # The pane half: the real WindowBody and backend, so a menu row Enter runs meets the menu's own validation.
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 command -v dbus-run-session >/dev/null || { echo 'FAIL sheet-query pane half needs private D-Bus'; exit 1; }
 [[ -x "$bin" ]] || { echo 'FAIL sheet-query pane half needs the candidate backend'; exit 1; }
 pane_root="$test_root/pane"
@@ -75,17 +75,17 @@ for name in a-special.txt b.txt c.txt d.txt; do printf 'sheet query fixture\n' >
 # The shipped list shows Permissions, so the profile hides it on top of that list for the hidden-row checks.
 env HOME="$pane_root/home" XDG_STATE_HOME="$pane_root/state" "$bin" --ui-state \
     '{"view":"list","keys":"default","preview":{"column":false,"thumbnails":"off"},"updates":{"autoCheck":false},"display":{"textSize":{"mode":14}},"menu":{"hidden":["delete","openTerminal","placeMenu","runScript","moveto","copyto","permissions","copyAs","pasteAs","invertSelection","extThumbs","run","openAsText","openAgent","toggleHidden","toggleLangMarks"]}}' >/dev/null || exit 1
-ln -s "$PWD/ui" "$pane_root/config/flea" || exit 1
+ln -s "$PWD/ui" "$pane_root/config/dlea" || exit 1
 headless_commons "$pane_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$pane_root/config/Ui" || exit 1
-ln -s "$PWD/ui/boot/fleatab.qml" "$pane_root/config/fleatab.qml" || exit 1
+ln -s "$PWD/ui/boot/dleatab.qml" "$pane_root/config/dleatab.qml" || exit 1
 cp tests/sheet-query-pane.qml "$pane_root/config/shell.qml" || exit 1
 pane_log="$pane_root/qs.log"
 readonly paneLimitSeconds=60 paneChecks=33 paneQsStatus=143
-env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u FLEA_SELECT \
+env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u DLEA_SELECT \
     HOME="$pane_root/home" XDG_STATE_HOME="$pane_root/state" XDG_CONFIG_HOME="$pane_root/config" \
     XDG_DATA_HOME="$pane_root/data" XDG_CACHE_HOME="$pane_root/cache" XDG_RUNTIME_DIR="$pane_root/runtime" \
-    FLEA_PATH="$pane_root/home/fixture" FLEA_BIN="$bin" GIO_USE_VOLUME_MONITOR=unix QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
+    DLEA_PATH="$pane_root/home/fixture" DLEA_BIN="$bin" GIO_USE_VOLUME_MONITOR=unix QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
     QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
     timeout "$paneLimitSeconds" dbus-run-session -- qs -p "$pane_root/config" > "$pane_log" 2>&1
 pane_status=$?

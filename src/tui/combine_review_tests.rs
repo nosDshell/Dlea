@@ -134,8 +134,8 @@ pub(super) fn source_revision(root: &Path) {
     let wrapper = root.join("bin/bwrap");
     let script = r#"#!/bin/sh
 set -eu
-root=${FLEA_TUI_COMBINE_ROOT:?}
-case "$root" in /*) test -f "$root/.flea-test-sandbox" ;; *) exit 98 ;; esac
+root=${DLEA_TUI_COMBINE_ROOT:?}
+case "$root" in /*) test -f "$root/.dlea-test-sandbox" ;; *) exit 98 ;; esac
 set +e
 /usr/bin/bwrap "$@"
 status=$?
@@ -147,7 +147,7 @@ fi
 exit "$status"
 "#;
     std::fs::write(&wrapper, script).unwrap();
-    flea::executable_file::write(&wrapper, &std::fs::read(&wrapper).unwrap(), 0o755).unwrap();
+    dlea::executable_file::write(&wrapper, &std::fs::read(&wrapper).unwrap(), 0o755).unwrap();
     let graphics = preview(&mut m, &mut w, Protocol::Kitty);
     assert!(
         root.join("replaced").is_file(),

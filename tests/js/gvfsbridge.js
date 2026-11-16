@@ -1,6 +1,6 @@
 .import "../../ui/js/GvfsBridge.js" as GvfsBridge
 
-// The GVFS bridge board: phones and shares open through /run/user/$UID/gvfs, and Flea
+// The GVFS bridge board: phones and shares open through /run/user/$UID/gvfs, and Dlea
 // starts gvfsd-fuse the way gvfsd does when that folder is not serving yet. Every wait
 // below is a scripted action list, so the 250 ms gate, the once-only start, the stay-put
 // and the exact board sentences are all pinned with no process and no clock.

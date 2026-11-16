@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # Exercises overlapping public openShare calls through real Quickshell Process instances.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
-test_root="$FIXTURE_ROOT/flea-network-open-share-$$"
+test_root="$FIXTURE_ROOT/dlea-network-open-share-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
@@ -27,7 +27,7 @@ case "$1 $2" in
   "mount -li") exit 0 ;;
   "info smb://first/") exit 0 ;;
   "list smb://first/")
-    : > "$FLEA_TEST_LIST_STARTED"
+    : > "$DLEA_TEST_LIST_STARTED"
     sleep 1
     printf 'first-share\n'
     ;;
@@ -46,7 +46,7 @@ EOS
 chmod +x "$test_root/bin/gio"
 
 output=$(env -u DISPLAY -u WAYLAND_DISPLAY -u QT_QPA_PLATFORMTHEME \
-    FLEA_TEST_LIST_STARTED="$list_started" \
+    DLEA_TEST_LIST_STARTED="$list_started" \
     HOME="$test_root/home" XDG_RUNTIME_DIR="$test_root/runtime" \
     PATH="$test_root/bin:/usr/bin:/bin" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
@@ -62,18 +62,18 @@ fi
 
 printf 'network-open-share: overlap blocked\n'
 
-# Same service with the real bridge held in its test -d helper; fixture paths only, and FLEA_GVFS_FUSE=/usr/bin/true so no gvfsd-fuse starts.
+# Same service with the real bridge held in its test -d helper; fixture paths only, and DLEA_GVFS_FUSE=/usr/bin/true so no gvfsd-fuse starts.
 mkdir -p "$test_root/runtime/gvfs/dav:host=first.example/space" "$test_root/second"
 : > "$test_root/mounts"
 ln -sf "$PWD/tests/network-alias.qml" "$test_root/config/shell.qml"
 cat > "$test_root/bin/gio" <<'EOS'
 #!/bin/sh
 case "$1 $2" in
-  "mount -li") exec /usr/bin/cat "$FLEA_TEST_ALIAS_ROOT/mounts" ;;
+  "mount -li") exec /usr/bin/cat "$DLEA_TEST_ALIAS_ROOT/mounts" ;;
   "info davs://first.example/space")
     printf 'local path: %s/gvfs/dav:host=first.example/space\n' "$XDG_RUNTIME_DIR" ;;
   "info davs://second.example/vault")
-    printf 'local path: %s/second\n' "$FLEA_TEST_ALIAS_ROOT" ;;
+    printf 'local path: %s/second\n' "$DLEA_TEST_ALIAS_ROOT" ;;
   "info davs://third.example/space")
     printf 'local path: %s/gvfs/dav:host=third.example/space\n' "$XDG_RUNTIME_DIR" ;;
   "info smb://nas.test/media")
@@ -86,14 +86,14 @@ EOS
 cat > "$test_root/bin/test" <<'EOS'
 #!/bin/sh
 if [ "$1" = -d ] && [ "$2" = "$XDG_RUNTIME_DIR/gvfs/dav:host=first.example/space" ]; then
-    : > "$FLEA_TEST_ALIAS_ROOT/check-started"
-    timeout 7 sh -c 'while [ ! -e "$FLEA_TEST_ALIAS_ROOT/release-check" ]; do sleep 0.01; done' || exit 2
+    : > "$DLEA_TEST_ALIAS_ROOT/check-started"
+    timeout 7 sh -c 'while [ ! -e "$DLEA_TEST_ALIAS_ROOT/release-check" ]; do sleep 0.01; done' || exit 2
 fi
 exec /usr/bin/test "$@"
 EOS
 chmod +x "$test_root/bin/test"
 output=$(env -u DISPLAY -u WAYLAND_DISPLAY -u QT_QPA_PLATFORMTHEME \
-    FLEA_TEST_ALIAS_ROOT="$test_root" FLEA_GVFS_FUSE=/usr/bin/true \
+    DLEA_TEST_ALIAS_ROOT="$test_root" DLEA_GVFS_FUSE=/usr/bin/true \
     HOME="$test_root/home" XDG_RUNTIME_DIR="$test_root/runtime" \
     PATH="$test_root/bin:/usr/bin:/bin" \
     QT_QPA_PLATFORM=offscreen QT_FORCE_STDERR_LOGGING=1 \

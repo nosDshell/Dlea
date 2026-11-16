@@ -11,22 +11,22 @@ pub(super) const KINDS: [&str; 4] = ["shell", "menu", "cli", "keybindings"];
 pub(super) fn read(path: &Path) -> Option<String> {
     let file = crate::backend::regfile::open_regular(path)?;
     if file.metadata().ok()?.len() > MAX_BYTES as u64 {
-        eprintln!("flea: refusing i18n file {}: exceeds {MAX_BYTES} bytes", path.display());
+        eprintln!("dlea: refusing i18n file {}: exceeds {MAX_BYTES} bytes", path.display());
         return None;
     }
     let mut text = String::new();
     file.take(MAX_BYTES as u64 + 1).read_to_string(&mut text).ok()?;
     if text.len() > MAX_BYTES {
-        eprintln!("flea: refusing i18n file {}: exceeds {MAX_BYTES} bytes", path.display());
+        eprintln!("dlea: refusing i18n file {}: exceeds {MAX_BYTES} bytes", path.display());
         return None;
     }
     Some(text)
 }
 
-// Sample input: {"folder.empty":"This folder is empty"} is a flat Flea catalog.
+// Sample input: {"folder.empty":"This folder is empty"} is a flat Dlea catalog.
 pub(super) fn parse(text: &str, menu: bool) -> Catalog {
     parse_checked(text, menu).unwrap_or_else(|error| {
-        eprintln!("flea: refusing i18n catalog: {error}");
+        eprintln!("dlea: refusing i18n catalog: {error}");
         Catalog::new()
     })
 }
@@ -56,7 +56,7 @@ pub(super) fn parse_checked(text: &str, menu: bool) -> Result<Catalog, String> {
 pub(super) fn load(path: &Path, menu: bool) -> Catalog {
     let Some(text) = read(path) else { return Catalog::new(); };
     parse_checked(&text, menu).unwrap_or_else(|error| {
-        eprintln!("flea: refusing i18n catalog {}: {error}", path.display());
+        eprintln!("dlea: refusing i18n catalog {}: {error}", path.display());
         Catalog::new()
     })
 }

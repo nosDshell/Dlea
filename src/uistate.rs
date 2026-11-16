@@ -11,7 +11,7 @@ pub fn from_file(text: &str) -> Json {
     }
 }
 
-// 0.1.3's $XDG_CONFIG_HOME/flea/view.json. hiddenCols named what was hidden, so this inverts it;
+// 0.1.3's $XDG_CONFIG_HOME/dlea/view.json. hiddenCols named what was hidden, so this inverts it;
 // uiScale is dropped deliberately, because the new design stores an Omarchy stop only.
 pub fn from_view_json(text: &str) -> Json {
     let mut out = defaults();
@@ -61,7 +61,7 @@ fn check(pairs: &[(String, Json)], schema: &[(&str, Rule)], prefix: &str) -> Res
                 check(inner, sub, &format!("{}{}.", prefix, key))?;
             }
             // A front end that could write the stamp could rewind a migration the file has already had.
-            Rule::Version => return Err(format!("{}{} is kept by Flea and no patch sets it", prefix, key)),
+            Rule::Version => return Err(format!("{}{} is kept by Dlea and no patch sets it", prefix, key)),
             // A null folderSorts entry forgets that path, and only a patch may send one.
             Rule::FolderSorts if is_folder_sorts_patch(value) => {}
             // A null folderViews entry forgets that path, and only a patch may send one.
@@ -100,7 +100,7 @@ fn apply(current: &Json, patch: &Json, schema: &[(&str, Rule)]) -> Json {
     Json::Obj(out)
 }
 
-// Known keys first in the shipped order, then whatever a newer Flea left behind, kept as it was read.
+// Known keys first in the shipped order, then whatever a newer Dlea left behind, kept as it was read.
 fn merge(default: &Json, found: &Json, schema: &[(&str, Rule)]) -> Json {
     let found_pairs = match found.as_object() {
         Some(pairs) => pairs,
@@ -206,7 +206,7 @@ fn fits(rule: &Rule, value: &Json) -> bool {
             None => false,
         },
         // An absolute path or a uri, or "" for one nothing has chosen or recorded. Nothing else:
-        // a relative path in ui.json would be resolved against whatever directory Flea was started in.
+        // a relative path in ui.json would be resolved against whatever directory Dlea was started in.
         Rule::Place => match value.as_str() {
             Some(text) => text.is_empty() || is_a_place(text),
             None => false,
@@ -448,9 +448,9 @@ mod tests {
 
     #[test]
     fn an_unknown_key_is_kept_and_rewritten_untouched_at_both_levels() {
-        let merged = from_file(r#"{"fromANewerFlea":{"a":[1,"two"]},"places":{"newLeaf":7}}"#);
+        let merged = from_file(r#"{"fromANewerDlea":{"a":[1,"two"]},"places":{"newLeaf":7}}"#);
         assert_eq!(
-            text(merged.get("fromANewerFlea").expect("top-level unknown")),
+            text(merged.get("fromANewerDlea").expect("top-level unknown")),
             "{\n  \"a\": [\n    1,\n    \"two\"\n  ]\n}\n"
         );
         assert_eq!(merged.get("places").and_then(|p| p.get("newLeaf")).and_then(Json::as_f64), Some(7.0));
@@ -515,7 +515,7 @@ mod tests {
     }
 
     #[test]
-    fn a_patch_is_refused_whole_when_a_value_or_a_key_is_not_one_this_flea_knows() {
+    fn a_patch_is_refused_whole_when_a_value_or_a_key_is_not_one_this_dlea_knows() {
         let current = from_file("{}");
         for (patch, named) in [
             (r#"{"view":"miller"}"#, "view"),
@@ -588,7 +588,7 @@ mod tests {
     // keys.toml holds 48 unique action ids and 32 of them are camelCase, so a hideable row named
     // like one of those has to survive a read rather than take the whole array down with it.
     #[test]
-    fn a_camel_case_action_id_is_a_menu_row_this_flea_can_keep_hidden() {
+    fn a_camel_case_action_id_is_a_menu_row_this_dlea_can_keep_hidden() {
         let merged = from_file(r#"{"menu":{"hidden":["delete","newFolder","copy-path","copy_path"]}}"#);
         let hidden: Vec<&str> = merged
             .get("menu").and_then(|m| m.get("hidden")).and_then(Json::as_array).expect("menu.hidden")
@@ -677,7 +677,7 @@ mod tests {
     }
 
     // Settings > View > Opening. A place or "", and nothing else: a relative path in ui.json would be
-    // resolved against whatever directory Flea happened to be started in.
+    // resolved against whatever directory Dlea happened to be started in.
     #[test]
     fn an_opening_folder_is_a_place_or_nothing() {
         let kept = from_file(r#"{"startIn":"folder","startFolder":"/home/gm/Work","newTab":"home"}"#);
@@ -698,7 +698,7 @@ mod tests {
             let refused = from_file(bad);
             assert_eq!(refused.get("startFolder").and_then(Json::as_str), Some(""), "refused: {bad}");
         }
-        let mode = from_file(r#"{"startIn":"fromANewerFlea","newTab":"elsewhere"}"#);
+        let mode = from_file(r#"{"startIn":"fromANewerDlea","newTab":"elsewhere"}"#);
         assert_eq!(mode.get("startIn").and_then(Json::as_str), Some("home"));
         assert_eq!(mode.get("newTab").and_then(Json::as_str), Some("current"));
     }
@@ -727,7 +727,7 @@ mod tests {
         assert!(map.iter().any(|(k, _)| k == "/home/gm/Photos"));
         let current = from_file("{}");
         let bad = jsondoc::parse(r#"{"folderSorts":{"/a":{"key":"mode","reverse":false}}}"#).expect("patch parses");
-        let message = patched(&current, &bad).expect_err("a patch from Flea must be whole");
+        let message = patched(&current, &bad).expect_err("a patch from Dlea must be whole");
         assert!(message.contains("folderSorts"), "got {}", message);
     }
 
@@ -819,7 +819,7 @@ mod tests {
             assert_eq!(volume_of(&read), Some(100.0), "{} falls back to full scale", bad);
             assert_eq!(read.get("preview").and_then(|p| p.get("thumbSize")).and_then(Json::as_str), Some("large"));
             let patch = jsondoc::parse(&format!(r#"{{"preview":{{"volume":{}}}}}"#, bad)).expect("patch parses");
-            let message = patched(&from_file("{}"), &patch).expect_err("a patch from Flea must be whole");
+            let message = patched(&from_file("{}"), &patch).expect_err("a patch from Dlea must be whole");
             assert!(message.contains("volume"), "got {}", message);
         }
     }
@@ -849,7 +849,7 @@ mod tests {
             assert_eq!(width_of(&read), Some(0.0), "{} falls back to the default third", bad);
             assert_eq!(read.get("preview").and_then(|p| p.get("thumbSize")).and_then(Json::as_str), Some("large"));
             let patch = jsondoc::parse(&format!(r#"{{"preview":{{"width":{}}}}}"#, bad)).expect("patch parses");
-            let message = patched(&from_file("{}"), &patch).expect_err("a patch from Flea must be whole");
+            let message = patched(&from_file("{}"), &patch).expect_err("a patch from Dlea must be whole");
             assert!(message.contains("width"), "got {}", message);
         }
     }

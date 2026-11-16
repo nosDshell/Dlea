@@ -104,7 +104,7 @@ CASES = {
 
 
 def probe(case, body, prefix, suffix):
-    case.write("crates/flea-gui/src/list.rs", prefix + LIST.replace("theme.background;", body) + suffix)
+    case.write("crates/dlea-gui/src/list.rs", prefix + LIST.replace("theme.background;", body) + suffix)
     case.write("tools/gpui-lint.json", json.dumps(case.policy))
     case.write("metadata.json", json.dumps(case.metadata))
     case.write("bin/cargo", '''#!/usr/bin/env python3
@@ -116,7 +116,7 @@ print(Path("metadata.json").read_text())
     (case.root / "bin/cargo").chmod(0o755)
     env = dict(os.environ, PATH=str(case.root / "bin") + os.pathsep + os.environ["PATH"],
                GIT_CEILING_DIRECTORIES=str(case.root.parent), PYTHONDONTWRITEBYTECODE="1")
-    return subprocess.run([str(REPO / "tools/flea-gpui-lint")], cwd=case.root,
+    return subprocess.run([str(REPO / "tools/dlea-gpui-lint")], cwd=case.root,
                           env=env, capture_output=True, text=True)
 
 
@@ -152,7 +152,7 @@ class ReviewTests(unittest.TestCase):
         self.check_cases("color_lexical")
 
     def test_color_hex_policy(self):
-        entry = {"symbol": "flea_gui::list::WIRE_MASK", "literal": "0xffffff",
+        entry = {"symbol": "dlea_gui::list::WIRE_MASK", "literal": "0xffffff",
                  "reason": "Fixture bit mask for a packed protocol field, not a colour."}
         declaration = "const WIRE_MASK: u32 = 0xffffff;"
         cases = [
@@ -163,7 +163,7 @@ class ReviewTests(unittest.TestCase):
             ("local_not_constant", "let WIRE_MASK = 0xffffff;", "", [entry], 1),
             ("constructor_still_blocked", "gpui::rgb(0xffffff);", declaration, [entry], 1),
             ("reason_required", "theme.background;", declaration, [dict(entry, reason="")], 2),
-            ("wildcard_rejected", "theme.background;", declaration, [dict(entry, symbol="flea_gui::*")], 2),
+            ("wildcard_rejected", "theme.background;", declaration, [dict(entry, symbol="dlea_gui::*")], 2),
         ]
         for name, body, prefix, entries, expected in cases:
             with self.subTest(case=name):
@@ -182,9 +182,9 @@ class ReviewTests(unittest.TestCase):
                 case = LintTests("test_blocking_primitives_and_nonblocking_controls")
                 case.setUp()
                 body = "fn parse() { gpui::rgb(0xff1122); }" if palette else "const MASK: u32 = 0xffffff;"
-                case.write("crates/flea-gui/src/palette.rs", body)
+                case.write("crates/dlea-gui/src/palette.rs", body)
                 if palette:
-                    case.policy["color_modules"] = [{"module": "flea_gui::palette", "kind": "palette",
+                    case.policy["color_modules"] = [{"module": "dlea_gui::palette", "kind": "palette",
                                                      "reason": "Fixture owns conversion of palette input to theme roles."}]
                 result = probe(case, "theme.background;", "", "")
                 print(f"REVIEW color_module_controls/{name}: exit={result.returncode} expected=0", flush=True)

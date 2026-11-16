@@ -4,7 +4,7 @@
 cap_gm_cleanup() {
     local status=0
     YDOTOOL_SOCKET="$XDG_RUNTIME_DIR/.ydotool_socket" ydotool click 0x80 >/dev/null 2>&1 || status=1
-    kill_flea || status=1
+    kill_dlea || status=1
     [[ -n "$cap_gm_root" && "$cap_gm_root" == /* && ! -L "$cap_gm_root" && -f "$cap_gm_root/$SANDBOX_MARKER" ]] \
         || { printf 'REFUSED: gmlook cleanup lost its marked absolute root\n' >&2; return 1; }
     sandbox_remove "$cap_gm_root" || return 1
@@ -38,7 +38,7 @@ cap_gm_fixture() {
         printf 'gmlook fixture\n' > "$cap_gm_root/home/$file" || fail "gmlook: cannot seed $file"
     done
     export XDG_CONFIG_HOME="$cap_gm_root/home/.config" XDG_DATA_HOME="$cap_gm_root/data"
-    export XDG_CACHE_HOME="$cap_gm_root/cache" FLEA_UNDO_DIR="$cap_gm_root/undo"
+    export XDG_CACHE_HOME="$cap_gm_root/cache" DLEA_UNDO_DIR="$cap_gm_root/undo"
     seed_ui_state "$cap_gm_root/state" '{"keys":"default","view":"'"$view"'","columnsLimit":3,"openMode":"double","clickRename":false,"places":{"showHome":true,"showTrash":true},"display":{"textSize":{"mode":14}}}'
     HOME="$cap_gm_root/home" launch "$cap_gm_root/home"
     wait_listing 6

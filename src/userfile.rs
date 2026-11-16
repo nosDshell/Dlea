@@ -1,4 +1,4 @@
-// The per-user preference files flea --default touches: where they are, and the one way they are rewritten.
+// The per-user preference files dlea --default touches: where they are, and the one way they are rewritten.
 use std::fs;
 use std::io::Write;
 use std::os::unix::fs::{OpenOptionsExt, PermissionsExt};
@@ -73,8 +73,8 @@ fn data_dirs_from(get: Get) -> Vec<PathBuf> {
 }
 
 // Where an installed package's own file is looked for, and the one ladder both install proofs read:
-// flea --default's desktop entry and flea --picker's portal file, which answered differently about
-// the same package until they shared this. Sample input: "applications/com.thisisgm.flea.desktop".
+// dlea --default's desktop entry and dlea --picker's portal file, which answered differently about
+// the same package until they shared this. Sample input: "applications/com.nosDshell.dlea.desktop".
 pub fn data_file(relative: &str) -> Option<PathBuf> {
     data_file_from(&process_env, relative)
 }
@@ -160,32 +160,32 @@ mod tests {
 
     #[test]
     fn config_home_reads_a_non_empty_xdg_config_home_and_falls_back_to_home() {
-        let set = named(&[("XDG_CONFIG_HOME", "/tmp/flea-test-xdg"), ("HOME", "/flea-test/home")]);
-        assert_eq!(config_home_from(&set).expect("set"), PathBuf::from("/tmp/flea-test-xdg"));
-        let empty = named(&[("XDG_CONFIG_HOME", ""), ("HOME", "/flea-test/home")]);
-        assert_eq!(config_home_from(&empty).expect("fallback"), PathBuf::from("/flea-test/home/.config"));
+        let set = named(&[("XDG_CONFIG_HOME", "/tmp/dlea-test-xdg"), ("HOME", "/dlea-test/home")]);
+        assert_eq!(config_home_from(&set).expect("set"), PathBuf::from("/tmp/dlea-test-xdg"));
+        let empty = named(&[("XDG_CONFIG_HOME", ""), ("HOME", "/dlea-test/home")]);
+        assert_eq!(config_home_from(&empty).expect("fallback"), PathBuf::from("/dlea-test/home/.config"));
         assert!(config_home_from(&named(&[])).is_err(), "no HOME and no XDG_CONFIG_HOME names no directory");
     }
 
     // A directory only one of the two install proofs searched is what put them out of step about one package.
     #[test]
     fn both_install_proofs_read_one_xdg_ladder() {
-        let both = named(&[("XDG_DATA_HOME", "/flea-test/data-home"), ("XDG_DATA_DIRS", "/flea-test/only"), ("HOME", "/flea-test/home")]);
+        let both = named(&[("XDG_DATA_HOME", "/dlea-test/data-home"), ("XDG_DATA_DIRS", "/dlea-test/only"), ("HOME", "/dlea-test/home")]);
         assert_eq!(
             data_dirs_from(&both),
-            vec![PathBuf::from("/flea-test/data-home"), PathBuf::from("/flea-test/only")]
+            vec![PathBuf::from("/dlea-test/data-home"), PathBuf::from("/dlea-test/only")]
         );
         // The first rung is its own function, because the D-Bus claim writes into exactly that one.
-        assert_eq!(data_home_from(&both).expect("set"), PathBuf::from("/flea-test/data-home"));
-        let no_home = named(&[("XDG_DATA_HOME", ""), ("XDG_DATA_DIRS", "/flea-test/only"), ("HOME", "/flea-test/home")]);
-        assert_eq!(data_home_from(&no_home).expect("fallback"), PathBuf::from("/flea-test/home/.local/share"));
-        assert_eq!(data_dirs_from(&no_home)[0], PathBuf::from("/flea-test/home/.local/share"));
+        assert_eq!(data_home_from(&both).expect("set"), PathBuf::from("/dlea-test/data-home"));
+        let no_home = named(&[("XDG_DATA_HOME", ""), ("XDG_DATA_DIRS", "/dlea-test/only"), ("HOME", "/dlea-test/home")]);
+        assert_eq!(data_home_from(&no_home).expect("fallback"), PathBuf::from("/dlea-test/home/.local/share"));
+        assert_eq!(data_dirs_from(&no_home)[0], PathBuf::from("/dlea-test/home/.local/share"));
         // An empty variable is unset, and the default is where pacman puts the package's files.
-        let default_dirs = named(&[("XDG_DATA_HOME", "/flea-test/data-home"), ("XDG_DATA_DIRS", "")]);
+        let default_dirs = named(&[("XDG_DATA_HOME", "/dlea-test/data-home"), ("XDG_DATA_DIRS", "")]);
         assert_eq!(
             data_dirs_from(&default_dirs),
             vec![
-                PathBuf::from("/flea-test/data-home"),
+                PathBuf::from("/dlea-test/data-home"),
                 PathBuf::from("/usr/local/share"),
                 PathBuf::from("/usr/share"),
             ]
@@ -194,10 +194,10 @@ mod tests {
         // The ladder is the half that diverged; this is the join and the find on top of it.
         let d = TestDir::new("data-file");
         let share = d.dir("share/applications");
-        fs::write(share.join("flea.test"), "").expect("entry");
+        fs::write(share.join("dlea.test"), "").expect("entry");
         let (absent, dirs) = (d.join("absent").display().to_string(), d.join("share").display().to_string());
         let found = named(&[("XDG_DATA_HOME", &absent), ("XDG_DATA_DIRS", &dirs)]);
-        assert_eq!(data_file_from(&found, "applications/flea.test"), Some(share.join("flea.test")));
-        assert_eq!(data_file_from(&found, "applications/flea.missing"), None);
+        assert_eq!(data_file_from(&found, "applications/dlea.test"), Some(share.join("dlea.test")));
+        assert_eq!(data_file_from(&found, "applications/dlea.missing"), None);
     }
 }

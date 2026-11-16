@@ -36,9 +36,9 @@ fn sweep_work_name_and_young_dead_control() {
     let dir = TestDir::new("model3d-sweep");
     let root = dir.path();
     let work = Work::new(root, "model3d").unwrap();
-    let prefix = format!(".flea-work-model3d-{}-", std::process::id());
+    let prefix = format!(".dlea-work-model3d-{}-", std::process::id());
     assert!(work.dir.file_name().unwrap().to_string_lossy().starts_with(&prefix));
-    let young = dir.join(".flea-work-model3d-4294967295-0");
+    let young = dir.join(".dlea-work-model3d-4294967295-0");
     dir.assert_contains(&young);
     std::fs::create_dir(&young).unwrap();
     cache::evict(root);
@@ -51,7 +51,7 @@ fn sweep_work_name_and_young_dead_control() {
 fn embedded_png_requires_decoder_before_publication() {
     let dir = TestDir::new("model3d-embedded-png");
     let root = dir.path();
-    let cache_root = dir.dir("flea-3d");
+    let cache_root = dir.dir("dlea-3d");
     let input = file(root, "kit.3mf", b"cached model input");
     let png = testdata::PNG.to_vec();
     assert!(cache::png(&png));
@@ -64,7 +64,7 @@ fn embedded_png_requires_decoder_before_publication() {
     let aliases = std::sync::Arc::new(crate::backend::aliases::Aliases::from_str(""));
     let specs = std::sync::Arc::new(crate::backend::thumbspec::Thumbnailers::from_entries(&[], &aliases));
     let tables = thumbs::Tables { aliases, specs, cache: thumbcache::Cache::at(root.to_path_buf()), worker: None };
-    let job = thumbs::Job { replies: None, path: input, mtime: 7, mime: "model/x-flea-3d".into(), trash_identity: None, trace: None };
+    let job = thumbs::Job { replies: None, path: input, mtime: 7, mime: "model/x-dlea-3d".into(), trash_identity: None, trace: None };
     assert!(matches!(thumbnail(&tables, &job), thumbs::Outcome::Failed), "an embedded PNG must require a sandboxed decoder");
     // The cache hit extracted the picture and recorded no failure, so the refusal is the missing decoder's.
     assert_eq!(std::fs::read(cache_root.join(format!("{key}-all.png"))).ok().as_deref(), Some(&testdata::PNG[..]));
@@ -76,7 +76,7 @@ fn embedded_png_requires_decoder_before_publication() {
 fn a_model_without_an_embedded_image_records_a_versioned_failure() {
     let dir = TestDir::new("model3d-no-image");
     let root = dir.path();
-    let cache_root = dir.dir("flea-3d");
+    let cache_root = dir.dir("dlea-3d");
     let input = file(root,"empty.3mf",b"cached model input");
     let model = model3d::parse("obj",testdata::OBJ).unwrap();
     let mut bytes = Vec::new();
@@ -86,9 +86,9 @@ fn a_model_without_an_embedded_image_records_a_versioned_failure() {
     let aliases = std::sync::Arc::new(crate::backend::aliases::Aliases::from_str(""));
     let specs = std::sync::Arc::new(crate::backend::thumbspec::Thumbnailers::from_entries(&[],&aliases));
     let tables = thumbs::Tables { aliases, specs, cache: thumbcache::Cache::at(root.to_path_buf()), worker: None };
-    let job = thumbs::Job { replies: None, path: input, mtime: 7, mime: "model/x-flea-3d".into(), trash_identity: None, trace: None };
+    let job = thumbs::Job { replies: None, path: input, mtime: 7, mime: "model/x-dlea-3d".into(), trash_identity: None, trace: None };
     assert!(matches!(thumbnail(&tables,&job),thumbs::Outcome::Failed));
     assert!(matches!(tables.cache.lookup(&job.path,7,THUMB_TABLE),thumbcache::Hit::Failed));
-    assert!(matches!(tables.cache.lookup(&job.path,7,"flea-3d-v1"),thumbcache::Hit::Miss));
+    assert!(matches!(tables.cache.lookup(&job.path,7,"dlea-3d-v1"),thumbcache::Hit::Miss));
     assert!(matches!(tables.cache.lookup(&job.path,8,THUMB_TABLE),thumbcache::Hit::Miss));
 }

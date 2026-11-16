@@ -35,7 +35,7 @@ PanelWindow {
   color: "transparent"
   // Rule 1: exclusiveZone 0, so no window gives up a pixel of its area for the drop region.
   exclusionMode: ExclusionMode.Ignore
-  WlrLayershell.namespace: "flea-shelf-rail"
+  WlrLayershell.namespace: "dlea-shelf-rail"
   WlrLayershell.layer: WlrLayer.Overlay
   WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
 

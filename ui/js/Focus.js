@@ -272,8 +272,8 @@ function act(action, root, menuId, paths) {
     case "newFolder": if (root.recentMode.length > 0) { root.message("Recent cannot hold a new folder. Open a folder first", false); return } Ops.newFolder(root); return
     // The directory being shown, not the row: the menu row and the chord both land here.
     case "openTerminal": root.openTerminal(); return
-    // The background menu's Update Flea row, drawn only while an update is known, opens Omarchy's updater through the pane's opener.
-    case "updateFlea": root.opener.updateFlea(root); return
+    // The background menu's Update Dlea row, drawn only while an update is known, opens Omarchy's updater through the pane's opener.
+    case "updateDlea": root.opener.updateDlea(root); return
     }
     // A submenu row fires "<action>:<id>", which is how one signal covers Taildrop and Compress both.
     if (action.indexOf("tags:") === 0) { root.tags().choose(action.substring(5)); return }

@@ -11,8 +11,8 @@ import threading
 parent = (Path.cwd() / ".superpowers" / "fb5").resolve()
 parent.mkdir(parents=True, exist_ok=True)
 root = Path(subprocess.check_output(["mktemp", "-d", str(parent / "search-wire.XXXXXX")], text=True).strip())
-marker = root / ".flea-test-sandbox"
-marker.write_text("flea test sandbox\n")
+marker = root / ".dlea-test-sandbox"
+marker.write_text("dlea test sandbox\n")
 process = None
 stderr_file = None
 passed = False
@@ -114,7 +114,7 @@ finally:
         stderr_file.close()
     safe = bool(str(root)) and root.is_absolute() and root.parent == parent and root.name.startswith("search-wire.")
     try:
-        safe = safe and marker.read_text() == "flea test sandbox\n"
+        safe = safe and marker.read_text() == "dlea test sandbox\n"
     except (OSError, UnicodeError):
         safe = False
     if not safe:

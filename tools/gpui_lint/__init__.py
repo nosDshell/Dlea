@@ -1,1 +1,1 @@
-"""Static checks for Flea's native GUI."""
+"""Static checks for Dlea's native GUI."""

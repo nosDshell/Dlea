@@ -1,0 +1,284 @@
+//! Settings writes use the core CLI's locked merge; polling and child processes stay off the UI thread.
+use crate::g2::settings_pages::seams::Store;
+use dlea::{jsondoc::Json, ui_logic_settings_pages::Text};
+use std::{cell::RefCell, path::PathBuf, process::Command, rc::Rc, sync::mpsc, time::Duration};
+
+#[cfg(test)]
+#[path = "store_read_tests.rs"]
+mod read_tests;
+
+pub type Patches = Rc<RefCell<Vec<Json>>>;
+
+pub struct SessionStore {
+    pub document: Json,
+    pub patches: Patches,
+}
+
+impl Store for SessionStore {
+    fn document(&self) -> &Json {
+        &self.document
+    }
+    fn write(&mut self, patch: &Json) -> Result<(), Text> {
+        self.document = dlea::uistate::patched(&self.document, patch)
+            .map_err(|_| Text::Key("settings.error.not_saved"))?;
+        self.patches.borrow_mut().push(patch.clone());
+        Ok(())
+    }
+}
+
+pub enum Update {
+    Corner(f32),
+    // One footer sentence about the state file itself, by catalog key.
+    Notice(&'static str),
+    Loaded {
+        document: Json,
+        through: u64,
+        saved: bool,
+    },
+    Failed {
+        through: u64,
+        keep: bool,
+    },
+    FavouriteFailed {
+        through: u64,
+        detail: String,
+    },
+    FavouriteCommitted {
+        through: u64,
+    },
+}
+
+pub struct Worker {
+    pub writes: mpsc::Sender<(u64, Json, Option<Json>)>,
+    pub updates: async_channel::Receiver<Update>,
+}
+
+#[derive(PartialEq)]
+enum ReadFailure {
+    Missing,
+    Unreadable,
+    Invalid(String),
+}
+
+// Retry only failed fields, using any newer queued choice instead of resending an obsolete value.
+pub(super) fn overlay_retry(retry: &mut Json, pending: &Json) {
+    match (retry, pending) {
+        (Json::Obj(fields), Json::Obj(changes)) => {
+            for (key, value) in fields {
+                if let Some((_, next)) = changes.iter().find(|(name, _)| name == key) {
+                    overlay_retry(value, next);
+                }
+            }
+        }
+        (retry, pending) => *retry = pending.clone(),
+    }
+}
+
+// A newer successful patch supersedes only the fields it wrote, including nested preference fields.
+pub(super) fn unwritten(patch: &mut Json, written: &Json) {
+    let (Json::Obj(fields), Json::Obj(changes)) = (patch, written) else {
+        return;
+    };
+    fields.retain_mut(|(key, value)| {
+        let Some((_, next)) = changes.iter().find(|(name, _)| name == key) else {
+            return true;
+        };
+        if value.as_object().is_some() && next.as_object().is_some() {
+            unwritten(value, next);
+            value.as_object().is_some_and(|fields| !fields.is_empty())
+        } else {
+            false
+        }
+    });
+}
+
+// A reread keeps this window's own global sort, a per-window key, and then every patch it still owes.
+pub(super) fn keep_own<'a>(document: &mut Json, own: &Json, owed: impl Iterator<Item = &'a Json>) {
+    if let Json::Obj(fields) = document {
+        fields.retain(|(key, _)| key != "sort");
+        if let Some(sort) = own.get("sort") {
+            fields.push(("sort".into(), sort.clone()));
+        }
+    }
+    for patch in owed {
+        if let Ok(next) = dlea::uistate::patched(document, patch) {
+            *document = next;
+        }
+    }
+}
+
+impl Worker {
+    pub fn start() -> std::io::Result<Self> {
+        let home = std::env::var_os("HOME")
+            .map(PathBuf::from)
+            .unwrap_or_default();
+        let state = std::env::var_os("XDG_STATE_HOME")
+            .filter(|p| !p.is_empty())
+            .map(PathBuf::from)
+            .unwrap_or_else(|| home.join(".local/state"));
+        Self::at(state.join("dlea/ui.json"), crate::window::startup::binary())
+    }
+
+    pub fn at(path: PathBuf, binary: PathBuf) -> std::io::Result<Self> {
+        let (writes, queue) = mpsc::channel::<(u64, Json, Option<Json>)>();
+        let (send, updates) = async_channel::unbounded();
+        let corners = send.clone();
+        let compositor = crate::compositor::Service::start(move |corner| {
+            corners.send_blocking(Update::Corner(corner)).is_ok()
+        })?;
+        std::thread::Builder::new()
+            .name("dlea-settings".into())
+            .spawn(move || {
+                let _compositor = compositor;
+                let mut last = None;
+                let mut through = 0;
+                let mut read_failed = None;
+                let mut established = false;
+                let mut initial = true;
+                let mut at_start = true;
+                // A lock another process keeps refuses every save, so the window says so before its first read.
+                if dlea::uistore::lock_held_elsewhere(&path)
+                    && send
+                        .send_blocking(Update::Notice("settings.error.save_session"))
+                        .is_err()
+                {
+                    return;
+                }
+                loop {
+                    let launch = std::mem::take(&mut initial);
+                    let request = if launch {
+                        Err(mpsc::RecvTimeoutError::Timeout)
+                    } else {
+                        queue.recv_timeout(Duration::from_millis(200))
+                    };
+                    match request {
+                        Ok((id, patch, operation)) => {
+                            through = id;
+                            let (mode, value) = match &operation {
+                                Some(op) => ("--favourites", op),
+                                None => ("--ui-state", &patch),
+                            };
+                            let output = Command::new(&binary)
+                                .args([mode, dlea::jsondoc::render(value).trim_end()])
+                                .output();
+                            let document = output
+                                .as_ref()
+                                .ok()
+                                .filter(|o| o.status.success())
+                                .and_then(|o| {
+                                    // Sample response: {"places":{"favourites":[{"label":"Personal","path":"smb://host/share/"}]}}.
+                                    dlea::jsondoc::parse(&String::from_utf8_lossy(&o.stdout)).ok()
+                                })
+                                .filter(|document| {
+                                    operation.is_none()
+                                        || document
+                                            .get("places")
+                                            .and_then(|places| places.get("favourites"))
+                                            .and_then(Json::as_array)
+                                            .is_some()
+                                });
+                            established |=
+                                output.as_ref().is_ok_and(|output| output.status.success());
+                            let update = match document {
+                                Some(document) => Update::Loaded {
+                                    document,
+                                    through,
+                                    saved: operation.is_none(),
+                                },
+                                None if operation.is_some()
+                                    && output
+                                        .as_ref()
+                                        .is_ok_and(|output| output.status.success()) =>
+                                {
+                                    Update::FavouriteCommitted { through }
+                                }
+                                None if operation.is_some() => Update::FavouriteFailed {
+                                    through,
+                                    detail: output.as_ref().ok().map_or_else(
+                                        String::new,
+                                        |output| {
+                                            // Sample stderr: "dlea: /fixture/ui.json could not be read, so no settings were written\n".
+                                            let stderr = String::from_utf8_lossy(&output.stderr);
+                                            let line =
+                                                stderr.lines().next().unwrap_or_default().trim();
+                                            line.strip_prefix("dlea: ").unwrap_or(line).into()
+                                        },
+                                    ),
+                                },
+                                None => Update::Failed {
+                                    through,
+                                    keep: operation.is_none(),
+                                },
+                            };
+                            last = None;
+                            if send.send_blocking(update).is_err() {
+                                break;
+                            }
+                        }
+                        Err(mpsc::RecvTimeoutError::Disconnected) => break,
+                        Err(mpsc::RecvTimeoutError::Timeout) => {
+                            let first = std::mem::take(&mut at_start);
+                            let result = match read_document(&path) {
+                                Ok(None) if established => Err(ReadFailure::Missing),
+                                result => result,
+                            };
+                            let body = match result {
+                                Ok(body) => body,
+                                Err(failure) => {
+                                    established = true;
+                                    // The first read is the one the window opened on, so it opened on the defaults.
+                                    let key = if first {
+                                        "settings.error.unreadable"
+                                    } else {
+                                        "settings.error.favourites_unread"
+                                    };
+                                    if read_failed.as_ref() != Some(&failure) {
+                                        let _ = send.send_blocking(Update::Notice(key));
+                                        read_failed = Some(failure);
+                                    }
+                                    continue;
+                                }
+                            };
+                            established |= body.is_some();
+                            let recovered = read_failed.take().is_some();
+                            if body == last && !recovered {
+                                continue;
+                            }
+                            last = body.clone();
+                            let Some(body) = body else { continue };
+                            let document = dlea::uistate::from_file(&body);
+                            if send
+                                .send_blocking(Update::Loaded {
+                                    document,
+                                    through,
+                                    saved: false,
+                                })
+                                .is_err()
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+            })?;
+        Ok(Self { writes, updates })
+    }
+}
+
+fn read_document(path: &std::path::Path) -> Result<Option<String>, ReadFailure> {
+    match std::fs::symlink_metadata(path) {
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+        Err(_) => return Err(ReadFailure::Unreadable),
+        Ok(_) => {}
+    }
+    // The core's own bound, so a file the core reads is never one the window calls unreadable.
+    let body = dlea::backend::regfile::read_text(path, dlea::uistore::MAX_BYTES)
+        .map_err(|_| ReadFailure::Unreadable)?;
+    if dlea::jsondoc::parse(&body)
+        .ok()
+        .is_none_or(|value| value.as_object().is_none())
+    {
+        return Err(ReadFailure::Invalid(body));
+    }
+    Ok(Some(body))
+}

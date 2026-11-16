@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-pv-compare-menu-test
+//@ pragma ShellId dlea-pv-compare-menu-test
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Ops.js" as Ops
+import "dlea" as Dlea
+import "dlea/js/Ops.js" as Ops
 
 // The real pane, menu snapshot and Compare activation over marks farther apart than one held window.
 ShellRoot {
@@ -173,10 +173,10 @@ ShellRoot {
         }
     }
 
-    Flea.IpcMenuState {
+    Dlea.IpcMenuState {
         id: menuReader
         pane: root.pane()
-        fleaWindow: QtObject { function rectOf(item) { return "" } }
+        dleaWindow: QtObject { function rectOf(item) { return "" } }
     }
 
     FloatingWindow {

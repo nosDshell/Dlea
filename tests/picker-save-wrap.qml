@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-picker-save-wrap-test
+//@ pragma ShellId dlea-picker-save-wrap-test
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Picker.js" as PickerLib
+import "dlea" as Dlea
+import "dlea/js/Picker.js" as PickerLib
 
 // The real PickerSave's collision line wraps at name joints or spaces at large text sizes, inside its column.
 ShellRoot {
@@ -29,7 +29,7 @@ ShellRoot {
     property int wrapRows: 0
     property var wrapWidths: []
 
-    Flea.PickerSave {
+    Dlea.PickerSave {
         id: saveCard
         picker: fakePicker
         width: 280
@@ -143,7 +143,7 @@ ShellRoot {
         root.realLines = []
         root.realLinesStamp = -2
         saveCard.width = stage.width
-        Flea.ViewState.setTextSize({ mode: stage.size })
+        Dlea.ViewState.setTextSize({ mode: stage.size })
         fakePicker.saveName = stage.name
     }
 

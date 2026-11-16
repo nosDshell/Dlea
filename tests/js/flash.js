@@ -43,7 +43,7 @@ function run(check) {
         "Its lock switch is on. Slide the switch off and plug the card in again.")
     check("any other read-only drive says so",
         Flash.refusedHint({ dev: "sda", refused: "readonly" }),
-        "It is read-only, so Flea cannot write to it.")
+        "It is read-only, so Dlea cannot write to it.")
     check("the image's own drive says so",
         Flash.refusedHint({ dev: "sda", refused: "holdsimage" }),
         "The image is on this drive. Copy it elsewhere first.")

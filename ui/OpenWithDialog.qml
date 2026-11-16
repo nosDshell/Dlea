@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/OpenWith.js" as OpenWith
 import "js/Format.js" as Format
 import "js/Input.js" as Input
@@ -69,7 +69,7 @@ Item {
     enabled: root.opened
     opacity: 0
     z: 2
-    Flea.Reveal { target: root; shown: root.opened; lift: card }
+    Dlea.Reveal { target: root; shown: root.opened; lift: card }
 
     // The shared signature the Loader calls both cards with; this one reads the item off the reply.
     function open(operation, id, sourceFolder, holder) {
@@ -228,7 +228,7 @@ Item {
             onWheel: function (wheel) { wheel.accepted = true }
         }
 
-        Flea.CardFrame {
+        Dlea.CardFrame {
             id: body
             bleedY: Theme.focusClearance
             anchors.fill: parent
@@ -237,7 +237,7 @@ Item {
             spacing: 0
 
             // RunCard's own header: the esc hint at the right and the rule inset to the content edge.
-            title: Flea.DialogHeader {
+            title: Dlea.DialogHeader {
                 id: title
                 x: Theme.spacing.rowPaddingX
                 width: parent.width - 2 * Theme.spacing.rowPaddingX
@@ -267,7 +267,7 @@ Item {
                     border.width: Theme.spacing.hairline
                     border.color: field.activeFocus ? Theme.color.accent : Theme.color.mutedFrame
 
-                    Flea.Glyph {
+                    Dlea.Glyph {
                         id: lens
                         anchors.left: parent.left
                         anchors.leftMargin: Theme.spacing.gap
@@ -316,7 +316,7 @@ Item {
                         width: field.text.length > 0 ? Theme.font.caption : 0
                         height: Theme.font.caption
 
-                        Flea.Glyph {
+                        Dlea.Glyph {
                             anchors.fill: parent
                             visible: field.text.length > 0
                             name: "x"
@@ -349,7 +349,7 @@ Item {
                     boundsBehavior: Flickable.StopAtBounds
                     activeFocusOnTab: false
                     Keys.forwardTo: [keys]
-                    Flea.FastScrollHandler {
+                    Dlea.FastScrollHandler {
                         id: wheel
                         parent: list
                         flickable: list
@@ -395,7 +395,7 @@ Item {
                             textFormat: Text.PlainText
                         }
 
-                        Flea.MenuRow {
+                        Dlea.MenuRow {
                             id: menuRow
                             visible: !row.isEyebrow
                             width: parent.width
@@ -472,7 +472,7 @@ Item {
                     width: ruleBox.implicitWidth
                     height: ruleBox.implicitHeight
 
-                    Flea.CheckBox {
+                    Dlea.CheckBox {
                         id: ruleBox
                         value: root.always ? "on" : "off"
                         focused: root.focusPart === 2
@@ -542,7 +542,7 @@ Item {
                     anchors.rightMargin: Theme.spacing.rowPaddingX
                     spacing: Theme.spacing.gap
 
-                    Flea.DialogButton {
+                    Dlea.DialogButton {
                         id: cancelButton
                         label: "Cancel"
                         focused: root.focusPart === 3
@@ -551,7 +551,7 @@ Item {
                         onActivated: root.close()
                     }
 
-                    Flea.DialogButton {
+                    Dlea.DialogButton {
                         id: openButton
                         label: "Open"
                         primary: true

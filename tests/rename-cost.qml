@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-rename-cost-test
+//@ pragma ShellId dlea-rename-cost-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "rename-cost.js" as Cost
 
 // After a rename ends with Enter, Escape, the path field taking focus or a view switch, every cursor key reaches the pane's key handler as it did before, in every view, and costs no more work than it did before.
@@ -206,7 +206,7 @@ ShellRoot {
         var tag = c.view + " " + c.target + (c.legs ? " switch" : c.end === Qt.Key_Escape ? " escape" : c.end === 0 ? " away" : c.far ? " enter far" : " enter")
         if (c.control) return root.control(c)
         if (root.stage === 0) {
-            if (Flea.ViewState.state.view !== c.view) { pane.chooseView(c.view); return false }
+            if (Dlea.ViewState.state.view !== c.view) { pane.chooseView(c.view); return false }
             if (!root.ready()) return false
             pane.listArea.forceActiveFocus()
             // The first cursor key lazily builds Quick Look; both measured phases need those same readers.
@@ -305,7 +305,7 @@ ShellRoot {
         var view = root.controlViews[root.controlView]
         var tag = "control scroll " + view
         if (root.stage === 0) {
-            if (Flea.ViewState.state.view !== view) { pane.chooseView(view); return false }
+            if (Dlea.ViewState.state.view !== view) { pane.chooseView(view); return false }
             if (!root.settled()) return false
             pane.listArea.forceActiveFocus()
             pane.clearSelection()
@@ -340,7 +340,7 @@ ShellRoot {
     // One view per leg, settled: three Down presses one tick apart move the cursor three rows, and that view's own area holds the keyboard.
     function leg(c, tag) {
         var view = c.legs[root.legIndex]
-        if (Flea.ViewState.state.view !== view) { pane.chooseView(view); return false }
+        if (Dlea.ViewState.state.view !== view) { pane.chooseView(view); return false }
         if (pane.viewMode !== view || !root.settled() || ++root.waitTicks < 10) return false
         if (root.waitTicks === 10) root.legStart = pane.cursorIndex
         if (root.waitTicks <= 12) { driver.keyClick(Qt.Key_Down, Qt.NoModifier, -1); return false }
@@ -403,7 +403,7 @@ ShellRoot {
         id: window
         implicitWidth: 1000
         implicitHeight: 650
-        Flea.WindowBody { id: body; host: window }
+        Dlea.WindowBody { id: body; host: window }
         Item { anchors.fill: parent; TestEvent { id: driver } }
     }
 
@@ -426,7 +426,7 @@ ShellRoot {
     Connections {
         target: root.pane ? root.pane.listArea : null
         function onThumbsApplied(work) {
-            root.check(Flea.ViewState.thumbnailMode === "off" && Object.keys(pane.thumbState.file).length === 0
+            root.check(Dlea.ViewState.thumbnailMode === "off" && Object.keys(pane.thumbState.file).length === 0
                 && work.ask.length === 0 && work.drop.length === 0, "background planner left the empty thumbnails-off fixture")
             root.plans++
         }
@@ -468,7 +468,7 @@ ShellRoot {
                     root.failures.push("stage " + before + " of case " + root.caseIndex + " never completed")
                     console.log("RENAMECOST FAIL stalled at stage " + before + " case " + root.caseIndex + " index=" + pane.renamingIndex
                         + " pending=" + pane.renamePending + " anchor=" + (pane.wire.anchor !== null) + " cursor=" + pane.cursorIndex
-                        + " view=" + Flea.ViewState.state.view + " ready=" + root.ready() + " row=" + (pane.rowFor(pane.cursorIndex) ? pane.rowFor(pane.cursorIndex).n : "none"))
+                        + " view=" + Dlea.ViewState.state.view + " ready=" + root.ready() + " row=" + (pane.rowFor(pane.cursorIndex) ? pane.rowFor(pane.cursorIndex).n : "none"))
                     root.report()
                 }
             } finally { root.advancing = false }

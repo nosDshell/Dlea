@@ -27,7 +27,7 @@ impl Fixture {
         assert!(made.status.success());
         let root = PathBuf::from(String::from_utf8(made.stdout).unwrap().trim_end());
         assert!(root.is_absolute() && root.starts_with(&parent));
-        std::fs::write(root.join(".flea-test-sandbox"), b"contents test\n").unwrap();
+        std::fs::write(root.join(".dlea-test-sandbox"), b"contents test\n").unwrap();
         let (tx, rx) = crate::backend::events::channel();
         Self {
             st: State::new(super::super::dirsizeworker::Worker::new(tx.clone())),
@@ -158,14 +158,14 @@ fn m9_g2rows_01_cancel_reaps_and_stale_generation_is_ignored() {
     if crate::backend::sandboxprobe::skipped() {
         return;
     }
-    if std::env::var_os("FLEA_CONTENTS_CI_ENV").is_some() {
+    if std::env::var_os("DLEA_CONTENTS_CI_ENV").is_some() {
         use std::io::IsTerminal;
         assert!(!std::io::stdin().is_terminal());
         assert!(std::env::vars().all(|(key, _)| [
             "PATH",
             "HOME",
             "TMPDIR",
-            "FLEA_CONTENTS_CI_ENV"
+            "DLEA_CONTENTS_CI_ENV"
         ]
         .contains(&key.as_str())));
     }
@@ -216,7 +216,7 @@ fn m9_g2rows_01_cancel_reaps_and_stale_generation_is_ignored() {
     for before_spawn in [true, false] {
         let mut f = Fixture::new();
         let tool = f.root.join("held-rg");
-        let mut writer = std::process::Command::new(flea::testpath::tool("/bin/sh"))
+        let mut writer = std::process::Command::new(dlea::testpath::tool("/bin/sh"))
             .args(["-c", "cat > \"$1\" && chmod 755 \"$1\"", "sh"])
             .arg(&tool)
             .stdin(std::process::Stdio::piped())
@@ -316,7 +316,7 @@ fn m9_g2rows_01_raw_paths_and_remainder_keep_listing_identity() {
     );
     eprintln!("CONTENTS-RAW-WINDOW {rows}");
     let held = f.st.contents.held.as_ref().unwrap();
-    let exact = flea::bytename::name_text(b"raw-\xff.txt").into_owned();
+    let exact = dlea::bytename::name_text(b"raw-\xff.txt").into_owned();
     assert!(held
         .matches
         .iter()
@@ -335,8 +335,8 @@ fn m9_g2rows_01_raw_paths_and_remainder_keep_listing_identity() {
         f.request(&format!(
             r#"{{"c":"paths","rows":[{row}],"listing":{generation}}}"#
         ));
-        let own = escape(&flea::bytename::path_text(
-            &f.root.join(&*flea::bytename::text_path(name)),
+        let own = escape(&dlea::bytename::path_text(
+            &f.root.join(&*dlea::bytename::text_path(name)),
         ));
         assert!(
             f.text().contains(r#""t":"paths""#) && f.text().contains(&format!(r#"["{own}"]"#)),
@@ -364,7 +364,7 @@ fn m9_g2rows_01_missing_rg_and_failure_never_publish_success() {
     assert!(!f.text().contains("listed"));
     assert!(f.text().contains(r#""gen":1"#));
     let tool = f.root.join("failing-rg");
-    let mut writer = std::process::Command::new(flea::testpath::tool("/bin/sh"))
+    let mut writer = std::process::Command::new(dlea::testpath::tool("/bin/sh"))
         .args(["-c", "cat > \"$1\" && chmod 755 \"$1\"", "sh"])
         .arg(&tool)
         .stdin(std::process::Stdio::piped())

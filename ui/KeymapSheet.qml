@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Keymap.js" as Keymap
 import "js/Menu.js" as Menu
 import "js/Places.js" as Places
@@ -53,7 +53,7 @@ Item {
     }
     function railModel() {
         var bar = root.pane ? root.pane.sidebar : null
-        return Flea.RailPlaces.entries().concat(bar ? bar.networkEntries.concat(bar.deviceEntries) : [])
+        return Dlea.RailPlaces.entries().concat(bar ? bar.networkEntries.concat(bar.deviceEntries) : [])
     }
     function ensureRecent() {
         if (root.recentAsked)
@@ -214,7 +214,7 @@ Item {
     enabled: root.opened
     opacity: 0
     z: 2
-    Flea.Reveal { target: root; shown: root.opened; lift: card }
+    Dlea.Reveal { target: root; shown: root.opened; lift: card }
 
     function open(holder) {
         root.focusHolder = holder
@@ -321,7 +321,7 @@ Item {
         // Mirrors hyprland decoration:rounding, same as ui/ConvertDialog.qml; 0 on a stock box stays square.
         radius: Style.cornerRadius
 
-        Flea.CardFrame {
+        Dlea.CardFrame {
             id: body
             anchors.fill: parent
             anchors.topMargin: Theme.spacing.rowPaddingX
@@ -423,7 +423,7 @@ Item {
                     Repeater {
                         id: resultRepeater
                         model: root.queryResults
-                        delegate: Flea.KeymapSheetResult {
+                        delegate: Dlea.KeymapSheetResult {
                             width: parent.width
                             resultCursor: root.resultCursor
                             query: root.query

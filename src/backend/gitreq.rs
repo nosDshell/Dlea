@@ -1,5 +1,5 @@
 // One ordered worker owns the snapshot; navigation, refresh and visible-row requests cannot race it.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::events::Event;
 use super::gitprobe::{self, Repository};
 use super::gitstatus::Snapshot;
@@ -166,7 +166,7 @@ impl Session {
     }
 
     fn reload(&mut self, path: &str, cancelled: &dyn Fn() -> bool) -> Result<(), String> {
-        let target = flea::bytename::view(path).to_path_buf();
+        let target = dlea::bytename::view(path).to_path_buf();
         let directory = target.clone();
         self.repo = super::iomount::call(
             &target,
@@ -194,7 +194,7 @@ impl Session {
         let mut marks = Vec::with_capacity(paths.len());
         for path in paths {
             // A row inside a folder opened in place is a descendant; nothing may climb out of the directory.
-            let file = flea::bytename::view(&path);
+            let file = dlea::bytename::view(&path);
             let file = &*file;
             let name = file
                 .strip_prefix(&self.path)

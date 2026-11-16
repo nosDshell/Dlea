@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "." as Flea
+import "." as Dlea
 import "js/DragOut.js" as DragOut
 import "js/Tabs.js" as Tabs
 import "js/TabMove.js" as TabMove
@@ -71,8 +71,8 @@ Item {
     property var takenQueue: []
     property var outstandingLifts: []
     readonly property int ackPollMs: 100 // Settle acknowledged lifts when their captured pane finishes loading.
-    // Stage trace, on only with FLEA_TRACE_TABDRAG=1; read once, silent otherwise.
-    readonly property bool tabTrace: Quickshell.env("FLEA_TRACE_TABDRAG") === "1"
+    // Stage trace, on only with DLEA_TRACE_TABDRAG=1; read once, silent otherwise.
+    readonly property bool tabTrace: Quickshell.env("DLEA_TRACE_TABDRAG") === "1"
     function traceTab(stage, detail) { if (root.tabTrace) console.log("TABDRAG " + stage + " pid=" + Quickshell.processId + " " + detail) }
 
     Timer {
@@ -100,7 +100,7 @@ Item {
     // QTBUG-64128: a DropArea rejects a drag sourced from its ancestor.
     Item { id: dragOrigin; width: 0; height: 0; visible: false }
     Drag.source: dragOrigin
-    Flea.TabDragGeometry { id: sourceGeometry }
+    Dlea.TabDragGeometry { id: sourceGeometry }
 
     Drag.dragType: Drag.Automatic
     // Private tab MIME must never offer the folder as a file drag.
@@ -264,9 +264,9 @@ Item {
         if (root.outPath.length === 0)
             return
         var info = Tabs.parseTabMime(root.outMime[Tabs.TAB_MIME])
-        Quickshell.execDetached(["env", "FLEA_TAB_SOURCE_PID=" + root.outPid,
-            "FLEA_TAB_CURSOR=" + (info ? info.cursor : ""),
-            "FLEA_TAB_TOKEN=" + root.outToken, Quickshell.env("FLEA_BIN") || "flea", root.outPath])
+        Quickshell.execDetached(["env", "DLEA_TAB_SOURCE_PID=" + root.outPid,
+            "DLEA_TAB_CURSOR=" + (info ? info.cursor : ""),
+            "DLEA_TAB_TOKEN=" + root.outToken, Quickshell.env("DLEA_BIN") || "dlea", root.outPath])
         root.outFinished(Qt.IgnoreAction)
     }
 
@@ -313,7 +313,7 @@ Item {
             return
         var next = root.takenQueue[0]
         root.takenQueue = root.takenQueue.slice(1)
-        takenAck.command = ["qs", "ipc", "--pid", next.pid, "call", "fleatab", "taken", next.token]
+        takenAck.command = ["qs", "ipc", "--pid", next.pid, "call", "dleatab", "taken", next.token]
         takenAck.running = true
     }
 
@@ -409,7 +409,7 @@ Item {
 
                 // The rule: a drag resting on a tab selects it so the drop can land in that tab's
                 // listing, and a drop on the tab itself lands there too, by path, see ui/DropInto.qml.
-                Flea.DropInto {
+                Dlea.DropInto {
                     anchors.fill: parent
                     pane: root.pane
                     enabled: DragOut.searchTabEnabled(root.pane ? root.pane.searchMode : "", tab.current)
@@ -498,7 +498,7 @@ Item {
 
                     // The mark never moves and its target never shrinks; only the ink answers, so a
                     // crowded strip is no harder to hit than a tidy one.
-                    Flea.Glyph {
+                    Dlea.Glyph {
                         anchors.centerIn: parent
                         width: Theme.chromeMarkSize
                         height: Theme.chromeMarkSize
@@ -586,7 +586,7 @@ Item {
                 visible: root.stopFocused && root.focusedIndex === root.tabCount
             }
 
-            Flea.Glyph {
+            Dlea.Glyph {
                 anchors.centerIn: parent
                 width: Theme.chromeMarkSize
                 height: Theme.chromeMarkSize

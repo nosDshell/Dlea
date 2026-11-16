@@ -37,10 +37,10 @@ Item {
     // The replies still owed; a notifying count, because a var property announces only a reassignment and the reply timer binds to this.
     property int owed: 0
 
-    // Flea's own binary, found the way the helper's is; FLEA_BIN is the dev seam.
+    // Dlea's own binary, found the way the helper's is; DLEA_BIN is the dev seam.
     Process {
         id: process
-        command: [Quickshell.env("FLEA_BIN") || "flea", "--figure-store"]
+        command: [Quickshell.env("DLEA_BIN") || "dlea", "--figure-store"]
         running: false
         stdinEnabled: true
 

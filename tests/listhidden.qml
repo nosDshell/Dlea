@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-listhidden-test
+//@ pragma ShellId dlea-listhidden-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Filter.js" as Filter
+import "dlea" as Dlea
+import "dlea/js/Filter.js" as Filter
 
 // e63 listhidden: a real ui/List.qml over a stub pane proves a hidden List holds zero
 // delegates and sends no backend work, returning renders the shared cursor again, and
@@ -119,16 +119,16 @@ ShellRoot {
 
     // The stub reads the List viewport through Pane's own formula, never a made-up constant.
     Component.onCompleted: {
-        root.stubPane.visibleRows = Qt.binding(function () { return Math.max(1, Math.ceil(list.height / Flea.Theme.fileRowHeight)) })
+        root.stubPane.visibleRows = Qt.binding(function () { return Math.max(1, Math.ceil(list.height / Dlea.Theme.fileRowHeight)) })
     }
 
     // The list lives in a real window, the pane the product parents; visibility there is effective.
     FloatingWindow {
         implicitWidth: 900
         implicitHeight: 500
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
-        Flea.List {
+        Dlea.List {
             id: list
             width: 700
             height: 300
@@ -245,8 +245,8 @@ ShellRoot {
             root.fail("returned moved the shared cursor to " + root.stubPane.cursorIndex + ", want " + root.cursorRow)
         if (list.hiddenHeld !== false)
             root.fail("returned left the held restore pending after the rows landed")
-        var top = root.cursorRow * Flea.Theme.fileRowHeight
-        if (!(list.contentY <= top + Flea.Theme.fileRowHeight && list.contentY + list.height >= top))
+        var top = root.cursorRow * Dlea.Theme.fileRowHeight
+        if (!(list.contentY <= top + Dlea.Theme.fileRowHeight && list.contentY + list.height >= top))
             root.fail("returned parked contentY at " + Math.round(list.contentY) + " over row top " + Math.round(top))
         var at = root.delegateAt(root.cursorRow)
         if (at === null || at.cursor !== true || at.clipMark !== "scissors")

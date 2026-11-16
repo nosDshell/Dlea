@@ -258,7 +258,7 @@ PY
     capmarkdown_column_reach_end "notes.md"
     shot "cap-markdown-column-end"
     printf 'CAPMARKDOWN quicklook=ok source=ok column=ok column-after-flip=ok column-end=ok\n'
-    kill_flea
+    kill_dlea
 }
 # The 96 by 48 PNG of four colour bands both the README logo and the figures document point at.
 capmarkdownkinds_png_b64='iVBORw0KGgoAAAANSUhEUgAAAGAAAAAwCAIAAABhdOiYAAAAaElEQVR42u3QMQ0AIAwAMIShZEoQwc3NPSe4wsG+fU2qoOOtSWEoECRIkCBBggQJQpCghqDYSUGQIEGCBAkSJEgQggR1BN0MCoIECRIkSJAgQYIQJKgjaMWhIEiQIEGCBAkSJAhBghp8kLRyFsG/bnwAAAAASUVORK5CYII='
@@ -288,7 +288,7 @@ MD
 <p align="center">
   <img src="logo.png" width="64" alt="logo">
 </p>
-<h1 align="center">Flea</h1>
+<h1 align="center">Dlea</h1>
 <p align="center"><b>A file manager</b> for <i>Omarchy</i></p>
 
 Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to copy. Water is H<sub>2</sub>O and area is r<sup>2</sup>.<br>
@@ -495,7 +495,7 @@ capmarkdown_fixture_set() {
         [[ -s "$evidence_dir/cap-markdown-kind-column-${name%.md}.png" ]] || fail "capmarkdown $set: column shot for $name is missing, not recording ok"
     done
     printf '%s %scolumns=ok\n' "$tag" "$results"
-    kill_flea
+    kill_dlea
     [[ -z "$capmarkdown_sideways_error" ]] || fail "capmarkdown $set: $capmarkdown_sideways_error"
 }
 # Every Markdown kind the stage draws beyond notes.md, shot on the display box: GFM tables, a README in raw HTML, a badge row, nesting with pictures inside blocks, and figures. Cases ql-markdown-tables, -html, -badges, -nesting and -figures in ci/visual/lane/cases.sh draw the same text headless.
@@ -524,7 +524,7 @@ case_cap_markdown_kinds() {
         shot "cap-markdown-kind-column-${name%.md}"
     done
     printf 'CAPMARKDOWNKINDS %scolumn-nesting=ok\n' "$results"
-    kill_flea
+    kill_dlea
 }
 # The fixture documents of case_cap_markdown_fences: each fence shape in LF and CRLF, a README, and a document past the 64 KiB line with fences on both sides of the head's cut.
 capmarkdownfences_fixture() {
@@ -589,7 +589,7 @@ case_cap_markdown_fences() {
         [[ "$(ipc previewOpen)" == "false" ]] || fail "capmdfence: Escape did not close Quick Look on $name in dual"
     done
     printf 'CAPMDFENCE %scolumnpane=ok dual=ok\n' "$results"
-    kill_flea
+    kill_dlea
 }
 # Beside the base fixtures: wide lines, language tags, tabs and blanks, an unclosed fence, tight neighbours, indented and listed code, and a document of 250 lines with a fence on each of its screens.
 capmarkdownfences14_fixture() {
@@ -886,15 +886,15 @@ case_cap_markdown_fences14() {
         [[ "$(ipc previewOpen)" == "false" ]] || fail "capmdfence14: Escape did not close Quick Look on $name in dual"
     done
     printf 'CAPMDFENCE14 done list=ok grid=ok columns=ok columnpane=ok dual=ok\n'
-    kill_flea
+    kill_dlea
 }
 # The text size and the fixture set of the Mermaid type shots, one document per diagram type.
 capmdpele_body_px=14
 capmdpele_set=markdown-mermaid
-# Every Mermaid diagram type (tests/fixtures/markdown-mermaid, one figure each) in Quick Look and then in the preview column at text size 14, shot as pele.<type>.<engine>.quicklook and .column; the engine is read off the bundle the tree ships, so a scratch tree holding the previous figure files shoots the other arm, and FLEA_CAPMDPELE_THEME names a stock theme to draw under in a fixture HOME (default the live theme). By name only.
+# Every Mermaid diagram type (tests/fixtures/markdown-mermaid, one figure each) in Quick Look and then in the preview column at text size 14, shot as pele.<type>.<engine>.quicklook and .column; the engine is read off the bundle the tree ships, so a scratch tree holding the previous figure files shoots the other arm, and DLEA_CAPMDPELE_THEME names a stock theme to draw under in a fixture HOME (default the live theme). By name only.
 case_cap_markdown_pele() {
-    local dir="$fixture_root/capmdpele" engine=beautiful-mermaid doc name type figs theme="${FLEA_CAPMDPELE_THEME:-live}" real_home="$HOME" home
-    grep -q 'pele-edge' "$flea_ui/vendor/mermaid.mjs" && engine=pele
+    local dir="$fixture_root/capmdpele" engine=beautiful-mermaid doc name type figs theme="${DLEA_CAPMDPELE_THEME:-live}" real_home="$HOME" home
+    grep -q 'pele-edge' "$dlea_ui/vendor/mermaid.mjs" && engine=pele
     sandbox_scratch "$dir"
     mkdir -p "$dir/listing"
     cp "$repo"/tests/fixtures/"$capmdpele_set"/*.md "$dir/listing/"
@@ -932,5 +932,5 @@ case_cap_markdown_pele() {
     done
     [[ "$theme" != live ]] || theme="live:$(cat "$real_state_dir/theme.name" 2>/dev/null)"
     printf 'CAPMDPELE done engine=%s theme=%s types=%s\n' "$engine" "$theme" "$(find "$dir/listing" -name '*.md' | wc -l | tr -d ' ')"
-    kill_flea
+    kill_dlea
 }

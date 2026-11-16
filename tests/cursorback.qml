@@ -1,14 +1,14 @@
-//@ pragma ShellId flea-cursorback-test
+//@ pragma ShellId dlea-cursorback-test
 import QtQuick
 import QtTest
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 
 // Back and Forward return the cursor to the row it left in the rows' own turn; tests/cursorback.sh owns the fixture.
 ShellRoot {
     id: root
-    readonly property string fixture: Quickshell.env("FLEA_PATH")
+    readonly property string fixture: Quickshell.env("DLEA_PATH")
     readonly property bool dualOnly: Quickshell.env("CURSORBACK_DUAL") === "1"
     readonly property var body: window.body
     property var legPane: null
@@ -154,7 +154,7 @@ ShellRoot {
             next("viewgrid")
         } else if (stage === "viewgrid") {
             if (shell.running && !timedOut) return
-            Flea.ViewState.changeSetting("view", "grid")
+            Dlea.ViewState.changeSetting("view", "grid")
             next("gridready")
         } else if (stage === "gridready") {
             track(p, p.path)
@@ -218,7 +218,7 @@ ShellRoot {
             next("viewcolumns")
         } else if (stage === "viewcolumns") {
             if (shell.running && !timedOut) return
-            Flea.ViewState.changeSetting("view", "columns")
+            Dlea.ViewState.changeSetting("view", "columns")
             next("columnsready")
         } else if (stage === "columnsready") {
             track(p, p.path)
@@ -337,7 +337,7 @@ ShellRoot {
         id: window
         implicitWidth: 1000
         implicitHeight: 800
-        Flea.WindowBody { id: body; host: window }
+        Dlea.WindowBody { id: body; host: window }
     }
     Timer { interval: root.pollMs; repeat: true; running: !root.finished; onTriggered: root.advance() }
 }

@@ -9,28 +9,28 @@ import tempfile
 import unittest
 
 REPO = Path(__file__).resolve().parents[2]
-TOOL = REPO / "tools/flea-i18n-extract"
+TOOL = REPO / "tools/dlea-i18n-extract"
 
 
 class ExtractTests(unittest.TestCase):
     def setUp(self):
-        parent = Path(os.environ.get("FLEA_I18N_TEST_ROOT", REPO / ".superpowers/m9-i50-01"))
+        parent = Path(os.environ.get("DLEA_I18N_TEST_ROOT", REPO / ".superpowers/m9-i50-01"))
         parent.mkdir(parents=True, exist_ok=True)
         self.temporary = tempfile.TemporaryDirectory(prefix="extract-", dir=parent)
         self.root = Path(self.temporary.name).resolve()
-        (self.root / ".flea-test-sandbox").touch()
+        (self.root / ".dlea-test-sandbox").touch()
         self.addCleanup(self.temporary.cleanup)
         # The extractor records HEAD, so the fixture is its own repository, free of the caller's git environment and config.
         self.git_env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
         self.git_env.update(GIT_CONFIG_GLOBAL="/dev/null", GIT_CONFIG_NOSYSTEM="1")
         subprocess.run(["git", "init", "-q", str(self.root)], check=True, env=self.git_env)
-        subprocess.run(["git", "-C", str(self.root), "-c", "user.name=flea-test", "-c", "user.email=flea-test@invalid",
+        subprocess.run(["git", "-C", str(self.root), "-c", "user.name=dlea-test", "-c", "user.email=dlea-test@invalid",
                         "commit", "-q", "--allow-empty", "-m", "fixture"], check=True, env=self.git_env)
         self.omarchy = self.root / "omarchy"
         self.index = self.root / "i18n/source-index.json"
         self.catalog = {"file.open": "Open", "files.count": {"one": "%1 file", "other": "%1 files"},
                         "unused.label": "Unused", "keys.action.mute": "Mute"}
-        self.write("i18n/en/flea.json", self.catalog)
+        self.write("i18n/en/dlea.json", self.catalog)
         self.write("src/example.rs", 'fn draw(i: &I18n) { i.tr("file.open"); i.trn("files.count", 2);\n'
                    'i.tr("omarchy:shell.common.cancel"); }\n')
         self.write("omarchy/default/i18n/locales.json", {"en": {"name": "English"}})
@@ -87,33 +87,33 @@ class ExtractTests(unittest.TestCase):
     def test_i50_extract_changed_english_refused(self):
         self.freeze()
         self.catalog["file.open"] = "Open file"
-        self.write("i18n/en/flea.json", self.catalog)
+        self.write("i18n/en/dlea.json", self.catalog)
         self.run_tool("check", ok=False)
 
     def test_i50_keymap_regeneration_preserves_aliases_and_frozen_index(self):
         self.catalog["keys.action.mute"] = "omarchy:keybindings.Mute"
         self.catalog["keys.retired"] = "omarchy:keybindings.Mute"
-        self.write("i18n/en/flea.json", self.catalog)
+        self.write("i18n/en/dlea.json", self.catalog)
         self.write("keys.toml", (REPO / "keys.toml").read_text())
         self.write("ui/js/Keymap.js", "")
         self.write("src/keys_generated.rs", "")
-        command = [sys.executable, "-B", str(REPO / "tools/flea-keymap-gen"),
+        command = [sys.executable, "-B", str(REPO / "tools/dlea-keymap-gen"),
                    str(self.root / "ui/js/Keymap.js"), str(self.root / "keys.toml"),
                    "--rust", str(self.root / "src/keys_generated.rs"),
-                   "--catalog", str(self.root / "i18n/en/flea.json")]
+                   "--catalog", str(self.root / "i18n/en/dlea.json")]
         result = subprocess.run(command, capture_output=True, text=True, env=self.git_env)
         self.assertEqual(result.returncode, 0, result.stderr)
-        generated = json.loads((self.root / "i18n/en/flea.json").read_text())
+        generated = json.loads((self.root / "i18n/en/dlea.json").read_text())
         self.assertEqual(generated["keys.action.mute"], "omarchy:keybindings.Mute")
         self.assertEqual(generated["file.open"], self.catalog["file.open"])
         self.assertNotIn("keys.retired", generated)
         index = self.freeze()
         self.assertEqual(index["keys"]["keys.action.mute"]["resolved_english"], "Mute")
-        catalog_bytes = (self.root / "i18n/en/flea.json").read_bytes()
+        catalog_bytes = (self.root / "i18n/en/dlea.json").read_bytes()
         index_bytes = self.index.read_bytes()
         result = subprocess.run(command, capture_output=True, text=True, env=self.git_env)
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertEqual((self.root / "i18n/en/flea.json").read_bytes(), catalog_bytes)
+        self.assertEqual((self.root / "i18n/en/dlea.json").read_bytes(), catalog_bytes)
         self.run_tool("check")
         self.assertEqual(self.index.read_bytes(), index_bytes)
 
@@ -132,9 +132,9 @@ class ExtractTests(unittest.TestCase):
         self.write("src/new.rs", 'fn draw(i: &I18n) { i.tr("file.new"); }')
         one = self.delta([self.entry()])
         two = self.delta([self.entry(english="Different %1")], "other.json")
-        before = (self.root / "i18n/en/flea.json").read_bytes()
+        before = (self.root / "i18n/en/dlea.json").read_bytes()
         self.run_tool("delta", "--delta", one, "--delta", two, "--apply", ok=False)
-        self.assertEqual(before, (self.root / "i18n/en/flea.json").read_bytes())
+        self.assertEqual(before, (self.root / "i18n/en/dlea.json").read_bytes())
 
     def test_i50_delta_stale_base_refused(self):
         self.freeze()
@@ -184,7 +184,7 @@ class ExtractTests(unittest.TestCase):
     def test_i50_delta_refuses_unrecorded_english_drift(self):
         self.freeze()
         self.catalog["file.open"] = "Different action"
-        self.write("i18n/en/flea.json", self.catalog)
+        self.write("i18n/en/dlea.json", self.catalog)
         self.run_tool("delta", "--delta", self.delta([]), ok=False)
 
     def test_i50_dynamic_caller_prevents_removal(self):
@@ -261,7 +261,7 @@ class ExtractTests(unittest.TestCase):
             with self.subTest(source=source):
                 self.write("ui/example.js", source)
                 self.write("src/example.rs", 'fn draw(i: &I18n) { i.tr("file.open"); }\n')
-                self.write("i18n/en/flea.json", self.catalog)
+                self.write("i18n/en/dlea.json", self.catalog)
                 index = self.freeze()
                 self.assertFalse(any(item.get("blocks_removals") for item in index["dynamic_callsite_handoffs"]))
                 self.write("src/example.rs", "")

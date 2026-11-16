@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Settings.js" as Settings
 
 // View supplies the compact card's stable height; longer sections scroll within the same viewport.
@@ -50,7 +50,7 @@ Flickable {
     boundsBehavior: Flickable.StopAtBounds
     onHeightChanged: root.showCursor(root.cursor, false)
 
-    Flea.FastScrollHandler {
+    Dlea.FastScrollHandler {
         parent: root
         flickable: root
     }
@@ -158,7 +158,7 @@ Flickable {
                 id: rowItems
                 model: column.built ? Settings.rows(column.modelData.id, root.values) : []
 
-                delegate: Flea.SettingsRow {
+                delegate: Dlea.SettingsRow {
                     required property var modelData
                     required property int index
                     width: column.width

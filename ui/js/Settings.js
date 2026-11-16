@@ -46,7 +46,7 @@ var MENU_GROUPS = [
     { id: "openInspect", label: "Open and inspect",
       ids: ["openwith", "run", "openAsText", "openTerminal", "moveto", "copyto", "properties", "permissions", "makeExecutable", "copyAs", "showOriginal", "tags"] },
     { id: "extras", label: "Extras", features: ["placeMenu"],  // features gate a surface, not a row
-      ids: ["shelf", "compress", "extract", "convert", "flashDrive", "taildrop", "localsend", "dropbox", "sharelink", "runScript", "placeMenu", "updateFlea", "toggleHidden", "toggleLangMarks", "extThumbs", "pasteAs", "invertSelection"] }
+      ids: ["shelf", "compress", "extract", "convert", "flashDrive", "taildrop", "localsend", "dropbox", "sharelink", "runScript", "placeMenu", "updateDlea", "toggleHidden", "toggleLangMarks", "extThumbs", "pasteAs", "invertSelection"] }
 ]
 
 // Open draws the lock mark instead of a box, and the board says why: a menu that cannot open the row under the cursor is not a menu. Show hidden files has a switch, because the background menu keeps it whatever the switch says (ui/js/Menu.js BACKGROUND_KEEPS).
@@ -60,7 +60,7 @@ var LABELS = {
     compress: "Compress", extract: "Extract", localsend: "Send with LocalSend",
     convert: "Convert", flashDrive: "Flash to drive", taildrop: "Send with Taildrop", dropbox: "Move to Dropbox", tags: "Tags",
     sharelink: "Copy share link", open: "Open", toggleHidden: "Show hidden files", shelf: "Enable shelf", placeMenu: "Places row menu", runScript: "Run script",
-    updateFlea: "Update Flea", toggleLangMarks: "Show code icons", extThumbs: "Show thumbnails", run: "Run", openAsText: "Open as text"
+    updateDlea: "Update Dlea", toggleLangMarks: "Show code icons", extThumbs: "Show thumbnails", run: "Run", openAsText: "Open as text"
 }
 
 // The four values of the Keys row, in SettingsKeys.html's own chooser order. The first is what a missing or unrecognised stored name resolves to, which that board says is Default.
@@ -75,7 +75,7 @@ var GLYPHS = {
     delete: "trash", openwith: "app-window", moveto: "folder-plus", copyto: "copy", properties: "info",
     extract: "archive-out",
     convert: "sliders", flashDrive: "drive", sharelink: "network", open: "folder-open", toggleHidden: "eye", placeMenu: "folder-open", runScript: "terminal",
-    updateFlea: "download", toggleLangMarks: "code", extThumbs: "image", shelf: "shelf", run: "play", openAsText: "file-text", tags: "tag"
+    updateDlea: "download", toggleLangMarks: "code", extThumbs: "image", shelf: "shelf", run: "play", openAsText: "file-text", tags: "tag"
 }
 
 // The shelf switch wears the cut glyph the menu row draws, never the animated brand mark.
@@ -192,7 +192,7 @@ function effectiveNote(follows, baseSize) {
         : Format.fill(WORDS.nearestStop, nearest)
 }
 
-// The SettingsScale board's own division: Flea owns its text override and Omarchy owns the rest. The size follows the desktop until one of TextSize's seven stops is pinned, and the monitor scale and the corner rounding are the compositor's, drawn as the read-only facts they are.
+// The SettingsScale board's own division: Dlea owns its text override and Omarchy owns the rest. The size follows the desktop until one of TextSize's seven stops is pinned, and the monitor scale and the corner rounding are the compositor's, drawn as the read-only facts they are.
 function displayRows(state) {
     var follows = TextSize.following(state.textSize)
     var out = [
@@ -214,7 +214,7 @@ function displayRows(state) {
     out.push({ kind: "fact", label: "Scale", glyph: "maximize",
                value: scaleLabel(state.monitorScale) })
     out.push({ kind: "hint",
-               label: "Flea follows Hyprland's scale and does not change it." })
+               label: "Dlea follows Hyprland's scale and does not change it." })
     out.push({ kind: "group", label: "Appearance" })
     out.push({ kind: "check", id: "display.hyprlandIcons", label: "Hyprland-aware icons",
                mark: MARKS["display.hyprlandIcons"],
@@ -363,7 +363,7 @@ function viewRows(state) {
         // Issue 29: Escape climbs to the parent while on, and stays put while off, which is 0.3.4.
         { kind: "check", id: "escapeUp", label: "Escape goes up a folder", caption: "with nothing to close", on: data.escapeUp === true },
         { kind: "group", label: "Opening" },
-        choice("startIn", "Flea opens in", "house", ["home", "last", "folder"],
+        choice("startIn", "Dlea opens in", "house", ["home", "last", "folder"],
                ["Home", "Last folder", "Chosen folder"], data.startIn || "home"),
         // The action writes the folder the panel was opened over and selects the mode with it, so the row above never names a chosen folder that was never chosen. The value is the path itself.
         { kind: "action", id: "startFolder", label: "Chosen folder", glyph: "folder",

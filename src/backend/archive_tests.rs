@@ -11,7 +11,7 @@ fn the_table_is_what_is_installed_and_never_a_fixed_list() {
         assert!(nothing.names().is_empty(), "with no tool at all the whole entry self-hides");
     }
 
-    // Flea reads rar and writes none: 7z's reader is preferred where installed, and libarchive is the fallback.
+    // Dlea reads rar and writes none: 7z's reader is preferred where installed, and libarchive is the fallback.
     #[test]
     fn a_rar_is_read_by_7z_where_it_is_installed_and_by_libarchive_where_it_is_not() {
         let both = Formats::from_tools(true, true);
@@ -248,7 +248,7 @@ fn a_raw_named_archive_is_read_by_its_shown_suffix() {
         .expect("a raw-named tar extracts");
     assert!(
         argv.iter()
-            .any(|arg| flea::bytename::text_path(arg).as_os_str().as_bytes() == b"/d/b\xfe.tar.gz"),
+            .any(|arg| dlea::bytename::text_path(arg).as_os_str().as_bytes() == b"/d/b\xfe.tar.gz"),
         "{argv:?}"
     );
 }

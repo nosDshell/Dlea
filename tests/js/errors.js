@@ -38,7 +38,7 @@ function run(check) {
           "Sorting by that column is not available.")
     check("a read failure says the backend stopped",
           Errors.sentence("read", "EOF"),
-          "Flea stopped responding. Reopen Flea and try again.")
+          "Dlea stopped responding. Reopen Dlea and try again.")
     // The state file's own refusal: the change is still on screen, so the sentence says what did not last.
     check("a refused ui.json write says the setting did not last",
           Errors.sentence("state", ""),
@@ -90,8 +90,8 @@ function run(check) {
           true)
     // A stranded twin keeps the source path, so the sentence must name the temp leaf it sits under.
     check("a stranded twin names its temp leaf",
-          Errors.sentence("rename-stranded", "the file was left as .flea-case-1-0 in this folder: input/output failed"),
-          "The file was left as .flea-case-1-0 in this folder: input/output failed.")
+          Errors.sentence("rename-stranded", "the file was left as .dlea-case-1-0 in this folder: input/output failed"),
+          "The file was left as .dlea-case-1-0 in this folder: input/output failed.")
     check("a duplicate failure names the operation",
           Errors.sentence("duplicate", "every copy name is taken"),
           "That file could not be duplicated.")
@@ -114,10 +114,10 @@ function run(check) {
           "The destination is not a folder.")
     check("an archive that died with the backend names the archive, not the backend",
           Errors.sentence("archive", "the backend is not running", "doc.zip"),
-          "doc.zip could not be opened because the Flea backend stopped; reopen Flea and try again.")
+          "doc.zip could not be opened because the Dlea backend stopped; reopen Dlea and try again.")
     check("and with no archive name it still says what stopped",
           Errors.sentence("archive", "the backend is not running"),
-          "This archive could not be opened because the Flea backend stopped; reopen Flea and try again.")
+          "This archive could not be opened because the Dlea backend stopped; reopen Dlea and try again.")
     check("any other archive failure reads back as the backend's own sentence",
           Errors.sentence("archive", "that archive is encrypted"),
           "That archive is encrypted.")
@@ -194,7 +194,7 @@ function run(check) {
     check("the helper's own deadline names the host, not the credential",
           Errors.connectFailure(124, "smb://host/share"), "Could not connect: the server did not respond.")
     check("a helper that could not be run at all says so",
-          Errors.connectFailure(127, "smb://host/share"), "Could not connect: Flea could not ask for the password.")
+          Errors.connectFailure(127, "smb://host/share"), "Could not connect: Dlea could not ask for the password.")
     // The helper returns only gio's status, so 1 cannot tell a bad password from a TLS failure and the URI proves neither.
     for (var uri of ["davs://host/dav", "dav://host/dav", "ftps://host/", "ftp://host/",
                      "smb://host/share", "sftp://host/", "DAVS://host/dav", "", null]) {
@@ -203,9 +203,9 @@ function run(check) {
                   Errors.connectFailure(code, uri), "Could not connect: the network location could not be opened.")
         }
         check("a non-executable helper is named for every scheme: " + uri,
-              Errors.connectFailure(126, uri), "Could not connect: Flea could not ask for the password.")
+              Errors.connectFailure(126, uri), "Could not connect: Dlea could not ask for the password.")
         check("a missing helper is named for every scheme: " + uri,
-              Errors.connectFailure(127, uri), "Could not connect: Flea could not ask for the password.")
+              Errors.connectFailure(127, uri), "Could not connect: Dlea could not ask for the password.")
         check("a timeout is named for every scheme: " + uri,
               Errors.connectFailure(124, uri), "Could not connect: the server did not respond.")
         // 77 is the helper's refusal status: the server asked for the password again after it was sent.

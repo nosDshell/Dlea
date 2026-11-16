@@ -17,7 +17,7 @@ fn extract_cancelled_on_the_probe(
     tag: &str,
     extract_exit: i32,
     password: Option<&str>,
-) -> (FleaError, usize, usize, bool, TestDir) {
+) -> (DleaError, usize, usize, bool, TestDir) {
     let d = TestDir::new(tag);
     let archive = d.file("stub.7z", "x");
     let dest = d.join("out");

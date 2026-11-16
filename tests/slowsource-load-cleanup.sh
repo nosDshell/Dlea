@@ -2,7 +2,7 @@
 # slowsource-load.sh removes its sandbox root after a clean run, and a root holding a stray entry keeps its marker so the guard can still remove it, names the root and fails the run.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
-. tools/flea-sandbox-guard
+. tools/dlea-sandbox-guard
 box=$(mktemp -d) || exit 1
 : > "$box/$SANDBOX_MARKER"
 # Removes only an absolute, non-empty root that still carries its marker.
@@ -14,7 +14,7 @@ cleanup() {
 trap cleanup EXIT
 checks=0
 bad=0
-# The verdict word is reworded in every line this suite prints, so only a real failure reads as one to flea-ci.
+# The verdict word is reworded in every line this suite prints, so only a real failure reads as one to dlea-ci.
 say() { local s=$*; printf '%s\n' "${s//FAIL/failed}"; }
 check() {
     checks=$((checks + 1))
@@ -22,7 +22,7 @@ check() {
 }
 # The script under test makes its own root in /tmp, so a root it leaves behind is marked here and removed through the guard.
 reap() {
-    case $1 in /tmp/flea-slowsource-load.????????) ;; *) return 0 ;; esac
+    case $1 in /tmp/dlea-slowsource-load.????????) ;; *) return 0 ;; esac
     [ -d "$1" ] && [ ! -L "$1" ] || return 0
     : > "$1/$SANDBOX_MARKER"
     FIXTURE_ROOT=$1
@@ -62,7 +62,7 @@ mkdir -p "$box/direct" || exit 1
 : > "$box/direct/$SANDBOX_MARKER"
 : > "$box/direct/extra"
 sed -n '/^cleanup() {$/,/^}$/p' tests/slowsource-load.sh > "$box/cleanup.sh"
-out3=$(bash -c '. tools/flea-sandbox-guard; FIXTURE_ROOT=$2; sandbox_root_ok; load_root=$SANDBOX_ROOT; load_work=$load_root/work; . "$1"; true; cleanup' _ "$box/cleanup.sh" "$box/direct" 2>&1); rc=$?
+out3=$(bash -c '. tools/dlea-sandbox-guard; FIXTURE_ROOT=$2; sandbox_root_ok; load_root=$SANDBOX_ROOT; load_work=$load_root/work; . "$1"; true; cleanup' _ "$box/cleanup.sh" "$box/direct" 2>&1); rc=$?
 [ "$rc" -ne 0 ] && [ -f "$box/direct/extra" ] && [ -f "$box/direct/$SANDBOX_MARKER" ] && [[ $out3 == *"the load root $box/direct holds more than its marker"* ]] \
     && check ok "the cleanup alone names a root holding an extra file and exits non-zero" || check bad "the cleanup alone names a root holding an extra file and exits non-zero (rc $rc)"
 

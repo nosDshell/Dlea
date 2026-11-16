@@ -1,4 +1,4 @@
-"""Drive checked sends, failure, retry and cancellation through flea --backend."""
+"""Drive checked sends, failure, retry and cancellation through dlea --backend."""
 import json
 import os
 from pathlib import Path
@@ -27,7 +27,7 @@ class Backend(JobsBackend):
             folder = root / name
             folder.mkdir(exist_ok=True)
             env[key] = str(folder)
-        assert root.is_absolute() and (root / '.flea-test-sandbox').is_file()
+        assert root.is_absolute() and (root / '.dlea-test-sandbox').is_file()
         self.env = env
         (root / cwd).mkdir(parents=True, exist_ok=True)
         self.process = subprocess.Popen([BINARY, '--backend'], stdin=subprocess.PIPE,
@@ -231,7 +231,7 @@ def failures_carry_rclone(f):
 def unknown_backend(f):
     (f.root / 'bin/rclone').symlink_to(REAL_RCLONE)
     config = f.root / 'rclone.conf'
-    assert config.is_absolute() and config.is_relative_to(f.root) and (f.root / '.flea-test-sandbox').is_file()
+    assert config.is_absolute() and config.is_relative_to(f.root) and (f.root / '.dlea-test-sandbox').is_file()
     config.write_text('[gdrive]\ntype = nosuchbackend\n')
     ident = f.send(paths=[f.paths[0]], folder=str(f.root / 'remote'))
     reason = f.backend.state(ident, 'failed')['reason']
@@ -242,7 +242,7 @@ def unknown_backend(f):
 def env_only_remote(f):
     (f.root / 'bin/rclone').symlink_to(REAL_RCLONE)
     config = f.root / 'rclone.conf'
-    assert config.is_absolute() and config.is_relative_to(f.root) and (f.root / '.flea-test-sandbox').is_file()
+    assert config.is_absolute() and config.is_relative_to(f.root) and (f.root / '.dlea-test-sandbox').is_file()
     config.unlink()
     native = subprocess.run([REAL_RCLONE, 'backend', 'features', '--', 'gdrive:'], env=f.backend.env,
                             cwd=f.root, text=True, capture_output=True, timeout=10)
@@ -260,8 +260,8 @@ import json
 import os
 from pathlib import Path
 root = Path(__file__).resolve().parent.parent
-assert root.is_absolute() and (root / '.flea-test-sandbox').is_file()
-target = Path(os.environ['CARGO_TARGET_DIR']) / 'debug/flea'
+assert root.is_absolute() and (root / '.dlea-test-sandbox').is_file()
+target = Path(os.environ['CARGO_TARGET_DIR']) / 'debug/dlea'
 assert target.is_absolute() and target.resolve().is_relative_to(root)
 if os.environ.get('STUB_BUILD') != 'absent':
     target.parent.mkdir(parents=True)
@@ -276,8 +276,8 @@ from pathlib import Path
 import subprocess
 import sys
 root = Path(__file__).resolve().parent.parent
-assert root.is_absolute() and (root / '.flea-test-sandbox').is_file()
-selected = Path(next(arg.split('=', 1)[1] for arg in sys.argv if arg.startswith('FLEA_BIN=')))
+assert root.is_absolute() and (root / '.dlea-test-sandbox').is_file()
+selected = Path(next(arg.split('=', 1)[1] for arg in sys.argv if arg.startswith('DLEA_BIN=')))
 assert selected.is_absolute() and selected.resolve().is_relative_to(root)
 marker = subprocess.check_output([str(selected)], text=True).strip()
 (root / 'selected.json').write_text(json.dumps({'path': str(selected), 'marker': marker}))
@@ -288,7 +288,7 @@ def ci_binary(f):
     for folder in ['tests', 'tools', 'target/debug']:
         (f.root / folder).mkdir(parents=True)
     shutil.copyfile('tests/rclone-ci.sh', f.root / 'tests/rclone-ci.sh')
-    for path, text in [('tools/flea-clippy', '#!/bin/sh\nexit 0\n'), ('target/debug/flea', '#!/bin/sh\necho stale\n'),
+    for path, text in [('tools/dlea-clippy', '#!/bin/sh\nexit 0\n'), ('target/debug/dlea', '#!/bin/sh\necho stale\n'),
                        ('bin/cargo', CARGO_STUB), ('bin/unshare', UNSHARE_STUB)]:
         (f.root / path).write_text(text)
         (f.root / path).chmod(0o700)
@@ -403,10 +403,10 @@ def unsupported_empty_directories(f):
 
 
 def main():
-    if 'FLEA_RCLONE_PARENT_NS' in os.environ:
-        assert set(os.environ) <= {'PATH', 'LC_ALL', 'FLEA_BIN', 'FLEA_RCLONE_PARENT_NS'}, os.environ.keys()
+    if 'DLEA_RCLONE_PARENT_NS' in os.environ:
+        assert set(os.environ) <= {'PATH', 'LC_ALL', 'DLEA_BIN', 'DLEA_RCLONE_PARENT_NS'}, os.environ.keys()
         assert not sys.stdin.isatty() and sys.stdin.buffer.read(1) == b''
-        assert os.readlink('/proc/self/ns/pid') != os.environ['FLEA_RCLONE_PARENT_NS']
+        assert os.readlink('/proc/self/ns/pid') != os.environ['DLEA_RCLONE_PARENT_NS']
         try:
             with open('/dev/tty', 'rb'):
                 raise AssertionError('rclone CI suite has a controlling tty')

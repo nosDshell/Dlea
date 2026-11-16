@@ -94,12 +94,12 @@ fn a_watcher_reports_copy_then_none_then_cut_and_dedups_a_repeat() {
     hello(&mut conn);
     let token_a = "ab12cd34ab12cd34ab12cd34ab12cd34";
     let mut answers = HashMap::new();
-    answers.insert(format::FLEA.to_string(), format::build_flea("copy", token_a));
+    answers.insert(format::DLEA.to_string(), format::build_dlea("copy", token_a));
     answers.insert(format::GNOME.to_string(), format::build_gnome("copy", &["/tmp/a.txt".to_string()]));
-    // A Flea copy: token and files both land.
-    offer(&mut conn, 10, &[format::FLEA, format::GNOME]);
+    // A Dlea copy: token and files both land.
+    offer(&mut conn, 10, &[format::DLEA, format::GNOME]);
     assert_eq!(serve_n(&mut conn, &answers, 2).iter().map(|(_, m)| m.clone()).collect::<Vec<_>>(),
-        vec![format::FLEA.to_string(), format::GNOME.to_string()]);
+        vec![format::DLEA.to_string(), format::GNOME.to_string()]);
     let line = changed(&rx);
     assert_eq!(field_str(&line, "clip").as_deref(), Some("copy"));
     assert_eq!(field_str(&line, "token").as_deref(), Some(token_a));
@@ -118,13 +118,13 @@ fn a_watcher_reports_copy_then_none_then_cut_and_dedups_a_repeat() {
     assert_eq!(field_str_array(&line, "paths"), vec!["/tmp/q.txt".to_string()]);
     // The same token twice: received twice, emitted once.
     let token_b = "ff12cd34ff12cd34ff12cd34ff12cd34";
-    answers.insert(format::FLEA.to_string(), format::build_flea("copy", token_b));
+    answers.insert(format::DLEA.to_string(), format::build_dlea("copy", token_b));
     answers.insert(format::GNOME.to_string(), format::build_gnome("copy", &["/tmp/r.txt".to_string()]));
-    offer(&mut conn, 13, &[format::FLEA, format::GNOME]);
+    offer(&mut conn, 13, &[format::DLEA, format::GNOME]);
     serve_n(&mut conn, &answers, 2);
     let line = changed(&rx);
     assert_eq!(field_str(&line, "token").as_deref(), Some(token_b));
-    offer(&mut conn, 14, &[format::FLEA, format::GNOME]);
+    offer(&mut conn, 14, &[format::DLEA, format::GNOME]);
     serve_n(&mut conn, &answers, 2);
     // A later distinct selection must be the very next line, so the repeat emitted nothing between.
     answers.insert(format::GNOME.to_string(), format::build_gnome("cut", &["/tmp/sentinel.txt".to_string()]));

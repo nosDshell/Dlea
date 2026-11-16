@@ -55,7 +55,7 @@ colwatch_cursor_on() {
 }
 
 case_colwatch() {
-    local dir="$fixture_root/colwatch" col flea_before folder i names
+    local dir="$fixture_root/colwatch" col dlea_before folder i names
     sandbox_scratch "$dir"
     col="$dir/col"
     mkdir -p "$col"
@@ -71,7 +71,7 @@ case_colwatch() {
     settle
     [[ "$(ipc viewMode)" == "columns" ]] || fail "colwatch: the chrome button did not switch the view"
     (( $(ipc columnCount) >= 3 )) || fail "colwatch: needs 3 columns, has $(ipc columnCount)"
-    flea_before=$(flea_pid)
+    dlea_before=$(dlea_pid)
     key g >/dev/null
     colwatch_cursor_on d01
     colwatch_wait ready parent has beside.txt
@@ -116,8 +116,8 @@ case_colwatch() {
         [[ "|$names|" != *"|ghost.txt|"* ]] || fail "colwatch: a create in the undrawn d05 reached a column or its cache: $names"
     done
     [[ "$(ipc total)" == "$colwatch_folders" ]] || fail "colwatch: the open folder lists $(ipc total) rows after a create in an undrawn child"
-    [[ "$(flea_pid)" == "$flea_before" ]] || fail "colwatch: Flea restarted during the case"
+    [[ "$(dlea_pid)" == "$dlea_before" ]] || fail "colwatch: Dlea restarted during the case"
     printf 'COLWATCH negative ok\n'
     assert_window
-    kill_flea
+    kill_dlea
 }

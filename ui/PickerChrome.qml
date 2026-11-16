@@ -1,7 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Format.js" as Format
 import "js/Picker.js" as Picker
 
@@ -60,7 +60,7 @@ Item {
     implicitHeight: ask.height + where.height
 
     // Back and Up rest in the foreground like the main chrome; only an unlit view mark rests muted.
-    component Mark: Flea.ChromeButton {
+    component Mark: Dlea.ChromeButton {
         id: mark
         ruleRows: Theme.spacing.hairline
         property bool lit: false
@@ -228,7 +228,7 @@ Item {
         }
 
         // Picker040 path entry: the shared field, whose line pathLogic below answers.
-        Flea.PathEntry {
+        Dlea.PathEntry {
             id: entry
             anchors.left: moves.right
             anchors.leftMargin: Theme.spacing.gap
@@ -248,7 +248,7 @@ Item {
             onJumpRequested: function (id, ranking, favourites, recent) { root.listing.jump(id, ranking, favourites, recent) }
         }
 
-        Flea.PickerPathBar {
+        Dlea.PickerPathBar {
             id: pathLogic
             picker: root.picker
             listing: root.listing

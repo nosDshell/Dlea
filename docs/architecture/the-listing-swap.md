@@ -4,7 +4,7 @@ Opening a folder drew 3 to 4 frames of an empty list, 50 to 67 ms at 60 fps: a 6
 `gpu-screen-recorder` capture on the box showed it on 12 of 12 navigations into and out of a 300-file
 folder, and one frame grab had the breadcrumb already on the new folder over an empty list.
 `ui/js/Nav.js openWithoutHistory` cleared the pane at the request, and the rows came back a round trip
-later. **The round trip is not where the time went.** In the container `flea --backend` answers a
+later. **The round trip is not where the time went.** In the container `dlea --backend` answers a
 300-file `list` with its `rows` line in 0.9 ms median over 35 requests, 4.4 ms at worst, and V4's
 `JSON.parse` of that 30 KB line costs 0.9 ms. The frames were the pane's own: the reset lands inside
 the input handler, so the next vsync presents an empty list however fast the reply is; `listed` moved
@@ -59,7 +59,7 @@ mark holds still for its first second on screen and crawls only after it (`ui/Sp
 than that never draws motion. `tests/spinner-still.sh` counts, never times, the frames the window swaps and the
 `dashOffset` writes per mark, so a resting mark that asks for frames, or a crawl written faster than the window
 draws (a timer in place of the animation), fails on any machine. That first-second hold belongs to the QML front
-end only. By a 0.4.0 ruling the GPUI mark (`crates/flea-gui/src/feedback/spinner.rs`) crawls from the first frame
+end only. By a 0.4.0 ruling the GPUI mark (`crates/dlea-gui/src/feedback/spinner.rs`) crawls from the first frame
 it draws, so it differs from `tests/spinner-still.sh` on purpose, and `tests/gpui-spinner.sh` counts its frames,
 offset writes and frame requests instead.
 

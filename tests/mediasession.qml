@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-mediasession-test
+//@ pragma ShellId dlea-mediasession-test
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 
-// tests/mediasession.sh's harness: the real ui/PreviewMedia.qml and Quick Look over the real MediaSession each preview holds, with a stub in place of tools/flea-mpris that logs what it is fed.
+// tests/mediasession.sh's harness: the real ui/PreviewMedia.qml and Quick Look over the real MediaSession each preview holds, with a stub in place of tools/dlea-mpris that logs what it is fed.
 ShellRoot {
     id: shell
 
@@ -64,7 +64,7 @@ ShellRoot {
             id: holder
             anchors.fill: parent
             property var host: win
-            Flea.Preview {
+            Dlea.Preview {
                 id: quick
                 anchors.fill: parent
             }
@@ -73,7 +73,7 @@ ShellRoot {
 
     Component {
         id: mediaComponent
-        Flea.PreviewMedia { anchors.fill: parent; autoStart: false }
+        Dlea.PreviewMedia { anchors.fill: parent; autoStart: false }
     }
 
     function make(path, kind) {

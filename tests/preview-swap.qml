@@ -1,4 +1,4 @@
-//@ pragma ShellId flea-preview-swap-test
+//@ pragma ShellId dlea-preview-swap-test
 
 import Quickshell
 import QtQuick

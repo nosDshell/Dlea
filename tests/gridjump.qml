@@ -1,12 +1,12 @@
-//@ pragma ShellId flea-gridjump-test
+//@ pragma ShellId dlea-gridjump-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/Filter.js" as Filter
-import "flea/js/Marks.js" as Marks
-import "flea/js/Selection.js" as Selection
+import "dlea" as Dlea
+import "dlea/js/Filter.js" as Filter
+import "dlea/js/Marks.js" as Marks
+import "dlea/js/Selection.js" as Selection
 
 // gridjump: a real ui/GridArea.qml on 10000 rows counts what a far jump and a held j sweep rebind and how many window asks the sweep sends beside a real ui/List.qml; counts only, no time.
 ShellRoot {
@@ -118,7 +118,7 @@ ShellRoot {
             property string listingState: "ready"
             property string focusView: "grid"
             // ui/Pane.qml's own sizing from the area's height, in list rows.
-            readonly property int visibleRows: Math.max(1, Math.ceil(root.areaHeight / Flea.Theme.fileRowHeight))
+            readonly property int visibleRows: Math.max(1, Math.ceil(root.areaHeight / Dlea.Theme.fileRowHeight))
             readonly property int cacheRows: 4
             readonly property int firstSettleMs: 70
             readonly property int settleMs: 120
@@ -188,14 +188,14 @@ ShellRoot {
         implicitHeight: root.areaHeight
         color: "black"
         TestEvent { id: driver }
-        Flea.GridArea { id: grid; width: root.areaWidth; height: root.areaHeight; pane: root.gridPane; menu: root.stubMenu }
+        Dlea.GridArea { id: grid; width: root.areaWidth; height: root.areaHeight; pane: root.gridPane; menu: root.stubMenu }
     }
 
     FloatingWindow {
         implicitWidth: root.areaWidth
         implicitHeight: root.areaHeight
         color: "black"
-        Flea.List { id: list; width: root.areaWidth; height: root.areaHeight; pane: root.listPane; menu: root.stubMenu }
+        Dlea.List { id: list; width: root.areaWidth; height: root.areaHeight; pane: root.listPane; menu: root.stubMenu }
     }
 
     // Delegates and parked tiles alive: a tile created in an action moves this up, a reuse does not.
@@ -349,7 +349,7 @@ ShellRoot {
 
     function scroller() {
         var kids = grid.children
-        for (var i = 0; i < kids.length; i++) if (kids[i].objectName === "fleaScroll") return kids[i]
+        for (var i = 0; i < kids.length; i++) if (kids[i].objectName === "dleaScroll") return kids[i]
         return null
     }
     // A far jump whose window ask meets the given outcome, then the operator scrolls: the grid must stop waiting and ask a window again.
@@ -509,7 +509,7 @@ ShellRoot {
 
     Component.onCompleted: {
         // Stock Omarchy's size: 125 px minimum cells, so a 2368 px grid lays out 18 columns.
-        Flea.ViewState.setTextSize({ mode: 12 })
+        Dlea.ViewState.setTextSize({ mode: 12 })
         root.build()
         root.later(700)
     }

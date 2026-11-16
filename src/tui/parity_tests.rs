@@ -57,7 +57,7 @@ fn check_rows(text: &str, map: &Map) {
         let row: Vec<_> = line.split('\t').collect();
         assert_eq!(row.len(), 10);
         assert!(identities.insert((row[8], row[9])), "duplicate identity {} {}", row[8], row[9]);
-        if row[0] == "flea" { appendix.insert(row[8]); } else { *counts.entry(row[0]).or_insert(0) += 1; }
+        if row[0] == "dlea" { appendix.insert(row[8]); } else { *counts.entry(row[0]).or_insert(0) += 1; }
         check_row(&row, map);
     }
     assert_eq!(counts.values().sum::<usize>(), 254);
@@ -67,10 +67,10 @@ fn check_rows(text: &str, map: &Map) {
     assert_eq!(identities.len(), 434);
 }
 
-// Sample input: mgr\t"q"\t"quit"\tlisting\t["q"]\tquit\tbound\tThe equivalent action uses the resolved Flea handler\tyazi-003\tyazi
+// Sample input: mgr\t"q"\t"quit"\tlisting\t["q"]\tquit\tbound\tThe equivalent action uses the resolved Dlea handler\tyazi-003\tyazi
 fn check_row(row: &[&str], map: &Map) {
     assert!(!row[7].is_empty());
-    if row[0] == "flea" {
+    if row[0] == "dlea" {
         candidate::appendix(row, map);
         return;
     }

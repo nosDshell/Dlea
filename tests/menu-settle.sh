@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # A menu placed again while open with nothing new to draw still ends its pointer settle, and a menu opened by key or click reads its rows widths once per build; offscreen, so no display and no lock.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -10,15 +10,15 @@ if ! command -v qs >/dev/null; then
     exit 1
 fi
 
-test_root="$FIXTURE_ROOT/flea-menu-settle-$$"
+test_root="$FIXTURE_ROOT/dlea-menu-settle-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/cache" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/menu-settle.qml "$test_root/config/shell.qml" || exit 1
@@ -47,7 +47,7 @@ fi
 printf '%s\n' "$output" | grep -o 'MENU_SETTLE PASS.*'
 
 # The open-cost leg: the real pane opens its row menu by the m key and by a click point over the candidate backend.
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 command -v dbus-run-session >/dev/null || { echo 'FAIL menu-settle open-cost leg needs private D-Bus'; exit 1; }
 [[ -x "$bin" ]] || { echo 'FAIL menu-settle open-cost leg needs the candidate backend'; exit 1; }
 cost_root="$test_root/cost"
@@ -56,16 +56,16 @@ chmod 700 "$cost_root/runtime" || exit 1
 for name in a.txt b.txt c.txt d.txt e.txt f.txt g.txt h.txt i.txt j.txt; do printf 'open cost fixture\n' > "$cost_root/home/fixture/$name"; done
 env HOME="$cost_root/home" XDG_STATE_HOME="$cost_root/state" "$bin" --ui-state \
     '{"view":"list","keys":"default","preview":{"column":false,"thumbnails":"off"},"updates":{"autoCheck":false},"display":{"textSize":{"mode":14}}}' >/dev/null || exit 1
-ln -s "$PWD/ui" "$cost_root/config/flea" || exit 1
+ln -s "$PWD/ui" "$cost_root/config/dlea" || exit 1
 headless_commons "$cost_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$cost_root/config/Ui" || exit 1
-ln -s "$PWD/ui/boot/fleatab.qml" "$cost_root/config/fleatab.qml" || exit 1
+ln -s "$PWD/ui/boot/dleatab.qml" "$cost_root/config/dleatab.qml" || exit 1
 cp tests/menu-open-cost.qml "$cost_root/config/shell.qml" || exit 1
 cost_run() {
-    env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u FLEA_SELECT \
+    env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u DLEA_SELECT \
         HOME="$cost_root/home" XDG_STATE_HOME="$cost_root/state" XDG_CONFIG_HOME="$cost_root/config" \
         XDG_DATA_HOME="$cost_root/data" XDG_CACHE_HOME="$cost_root/cache" XDG_RUNTIME_DIR="$cost_root/runtime" \
-        FLEA_PATH="$cost_root/home/fixture" FLEA_BIN="$bin" FLEA_COST_FIRST="$1" GIO_USE_VOLUME_MONITOR=unix QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
+        DLEA_PATH="$cost_root/home/fixture" DLEA_BIN="$bin" DLEA_COST_FIRST="$1" GIO_USE_VOLUME_MONITOR=unix QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
         QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
         timeout "$cost_limit_seconds" dbus-run-session -- qs -p "$cost_root/config" 2>&1
 }

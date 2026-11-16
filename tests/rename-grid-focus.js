@@ -200,7 +200,7 @@ function registerPaintProof(repo) {
     const path = require("node:path");
     const {spawnSync} = require("node:child_process");
     process.once("exit", () => {
-        const base = process.env.FLEA_RENAME_GRID_ROOT || process.env.FLEA_FIXTURE_ROOT || "/home/flea-sandbox"; // hard rule 9: proof roots live under the sandbox root
+        const base = process.env.DLEA_RENAME_GRID_ROOT || process.env.DLEA_FIXTURE_ROOT || "/home/dlea-sandbox"; // hard rule 9: proof roots live under the sandbox root
         const root = fs.readdirSync(base).filter(name => name.startsWith(".rename-grid-bottom."))
             .map(name => path.join(base, name)).sort((a, b) => fs.statSync(b).mtimeMs - fs.statSync(a).mtimeMs)[0];
         const log = fs.readFileSync(path.join(root, "probe.log"), "utf8");

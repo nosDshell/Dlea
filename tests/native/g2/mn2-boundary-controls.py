@@ -8,14 +8,14 @@ import tempfile
 repo = Path(__file__).resolve().parents[3]
 parent = Path(sys.argv[1]).resolve()
 if not (parent.is_relative_to(repo / ".superpowers/g2-mn2")
-        and (parent / ".flea-test-sandbox").is_file()):
+        and (parent / ".dlea-test-sandbox").is_file()):
     sys.exit(f"mn2-boundary-controls: refusing unmarked root {parent}")
 root = Path(tempfile.mkdtemp(prefix="boundary-controls.", dir=parent))
-(root / ".flea-test-sandbox").touch()
+(root / ".dlea-test-sandbox").touch()
 for label, target in (("unmarked", root / "unmarked"), ("outside", root / "outside")):
     target.mkdir()
     if label == "outside":
-        (target / ".flea-test-sandbox").touch()
+        (target / ".dlea-test-sandbox").touch()
     stage = root / label / "stage"
     script = repo / "tests/native/g2/mn2-boundary.py"
     if label == "outside":

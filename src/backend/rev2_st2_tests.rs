@@ -1,9 +1,9 @@
-// Review-only repros for g2-st2 round 2: a plugin cloned from Git carries its own .flea-source.
+// Review-only repros for g2-st2 round 2: a plugin cloned from Git carries its own .dlea-source.
 use super::fifotest::mkfifo;
 use super::plugins::{installed, Env};
 use super::plugins_tests::{ask, code, env, get, plugin, READY};
 use super::testdir::TestDir;
-use flea::ui_logic_plugin_settings::wire::Source;
+use dlea::ui_logic_plugin_settings::wire::Source;
 use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -29,10 +29,10 @@ fn git(dir: &Path, args: &[&str]) {
     assert!(status.success(), "git {args:?}");
 }
 
-// An upstream plugin repository whose one commit also tracks .flea-source as `make` leaves it.
+// An upstream plugin repository whose one commit also tracks .dlea-source as `make` leaves it.
 fn upstream(dir: &TestDir, make: impl FnOnce(&Path)) -> PathBuf {
     let repo = plugin(dir, "up", "me.dev", READY);
-    make(&repo.join(".flea-source"));
+    make(&repo.join(".dlea-source"));
     git(&repo, &["init", "--quiet"]);
     git(&repo, &["add", "-A"]);
     git(&repo, &["commit", "--quiet", "-m", "one"]);
@@ -61,7 +61,7 @@ fn rev2_st2_a_git_add_whose_tree_carries_a_source_file_lists_as_git_and_updates(
     let source = get(&listing, "me.dev").source.clone();
     let refused = code(done);
     eprintln!(
-        "REV2 git add with a tracked .flea-source: source {source:?}, update code {refused:?}"
+        "REV2 git add with a tracked .dlea-source: source {source:?}, update code {refused:?}"
     );
     assert_eq!(
         source,
@@ -90,10 +90,10 @@ fn rev2_st2_an_add_answers_when_the_cloned_source_file_links_to_a_fifo() {
         ask(&env, &line);
     })
     .is_none();
-    eprintln!("REV2 add of a repo whose .flea-source links to a fifo: held the request (and CHANGING) on the fifo: {held}");
+    eprintln!("REV2 add of a repo whose .dlea-source links to a fifo: held the request (and CHANGING) on the fifo: {held}");
     assert!(
         !held,
-        "the add request never answered: its closing listing reads the cloned .flea-source fifo"
+        "the add request never answered: its closing listing reads the cloned .dlea-source fifo"
     );
 }
 
@@ -119,7 +119,7 @@ fn rev2_st2_a_cloned_source_file_is_read_within_a_bound() {
         Source::Folder(text) => text.len(),
         _ => 0,
     };
-    eprintln!("REV2 listing read {read} bytes of the cloned .flea-source link target");
+    eprintln!("REV2 listing read {read} bytes of the cloned .dlea-source link target");
     assert!(
         read <= 4096,
         "one listing read {read} bytes of a file the cloned repository named"

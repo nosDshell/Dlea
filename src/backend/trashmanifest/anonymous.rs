@@ -109,7 +109,7 @@ impl DirectoryName {
             let mut nonce = [0u8; 12];
             File::open("/dev/urandom")?.read_exact(&mut nonce)?;
             let suffix: String = nonce.iter().map(|byte| format!("{byte:02x}")).collect();
-            let name = CString::new(format!(".flea-review.{suffix}")).map_err(io::Error::other)?;
+            let name = CString::new(format!(".dlea-review.{suffix}")).map_err(io::Error::other)?;
             if unsafe { mkdirat(parent.as_raw_fd(), name.as_ptr(), 0o700) } == 0 {
                 return Ok(Self { parent, name });
             }

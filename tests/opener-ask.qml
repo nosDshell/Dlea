@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-opener-ask-test
+//@ pragma ShellId dlea-opener-ask-test
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 
-// tests/opener-ask.sh's harness: the real ui/Opener.qml against a stub flea, offscreen.
+// tests/opener-ask.sh's harness: the real ui/Opener.qml against a stub dlea, offscreen.
 ShellRoot {
     id: shell
 
@@ -32,7 +32,7 @@ ShellRoot {
         shell.log("FAIL " + name + ": got " + JSON.stringify(actual) + ", expected " + JSON.stringify(expected))
     }
 
-    Flea.Opener {
+    Dlea.Opener {
         id: opener
         onAskRunRaw: function (path, text) { shell.asked.push([path, text]) }
         onAskOpenWith: function (path) { shell.gotWith.push(path) }
@@ -62,7 +62,7 @@ ShellRoot {
     function runOk() {
         shell.check("ok:silent", [shell.asked.length, shell.gotWith.length, shell.failed.length, shell.dirs.length], [1, 1, 1, 0])
     }
-    // flea --open with its ask status but no line on stdout.
+    // dlea --open with its ask status but no line on stdout.
     function noLineScene() { opener.open("/noline/tool.sh") }
     function runNoLine() {
         shell.check("noline:refused", [shell.asked.length, shell.failed], [1, ["/missing/tool.sh", "/noline/tool.sh"]])
@@ -70,7 +70,7 @@ ShellRoot {
     // The stub loses its run bit, so the next open never starts and reports no exit.
     function setRunBit(on) {
         shell.permDone = false
-        perm.command = ["chmod", on ? "+x" : "-x", Quickshell.env("FLEA_BIN")]
+        perm.command = ["chmod", on ? "+x" : "-x", Quickshell.env("DLEA_BIN")]
         perm.running = true
     }
     function noStartScene() { shell.setRunBit(false) }
@@ -85,7 +85,7 @@ ShellRoot {
     function runBusy() {
         opener.open("/slow/second.sh")
         shell.check("busy:second-dropped", shell.busy, ["/slow/second.sh"])
-        Quickshell.execDetached(["touch", Quickshell.env("FLEA_TEST_RELEASE")])
+        Quickshell.execDetached(["touch", Quickshell.env("DLEA_TEST_RELEASE")])
     }
     function dirsScene() { opener.open("/dir/sub") }
     function runDirs() {

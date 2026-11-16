@@ -4,8 +4,8 @@ set -euo pipefail
 repo=$(cd "$(dirname "$0")/.." && pwd)
 scratch=$(mktemp -d)
 [[ "$scratch" == /*/* ]] || { printf 'FAIL: scratch path is not absolute\n' >&2; exit 1; }
-: > "$scratch/.flea-test-sandbox"
-trap '[[ -n "$scratch" && "$scratch" == /*/* && -f "$scratch/.flea-test-sandbox" ]] && rm -rf -- "$scratch"' EXIT
+: > "$scratch/.dlea-test-sandbox"
+trap '[[ -n "$scratch" && "$scratch" == /*/* && -f "$scratch/.dlea-test-sandbox" ]] && rm -rf -- "$scratch"' EXIT
 cd "$repo"
 bash -n tests/ui.sh tests/ui-captures-sweep.sh
 python3 - <<'PY'
@@ -130,7 +130,7 @@ fixture_root="$scratch"
 sweep_root="$scratch/suite"
 mkdir -p "$sweep_root/views"
 printf 'fixture\n' > "$sweep_root/views/a.txt"
-kill_flea() { :; }
+kill_dlea() { :; }
 launch() { [[ "$1" == "$sweep_root/views" ]] || fail 'unexpected launch path'; test_path="$1"; }
 cap_resize() { [[ "$*" == '1320 820' ]] || fail 'unexpected viewport'; }
 wait_listing() { [[ "$1" == 1 ]] || fail 'unexpected listing count'; }

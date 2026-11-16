@@ -83,8 +83,8 @@ def main():
         assert (root / "SHA256SUMS").read_text() == checksums
     else:
         root = args.output
-        if not root.is_absolute() or not (root / ".flea-test-sandbox").is_file():
-            parser.error("--output needs an absolute root with .flea-test-sandbox")
+        if not root.is_absolute() or not (root / ".dlea-test-sandbox").is_file():
+            parser.error("--output needs an absolute root with .dlea-test-sandbox")
         for name, data in outputs.items():
             with (root / name).open("xb") as output:
                 output.write(data)

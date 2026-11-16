@@ -69,8 +69,8 @@ pub(super) fn stale_cache_revision(root: &Path) {
         &wrapper,
         r#"#!/bin/sh
 set -eu
-root=${FLEA_TUI_COMBINE_ROOT:?}
-case "$root" in /*) test -f "$root/.flea-test-sandbox" ;; *) exit 98 ;; esac
+root=${DLEA_TUI_COMBINE_ROOT:?}
+case "$root" in /*) test -f "$root/.dlea-test-sandbox" ;; *) exit 98 ;; esac
 for arg in "$@"; do
   if test "$arg" = --ro-bind-fd; then
     printf 'held source decoder\n' >> "$root/held-source-decodes"
@@ -81,7 +81,7 @@ exec /usr/bin/bwrap "$@"
 "#,
     )
     .unwrap();
-    flea::executable_file::write(&wrapper, &std::fs::read(&wrapper).unwrap(), 0o755).unwrap();
+    dlea::executable_file::write(&wrapper, &std::fs::read(&wrapper).unwrap(), 0o755).unwrap();
     let graphics = preview(&mut m, &mut w, Protocol::Kitty);
     assert_current_pixels(root, &m, &graphics, "initial");
     let decodes = || {

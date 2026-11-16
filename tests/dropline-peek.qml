@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-dropline-peek-test
+//@ pragma ShellId dlea-dropline-peek-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Ops.js" as Ops
-import "flea/js/Status.js" as Status
+import "dlea" as Dlea
+import "dlea/js/Ops.js" as Ops
+import "dlea/js/Status.js" as Status
 
 // The drag line a peek column's FileDrag speaks has no pane of its own, so the activity observer must name the pane that owns the peek, not read the null pane.
 ShellRoot {
@@ -35,10 +35,10 @@ ShellRoot {
         property bool paneFocused: false
     }
 
-    Flea.FileDrag { id: own; pane: root.paneStub }
-    Flea.FileDrag { id: peek; pane: null; peekSource: ({ pane: root.paneStub, dir: "/fx/cap-drops", v: 1, w: true }) }
+    Dlea.FileDrag { id: own; pane: root.paneStub }
+    Dlea.FileDrag { id: peek; pane: null; peekSource: ({ pane: root.paneStub, dir: "/fx/cap-drops", v: 1, w: true }) }
     QtObject { id: windowStub; function centreOf(item) { return "" } function rectOf(item) { return "" } }
-    Flea.Ipc { id: ipc; pane: root.paneStub; bar: root.barStub; fleaWindow: windowStub }
+    Dlea.Ipc { id: ipc; pane: root.paneStub; bar: root.barStub; dleaWindow: windowStub }
 
     function check(label, actual, expected) {
         root.checks += 1

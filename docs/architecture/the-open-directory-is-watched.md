@@ -1,7 +1,7 @@
 ## The open directory is watched
 
-Issue 68: a folder open in Flea did not follow a create, rename or delete made by another program.
-`list` ran once when the pane arrived, and after that only Flea's own writes re-read the directory,
+Issue 68: a folder open in Dlea did not follow a create, rename or delete made by another program.
+`list` ran once when the pane arrived, and after that only Dlea's own writes re-read the directory,
 so a window kept open beside a terminal drew whatever was true when it was opened.
 
 **The backend watches, the client re-reads.** `backend/watch.rs` holds one non-recursive inotify
@@ -138,7 +138,7 @@ before. So is a box whose inotify instance limit is exhausted, which says so onc
 never sends the line. `IN_MODIFY` is deliberately not in the mask: it fires on every `write(2)` and a
 listing does not draw a partial size, so a row's size follows `IN_CLOSE_WRITE` instead.
 
-**Flea's own writes pay for one extra scan.** A rename, mkdir, trash or transfer already calls
+**Dlea's own writes pay for one extra scan.** A rename, mkdir, trash or transfer already calls
 `pane.refresh()`, and the watch answers for the same write about 400 ms later, so the directory is
 read twice. The second read is anchored the same way and moves nothing the user can see. Suppressing
 it would mean deciding that a `changed` arriving during a listing belongs to that listing, which is

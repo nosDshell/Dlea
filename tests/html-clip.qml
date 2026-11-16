@@ -1,10 +1,10 @@
-//@ pragma AppId com.thisisgm.flea
-//@ pragma ShellId flea
+//@ pragma AppId com.nosDshell.dlea
+//@ pragma ShellId dlea
 
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 
 // Native captures drive the real document's refusal after its texture has been drawn.
 ShellRoot {
@@ -29,7 +29,7 @@ ShellRoot {
         function askHtml(slot, path, width, cancel, height) { return ++serial }
     }
     IpcHandler {
-        target: "flea"
+        target: "dlea"
         function htmlState(column: bool): string {
             return JSON.stringify({ visible: window.visible, ready: document.firstScreen, view: document.shownView,
                 state: document.status, file: document.imageFile, drawn: document.hasDrawn, clip: root.clipActive(),
@@ -49,7 +49,7 @@ ShellRoot {
     }
     FloatingWindow {
         id: window
-        title: "Flea"
+        title: "Dlea"
         implicitWidth: 380
         implicitHeight: 280
         color: "#101315"
@@ -61,7 +61,7 @@ ShellRoot {
             height: 200
             color: "#101315"
             radius: 12
-            Flea.PreviewHtml {
+            Dlea.PreviewHtml {
                 id: document
                 anchors.fill: parent
                 active: true

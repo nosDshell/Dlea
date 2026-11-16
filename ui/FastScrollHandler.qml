@@ -6,7 +6,7 @@ import "js/MenuWheel.js" as MenuWheel
 // A MouseArea because Flickable eats wheel before a child WheelHandler; presses pass through, arithmetic in Scroll.js.
 MouseArea {
     id: root
-    objectName: "fleaScroll"
+    objectName: "dleaScroll"
 
     required property var flickable
     property var ctrlWheelAction: null

@@ -88,8 +88,8 @@ fn spoofed_names_show_escaped_and_clean_names_pass_through() {
 #[test]
 fn every_choice_leaves_with_the_ask_identity() {
     let ask = Ask { kind: Kind::AppImage, size: 10, handler_id: "a.desktop".into(), handler_name: "A".into(), dev: "8".into(), ino: "9".into(), mtime_s: 11, mtime_ns: 12, target: "/d/tool.sh".into() };
-    let lines: Vec<String> = [Action::Run, Action::Terminal, Action::Text, Action::Handler].into_iter().map(|a| argv("flea", a, &ask).join("|")).collect();
-    assert_eq!(lines.join(","), "flea|--run|/d/tool.sh|8|9|10|11|12,flea|--run-terminal|/d/tool.sh|8|9|10|11|12,flea|--open-text|/d/tool.sh,flea|--open-handler|/d/tool.sh|a.desktop|8|9|10|11|12");
+    let lines: Vec<String> = [Action::Run, Action::Terminal, Action::Text, Action::Handler].into_iter().map(|a| argv("dlea", a, &ask).join("|")).collect();
+    assert_eq!(lines.join(","), "dlea|--run|/d/tool.sh|8|9|10|11|12,dlea|--run-terminal|/d/tool.sh|8|9|10|11|12,dlea|--open-text|/d/tool.sh,dlea|--open-handler|/d/tool.sh|a.desktop|8|9|10|11|12");
 }
 
 #[test]
@@ -98,8 +98,8 @@ fn each_exit_names_its_own_failure_and_a_quiet_exit_says_nothing() {
     let said = |action, status| match exit_outcome(&i18n, action, status) { Exit::Message(text) => text, other => format!("{other:?}") };
     assert_eq!(exit_outcome(&i18n, Action::Run, Some(0)), Exit::Quiet);
     assert_eq!(exit_outcome(&i18n, Action::Terminal, Some(IS_DIRECTORY)), Exit::Navigate);
-    assert_eq!(said(Action::Handler, Some(RUN_CHANGED)), "That file changed after Flea checked it, so it was not opened.");
-    assert_eq!(said(Action::Run, Some(RUN_CHANGED)), "That file changed after Flea checked it, so it was not run.");
+    assert_eq!(said(Action::Handler, Some(RUN_CHANGED)), "That file changed after Dlea checked it, so it was not opened.");
+    assert_eq!(said(Action::Run, Some(RUN_CHANGED)), "That file changed after Dlea checked it, so it was not run.");
     assert_eq!(said(Action::Run, Some(RUN_NOEXEC)), "That program is on a volume that does not allow running files.");
     assert_eq!(said(Action::Handler, Some(RUN_HANDLER_GONE)), "That application is no longer installed.");
     assert_eq!(said(Action::Terminal, Some(RUN_SPAWN)), "Nothing on this system could run that file in a terminal.");
@@ -107,7 +107,7 @@ fn each_exit_names_its_own_failure_and_a_quiet_exit_says_nothing() {
     assert_eq!(said(Action::Run, Some(1)), "That program could not be run.");
     assert_eq!(said(Action::Handler, None), "That application did not open the file.", "a launch that never started is a failure");
     assert_eq!(said(Action::Text, Some(2)), "No text editor opened that file.");
-    assert_eq!(i18n.tr("dialogs.file.run.unchecked"), "Flea could not check that file, so it was not run.");
+    assert_eq!(i18n.tr("dialogs.file.run.unchecked"), "Dlea could not check that file, so it was not run.");
 }
 
 #[test]

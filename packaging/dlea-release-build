@@ -1,0 +1,62 @@
+#!/bin/bash
+# The native build and tarball checks shared by Candidate, Release and local containers.
+set -euo pipefail
+here=$(cd "$(dirname "$0")" && pwd)
+repo=$(dirname "$here")
+cd "$repo"
+ci_tools="$repo/.superpowers/ci-tools/imagemagick"
+export PATH="$ci_tools/bin:$PATH"
+
+case "${1:-}" in
+  install-deps)
+    elevate=()
+    [ "$(id -u)" -eq 0 ] || elevate=(sudo)
+    "${elevate[@]}" apt-get update -o Acquire::Retries=3
+    "${elevate[@]}" apt-get install -y -o Acquire::Retries=3 \
+      build-essential ca-certificates curl fontconfig git jq pkg-config \
+      libfontconfig1-dev libfreetype6-dev libwayland-dev libxcb1-dev \
+      libxkbcommon-dev libxkbcommon-x11-dev libx11-dev libegl1-mesa-dev libvulkan-dev \
+      libarchive-tools libglib2.0-bin libvulkan1 bubblewrap zstd ffmpeg libpng-dev libjpeg-dev libtiff-dev libwebp-dev poppler-utils \
+      libpoppler-glib8t64
+    "$here/dlea-ci-tools" fonts "$HOME/.local/share/fonts/dlea-ci"
+    "$here/dlea-ci-tools" imagemagick "$ci_tools"
+    ;;
+  # Tests run the debug profile: GPUI compiles its debug selectors out of release builds, which the GUI tests query.
+  test) cargo test --locked --workspace --no-fail-fast ;;
+  build) cargo build --release --locked --workspace --bins ;;
+  stage)
+    "$here/dlea-bin-tarball" "${CARGO_TARGET_DIR:-target}/release/dlea" "${VERSION:?}" "${ARCH:?}" "${OUTDIR:-dist}"
+    ;;
+  check)
+    dist=$(realpath -e -- "${OUTDIR:-dist}")
+    unpacked=$(mktemp -d "${TMPDIR:-/tmp}/dlea-release-check.XXXXXX")
+    : > "$unpacked/.dlea-release-owned"
+    cleanup() {
+      [ -n "$unpacked" ] && [[ "$unpacked" = /*/dlea-release-check.* ]] && [ -f "$unpacked/.dlea-release-owned" ] || return 1
+      rm -rf -- "$unpacked"
+    }
+    trap cleanup EXIT
+    (cd "$dist" && sha256sum -c "dlea-v${VERSION:?}-linux-${ARCH:?}.tar.gz.sha256")
+    tar -xzf "$dist/dlea-v$VERSION-linux-$ARCH.tar.gz" -C "$unpacked"
+    cd "$unpacked/dlea-$VERSION-linux-$ARCH"
+    # Sample input: install -Dm644 packaging/dlea.portal -t "$pkgdir/usr/share/xdg-desktop-portal/portals".
+    sources=$(sed -n '/^package() {/,/^}/p' "$here/dlea-bin/PKGBUILD" \
+      | grep -E '^[[:space:]]*install ' | tr -s ' ' '\n' | grep -vE '^(|install|-[A-Za-z0-9]+|"?\$pkgdir.*)$') \
+      || { echo "dlea-release-build: no install path found in dlea-bin package()" >&2; exit 1; }
+    missing=0
+    while read -r source; do
+      compgen -G "$source" >/dev/null || {
+        echo "dlea-release-build: dlea-bin installs $source, absent from the tarball" >&2; missing=1; }
+    done <<< "$sources"
+    # package()'s catalog loop is no install line, so each catalog is compared with the checkout's own.
+    for catalog in "$repo"/i18n/*/dlea.json; do
+      cmp -s "$catalog" "${catalog#"$repo/"}" || { echo "dlea-release-build: the tarball lacks ${catalog#"$repo/"} or carries another copy" >&2; missing=1; }
+    done
+    for program in dlea dlea-gui; do
+      [ -x "$program" ] || { echo "dlea-release-build: $program is not executable" >&2; missing=1; }
+    done
+    echo "checked $(wc -l <<< "$sources") paths dlea-bin package() installs"
+    exit "$missing"
+    ;;
+  *) echo "dlea-release-build: expected install-deps, test, build, stage or check" >&2; exit 2 ;;
+esac

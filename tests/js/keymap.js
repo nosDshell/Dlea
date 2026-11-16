@@ -271,7 +271,7 @@ function run(check) {
     check("and Shift+Tab as Previous area, in the Move group", backRow.label + "|" + (Keymap.SHEET_GROUPS.move.indexOf("focusPrevious") >= 0), "Previous area|true")
     // Each sheet row in each preset carries its board string, else the shipped en catalog keys.action string.
     var catalogRequest = new XMLHttpRequest()
-    catalogRequest.open("GET", Qt.resolvedUrl("../../i18n/en/flea.json"), false)
+    catalogRequest.open("GET", Qt.resolvedUrl("../../i18n/en/dlea.json"), false)
     catalogRequest.send()
     var catalog = JSON.parse(catalogRequest.responseText)
     var boardLabels = {

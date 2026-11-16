@@ -7,7 +7,7 @@ failed=0
 ok() { printf 'ok   %s\n' "$*"; }
 bad() { printf 'FAIL %s\n' "$*"; failed=1; }
 
-MARKER=.flea-test-sandbox
+MARKER=.dlea-test-sandbox
 box=$(mktemp -d) || exit 1
 : > "$box/$MARKER"
 # Removes only an absolute, non-empty root that still carries its marker.

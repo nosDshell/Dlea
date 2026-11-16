@@ -11,7 +11,7 @@ use std::time::Duration;
 // How long one fetch waits for the filesystem without progress before the viewer says the file is not responding.
 pub const PDF_COPY_WAIT: Duration = Duration::from_secs(8);
 // One directory per backend process under the shared leaf, so no process ever sweeps another's live copy.
-const PDF_CACHE_LEAF: &str = "flea/pdf";
+const PDF_CACHE_LEAF: &str = "dlea/pdf";
 static SWEEP: Once = Once::new();
 // One copy on screen per viewer slot, so a newer fetch supersedes only its own viewer.
 static LAST_COPY: LazyLock<Mutex<HashMap<String, PathBuf>>> =

@@ -80,7 +80,7 @@ case_columnsbackground() {
     printf 'COLUMNSBACKGROUND parent=%s\n' "$(ls -A "$root/P" | tr '\n' '|')"
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
 
     # Current: the middle column's own background still creates in A alone.
     columnsbg_fixture "$root"
@@ -98,7 +98,7 @@ case_columnsbackground() {
     printf 'COLUMNSBACKGROUND active=%s\n' "$(ls -A "$root/P/A" | tr '\n' '|')"
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
 
     # Child: empty space in B's column navigates to B, then New Folder lands in B alone.
     columnsbg_fixture "$root"
@@ -118,7 +118,7 @@ case_columnsbackground() {
     printf 'COLUMNSBACKGROUND child=%s\n' "$(ls -A "$root/P/A/B" | tr '\n' '|')"
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
 
     # Empty active: the middle column's own background still creates in an empty E alone.
     columnsbg_fixture "$root"
@@ -136,7 +136,7 @@ case_columnsbackground() {
     printf 'COLUMNSBACKGROUND empty-active=%s\n' "$(ls -A "$root/P/A/E" | tr '\n' '|')"
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
 
     # Empty child: E draws no row, so its x comes from the column pitch (active minus parent); New Folder still lands in E alone.
     columnsbg_fixture "$root"
@@ -160,7 +160,7 @@ case_columnsbackground() {
     printf 'COLUMNSBACKGROUND empty-child=%s\n' "$(ls -A "$root/P/A/E" | tr '\n' '|')"
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
 
     printf 'COLUMNSBACKGROUND parent+active+child+empty-active+empty-child=ok\n'
 }

@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 
 // The code preview's refusal frame, shared by Quick Look's text pane and Markdown Source.
 Item {
@@ -19,7 +19,7 @@ Item {
         spacing: Theme.spacing.gap
         visible: root.binary || (root.tooLarge && !root.failed)
 
-        Flea.Glyph {
+        Dlea.Glyph {
             anchors.horizontalCenter: parent.horizontalCenter
             maxSize: Theme.stateMarkSize
             width: Theme.stateMarkSize

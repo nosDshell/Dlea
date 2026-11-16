@@ -51,7 +51,7 @@ pub fn model() -> Model {
     let mut m = Model::new("/fx/v/work".into(), &Json::Null);
     m.i18n = crate::i18n::I18n::load(crate::i18n::Paths {
         omarchy: std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/i18n/fixtures/omarchy"),
-        language_file: "/nonexistent/flea-frame-language".into(),
+        language_file: "/nonexistent/dlea-frame-language".into(),
         catalogs: Vec::new(),
     });
     m.height = 27; m.columns = 130;
@@ -370,10 +370,10 @@ fn review_t3_r1_non_text_bodies_scroll_without_moving_the_header() {
 }
 // Re-runs one test alone in a child with no controlling terminal, stdin from /dev/null and only the variables it sets; false inside that child.
 pub fn isolated_test(name: &str, extra: &[(&str, &str)]) -> bool {
-    if std::env::var_os("FLEA_TEST_ISOLATED_CHILD").is_some() { return false; }
+    if std::env::var_os("DLEA_TEST_ISOLATED_CHILD").is_some() { return false; }
     let mut command = std::process::Command::new("setsid");
     command.arg("-w").arg(std::env::current_exe().unwrap()).args(["--exact", name, "--nocapture", "--test-threads=1"])
-        .env_clear().env("PATH", "/usr/bin:/bin").env("LC_ALL", "C.UTF-8").env("FLEA_TEST_ISOLATED_CHILD", "1")
+        .env_clear().env("PATH", "/usr/bin:/bin").env("LC_ALL", "C.UTF-8").env("DLEA_TEST_ISOLATED_CHILD", "1")
         .stdin(std::process::Stdio::null());
     for (key, value) in extra { command.env(key, value); }
     let output = command.output().unwrap();

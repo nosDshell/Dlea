@@ -96,7 +96,7 @@ fn a_zip_plan_walks_a_selected_name_that_is_not_utf8_by_its_bytes() {
     fifo(&raw.join("pipe"));
     fifo(&d.path().join(std::ffi::OsStr::from_bytes(b"p\xff")));
     put(&d, "keep.txt", "k");
-    let text = |bytes: &[u8]| flea::bytename::name_text(bytes).into_owned();
+    let text = |bytes: &[u8]| dlea::bytename::name_text(bytes).into_owned();
     let e = plan(d.path(), &[text(b"r\xff")], &NO_CANCEL)
         .err()
         .expect("the FIFO inside is found");

@@ -1,12 +1,12 @@
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "qml-probe.js" as QmlProbe
 
 // QuickLookPrepare holds only the pictures under its document's folder, one sizer at a time, and nothing a move or a stale reply leaves behind.
 ShellRoot {
     id: root
-    readonly property string dir: Quickshell.env("FLEA_PREVIEW_HUNT_PICS") + "/docs"
+    readonly property string dir: Quickshell.env("DLEA_PREVIEW_HUNT_PICS") + "/docs"
     // One document with one picture beside it, shown at every cursor index so a move re-prepares it.
     readonly property var names: ["in.md", "in.md", "in.md"]
     // Polls of the probe timer an event may take before it fails by name; counted, never timed.
@@ -49,7 +49,7 @@ ShellRoot {
         function rowFor(i) { return { n: root.names[i], d: false, s: 900, p: 33188, k: 0 } }
         function join(a, b) { return a + "/" + b }
     }
-    Flea.QuickLookPrepare {
+    Dlea.QuickLookPrepare {
         id: prep
         pane: stub
         restMs: 1

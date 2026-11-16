@@ -3,7 +3,7 @@
 set -u
 set -o pipefail
 repo="$(cd "$(dirname "$0")/.." && pwd)"
-. "$repo/tools/flea-sandbox-guard"
+. "$repo/tools/dlea-sandbox-guard"
 
 fail() {
     printf 'FAIL ui-fixture-home: %s\n' "$*" >&2
@@ -16,7 +16,7 @@ fixture_def=$(sed -n '/^fixture_home_make() {/,/^}/p' "$repo/tests/ui.sh")
 eval "$fixture_def"
 
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-e54-XXXXXXXX") || fail "mktemp under $SANDBOX_ROOT failed"
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-e54-XXXXXXXX") || fail "mktemp under $SANDBOX_ROOT failed"
 : > "$test_root/$SANDBOX_MARKER" || fail "could not mark $test_root"
 cleanup() {
     sandbox_remove "$test_root" 2>/dev/null || true

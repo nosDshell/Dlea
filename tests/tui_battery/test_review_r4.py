@@ -81,7 +81,7 @@ SUFFIX_CHANGES = (
 class Review4Tests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.root = Path(tempfile.mkdtemp(prefix="review-r4.", dir=Path(os.environ.get("FLEA_BATTERY_TEST_ROOT", Path(__file__).resolve().parents[2] / ".superpowers/t12a"))))
+        cls.root = Path(tempfile.mkdtemp(prefix="review-r4.", dir=Path(os.environ.get("DLEA_BATTERY_TEST_ROOT", Path(__file__).resolve().parents[2] / ".superpowers/t12a"))))
         (cls.root / MARKER).write_text("round four regression controls\n")
 
     def test_backend_derived_width_variations_on_five_approved_boards(self):

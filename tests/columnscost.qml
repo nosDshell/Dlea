@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-columnscost-test
+//@ pragma ShellId dlea-columnscost-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "langmark-count.js" as LangCost
 
 // e6 columnscost: a ColumnsArea at the shipped default limit (3) builds no
@@ -116,9 +116,9 @@ ShellRoot {
                         root.fail("the rightmost pane draws a divider")
                     if (!root.isActivePane(o) && div.visible !== true)
                         root.fail("a shown pane hides its divider")
-                    if (div.width !== Flea.Theme.spacing.hairline)
+                    if (div.width !== Dlea.Theme.spacing.hairline)
                         root.fail("a column divider is " + div.width + " wide, want the rail hairline")
-                    if (String(div.color) !== String(Flea.Theme.color.foreground))
+                    if (String(div.color) !== String(Dlea.Theme.color.foreground))
                         root.fail("a column divider inks " + div.color + ", want the rail ink")
                     if (div.opacity !== 0.12)
                         root.fail("a column divider opacifies at " + div.opacity + ", want 0.12")
@@ -206,7 +206,7 @@ ShellRoot {
     property var failures: []
 
     // 900 px at the shipped default limit draws 3 columns: parent, active, child.
-    Flea.ColumnsArea {
+    Dlea.ColumnsArea {
         id: area
         width: 900
         height: 600
@@ -217,7 +217,7 @@ ShellRoot {
     property var sampleRow: ({ n: "columnscost.txt", d: false, i: "text-x-generic", p: 420, s: 13 })
     property var ancestorRows: [{ n: "ancestor.txt", d: false, i: "text-x-generic", p: 420, s: 1 }]
 
-    Flea.ColumnRow {
+    Dlea.ColumnRow {
         id: probeRow
         width: 300
         row: root.sampleRow
@@ -226,7 +226,7 @@ ShellRoot {
         showSize: false
     }
 
-    Flea.ColumnRow {
+    Dlea.ColumnRow {
         id: probeMarked
         width: 300
         row: root.sampleRow
@@ -305,8 +305,8 @@ ShellRoot {
 
     // A cut dims ink, name and mark together; the thumbnail keeps its own opacity branch.
     function checkColumnDim(row, wantDim) {
-        var want = wantDim ? Flea.Theme.disabledOpacity : 1
-        if (Flea.Theme.disabledOpacity <= 0.05 || Flea.Theme.disabledOpacity >= 0.95) root.fail("disabledOpacity reads " + Flea.Theme.disabledOpacity + ", want a real dim")
+        var want = wantDim ? Dlea.Theme.disabledOpacity : 1
+        if (Dlea.Theme.disabledOpacity <= 0.05 || Dlea.Theme.disabledOpacity >= 0.95) root.fail("disabledOpacity reads " + Dlea.Theme.disabledOpacity + ", want a real dim")
         if (Math.abs(row.ink.a - want) > 0.01) root.fail("a column row inks at " + row.ink.a + ", want " + want)
         if (Math.abs(root.effectiveAlpha(row.nameItem()) - want) > 0.01) root.fail("a column row names at " + root.effectiveAlpha(row.nameItem()) + ", want " + want)
         if (Math.abs(root.effectiveAlpha(row.markItem()) - want) > 0.01) root.fail("a column row marks dim through its glyph, want " + want)
@@ -340,7 +340,7 @@ ShellRoot {
         root.checkColumnDim(probeMarked, false)
         if (root.failures.length > 0) { root.report(); return }
         root.stubPane.path = "/a/b/c/d"
-        Flea.ViewState.state = { columnsLimit: 5 }
+        Dlea.ViewState.state = { columnsLimit: 5 }
         area.width = 2400
         root.populateAncestors()
         wideTimer.start()
@@ -378,7 +378,7 @@ ShellRoot {
         if (area.greatGrandparentItemAt(0) !== null)
             root.fail("greatGrandparentItemAt(0) answers non-null with 4 columns")
         if (root.failures.length > 0) { root.report(); return }
-        Flea.ViewState.state = {}
+        Dlea.ViewState.state = {}
         area.width = 900
         narrowTimer.start()
     }

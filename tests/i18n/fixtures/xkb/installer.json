@@ -3,15 +3,15 @@
   "omarchy_commit": "5978d93ae7da0a325b7493501911e3f1266cadd3",
   "sources": [
     {
-      "path": "/home/gm/flea-work/omarchy-450rc2/install/provisioning/setup-form.sh",
+      "path": "/home/gm/dlea-work/omarchy-450rc2/install/provisioning/setup-form.sh",
       "sha256": "e1ca1e3de6b8a3bc68077923997eccd84560f717772dcda70070269172039825"
     },
     {
-      "path": "/home/gm/flea-work/omarchy-450rc2/default/input-methods/typing_setup.py",
+      "path": "/home/gm/dlea-work/omarchy-450rc2/default/input-methods/typing_setup.py",
       "sha256": "4a5dfc4059c0d5e2744dda526ce1cdf67b9ec374ef5fec4a1d61ccc9c27fd5d6"
     },
     {
-      "path": "/home/gm/flea-work/omarchy-450rc2/bin/omarchy-provision-owner",
+      "path": "/home/gm/dlea-work/omarchy-450rc2/bin/omarchy-provision-owner",
       "sha256": "3fa80e6f9cb20c89fbe3bf32e06c48d4aa12c40b4768902345905b0c180c8c5f"
     }
   ],

@@ -3,7 +3,7 @@ use super::{
     listing::Listing,
     state::{Held, State},
 };
-use flea::{bytename::ExactText as _, jsondoc::Json};
+use dlea::{bytename::ExactText as _, jsondoc::Json};
 use std::path::PathBuf;
 
 #[derive(Default)]
@@ -98,7 +98,7 @@ pub(crate) fn answer(
         // The client now holds this listing, and the next index change snapshots it again before mutating.
         st.search_remap.previous = None;
     }
-    flea::jsondoc::render(&Json::Obj(vec![
+    dlea::jsondoc::render(&Json::Obj(vec![
         ("t".into(), Json::Str("searchremap".into())),
         ("ok".into(), Json::Bool(valid)),
         ("gen".into(), Json::Num(gen.to_string())),

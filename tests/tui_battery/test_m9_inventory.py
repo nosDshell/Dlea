@@ -25,10 +25,10 @@ class M9InventoryTests(unittest.TestCase):
         cls.manifest = json.loads((HERE / "fixtures/references.json").read_text())
         cls.inventory = cls.manifest["inventory"]
         cls.spec = json.loads((HERE / "states.json").read_text())
-        cls.boards = Path(os.environ["FLEA_BATTERY_BOARDS"])
+        cls.boards = Path(os.environ["DLEA_BATTERY_BOARDS"])
 
     def setUp(self):
-        parent = Path(os.environ["FLEA_BATTERY_TEST_ROOT"])
+        parent = Path(os.environ["DLEA_BATTERY_TEST_ROOT"])
         self.root = Path(tempfile.mkdtemp(prefix="m9-inventory.", dir=parent))
         (self.root / MARKER).write_text("owned inventory regression\n")
         self.addCleanup(self.cleanup)
@@ -40,7 +40,7 @@ class M9InventoryTests(unittest.TestCase):
 
     def listing(self, *arguments, boards=None):
         result = subprocess.run(
-            [sys.executable, "-B", str(REPO / "tools/flea-tui-battery"),
+            [sys.executable, "-B", str(REPO / "tools/dlea-tui-battery"),
              "--boards", str(boards or self.boards), "--list", *arguments],
             stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
         return result, json.loads(result.stdout if result.returncode == 0 else result.stderr)

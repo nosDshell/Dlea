@@ -105,7 +105,7 @@ fn git_readonly_argv_assertions_run_without_an_external_git_tool() {
     if super::super::sandboxprobe::skipped() {
         return;
     }
-    let output = std::process::Command::new(flea::testpath::tool("/usr/bin/bwrap"))
+    let output = std::process::Command::new(dlea::testpath::tool("/usr/bin/bwrap"))
         .args([
             "--ro-bind", "/", "/", "--bind", "/tmp", "/tmp", "--setenv", "TMPDIR", "/tmp", "--dev", "/dev",
             "--proc", "/proc", "--ro-bind", "/usr/bin/false", "/usr/bin/git", "--",

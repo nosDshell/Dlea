@@ -14,11 +14,11 @@ pub use rail::{rail_destination, RailKind};
 #[cfg(test)]
 mod tests;
 
-/// Flea's own drag marker type, offered beside the uri-list (Drag.js ROWS_MIME).
-pub const ROWS_MIME: &str = "application/x-flea-rows";
+/// Dlea's own drag marker type, offered beside the uri-list (Drag.js ROWS_MIME).
+pub const ROWS_MIME: &str = "application/x-dlea-rows";
 
 /// The drop shelf's drag type (DragOut rule 4): the single-use token it minted, then the intent fixed at the lift, one per line.
-pub const SHELF_MIME: &str = "application/x-flea-shelf";
+pub const SHELF_MIME: &str = "application/x-dlea-shelf";
 
 /// A shelf drag's token and whether its intent copies (Drag.shelfToken, shelfCopying); None when it carries no token.
 /// Sample input: "opaque-token\ncopy"

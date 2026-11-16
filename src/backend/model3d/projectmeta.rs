@@ -70,14 +70,14 @@ pub(super) fn read(files: &BTreeMap<String,Vec<u8>>, model: &mut Model) -> Resul
         let source = match super::text(bytes) {
             Ok(source) => source,
             Err(reason) if identity => return Err(format!("3MF metadata {path}: {reason}")),
-            Err(reason) => { eprintln!("flea: optional 3MF metadata {path}: {reason}"); continue },
+            Err(reason) => { eprintln!("dlea: optional 3MF metadata {path}: {reason}"); continue },
         };
         if identity && !source.trim_start().starts_with('<') { return Err(format!("3MF metadata {path}: expected plate XML")) }
         if source.trim_start().starts_with('<') {
             let doc = match xml::parse(source) {
                 Ok(doc) => doc,
                 Err(reason) if identity || reason.contains("bound") => return Err(format!("3MF metadata {path}: {reason}")),
-                Err(reason) => { eprintln!("flea: optional 3MF metadata {path}: {reason}"); continue },
+                Err(reason) => { eprintln!("dlea: optional 3MF metadata {path}: {reason}"); continue },
             };
             for n in &doc.nodes {
                 if n.name == "metadata" {
@@ -89,7 +89,7 @@ pub(super) fn read(files: &BTreeMap<String,Vec<u8>>, model: &mut Model) -> Resul
             let json = match crate::jsondoc::parse(source) {
                 Ok(json) => json,
                 Err(reason) if reason.starts_with("nested past ") => return Err(format!("3MF metadata {path}: {reason}")),
-                Err(reason) => { eprintln!("flea: optional 3MF metadata {path}: {reason}"); continue },
+                Err(reason) => { eprintln!("dlea: optional 3MF metadata {path}: {reason}"); continue },
             };
             if let Some(entries) = json.as_object() {
                 for (key,value) in entries {

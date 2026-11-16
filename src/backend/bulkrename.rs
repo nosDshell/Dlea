@@ -2,8 +2,8 @@
 use crate::backend::ops::valid_name;
 use crate::backend::renamecompat;
 use crate::backend::undo::{Entry, ItemIdentity, Step};
-use crate::error::{from_io, FleaError};
-use flea::bytename::ExactText as _;
+use crate::error::{from_io, DleaError};
+use dlea::bytename::ExactText as _;
 use std::collections::{BTreeMap, BTreeSet};
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -11,23 +11,23 @@ use std::path::{Path, PathBuf};
 // Linux filename components hold at most 255 bytes, the same bound the TUI batch enforces.
 const NAME_BYTES: usize = 255;
 // The staged names swaps ride through, named in the error when one strands them.
-const TEMP_PREFIX: &str = ".flea-bulk-";
+const TEMP_PREFIX: &str = ".dlea-bulk-";
 
 // The landed steps with the batch counts, factored out so the worker outcome stays readable.
-pub(crate) type BulkOutcome = (Vec<Step>, Result<(usize, usize), FleaError>);
+pub(crate) type BulkOutcome = (Vec<Step>, Result<(usize, usize), DleaError>);
 
 // Sample output: {"t":"bulkrenamed","ok":5,"unchanged":1}
 pub fn bulkrenamed_line(ok: usize, unchanged: usize) -> String {
     format!(r#"{{"t":"bulkrenamed","ok":{},"unchanged":{}}}"#, ok, unchanged)
 }
 
-fn refused(message: &str) -> FleaError {
-    FleaError { where_: "bulkrename".to_string(), path: String::new(), msg: message.to_string() }
+fn refused(message: &str) -> DleaError {
+    DleaError { where_: "bulkrename".to_string(), path: String::new(), msg: message.to_string() }
 }
 
 // Names the item that went missing or was replaced, so a long batch says which one.
-fn changed(path: &Path) -> FleaError {
-    FleaError { path: path.to_string_lossy().into_owned(), ..refused("Bulk rename refused: a selected item changed.") }
+fn changed(path: &Path) -> DleaError {
+    DleaError { path: path.to_string_lossy().into_owned(), ..refused("Bulk rename refused: a selected item changed.") }
 }
 
 struct Item {
@@ -37,11 +37,11 @@ struct Item {
 }
 
 // The whole batch is checked before anything moves, so a refusal touches nothing.
-fn plan(paths: &[String], names: &[String]) -> Result<(Vec<Item>, usize), FleaError> {
+fn plan(paths: &[String], names: &[String]) -> Result<(Vec<Item>, usize), DleaError> {
     if paths.is_empty() || paths.len() != names.len() {
         return Err(refused("Bulk rename needs the same number of names as items."));
     }
-    let sources: Vec<PathBuf> = paths.iter().map(flea::bytename::exact).collect();
+    let sources: Vec<PathBuf> = paths.iter().map(dlea::bytename::exact).collect();
     let unique: BTreeSet<&PathBuf> = sources.iter().collect();
     if unique.len() != sources.len() || sources.iter().any(|p| !p.is_absolute()) {
         return Err(refused("Bulk rename needs unique absolute paths."));
@@ -75,7 +75,7 @@ fn plan(paths: &[String], names: &[String]) -> Result<(Vec<Item>, usize), FleaEr
         }
         items.push(Item { source, dest, before: identity });
     }
-    let sources_now: BTreeSet<PathBuf> = paths.iter().map(flea::bytename::exact).collect();
+    let sources_now: BTreeSet<PathBuf> = paths.iter().map(dlea::bytename::exact).collect();
     for item in &items {
         match item.dest.symlink_metadata() {
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
@@ -94,17 +94,17 @@ fn confirm_dir(path: &Path) {
             confirm.touch(parent);
         }
         if let Err(error) = confirm.flush_dirs() {
-            eprintln!("flea: rename {} landed but the drive did not confirm the folder: {}", path.display(), error);
+            eprintln!("dlea: rename {} landed but the drive did not confirm the folder: {}", path.display(), error);
         }
     }
 }
 
-fn move_one(from: &Path, to: &Path, before: ItemIdentity) -> Result<Step, FleaError> {
+fn move_one(from: &Path, to: &Path, before: ItemIdentity) -> Result<Step, DleaError> {
     move_one_with(from, to, before, ItemIdentity::inspect)
 }
 
-fn move_one_with(from: &Path, to: &Path, before: ItemIdentity, inspect: impl Fn(&Path) -> Result<ItemIdentity, FleaError>) -> Result<Step, FleaError> {
-    renamecompat::rename_path(from, to).map_err(|error| FleaError {
+fn move_one_with(from: &Path, to: &Path, before: ItemIdentity, inspect: impl Fn(&Path) -> Result<ItemIdentity, DleaError>) -> Result<Step, DleaError> {
+    renamecompat::rename_path(from, to).map_err(|error| DleaError {
         where_: "bulkrename".to_string(),
         path: error.path,
         msg: error.msg,
@@ -116,7 +116,7 @@ fn move_one_with(from: &Path, to: &Path, before: ItemIdentity, inspect: impl Fn(
 }
 
 // Swaps and cycles ride through temp names in the same folder, so a to b and b to a works.
-fn execute(items: Vec<Item>) -> (Vec<Step>, Result<usize, FleaError>) {
+fn execute(items: Vec<Item>) -> (Vec<Step>, Result<usize, DleaError>) {
     // Each source is read again before the first move, so one replaced since the plan refuses the whole batch.
     for item in &items {
         match item.source.symlink_metadata() {
@@ -176,7 +176,7 @@ fn execute(items: Vec<Item>) -> (Vec<Step>, Result<usize, FleaError>) {
 }
 
 // A failed second loop strands what is still staged, so the error names the temp leaves and the undo that restores them.
-fn stranded_error(mut error: FleaError, live: &BTreeMap<PathBuf, (PathBuf, ItemIdentity)>) -> FleaError {
+fn stranded_error(mut error: DleaError, live: &BTreeMap<PathBuf, (PathBuf, ItemIdentity)>) -> DleaError {
     let mut temps: Vec<String> = live.values()
         .filter_map(|(at, _)| at.file_name().map(|n| n.to_string_lossy().to_string()))
         .filter(|name| name.starts_with(TEMP_PREFIX)).collect();
@@ -196,10 +196,10 @@ pub(crate) fn do_bulkrename(out: &mut impl Write, ops: &mut super::opsdispatch::
         out.flush().ok();
         return Vec::new();
     }
-    let sources: Vec<PathBuf> = paths.iter().map(flea::bytename::exact).collect();
+    let sources: Vec<PathBuf> = paths.iter().map(dlea::bytename::exact).collect();
     let folder = paths
         .first()
-        .and_then(|first| flea::bytename::view(first).parent().map(Path::to_path_buf))
+        .and_then(|first| dlea::bytename::view(first).parent().map(Path::to_path_buf))
         .unwrap_or_else(|| PathBuf::from("/"));
     // A source or the folder on a pending mount waits, so the late journal lands first.
     if super::opsdispatch::pending_busy_for(
@@ -270,7 +270,7 @@ fn bulk_work(paths: Vec<String>, names: Vec<String>) -> BulkOutcome {
 }
 
 // One journal entry per request, so one undo reverses the in-time answer and the late one alike; answers the landed paths for a session patch.
-pub(crate) fn land_bulkrename(out: &mut impl Write, ops: &mut super::opsdispatch::Ops, outcome: Result<BulkOutcome, FleaError>) -> Vec<PathBuf> {
+pub(crate) fn land_bulkrename(out: &mut impl Write, ops: &mut super::opsdispatch::Ops, outcome: Result<BulkOutcome, DleaError>) -> Vec<PathBuf> {
     let (steps, result) = match outcome {
         Ok(landed) => landed,
         Err(error) => {

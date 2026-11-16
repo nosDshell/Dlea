@@ -11,14 +11,14 @@ bad() { printf 'FAIL %s\n' "$*"; fail=$((fail+1)); }
 
 command -v qs >/dev/null || { echo "preview-holdframes.sh: qs is not installed"; exit 1; }
 
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 sandbox_forbidden /tmp && sandbox_refuse "preview-holdframes: /tmp is inside a forbidden test target"
-hf_root=$(mktemp -d /tmp/flea-preview-holdframes.XXXXXXXX) || exit 1
+hf_root=$(mktemp -d /tmp/dlea-preview-holdframes.XXXXXXXX) || exit 1
 FIXTURE_ROOT=$hf_root
 sandbox_root_ok
 hf_root=$SANDBOX_ROOT
 readonly hf_root
-printf 'Flea preview holdframes sandbox\n' > "$hf_root/$SANDBOX_MARKER" || exit 1
+printf 'Dlea preview holdframes sandbox\n' > "$hf_root/$SANDBOX_MARKER" || exit 1
 hf_work="$hf_root/work"
 readonly hf_work
 cleanup() {
@@ -26,7 +26,7 @@ cleanup() {
     trap - EXIT
     sandbox_remove "$hf_work"
     # The fixture root is never a sandbox_remove target, so its marker and logs go by name.
-    case $hf_root in /tmp/flea-preview-holdframes.?*) rm -f -- "$hf_root/$SANDBOX_MARKER" "$hf_root"/holdframes-*.log; rmdir -- "$hf_root" ;; esac
+    case $hf_root in /tmp/dlea-preview-holdframes.?*) rm -f -- "$hf_root/$SANDBOX_MARKER" "$hf_root"/holdframes-*.log; rmdir -- "$hf_root" ;; esac
     exit "$result"
 }
 trap cleanup EXIT

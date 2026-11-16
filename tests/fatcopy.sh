@@ -2,14 +2,14 @@
 # A folder copied onto a vfat model lands every entry the drive can hold, names each it cannot, and undoes whole.
 set -u
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete below.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 
 cd "$(dirname "$0")/.." || exit 1
-BIN=./target/debug/flea
+BIN=./target/debug/dlea
 [ -x "$BIN" ] || { echo "fatcopy.sh: $BIN is missing, run cargo build" >&2; exit 1; }
 command -v cc >/dev/null || { echo "fatcopy.sh: cc is required to build the vfat model" >&2; exit 1; }
 command -v jq >/dev/null || { echo "fatcopy.sh: jq is required to read the wire" >&2; exit 1; }
-D="$FIXTURE_ROOT/flea-fatcopy-$$"
+D="$FIXTURE_ROOT/dlea-fatcopy-$$"
 FAT="$D/fat"
 fail=0
 
@@ -37,7 +37,7 @@ start_backend() {
   rm -f "$D/out" "$D/in"; : > "$D/out"
   mkfifo "$D/in"
   mkdir -p "$D/rt"
-  LD_PRELOAD="$D/fat.so" FLEA_TEST_FAT_ROOT="$FAT" XDG_RUNTIME_DIR="$D/rt" FLEA_UNDO_DIR="$D/undo" \
+  LD_PRELOAD="$D/fat.so" DLEA_TEST_FAT_ROOT="$FAT" XDG_RUNTIME_DIR="$D/rt" DLEA_UNDO_DIR="$D/undo" \
     $BIN --backend < "$D/in" > "$D/out" 2>/dev/null &
   BACKEND_PID=$!
   exec 3> "$D/in"

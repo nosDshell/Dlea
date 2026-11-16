@@ -77,7 +77,7 @@ fn scripts_list_sorted_by_name_with_the_stem_as_the_label() {
     )
     .unwrap();
     for name in ["ocr.sh", "convert-to-webp", "upload-to-s3.py"] {
-        flea::executable_file::write(
+        dlea::executable_file::write(
             &scripts.join(name),
             &std::fs::read(scripts.join(name)).unwrap(),
             0o755,
@@ -150,7 +150,7 @@ fn unrelated_directory_entries_cannot_hide_manifest_truncation() {
 
 #[test]
 fn terminal_root_selection_answers_with_the_root_working_directory() {
-    const CHILD: &str = "FLEA_TEST_ROOT_TERMINAL";
+    const CHILD: &str = "DLEA_TEST_ROOT_TERMINAL";
     if std::env::var_os(CHILD).is_none() {
         let root = TestDir::new("actions-terminal-root");
         let output = std::process::Command::new(std::env::current_exe().unwrap())
@@ -166,16 +166,16 @@ fn terminal_root_selection_answers_with_the_root_working_directory() {
         return;
     }
     let root = PathBuf::from(std::env::var_os(CHILD).unwrap());
-    assert!(root.is_absolute() && root.join(".flea-test-sandbox").is_file());
+    assert!(root.is_absolute() && root.join(".dlea-test-sandbox").is_file());
     let bin = root.join("bin");
     std::fs::create_dir(&bin).unwrap();
     let launcher = bin.join("xdg-terminal-exec");
     std::fs::write(
         &launcher,
-        "#!/bin/sh\nprintf '%s\\n' \"$@\" > \"$FLEA_TEST_ROOT_TERMINAL/argv\"\n",
+        "#!/bin/sh\nprintf '%s\\n' \"$@\" > \"$DLEA_TEST_ROOT_TERMINAL/argv\"\n",
     )
     .unwrap();
-    flea::executable_file::write(&launcher, &std::fs::read(&launcher).unwrap(), 0o700).unwrap();
+    dlea::executable_file::write(&launcher, &std::fs::read(&launcher).unwrap(), 0o700).unwrap();
     std::env::set_var("PATH", &bin);
     let action = Action {
         id: "test".into(),
@@ -229,7 +229,7 @@ fn a_raw_name_inside_a_longer_argument_keeps_its_bytes() {
         },
     };
     let argv = action.argv(Path::new(std::ffi::OsStr::from_bytes(b"/d/a\xff.jpg")));
-    let raw: Vec<Vec<u8>> = flea::bytename::args(&argv)
+    let raw: Vec<Vec<u8>> = dlea::bytename::args(&argv)
         .map(|arg| arg.as_bytes().to_vec())
         .collect();
     assert_eq!(
@@ -245,12 +245,12 @@ fn a_raw_name_inside_a_longer_argument_keeps_its_bytes() {
 // A raw-named script runs, and its raw-named selection reaches it as the file's own bytes.
 #[test]
 fn a_raw_named_script_runs_on_a_raw_named_file() {
-    use flea::bytename::ExactText as _;
+    use dlea::bytename::ExactText as _;
     use std::os::unix::ffi::OsStrExt;
     let root = TestDir::new("raw-script");
     let script = root.path().join(std::ffi::OsStr::from_bytes(b"run\xff.sh"));
     std::fs::write(&script, "#!/bin/sh\nprintf '%s' \"$1\" > \"${0%/*}/out\"\n").unwrap();
-    flea::executable_file::write(&script, &std::fs::read(&script).unwrap(), 0o755).unwrap();
+    dlea::executable_file::write(&script, &std::fs::read(&script).unwrap(), 0o755).unwrap();
     let file = root
         .path()
         .join(std::ffi::OsStr::from_bytes(b"pick\xfe.txt"));

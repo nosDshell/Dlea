@@ -139,20 +139,20 @@ fn the_edit_file_round_trips_and_refuses_a_changed_count() {
 }
 
 #[test]
-fn the_scratch_dir_is_one_flea_rename_leaf_under_its_base() {
-    assert!(is_scratch_dir("/tmp", "/tmp/flea-rename-a1B2c3"));
-    assert!(!is_scratch_dir("/tmp", "/tmp/flea-rename-"), "a bare stem is not a scratch dir");
-    assert!(!is_scratch_dir("/tmp", "/tmp/other/flea-rename-x"));
-    assert!(!is_scratch_dir("/tmp", "/tmpx/flea-rename-abc"));
-    assert!(!is_scratch_dir("/tmp", "/tmp/flea-rename-..x"));
-    assert!(!is_scratch_dir("", "/flea-rename-abc"));
+fn the_scratch_dir_is_one_dlea_rename_leaf_under_its_base() {
+    assert!(is_scratch_dir("/tmp", "/tmp/dlea-rename-a1B2c3"));
+    assert!(!is_scratch_dir("/tmp", "/tmp/dlea-rename-"), "a bare stem is not a scratch dir");
+    assert!(!is_scratch_dir("/tmp", "/tmp/other/dlea-rename-x"));
+    assert!(!is_scratch_dir("/tmp", "/tmpx/dlea-rename-abc"));
+    assert!(!is_scratch_dir("/tmp", "/tmp/dlea-rename-..x"));
+    assert!(!is_scratch_dir("", "/dlea-rename-abc"));
     assert!(!is_scratch_dir("/tmp", "/home/gm"), "a home directory is never a cleanup target");
 }
 
 #[test]
 fn the_editor_argv_carries_the_file_as_an_argument() {
-    let argv = editor_argv("/d", "nvim -u x", "/tmp/flea-rename-1/names");
-    assert_eq!(argv, names(&["xdg-terminal-exec", "--dir=/d", "--", "/bin/sh", "-c", "exec nvim -u x \"$1\"", "flea-bulk-rename", "/tmp/flea-rename-1/names"]));
+    let argv = editor_argv("/d", "nvim -u x", "/tmp/dlea-rename-1/names");
+    assert_eq!(argv, names(&["xdg-terminal-exec", "--dir=/d", "--", "/bin/sh", "-c", "exec nvim -u x \"$1\"", "dlea-bulk-rename", "/tmp/dlea-rename-1/names"]));
     assert_eq!(folder_of("/d/a.txt"), "/d");
     assert_eq!(folder_of("/a.txt"), "/");
     assert_eq!(request(&names(&["/d/a"]), &names(&["b"])).as_deref(), Some(r#"{"c":"bulkrename","paths":["/d/a"],"names":["b"]}"#));

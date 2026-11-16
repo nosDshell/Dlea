@@ -15,7 +15,7 @@ extern "C" {
     fn geteuid() -> u32;
 }
 
-// Sample input: ".flea-part-3f2a9c1e-48211-7" gives ("3f2a9c1e", 48211); ".flea-part-notes.txt" gives None.
+// Sample input: ".dlea-part-3f2a9c1e-48211-7" gives ("3f2a9c1e", 48211); ".dlea-part-notes.txt" gives None.
 fn parse(leaf: &str) -> Option<(&str, i32)> {
     let mut parts = leaf.strip_prefix(PREFIX)?.split('-');
     let (boot, pid, seq) = (parts.next()?, parts.next()?, parts.next()?);

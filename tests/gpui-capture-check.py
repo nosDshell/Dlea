@@ -45,7 +45,7 @@ def output(monitors, item):
     owned = [monitor for monitor in monitors if monitor.get("id") == item["monitor"]]
     require(len(owned) == 1, "missing_client_output")
     monitor = owned[0]
-    require(monitor.get("name") == "FLEA", "wrong_output")
+    require(monitor.get("name") == "DLEA", "wrong_output")
     require(monitor.get("scale") == 1, "output_scale_is_not_1")
     require((monitor.get("width"), monitor.get("height")) == (2560, 1440),
             "output_size_is_not_2560x1440")
@@ -102,7 +102,7 @@ def png(path, width, height, pixel):
 
 
 def controls(root):
-    require((root / ".flea-test-sandbox").is_file(), "unmarked_control_root")
+    require((root / ".dlea-test-sandbox").is_file(), "unmarked_control_root")
     item = {"pid": 42, "mapped": True, "hidden": False, "xwayland": False,
             "at": [10, 10], "size": [32, 24], "monitor": 0}
     light = (236, 236, 236)

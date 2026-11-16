@@ -1,4 +1,4 @@
-// The backend and flea --clip get|clear print this JSON shape; flea --clip set prints the bare token a shell script captures.
+// The backend and dlea --clip get|clear print this JSON shape; dlea --clip set prints the bare token a shell script captures.
 use super::control::OfferFiles;
 
 pub fn reply_set(result: Result<&str, &str>) -> String {

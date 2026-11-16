@@ -1,14 +1,14 @@
-//@ pragma ShellId flea-settings-ground-test
+//@ pragma ShellId dlea-settings-ground-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // Settings keeps card-owned gestures while ground-owned gestures dismiss; the real pane stays disabled.
 ShellRoot {
     id: root
     readonly property var pane: body.currentPane
-    readonly property string fixture: Quickshell.env("FLEA_PATH")
+    readonly property string fixture: Quickshell.env("DLEA_PATH")
     readonly property var cases: [
         {name: "left drag", button: Qt.LeftButton, move: true, closes: true},
         {name: "right drag", button: Qt.RightButton, move: true, closes: true},
@@ -100,7 +100,7 @@ ShellRoot {
             if (current.contents || current.control) {
                 var control = panel.rowItemForId("foldersFirst")
                 from = body.mapFromItem(control, control.width / 2, control.height / 2)
-                foldersFirstBefore = Flea.ViewState.state.foldersFirst !== false
+                foldersFirstBefore = Dlea.ViewState.state.foldersFirst !== false
             }
             if (current.ruler) {
                 var ruler = findItem(panel.rowItemForId("textStop"), "tickWidth")
@@ -113,7 +113,7 @@ ShellRoot {
                 scrollItem = findItem(card, "compactHeight")
                 scrollItem.contentY = 0
                 scrollBefore = scrollItem.contentY
-                check("the content can scroll", scrollItem.contentHeight > scrollItem.height + Flea.Theme.rowHeight, true)
+                check("the content can scroll", scrollItem.contentHeight > scrollItem.height + Dlea.Theme.rowHeight, true)
                 from = body.mapFromItem(scrollItem, scrollItem.width / 2, scrollItem.height * 0.75)
                 to = Qt.point(from.x, Math.max(2, body.mapFromItem(card, 0, 0).y - 4))
             }
@@ -142,7 +142,7 @@ ShellRoot {
         } else if (stage === "moved") {
             if (Date.now() - started < (current.move ? 500 : 40)) return
             check("no file drag starts under Settings", pane.dragActive, false)
-            if (current.scroll) check("the real content scrolled past the card edge", scrollItem.contentY > scrollBefore + Flea.Theme.rowHeight, true)
+            if (current.scroll) check("the real content scrolled past the card edge", scrollItem.contentY > scrollBefore + Dlea.Theme.rowHeight, true)
             driver.mouseRelease(body, to.x, to.y, current.button, Qt.NoModifier, 1)
             next("released")
         } else if (stage === "released") {
@@ -151,7 +151,7 @@ ShellRoot {
                   !current.closes)
             check("release leaves the cursor alone", pane.cursorIndex, 0)
             check("release opens no pane menu", pane.contextMenu().opened, false)
-            if (current.control) check("the control still activates", Flea.ViewState.state.foldersFirst !== false, !foldersFirstBefore)
+            if (current.control) check("the control still activates", Dlea.ViewState.state.foldersFirst !== false, !foldersFirstBefore)
             pane.settingsPanel.item.close()
             if (caseIndex + 1 === cases.length) finish()
             else { caseIndex++; next("settle") }
@@ -162,7 +162,7 @@ ShellRoot {
         id: window
         implicitWidth: 1400
         implicitHeight: 900
-        Flea.WindowBody { id: body; host: window }
+        Dlea.WindowBody { id: body; host: window }
         Item { anchors.fill: parent; TestEvent { id: driver } }
     }
     Timer { interval: 20; repeat: true; running: !root.finished; onTriggered: root.advance() }

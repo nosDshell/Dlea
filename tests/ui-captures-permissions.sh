@@ -4,9 +4,9 @@ set -uo pipefail
 repo="$(cd "$(dirname "$0")/.." && pwd)" || exit 1
 . "$repo/tests/ui-captures.sh"
 . "$repo/tests/ui-pdf.sh"
-. "$repo/tools/flea-sandbox-guard"
+. "$repo/tools/dlea-sandbox-guard"
 sandbox_root_ok
-scratch=$(mktemp -d "$SANDBOX_ROOT/flea-capperm.XXXXXX") || exit 1
+scratch=$(mktemp -d "$SANDBOX_ROOT/dlea-capperm.XXXXXX") || exit 1
 : > "$scratch/$SANDBOX_MARKER"
 trap 'sandbox_remove "$scratch"' EXIT
 
@@ -29,7 +29,7 @@ sandbox_scratch() { mkdir -p -- "$1"; }
 click_row() { :; }
 settle() { :; }
 shot() { :; }
-kill_flea() { printf 'kill\n' >> "$log"; }
+kill_dlea() { printf 'kill\n' >> "$log"; }
 backend_pids() { printf '4242\n'; }
 convert_pause_backend() { printf 'pause %s\n' "$1" >> "$log"; }
 permissions_resume_stopped() { [[ -z "$1" ]] || { printf 'resume %s\n' "$1" >> "$log"; printf '1\n' > "$sdir/resumed"; }; }

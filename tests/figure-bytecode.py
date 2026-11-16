@@ -1,4 +1,4 @@
-# The helper launcher's bytecode cache end to end, through jail tools that log what they are asked to run: figure-bytecode.py FLEA_BIN
+# The helper launcher's bytecode cache end to end, through jail tools that log what they are asked to run: figure-bytecode.py DLEA_BIN
 import ctypes
 import json
 import os
@@ -8,8 +8,8 @@ import subprocess
 import sys
 import tempfile
 
-MARKER = ".flea-test-sandbox"
-PREFIX = "flea-figure-bytecode-"
+MARKER = ".dlea-test-sandbox"
+PREFIX = "dlea-figure-bytecode-"
 # A helper or build that never ends fails the check instead of holding the suite.
 BOUND_SECONDS = 120
 # prctl(2) PR_SET_CHILD_SUBREAPER: orphaned background builds become this process's children, so it can wait for them without polling.
@@ -25,7 +25,7 @@ DIAGRAMS = ["flowchart TD\n    A --> B", "sequenceDiagram\n    A->>B: hi", "stat
             "erDiagram\n    A ||--|| B : has", "not a diagram {{{"]
 
 repo = pathlib.Path(__file__).resolve().parents[1]
-flea = pathlib.Path(sys.argv[1]).resolve()
+dlea = pathlib.Path(sys.argv[1]).resolve()
 failures = 0
 checks = 0
 
@@ -38,10 +38,10 @@ def check(passed, label):
 
 
 def engine():
-    for candidate in (os.environ.get("FLEA_QJS"), "/usr/bin/qjs", str(repo / ".superpowers/tools/qjs")):
+    for candidate in (os.environ.get("DLEA_QJS"), "/usr/bin/qjs", str(repo / ".superpowers/tools/qjs")):
         if candidate and os.path.isabs(candidate) and os.access(candidate, os.X_OK):
             return candidate
-    sys.exit("figure-bytecode.py: no qjs (FLEA_QJS, /usr/bin/qjs)")
+    sys.exit("figure-bytecode.py: no qjs (DLEA_QJS, /usr/bin/qjs)")
 
 
 root = pathlib.Path(tempfile.mkdtemp(prefix=PREFIX)).resolve()
@@ -94,10 +94,10 @@ exec "$@"
 
 
 def environment(with_cache, hook=None, extra=None):
-    env = {"PATH": str(tools) + ":" + os.environ["PATH"], "FLEA_QJS": engine(), "FLEA_UI": str(ui), "JAIL_LOG": str(log),
+    env = {"PATH": str(tools) + ":" + os.environ["PATH"], "DLEA_QJS": engine(), "DLEA_UI": str(ui), "JAIL_LOG": str(log),
            "HOME": str(root / "home"), "LC_ALL": "C.UTF-8"}
     if hook:
-        env["FLEA_FIGURE_CACHE"] = hook
+        env["DLEA_FIGURE_CACHE"] = hook
     env.update(extra or {})
     if with_cache:
         env["XDG_CACHE_HOME"] = str(cache)
@@ -135,7 +135,7 @@ def reap():
 def helper(with_cache=True, flags=(), body=None, hook=None, extra=None):
     # The launcher execs into the stub jail, so the line carrying the helper's own pid is the render jail and every other line is the background build's.
     before = len(jail_lines())
-    child = subprocess.Popen([str(flea), "--figure-helper", *flags], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=environment(with_cache, hook, extra))
+    child = subprocess.Popen([str(dlea), "--figure-helper", *flags], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, env=environment(with_cache, hook, extra))
     out, err = child.communicate(requests() if body is None else body, timeout=BOUND_SECONDS)
     started, clean = reap()
     lines = [line.split("\t") for line in jail_lines()[before:]]
@@ -146,7 +146,7 @@ def helper(with_cache=True, flags=(), body=None, hook=None, extra=None):
 
 
 def keys():
-    return sorted(p.name for p in (cache / "flea/figures").iterdir() if len(p.name) == KEY_HEX_CHARS) if (cache / "flea/figures").is_dir() else []
+    return sorted(p.name for p in (cache / "dlea/figures").iterdir() if len(p.name) == KEY_HEX_CHARS) if (cache / "dlea/figures").is_dir() else []
 
 
 def bytecode_dir_of(argv):
@@ -170,14 +170,14 @@ def main():
     refused, renders, started, clean, _ = helper(extra={"JAIL_CORRUPT": "1"})
     check(refused.stdout == source.stdout and started == 1, "a build over an unreadable blob still starts and the helper answers from source")
     check(keys() == [] and not clean, "a blob the engine refuses to load leaves no verified directory and fails the build")
-    check(len(list((cache / "flea/figures").glob("*.failed"))) == 1, "and the failure is marked, so it is not retried at once")
-    shutil.rmtree(cache / "flea")
+    check(len(list((cache / "dlea/figures").glob("*.failed"))) == 1, "and the failure is marked, so it is not retried at once")
+    shutil.rmtree(cache / "dlea")
 
     cold, renders, started, clean, built = helper()
     check(cold.stdout == source.stdout and cold.stderr == "", "the first run answers the source path's bytes")
     check(bytecode_dir_of(renders[0]) is None and started == 1 and clean, "the first run starts from source and one background build finishes cleanly")
     key = keys()
-    check(len(key) == 1 and (cache / "flea/figures" / key[0] / "manifest").is_file(), "the build installs one verified directory")
+    check(len(key) == 1 and (cache / "dlea/figures" / key[0] / "manifest").is_file(), "the build installs one verified directory")
     if not key:
         check(False, "no verified directory was installed, so every later check that reads one is counted failed")
         print(f"figure-bytecode: {checks} check(s), {failures} failed")
@@ -185,23 +185,23 @@ def main():
     check(len(built) > 0, "the build ran its compile and smoke runs through the jail, and the log saw them")
     compile_call = built[0] if built else []
     writable = [compile_call[i + 1] for i, t in enumerate(compile_call) if t == "--bind"]
-    check(len(writable) == 1 and writable[0].startswith(str(cache / "flea/figures")), "the compile jail's only writable path is inside the cache dir")
+    check(len(writable) == 1 and writable[0].startswith(str(cache / "dlea/figures")), "the compile jail's only writable path is inside the cache dir")
     check(all(not any(t == "--bind" for t in call) for call in [renders[0]] + built[1:]), "no render jail, probe included, has a writable bind")
 
     warm, renders, started, _, _ = helper()
-    keydir = str(cache / "flea/figures" / key[0])
+    keydir = str(cache / "dlea/figures" / key[0])
     check(warm.stdout == source.stdout and warm.stderr == "", "the bytecode path answers the source path's bytes for the corpus")
     bound = any(renders[0][i:i + 3] == ["--ro-bind", keydir, keydir] for i in range(len(renders[0]) - 2))
     check(bytecode_dir_of(renders[0]) == keydir and bound, "the render jail binds the verified directory read-only and names it last")
     check(started == 0, "a verified cache starts no build")
 
     # A flipped byte, a short file, a foreign manifest and a linked blob each fall back to source and are rebuilt whole.
-    blob = cache / "flea/figures" / key[0] / "math.bc"
+    blob = cache / "dlea/figures" / key[0] / "math.bc"
     original = blob.read_bytes()
     damages = {
         "a flipped byte": lambda: blob.write_bytes(original[:BLOB_FLIP_OFFSET] + bytes([original[BLOB_FLIP_OFFSET] ^ 1]) + original[BLOB_FLIP_OFFSET + 1:]),
         "a truncated file": lambda: blob.write_bytes(original[:-1]),
-        "a foreign manifest": lambda: (blob.parent / "manifest").write_text("flea-figures 1\nkey " + "0" * KEY_HEX_CHARS + "\n"),
+        "a foreign manifest": lambda: (blob.parent / "manifest").write_text("dlea-figures 1\nkey " + "0" * KEY_HEX_CHARS + "\n"),
         "a linked blob": lambda: (blob.unlink(), blob.symlink_to(root / "elsewhere.bc")),
     }
     for label, damage in damages.items():
@@ -221,7 +221,7 @@ def main():
     fresh = keys()
     check(len(fresh) == 1 and fresh != key, "the old key's directory is swept and the new key's stays")
     again, renders, started, _, _ = helper()
-    check(bytecode_dir_of(renders[0]) == str(cache / "flea/figures" / fresh[0]) and started == 0 and again.stdout == source.stdout, "the next run uses the new key's bytecode")
+    check(bytecode_dir_of(renders[0]) == str(cache / "dlea/figures" / fresh[0]) and started == 0 and again.stdout == source.stdout, "the next run uses the new key's bytecode")
 
     # A warm start loads the named bundles and says so before any request; its answers are the cold answers, with the one extra line.
     warm, renders, started, _, _ = helper(flags=["--warm=mermaid,math"])
@@ -234,12 +234,12 @@ def main():
     hostile, renders, _, _, _ = helper(flags=["--warm=../x,Math"], body="")
     check(hostile.returncode == 0 and hostile.stdout == "" and not any(t.startswith("--warm") for t in renders[0]), "an unknown kind in the warm argument never reaches the helper")
     # The hook that turns the cache off leaves the source path with a cache dir in place, and builds nothing.
-    shutil.rmtree(cache / "flea")
+    shutil.rmtree(cache / "dlea")
     off, renders, started, _, _ = helper(hook="off")
-    check(off.stdout == source.stdout and bytecode_dir_of(renders[0]) is None and started == 0 and not (cache / "flea").exists(), "FLEA_FIGURE_CACHE=off runs from source and builds nothing")
+    check(off.stdout == source.stdout and bytecode_dir_of(renders[0]) is None and started == 0 and not (cache / "dlea").exists(), "DLEA_FIGURE_CACHE=off runs from source and builds nothing")
     # The svg-only hook keeps the SVG cache on and the bytecode off, so a figure test needs no background build.
     svg, renders, started, _, _ = helper(hook="svg")
-    check(svg.stdout == source.stdout and bytecode_dir_of(renders[0]) is None and started == 0 and not (cache / "flea").exists(), "FLEA_FIGURE_CACHE=svg runs from source and builds nothing")
+    check(svg.stdout == source.stdout and bytecode_dir_of(renders[0]) is None and started == 0 and not (cache / "dlea").exists(), "DLEA_FIGURE_CACHE=svg runs from source and builds nothing")
     print(f"figure-bytecode: {checks} check(s), {failures} failed")
 
 

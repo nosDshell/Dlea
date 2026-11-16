@@ -1,5 +1,5 @@
 // LocalSend ships a CLI, and it is a full-screen program: it draws what it discovered in a panel and
-// takes arrow keys and Enter. Directive 71 is that Flea drives that CLI rather than opening the app,
+// takes arrow keys and Enter. Directive 71 is that Dlea drives that CLI rather than opening the app,
 // so this opens a pty of its own and drives it there. No shell is involved at any point, which is
 // what keeps a file name with a quote or a space in it an argument rather than somebody else's word.
 use super::localsendscreen::Screen;
@@ -68,7 +68,7 @@ extern "C" {
 }
 
 // The person reads the cause; the log names the step that met it, since several calls can refuse in the same way.
-fn setup_fault(step: &str, cause: &std::io::Error) -> String { eprintln!("flea: LocalSend terminal setup, {}: {}", step, cause); format!("LocalSend could not start: {}.", crate::error::io_message(cause)) }
+fn setup_fault(step: &str, cause: &std::io::Error) -> String { eprintln!("dlea: LocalSend terminal setup, {}: {}", step, cause); format!("LocalSend could not start: {}.", crate::error::io_message(cause)) }
 
 fn open_pty() -> Result<(OwnedFd, std::fs::File), String> {
     // O_RDWR | O_NOCTTY | O_CLOEXEC: the terminal belongs to the child, and the master must not ride into it.
@@ -105,13 +105,13 @@ fn spawn(program: &str, args: &[String], slave: &std::fs::File) -> Result<Child,
     let mut command = crate::backend::locale::command(program);
     // A pty is not a terminal until something says which one: the backend inherits no TERM, and
     // without one the CLI draws its frame and never refreshes the device list inside it.
-    command.args(flea::bytename::args(args)).env("TERM", "xterm-256color")
+    command.args(dlea::bytename::args(args)).env("TERM", "xterm-256color")
         .stdin(Stdio::from(stdin)).stdout(Stdio::from(stdout)).stderr(Stdio::from(stderr));
     // Read before the fork, because a backend that died in between could never deliver the signal.
     let parent = std::process::id();
     unsafe {
         // A session of its own, then this pty as its controlling terminal: without one the CLI reads
-        // no keys at all, and with Flea's own session it would take Flea's.
+        // no keys at all, and with Dlea's own session it would take Dlea's.
         command.pre_exec(move || {
             if prctl(PR_SET_PDEATHSIG, SIGKILL as c_ulong, 0 as c_ulong, 0 as c_ulong, 0 as c_ulong) < 0 { return Err(std::io::Error::last_os_error()) }
             if getppid() != parent as i32 { return Err(std::io::Error::from_raw_os_error(ESRCH)) }
@@ -145,7 +145,7 @@ fn look<T: Default>(seen: &Arc<Mutex<Screen>>, read: impl FnOnce(&Screen) -> T) 
     seen.lock().map(|screen| read(&screen)).unwrap_or_default()
 }
 
-// Every run binds 53317, so Flea's own runs take turns on a flock; no runtime directory runs unlocked, as 0.4.0 did.
+// Every run binds 53317, so Dlea's own runs take turns on a flock; no runtime directory runs unlocked, as 0.4.0 did.
 enum Turn { Held(Option<std::fs::File>), Busy, Cancelled }
 
 fn take_turn(cancel: &AtomicBool, limit: Option<Duration>) -> Turn {
@@ -310,8 +310,8 @@ fn send_with_cancel(name: &str, paths: &[String], limit: Duration, cancel: &Atom
         return Err("LocalSend was given nothing to send.".into());
     }
     // localsend-cli takes files only and refuses a folder with "Not a file", so the folder is named here.
-    if let Some(folder) = paths.iter().find(|p| flea::bytename::view(p).is_dir()) {
-        let leaf = flea::bytename::view(folder).file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| folder.clone());
+    if let Some(folder) = paths.iter().find(|p| dlea::bytename::view(p).is_dir()) {
+        let leaf = dlea::bytename::view(folder).file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_else(|| folder.clone());
         return Err(format!("{} is a folder, and LocalSend sends only files.", leaf));
     }
     let mut args: Vec<String> = Vec::new();

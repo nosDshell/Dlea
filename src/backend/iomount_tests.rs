@@ -127,7 +127,7 @@ fn a_slow_write_answers_slow_within_its_deadline_while_a_second_mount_answers() 
     std::thread::spawn(move || {
         let out = slow_write_with(&slow_dir, &slow_body, "rename", TEST_DEADLINE, move || {
             let _ = wait.recv();
-            Ok::<i32, FleaError>(42)
+            Ok::<i32, DleaError>(42)
         });
         let _ = tx_slow.send(out);
     });
@@ -139,7 +139,7 @@ fn a_slow_write_answers_slow_within_its_deadline_while_a_second_mount_answers() 
     };
     assert_eq!(mount, m.hung, "the slow answer names the mount, not the file");
     // While the first mount is held, a second mount answers on its own worker.
-    let neighbour = slow_write_with(&m.neighbour_dir(), &m.body, "scan", TEST_DEADLINE, || Ok::<i32, FleaError>(7));
+    let neighbour = slow_write_with(&m.neighbour_dir(), &m.body, "scan", TEST_DEADLINE, || Ok::<i32, DleaError>(7));
     match neighbour {
         SlowWrite::Ready(Ok(7)) => {}
         _ => panic!("a held mount never blocks its neighbour"),
@@ -160,13 +160,13 @@ fn a_slow_write_answers_slow_within_its_deadline_while_a_second_mount_answers() 
 #[test]
 fn a_write_that_answers_in_time_reports_ready_with_no_slow() {
     let m = Mounts::new("readyfast");
-    let fast = slow_write_with(&m.hung_dir(), &m.body, "rename", TEST_DEADLINE, || Ok::<i32, FleaError>(7));
+    let fast = slow_write_with(&m.hung_dir(), &m.body, "rename", TEST_DEADLINE, || Ok::<i32, DleaError>(7));
     match fast {
         SlowWrite::Ready(Ok(7)) => {}
         _ => panic!("a fast write answers Ready, never Slow"),
     }
     // A local mount runs inline with no hop, so its write never waits on a worker.
-    let local = slow_write_with(Path::new("/elsewhere/dir"), &m.body, "rename", TEST_DEADLINE, || Ok::<i32, FleaError>(7));
+    let local = slow_write_with(Path::new("/elsewhere/dir"), &m.body, "rename", TEST_DEADLINE, || Ok::<i32, DleaError>(7));
     match local {
         SlowWrite::Ready(Ok(7)) => {}
         _ => panic!("a local write answers inline"),
@@ -177,7 +177,7 @@ fn a_slow_worker_that_dies_marks_nothing_stuck_and_says_so() {
     let m = Mounts::new("slowdead");
     // The closure panics, so tx drops and the slow wait answers Disconnected.
     crate::backend::quietpanic::quiet();
-    let dead = slow_write_with(&m.hung_dir(), &m.body, "rename", TEST_DEADLINE, || -> Result<i32, FleaError> {
+    let dead = slow_write_with(&m.hung_dir(), &m.body, "rename", TEST_DEADLINE, || -> Result<i32, DleaError> {
         panic!("{}", crate::backend::quietpanic::DELIBERATE);
     });
     match dead {
@@ -255,7 +255,7 @@ fn a_late_scan_hands_back_its_expanded_children_with_the_folder() {
     armed.push(done.watch_wd);
     assert!(armed.len() == 2 && armed.iter().all(|&wd| wd >= 0), "the folder and its expanded child are both armed: {armed:?}");
     hand_back_late(&Ok(done), &tx);
-    let error = FleaError { where_: "scan".to_string(), path: String::new(), msg: String::new() };
+    let error = DleaError { where_: "scan".to_string(), path: String::new(), msg: String::new() };
     hand_back_late(&Err(ListErr { error, mode: 0, watch_wd: -1 }), &tx);
     let back: Vec<i32> = rx.try_iter().filter_map(|event| match event {
         crate::backend::events::Event::AbandonWatch(wd) => Some(wd),

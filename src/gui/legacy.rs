@@ -28,7 +28,7 @@ fn ipc(instance: &Instance, function: &str) -> Result<String, String> {
         "--pid",
         &instance.pid.to_string(),
         "call",
-        "flea",
+        "dlea",
         function,
     ]))
 }
@@ -100,7 +100,7 @@ pub(super) fn replace() -> Result<Carry, String> {
         .truncate(false)
         .mode(0o600)
         .custom_flags(crate::oflags::O_NOFOLLOW | crate::oflags::O_NONBLOCK)
-        .open(runtime.join("flea-upgrade.lock"))
+        .open(runtime.join("dlea-upgrade.lock"))
         .map_err(|_| "the window upgrade lock could not be opened")?;
     if !guard.metadata().is_ok_and(|m| {
         m.is_file()

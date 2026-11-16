@@ -1,5 +1,5 @@
 // Recorded, identity-checked recovery of interrupted claims; only inactive journals may be replayed.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::{fd_path, identity, open_dir, rename, Identity, Node};
 use crate::backend::trashmanifest::{Manifest, Op, Outcome, Records, Refusal, Refuse};
 use crate::json::{escape, field_str, field_usize};
@@ -17,7 +17,7 @@ pub(super) use records::RecordInput;
 #[path = "batch.rs"]
 pub(super) mod batch;
 
-const FINISHED: &[u8] = b"flea recovery complete 1";
+const FINISHED: &[u8] = b"dlea recovery complete 1";
 
 #[cfg(test)]
 thread_local! {
@@ -29,7 +29,7 @@ pub fn recovery_root() -> Result<PathBuf, String> {
         Some(path) => path,
         None => crate::userfile::home()?.join(".local/state"),
     };
-    Ok(state.join("flea/recovery"))
+    Ok(state.join("dlea/recovery"))
 }
 
 // A record that cannot be kept stops the step before anything is claimed; the caller names the step.
@@ -92,7 +92,7 @@ impl Recovery {
             return Err(Refusal::changed("Unsupported recovery record version."));
         }
         let path = |key: &str| -> Result<PathBuf, Refusal> {
-            let value = flea::bytename::exact(
+            let value = dlea::bytename::exact(
                 field_str(&header, key).changed(&format!("Recovery record has no {}.", key))?,
             );
             if !value.is_absolute()
@@ -113,7 +113,7 @@ impl Recovery {
         let quarantine_path = path("quarantine")?;
         let quarantine_name = quarantine_path.file_name().changed("Missing quarantine name.")?.to_string_lossy();
         let expected_name = format!("{}.review", quarantine_name);
-        if !quarantine_name.starts_with(".flea-delete-") || self.path.file_name().and_then(OsStr::to_str) != Some(expected_name.as_str())
+        if !quarantine_name.starts_with(".dlea-delete-") || self.path.file_name().and_then(OsStr::to_str) != Some(expected_name.as_str())
             || quarantine_path.parent() != source.parent() {
             return Err(Refusal::changed("Recovery record does not name its own quarantine."));
         }
@@ -243,7 +243,7 @@ impl Recovery {
             } else {
                 let destination = field_str(&header, "destination").unwrap_or_default();
                 if !destination.is_empty()
-                    && !identity(&flea::bytename::view(&destination))
+                    && !identity(&dlea::bytename::view(&destination))
                         .map(|current| same_node(&current, &payload))
                         .unwrap_or(false)
                 {
@@ -325,7 +325,7 @@ fn recover_entries(root: &Path, entries: impl IntoIterator<Item = std::io::Resul
             }
         };
         let name = entry.file_name();
-        if !name.to_str().map(|name| name.starts_with(".flea-delete-") && name.ends_with(".review")).unwrap_or(false) { continue; }
+        if !name.to_str().map(|name| name.starts_with(".dlea-delete-") && name.ends_with(".review")).unwrap_or(false) { continue; }
         let path = entry.path();
         let result_for_record = (|| {
             let Some(record) = Manifest::open_inactive(&path).refuse(Outcome::NothingMoved, "Could not open the recovery record")? else { return Ok(false); };

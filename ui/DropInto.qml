@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Drag.js" as DragOps
 import "js/DragOut.js" as DragOut
 import "js/Swap.js" as Swap
@@ -29,7 +29,7 @@ DropArea {
 
     keys: [DragOps.ROWS_MIME, DragOps.SHELF_MIME, "text/uri-list", "text/plain"]
 
-    Flea.FileDrag {
+    Dlea.FileDrag {
         id: feedback
         pane: root.pane
     }

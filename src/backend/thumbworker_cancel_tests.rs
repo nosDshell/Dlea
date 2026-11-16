@@ -8,7 +8,7 @@ use std::{
     time::Duration,
 };
 
-const PROBE: &str = "FLEA_VIDEO_CANCEL_PROBE";
+const PROBE: &str = "DLEA_VIDEO_CANCEL_PROBE";
 const THIS_TEST: &str = "backend::thumbworker::cancel_tests::active_decoder_cancel_protocol_reaps_only_the_requested_job";
 const WAIT: Duration = Duration::from_secs(5);
 

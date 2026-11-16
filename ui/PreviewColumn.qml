@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Facts.js" as Facts
 import "js/Format.js" as Format
 import "js/Icons.js" as Icons
@@ -212,7 +212,7 @@ Item {
                 spacing: Theme.spacing.gap
                 visible: !root.thumbShown && root.glyphState()
 
-                Flea.Glyph {
+                Dlea.Glyph {
                     anchors.horizontalCenter: parent.horizontalCenter
                     // A kind standing in for a missing thumbnail is a pane state, not a row mark: PreviewColumn.dc.html draws 40 on its Video tile.
                     maxSize: Theme.stateMarkSize
@@ -237,14 +237,14 @@ Item {
 
             // A multi-selection is a count, so the frame stacks the kinds it holds rather than
             // picking one of them; the front mark is the kind the Kinds row below names first.
-            Flea.KindStack {
+            Dlea.KindStack {
                 anchors.centerIn: parent
                 visible: root.previewState === Facts.MULTI && root.multiMarks.length > 0
                 marks: root.multiMarks
             }
 
             // The file's own first lines, which is the frame's whole content for text and code.
-            Flea.PreviewLines {
+            Dlea.PreviewLines {
                 id: lines
                 anchors.fill: parent
                 anchors.margins: Theme.spacing.hairline
@@ -293,8 +293,8 @@ Item {
                 contentHeight: pdfLoader.height
                 flickableDirection: Flickable.VerticalFlick
                 boundsBehavior: Flickable.StopAtBounds
-                Flea.FastScrollHandler { flickable: pdfFlick }
-                Flea.ViewportScrollBars { parent: pdfFlick; flickable: pdfFlick }
+                Dlea.FastScrollHandler { flickable: pdfFlick }
+                Dlea.ViewportScrollBars { parent: pdfFlick; flickable: pdfFlick }
                 Loader {
                     id: pdfLoader
                     width: pdfFlick.width
@@ -315,7 +315,7 @@ Item {
             }
 
             // The canvas's Archive tile: the first entries by name, then the count it could not show.
-            Flea.PreviewArchive {
+            Dlea.PreviewArchive {
                 id: archivePane
                 anchors.fill: parent
                 anchors.margins: Theme.spacing.gap
@@ -323,7 +323,7 @@ Item {
                 meta: root.meta
             }
 
-            Flea.LoadingState {
+            Dlea.LoadingState {
                 anchors.fill: parent
                 visible: root.previewState === Facts.LOADING
                 heldOff: root.loadingHeldOff
@@ -336,7 +336,7 @@ Item {
                 visible: root.previewState === Facts.ERROR || (root.previewState === Facts.UNSUPPORTED && !root.thumbShown)
                 spacing: Theme.spacing.gap
 
-                Flea.Glyph {
+                Dlea.Glyph {
                     anchors.horizontalCenter: parent.horizontalCenter
                     // A failure mark stands alone, so it takes the pane-state ceiling; the board draws 32 here and 36 for unsupported, and 40 is the one token for both.
                     maxSize: Theme.stateMarkSize
@@ -379,7 +379,7 @@ Item {
             elide: Text.ElideRight
         }
 
-        Flea.PreviewFacts {
+        Dlea.PreviewFacts {
             id: facts
             width: parent.width
             compact: root.tallRow && ViewState.previewFacts === "compact"
@@ -398,7 +398,7 @@ Item {
             readonly property var strip: strip
 
             // The player is playerLoader in the frame above; the probe's duration gives the strip a scale until it exists.
-            Flea.MediaStrip {
+            Dlea.MediaStrip {
                 id: strip
                 anchors.fill: parent
                 playing: transport.playing
@@ -417,7 +417,7 @@ Item {
         }
     }
 
-    Flea.PreviewScroll {
+    Dlea.PreviewScroll {
         id: scrolling
         column: root
     }

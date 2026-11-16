@@ -4,7 +4,7 @@ set -uo pipefail
 script_path=$(realpath -- "$0") || exit 1
 cd "$(dirname "$script_path")/.." || exit 1
 . "$PWD/tests/headless-commons.sh"
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 mode=${1:-invocations}
 case $mode in invocations|candidate|ground-mutant|card-mutant|ruler-mutant) ;; *) echo 'FAIL settings-ground unknown mode'; exit 1 ;; esac
 if [[ "$mode" == invocations ]]; then
@@ -22,10 +22,10 @@ fi
 python3 -B tests/lib/settings-ground-point.py --self-test || exit 1
 command -v qs >/dev/null || { echo 'FAIL settings-ground needs qs'; exit 1; }
 command -v dbus-run-session >/dev/null || { echo 'FAIL settings-ground needs private D-Bus'; exit 1; }
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [[ -x "$bin" ]] || { echo 'FAIL settings-ground needs the candidate backend'; exit 1; }
 sandbox_root_ok
-probe=$(mktemp -d "$SANDBOX_ROOT/flea-settings-ground.XXXXXXXX") || exit 1
+probe=$(mktemp -d "$SANDBOX_ROOT/dlea-settings-ground.XXXXXXXX") || exit 1
 : > "$probe/$SANDBOX_MARKER" || exit 1
 cleanup() { sandbox_remove "$probe"; }
 trap cleanup EXIT
@@ -36,7 +36,7 @@ import subprocess
 import sys
 
 root = pathlib.Path(sys.argv[2])
-assert root.is_absolute() and (root / ".flea-test-sandbox").is_file()
+assert root.is_absolute() and (root / ".dlea-test-sandbox").is_file()
 path = root / "rail-mutant.py"
 assert path.resolve().is_relative_to(root.resolve())
 text = pathlib.Path(sys.argv[1]).read_text()
@@ -56,16 +56,16 @@ printf 'payload\n' > "$probe/home/fixture/b.txt"
 env HOME="$probe/home" XDG_STATE_HOME="$probe/state" "$bin" --ui-state \
     '{"view":"list","keys":"default","menu":{"hidden":[]},"preview":{"column":false,"thumbnails":"off"},"updates":{"autoCheck":false},"display":{"textSize":{"mode":14}}}' >/dev/null || exit 1
 if [[ "$mode" == candidate ]]; then
-    ln -s "$PWD/ui" "$probe/config/flea" || exit 1
+    ln -s "$PWD/ui" "$probe/config/dlea" || exit 1
 else
-    cp -a "$PWD/ui" "$probe/config/flea" || exit 1
+    cp -a "$PWD/ui" "$probe/config/dlea" || exit 1
     python3 - "$probe" "$mode" <<'PY' || exit 1
 import pathlib
 import sys
 
 root = pathlib.Path(sys.argv[1])
-assert root.is_absolute() and (root / ".flea-test-sandbox").is_file()
-path = root / "config/flea" / ("SettingsRuler.qml" if sys.argv[2] == "ruler-mutant" else "SettingsPanel.qml")
+assert root.is_absolute() and (root / ".dlea-test-sandbox").is_file()
+path = root / "config/dlea" / ("SettingsRuler.qml" if sys.argv[2] == "ruler-mutant" else "SettingsPanel.qml")
 assert path.resolve().is_relative_to(root.resolve())
 text = path.read_text()
 if sys.argv[2] == "ground-mutant":
@@ -85,15 +85,15 @@ PY
 fi
 headless_commons "$probe" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$probe/config/Ui" || exit 1
-ln -s "$PWD/ui/boot/fleatab.qml" "$probe/config/fleatab.qml" || exit 1
+ln -s "$PWD/ui/boot/dleatab.qml" "$probe/config/dleatab.qml" || exit 1
 cp tests/settings-ground.qml "$probe/config/shell.qml" || exit 1
-printf 'SETTINGS_GROUND PANEL mode=%s sha256=%s\n' "$mode" "$(sha256sum "$probe/config/flea/SettingsPanel.qml" | cut -d' ' -f1)"
-printf 'SETTINGS_GROUND RULER mode=%s sha256=%s\n' "$mode" "$(sha256sum "$probe/config/flea/SettingsRuler.qml" | cut -d' ' -f1)"
+printf 'SETTINGS_GROUND PANEL mode=%s sha256=%s\n' "$mode" "$(sha256sum "$probe/config/dlea/SettingsPanel.qml" | cut -d' ' -f1)"
+printf 'SETTINGS_GROUND RULER mode=%s sha256=%s\n' "$mode" "$(sha256sum "$probe/config/dlea/SettingsRuler.qml" | cut -d' ' -f1)"
 log="$probe/qs.log"
-env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u FLEA_SELECT \
+env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u DLEA_SELECT \
     HOME="$probe/home" XDG_STATE_HOME="$probe/state" XDG_CONFIG_HOME="$probe/config" \
     XDG_DATA_HOME="$probe/data" XDG_CACHE_HOME="$probe/cache" XDG_RUNTIME_DIR="$probe/runtime" \
-    FLEA_PATH="$probe/home/fixture" FLEA_BIN="$bin" GIO_USE_VOLUME_MONITOR=unix \
+    DLEA_PATH="$probe/home/fixture" DLEA_BIN="$bin" GIO_USE_VOLUME_MONITOR=unix \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
     timeout 60 dbus-run-session -- qs -p "$probe/config" > "$log" 2>&1
 qs_status=$?

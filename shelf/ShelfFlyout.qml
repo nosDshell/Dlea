@@ -2,7 +2,7 @@ import QtQuick
 import qs.Commons
 import qs.Commons as Commons
 
-// One flyout, two verbs and the send: Flea's own places and Taildrop's own peers, numbered so a
+// One flyout, two verbs and the send: Dlea's own places and Taildrop's own peers, numbered so a
 // keyboard reaches any of them in one press. Actions: recent destinations first, because the same
 // folder is usually the answer twice running.
 Item {

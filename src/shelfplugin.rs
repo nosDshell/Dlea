@@ -9,14 +9,14 @@ use crate::userfile;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-pub const ID: &str = "io.github.thisisgm.flea-shelf";
+pub const ID: &str = "io.github.thisisgm.dlea-shelf";
 // A plugin manifest is a few hundred bytes, so a larger one is not the shelf's.
 const MAX_MANIFEST_BYTES: u64 = 64 * 1024;
 
-// An empty FLEA_SHELF would resolve manifest.json against the working directory, so it is no
-// candidate, the same rule paths.rs applies to FLEA_UI.
+// An empty DLEA_SHELF would resolve manifest.json against the working directory, so it is no
+// candidate, the same rule paths.rs applies to DLEA_UI.
 fn env_source() -> Option<PathBuf> {
-    let value = std::env::var("FLEA_SHELF").ok()?;
+    let value = std::env::var("DLEA_SHELF").ok()?;
     if value.is_empty() {
         return None;
     }
@@ -30,7 +30,7 @@ pub fn source() -> Option<PathBuf> {
             return Some(p);
         }
     }
-    let packaged = PathBuf::from("/usr/share/flea/shelf");
+    let packaged = PathBuf::from("/usr/share/dlea/shelf");
     if packaged.join("manifest.json").is_file() {
         return Some(packaged);
     }
@@ -48,7 +48,7 @@ pub fn installed() -> Result<PathBuf, String> {
 }
 
 // Sample manifest, the two keys read here being the only ones this file cares about:
-// {"schemaVersion": 1, "id": "io.github.thisisgm.flea-shelf", "version": "0.3.0", ...}
+// {"schemaVersion": 1, "id": "io.github.thisisgm.dlea-shelf", "version": "0.3.0", ...}
 fn version(dir: &Path) -> Option<String> {
     // Read before the window, so a fifo in its place must not block the launch.
     let text = crate::backend::regfile::read_text(&dir.join("manifest.json"), MAX_MANIFEST_BYTES).ok()?;
@@ -75,7 +75,7 @@ fn install(source: &Path, dest: &Path) -> Result<(), String> {
         let to = dest.join(entry.file_name());
         std::fs::copy(&from, &to).map_err(|e| format!("{} could not be copied ({})", from.display(), e))?;
     }
-    // A file this Flea no longer ships would otherwise outlive the upgrade that dropped it.
+    // A file this Dlea no longer ships would otherwise outlive the upgrade that dropped it.
     for entry in std::fs::read_dir(dest).map_err(|e| format!("{} could not be read ({})", dest.display(), e))? {
         let entry = entry.map_err(|e| format!("{} could not be read ({})", dest.display(), e))?;
         if !source.join(entry.file_name()).exists() {
@@ -126,7 +126,7 @@ pub fn sync(enabled: bool) -> Result<(), String> {
         }
         return omarchy(&["plugin", "disable", ID]);
     }
-    let source = source().ok_or_else(|| "the shelf plugin is not installed, look for /usr/share/flea/shelf".to_string())?;
+    let source = source().ok_or_else(|| "the shelf plugin is not installed, look for /usr/share/dlea/shelf".to_string())?;
     if !current(&dest, &source) {
         install(&source, &dest)?;
     }
@@ -156,7 +156,7 @@ mod tests {
     use super::*;
 
     fn fixture(name: &str, version: &str) -> PathBuf {
-        let dir = std::env::temp_dir().join(format!("flea-shelfplugin-{}-{}", name, std::process::id()));
+        let dir = std::env::temp_dir().join(format!("dlea-shelfplugin-{}-{}", name, std::process::id()));
         let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).expect("the fixture root");
         std::fs::write(dir.join("manifest.json"),
@@ -175,7 +175,7 @@ mod tests {
 
     // A release bump that forgets the shelf, or reshapes the line every PKGBUILD stamps, fails here.
     #[test]
-    fn the_shelf_ships_under_the_flea_version_on_the_line_the_packages_stamp() {
+    fn the_shelf_ships_under_the_dlea_version_on_the_line_the_packages_stamp() {
         let manifest = include_str!("../shelf/manifest.json");
         assert_eq!(json::field_str(manifest, "version").as_deref(), Some(env!("CARGO_PKG_VERSION")),
                    "shelf/manifest.json must say Cargo.toml's version");
@@ -183,12 +183,12 @@ mod tests {
         assert_eq!(manifest.matches(line.as_str()).count(), 1, "the PKGBUILD stamp rewrites one top-level version line");
     }
 
-    // Flea through 0.3.8 shipped a changing shelf as 0.3.1, so the copy one of them left must not read as current.
+    // Dlea through 0.3.8 shipped a changing shelf as 0.3.1, so the copy one of them left must not read as current.
     #[test]
-    fn a_copy_an_older_flea_left_is_replaced_by_this_tree_s_shelf() {
+    fn a_copy_an_older_dlea_left_is_replaced_by_this_tree_s_shelf() {
         let tree = Path::new(env!("CARGO_MANIFEST_DIR")).join("shelf");
         let dest = fixture("older", "0.3.1");
-        assert!(!current(&dest, &tree), "the copy an older Flea left reads as current");
+        assert!(!current(&dest, &tree), "the copy an older Dlea left reads as current");
         install(&tree, &dest).expect("the copy");
         assert!(current(&dest, &tree));
         assert_eq!(std::fs::read(dest.join("Panel.qml")).ok(), std::fs::read(tree.join("Panel.qml")).ok());
@@ -196,7 +196,7 @@ mod tests {
     }
 
     #[test]
-    fn an_install_leaves_the_copy_and_drops_what_this_flea_no_longer_ships() {
+    fn an_install_leaves_the_copy_and_drops_what_this_dlea_no_longer_ships() {
         let source = fixture("source", "0.3.0");
         let dest = fixture("dest", "0.2.9");
         std::fs::write(dest.join("Gone.qml"), "Item {}\n").expect("a file from the older plugin");
@@ -223,6 +223,6 @@ mod tests {
     #[test]
     fn the_plugin_lands_where_omarchy_looks_for_a_user_s_own() {
         let path = installed().expect("a config directory");
-        assert!(path.ends_with("omarchy/plugins/io.github.thisisgm.flea-shelf"), "{}", path.display());
+        assert!(path.ends_with("omarchy/plugins/io.github.thisisgm.dlea-shelf"), "{}", path.display());
     }
 }

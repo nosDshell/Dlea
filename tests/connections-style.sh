@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Qt wires one Connections handler style per block, so a mixed block drops the method side.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 arg=${1:-}
 if [ -n "$arg" ]; then tree=$(realpath -m -- "$arg") || exit 1; else tree=""; fi
 cd "$(dirname "$0")/.." || exit 1

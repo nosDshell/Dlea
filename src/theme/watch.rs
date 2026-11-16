@@ -8,10 +8,10 @@ use std::path::{Path, PathBuf};
 pub struct ThemePaths {
     pub current: PathBuf,
     pub user_shell: PathBuf,
-    /// `~/.config/flea`: the stable theme contract other shells (nosDshell
+    /// `~/.config/dlea`: the stable theme contract other shells (nosDshell
     /// templates) render into; colors.toml and shell.toml here overlay the
     /// packaged theme files key by key when present.
-    pub flea: PathBuf,
+    pub dlea: PathBuf,
     pub fontconfig: PathBuf,
     pub hypr_config: PathBuf,
     pub toggles: PathBuf,
@@ -23,7 +23,7 @@ impl ThemePaths {
         Self {
             current: home.join(".local/state/omarchy/current"),
             user_shell: home.join(".config/omarchy/shell.toml"),
-            flea: home.join(".config/flea"),
+            dlea: home.join(".config/dlea"),
             fontconfig: home.join(".config/fontconfig/fonts.conf"),
             hypr_config: home.join(".config/hypr"),
             toggles: state_home
@@ -41,9 +41,9 @@ impl ThemePaths {
             self.current.join("theme/colors.toml"),
             self.current.join("theme/shell.toml"),
             self.user_shell.clone(),
-            self.flea.clone(),
-            self.flea.join("colors.toml"),
-            self.flea.join("shell.toml"),
+            self.dlea.clone(),
+            self.dlea.join("colors.toml"),
+            self.dlea.join("shell.toml"),
             self.fontconfig.clone(),
             self.hypr_config.clone(),
             self.hypr_config.join("hyprland.conf"),
@@ -57,11 +57,11 @@ impl ThemePaths {
     }
 
     // Run on a background thread; missing optional shell files mean Commons defaults, other errors propagate.
-    // `~/.config/flea/*` overlays the packaged files key by key, so it can also
+    // `~/.config/dlea/*` overlays the packaged files key by key, so it can also
     // supply the whole theme on systems without an Omarchy state directory.
     pub fn load(&self, stop: Option<u32>, resolved_family: &str) -> io::Result<Theme> {
         let packaged = fs::read_to_string(self.current.join("theme/colors.toml"));
-        let overlay = optional(&self.flea.join("colors.toml"))?;
+        let overlay = optional(&self.dlea.join("colors.toml"))?;
         let colors = match (packaged, overlay.is_empty()) {
             (Ok(base), _) => format!("{base}\n{overlay}"),
             (Err(error), false) if error.kind() == io::ErrorKind::NotFound => overlay,
@@ -70,7 +70,7 @@ impl ThemePaths {
         let shell = format!(
             "{}\n{}",
             optional(&self.current.join("theme/shell.toml"))?,
-            optional(&self.flea.join("shell.toml"))?
+            optional(&self.dlea.join("shell.toml"))?
         );
         let user = optional(&self.user_shell)?;
         Ok(Theme::resolve(

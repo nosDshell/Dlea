@@ -1,12 +1,12 @@
 // Add and Update from Git, and the plugins request on a real backend's own stdin and stdout.
 use super::plugins_tests::{ask, code, env, get, plugin, READY};
 use super::testdir::TestDir;
-use flea::ui_logic_plugin_settings::wire::{self, Reply, Source};
+use dlea::ui_logic_plugin_settings::wire::{self, Reply, Source};
 use std::io::{BufRead, BufReader, Write};
 use std::path::Path;
 use std::process::{Command, Stdio};
 
-const CHILD: &str = "FLEA_PLUGINS_PROTOCOL_CHILD";
+const CHILD: &str = "DLEA_PLUGINS_PROTOCOL_CHILD";
 const CHILD_TEST: &str = "backend::pluginadd_tests::backend_child";
 
 fn git(dir: &Path, args: &[&str]) {
@@ -95,6 +95,6 @@ fn st2_backend_protocol_a_real_backend_answers_plugins_lines_off_its_loop() {
     writeln!(stdin, "{{\"c\":\"quit\"}}").unwrap();
     drop(stdin);
     assert!(child.wait().unwrap().success());
-    let state = std::fs::read_to_string(dir.join("state/flea/ui.json")).unwrap();
+    let state = std::fs::read_to_string(dir.join("state/dlea/ui.json")).unwrap();
     assert!(state.contains("\"me.wired\""), "the switch reached the real ui.json: {state}");
 }

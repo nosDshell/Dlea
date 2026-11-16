@@ -347,7 +347,7 @@ pub fn run(path: Option<&str>, select: Option<&str>, options: &cwd::Options) -> 
     match result {
         Ok(code) => code,
         Err(e) => {
-            eprintln!("flea: terminal interface: {}", crate::error::io_message(&e));
+            eprintln!("dlea: terminal interface: {}", crate::error::io_message(&e));
             2
         }
     }

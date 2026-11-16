@@ -7,9 +7,9 @@ python3 tests/picker-native-settle-check.py
 python3 tests/picker-runner-check.py
 cargo test --locked backend::picker::tests -- --test-threads=1
 
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 sandbox_root_ok
-scratch=$(mktemp -d "$SANDBOX_ROOT/flea-picker-selection.XXXXXXXX") || exit 1
+scratch=$(mktemp -d "$SANDBOX_ROOT/dlea-picker-selection.XXXXXXXX") || exit 1
 : > "$scratch/$SANDBOX_MARKER"
 trap 'sandbox_remove "$scratch"' EXIT
 mkdir -p "$scratch/selection/js"

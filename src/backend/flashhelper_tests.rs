@@ -91,7 +91,7 @@ fn no_flash_source_names_a_privilege_escalation() {
     // Built at runtime, so the needles themselves never trip the scan they run.
     let forbidden = ["su".to_string() + "do", "pk".to_string() + "exec"];
     let sources = escalation_sources();
-    assert!(sources.iter().any(|s| s.ends_with("flashpump.rs")) && sources.iter().any(|s| s.ends_with("flea-udisks")), "{sources:?}");
+    assert!(sources.iter().any(|s| s.ends_with("flashpump.rs")) && sources.iter().any(|s| s.ends_with("dlea-udisks")), "{sources:?}");
     for source in &sources {
         let text = std::fs::read_to_string(source).unwrap_or_else(|_| panic!("{source} is read from the tree root"));
         for needle in &forbidden {
@@ -108,7 +108,7 @@ fn escalation_sources() -> Vec<String> {
         .map(|name| format!("src/backend/{name}"))
         .collect();
     sources.sort();
-    sources.extend(["src/backend/xxh64.rs", "tools/flea-udisks", "tools/flea-udisks-seam"].map(String::from));
+    sources.extend(["src/backend/xxh64.rs", "tools/dlea-udisks", "tools/dlea-udisks-seam"].map(String::from));
     sources
 }
 
@@ -173,9 +173,9 @@ fn an_answer_followed_by_a_full_stderr_pipe_still_ends() {
 // The test binary again, running only the child half, so the helper client's own stderr is the process's stderr.
 #[test]
 fn stderr_child() {
-    let Some(path) = std::env::var_os("FLEA_TEST_HELPER") else { return };
+    let Some(path) = std::env::var_os("DLEA_TEST_HELPER") else { return };
     let path = path.to_string_lossy().to_string();
-    match std::env::var("FLEA_TEST_HELPER_CALL").as_deref() {
+    match std::env::var("DLEA_TEST_HELPER_CALL").as_deref() {
         Ok("eject") => drop(eject_at(&path, "sda", SHORT_LIMIT)),
         Ok("open") => drop(open_device_at(&path, "sda", "", 0, &mut || {}, SHORT_LIMIT)),
         _ => {}
@@ -187,8 +187,8 @@ fn helper_stderr(call: &str, helper: &str) -> String {
         .arg("30")
         .arg(std::env::current_exe().expect("the test binary"))
         .args(["--exact", "backend::flashhelper::tests::stderr_child", "--nocapture", "--test-threads=1"])
-        .env("FLEA_TEST_HELPER", helper)
-        .env("FLEA_TEST_HELPER_CALL", call)
+        .env("DLEA_TEST_HELPER", helper)
+        .env("DLEA_TEST_HELPER_CALL", call)
         .output()
         .expect("the client runs");
     String::from_utf8_lossy(&out.stderr).to_string()

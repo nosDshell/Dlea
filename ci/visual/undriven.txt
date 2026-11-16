@@ -9,7 +9,7 @@ g2.openwith.launch-error BLOCKED native: the launch failure needs a private appl
 g2.settings.favourite-replaced BLOCKED native: replacing the directory after its menu snapshot requires the marked native fixture in tests/ui-settings-places.sh settingsplaces; fxuish_def2_replaced_favourite_preserves_the_identity_refusal pins delivery of the refusal.
 g2.send-share.hover BLOCKED FX-RAILHOVER: the retained ShareBrowser painter has no production caller; its hover toggle is checked by send_share::view_tests and a native component fixture against the v0.4.1 painter.
 uts.ey380.trash-view-14 BLOCKED U-TEXT-SIZE: text-size variants of the existing Trash surface are outside the fixed-size visual lane; guarded native uts.tsv compares 14 and 20 px with v0.3.12.
-g2.pl3.trash-window-read BLOCKED B22: rows kept during a Trash window read is a timing state between a scroll and a delayed backend reply, which a still fixture frame cannot hold; crates/flea-gui/src/g2/trash_browser/window_tests.rs pins it.
+g2.pl3.trash-window-read BLOCKED B22: rows kept during a Trash window read is a timing state between a scroll and a delayed backend reply, which a still fixture frame cannot hold; crates/dlea-gui/src/g2/trash_browser/window_tests.rs pins it.
 uts.ey400.toolbar-collide-14 BLOCKED U-TEXT-SIZE: toolbar and collision mark scaling needs a real text-size change; guarded native uts.tsv compares 14 and 20 px with v0.3.12.
 uts.ey422.settings-step-16 BLOCKED U-TEXT-SIZE: Settings ruler, reopen and geometry at 14, 16 and 20 px need native state transitions; guarded native uts.tsv covers them against v0.3.12.
 uts.ey410.grid-captions-14 BLOCKED U-TEXT-SIZE: the fixed-size visual lane does not measure two-line font pitch against Qt; guarded native uts.tsv reads gridCaptionState and captures both arms at 14 px.
@@ -108,7 +108,7 @@ g2.pl4.plugin-rail-section.primary BLOCKED pl4: G1.11 RailContentHost impl, mn1 
 g2.pl4.rail-favorites.primary BLOCKED pl4: G1.11 RailContentHost impl, mn1 menu hand-off, G0.5 ThemeRoles
 g2.pl4.tag-marks.primary BLOCKED pl4: G1.11 RailContentHost impl, mn1 menu hand-off, G0.5 ThemeRoles
 g2.pl4.tags-menu.primary BLOCKED pl4: G1.11 RailContentHost impl, mn1 menu hand-off, G0.5 ThemeRoles
-# Native-undriven I50 language fit scenes: <id> BLOCKED <owner>: <reason>; tools/flea-i18n-native plans the ids and tests/i18n/test_visual_coverage.py keeps the ids exact; owner and reason are hand-written.
+# Native-undriven I50 language fit scenes: <id> BLOCKED <owner>: <reason>; tools/dlea-i18n-native plans the ids and tests/i18n/test_visual_coverage.py keeps the ids exact; owner and reason are hand-written.
 i50.fit.ar.about BLOCKED SCENE-LANG: a language scene draws only the list at rest (visual/contract.rs refuses other surfaces); about needs its own drawn-state readback
 i50.fit.ar.caps BLOCKED SCENE-LANG: a language scene draws only the list at rest (visual/contract.rs refuses other surfaces); caps needs its own drawn-state readback
 i50.fit.ar.dialog BLOCKED SCENE-LANG: a language scene draws only the list at rest (visual/contract.rs refuses other surfaces); dialog needs its own drawn-state readback

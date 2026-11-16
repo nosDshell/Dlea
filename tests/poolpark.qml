@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-poolpark-test
+//@ pragma ShellId dlea-poolpark-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/Nav.js" as Nav
+import "dlea" as Dlea
+import "dlea/js/Nav.js" as Nav
 
 // poolpark: a warm Enter in a real list, grid or columns view builds no delegate, and every reused row shows only its own state.
 ShellRoot {
@@ -169,9 +169,9 @@ ShellRoot {
         TestEvent { id: driver }
     }
 
-    Component { id: listView; Flea.List { pane: root.stubPane; menu: menuStub.createObject(root) } }
-    Component { id: gridView; Flea.GridArea { pane: root.stubPane; menu: menuStub.createObject(root) } }
-    Component { id: columnsView; Flea.ColumnsArea { pane: root.stubPane; menu: menuStub.createObject(root) } }
+    Component { id: listView; Dlea.List { pane: root.stubPane; menu: menuStub.createObject(root) } }
+    Component { id: gridView; Dlea.GridArea { pane: root.stubPane; menu: menuStub.createObject(root) } }
+    Component { id: columnsView; Dlea.ColumnsArea { pane: root.stubPane; menu: menuStub.createObject(root) } }
 
     // The ListView or GridView that draws the pane's own listing: the view itself, or the columns view's active column.
     function listingView() {
@@ -212,7 +212,7 @@ ShellRoot {
     function watched(rows) {
         if (root.which !== "grid") return rows
         return new Proxy(rows, { get: function (target, key) {
-            // Sample input, one frame of the stack: "expression for row@qs:@/qs/flea/GridArea.qml:195"
+            // Sample input, one frame of the stack: "expression for row@qs:@/qs/dlea/GridArea.qml:195"
             if (typeof key === "string" && /expression for row@\S*GridArea\.qml/.test(new Error().stack) && root.pastHeld(key))
                 root.counts.readPast += 1
             return target[key]

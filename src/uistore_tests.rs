@@ -29,7 +29,7 @@ fn a_missing_file_reads_the_full_default_shape() {
 fn a_view_json_beside_a_missing_ui_json_is_migrated_on_read() {
     let d = TestDir::new("uistore-migrate");
     let s = store(&d);
-    fs::create_dir_all(d.join("config").join("flea")).expect("config dir");
+    fs::create_dir_all(d.join("config").join("dlea")).expect("config dir");
     fs::write(
         s.legacy(),
         r#"{"hiddenCols":["kind","mode"],"uiScale":1.4}"#,
@@ -103,7 +103,7 @@ fn the_migration_runs_once_and_only_when_there_is_something_to_migrate() {
         !s.file().exists(),
         "no view.json means no state file is seeded"
     );
-    fs::create_dir_all(d.join("config").join("flea")).expect("config dir");
+    fs::create_dir_all(d.join("config").join("dlea")).expect("config dir");
     fs::write(s.legacy(), r#"{"hiddenCols":["kind"],"uiScale":1.4}"#).expect("write");
     s.settle().expect("migrate");
     let migrated = s.read();
@@ -138,15 +138,15 @@ fn the_migration_runs_once_and_only_when_there_is_something_to_migrate() {
 }
 
 // The window applies no schema of its own, so what settle leaves on disk is what the first paint
-// reads: a value this Flea refuses has to be gone before the FileView ever sees it.
+// reads: a value this Dlea refuses has to be gone before the FileView ever sees it.
 #[test]
 fn a_settle_rewrites_a_refused_value_out_of_the_file_and_keeps_its_neighbours() {
     let d = TestDir::new("uistore-settle");
     let s = store(&d);
-    fs::create_dir_all(d.join("state").join("flea")).expect("state dir");
+    fs::create_dir_all(d.join("state").join("dlea")).expect("state dir");
     fs::write(
         s.file(),
-        r#"{"columns":["name","size","owner"],"density":"comfortable","fromANewerFlea":{"a":1}}"#,
+        r#"{"columns":["name","size","owner"],"density":"comfortable","fromANewerDlea":{"a":1}}"#,
     )
     .expect("write");
     s.settle().expect("settle");
@@ -175,8 +175,8 @@ fn a_settle_rewrites_a_refused_value_out_of_the_file_and_keeps_its_neighbours() 
         "a good key beside it stands"
     );
     assert!(
-        stored.get("fromANewerFlea").is_some(),
-        "a newer Flea's own key still survives"
+        stored.get("fromANewerDlea").is_some(),
+        "a newer Dlea's own key still survives"
     );
     let settled = fs::read_to_string(s.file()).expect("settled");
     let ino = fs::metadata(s.file()).expect("meta").ino();
@@ -197,8 +197,8 @@ fn a_settle_rewrites_a_refused_value_out_of_the_file_and_keeps_its_neighbours() 
 fn an_unknown_key_is_rewritten_untouched() {
     let d = TestDir::new("uistore-unknown");
     let s = store(&d);
-    fs::create_dir_all(d.join("state").join("flea")).expect("state dir");
-    fs::write(s.file(), r#"{"fromANewerFlea":{"a":[1,2]},"view":"grid"}"#).expect("write");
+    fs::create_dir_all(d.join("state").join("dlea")).expect("state dir");
+    fs::write(s.file(), r#"{"fromANewerDlea":{"a":[1,2]},"view":"grid"}"#).expect("write");
     s.update(&patch(r#"{"hidden":true}"#)).expect("update");
     let body = fs::read_to_string(s.file()).expect("read back");
     let stored = jsondoc::parse(&body).expect("valid JSON on disk");
@@ -207,7 +207,7 @@ fn an_unknown_key_is_rewritten_untouched() {
     assert_eq!(
         jsondoc::render(
             stored
-                .get("fromANewerFlea")
+                .get("fromANewerDlea")
                 .expect("the newer key survived")
         ),
         "{\n  \"a\": [\n    1,\n    2\n  ]\n}\n"
@@ -357,24 +357,24 @@ fn a_nonblocking_lock_reports_a_held_lock_rather_than_waiting() {
 fn the_paths_hang_off_the_state_home_and_the_config_home() {
     let home = PathBuf::from("/home/nobody");
     assert_eq!(
-        state_dir(Some(PathBuf::from("/tmp/flea-test-state")), &home),
-        PathBuf::from("/tmp/flea-test-state")
+        state_dir(Some(PathBuf::from("/tmp/dlea-test-state")), &home),
+        PathBuf::from("/tmp/dlea-test-state")
     );
     assert_eq!(
         state_dir(None, &home),
         PathBuf::from("/home/nobody/.local/state")
     );
-    let s = Store::at(&state_dir(None, &home), Path::new("/tmp/flea-test-config"));
+    let s = Store::at(&state_dir(None, &home), Path::new("/tmp/dlea-test-config"));
     assert_eq!(
         s.file(),
-        Path::new("/home/nobody/.local/state/flea/ui.json")
+        Path::new("/home/nobody/.local/state/dlea/ui.json")
     );
     assert_eq!(
         s.lock_file(),
-        Path::new("/home/nobody/.local/state/flea/ui.json.lock")
+        Path::new("/home/nobody/.local/state/dlea/ui.json.lock")
     );
     assert_eq!(
         s.legacy(),
-        Path::new("/tmp/flea-test-config/flea/view.json")
+        Path::new("/tmp/dlea-test-config/dlea/view.json")
     );
 }

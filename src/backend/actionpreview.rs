@@ -1,5 +1,5 @@
 // A preview action sees one cursor file in the existing read-only jail and returns code-renderer text.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::actions::Action;
 use super::codereq::Ticket;
 use super::opsreq::OpMsg;
@@ -31,7 +31,7 @@ pub(crate) fn answer(
         if ticket.superseded() {
             return Err("Preview superseded.".into());
         }
-        let path = flea::bytename::view(&paths[0]);
+        let path = dlea::bytename::view(&paths[0]);
         let path = &*path;
         let metadata = path.symlink_metadata().map_err(|e| e.to_string())?;
         if !metadata.is_file() {
@@ -107,8 +107,8 @@ pub(crate) fn answer(
 
 // A multicall tool picks its behaviour from argv[0], so only the directory resolves and the alias name stays.
 fn program(name: &str) -> Option<std::path::PathBuf> {
-    let candidate = if flea::bytename::view(name).is_absolute() {
-        flea::bytename::exact(name)
+    let candidate = if dlea::bytename::view(name).is_absolute() {
+        dlea::bytename::exact(name)
     } else {
         std::env::split_paths(&std::env::var_os("PATH")?)
             .filter(|p| !p.as_os_str().is_empty())

@@ -49,8 +49,8 @@ fn trashdrop_refuses_what_this_window_did_not_lift() {
     let i18n = english();
     let raw = payload(&["1"], "/d", 7);
     assert_eq!(request(marker("", "/d", &raw), &paths(&["file:///d/a.txt"]), "/d", trashable), None, "a foreign drag is refused");
-    let other = format!("other-flea{}", &raw[raw.find('\n').unwrap()..]);
-    assert_eq!(request(marker(&other, "/d", &raw), &paths(&["file:///d/a.txt"]), "/d", trashable), None, "another Flea's drag is refused");
+    let other = format!("other-dlea{}", &raw[raw.find('\n').unwrap()..]);
+    assert_eq!(request(marker(&other, "/d", &raw), &paths(&["file:///d/a.txt"]), "/d", trashable), None, "another Dlea's drag is refused");
     let own = marker(&raw, "/d", "");
     assert_eq!(request(own, &paths(&["https://example.com/a.txt"]), "/d", trashable), None,
         "a non-file uri is no path, and an unrecorded marker names no rows");

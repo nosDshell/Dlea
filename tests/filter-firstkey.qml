@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-filter-firstkey-test
+//@ pragma ShellId dlea-filter-firstkey-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Filter.js" as Filter
+import "dlea" as Dlea
+import "dlea/js/Filter.js" as Filter
 
 // Per filter key and strip open, a real ui/List.qml over a stub pane counts delegates built synchronously, marks drawn that frame, backend calls, and the time to the next afterAnimating.
 ShellRoot {
@@ -116,9 +116,9 @@ ShellRoot {
         id: win
         implicitWidth: 900
         implicitHeight: 600
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
-        Flea.List {
+        Dlea.List {
             id: list
             width: 700
             height: 400
@@ -134,7 +134,7 @@ ShellRoot {
         root.listRef = list
         root.stubPane.shown = Qt.binding(function () { return Filter.shown(root.stubPane.rows, root.stubPane.held, root.stubPane.filterQuery) })
         root.stubPane.shownTotal = Qt.binding(function () { return root.stubPane.shown === null ? root.stubPane.total : root.stubPane.shown.length })
-        root.stubPane.visibleRows = Qt.binding(function () { return Math.max(1, Math.ceil(list.height / Flea.Theme.fileRowHeight)) })
+        root.stubPane.visibleRows = Qt.binding(function () { return Math.max(1, Math.ceil(list.height / Dlea.Theme.fileRowHeight)) })
     }
 
     function countUnder(item) {

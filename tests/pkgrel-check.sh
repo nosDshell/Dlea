@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# Drives tools/flea-pkgrel-check against throwaway git repos; needs no qs.
+# Drives tools/dlea-pkgrel-check against throwaway git repos; needs no qs.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 command -v git >/dev/null 2>&1 || { echo "pkgrel-check.sh: git is not on PATH" >&2; exit 1; }
 
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-pkgrel-check.XXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-pkgrel-check.XXXXXX") || exit 1
 case $test_root in
   /*/*) ;;
   *) echo "FAIL: mktemp -d gave '$test_root', refusing to own it"; exit 1 ;;
@@ -16,17 +16,17 @@ esac
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
-tool=$PWD/tools/flea-pkgrel-check
+tool=$PWD/tools/dlea-pkgrel-check
 [ -x "$tool" ] || { echo "FAIL pkgrel-check tool is missing or not executable"; exit 1; }
 fail=0
 n=0
 
-# A repo with both PKGBUILDs, the root one and flea-bin's, at one version, committed and tagged.
+# A repo with both PKGBUILDs, the root one and dlea-bin's, at one version, committed and tagged.
 new_repo() {
   local dir="$1" ver="$2" rel="$3"
-  mkdir -p "$dir/packaging/flea-bin" || return 1
-  printf 'pkgname=flea\npkgver=%s\npkgrel=%s\n' "$ver" "$rel" > "$dir/PKGBUILD"
-  printf 'pkgname=flea-bin\npkgver=%s\npkgrel=%s\n' "$ver" "$rel" > "$dir/packaging/flea-bin/PKGBUILD"
+  mkdir -p "$dir/packaging/dlea-bin" || return 1
+  printf 'pkgname=dlea\npkgver=%s\npkgrel=%s\n' "$ver" "$rel" > "$dir/PKGBUILD"
+  printf 'pkgname=dlea-bin\npkgver=%s\npkgrel=%s\n' "$ver" "$rel" > "$dir/packaging/dlea-bin/PKGBUILD"
   (cd "$dir" && git init -q -b main . && git config user.name GM \
     && git config user.email gianmarcomorales@icloud.com && git add . && git commit -qm seed) || return 1
 }
@@ -36,18 +36,18 @@ bump_repo() {
   local dir="$1" oldver="$2" oldrel="$3" newver="$4" newrel="$5"
   new_repo "$dir" "$oldver" "$oldrel" || return 1
   (cd "$dir" && git tag "v$oldver" \
-    && sed -i "s/^pkgver=.*/pkgver=$newver/; s/^pkgrel=.*/pkgrel=$newrel/" PKGBUILD packaging/flea-bin/PKGBUILD \
+    && sed -i "s/^pkgver=.*/pkgver=$newver/; s/^pkgrel=.*/pkgrel=$newrel/" PKGBUILD packaging/dlea-bin/PKGBUILD \
     && git add . && git commit -qm bump) || return 1
 }
 
 # Same, but the two PKGBUILDs land on different pkgrels.
 bump_repo_split() {
-  local dir="$1" oldver="$2" newver="$3" flearel="$4" binrel="$5"
+  local dir="$1" oldver="$2" newver="$3" dlearel="$4" binrel="$5"
   new_repo "$dir" "$oldver" 1 || return 1
   (cd "$dir" && git tag "v$oldver" \
-    && sed -i "s/^pkgver=.*/pkgver=$newver/" PKGBUILD packaging/flea-bin/PKGBUILD \
-    && sed -i "s/^pkgrel=.*/pkgrel=$flearel/" PKGBUILD \
-    && sed -i "s/^pkgrel=.*/pkgrel=$binrel/" packaging/flea-bin/PKGBUILD \
+    && sed -i "s/^pkgver=.*/pkgver=$newver/" PKGBUILD packaging/dlea-bin/PKGBUILD \
+    && sed -i "s/^pkgrel=.*/pkgrel=$dlearel/" PKGBUILD \
+    && sed -i "s/^pkgrel=.*/pkgrel=$binrel/" packaging/dlea-bin/PKGBUILD \
     && git add . && git commit -qm bump) || return 1
 }
 
@@ -106,35 +106,35 @@ new_repo "$test_root/notag" 0.3.8 2
 (cd "$test_root/notag" && git commit -q --allow-empty -m second)
 run_tool "$test_root/notag"; rc=$?
 check_rc "no previous tag errors" 2 "$rc"
-check_names "the error says to fetch tags" "flea-pkgrel-check: ERROR" "fetch tags"
+check_names "the error says to fetch tags" "dlea-pkgrel-check: ERROR" "fetch tags"
 
 # 5. PKGBUILDs that disagree on pkgver fail.
 new_repo "$test_root/split" 0.3.7 1
 (cd "$test_root/split" && git tag v0.3.7 \
-  && sed -i 's/^pkgver=.*/pkgver=0.3.8/' packaging/flea-bin/PKGBUILD \
+  && sed -i 's/^pkgver=.*/pkgver=0.3.8/' packaging/dlea-bin/PKGBUILD \
   && git add . && git commit -qm split)
 run_tool "$test_root/split"; rc=$?
 check_rc "PKGBUILDs that disagree on pkgver fail" 1 "$rc"
 check_names "the disagreement names both files and both versions" \
-  "FAIL PKGBUILD says pkgver 0.3.7" "packaging/flea-bin/PKGBUILD says pkgver 0.3.8"
+  "FAIL PKGBUILD says pkgver 0.3.7" "packaging/dlea-bin/PKGBUILD says pkgver 0.3.8"
 
-# 6. A pkgver bump with flea-bin at pkgrel 2 fails on flea-bin.
+# 6. A pkgver bump with dlea-bin at pkgrel 2 fails on dlea-bin.
 bump_repo_split "$test_root/bumpbin" 0.3.7 0.3.8 1 2
 run_tool "$test_root/bumpbin"; rc=$?
-check_rc "a pkgver bump with flea-bin at pkgrel 2 fails" 1 "$rc"
-check_names "the failure names flea-bin, its pkgrel and both versions" \
-  "packaging/flea-bin/PKGBUILD has pkgrel 2" "0.3.7 to 0.3.8"
+check_rc "a pkgver bump with dlea-bin at pkgrel 2 fails" 1 "$rc"
+check_names "the failure names dlea-bin, its pkgrel and both versions" \
+  "packaging/dlea-bin/PKGBUILD has pkgrel 2" "0.3.7 to 0.3.8"
 
 # 7. Too many args errors.
 (cd "$test_root/bump1" && "$tool" HEAD extra >"$test_root/out.txt" 2>&1)
 rc=$?
 check_rc "too many args errors" 2 "$rc"
-check_names "the usage error names the tool" "flea-pkgrel-check: ERROR" "usage"
+check_names "the usage error names the tool" "dlea-pkgrel-check: ERROR" "usage"
 
 # 8. A commit the checkout does not hold errors.
 run_tool "$test_root/bump1" nosuchref; rc=$?
 check_rc "a bad commit errors" 2 "$rc"
-check_names "the bad commit names itself" "flea-pkgrel-check: ERROR" "nosuchref"
+check_names "the bad commit names itself" "dlea-pkgrel-check: ERROR" "nosuchref"
 
 # 9. A PKGBUILD without pkgrel errors.
 new_repo "$test_root/norel" 0.3.8 1
@@ -143,7 +143,7 @@ new_repo "$test_root/norel" 0.3.8 1
   && git add . && git commit -qm drop)
 run_tool "$test_root/norel"; rc=$?
 check_rc "a PKGBUILD without pkgrel errors" 2 "$rc"
-check_names "the unreadable field names the file" "flea-pkgrel-check: ERROR cannot read pkgrel from PKGBUILD at"
+check_names "the unreadable field names the file" "dlea-pkgrel-check: ERROR cannot read pkgrel from PKGBUILD at"
 
 if [ "$fail" -eq 0 ]; then
   echo "pkgrel-check: all $n checks passed"

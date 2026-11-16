@@ -14,8 +14,8 @@ mod idle;
 
 // The loader's own filter: comma-separated, case-insensitive globs over manifest file names, read at vkCreateInstance.
 const DISABLE: &str = "VK_LOADER_DRIVERS_DISABLE";
-// Holds the exact filter Flea wrote, so a filter that differs from it is the operator's even when the marker leaked.
-pub const MARKER: &str = "FLEA_VK_DISABLE";
+// Holds the exact filter Dlea wrote, so a filter that differs from it is the operator's even when the marker leaked.
+pub const MARKER: &str = "DLEA_VK_DISABLE";
 // Each of these is the operator choosing drivers, which a launch never second-guesses.
 const OPERATOR_CHOICES: [&str; 5] = ["VK_DRIVER_FILES", "VK_ICD_FILENAMES", "VK_ADD_DRIVER_FILES", "VK_LOADER_DRIVERS_SELECT", DISABLE];
 // A loader settings file can add drivers or choose them outright, so its presence is an operator choice too.
@@ -31,7 +31,7 @@ const LOADER_FILTERS: usize = 16;
 pub fn exclude_absent_vendors() -> bool {
     let roots = xdg_roots(|name| std::env::var_os(name));
     let (filter, idle) = decide_exclusion(|name| std::env::var_os(name), Path::new("/sys/bus/pci/devices"), Path::new("/sys/class/drm"), &roots);
-    // A filter its marker names is a parent Flea's, so it goes with its marker before this launch writes its own.
+    // A filter its marker names is a parent Dlea's, so it goes with its marker before this launch writes its own.
     if owned(std::env::var_os(DISABLE).as_deref(), std::env::var_os(MARKER).as_deref()) {
         std::env::remove_var(DISABLE);
     }
@@ -71,7 +71,7 @@ pub fn drop_exclusion(command: &mut Command) {
     }
 }
 
-// Sample input: filter "nvidia_icd.json" beside marker "nvidia_icd.json" is Flea's; beside "1" or nothing it is the operator's.
+// Sample input: filter "nvidia_icd.json" beside marker "nvidia_icd.json" is Dlea's; beside "1" or nothing it is the operator's.
 fn owned(filter: Option<&OsStr>, marker: Option<&OsStr>) -> bool {
     matches!((filter, marker), (Some(filter), Some(marker)) if !marker.is_empty() && filter == marker)
 }

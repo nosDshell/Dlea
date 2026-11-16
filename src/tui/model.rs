@@ -1,4 +1,4 @@
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::wire::{count, flag, number, text, word, Wire};
 use crate::jsondoc::Json;
 use std::collections::{BTreeMap, BTreeSet, VecDeque};
@@ -25,11 +25,11 @@ pub struct Row {
 impl Row {
     // A symlink the backend resolved to a folder carries d false but browses in like one, as the window's rows do.
     pub fn folder(&self) -> bool {
-        flea::ui_logic_picker_portal::directory(self.directory, self.mode as u32, &self.icon)
+        dlea::ui_logic_picker_portal::directory(self.directory, self.mode as u32, &self.icon)
     }
     // The name a person reads: the lossy spelling of a name that is not UTF-8, never its exact tail.
     pub fn shown(&self) -> std::borrow::Cow<'_, str> {
-        flea::bytename::display(&self.name)
+        dlea::bytename::display(&self.name)
     }
     pub fn is_pdf(&self) -> bool {
         !self.directory && self.link.is_empty()
@@ -171,7 +171,7 @@ pub struct Model {
     pub rounded: std::sync::Arc<std::sync::atomic::AtomicBool>,
     pub i18n: crate::i18n::I18n,
     pub locale_revision: u64,
-    pub keycaps: Option<flea::keys::display::KeycapSnapshot>,
+    pub keycaps: Option<dlea::keys::display::KeycapSnapshot>,
     pub keycap_labels: std::collections::HashMap<String, String>,
     pub words: super::words::Held,
     pub search_scanned: usize,
@@ -181,7 +181,7 @@ pub struct Model {
     pub player: Option<super::media::Player>,
     pub pdf: Option<super::pdf::Pdf>,
     pub model3d: super::model3d::State,
-    pub model3d_palette: flea::ui_logic_model_preview::color::Palette,
+    pub model3d_palette: dlea::ui_logic_model_preview::color::Palette,
     pub preview_scroll: usize,
     pub image_file: Option<PathBuf>,
     // The cursor row's probed width, height and length in ms, once its meta answer lands.
@@ -521,7 +521,7 @@ impl Model {
         if self.path == path { return Ok(()); }
         self.path = path;
         self.parents.clear();
-        self.peek_sent = self.path.parent().map(flea::bytename::exact);
+        self.peek_sent = self.path.parent().map(dlea::bytename::exact);
         if let Some(parent) = &self.peek_sent {
             wire.send(vec![("c", word("peek")), ("path", word(&parent.exact_text())),
                 ("focus", word(&self.path.file_name().unwrap_or_default().exact_text())),
@@ -588,7 +588,7 @@ impl Model {
         ])
     }
     pub fn row_path(&self, row: &Row) -> PathBuf {
-        self.path.join(flea::bytename::text_path(&row.name))
+        self.path.join(dlea::bytename::text_path(&row.name))
     }
     // The displayed safe identity also feeds previews; actions separately refuse a held Find snapshot.
     pub fn current_path(&self) -> Option<PathBuf> {
@@ -632,7 +632,7 @@ impl Model {
             || count(value, "id") != self.restore_id || text(value, "directory") != self.path.exact_text() { return false; }
         if flag(value, "ok") {
             for item in value.get("matches").and_then(Json::as_array).unwrap_or(&[]) {
-                let path = flea::bytename::exact(text(item, "path"));
+                let path = dlea::bytename::exact(text(item, "path"));
                 let Some(index) = item.get("index").and_then(Json::as_f64).filter(|index| index.is_finite() && *index >= 0.0 && index.fract() == 0.0 && *index < self.total as f64) else { continue; };
                 if !self.restore_selection.remove(&path) { continue; }
                 self.selected.insert(index as usize);
@@ -830,7 +830,7 @@ impl Model {
                     }
                 }
                 // No parent column at /: clear it and send no peek, so nothing waits.
-                match self.path.parent().map(flea::bytename::exact) {
+                match self.path.parent().map(dlea::bytename::exact) {
                     None => {
                         self.parents.clear();
                         self.peek_sent = None;
@@ -876,7 +876,7 @@ impl Model {
                         self.window(wire)?;
                     } else {
                         if !self.search.is_empty() {
-                            if let Some(parent) = self.restore_path.as_ref().and_then(|path| path.parent()).map(flea::bytename::exact) {
+                            if let Some(parent) = self.restore_path.as_ref().and_then(|path| path.parent()).map(dlea::bytename::exact) {
                                 self.open(parent, wire)?;
                             } else { self.restore_path = None; }
                         } else { self.restore_path = None; }
@@ -928,7 +928,7 @@ impl Model {
                 if self.thumb_index == Some(count(&value, "row"))
                     && !text(&value, "file").is_empty()
                 {
-                    self.image_file = Some(flea::bytename::exact(text(&value, "file")));
+                    self.image_file = Some(dlea::bytename::exact(text(&value, "file")));
                 }
             }
             "owner" => self.detail.receive(&value, &self.rows),
@@ -1112,7 +1112,7 @@ impl Model {
                 let line = super::prompts::receipt(self, &value);
                 if !line.is_empty() { self.say_text(super::prompts::receipt_text(self, &value)); }
                 if matches!(operation, "renamed" | "made" | "duplicated") {
-                    self.restore_path = Some(flea::bytename::exact(text(&value, "path")));
+                    self.restore_path = Some(dlea::bytename::exact(text(&value, "path")));
                     self.editor = None;
                 }
                 self.refresh(wire)?;
@@ -1127,9 +1127,9 @@ impl Model {
                 }
                 if flag(&value, "ok") {
                     self.editor = None;
-                    super::prompts::record(self, "newfile", vec![flea::bytename::exact(text(&value, "path"))]);
+                    super::prompts::record(self, "newfile", vec![dlea::bytename::exact(text(&value, "path"))]);
                     self.say_text(super::prompts::undoable_text(self, super::words::Text::Key("receipt.fileCreated")));
-                    self.restore_path = Some(flea::bytename::exact(text(&value, "path")));
+                    self.restore_path = Some(dlea::bytename::exact(text(&value, "path")));
                     self.refresh(wire)?;
                 } else if let Some(editor) = &mut self.editor {
                     editor.pending = false;
@@ -1155,7 +1155,7 @@ impl Model {
                     if flag(&value, "cancelled") { line.push(super::words::Text::Key("tui.model.deleted_cancelled")); }
                     self.say_text(super::words::Text::Joined(line));
                     if count(&value, "failed") > 0 { self.fail_text(super::words::args("tui.model.deleted_failed", vec![super::words::Text::Count(count(&value, "failed")), text(&value, "error").into()])); }
-                    let remaining: BTreeSet<PathBuf> = value.get("remaining").and_then(Json::as_array).unwrap_or(&[]).iter().filter_map(Json::as_str).map(flea::bytename::exact).collect();
+                    let remaining: BTreeSet<PathBuf> = value.get("remaining").and_then(Json::as_array).unwrap_or(&[]).iter().filter_map(Json::as_str).map(dlea::bytename::exact).collect();
                     self.restore_marks = std::mem::take(&mut self.delete_marks);
                     self.restore_marks.retain(|path, _| remaining.contains(path));
                     self.restore_path = None;
@@ -1200,7 +1200,7 @@ impl Model {
                         if paths.len() != self.menu_count {
                             self.fail_key("tui.model.bulk_rename_selection_is_incomplete_select_the_items_again");
                         } else {
-                            match super::batch::Batch::new(paths.into_iter().map(flea::bytename::exact).collect()) {
+                            match super::batch::Batch::new(paths.into_iter().map(dlea::bytename::exact).collect()) {
                                 Ok(batch) => { self.bulk = Some(batch); self.menu_action = "bulkEditor".into(); }
                                 Err(error) => self.fail_io(&error),
                             }
@@ -1209,7 +1209,7 @@ impl Model {
                             wire.send(vec![("c", word("menuaction")), ("op", word("close")), ("id", number(self.action_id))])?;
                         }
                     } else if action == "open" {
-                        if !paths.iter().any(|path| flea::bytename::exact(path) == self.menu_path) {
+                        if !paths.iter().any(|path| dlea::bytename::exact(path) == self.menu_path) {
                             self.fail_key("tui.model.could_not_open_selected_file");
                         } else if self.menu_directory {
                             if self.pending.is_some() { self.menu_action = "openWaiting".into(); }

@@ -1,6 +1,6 @@
 import QtQuick
 import Quickshell.Io
-import "." as Flea
+import "." as Dlea
 import "js/CodeRuns.js" as CodeRuns
 import "js/FigureWarm.js" as FigureWarm
 import "js/Markdown.js" as Markdown
@@ -111,7 +111,7 @@ Item {
     Loader {
         id: themeProbe
         active: root.hasFigures
-        sourceComponent: Flea.MarkdownFigure {
+        sourceComponent: Dlea.MarkdownFigure {
             visible: false
             askArmed: false
             display: true
@@ -584,7 +584,7 @@ Item {
     }
 
     // Only the shown Source (a too-deep one too) asks for lines, a screen at a time: an unseen 1 MiB Source held the UI thread 100 ms.
-    Flea.MarkdownSource {
+    Dlea.MarkdownSource {
         id: sourceList
         anchors.fill: parent
         visible: root.shownView === Markdown.SOURCE && (root.parseError === "" || root.sourceRefused)
@@ -633,7 +633,7 @@ Item {
             visible: body.visible
         }
 
-        Flea.ViewportScrollBar {
+        Dlea.ViewportScrollBar {
             parent: root
             visible: !root.externalScrollBars && overflow && body.visible
             anchors { top: parent.top; right: parent.right }
@@ -641,13 +641,13 @@ Item {
         }
 
         // A sideways stroke over a table wider than the document goes to the table, above the handler that scrolls the document.
-        Flea.MarkdownTableWheel {
+        Dlea.MarkdownTableWheel {
             id: tableRoute
             parent: root
             visible: body.visible
         }
 
-        delegate: Flea.MarkdownBlockView {
+        delegate: Dlea.MarkdownBlockView {
             block: modelData
             blockIndex: index
             blockCount: root.blockList.length

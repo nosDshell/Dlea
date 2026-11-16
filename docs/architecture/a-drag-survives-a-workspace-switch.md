@@ -1,7 +1,7 @@
 ## A drag survives a workspace switch
 
-Reported on 2026-09-22 (PR #186) as a drag from Flea into a terminal on another workspace pasting
-nothing: Flea 0.3.1, Hyprland 0.56.2, ghostty 1.3.1 as the drop target, a uinput pointer. A drag onto
+Reported on 2026-09-22 (PR #186) as a drag from Dlea into a terminal on another workspace pasting
+nothing: Dlea 0.3.1, Hyprland 0.56.2, ghostty 1.3.1 as the drop target, a uinput pointer. A drag onto
 the same workspace landed, and so did one onto a terminal on the other monitor. A drag that switched
 workspace mid-gesture landed nothing.
 
@@ -13,19 +13,19 @@ Wayland drag at the drag threshold. The 0.3.1 drag was a Qt Wayland drag started
 too (`Drag.dragType: Drag.Automatic` in `ui/FileDrag.qml`), so this source does not explain that
 report, and it was not measured again.
 
-Flea 0.4.0's GPUI drag stayed inside the application until the pointer left the window and only then
-became a Wayland drag. Measured on Hyprland 0.56.2 with Flea 0.4.0: a file carried out of the window
-first and then taken to another workspace with the workspace key landed in a second Flea window there;
-the same carry with the pointer still over Flea when the key was pressed ended the drag at the switch
+Dlea 0.4.0's GPUI drag stayed inside the application until the pointer left the window and only then
+became a Wayland drag. Measured on Hyprland 0.56.2 with Dlea 0.4.0: a file carried out of the window
+first and then taken to another workspace with the workspace key landed in a second Dlea window there;
+the same carry with the pointer still over Dlea when the key was pressed ended the drag at the switch
 and moved nothing. With the 0.4.1 drag below, both carries landed in the second window.
 
 Since 0.4.1 the file drags of List, Columns and Grid start the Wayland drag at the drag threshold
-(`external_drag_at_start` in gpui-omarchy, set in `crates/flea-gui/src/window/render.rs`,
-`crates/flea-gui/src/window/columns_gestures.rs` and `crates/flea-gui/src/grid/pane_view.rs`).
-While the pointer is over Flea the drag stays live in its window, so drops on rows, folders, the
+(`external_drag_at_start` in gpui-omarchy, set in `crates/dlea-gui/src/window/render.rs`,
+`crates/dlea-gui/src/window/columns_gestures.rs` and `crates/dlea-gui/src/grid/pane_view.rs`).
+While the pointer is over Dlea the drag stays live in its window, so drops on rows, folders, the
 sidebar, tabs and crumbs, spring-loaded folders, Escape and the keys held for the drop action behave
 as before; the compositor draws the drag picture and the pointer. If the compositor refuses the drag
-at the threshold, it stays inside Flea and becomes a Wayland drag when it leaves the window, as before
+at the threshold, it stays inside Dlea and becomes a Wayland drag when it leaves the window, as before
 0.4.1. The drop action another application sees is the one chosen when the drag starts. Tab drags
 still become Wayland drags only when they leave the window.
 

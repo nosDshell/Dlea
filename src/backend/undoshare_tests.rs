@@ -482,9 +482,9 @@ fn a_newer_version_file_is_unavailable_and_never_rewritten() {
     assert!(!target.exists());
 }
 
-// Undo, redo and the redo preview all say one sentence when the shared file is a newer Flea's.
+// Undo, redo and the redo preview all say one sentence when the shared file is a newer Dlea's.
 #[test]
-fn a_journal_a_newer_flea_wrote_reads_as_history_that_could_not_be_read() {
+fn a_journal_a_newer_dlea_wrote_reads_as_history_that_could_not_be_read() {
     let sandbox = TestDir::new("xundo-newer-sentence");
     let dir = runtime_0700(&sandbox);
     std::fs::write(dir.join(JOURNAL_FILE), r#"{"v":4,"gen":0,"undo":[],"redo":[]}"#).unwrap();

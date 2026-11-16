@@ -1,4 +1,4 @@
-//@ pragma ShellId flea-preview-decode-test
+//@ pragma ShellId dlea-preview-decode-test
 
 import Quickshell
 import QtQuick
@@ -837,12 +837,12 @@ ShellRoot {
         shell.thumbGate = Qt.createQmlObject('import QtQuick\nimport "file://' + shell.uiDir
             + '/js/Thumbs.js" as Thumbs\nimport "file://' + shell.uiDir
             + '/js/ExtThumbs.js" as Ext\nimport "file://' + shell.uiDir
-            + '" as Flea\nQtObject {\nfunction replyTo(state, row, file, cap, known, storageClass) { return Ext.thumbReply(state, row, file, cap, known, storageClass, Flea.ViewState.preview).state }\nfunction applyTo(state, work) { return Thumbs.applied(state, work) }\nfunction dropRow(state, row) { Thumbs.forget(state, row); return { file: state.file, order: state.order } }\n}', shell, "thumbGate")
+            + '" as Dlea\nQtObject {\nfunction replyTo(state, row, file, cap, known, storageClass) { return Ext.thumbReply(state, row, file, cap, known, storageClass, Dlea.ViewState.preview).state }\nfunction applyTo(state, work) { return Thumbs.applied(state, work) }\nfunction dropRow(state, row) { Thumbs.forget(state, row); return { file: state.file, order: state.order } }\n}', shell, "thumbGate")
     }
     // ViewState is the singleton Preview.qml reads; the harness imports the ui directory to reach that same instance.
     function thumbnails(mode, storageClass) {
         if (!shell.viewGate)
-            shell.viewGate = Qt.createQmlObject('import QtQuick\nimport "file://' + shell.uiDir + '" as Flea\nQtObject { function set(v) { Flea.ViewState.state = v } }', shell, "viewGate")
+            shell.viewGate = Qt.createQmlObject('import QtQuick\nimport "file://' + shell.uiDir + '" as Dlea\nQtObject { function set(v) { Dlea.ViewState.state = v } }', shell, "viewGate")
         shell.viewGate.set(mode === "" ? ({}) : ({ preview: { thumbnails: mode } }))
         stub.storageClass = storageClass
     }

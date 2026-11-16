@@ -127,5 +127,5 @@ case_cap_flasher() {
     settle
     cap_flasher_skipped
     printf 'CAP_FLASHER menu=in refusal=menu-only pane=image-drives-%s flash=%s-focus,hover run=skipped\n' "$drives" "$flash_state"
-    kill_flea
+    kill_dlea
 }

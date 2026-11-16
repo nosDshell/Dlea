@@ -1,6 +1,6 @@
 # Native GUI source gate
 
-Run `tools/flea-gpui-lint` from a Git checkout with Python 3.11 or newer and the locked Cargo dependencies available.
+Run `tools/dlea-gpui-lint` from a Git checkout with Python 3.11 or newer and the locked Cargo dependencies available.
 It reads tracked Rust files in native workspace packages and `cargo metadata --locked --format-version 1`.
 In an archived CI export without Git, it checks every exported native source and manifest.
 Comments and Rust string, raw string, byte string, C string and character literals are opaque tokens.
@@ -30,7 +30,7 @@ All test writes and cleanup stay within marked temporary roots.
 This source gate does not prove zero warmed-paint allocations, visible-range request bounds or atomic swaps.
 Element tests and runtime probes own those checks.
 It is a lexical guard backed by review and runtime frame/UI-thread gates, not a Rust dataflow or soundness proof.
-The native list scene tests check the default root canvas and application theme roles. Palette loading runs on the startup worker before the application starts; `flea_gui::window::open` is the UI setup callback the application runs.
+The native list scene tests check the default root canvas and application theme roles. Palette loading runs on the startup worker before the application starts; `dlea_gui::window::open` is the UI setup callback the application runs.
 The root license policy limits additional licenses to exact package/version exceptions.
 Run `tests/license-policy.sh` in the license lane with `cargo-deny` installed; it requires a version bump to lose its exception.
 Audit the full graph with `cargo deny --locked --workspace check`:

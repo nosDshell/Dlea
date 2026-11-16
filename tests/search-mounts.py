@@ -66,7 +66,7 @@ def run(binary, sandbox):
         assert done["scanned"] == 4 and done["n"] == 2, done
         assert len(rows["rows"]) == 1 and rows["rows"][0]["p"] != 0, rows
         assert tree.is_absolute() and tree.is_relative_to(sandbox)
-        assert (sandbox / ".flea-test-sandbox").is_file()
+        assert (sandbox / ".dlea-test-sandbox").is_file()
         tree.rename(sandbox / "removed")
         removed, rows = answer(41, True)
         assert removed["partial_reason"] == "watch_failed", removed
@@ -90,12 +90,12 @@ def run(binary, sandbox):
 
 scratch_parent = (Path.cwd() / ".superpowers/fb7").resolve()
 scratch_parent.mkdir(parents=True, exist_ok=True)
-root = Path(subprocess.check_output(["mktemp", "-d", str(scratch_parent / "flea-search-mounts.XXXXXX")], text=True).strip())
-marker = root / ".flea-test-sandbox"
-marker.write_text("flea test sandbox\n")
+root = Path(subprocess.check_output(["mktemp", "-d", str(scratch_parent / "dlea-search-mounts.XXXXXX")], text=True).strip())
+marker = root / ".dlea-test-sandbox"
+marker.write_text("dlea test sandbox\n")
 try:
     run(sys.argv[1], root)
 finally:
-    assert str(root) and root.is_absolute() and root.name.startswith("flea-search-mounts.")
-    assert root.parent == scratch_parent and marker.read_text() == "flea test sandbox\n"
+    assert str(root) and root.is_absolute() and root.name.startswith("dlea-search-mounts.")
+    assert root.parent == scratch_parent and marker.read_text() == "dlea test sandbox\n"
     shutil.rmtree(root)

@@ -67,7 +67,7 @@ case_mute() {
         || fail "mute: the next preview forgot the session's own flag"
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
 }
 
 case_previewviews() {
@@ -161,7 +161,7 @@ case_previewviews() {
             switch_view "$mode"
             key -k space >/dev/null
             for _attempt in $(seq 1 40); do [[ "$(ipc previewState)" == "text" ]] && break; sleep 0.1; done
-            [[ "$(ipc previewKind)" == "text" && "$(ipc previewText)" == *"$([[ $name == sample.txt ]] && echo 'hello from flea' || echo 'fn main')"* ]] \
+            [[ "$(ipc previewKind)" == "text" && "$(ipc previewText)" == *"$([[ $name == sample.txt ]] && echo 'hello from dlea' || echo 'fn main')"* ]] \
                 || fail "$mode: Space on $name: kind $(ipc previewKind), state $(ipc previewState), text '$(ipc previewText | cut -c1-40)'"
             preview_surface_lit "$mode-$name" 50 "$name's text"
             key -k Escape >/dev/null
@@ -241,5 +241,5 @@ case_previewviews() {
     settle
     [[ "$(ipc previewOpen)" == "false" && "$(ipc columnPlayerLoaded)" == "false" ]] || fail "previewviews: after Escape, preview $(ipc previewOpen), column player $(ipc columnPlayerLoaded)"
     printf 'PREVIEWVIEWS lifetimes=ok\n'
-    kill_flea
+    kill_dlea
 }

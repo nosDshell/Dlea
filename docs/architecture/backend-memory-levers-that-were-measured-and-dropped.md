@@ -48,7 +48,7 @@ tables follow the code and `.rodata`'s share was not attributed. By symbol (`nm`
 154,018 bytes: 84,594 are the owner's own code (`src/clip/` and `src/backend/clipreq.rs`), 20,255
 are std generics that name neither the owner nor the picker (9,421 of `hashbrown` for six new key
 types and about 6,700 for the channel of the owner's ready line), 9,727 are the picker, 1,884 are
-the rest of Flea, and the remaining 37,558 are std generics typed by the owner (channels, thread
+the rest of Dlea, and the remaining 37,558 are std generics typed by the owner (channels, thread
 shims, drop glue). So about four fifths of the new code is the owner's by name, and the rest is
 the picker and generics no symbol ties to a feature.
 Three levers were measured or sized and dropped. Sending the owner's ready line as a `String` in

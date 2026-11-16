@@ -1,11 +1,11 @@
-//@ pragma ShellId flea-quicklook-firstframe-test
+//@ pragma ShellId dlea-quicklook-firstframe-test
 
 import QtQuick
 import QtTest
 import Quickshell
 import Quickshell.Io
 import "quicklook-firstframe.js" as Fresh
-import "flea/js/PreviewKeys.js" as PreviewKeys
+import "dlea/js/PreviewKeys.js" as PreviewKeys
 
 // Sample output: "QLFF STEP 1 a-notes.md inline frames=1 empty=0" is one open, in frames counted from the card's first.
 // QLFF_MODE=call returns from the Space binding before the event loop turns, which a real key through QtTest cannot; key is the trace.

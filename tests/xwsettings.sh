@@ -1,21 +1,21 @@
 #!/bin/bash
-. "$(dirname "${BASH_SOURCE[0]}")/../tools/flea-ipc"
-flea_ipc_init qs
+. "$(dirname "${BASH_SOURCE[0]}")/../tools/dlea-ipc"
+dlea_ipc_init qs
 . "$(dirname "$0")/headless-commons.sh"
 # Two ViewState singletons over one temp ui.json: live apply of one window's change in the other, per-window state, own-write and half-written guards; tests/js/uistate.js pins the merge, this pins the QML wiring.
 set -u
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete below.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 # The probes start the GVfs trash daemon, so the run gets its own bus; on the inherited one a later suite's first trash goes unlisted.
-if [ "${FLEA_XWSETTINGS_BUS:-}" != 1 ]; then
+if [ "${DLEA_XWSETTINGS_BUS:-}" != 1 ]; then
   command -v dbus-run-session >/dev/null || { echo 'xwsettings.sh: dbus-run-session is required' >&2; exit 1; }
-  exec dbus-run-session -- env FLEA_XWSETTINGS_BUS=1 bash "tests/$(basename "$0")" "$@"
+  exec dbus-run-session -- env DLEA_XWSETTINGS_BUS=1 bash "tests/$(basename "$0")" "$@"
 fi
 
-BIN=$PWD/target/debug/flea
+BIN=$PWD/target/debug/dlea
 SANDBOX=$FIXTURE_ROOT/xwsettings-$$
-QMLDIR=$SANDBOX/flea
+QMLDIR=$SANDBOX/dlea
 fail=0
 probe_poll_s=0.05
 probe_wait_tries=600
@@ -72,7 +72,7 @@ while [ -n "${libs// /}" ]; do
   libs=$next
 done
 headless_commons "$SANDBOX" "$QMLDIR/Commons" || exit 1
-printf 'module flea\nsingleton ViewState 1.0 ViewState.qml\n' > "$QMLDIR/qmldir" || exit 1
+printf 'module dlea\nsingleton ViewState 1.0 ViewState.qml\n' > "$QMLDIR/qmldir" || exit 1
 
 # Window A: saves one preference the way pane.toggleHidden does, then stays alive one beat past
 # its drained writer so a re-applied own write would have to show as a queued patch or a failure.
@@ -173,7 +173,7 @@ env XDG_STATE_HOME="$SANDBOX/state" "$BIN" --ui-state \
   || { echo "FAIL xwsettings: the seed write failed"; exit 1; }
 
 env QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 XDG_STATE_HOME="$SANDBOX/state" \
-    FLEA_BIN="$BIN" timeout 60 qs -p "$QMLDIR/watcher.qml" > "$SANDBOX/watching.log" 2>&1 &
+    DLEA_BIN="$BIN" timeout 60 qs -p "$QMLDIR/watcher.qml" > "$SANDBOX/watching.log" 2>&1 &
 watching_pid=$!
 waited=0
 until grep -q 'PROBE watching' "$SANDBOX/watching.log" 2>/dev/null; do
@@ -189,7 +189,7 @@ until grep -q 'PROBE watching' "$SANDBOX/watching.log" 2>/dev/null; do
 done
 if [ "$fail" -eq 0 ]; then
   env QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 XDG_STATE_HOME="$SANDBOX/state" \
-      FLEA_BIN="$BIN" timeout 60 qs -p "$QMLDIR/writer.qml" > "$SANDBOX/writing.log" 2>&1
+      DLEA_BIN="$BIN" timeout 60 qs -p "$QMLDIR/writer.qml" > "$SANDBOX/writing.log" 2>&1
   wait "$watching_pid"
   applied=$(grep 'PROBE applied' "$SANDBOX/watching.log" | head -1)
   check "the watching window printed what it applied" "1" "$([ -n "$applied" ] && echo 1 || echo 0)"
@@ -200,7 +200,7 @@ if [ "$fail" -eq 0 ]; then
   check "and reported no failure" "1" "$(grep -c 'PROBE failures=0' "$SANDBOX/watching.log")"
   check "the writing window drained with nothing owed" "1" "$(grep -c 'PROBE patch={}' "$SANDBOX/writing.log")"
   check "and nothing reported" "1" "$(grep -c 'PROBE failures=0' "$SANDBOX/writing.log")"
-  flat=$(tr -d ' \n' < "$SANDBOX/state/flea/ui.json" 2>/dev/null)
+  flat=$(tr -d ' \n' < "$SANDBOX/state/dlea/ui.json" 2>/dev/null)
   check "the file holds the toggle" "1" "$(echo "$flat" | grep -c '"hidden":true')"
   check "and the view nobody touched" "1" "$(echo "$flat" | grep -c '"view":"grid"')"
 fi
@@ -209,12 +209,12 @@ fi
 # what it had, and the write after the garbage still applies.
 if [ "$fail" -eq 0 ]; then
   sandbox_scratch "$SANDBOX/garbage" || exit 1
-  mkdir -p "$SANDBOX/garbage/state/flea" || exit 1
+  mkdir -p "$SANDBOX/garbage/state/dlea" || exit 1
   env XDG_STATE_HOME="$SANDBOX/garbage/state" "$BIN" --ui-state \
     '{"hidden":false,"view":"grid","density":"compact"}' >/dev/null 2>&1 \
     || { echo "FAIL xwsettings: the garbage-phase seed write failed"; exit 1; }
   env QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 XDG_STATE_HOME="$SANDBOX/garbage/state" \
-      FLEA_BIN="$BIN" timeout 60 qs -p "$QMLDIR/watcher.qml" > "$SANDBOX/garbage.log" 2>&1 &
+      DLEA_BIN="$BIN" timeout 60 qs -p "$QMLDIR/watcher.qml" > "$SANDBOX/garbage.log" 2>&1 &
   garbage_pid=$!
   waited=0
   until grep -q 'PROBE watching' "$SANDBOX/garbage.log" 2>/dev/null; do
@@ -272,7 +272,7 @@ QML
     kill "$garbage_pid" 2>/dev/null || true
     wait "$garbage_pid" 2>/dev/null || true
     env QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 XDG_STATE_HOME="$SANDBOX/garbage/state" \
-        FLEA_BIN="$BIN" timeout 60 qs -p "$QMLDIR/stayer.qml" > "$SANDBOX/stayer.log" 2>&1 &
+        DLEA_BIN="$BIN" timeout 60 qs -p "$QMLDIR/stayer.qml" > "$SANDBOX/stayer.log" 2>&1 &
     stayer_pid=$!
     waited=0
     until grep -q 'PROBE watching' "$SANDBOX/stayer.log" 2>/dev/null; do
@@ -289,7 +289,7 @@ QML
     if [ "$fail" -eq 0 ]; then
       # Truncated mid-object, the way an editor's own write looks between its truncate and its close.
       printf '%s' '{"hidden":true,"view":"grid","density":"compact"' \
-        > "$SANDBOX/garbage/state/flea/ui.json" || exit 1
+        > "$SANDBOX/garbage/state/dlea/ui.json" || exit 1
       # A marker valid write behind the garbage: the watcher answering it proves it handled every event after the garbage too.
       env XDG_STATE_HOME="$SANDBOX/garbage/state" "$BIN" --ui-state \
         '{"hidden":false,"view":"grid","density":"normal"}' >/dev/null 2>&1 \
@@ -319,7 +319,7 @@ fi
 # and a removed key reads as its default. Each hand edit below fails on raw_bytes and passes on settled.
 if [ "$fail" -eq 0 ]; then
   sandbox_scratch "$SANDBOX/settled" || exit 1
-  mkdir -p "$SANDBOX/settled/state/flea" || exit 1
+  mkdir -p "$SANDBOX/settled/state/dlea" || exit 1
   env XDG_STATE_HOME="$SANDBOX/settled/state" "$BIN" --ui-state \
     '{"hidden":true,"density":"compact","columns":["name","size","date"],"places":{"showUnmounted":true,"favourites":[{"label":"Old","path":"/old"}]}}' >/dev/null 2>&1 \
     || { echo "FAIL xwsettings: the settled-phase seed write failed"; exit 1; }
@@ -349,7 +349,7 @@ ShellRoot {
 }
 QML
   env QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 XDG_STATE_HOME="$SANDBOX/settled/state" \
-      FLEA_BIN="$BIN" timeout "$probe_timeout_s" qs -p "$QMLDIR/settled.qml" > "$SANDBOX/settled.log" 2>&1 &
+      DLEA_BIN="$BIN" timeout "$probe_timeout_s" qs -p "$QMLDIR/settled.qml" > "$SANDBOX/settled.log" 2>&1 &
   settled_pid=$!
   # Waits for a live line carrying the marker after the given line count; only the probe's end (its timeout) stops the wait early.
   settled_wait() {
@@ -372,7 +372,7 @@ QML
   done
   if [ "$fail" -eq 0 ]; then
     live_before_bogus=$(grep -c 'PROBE live' "$SANDBOX/settled.log")
-    python3 - "$SANDBOX/settled/state/flea/ui.json" <<'PY'
+    python3 - "$SANDBOX/settled/state/dlea/ui.json" <<'PY'
 import json, sys
 p = sys.argv[1]
 doc = json.load(open(p))
@@ -391,7 +391,7 @@ PY
     # The healed default appears live; on raw_bytes the bogus string stays in the log.
     check "and the settled default lands instead" "1" "$([ "$(printf '%s' "$handled" | grep -c '"name","size","date"')" -ge 1 ] && echo 1 || echo 0)"
     live_before=$(grep -c 'PROBE live' "$SANDBOX/settled.log")
-    python3 - "$SANDBOX/settled/state/flea/ui.json" <<'PY'
+    python3 - "$SANDBOX/settled/state/dlea/ui.json" <<'PY'
 import json, sys
 p = sys.argv[1]
 doc = json.load(open(p))
@@ -408,7 +408,7 @@ PY
     check "a null places group never empties favourites" "0" "$(printf '%s' "$handled_null" | grep -c 'placesType=null')"
     check "and the kept entries survive it" "1" "$([ "$(printf '%s' "$handled_null" | grep -c '/old')" -ge 1 ] && echo 1 || echo 0)"
     live_before=$(grep -c 'PROBE live' "$SANDBOX/settled.log")
-    printf '%s' '{"density":"normal"}' > "$SANDBOX/settled/state/flea/ui.json" || exit 1
+    printf '%s' '{"density":"normal"}' > "$SANDBOX/settled/state/dlea/ui.json" || exit 1
     settled_wait "$live_before" 'hidden=false' || true
     check "a removed key reads as its default" "1" "$([ "$(grep 'PROBE live' "$SANDBOX/settled.log" | tail -n +"$((live_before + 1))" | grep -c 'hidden=false')" -ge 1 ] && echo 1 || echo 0)"
     echo "settled tail:"
@@ -422,7 +422,7 @@ fi
 # in the same process. On raw_bytes the second write is refused for the window's life.
 if [ "$fail" -eq 0 ]; then
   sandbox_scratch "$SANDBOX/refuse" || exit 1
-  mkdir -p "$SANDBOX/refuse/state/flea" || exit 1
+  mkdir -p "$SANDBOX/refuse/state/dlea" || exit 1
   env XDG_STATE_HOME="$SANDBOX/refuse/state" "$BIN" --ui-state \
     '{"hidden":false,"density":"compact"}' >/dev/null 2>&1 \
     || { echo "FAIL xwsettings: the refuse-phase seed write failed"; exit 1; }
@@ -474,10 +474,10 @@ ShellRoot {
 }
 QML
   out=$(env QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 XDG_STATE_HOME="$SANDBOX/refuse/state" \
-      FLEA_BIN="$BIN" timeout 60 qs -p "$QMLDIR/refuse.qml" 2>&1)
+      DLEA_BIN="$BIN" timeout 60 qs -p "$QMLDIR/refuse.qml" 2>&1)
   check "the refused patch is reported once" "1" "$(echo "$out" | grep -c 'PROBE afterRefuse failures=1')"
   check "and a later valid write applies again in the same process" "1" "$(echo "$out" | grep -c 'PROBE final failures=1 patch={} density=normal')"
-  flat=$(tr -d ' \n' < "$SANDBOX/refuse/state/flea/ui.json" 2>/dev/null)
+  flat=$(tr -d ' \n' < "$SANDBOX/refuse/state/dlea/ui.json" 2>/dev/null)
   check "and the file holds the valid write" "1" "$(echo "$flat" | grep -c '"density":"normal"')"
   echo "$out" | grep -a 'PROBE ' | tail -5 || true
 fi
@@ -502,7 +502,7 @@ SH
   chmod +x "$SANDBOX/prune/held-bin" || exit 1
   cp tests/xwsettings-prune.qml "$QMLDIR/prune.qml" || exit 1
   out=$(env QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 XDG_STATE_HOME="$SANDBOX/prune/state" \
-      FLEA_BIN="$SANDBOX/prune/held-bin" PROBE_REAL_BIN="$BIN" PROBE_ENTERED="$SANDBOX/prune/entered" \
+      DLEA_BIN="$SANDBOX/prune/held-bin" PROBE_REAL_BIN="$BIN" PROBE_ENTERED="$SANDBOX/prune/entered" \
       PROBE_GATE="$SANDBOX/prune/gate" PROBE_POLL_S="$probe_poll_s" \
       timeout "$probe_timeout_s" qs -p "$QMLDIR/prune.qml" 2>&1)
   # Sample probe: "PROBE drained runs=1 inflight= queued= patch={}" records a real child start and its completed prune.
@@ -513,7 +513,7 @@ SH
   check "the settle child really was running" 1 "$(echo "$out" | grep -c 'PROBE busy-running=true')"
   check "exactly one prune starts and drains after the apply lands" 1 \
     "$(echo "$out" | grep -c 'PROBE drained runs=1 inflight= queued= patch={}')"
-  flat=$(tr -d ' \n' < "$SANDBOX/prune/state/flea/ui.json")
+  flat=$(tr -d ' \n' < "$SANDBOX/prune/state/dlea/ui.json")
   check "the valid key beside the refused key retries" 1 "$(echo "$flat" | grep -c '"density":"normal"')"
   echo "$out" | grep -a 'PROBE ' || true
 fi
@@ -535,8 +535,8 @@ if [ "$fail" -eq 0 ]; then
   env XDG_STATE_HOME="$SANDBOX/start/state" "$BIN" --ui-state \
     '{"hidden":false,"view":"list","density":"compact","updates":{"autoCheck":false}}' >/dev/null 2>&1 \
     || exit 1
-  env DISPLAY=flea-offscreen QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 QSG_RHI_BACKEND=opengl \
-      XDG_STATE_HOME="$SANDBOX/start/state" FLEA_UI="$SANDBOX/start/ui-a" FLEA_BIN="$BIN" FLEA_PATH="$SANDBOX/start/files-a" \
+  env DISPLAY=dlea-offscreen QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 QSG_RHI_BACKEND=opengl \
+      XDG_STATE_HOME="$SANDBOX/start/state" DLEA_UI="$SANDBOX/start/ui-a" DLEA_BIN="$BIN" DLEA_PATH="$SANDBOX/start/files-a" \
       PROBE_BODY="$PWD/ui/WindowBody.qml" PROBE_STATE_HELPER="$PWD/tests/xwsettings-start-state.qml" \
       PROBE_ROLE=A PROBE_READY="$SANDBOX/start/ready" PROBE_DONE="$SANDBOX/start/done" PROBE_OTHER_PATH="$SANDBOX/start/files-b" \
       PROBE_POLL_S="$probe_poll_s" timeout "$probe_timeout_s" qs -p "$SANDBOX/start/ui-a/boot/shell.qml" \
@@ -554,8 +554,8 @@ if [ "$fail" -eq 0 ]; then
     sleep "$probe_poll_s"
   done
   if [ "$fail" -eq 0 ]; then
-    env DISPLAY=flea-offscreen QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 QSG_RHI_BACKEND=opengl \
-        XDG_STATE_HOME="$SANDBOX/start/state" FLEA_UI="$SANDBOX/start/ui-b" FLEA_BIN="$BIN" FLEA_PATH="$SANDBOX/start/files-b" \
+    env DISPLAY=dlea-offscreen QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 QSG_RHI_BACKEND=opengl \
+        XDG_STATE_HOME="$SANDBOX/start/state" DLEA_UI="$SANDBOX/start/ui-b" DLEA_BIN="$BIN" DLEA_PATH="$SANDBOX/start/files-b" \
         PROBE_BODY="$PWD/ui/WindowBody.qml" PROBE_STATE_HELPER="$PWD/tests/xwsettings-start-state.qml" PROBE_ROLE=B PROBE_READY="$SANDBOX/start/ready" PROBE_DONE="$SANDBOX/start/done" \
         PROBE_POLL_S="$probe_poll_s" timeout "$probe_timeout_s" qs -p "$SANDBOX/start/ui-b/boot/shell.qml" \
         > "$SANDBOX/starting.log" 2>&1
@@ -581,7 +581,7 @@ sandbox_scratch "$SANDBOX/tabs" || exit 1
 mkdir -p "$SANDBOX/tabs/config" "$SANDBOX/tabs/a/sub" "$SANDBOX/tabs/b/sub" || exit 1
 printf 'a\n' > "$SANDBOX/tabs/a/a.txt" || exit 1
 printf 'b\n' > "$SANDBOX/tabs/b/b.txt" || exit 1
-ln -s "$PWD/ui" "$SANDBOX/tabs/config/flea" || exit 1
+ln -s "$PWD/ui" "$SANDBOX/tabs/config/dlea" || exit 1
 headless_commons "$SANDBOX" "$SANDBOX/tabs/config/Commons" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$SANDBOX/tabs/config/Ui" || exit 1
 cp tests/xwsettings-tabs.qml "$SANDBOX/tabs/config/shell.qml" || exit 1
@@ -620,9 +620,9 @@ PY
     env XDG_STATE_HOME="$SANDBOX/tabs/$label/state" "$BIN" --ui-state "$restored" >/dev/null 2>&1 || exit 1
     start_path=""
   fi
-  out=$(env DISPLAY=flea-offscreen QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 QSG_RHI_BACKEND=opengl \
-      XDG_STATE_HOME="$SANDBOX/tabs/$label/state" FLEA_BIN="$SANDBOX/tabs/launcher" \
-      FLEA_PATH="$start_path" PROBE_BASE="$SANDBOX/tabs/a" PROBE_OTHER_PATH="$SANDBOX/tabs/b" \
+  out=$(env DISPLAY=dlea-offscreen QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 QSG_RHI_BACKEND=opengl \
+      XDG_STATE_HOME="$SANDBOX/tabs/$label/state" DLEA_BIN="$SANDBOX/tabs/launcher" \
+      DLEA_PATH="$start_path" PROBE_BASE="$SANDBOX/tabs/a" PROBE_OTHER_PATH="$SANDBOX/tabs/b" \
       PROBE_MODE="$mode" PROBE_TICK_MS="$tick" PROBE_REAL_BIN="$BIN" PROBE_LAUNCHES="$SANDBOX/tabs/$label/launches" PROBE_SHOT="$SANDBOX/tabs/$label/held.png" \
       PROBE_BODY="$PWD/ui/WindowBody.qml" timeout 30 qs -p "$SANDBOX/tabs/config" 2>&1)
   result=$?
@@ -634,8 +634,8 @@ PY
   check "the $label key/pointer probe has no script errors" 0 \
     "$(printf '%s\n' "$out" | grep -cE 'TypeError|ReferenceError|ERROR')"
   if ! printf '%s\n' "$out" | grep -q "TAB_HUNT DONE $mode "; then printf '%s\n' "$out" | tail -15; fi
-  if [ "$mode" = dragpreview ] && [ -n "${FLEA_CI_SUITE_LOGS:-}" ]; then
-    cp "$SANDBOX/tabs/$label/held.png" "$FLEA_CI_SUITE_LOGS/cap-tabs-drag-held-offscreen.png" || fail=1
+  if [ "$mode" = dragpreview ] && [ -n "${DLEA_CI_SUITE_LOGS:-}" ]; then
+    cp "$SANDBOX/tabs/$label/held.png" "$DLEA_CI_SUITE_LOGS/cap-tabs-drag-held-offscreen.png" || fail=1
   fi
 done
 

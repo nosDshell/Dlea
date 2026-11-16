@@ -1,6 +1,6 @@
 // The image probe behind flashimage: kind from the name confirmed by magic, sizes in the sandbox.
 use crate::backend::flash::IMAGE_SUFFIXES;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::path::Path;
 use std::time::Duration;
 

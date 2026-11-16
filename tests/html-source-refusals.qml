@@ -1,6 +1,6 @@
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // Controlled terminal replies exercise the real source renderer with stale listing metadata.
 ShellRoot {
@@ -37,7 +37,7 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 984
         implicitHeight: 600
-        Flea.PreviewHtml {
+        Dlea.PreviewHtml {
             id: doc
             anchors.fill: parent
             active: true

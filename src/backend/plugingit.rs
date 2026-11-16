@@ -1,5 +1,5 @@
 // Git for plugins added from a URL: a clone, and an Update that pulls only into a plain repository.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::pluginfs::finish;
 use super::regfile;
 use crate::oflags::O_NOFOLLOW;
@@ -154,7 +154,7 @@ fn read_config(folder: &Path) -> Option<String> {
     super::pluginfs::read_bounded(file, CONFIG_LIMIT)
 }
 
-// Sample input: [remote "origin"]\n\turl = https://github.com/mtorvik/flea-checksums
+// Sample input: [remote "origin"]\n\turl = https://github.com/mtorvik/dlea-checksums
 pub fn git_origin(folder: &Path) -> Option<String> {
     let text = read_config(folder)?;
     let mut in_origin = false;

@@ -19,7 +19,7 @@ sidebar_max=$(sed -n 's/^var WIDTH_STOPS = \[.*, \([0-9][0-9]*\)\]$/\1/p' ui/js/
 fixture_root=/nonexistent
 . tests/ui-captures-filter.sh
 widths=() counts=()
-for stub in cap_filter_pin cap_filter_slash_ap cap_filter_slash_nomatch cap_filter_search_ap cap_filter_search_nomatch cap_filter_escape cap_filter_empty seed_ui_state launch wait_listing kill_flea; do
+for stub in cap_filter_pin cap_filter_slash_ap cap_filter_slash_nomatch cap_filter_search_ap cap_filter_search_nomatch cap_filter_escape cap_filter_empty seed_ui_state launch wait_listing kill_dlea; do
     eval "$stub() { :; }"
 done
 cap_resize() { widths+=("$1"); }

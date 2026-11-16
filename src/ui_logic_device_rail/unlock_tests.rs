@@ -136,7 +136,7 @@ fn card_name_comes_from_the_locked_row_for_the_device() {
     assert_eq!(locked_row(&rail, "/dev/loop0").map(|r| r.size), Some(Some(33554432)), "the CLI device finds its locked row");
     assert!(locked_row(&rail[..1], "/dev/sdb1").is_none(), "an unlocked row of the same device is never the card's name");
     assert!(locked_row(&[], "/dev/loop0").is_none(), "a rail that has not listed the device yet names nothing");
-    // The host naming the CLI card on a rail rebuild is crates/flea-gui/src/g2/device_rail/host_tests.rs.
+    // The host naming the CLI card on a rail rebuild is crates/dlea-gui/src/g2/device_rail/host_tests.rs.
 }
 
 #[test]

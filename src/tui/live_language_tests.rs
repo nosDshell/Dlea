@@ -56,7 +56,7 @@ fn every_language_switch_retranslates_the_tui_frame_and_keeps_folder_names() {
         assert_eq!(m.i18n.language(), code);
         let name = m.i18n.tr("window.column_name");
         // Read beside the loader, so a fallback to English or to the key cannot stand in for this language's word.
-        let file = std::fs::read_to_string(catalogs.join(code).join("flea.json"))
+        let file = std::fs::read_to_string(catalogs.join(code).join("dlea.json"))
             .expect("shipped catalog");
         assert!(
             file.contains(&format!("\"window.column_name\": \"{}\"", plain(&name))),

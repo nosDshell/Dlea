@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-listprebuild-test
+//@ pragma ShellId dlea-listprebuild-test
 
 import QtQuick
 import Quickshell
 import QtQml.Models
-import "flea" as Flea
+import "dlea" as Dlea
 
 // listprebuild: quiet turns park rows the next landing adopts with 0 built; the first landing holds, the pool fills after, and the driver converges with no 16 ms wakes.
 ShellRoot {
@@ -129,7 +129,7 @@ ShellRoot {
             sourceComponent: listView
         }
     }
-    Component { id: listView; Flea.List { width: 2536; height: 1381; pane: root.stubPane; menu: menuStub.createObject(root) } }
+    Component { id: listView; Dlea.List { width: 2536; height: 1381; pane: root.stubPane; menu: menuStub.createObject(root) } }
 
     function view() { return viewLoader.item }
     function delegates() {
@@ -406,5 +406,5 @@ ShellRoot {
         running: true
         onTriggered: { root.failures.push("timeout in phase " + root.phase); root.finish() }
     }
-    Component.onCompleted: Flea.ViewState.setTextSize({ mode: 14 })
+    Component.onCompleted: Dlea.ViewState.setTextSize({ mode: 14 })
 }

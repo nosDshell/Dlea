@@ -1,23 +1,23 @@
 # Field bench manifest
 
-Written by tools/flea-bench-manifest. Every line below is read off the installed artefact, except the two
+Written by tools/dlea-bench-manifest. Every line below is read off the installed artefact, except the two
 entrant corrections listed under "Merged run" at the end.
 
 ## Run
 
 - date: 2026-10-12T21:56:43-04:00
 - host: minipc, kernel 7.2.8-5-omarchy-bore
-- fixture: /home/flea-sandbox/flea-matched-btrfs
+- fixture: /home/dlea-sandbox/dlea-matched-btrfs
 - fixture kind: btrfs
 - fixture payload: 1700 visible entries, filesystem btrfs
 - TUI terminal: kitty 0.49.2-1
-- flea launch line: FLEA_BIN=/home/flea-sandbox/n.LPqVdHoc/arms/f9c48884fa9e/target/release/flea FLEA_UI=/home/flea-sandbox/n.LPqVdHoc/arms/f9c48884fa9e/ui QML_DISK_CACHE_PATH=/home/flea-sandbox/n.LPqVdHoc/arms/f9c48884fa9e/target/qmlcache XDG_STATE_HOME=/tmp/flea-bench-state.ldOCVE setsid nohup /home/flea-sandbox/n.LPqVdHoc/arms/f9c48884fa9e/target/release/flea --gui /home/flea-sandbox/flea-matched-btrfs
+- dlea launch line: DLEA_BIN=/home/dlea-sandbox/n.LPqVdHoc/arms/f9c48884fa9e/target/release/dlea DLEA_UI=/home/dlea-sandbox/n.LPqVdHoc/arms/f9c48884fa9e/ui QML_DISK_CACHE_PATH=/home/dlea-sandbox/n.LPqVdHoc/arms/f9c48884fa9e/target/qmlcache XDG_STATE_HOME=/tmp/dlea-bench-state.ldOCVE setsid nohup /home/dlea-sandbox/n.LPqVdHoc/arms/f9c48884fa9e/target/release/dlea --gui /home/dlea-sandbox/dlea-matched-btrfs
 - load average at start: 0.45 0.82 1.10
 - waited 20 seconds for the box to go idle before starting
 - Quickshell QML cache at start: 17277 entries
 - settle gap: 500 ms of quiet ticks
 - settle clock watches the entrant tree plus: none
-- TUI preview target: /home/flea-sandbox/flea-matched-btrfs/photo_0.jpg
+- TUI preview target: /home/dlea-sandbox/dlea-matched-btrfs/photo_0.jpg
 - fixture payload assertion: PASSED, 1700 visible entries against the expected 1700
 
 ## Fixture by extension
@@ -44,15 +44,15 @@ entrant corrections listed under "Merged run" at the end.
 ## Entrants
 
 ```
-flea       gui  source 5816ab88 untagged (DIRTY), release binary built 2026-10-12T21:50:50-04:00, 5059184 bytes
-flea-anchor gui  source 1de9d979 untagged (DIRTY), release binary built 2026-10-12T21:52:12-04:00, 3808712 bytes
+dlea       gui  source 5816ab88 untagged (DIRTY), release binary built 2026-10-12T21:50:50-04:00, 5059184 bytes
+dlea-anchor gui  source 1de9d979 untagged (DIRTY), release binary built 2026-10-12T21:52:12-04:00, 3808712 bytes
 nautilus   gui  nautilus 51.0.1-2
 thunar     gui  thunar 4.20.10-1
 pcmanfm    gui  pcmanfm 1.4.0-2
 nemo       gui  nemo 6.6.4-1
 dolphin    gui  dolphin 26.08.2-1
 strata     gui  source v1.0.0 committed 2026-10-12, built locally from this checkout
-flea-tui   tui  source 5816ab88 untagged (DIRTY), release binary built 2026-10-12T21:50:50-04:00, 5059184 bytes
+dlea-tui   tui  source 5816ab88 untagged (DIRTY), release binary built 2026-10-12T21:50:50-04:00, 5059184 bytes
 yazi       tui  yazi 26.9.1-2
 mc         tui  mc 4.8.33-1
 broot      tui  broot 1.61.0-1
@@ -72,7 +72,7 @@ from the published release, which is equally true of every AUR entrant in the li
 
 ## The TUI bracket's configuration, as it ran
 
-Provenance per entrant is in `tools/flea-bench-tui/README.md`. lf's is AUTHORED HERE
+Provenance per entrant is in `tools/dlea-bench-tui/README.md`. lf's is AUTHORED HERE
 because lf ships no image preview at all; every other file came from that project's own docs.
 
 ### README.md
@@ -126,7 +126,7 @@ document carrying both says so rather than merging the two tables.
 # whatever font size somebody set last week is not reproducible, and nnn's preview plugin needs
 # remote control switched on, which is not something to turn on in an operator's real terminal.
 allow_remote_control yes
-listen_on unix:/tmp/tmp.S5DbIZSMOv/flea-bench-kitty
+listen_on unix:/tmp/tmp.S5DbIZSMOv/dlea-bench-kitty
 
 # A fixed grid, so every entrant is handed the same viewport and the same amount of preview to draw.
 font_size 12
@@ -205,7 +205,7 @@ ueberzugpp             2.9.10-1
 - ended: 2026-10-12T21:58:24-04:00
 - load average at end: 1.30 1.08 1.17
 - Quickshell QML cache at end: 17277 entries
-- tested Flea's own QML cache at end: 176 entries in /home/flea-sandbox/n.LPqVdHoc/arms/f9c48884fa9e/target/qmlcache
+- tested Dlea's own QML cache at end: 176 entries in /home/dlea-sandbox/n.LPqVdHoc/arms/f9c48884fa9e/target/qmlcache
 
 ## Formats produced, refused, and never attempted
 
@@ -215,19 +215,19 @@ failure marker the thumbnailer left. Never attempted is neither, which on this f
 means the entrant settled before reaching those names: they sort by format, clip before image
 before notes before photo. **A never-attempted count is not a capability claim.**
 
-- flea produced mp4 35, webm 8; refused nothing; never attempted jpg 600, mp4 365, png 200, txt 200, webm 92, webp 200
-- flea-anchor produced mp4 35, webm 8; refused nothing; never attempted jpg 600, mp4 365, png 200, txt 200, webm 92, webp 200
-- strata: nothing reached the thumbnail cache, so this run makes no format claim about it either way; tools/flea-bench-capability is the instrument that answers what it can draw
-- flea-tui: a TUI previews the cursor file and fills no grid, so it writes no thumbnails at all
+- dlea produced mp4 35, webm 8; refused nothing; never attempted jpg 600, mp4 365, png 200, txt 200, webm 92, webp 200
+- dlea-anchor produced mp4 35, webm 8; refused nothing; never attempted jpg 600, mp4 365, png 200, txt 200, webm 92, webp 200
+- strata: nothing reached the thumbnail cache, so this run makes no format claim about it either way; tools/dlea-bench-capability is the instrument that answers what it can draw
+- dlea-tui: a TUI previews the cursor file and fills no grid, so it writes no thumbnails at all
 
 ## The TUI bracket's preview timing
 
-- flea-tui: no image preview feature at all, so nothing was there to time. The -1 in
+- dlea-tui: no image preview feature at all, so nothing was there to time. The -1 in
   preview_ms is that fact and not a slow preview.
 
 ## The equal-work column
 
-`cpu_tree_s` is the column to compare work on, for every entrant and not for Flea alone: a
+`cpu_tree_s` is the column to compare work on, for every entrant and not for Dlea alone: a
 column carrying CPU-seconds for one entrant and wall-seconds for the rest is the incomparable
 rank this harness now refuses. It is on every row above.
 
@@ -239,37 +239,37 @@ sandboxed decodes added 0.01 s to it against 0.95 s run bare. A column from befo
 that blind figure and compares only against `cpu_reaped_s`. A TUI row's group holds its
 terminal too, so that bracket's column includes kitty's own drawing, the same kitty for each.
 
-**What it does not yet include.** Flea thumbnails the viewport by design and every rival
-thumbnails the directory, so this column is comparable in units and not in work until Flea is
+**What it does not yet include.** Dlea thumbnails the viewport by design and every rival
+thumbnails the directory, so this column is comparable in units and not in work until Dlea is
 driven through the whole listing. When that lands, the residual bias belongs here too: the
-driver's own cost falls in omarchy-drive's tree and is excluded, while Flea's cost of
-servicing that drive is included and no rival pays it. That biases against Flea, which is the
+driver's own cost falls in omarchy-drive's tree and is excluded, while Dlea's cost of
+servicing that drive is included and no rival pays it. That biases against Dlea, which is the
 safe direction, and it is not a reason to leave the number out.
 
 ## Rank refusals
 
 - strata run 1: unranked: its watches saw 0 renders for 86 opened fixture files so neither is a count
-- flea-tui run 1: n/a: tui in kitty
+- dlea-tui run 1: n/a: tui in kitty
 - strata run 2: unranked: its watches saw 0 renders for 86 opened fixture files so neither is a count
-- flea-tui run 2: n/a: tui in kitty
+- dlea-tui run 2: n/a: tui in kitty
 - strata run 3: unranked: its watches saw 0 renders for 86 opened fixture files so neither is a count
-- flea-tui run 3: n/a: tui in kitty
+- dlea-tui run 3: n/a: tui in kitty
 
 ## Merged run
 
-- phase A (flea, flea-anchor, flea-tui, strata): run root field039.BrghYUKo on the bench host
+- phase A (dlea, dlea-anchor, dlea-tui, strata): run root field039.BrghYUKo on the bench host
 - phase B (dolphin, thunar, nemo, pcmanfm, nautilus): run root field039.tX4cAYd4 on the bench host
-- this manifest is phase A's; strata ran the v1.0.0 build at /home/flea-sandbox/strata-100 and its row
+- this manifest is phase A's; strata ran the v1.0.0 build at /home/dlea-sandbox/strata-100 and its row
   above names that tag (the generator had read the v0.19.0 checkout at ~/Work/strata)
-- flea ran from f9c48884, the pre-reword id of 5816ab88 (same tree), the 0.3.10 version commit; the
+- dlea ran from f9c48884, the pre-reword id of 5816ab88 (same tree), the 0.3.10 version commit; the
   entrant lines above name 5816ab88, and the launch line keeps the build path as it ran. The v0.3.10 tag
   adds only lint fixes with no runtime change, tests and docs after it
-- flea-tui ran with no terminal rival in this run, so its rows are left out of these CSVs
-- flea-anchor is v0.3.9: tag v0.3.9 points at 1de9d979; the bench host's clone carries no tags, so the line
+- dlea-tui ran with no terminal rival in this run, so its rows are left out of these CSVs
+- dlea-anchor is v0.3.9: tag v0.3.9 points at 1de9d979; the bench host's clone carries no tags, so the line
   says untagged
-- DIRTY on flea and flea-anchor is the bench harness's marker patch (18 console.log timing lines and one
-  objectName, in 13 UI files, applied identically to every Flea arm); the code is otherwise the named commit
-- in this run flea launched before flea-anchor in every run. An order check after it, same host, ran both
+- DIRTY on dlea and dlea-anchor is the bench harness's marker patch (18 console.log timing lines and one
+  objectName, in 13 UI files, applied identically to every Dlea arm); the code is otherwise the named commit
+- in this run dlea launched before dlea-anchor in every run. An order check after it, same host, ran both
   video fixtures with each version launched first in one run of 5 and second in another (roots
   field039.aI4bSZkf with 0.3.10 first and field039.yt9Ik8WL with 0.3.9 first). Medians of the 10 runs per
   version: 2,000-file media fixture 0.3.10 502.5 ms, 0.3.9 502.5 ms; 1,700-file matched fixture 0.3.10

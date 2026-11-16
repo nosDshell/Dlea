@@ -260,8 +260,8 @@ pub const INVENTORY: &[Spec] = &[
     ),
     spec("settings", "menu.row.settings", "sliders", "B", "settings"),
     spec(
-        "updateFlea",
-        "menu.row.update_flea",
+        "updateDlea",
+        "menu.row.update_dlea",
         "download",
         "B",
         "settings",

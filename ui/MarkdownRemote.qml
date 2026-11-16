@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Shapes
-import "." as Flea
+import "." as Dlea
 import "js/Icons.js" as Icons
 import "js/Markdown.js" as Markdown
 
@@ -58,7 +58,7 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
         spacing: Theme.spacing.gap
 
-        Flea.Glyph {
+        Dlea.Glyph {
             id: remoteMark
             anchors.verticalCenter: parent.verticalCenter
             width: Theme.chromeMarkSize

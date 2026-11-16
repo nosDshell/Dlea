@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p "$PWD/.superpowers/g2-pv2-md"
 unit_root=$(mktemp -d "$PWD/.superpowers/g2-pv2-md/ci.XXXXXXXX")
-: > "$unit_root/.flea-test-sandbox"
+: > "$unit_root/.dlea-test-sandbox"
 mkdir -p "$unit_root/home" "$unit_root/config" "$unit_root/cache" "$unit_root/state" "$unit_root/runtime"
 isolated() {
     setsid -w env -i PATH="$PATH" HOME="$unit_root/home" \
@@ -15,9 +15,9 @@ isolated() {
         CARGO_PROFILE_TEST_DEBUG=line-tables-only CARGO_PROFILE_DEV_DEBUG=line-tables-only \
         "$@" < /dev/null
 }
-isolated cargo test --locked -p flea --lib -- ui_logic_doc_preview::markdown
-isolated cargo test --locked -p flea-gui --test g2_pv2_md
+isolated cargo test --locked -p dlea --lib -- ui_logic_doc_preview::markdown
+isolated cargo test --locked -p dlea-gui --test g2_pv2_md
 clippy_root=$(mktemp -d "$PWD/.superpowers/g2-pv2-md/clippy.XXXXXXXX")
-: > "$clippy_root/.flea-test-sandbox"
-tools/flea-clippy tools/clippy-baseline.txt "$clippy_root"
+: > "$clippy_root/.dlea-test-sandbox"
+tools/dlea-clippy tools/clippy-baseline.txt "$clippy_root"
 printf 'G2_PV2_MD PASS parser, layout, view and clippy\n'

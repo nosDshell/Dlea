@@ -1,9 +1,9 @@
 // The plugins request's smaller changes: a switch, a setting, a removal and a validation.
 use super::pluginfs;
 use super::plugins::{check_start, find, read_manifest, record_start, write, Env};
-use flea::jsondoc::Json;
-use flea::ui_logic_plugin_settings::manifest::{self, Invalid};
-use flea::ui_logic_plugin_settings::{builtin, schema, shelf, store};
+use dlea::jsondoc::Json;
+use dlea::ui_logic_plugin_settings::manifest::{self, Invalid};
+use dlea::ui_logic_plugin_settings::{builtin, schema, shelf, store};
 use std::path::Path;
 
 pub(super) fn switch(env: &Env, plugin: &str, on: bool) -> Result<(String, String), Invalid> {
@@ -15,7 +15,7 @@ pub(super) fn switch(env: &Env, plugin: &str, on: bool) -> Result<(String, Strin
     if found.plugin.manifest.block("shelf").is_some()
         && (was != on || found.plugin.failure.is_some())
     {
-        // The ui.json write is the switch; a bar that could not follow is said on stderr, as `flea --ui-state` says it.
+        // The ui.json write is the switch; a bar that could not follow is said on stderr, as `dlea --ui-state` says it.
         if let Err(e) = super::pluginshelf::switch(env, &found, on) {
             shelf_failure = Some(e);
         }

@@ -1,7 +1,7 @@
 // The plugins folder's disk and process work: a folder copied in, a folder removed, a start answered.
 use super::regfile;
 use crate::oflags::O_NOFOLLOW;
-use flea::ui_logic_plugin_settings::manifest::Invalid;
+use dlea::ui_logic_plugin_settings::manifest::Invalid;
 use std::fs;
 use std::io::{self, Read, Write};
 use std::os::unix::ffi::OsStrExt;
@@ -97,7 +97,7 @@ fn walk(from: &Path, to: Option<&Path>, depth: usize, budget: &mut Budget) -> Re
             if let Some(target) = target {
                 let mode = meta.permissions().mode() & 0o755;
                 if mode & 0o111 != 0 {
-                    flea::executable_file::copy_new(
+                    dlea::executable_file::copy_new(
                         &target,
                         &mut file.take(meta.len() + 1),
                         meta.len(),

@@ -1,7 +1,7 @@
 // Language-mark reference sheet; tests/langmarks3.sh builds it offscreen through the original symlink harness.
 import Quickshell
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/LangMarks.js" as LangMarks
 import "js/Density.js" as Density
 
@@ -13,10 +13,10 @@ ShellRoot {
         implicitHeight: 560
         visible: true
         title: "langmarks-spec"
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
         // The same three inks ui/Row.qml binds its mark to: dim at rest, foreground lifted.
-        readonly property color restInk: Flea.Theme.color.metadataFrame
+        readonly property color restInk: Dlea.Theme.color.metadataFrame
         readonly property var files: ["main.rs", "app.py", "index.js", "README.md", "Dockerfile"]
 
         Column {
@@ -27,19 +27,19 @@ ShellRoot {
             // A folder row keeps its kind glyph; every other row below replaces it with a logo.
             Row {
                 spacing: 12
-                Text { width: 140; text: "folder"; color: Flea.Theme.color.muted; font.pixelSize: Flea.Theme.font.caption; textFormat: Text.PlainText }
-                Flea.Glyph { width: Flea.Theme.markSize; height: Flea.Theme.markSize; name: "folder"; color: win.restInk }
-                Flea.Glyph { width: Flea.Theme.markSize; height: Flea.Theme.markSize; name: "folder"; color: Flea.Theme.color.foreground }
-                Flea.Glyph { width: Flea.Theme.markSize; height: Flea.Theme.markSize; name: "folder"; color: Flea.Theme.color.foreground }
+                Text { width: 140; text: "folder"; color: Dlea.Theme.color.muted; font.pixelSize: Dlea.Theme.font.caption; textFormat: Text.PlainText }
+                Dlea.Glyph { width: Dlea.Theme.markSize; height: Dlea.Theme.markSize; name: "folder"; color: win.restInk }
+                Dlea.Glyph { width: Dlea.Theme.markSize; height: Dlea.Theme.markSize; name: "folder"; color: Dlea.Theme.color.foreground }
+                Dlea.Glyph { width: Dlea.Theme.markSize; height: Dlea.Theme.markSize; name: "folder"; color: Dlea.Theme.color.foreground }
             }
 
             // An unmapped file keeps its kind glyph too.
             Row {
                 spacing: 12
-                Text { width: 140; text: "notes.txt"; color: Flea.Theme.color.muted; font.pixelSize: Flea.Theme.font.caption; textFormat: Text.PlainText }
-                Flea.Glyph { width: Flea.Theme.markSize; height: Flea.Theme.markSize; name: "file-text"; color: win.restInk }
-                Flea.Glyph { width: Flea.Theme.markSize; height: Flea.Theme.markSize; name: "file-text"; color: Flea.Theme.color.foreground }
-                Flea.Glyph { width: Flea.Theme.markSize; height: Flea.Theme.markSize; name: "file-text"; color: Flea.Theme.color.foreground }
+                Text { width: 140; text: "notes.txt"; color: Dlea.Theme.color.muted; font.pixelSize: Dlea.Theme.font.caption; textFormat: Text.PlainText }
+                Dlea.Glyph { width: Dlea.Theme.markSize; height: Dlea.Theme.markSize; name: "file-text"; color: win.restInk }
+                Dlea.Glyph { width: Dlea.Theme.markSize; height: Dlea.Theme.markSize; name: "file-text"; color: Dlea.Theme.color.foreground }
+                Dlea.Glyph { width: Dlea.Theme.markSize; height: Dlea.Theme.markSize; name: "file-text"; color: Dlea.Theme.color.foreground }
             }
 
             Repeater {
@@ -47,21 +47,21 @@ ShellRoot {
                 Row {
                     required property string modelData
                     spacing: 12
-                    Text { width: 140; text: parent.modelData; color: Flea.Theme.color.muted; font.pixelSize: Flea.Theme.font.caption; textFormat: Text.PlainText }
-                    Flea.LangMark {
-                        width: Flea.Theme.markSize; height: Flea.Theme.markSize
-                        maxSize: Flea.Theme.markSize; slug: LangMarks.slugForFile(parent.modelData)
-                        color: win.restInk; strokeWidth: Flea.Theme.strokeWidth
+                    Text { width: 140; text: parent.modelData; color: Dlea.Theme.color.muted; font.pixelSize: Dlea.Theme.font.caption; textFormat: Text.PlainText }
+                    Dlea.LangMark {
+                        width: Dlea.Theme.markSize; height: Dlea.Theme.markSize
+                        maxSize: Dlea.Theme.markSize; slug: LangMarks.slugForFile(parent.modelData)
+                        color: win.restInk; strokeWidth: Dlea.Theme.strokeWidth
                     }
-                    Flea.LangMark {
-                        width: Flea.Theme.markSize; height: Flea.Theme.markSize
-                        maxSize: Flea.Theme.markSize; slug: LangMarks.slugForFile(parent.modelData)
-                        color: Flea.Theme.color.foreground; strokeWidth: Flea.Theme.strokeWidth
+                    Dlea.LangMark {
+                        width: Dlea.Theme.markSize; height: Dlea.Theme.markSize
+                        maxSize: Dlea.Theme.markSize; slug: LangMarks.slugForFile(parent.modelData)
+                        color: Dlea.Theme.color.foreground; strokeWidth: Dlea.Theme.strokeWidth
                     }
-                    Flea.LangMark {
-                        width: Flea.Theme.markSize; height: Flea.Theme.markSize
-                        maxSize: Flea.Theme.markSize; slug: LangMarks.slugForFile(parent.modelData)
-                        color: Flea.Theme.color.foreground; strokeWidth: Flea.Theme.strokeWidth
+                    Dlea.LangMark {
+                        width: Dlea.Theme.markSize; height: Dlea.Theme.markSize
+                        maxSize: Dlea.Theme.markSize; slug: LangMarks.slugForFile(parent.modelData)
+                        color: Dlea.Theme.color.foreground; strokeWidth: Dlea.Theme.strokeWidth
                     }
                 }
             }
@@ -69,11 +69,11 @@ ShellRoot {
             // One grid cell at the Medium tile's grid mark size, muted as the tile's glyph.
             Row {
                 spacing: 12
-                Text { width: 140; text: "grid main.rs"; color: Flea.Theme.color.muted; font.pixelSize: Flea.Theme.font.caption; textFormat: Text.PlainText }
-                Flea.LangMark {
+                Text { width: 140; text: "grid main.rs"; color: Dlea.Theme.color.muted; font.pixelSize: Dlea.Theme.font.caption; textFormat: Text.PlainText }
+                Dlea.LangMark {
                     width: 64; height: 64
                     maxSize: Density.glyphCap(64); slug: "rust"
-                    color: Flea.Theme.color.mutedFrame; strokeWidth: Flea.Theme.strokeWidth
+                    color: Dlea.Theme.color.mutedFrame; strokeWidth: Dlea.Theme.strokeWidth
                 }
             }
         }

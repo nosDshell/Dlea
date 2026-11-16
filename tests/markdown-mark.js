@@ -1,4 +1,4 @@
-.import "flea/js/LangMarkPaths.js" as LangMarkPaths
+.import "dlea/js/LangMarkPaths.js" as LangMarkPaths
 
 // The mark a Quick Look bar draws, read off its Shape for the Markdown render suite.
 

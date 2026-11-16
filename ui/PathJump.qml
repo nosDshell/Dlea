@@ -2,12 +2,12 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Jump.js" as Jump
 import "js/Recent.js" as Recent
 
 // The path bar's folder jump, the Jump board: a name typed into the bar lists matching folders from
-// Flea's favourites, zoxide's ranking and the desktop's recent history in a dropdown flush under the
+// Dlea's favourites, zoxide's ranking and the desktop's recent history in a dropdown flush under the
 // field, at its width and in the menu recipe. ui/ChromeBar.qml owns the field and forwards its keys
 // here; ui/js/Jump.js decides the rows. Nothing is written anywhere, and zoxide is asked once per open.
 Item {
@@ -210,7 +210,7 @@ Item {
     }
 
     function favouritePaths() {
-        var records = Flea.Favourites.records
+        var records = Dlea.Favourites.records
         var out = []
         for (var i = 0; i < records.length; i++) {
             out.push(String(records[i].path || ""))
@@ -331,7 +331,7 @@ Item {
                 onWheel: function (wheel) { wheel.accepted = true }
             }
 
-            Flea.CardScroll {
+            Dlea.CardScroll {
                 id: scroll
                 // The dropdown steps the highlight like a menu: one row a notch, one row per
                 // row height of gained touchpad travel. The cursor's reveal() follows.
@@ -354,7 +354,7 @@ Item {
                         model: Math.max(root.rowHighWater, root.entries.length)
                         // The menu's own row, so the lift, the mark slot and the pointer rules are the context menu's;
                         // the label is the path the chrome would draw, laid over its empty one.
-                        delegate: Flea.MenuRow {
+                        delegate: Dlea.MenuRow {
                             id: row
                             required property int index
                             // The row at this slot of the newest answer, undefined mid-swap or past it.
@@ -372,7 +372,7 @@ Item {
                             onPointerMoved: { if (!root.pointerSettling) root.cursor = row.index }
                             onActivated: { if (row.rowData !== undefined) root.chosen(row.rowData.path) }
 
-                            Flea.JumpPath {
+                            Dlea.JumpPath {
                                 entry: row.rowData !== undefined ? row.rowData : ({})
                                 anchors.left: parent.left
                                 anchors.leftMargin: Theme.spacing.rowPaddingX + row.slotSize + Theme.spacing.gap
@@ -385,12 +385,12 @@ Item {
                 }
             }
 
-            Flea.MenuEdgeFade {
+            Dlea.MenuEdgeFade {
                 anchors.top: parent.top
                 visible: scroll.contentY > 0
             }
 
-            Flea.MenuEdgeFade {
+            Dlea.MenuEdgeFade {
                 anchors.bottom: parent.bottom
                 visible: scroll.contentY + scroll.height < scroll.contentHeight
                 rotation: 180

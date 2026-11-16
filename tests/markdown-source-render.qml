@@ -1,7 +1,7 @@
-//@ pragma ShellId flea-markdown-source-render-test
+//@ pragma ShellId dlea-markdown-source-render-test
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 ShellRoot {
     id: shell
@@ -10,7 +10,7 @@ ShellRoot {
     property int failures: 0
     property int step: 0
     property string output: Quickshell.env("XDG_RUNTIME_DIR") + "/markdown-source.png"
-    Component.onCompleted: Flea.ViewState.state = { display: { textSize: { mode: 14 } } }
+    Component.onCompleted: Dlea.ViewState.state = { display: { textSize: { mode: 14 } } }
     function quit() { Quickshell.execDetached(["kill", String(Quickshell.processId)]) }
     function check(ok, label) {
         checks++
@@ -21,13 +21,13 @@ ShellRoot {
         implicitWidth: 1120
         implicitHeight: 240
         color: "#101315"
-        Flea.PreviewMarkdown {
+        Dlea.PreviewMarkdown {
             id: sourcePane
             anchors { left: parent.left; top: parent.top; bottom: parent.bottom }
             width: 560
             active: true
             view: "source"
-            path: Quickshell.env("FLEA_MARKDOWN_FIXTURE")
+            path: Quickshell.env("DLEA_MARKDOWN_FIXTURE")
             size: 1
         }
         Loader {
@@ -35,7 +35,7 @@ ShellRoot {
             x: sourcePane.width
             width: sourcePane.width
             height: sourcePane.height
-            sourceComponent: Flea.PreviewMarkdown {
+            sourceComponent: Dlea.PreviewMarkdown {
                 active: true
                 path: sourcePane.path
                 size: 1
@@ -66,7 +66,7 @@ ShellRoot {
         }
         var at = parts.flick.mapToItem(sourcePane, 0, 0)
         var first = block.mapToItem(rendered, 0, 0)
-        var label = " at body " + Flea.Theme.font.body
+        var label = " at body " + Dlea.Theme.font.body
         check(at.x === first.x && at.x === sourcePane.insetX, "source left equals rendered inset" + label)
         check(at.y === sourcePane.insetY, "source top equals rendered inset" + label + " (" + at.y + "/" + sourcePane.insetY + ")")
         check(sourcePane.width - at.x - parts.flick.width === sourcePane.insetX
@@ -98,7 +98,7 @@ ShellRoot {
                 shell.geometry()
                 sourcePane.grabToImage(function(result) {
                     shell.check(result.saveToFile(shell.output), "source capture saved")
-                    Flea.ViewState.state = { display: { textSize: { mode: 16 } } }
+                    Dlea.ViewState.state = { display: { textSize: { mode: 16 } } }
                     reference.active = false
                     shell.step = 1
                 })

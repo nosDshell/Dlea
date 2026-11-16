@@ -3,7 +3,7 @@
   "id": "example.checksums",
   "name": "Checksums",
   "version": "1.0.0",
-  "author": "Flea contributors",
+  "author": "Dlea contributors",
   "license": "MIT",
   "description": "Calculate SHA-256 for the selected files.",
   "kinds": [

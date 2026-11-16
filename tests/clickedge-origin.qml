@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-clickedge-origin-test
+//@ pragma ShellId dlea-clickedge-origin-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Filter.js" as Filter
+import "dlea" as Dlea
+import "dlea/js/Filter.js" as Filter
 
 // Context-0 click on a whole row leaves contentY unchanged under shifted originY; driven offscreen over real ui/List.qml.
 ShellRoot {
@@ -104,15 +104,15 @@ ShellRoot {
     property var stubPane: paneStub.createObject(root, { backend: root.stubBackend, rows: root.buildRows() })
 
     Component.onCompleted: {
-        root.stubPane.visibleRows = Qt.binding(function () { return Math.max(1, Math.ceil(list.height / Flea.Theme.fileRowHeight)) })
+        root.stubPane.visibleRows = Qt.binding(function () { return Math.max(1, Math.ceil(list.height / Dlea.Theme.fileRowHeight)) })
     }
 
     FloatingWindow {
         implicitWidth: 900
         implicitHeight: 500
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
-        Flea.List {
+        Dlea.List {
             id: list
             width: 700
             height: 300
@@ -159,7 +159,7 @@ ShellRoot {
         cell.editorField.inputItem.text = "item00-taken.txt"
         root.stubPane.renameError = "item00-taken.txt already exists in this folder, pick another name."
         var grown = list.itemAtIndex(0)
-        if (grown === null || grown.height <= Flea.Theme.fileRowHeight) {
+        if (grown === null || grown.height <= Dlea.Theme.fileRowHeight) {
             root.fail("the error did not expand row 0")
             root.report()
             return
@@ -169,7 +169,7 @@ ShellRoot {
     // A turn after the error, because the error line is the row's only growth and a same-turn scroll runs before Qt lays it out.
     function scrollToEnd() {
         var grown = list.itemAtIndex(0)
-        if (grown === null || grown.height <= Flea.Theme.fileRowHeight) {
+        if (grown === null || grown.height <= Dlea.Theme.fileRowHeight) {
             root.fail("row 0 is not grown when the scroll starts")
             root.report()
             return
@@ -193,7 +193,7 @@ ShellRoot {
             root.report()
             return
         }
-        var rowH = Flea.Theme.fileRowHeight
+        var rowH = Dlea.Theme.fileRowHeight
         var H = list.height
         // A window the old row-grid code misreads: the row is truly whole in the
         // origin space and cut without it, which is F7 in either shift direction.

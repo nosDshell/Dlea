@@ -10,7 +10,7 @@ import "Run.js" as Run
 // the menus and the keys. BarMark rule 6: it never self-hides, so its slot never moves.
 Panel {
   id: root
-  moduleName: "io.github.thisisgm.flea-shelf"
+  moduleName: "io.github.thisisgm.dlea-shelf"
 
   // Without these the bar allocates a zero-width slot: the widget draws nothing and logs nothing.
   // SettingsRest rule 2: with the master off, or the bar row off, the slot is the one that goes.
@@ -135,7 +135,7 @@ Panel {
   // Actions: the doing half, which the card's strip and its five letters reach through here.
   ShelfActions {
     id: doing
-    fleaCommand: shelf.fleaCommand
+    dleaCommand: shelf.dleaCommand
     onRan: shelf.reread()
     onRefused: function (why) {
       root.result = ""
@@ -230,7 +230,7 @@ Panel {
     tooltipText: Model.tooltip(shelf.pile)
     iconComponent: Component {
       Item {
-        FleaShelfMark {
+        DleaShelfMark {
           anchors.centerIn: parent
           // Rule 4: accent is transient and supporting, never the resting colour.
           color: root.landAccent > 0

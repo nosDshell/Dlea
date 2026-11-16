@@ -16,7 +16,7 @@ cat > "$scratch/monitors.json" <<'EOF'
 EOF
 # The minipc fixture has a fullscreen level 0 background, fullscreen level 1 catcher and level 2 bar strip.
 cat > "$scratch/layers.json" <<'EOF'
-{"DP-2":{"levels":{"0":[{"address":"0x1","x":0,"y":0,"w":2560,"h":1440,"namespace":"omarchy-background","pid":100}],"1":[{"address":"0x2","x":0,"y":0,"w":2560,"h":1440,"namespace":"flea-tab-tearoff","pid":200}],"2":[{"address":"0x3","x":0,"y":0,"w":2560,"h":30,"namespace":"omarchy-bar","pid":300}],"3":[]}}}
+{"DP-2":{"levels":{"0":[{"address":"0x1","x":0,"y":0,"w":2560,"h":1440,"namespace":"omarchy-background","pid":100}],"1":[{"address":"0x2","x":0,"y":0,"w":2560,"h":1440,"namespace":"dlea-tab-tearoff","pid":200}],"2":[{"address":"0x3","x":0,"y":0,"w":2560,"h":30,"namespace":"omarchy-bar","pid":300}],"3":[]}}}
 EOF
 # Active bottom cover and a fullscreen workspace 2 client, plus hidden and unmapped rows that never cover.
 cat > "$scratch/clients.json" <<'EOF'
@@ -173,7 +173,7 @@ bad "empty set stays empty, got '$norm_empty'"
 fi
 # The probe verdict against the native lines that failed it: one torn pid (before "169083 ", after "169083 169306 ") reading as the lifted folder is the catcher drop.
 . "$repo/tests/probes/layer-drop-verdict.sh" || { bad "cannot source layer-drop-verdict.sh"; }
-flea_ipc_init qs
+dlea_ipc_init qs
 torn_case=$(layerdrop_torn_pids "169083 " "169083 169306 " || true)
 if [ "$torn_case" = "169306" ]; then
 ok "native before/after leaves one torn pid: $torn_case"
@@ -182,7 +182,7 @@ bad "native before/after leaves one torn pid, want '169306', got '$torn_case'"
 fi
 layerdrop_path_attempts=2
 layerdrop_path_poll=0
-flea_pid=169083
+dlea_pid=169083
 layerdrop_qsid() {
     case "$1" in
         169083) printf 'source-id\n' ;;
@@ -191,7 +191,7 @@ layerdrop_qsid() {
     esac
 }
 qs() {
-    [[ "$1" == ipc && "$2" == -i && "$4 $5 $6" == 'call flea path' ]] || return 1
+    [[ "$1" == ipc && "$2" == -i && "$4 $5 $6" == 'call dlea path' ]] || return 1
     case "$3" in
         source-id) printf '/fake/layer-drop/src\n' ;;
         torn-id) printf '%s\n' "$torn_path" ;;
@@ -246,15 +246,15 @@ else
 ok "every window selector carries the address: prefix"
 fi
 # Exercise the live trace helpers with launch logs, including stale events before both marks.
-flea_log="$scratch/flea.log"
+dlea_log="$scratch/dlea.log"
 run_root="$scratch"
-printf 'qml: TABDRAG drag-finished pid=101 old=true\n' > "$flea_log"
-printf 'qml: TABDRAG enter-window pid=202 old=true\n' > "$run_root/flea-second.log"
+printf 'qml: TABDRAG drag-finished pid=101 old=true\n' > "$dlea_log"
+printf 'qml: TABDRAG enter-window pid=202 old=true\n' > "$run_root/dlea-second.log"
 eval "$(sed -n '/^xwtab_logs=/,/^# The addr and rect/p' "$repo/tests/ui.sh")"
 xwtab_source=101; xwtab_target=202; xwtab_gesture="test press"
 xwtab_mark_logs
-printf 'qml: TABDRAG drag-start pid=101 index=1\n' >> "$flea_log"
-printf 'qml: TABDRAG enter-window pid=202 ok=true\n' >> "$run_root/flea-second.log"
+printf 'qml: TABDRAG drag-start pid=101 index=1\n' >> "$dlea_log"
+printf 'qml: TABDRAG enter-window pid=202 ok=true\n' >> "$run_root/dlea-second.log"
 expected=$(printf 'qml: TABDRAG drag-start pid=101 index=1\nqml: TABDRAG enter-window pid=202 ok=true')
 if [ "$(xwtab_trace_lines)" = "$expected" ]; then
 ok "both live launch logs are read after their own pre-press marks"
@@ -273,7 +273,7 @@ ok "failure dump prints both marked traces to stderr without hiding them"
 else
 bad "failure dump hid output, printed stale trace or wrote to stdout"
 fi
-printf 'qml: TABDRAG drag-finished pid=101 action=0\n' >> "$flea_log"
+printf 'qml: TABDRAG drag-finished pid=101 action=0\n' >> "$dlea_log"
 if (fail() { exit 1; }; xwtab_wait_enter 202 require); then
 bad "a source finishing before release must fail even with a target enter"
 else
@@ -340,7 +340,7 @@ else
 fi
 # A reused pid is not enough: the layer probe must read back its exact client address.
 (
-    addr=0xa; flea_pid=101
+    addr=0xa; dlea_pid=101
     hyprctl() { printf '%s\n' '[{"address":"0xb","pid":101,"at":[900,600],"size":[500,300],"floating":false},{"address":"0xa","pid":101,"at":[40,40],"size":[900,500],"floating":true}]'; }
     eval "$(sed -n '/^layerdrop_rect()/,/^layerdrop_focus()/p' "$repo/tests/probes/layer-drop-bottom.sh" | sed '$d')"
     layerdrop_rect

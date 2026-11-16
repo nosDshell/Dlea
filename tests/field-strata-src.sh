@@ -1,8 +1,8 @@
 #!/bin/bash
-# Gates tools/flea-field-bench's explicit or cargo-derived STRATA_SRC and exact binary-to-source version match.
+# Gates tools/dlea-field-bench's explicit or cargo-derived STRATA_SRC and exact binary-to-source version match.
 set -u
 cd "$(dirname "$0")/.." || exit 1
-bench="$PWD/tools/flea-field-bench"
+bench="$PWD/tools/dlea-field-bench"
 
 bad=0
 check() {
@@ -23,8 +23,8 @@ case $scratch in
   /*/*) ;;
   *) echo "FAIL: mktemp -d gave '$scratch', which is not an absolute path two components deep"; exit 1 ;;
 esac
-: > "$scratch/.flea-test-sandbox"
-trap 'case $scratch in /?*) [ -f "$scratch/.flea-test-sandbox" ] && rm -rf -- "$scratch" ;; esac' EXIT
+: > "$scratch/.dlea-test-sandbox"
+trap 'case $scratch in /?*) [ -f "$scratch/.dlea-test-sandbox" ] && rm -rf -- "$scratch" ;; esac' EXIT
 
 # A source tree with a Cargo.toml naming $2, and a strata stub that prints the line $3 for --version.
 make_tree() {
@@ -114,24 +114,24 @@ check "a derived nightly tree is exported and leaves STRATA_SRC alone" "$scratch
 # A sibling without the provenance marker must give way to the tree's current manifest tool.
 export MANIFEST_SELECTION=$(sed -n '/^# manifest selection begin$/,/^# manifest selection end$/p' "$bench")
 mkdir -p "$scratch/sibling"
-select_manifest() { FLEA_REPO=$PWD bash -c 'eval "$MANIFEST_SELECTION"; printf "%s" "$MANIFEST_TOOL"' "$scratch/sibling/flea-field-bench"; }
-printf '#!/bin/bash\nexit 0\n' > "$scratch/sibling/flea-bench-manifest"
-chmod +x "$scratch/sibling/flea-bench-manifest"
-check "an old sibling manifest tool falls back to the tree's tool" "$PWD/tools/flea-bench-manifest" "$(select_manifest)"
-cp tools/flea-bench-manifest "$scratch/sibling/flea-bench-manifest"
-check "a current sibling manifest tool is preferred" "$scratch/sibling/flea-bench-manifest" "$(select_manifest)"
-chmod -x "$scratch/sibling/flea-bench-manifest"
-check "a non-executable sibling manifest tool falls back" "$PWD/tools/flea-bench-manifest" "$(select_manifest)"
+select_manifest() { DLEA_REPO=$PWD bash -c 'eval "$MANIFEST_SELECTION"; printf "%s" "$MANIFEST_TOOL"' "$scratch/sibling/dlea-field-bench"; }
+printf '#!/bin/bash\nexit 0\n' > "$scratch/sibling/dlea-bench-manifest"
+chmod +x "$scratch/sibling/dlea-bench-manifest"
+check "an old sibling manifest tool falls back to the tree's tool" "$PWD/tools/dlea-bench-manifest" "$(select_manifest)"
+cp tools/dlea-bench-manifest "$scratch/sibling/dlea-bench-manifest"
+check "a current sibling manifest tool is preferred" "$scratch/sibling/dlea-bench-manifest" "$(select_manifest)"
+chmod -x "$scratch/sibling/dlea-bench-manifest"
+check "a non-executable sibling manifest tool falls back" "$PWD/tools/dlea-bench-manifest" "$(select_manifest)"
 
 # The bench and standalone manifest must compare resolved trees while preserving an empty anchor.
-repo_resolve=$(grep '^FLEA_REPO=' "$bench")
-[ -n "$repo_resolve" ] || { echo "FAIL: no FLEA_REPO resolution in $bench"; exit 1; }
+repo_resolve=$(grep '^DLEA_REPO=' "$bench")
+[ -n "$repo_resolve" ] || { echo "FAIL: no DLEA_REPO resolution in $bench"; exit 1; }
 anchor_setup=$(sed -n '/^# anchor setup begin$/,/^# anchor setup end$/p' "$bench")
-anchor_src=$(sed -n '/^anchor_line() {$/,/^}$/p' tools/flea-bench-manifest)
+anchor_src=$(sed -n '/^anchor_line() {$/,/^}$/p' tools/dlea-bench-manifest)
 mkdir -p "$scratch/tree" "$scratch/other"
 ln -s "$scratch/tree" "$scratch/tree-link"
-bench_anchor_case() { ( FLEA_REPO=$1; ANCHOR_REPO=$2; eval "$repo_resolve"; eval "$anchor_setup"; printf '%s|%s|%s' "$WITH_ANCHOR" "$FLEA_REPO" "$ANCHOR_REPO"; ); }
-manifest_anchor_case() { ( FLEA_REPO=$1; ANCHOR_REPO=$2; export GIT_CEILING_DIRECTORIES=$scratch; eval "$anchor_src"; anchor_line; ); }
+bench_anchor_case() { ( DLEA_REPO=$1; ANCHOR_REPO=$2; eval "$repo_resolve"; eval "$anchor_setup"; printf '%s|%s|%s' "$WITH_ANCHOR" "$DLEA_REPO" "$ANCHOR_REPO"; ); }
+manifest_anchor_case() { ( DLEA_REPO=$1; ANCHOR_REPO=$2; export GIT_CEILING_DIRECTORIES=$scratch; eval "$anchor_src"; anchor_line; ); }
 check "a trailing slash on the same bench tree creates no anchor" "no|$scratch/tree|$scratch/tree" "$(bench_anchor_case "$scratch/tree" "$scratch/tree/")"
 check "a symlink to the same bench tree creates no anchor" "no|$scratch/tree|$scratch/tree" "$(bench_anchor_case "$scratch/tree-link" "$scratch/tree")"
 check "an empty bench anchor remains empty" "no|$scratch/tree|" "$(bench_anchor_case "$scratch/tree" '')"

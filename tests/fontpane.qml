@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-fontpane-test
+//@ pragma ShellId dlea-fontpane-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Format.js" as Format
+import "dlea" as Dlea
+import "dlea/js/Format.js" as Format
 
 // Real Quick Look over a stub backend that answers fontlook: the page whole in one turn, one ask per theme change, a stale answer dropped, a refusal drawn as the unsupported state.
 ShellRoot {
@@ -80,7 +80,7 @@ ShellRoot {
     }
     function hexOf(color) { return String(color) }
     function sizesNow() {
-        return [22, 15, 12].map(function (px) { return Math.round(Math.round(px * Flea.Theme.sizeRatio) * probe.ratio) })
+        return [22, 15, 12].map(function (px) { return Math.round(Math.round(px * Dlea.Theme.sizeRatio) * probe.ratio) })
     }
 
     // What the pane shows at this instant, read from the items themselves.
@@ -184,13 +184,13 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 900
         implicitHeight: 640
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
         Item {
             id: probe
             readonly property real ratio: Screen.devicePixelRatio
         }
-        Flea.Preview {
+        Dlea.Preview {
             id: look
             anchors.fill: parent
             pane: shell.stubPane
@@ -204,10 +204,10 @@ ShellRoot {
     function checkAsk(request, path, label) {
         var want = shell.sizesNow()
         return shell.check(request.c === "fontlook" && request.path === path
-            && request.fg === shell.hexOf(Flea.Theme.color.foreground) && request.bg === shell.hexOf(Flea.Theme.color.surface)
+            && request.fg === shell.hexOf(Dlea.Theme.color.foreground) && request.bg === shell.hexOf(Dlea.Theme.color.surface)
             && request.sizes.join(",") === want.join(",") && request.text === "The quick brown fox jumps over the lazy dog",
-            label + " ask is " + JSON.stringify(request) + ", want path " + path + " fg " + Flea.Theme.color.foreground
-            + " bg " + Flea.Theme.color.surface + " sizes " + want)
+            label + " ask is " + JSON.stringify(request) + ", want path " + path + " fg " + Dlea.Theme.color.foreground
+            + " bg " + Dlea.Theme.color.surface + " sizes " + want)
     }
 
     // The recipe: 40 px at the sides, the three samples 18 px apart over the facts line, the block centred between the bar and the foot.
@@ -216,14 +216,14 @@ ShellRoot {
         var column = shell.page(pane)
         var shown = shell.images(pane)
         var facts = shell.factsText(pane)
-        var r = Flea.Theme.sizeRatio
+        var r = Dlea.Theme.sizeRatio
         var gap = Math.round(18 * r)
         var barItem = shell.bar(pane)
         var top = barItem.height + Math.max(Math.round(24 * r), Math.round((pane.height - barItem.height - column.height) / 2))
         shell.check(column.x === Math.round(40 * r) && column.width === pane.width - 2 * column.x,
             label + " column sits at x=" + column.x + " width=" + column.width + " in a pane of " + pane.width + ", want " + Math.round(40 * r) + " at each side")
         shell.check(column.y === top, label + " column sits at y=" + column.y + ", want " + top)
-        shell.check(barItem.height === Flea.Theme.chromeHeight, label + " bar is " + barItem.height + " tall, want " + Flea.Theme.chromeHeight)
+        shell.check(barItem.height === Dlea.Theme.chromeHeight, label + " bar is " + barItem.height + " tall, want " + Dlea.Theme.chromeHeight)
         shell.check(shown[1].y - (shown[0].y + shown[0].height) === gap && shown[2].y - (shown[1].y + shown[1].height) === gap
             && facts.y - (shown[2].y + shown[2].height) === gap, label + " samples and facts are not " + gap + " px apart")
         for (var i = 0; i < 3; i++)
@@ -271,13 +271,13 @@ ShellRoot {
             shell.next(); break
         case 3:
             // The theme switch Omarchy makes: a new colors.toml, then theme.name rewritten in place.
-            shell.oldForeground = String(Flea.Theme.color.foreground)
+            shell.oldForeground = String(Dlea.Theme.color.foreground)
             shell.script[2] = { delay: 200, prefix: "r1" }
             Quickshell.execDetached(["bash", "-c", 'cp -- "$1" "$2" && date +%s%N > "$3"', "_",
                 Quickshell.env("FONTPANE_ALT"), Quickshell.env("FONTPANE_COLORS"), Quickshell.env("FONTPANE_NAME")])
             shell.next(); break
         case 4:
-            if (String(Flea.Theme.color.foreground) === shell.oldForeground || shell.asks.length < 2) return
+            if (String(Dlea.Theme.color.foreground) === shell.oldForeground || shell.asks.length < 2) return
             s = shell.snap()
             shell.check(s.drawn && s.count === 3 && s.ready && s.tags[0] === "r0", "the old page did not stay up while the new colours were drawn: " + JSON.stringify(s))
             shell.checkAsk(shell.asks[1], shell.fontA, "the theme change")
@@ -361,13 +361,13 @@ ShellRoot {
             shell.check(s.drawn && s.tags.join(",") === "hack,hack,hack" && s.name === "Hack-Regular.otf", "the pane's own answer did not draw: " + JSON.stringify(s))
             shell.step("an answer to an earlier pane's ask is never drawn by the next pane")
             // The theme returns to the dark palette: the drawn font asks again and the backend refuses.
-            shell.oldForeground = String(Flea.Theme.color.foreground)
+            shell.oldForeground = String(Dlea.Theme.color.foreground)
             shell.script[9] = { delay: 40, mode: "fail" }
             Quickshell.execDetached(["bash", "-c", 'cp -- "$1" "$2" && date +%s%N > "$3"', "_",
                 Quickshell.env("FONTPANE_DARK"), Quickshell.env("FONTPANE_COLORS"), Quickshell.env("FONTPANE_NAME")])
             shell.next(); break
         case 16:
-            if (String(Flea.Theme.color.foreground) === shell.oldForeground || shell.landed.length < 9) return
+            if (String(Dlea.Theme.color.foreground) === shell.oldForeground || shell.landed.length < 9) return
             s = shell.snap()
             var again = shell.findText(look, shell.sentence)
             shell.check(shell.landed[8].before.count === 3 && !s.drawn && s.count === 0 && s.facts === "" && !s.barVisible && look.fontFailed && again !== null && again.visible,

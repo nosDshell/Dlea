@@ -123,5 +123,5 @@ function run(plain) {
 
     var view = Source.source("ui/CompareView.qml")
     check("the copy route is the opener's text copy and nothing else", (view.match(/copyText\(/g) || []).length, 1)
-    check("a diff row is text alone, with no fill under it", Source.slice(view, "delegate: Item", "Flea.ViewportScrollBars").indexOf("Rectangle"), -1)
+    check("a diff row is text alone, with no fill under it", Source.slice(view, "delegate: Item", "Dlea.ViewportScrollBars").indexOf("Rectangle"), -1)
 }

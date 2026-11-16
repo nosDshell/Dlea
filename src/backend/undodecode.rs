@@ -9,7 +9,7 @@ use crate::backend::undoshare::{Doc, StoredRedo};
 #[cfg(test)]
 use crate::backend::undostage;
 use crate::backend::{fatnames, filegen, link, mergeapply, redo, tagsundo, trash};
-use crate::error::FleaError;
+use crate::error::DleaError;
 use crate::jsondoc::Json;
 
 const MAX_STEPS: usize = 1_000_000;
@@ -167,7 +167,7 @@ fn decode_redo(value: &Json) -> Option<StoredRedo> {
         shape::fields(pairs, &["err"])?;
         let fields = err.as_object()?;
         shape::fields(fields, &["where", "path", "msg"])?;
-        return Some(StoredRedo::Err(FleaError {
+        return Some(StoredRedo::Err(DleaError {
             where_: checked_text(get(fields, "where")?)?,
             path: match get(fields, "path") {
                 None => String::new(),

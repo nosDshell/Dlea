@@ -106,12 +106,12 @@ cap_unlock_hold_eye() {
     cap_unlock_expect '.revealed | not' "letting go of the eye masks the field again"
 }
 
-# Flea's own window keeps the keyboard: a foreign passphrase prompt (udiskie) must never be typed into.
+# Dlea's own window keeps the keyboard: a foreign passphrase prompt (udiskie) must never be typed into.
 cap_unlock_own_focus() {
     local seen
     seen=$(focused_class || true)
-    [[ "$seen" == "$flea_window_class" ]] \
-        || fail "cap_unlock: focus is on class '$seen', not $flea_window_class, so nothing is typed"
+    [[ "$seen" == "$dlea_window_class" ]] \
+        || fail "cap_unlock: focus is on class '$seen', not $dlea_window_class, so nothing is typed"
 }
 
 # The passphrase file is created owner-only: an absolute path only, any leftover file removed first, umask 077 in a subshell, so no byte of it is ever readable by another user.
@@ -150,7 +150,7 @@ cap_unlock_lsblk_shim() {
         printf '#!/bin/bash\n# Test-only lsblk written by tests/ui-captures-unlock.sh; it dies with its sandbox root.\n'
         printf 'real=%q dev=%q dev2=%q\n' "$real" "$dev" "$dev2"
         cat <<'SHIM'
-# Sample input (Flea's argv, ui/DeviceMounts.qml): "--bytes --json -o NAME,PATH,...,UUID"; the real lsblk's reply: {"blockdevices":[{"name":"loop0","path":"/dev/loop0","rm":false,"children":[{"name":"luks-6f1c2a7e","rm":false}]}]}
+# Sample input (Dlea's argv, ui/DeviceMounts.qml): "--bytes --json -o NAME,PATH,...,UUID"; the real lsblk's reply: {"blockdevices":[{"name":"loop0","path":"/dev/loop0","rm":false,"children":[{"name":"luks-6f1c2a7e","rm":false}]}]}
 case " $* " in *" --json "*|*" -J "*) ;; *) exec "$real" "$@" ;; esac
 body=$("$real" "$@"; rc=$?; printf x; exit "$rc"); rc=$?; body=${body%x}
 pick='(.path // ("/dev/" + (.name // ""))) == $dev'
@@ -169,19 +169,19 @@ SHIM
     chmod 700 "$dir/lsblk"
 }
 
-# Launch Flea the supported way for one device: flea --unlock names it (FLEA_UNLOCK reaches only its card).
+# Launch Dlea the supported way for one device: dlea --unlock names it (DLEA_UNLOCK reaches only its card).
 cap_unlock_launch() {
     local dev="$1" shim="${2:-}"
-    kill_flea
-    cat "$flea_log" >> "$run_log" 2>/dev/null || true
-    : > "$flea_log"
-    rm -f "$FLEA_UNDO_DIR/undo-journal" "$FLEA_UNDO_DIR/undo-journal.lock"
-    PATH="${shim:+$shim:}$PATH" FLEA_UI="$flea_ui" FLEA_BIN="$flea_bin" ${flea_launch_wrap[@]+"${flea_launch_wrap[@]}"} \
-        setsid nohup "$flea_bin" --unlock "$dev" >"$flea_log" 2>&1 </dev/null &
-    omarchy-drive wait window flea --timeout 15 >/dev/null
-    omarchy-drive focus flea >/dev/null
+    kill_dlea
+    cat "$dlea_log" >> "$run_log" 2>/dev/null || true
+    : > "$dlea_log"
+    rm -f "$DLEA_UNDO_DIR/undo-journal" "$DLEA_UNDO_DIR/undo-journal.lock"
+    PATH="${shim:+$shim:}$PATH" DLEA_UI="$dlea_ui" DLEA_BIN="$dlea_bin" ${dlea_launch_wrap[@]+"${dlea_launch_wrap[@]}"} \
+        setsid nohup "$dlea_bin" --unlock "$dev" >"$dlea_log" 2>&1 </dev/null &
+    omarchy-drive wait window dlea --timeout 15 >/dev/null
+    omarchy-drive focus dlea >/dev/null
     assert_window
-    printf 'LAUNCH unlock dev=%q pid=%s\n' "$dev" "$(flea_pid)"
+    printf 'LAUNCH unlock dev=%q pid=%s\n' "$dev" "$(dlea_pid)"
 }
 
 # The previous open-file leg may have unmounted, so a cwd holder needs both the unlocked row and the live mount.
@@ -231,52 +231,52 @@ cap_unlock_unmount_in_use() {
 
 # Unlock: the locked row, the card wrong-then-right, the unlocked row and the Eject that relocks it.
 case_cap_unlock() {
-    # The container is FLEA_CAP_LUKS_DEV (LUKS2 over a vfat labelled S1LUKS); its test-only passphrase is FLEA_CAP_LUKS_KEY.
-    local dir="$fixture_root/cap-unlock" dev="${FLEA_CAP_LUKS_DEV:-}" key="${FLEA_CAP_LUKS_KEY:-}"
+    # The container is DLEA_CAP_LUKS_DEV (LUKS2 over a vfat labelled S1LUKS); its test-only passphrase is DLEA_CAP_LUKS_KEY.
+    local dir="$fixture_root/cap-unlock" dev="${DLEA_CAP_LUKS_DEV:-}" key="${DLEA_CAP_LUKS_KEY:-}"
     local label="" keyfile="" state="" status="" wrong="no-such-passphrase"
     local end crypt="" shot_done=false shim="" rail_poll_ms="" listing_ms="" unlocking="" stop=""
     local busy_status="" mount="" first="" cancel_seen=false entries="" unmount_label="" rail_idx="" holder="" ilabel="" idev=""
     # The receipt names only the states actually shot, so each SKIP below downgrades its part.
     local cancel_receipt=rail openfile_receipt=skipped inuse_receipt=in-use unmounted_receipt=rail eject_receipt=locked,ejected
-    # An ssh-started Flea is an inactive polkit subject that udisks refuses, so it starts in the graphical slice.
-    local -a flea_launch_wrap=(systemd-run --user --scope --quiet --slice=app-graphical.slice)
+    # An ssh-started Dlea is an inactive polkit subject that udisks refuses, so it starts in the graphical slice.
+    local -a dlea_launch_wrap=(systemd-run --user --scope --quiet --slice=app-graphical.slice)
     sandbox_scratch "$dir"
     if [[ -z "$dev" ]]; then
         # needs a real LUKS container, driven by the controller
-        printf 'CAP SKIP unlock-locked-row: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-card-typing: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-card-typing-text: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-card-wrong: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-card-unlocking: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-card-unlock: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-unlocked-row: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-unlocked-nonempty: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-ejected-rail: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-cancel-rail: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-lock-open-file: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-unmounted-rail: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-internal-locked-row: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-card-hover-cancel: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-card-hover-unlock: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-card-pressed-cancel: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-card-pressed-unlock: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-eye-rest: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-eye-hover: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-eye-on: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-card-focus-unlock: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-card-focus-cancel: no FLEA_CAP_LUKS_DEV in this environment\n'
-        printf 'CAP SKIP unlock-unmount-in-use: no FLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-locked-row: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-card-typing: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-card-typing-text: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-card-wrong: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-card-unlocking: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-card-unlock: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-unlocked-row: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-unlocked-nonempty: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-ejected-rail: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-cancel-rail: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-lock-open-file: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-unmounted-rail: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-internal-locked-row: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-card-hover-cancel: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-card-hover-unlock: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-card-pressed-cancel: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-card-pressed-unlock: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-eye-rest: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-eye-hover: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-eye-on: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-card-focus-unlock: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-card-focus-cancel: no DLEA_CAP_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-unmount-in-use: no DLEA_CAP_LUKS_DEV in this environment\n'
         return 0
     fi
-    [[ "$dev" == /dev/* ]] || fail "cap_unlock: FLEA_CAP_LUKS_DEV names [$dev], not a device path"
-    [[ -n "$key" ]] || fail "cap_unlock: FLEA_CAP_LUKS_DEV is set but FLEA_CAP_LUKS_KEY is empty"
+    [[ "$dev" == /dev/* ]] || fail "cap_unlock: DLEA_CAP_LUKS_DEV names [$dev], not a device path"
+    [[ -n "$key" ]] || fail "cap_unlock: DLEA_CAP_LUKS_DEV is set but DLEA_CAP_LUKS_KEY is empty"
     [[ "$wrong" != "$key" ]] || wrong="wrong-passphrase-2"
     command -v udisksctl >/dev/null || fail "cap_unlock: udisksctl is not on PATH, so relock cannot be asserted"
     # A loop device has no rm or tran, so the rail lists it only through the shim; the real stick never takes it.
     if [[ "$dev" =~ ^/dev/loop[0-9]+$ ]]; then
         shim="$fixture_root/cap-unlock-shim"
         sandbox_scratch "$shim"
-        idev="${FLEA_CAP_INTERNAL_LUKS_DEV:-}"
+        idev="${DLEA_CAP_INTERNAL_LUKS_DEV:-}"
         [[ "$idev" =~ ^/dev/loop[0-9]+$ ]] || idev=""
         cap_unlock_lsblk_shim "$shim" "$dev" "$(command -v lsblk)" "$idev" || fail "cap_unlock: the lsblk shim for $dev could not be written"
         printf 'CAP NOTE unlock: lsblk shim marks %s removable, listed as cap-%s\n' "$dev" "${dev#/dev/}"
@@ -388,9 +388,9 @@ case_cap_unlock() {
         # A loop container has no drive for gio to eject, so the loop lane locks it the way udisks does and shoots the rail.
         printf 'CAP SKIP unlock eject: %s is a loop container with no drive to eject; locked through udisksctl\n' "$dev"
         eject_receipt=skipped
-        "${flea_launch_wrap[@]}" udisksctl unmount --no-user-interaction -b "$crypt" >/dev/null 2>&1 \
+        "${dlea_launch_wrap[@]}" udisksctl unmount --no-user-interaction -b "$crypt" >/dev/null 2>&1 \
             || fail "cap_unlock: udisksctl could not unmount $crypt on the loop lane"
-        "${flea_launch_wrap[@]}" udisksctl lock --no-user-interaction -b "$dev" >/dev/null 2>&1 \
+        "${dlea_launch_wrap[@]}" udisksctl lock --no-user-interaction -b "$dev" >/dev/null 2>&1 \
             || fail "cap_unlock: udisksctl could not lock $dev on the loop lane"
     else
         key -M ctrl -k E -m ctrl >/dev/null
@@ -406,7 +406,7 @@ case_cap_unlock() {
     # Sample input: "    readonly property int pollMs: 5000", the rail's device poll in ui/DeviceMounts.qml.
     rail_poll_ms=$(sed -n 's/^ *readonly property int pollMs: \([0-9]*\)$/\1/p' "$repo/ui/DeviceMounts.qml")
     [[ "$rail_poll_ms" =~ ^[0-9]+$ ]] || fail "cap_unlock: ui/DeviceMounts.qml names no pollMs"
-    # Flea's Eject re-lists the rail as its unmount exits; the loop lane locks outside Flea, so it waits one device poll (ms clock).
+    # Dlea's Eject re-lists the rail as its unmount exits; the loop lane locks outside Dlea, so it waits one device poll (ms clock).
     listing_ms=1000
     end=$(( $(date +%s%3N) + listing_ms ))
     [[ -n "$shim" ]] && end=$(( end + rail_poll_ms ))
@@ -420,11 +420,11 @@ case_cap_unlock() {
     [[ "$status" == *"could not be locked"* ]] && fail "cap_unlock: the status reports a lock failure: [$status]"
     settle
     shot unlock-ejected-rail
-    kill_flea
+    kill_dlea
     cap_unlock_launch "$dev" "$shim"
-    cap_unlock_expect '.opened == true' "flea --unlock never opened the card on $dev"
+    cap_unlock_expect '.opened == true' "dlea --unlock never opened the card on $dev"
     cap_unlock_expect ".label == $(jq -cn --arg l "$label" '$l') and (.subtitle | startswith($(jq -cn --arg l "$label · " '$l')) and test(\" · [0-9][0-9.]* [kKMGT]?B · \"))" \
-        "flea --unlock never named the card after the rail row $label with its size"
+        "dlea --unlock never named the card after the rail row $label with its size"
     cap_resize 1100 700
     cap_unlock_still
     shot unlock-card-unlock
@@ -437,7 +437,7 @@ case_cap_unlock() {
     shot unlock-eye-rest
     cap_unlock_hold_eye unlock-eye-on
     key -k Escape >/dev/null
-    cap_unlock_expect '.opened == false' "Escape never closed the card flea --unlock opened"
+    cap_unlock_expect '.opened == false' "Escape never closed the card dlea --unlock opened"
     # Second pass for the states round one leaves out: Cancel during Unlocking, then the rail-menu unmount with a file held open and clean, each shot the same way as above.
     PATH="${shim:+$shim:}$PATH" launch "$dir"
     wait_listing 2
@@ -575,9 +575,9 @@ case_cap_unlock() {
             else
                 printf 'CAP NOTE unlock-unmounted-rail: the menu never reopened, locking through udisksctl\n'
                 crypt=$(ipc railEntries | jq -r '[.[] | select(.path | endswith("/S1LUKS")) | .device][0] // ""')
-                "${flea_launch_wrap[@]}" udisksctl unmount --no-user-interaction -b "$crypt" >/dev/null 2>&1 \
+                "${dlea_launch_wrap[@]}" udisksctl unmount --no-user-interaction -b "$crypt" >/dev/null 2>&1 \
                     || fail "cap_unlock: udisksctl could not unmount $crypt for the clean relock"
-                "${flea_launch_wrap[@]}" udisksctl lock --no-user-interaction -b "$dev" >/dev/null 2>&1 \
+                "${dlea_launch_wrap[@]}" udisksctl lock --no-user-interaction -b "$dev" >/dev/null 2>&1 \
                     || fail "cap_unlock: udisksctl could not lock $dev for the clean relock"
             fi
             end=$((SECONDS + 60))
@@ -598,7 +598,7 @@ case_cap_unlock() {
         fi
     fi
     # An internal LUKS partition lists a locked row of its own; without one there is nothing to shoot.
-    idev="${FLEA_CAP_INTERNAL_LUKS_DEV:-}"
+    idev="${DLEA_CAP_INTERNAL_LUKS_DEV:-}"
     if [[ "$idev" == /dev/* ]]; then
         ilabel=$(cap_unlock_locked_label "$idev")
         for _attempt in 1 2 3 4; do
@@ -611,9 +611,9 @@ case_cap_unlock() {
         settle
         shot unlock-internal-locked-row
     else
-        printf 'CAP SKIP unlock-internal-locked-row: no FLEA_CAP_INTERNAL_LUKS_DEV in this environment\n'
+        printf 'CAP SKIP unlock-internal-locked-row: no DLEA_CAP_INTERNAL_LUKS_DEV in this environment\n'
     fi
-    # Cancel and Unlock hovered and pressed, and the eye at rest, hovered and on, are shot in the flea --unlock lane above.
+    # Cancel and Unlock hovered and pressed, and the eye at rest, hovered and on, are shot in the dlea --unlock lane above.
     printf 'CAP_UNLOCK locked=row card=typing,text,focus-unlock,wrong,unlocking,unlock,focus-cancel,hover-cancel,hover-unlock,pressed-cancel,pressed-unlock eye=rest,hover,on unlocked=row,nonempty eject=%s cancel=%s openfile=%s inuse=%s unmounted=%s internal=env-gated\n' "$eject_receipt" "$cancel_receipt" "$openfile_receipt" "$inuse_receipt" "$unmounted_receipt"
-    kill_flea
+    kill_dlea
 }

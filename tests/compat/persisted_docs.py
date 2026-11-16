@@ -9,41 +9,41 @@ def check_documents(parent, binary, inherited, _file, _run):
     repo = Path(__file__).resolve().parents[2]
     plugin_version = json.loads((repo / "shelf/manifest.json").read_text())["version"]
     documents = {
-        "ui": ("state/flea/ui.json", {"stateVersion": 999, "view": "grid"}),
-        "shelf": ("state/omarchy/flea-shelf/shelf.json", {"schemaVersion": 999, "items": []}),
-        "piles": ("state/omarchy/flea-shelf/piles.json", {"schemaVersion": 999, "piles": []}),
-        "summon": ("state/omarchy/flea-shelf/summon.json", {"schemaVersion": 999, "summon": 0}),
-        "drags": ("state/omarchy/flea-shelf/drags.json", {"schemaVersion": 999, "drags": []}),
-        "dests": ("state/omarchy/flea-shelf/dests.json", {"schemaVersion": 999, "dests": []}),
-        "undo": ("state/omarchy/flea-shelf/undo.json", {"schemaVersion": 999, "at": 1, "moves": []}),
-        "reply": ("state/omarchy/flea-shelf/reply.json", {"schemaVersion": 999, "response": 0, "uris": []}),
-        "plugin": ("config/omarchy/plugins/io.github.thisisgm.flea-shelf/manifest.json",
-                   {"schemaVersion": 999, "id": "io.github.thisisgm.flea-shelf", "version": plugin_version}),
+        "ui": ("state/dlea/ui.json", {"stateVersion": 999, "view": "grid"}),
+        "shelf": ("state/omarchy/dlea-shelf/shelf.json", {"schemaVersion": 999, "items": []}),
+        "piles": ("state/omarchy/dlea-shelf/piles.json", {"schemaVersion": 999, "piles": []}),
+        "summon": ("state/omarchy/dlea-shelf/summon.json", {"schemaVersion": 999, "summon": 0}),
+        "drags": ("state/omarchy/dlea-shelf/drags.json", {"schemaVersion": 999, "drags": []}),
+        "dests": ("state/omarchy/dlea-shelf/dests.json", {"schemaVersion": 999, "dests": []}),
+        "undo": ("state/omarchy/dlea-shelf/undo.json", {"schemaVersion": 999, "at": 1, "moves": []}),
+        "reply": ("state/omarchy/dlea-shelf/reply.json", {"schemaVersion": 999, "response": 0, "uris": []}),
+        "plugin": ("config/omarchy/plugins/io.github.thisisgm.dlea-shelf/manifest.json",
+                   {"schemaVersion": 999, "id": "io.github.thisisgm.dlea-shelf", "version": plugin_version}),
     }
     for name, (relative, newer) in documents.items():
         for kind, original in (("foreign", b'{"foreign":{"opaque":[1,2,3]}}\n'),
                                ("newer", json.dumps(newer).encode()),
                                ("unparsable", b'{"truncated":'), ("nonobject", b'[1,2,3]\n')):
             root = Path(tempfile.mkdtemp(prefix=f"preserve-{name}-{kind}-", dir=parent)).resolve()
-            (root / ".flea-test-sandbox").touch()
+            (root / ".dlea-test-sandbox").touch()
             for area in ("home", "config", "state", "data", "cache", "runtime", "files", "dest", "bin"):
                 (root / area).mkdir(mode=0o700)
             env = inherited | {"HOME": str(root / "home"), "XDG_CONFIG_HOME": str(root / "config"),
                 "XDG_STATE_HOME": str(root / "state"), "XDG_DATA_HOME": str(root / "data"),
                 "XDG_CACHE_HOME": str(root / "cache"), "XDG_RUNTIME_DIR": str(root / "runtime"),
-                "PATH": str(root / "bin") + ":/usr/bin:/bin", "FLEA_FRONTEND": "gpui",
+                "PATH": str(root / "bin") + ":/usr/bin:/bin", "DLEA_FRONTEND": "gpui",
                 "WAYLAND_DISPLAY": "fixture", "QSG_RHI_BACKEND": "opengl",
-                "VK_DRIVER_FILES": str(root / "missing.json"), "FLEA_SHELF": str(repo / "shelf")}
+                "VK_DRIVER_FILES": str(root / "missing.json"), "DLEA_SHELF": str(repo / "shelf")}
             for command in ("omarchy", "omarchy-shell", "hyprctl", "zoxide"):
                 stub = root / "bin" / command
                 stub.write_text("#!/bin/sh\nexit 0\n")
                 stub.chmod(0o700)
             source = root / "files/a.txt"
             source.write_text("kept file\n")
-            ui = root / "state/flea/ui.json"
+            ui = root / "state/dlea/ui.json"
             ui.parent.mkdir(parents=True, exist_ok=True)
             ui.write_text('{"shelf":{"enabled":true}}' if name == "plugin" else '{"view":"list"}')
-            shelf = root / "state/omarchy/flea-shelf/shelf.json"
+            shelf = root / "state/omarchy/dlea-shelf/shelf.json"
             shelf.parent.mkdir(parents=True, exist_ok=True)
             shelf.write_text(json.dumps({"items": [{"path": str(source), "folder": False}]}))
             target = root / relative

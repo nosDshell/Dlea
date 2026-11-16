@@ -15,7 +15,7 @@ from types import SimpleNamespace
 from unittest import mock
 
 REPO = Path(__file__).resolve().parents[1]
-HERE = REPO / 'tools/flea-searchbench'
+HERE = REPO / 'tools/dlea-searchbench'
 sys.path.insert(0, str(HERE))
 import cold
 
@@ -94,7 +94,7 @@ if not mapped.is_file(): print('missing mapped script: '+str(mapped),file=sys.st
 class EntryPaths(unittest.TestCase):
     def run_entry(self, name):
         root = scratch(self)
-        unit = root / 'tools/flea-searchbench'
+        unit = root / 'tools/dlea-searchbench'
         shutil.copytree(HERE / 'engine', unit / 'engine', ignore=shutil.ignore_patterns('__pycache__'))
         bins = root / 'bin'
         bins.mkdir()
@@ -152,17 +152,17 @@ class PollStopped(Exception):
 class MatcherMetadata(unittest.TestCase):
     def test_contract_and_roster_match_production_reference(self):
         import csv
-        runner = module('metadata_matcher', REPO / 'tools/flea-matchbench/runner.py')
-        contract = json.loads((REPO / 'tools/flea-matchbench/contract.json').read_text())
+        runner = module('metadata_matcher', REPO / 'tools/dlea-matchbench/runner.py')
+        contract = json.loads((REPO / 'tools/dlea-matchbench/contract.json').read_text())
         self.assertEqual(contract['reference'], '/'.join(runner.REFERENCE))
         self.assertEqual(set(contract['entrants']), {'/'.join(value) for value in runner.ENTRANTS})
-        with (REPO / 'tools/flea-matchbench/ROSTER.tsv').open() as stream:
+        with (REPO / 'tools/dlea-matchbench/ROSTER.tsv').open() as stream:
             rows = {row['entrant']:row for row in csv.DictReader(stream, delimiter='\t')}
         adapted = {(name, profile) for name, row in rows.items() if row['status'].startswith('adapted')
                    for profile in row['profiles'].split(',')}
         self.assertEqual(adapted, set(runner.ENTRANTS))
-        self.assertIn('reference', rows['flea-search']['status'])
-        self.assertNotIn('reference', rows['flea-current']['status'])
+        self.assertIn('reference', rows['dlea-search']['status'])
+        self.assertNotIn('reference', rows['dlea-current']['status'])
 
 
 class ColdPublication(unittest.TestCase):

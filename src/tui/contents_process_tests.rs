@@ -22,7 +22,7 @@ impl Root {
             .unwrap()
             .join(".superpowers/m9-tui-08");
         std::fs::create_dir_all(&parent).unwrap();
-        let made = Command::new(flea::testpath::tool("/usr/bin/mktemp"))
+        let made = Command::new(dlea::testpath::tool("/usr/bin/mktemp"))
             .arg("-d")
             .arg(parent.join("process.XXXXXXXX"))
             .output()
@@ -31,7 +31,7 @@ impl Root {
         let path = PathBuf::from(String::from_utf8(made.stdout).unwrap().trim_end());
         assert!(path.is_absolute() && path.starts_with(parent));
         std::fs::write(
-            path.join(".flea-test-sandbox"),
+            path.join(".dlea-test-sandbox"),
             "TUI contents process fixture\n",
         )
         .unwrap();
@@ -43,7 +43,7 @@ impl Root {
         Self(path)
     }
     pub(super) fn command(&self, missing_rg: bool, test: &str) -> Command {
-        let mut command = Command::new(flea::testpath::tool("/usr/bin/setsid"));
+        let mut command = Command::new(dlea::testpath::tool("/usr/bin/setsid"));
         command
             .args([
                 "-w",
@@ -70,7 +70,7 @@ impl Root {
             .arg(std::env::current_exe().unwrap())
             .args(["--exact", test, "--ignored", "--nocapture"])
             .env_clear()
-            .env("FLEA_TUI_CONTENTS_CHILD", "1")
+            .env("DLEA_TUI_CONTENTS_CHILD", "1")
             .env("LANG", "C.UTF-8")
             .env("LC_ALL", "C.UTF-8")
             .env(
@@ -109,14 +109,14 @@ impl Drop for Root {
                 .unwrap()
                 .join(".superpowers/m9-tui-08")
         ));
-        assert!(self.0.join(".flea-test-sandbox").is_file());
+        assert!(self.0.join(".dlea-test-sandbox").is_file());
         std::fs::remove_dir_all(&self.0).unwrap();
     }
 }
 #[test]
 #[ignore = "private backend process entry point"]
 fn tui_contents_backend_child() {
-    if std::env::var_os("FLEA_TUI_CONTENTS_CHILD").is_some() {
+    if std::env::var_os("DLEA_TUI_CONTENTS_CHILD").is_some() {
         std::process::exit(crate::backend::run::run());
     }
 }
@@ -236,7 +236,7 @@ fn tui_contents_real_process_cancels_the_shared_worker() {
     let root = Root::new();
     let tool = root.0.join("tools/rg");
     std::fs::write(&tool, "#!/bin/sh\nexec /usr/bin/sleep 30\n").unwrap();
-    flea::executable_file::write(&tool, &std::fs::read(&tool).unwrap(), 0o700).unwrap();
+    dlea::executable_file::write(&tool, &std::fs::read(&tool).unwrap(), 0o700).unwrap();
     for program in ["bwrap", "prlimit"] {
         std::os::unix::fs::symlink(
             format!("/usr/bin/{program}"),

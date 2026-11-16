@@ -21,7 +21,7 @@ A gvfs FUSE path is the exception to both halves. `scan.rs` lists it through one
 child (`backend/gvfslist.rs`) instead of readdir: the daemon answers names with size, type
 and mtime in one pass, where the FUSE path would block in getdents64 and then pay one round
 trip per row. That per-row metadata lives in `Listing`'s compact gio store for the listing's life
-rather than for one request, and every re-list rebuilds it, which every Flea write triggers;
+rather than for one request, and every re-list rebuilds it, which every Dlea write triggers;
 a remote change raises no inotify on either route, so the watched re-read never fires for
 one. The store is one 24-byte `GioMeta` record per gio row (the span's name offset, mode,
 size and mtime), pushed in build order so the offsets increase and row lookups binary search

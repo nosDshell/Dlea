@@ -1,15 +1,15 @@
 # Window IPC
 
-The native window exposes the same typed function signatures as the QML `flea` and
-`fleapicker` targets. The backend's JSON-lines protocol remains separate.
+The native window exposes the same typed function signatures as the QML `dlea` and
+`dleapicker` targets. The backend's JSON-lines protocol remains separate.
 
 ```
-flea ipc [--pid N|--any] call <target> <function> [arguments...]
-flea ipc [--pid N|--any] show
+dlea ipc [--pid N|--any] call <target> <function> [arguments...]
+dlea ipc [--pid N|--any] show
 ```
 
 The `ipc` verb owns its arguments, including strings such as `--version` or
-`--backend`; they do not dispatch another Flea mode.
+`--backend`; they do not dispatch another Dlea mode.
 Selectors precede `call` or `show`. `--pid` selects exactly that process and never
 falls back to another window. With no selector, or with `--any`, the oldest live
 endpoint is tried first. `-i N` and `--id N` accept the native instance ID, its PID.
@@ -24,12 +24,12 @@ argument names, types, return types and arities. There are also `version(): stri
 and `quit(): void` lifecycle functions on both targets. Registry tests compare the
 complete oracle signatures, rather than a historical function count.
 
-Implemented browser reads are `flea.ready`, `flea.path`, `flea.total`, `flea.cursor`,
-`flea.selectionCount`, and `flea.selectedIndices`. They read the current committed
+Implemented browser reads are `dlea.ready`, `dlea.path`, `dlea.total`, `dlea.cursor`,
+`dlea.selectionCount`, and `dlea.selectedIndices`. They read the current committed
 shell model, including an empty selection, rather than a pending listing. `ready`
 means the shell entity is available, not that a listing has completed.
-`flea.version` and `fleapicker.version` return the package version. `flea.quit` and
-`fleapicker.quit` stop the addressed process after its void reply is flushed.
+`dlea.version` and `dleapicker.version` return the package version. `dlea.quit` and
+`dleapicker.quit` stop the addressed process after its void reply is flushed.
 The native picker model does not exist yet, so its oracle functions are refused.
 
 ## Exit statuses and streams
@@ -41,7 +41,7 @@ The native picker model does not exist yet, so its oracle functions are refused.
 | 0 | Missing call target or function | `Target required to send message.` or `Function required to send message.` on stdout |
 | 0 | Wrong arity or unparseable typed argument | Quickshell's diagnostic and function definition on stdout |
 | 2 | Invalid client syntax or malformed wire request | A diagnostic on stderr |
-| 3 | Registered function not ported | `FLEA_IPC_NOT_PORTED target.function` on stderr; stdout is empty |
+| 3 | Registered function not ported | `DLEA_IPC_NOT_PORTED target.function` on stderr; stdout is empty |
 | 255 | Missing, unavailable, unsafe or unresponsive endpoint | A diagnostic; a missing explicit PID prints `No instance found for pid N` on stdout |
 
 Every diagnostic ends with one newline. A registered refusal is distinct from
@@ -51,8 +51,8 @@ lookup failure and a successful empty string. Integer arguments accept signed
 
 ## Socket and wire format
 
-Each process binds `$XDG_RUNTIME_DIR/flea-ipc/PID.sock`. The runtime directory and
-`flea-ipc` directory must be owned by the effective user with no group or other
+Each process binds `$XDG_RUNTIME_DIR/dlea-ipc/PID.sock`. The runtime directory and
+`dlea-ipc` directory must be owned by the effective user with no group or other
 permissions; the socket is mode 0600 inside a mode 0700 directory. Directory and
 socket symlinks are refused. Clean shutdown removes only the socket inode this
 process bound. Startup removes a stale socket only if its PID is dead and a
@@ -63,7 +63,7 @@ connectable, pending or backlogged socket is retained.
 Each connection carries one UTF-8 JSON request line and one JSON reply line:
 
 ```json
-{"call":["flea","path"]}
+{"call":["dlea","path"]}
 {"code":0,"stdout":"/home/user\n","stderr":""}
 ```
 
@@ -84,25 +84,25 @@ for the client to consume it. No filesystem or socket operation runs in that tas
 
 ## Harness selection
 
-Shell harnesses source `tools/flea-ipc`, then call `flea_ipc_init "$binary"` once
-after choosing the launched binary. `FLEA_FRONTEND=gpui`, or a direct `flea-gui`
+Shell harnesses source `tools/dlea-ipc`, then call `dlea_ipc_init "$binary"` once
+after choosing the launched binary. `DLEA_FRONTEND=gpui`, or a direct `dlea-gui`
 launch, selects the native client. A direct `qs` launch explicitly initializes
-with `flea_ipc_init qs`. The exported `FLEA_IPC_KIND`, `FLEA_IPC_BIN`, and
-`FLEA_IPC_HELPER` keep that decision fixed through subprocesses and timeouts.
+with `dlea_ipc_init qs`. The exported `DLEA_IPC_KIND`, `DLEA_IPC_BIN`, and
+`DLEA_IPC_HELPER` keep that decision fixed through subprocesses and timeouts.
 
-Use `flea_ipc_call` for the `qs ipc` grammar, `flea_ipc_drive` for existing
-`omarchy-drive ipc` arguments, and `flea_ipc_wait` for existing IPC waits. Commands
-under `timeout` or `env` invoke `"$FLEA_IPC_HELPER"` with the same arguments, or
+Use `dlea_ipc_call` for the `qs ipc` grammar, `dlea_ipc_drive` for existing
+`omarchy-drive ipc` arguments, and `dlea_ipc_wait` for existing IPC waits. Commands
+under `timeout` or `env` invoke `"$DLEA_IPC_HELPER"` with the same arguments, or
 its `drive` and `wait` verbs. QML calls pass through their original clients with
 unchanged arguments, streams and status. Native `-p` selectors resolve an exact
 configuration to one PID and refuse ambiguous windows. Prefer explicit PIDs.
-`flea_ipc_list` supplies the selected frontend's instance list. Native IDs are
-decimal PIDs. Python harnesses use `tools/flea_ipc.py`'s `Client` and pass its
+`dlea_ipc_list` supplies the selected frontend's instance list. Native IDs are
+decimal PIDs. Python harnesses use `tools/dlea_ipc.py`'s `Client` and pass its
 `environment()` to subprocesses. The helper never probes a function to guess
 which frontend answered.
 
 `tests/gui-ipc.sh` exercises the real CLI and production socket server using the
-`flea-gui` `ipc-fixture` example as a headless surface. Its marked private runtime
+`dlea-gui` `ipc-fixture` example as a headless surface. Its marked private runtime
 is mandatory. `tests/run-all.sh` builds the fixture before running the suite.
 The same contract runs during `cargo test --locked --workspace`; GPUI tests also
 exercise the shell entity's actual executor task. The headless fixture proves
@@ -110,13 +110,13 @@ transport and dispatch, while compositor rendering remains a separate check.
 
 ## Owned test windows
 
-Window-driving harnesses source `tests/lib/flea-transport.sh`. Set
-`FLEA_TEST_FRONTEND=qml|gpui` once, defaulting to `qml`, and use
-`flea_test_launch PATH LOG`, `flea_test_call call TARGET FUNCTION`, and
-`flea_test_quit` for normal shutdown or `flea_test_stop` for failure cleanup. Python harnesses use `Client.start_owned(PATH)` or
-`tests/lib/flea_transport.py`'s `Window`. The helper chooses binaries only from
+Window-driving harnesses source `tests/lib/dlea-transport.sh`. Set
+`DLEA_TEST_FRONTEND=qml|gpui` once, defaulting to `qml`, and use
+`dlea_test_launch PATH LOG`, `dlea_test_call call TARGET FUNCTION`, and
+`dlea_test_quit` for normal shutdown or `dlea_test_stop` for failure cleanup. Python harnesses use `Client.start_owned(PATH)` or
+`tests/lib/dlea_transport.py`'s `Window`. The helper chooses binaries only from
 this worktree's `target/debug` or `target/release` build, or its explicit
-`CARGO_TARGET_DIR`. It never finds a Flea binary on PATH.
+`CARGO_TARGET_DIR`. It never finds a Dlea binary on PATH.
 
 Each launch gets a marked `mktemp` root, a private runtime and a dedicated process
 group. A supervisor holds the launch directory open, providing a short runtime path
@@ -124,11 +124,11 @@ through `/proc/PID/fd/N/runtime` so Unix sockets fit even in long worktree paths
 validate the launched PID's start time, environment marker, group and socket inode,
 then verify the connected peer's PID. A failed or incomplete read cannot become
 a successful empty reply. `Window.quit()` checks the native acknowledgement before
-waiting for group drain. Native status 3 preserves `FLEA_IPC_NOT_PORTED` verbatim.
+waiting for group drain. Native status 3 preserves `DLEA_IPC_NOT_PORTED` verbatim.
 The current stage has no native picker launch; the helper reports
-`FLEA_IPC_NOT_PORTED fleapicker.launch` rather than opening a browser as a picker.
+`DLEA_IPC_NOT_PORTED dleapicker.launch` rather than opening a browser as a picker.
 
-Set `FLEA_TEST_WINDOWS_ROOT` to a private marked root to own several windows.
+Set `DLEA_TEST_WINDOWS_ROOT` to a private marked root to own several windows.
 The existing IPC helper, PID lookup and instance listing then resolve only those
 windows. Ambiguous configuration selectors and foreign PIDs fail. Cleanup signals
 only verified members of a launched process group, waits for backend drain, and

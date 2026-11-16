@@ -9,7 +9,7 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
-LOADER = importlib.machinery.SourceFileLoader("layout_scopes", str(ROOT / "tools/flea-i18n-layouts"))
+LOADER = importlib.machinery.SourceFileLoader("layout_scopes", str(ROOT / "tools/dlea-i18n-layouts"))
 SPEC = importlib.util.spec_from_loader(LOADER.name, LOADER)
 layouts = importlib.util.module_from_spec(SPEC)
 LOADER.exec_module(layouts)
@@ -56,11 +56,11 @@ class LayoutScopeTests(unittest.TestCase):
     def lint(self, rows, baseline):
         temporary = tempfile.TemporaryDirectory(prefix="lint.", dir=self.scratch)
         root = Path(temporary.name).resolve()
-        (root / ".flea-test-sandbox").touch()
+        (root / ".dlea-test-sandbox").touch()
 
         def cleanup():
             assert root.is_absolute() and root.parent == self.scratch
-            assert (root / ".flea-test-sandbox").is_file()
+            assert (root / ".dlea-test-sandbox").is_file()
             temporary.cleanup()
 
         self.addCleanup(cleanup)

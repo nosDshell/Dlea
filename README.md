@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/images/icon.svg" width="72" height="72" alt="Flea">
+  <img src="docs/images/icon.svg" width="72" height="72" alt="Dlea">
 </p>
 
-<h1 align="center">Flea</h1>
+<h1 align="center">Dlea</h1>
 
 <p align="center">
   <strong>The fastest GUI file manager on Omarchy.</strong>
@@ -17,11 +17,11 @@
   <a href="#views">Views</a> ·
   <a href="#performance">Performance</a> ·
   <a href="#keyboard">Keyboard</a> ·
-  <a href="https://github.com/thisisgm/flea/releases">Releases</a>
+  <a href="https://github.com/nosDshell/Dlea/releases">Releases</a>
 </p>
 
 <p align="center">
-  <img src="docs/images/release-0.4.0-themes.gif" alt="Flea 0.4.0 cycling through eight dark Omarchy themes at different transparencies, with a photo in the preview column">
+  <img src="docs/images/release-0.4.0-themes.gif" alt="Dlea 0.4.0 cycling through eight dark Omarchy themes at different transparencies, with a photo in the preview column">
 </p>
 
 - **Four views.** List, columns, grid and two panes, with tabs and natural sorting.
@@ -37,39 +37,39 @@
 
 ## Install
 
-Flea is available only from the Omarchy Package Repository. Install it and make it your default
+Dlea is available only from the Omarchy Package Repository. Install it and make it your default
 file manager, file chooser and the app opened by **Super+Shift+F**:
 
 ```bash
-omarchy pkg add flea && flea --default
+omarchy pkg add dlea && dlea --default
 ```
 
-Run `flea --default` from a terminal in your session so file dialogs switch at once. `flea --default off`
-undoes it, and Settings > About has the same switch. To try Flea without changing your defaults, run
-only `omarchy pkg add flea`. Updates come with `omarchy update`.
+Run `dlea --default` from a terminal in your session so file dialogs switch at once. `dlea --default off`
+undoes it, and Settings > About has the same switch. To try Dlea without changing your defaults, run
+only `omarchy pkg add dlea`. Updates come with `omarchy update`.
 
-On an AUR `flea-bin` or `flea-git` install, run this and answer `y` when pacman asks to remove it:
+On an AUR `dlea-bin` or `dlea-git` install, run this and answer `y` when pacman asks to remove it:
 
 ```bash
-sudo pacman -S flea
+sudo pacman -S dlea
 ```
 
 <details>
 <summary>File chooser only, development build and removal</summary>
 
-Use Flea for portal Open/Save dialogs without changing your default file manager:
+Use Dlea for portal Open/Save dialogs without changing your default file manager:
 
 ```bash
-flea --picker
+dlea --picker
 ```
 
-To try unreleased changes from `main`, [build Flea from source](#build).
+To try unreleased changes from `main`, [build Dlea from source](#build).
 
-Before removing Flea, undo its desktop integration, then drop the package:
+Before removing Dlea, undo its desktop integration, then drop the package:
 
 ```bash
-flea --default off
-omarchy pkg drop flea
+dlea --default off
+omarchy pkg drop dlea
 ```
 
 [Installation details](docs/install.md) cover dependencies, desktop integration and removal.
@@ -79,7 +79,7 @@ omarchy pkg drop flea
 ## Views
 
 **List** for details, **grid** for photos and clips, **columns** for browsing with a preview, and
-**two panes** (`Ctrl+4`) for two folders side by side. Flea can remember the view for each folder.
+**two panes** (`Ctrl+4`) for two folders side by side. Dlea can remember the view for each folder.
 
 <p align="center">
   <img src="docs/images/grid.png" width="49%" alt="Grid view with image and video thumbnails">
@@ -101,16 +101,16 @@ move, or both to link. Drop files on Trash in the sidebar to trash them, and `z`
 Drag a file into a terminal to paste its path.
 
 <p align="center">
-  <img src="docs/images/shelf.png" width="49%" alt="The shelf card open over Flea, with thumbnails, pins and the latest recordings">
+  <img src="docs/images/shelf.png" width="49%" alt="The shelf card open over Dlea, with thumbnails, pins and the latest recordings">
   <img src="docs/images/iphone.png" width="49%" alt="An iPhone camera roll browsed over AFC, with HEIC thumbnails and a preview">
 </p>
 
 **Transparency** follows Omarchy's Window Transparency (Trigger > Appearance > Window
-Transparency). To set Flea's own, give a value from 0 to 1 in a theme's `shell.toml`, or in
+Transparency). To set Dlea's own, give a value from 0 to 1 in a theme's `shell.toml`, or in
 `~/.config/omarchy/shell.toml` for every theme:
 
 ```toml
-[flea]
+[dlea]
 background-alpha = 0.34
 ```
 
@@ -122,12 +122,12 @@ are recorded with the data.
 
 ### 100,000 files
 
-One folder of empty files on btrfs, three runs per app. Flea and Strata use List;
+One folder of empty files on btrfs, three runs per app. Dlea and Strata use List;
 the other apps use their installed icon views.
 
 | File manager | Version | First window | Settled | PSS | CPU |
 | --- | --- | ---: | ---: | ---: | ---: |
-| **Flea** | 0.4.0 | 319 ms | 0.75 s | 63.0 MiB | 0.53 s |
+| **Dlea** | 0.4.0 | 319 ms | 0.75 s | 63.0 MiB | 0.53 s |
 | Dolphin | 26.08.2 | 791 ms | 5.25 s | 235.1 MiB | 8.18 s |
 | Nautilus | 51.1.0 | 931 ms | 20.33 s | 337.2 MiB | 21.67 s |
 | Nemo | 6.6.4 | 928 ms | 22.61 s | 479.3 MiB | 26.03 s |
@@ -135,7 +135,7 @@ the other apps use their installed icon views.
 | Strata | 1.1.1 | 835 ms | 1.80 s | 159.1 MiB | 1.83 s |
 | Thunar | 4.20.10 | 601 ms | 19.71 s | 394.9 MiB | 19.82 s |
 
-Flea's samples are fresh; unchanged rival measurements were reused after matching the
+Dlea's samples are fresh; unchanged rival measurements were reused after matching the
 machine, session, versions and fixture. First window means compositor registration;
 settled means 500 ms of process-tree CPU quiet. Neither measures paint or input readiness.
 
@@ -145,14 +145,14 @@ Thirty measured runs per engine, plus two five-round noise batches.
 
 | Search engine | Version | First result | Backend PSS after indexing |
 | --- | --- | ---: | ---: |
-| **Flea** | 0.4.0 | 166 ms | 75.7 MiB |
+| **Dlea** | 0.4.0 | 166 ms | 75.7 MiB |
 | nd | 0.2.1 | 1617 ms | 145.6 MiB |
 | fff | 0.11.1 | 3172 ms | 221.2 MiB |
 | FSearch | 0.3.0 | 4938 ms | 157.0 MiB |
 
 The clock runs from backend `searchopen` to the first nonempty current-generation IPC rows.
 Process creation and initial listing are outside it. These are backend measurements, not
-GUI-open timings. Flea's mixed typed-first quality still trails nd and fff;
+GUI-open timings. Dlea's mixed typed-first quality still trails nd and fff;
 [the results include those losses](docs/bench/0.4.0-20261102.md#method-and-scope).
 
 ### Compared with 0.3.12
@@ -171,7 +171,7 @@ three seconds after mapping.
 ### Media
 
 The 2,000-entry fixture contains 1,800 thumbnailable media files and 200 text controls.
-Flea's first-window, settled and CPU values have three valid samples. Memory has only
+Dlea's first-window, settled and CPU values have three valid samples. Memory has only
 two, and its observed use is higher than Thunar's and Nemo's. Incomplete measurements
 for the other apps prevent a complete media ranking. [Recorded values and gaps](docs/bench/0.4.0-20261102.md#media).
 
@@ -206,16 +206,16 @@ See [the full key table](keys.toml) for preset bindings and pointer actions.
 
 ## Scripts and agents
 
-Every Flea window is titled Flea. To find which folder each one shows, ask it over IPC by its process id:
+Every Dlea window is titled Dlea. To find which folder each one shows, ask it over IPC by its process id:
 
 ```sh
-for p in $(hyprctl clients -j | jq -r '.[] | select(.class == "com.thisisgm.flea") | .pid'); do
-    echo "$p $(flea ipc --pid "$p" call flea path)"
+for p in $(hyprctl clients -j | jq -r '.[] | select(.class == "com.nosDshell.dlea") | .pid'); do
+    echo "$p $(dlea ipc --pid "$p" call dlea path)"
 done
 ```
 
-To open a folder and know when a window shows it, run `flea /path/to/folder`, then poll
-`flea ipc --pid PID call flea path` until it prints that path.
+To open a folder and know when a window shows it, run `dlea /path/to/folder`, then poll
+`dlea ipc --pid PID call dlea path` until it prints that path.
 
 ## Build
 
@@ -224,7 +224,7 @@ Requires Omarchy and Rust. See
 
 ```bash
 cargo build --locked --release --workspace
-./target/release/flea --gui
+./target/release/dlea --gui
 ```
 
 Pass a directory to open it, or `--select <path>` to reveal a file.
@@ -232,7 +232,7 @@ Pass a directory to open it, or `--select <path>` to reveal a file.
 `./tests/run-all.sh` runs the headless suites, and [the protocol guide](docs/protocol.md) documents
 the backend.
 
-See [PLUGINS.md](PLUGINS.md) to write, validate, install and debug a Flea plugin, with a working example for each kind.
+See [PLUGINS.md](PLUGINS.md) to write, validate, install and debug a Dlea plugin, with a working example for each kind.
 
 ## Support
 
@@ -245,7 +245,7 @@ If this saved you an afternoon, you can
 [MIT](LICENSE).
 
 The AirDrop plugin is built on [owly](https://github.com/t4t5/owly) by Tristan
-([t4t5](https://github.com/t4t5)), MIT, which Flea runs as a separate program.
+([t4t5](https://github.com/t4t5)), MIT, which Dlea runs as a separate program.
 
 The language marks in `ui/js/LangMarkPaths.js` use [simple-icons](https://github.com/simple-icons/simple-icons)
 geometry (CC0 1.0) and remain their owners' trademarks.

@@ -4,7 +4,7 @@ use crate::backend::icons::Names;
 use crate::backend::mime::Db;
 use crate::backend::opsreq::usable_dest;
 use crate::json::escape;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::collections::{HashMap, HashSet};
 use std::os::unix::fs::MetadataExt;
 
@@ -18,7 +18,7 @@ pub(super) struct Shown {
 
 // The question itself, read-only: which sources would land on a name dest already holds, under their FAT-renamed names.
 pub(super) fn ask(id: usize, paths: &[String], dest: &str, fat: Option<crate::backend::fatnames::Choice>) -> (Question, Vec<Shown>) {
-    let mut question = Question { id, dest: flea::bytename::exact(dest), seen: HashMap::new(), twins: HashSet::new(), menu: None, fat };
+    let mut question = Question { id, dest: dlea::bytename::exact(dest), seen: HashMap::new(), twins: HashSet::new(), menu: None, fat };
     let mut shown = Vec::new();
     // An unusable destination asks nothing: the transfer that follows answers its own error.
     let Ok(dest_path) = usable_dest(dest) else { return (question, shown) };
@@ -26,7 +26,7 @@ pub(super) fn ask(id: usize, paths: &[String], dest: &str, fat: Option<crate::ba
     let dest_real = dest_path.canonicalize().unwrap_or_else(|_| dest_path.clone());
     let (mut parents, table, mut claimed) = (Parents::default(), Table::read(&dest_path), crate::backend::fatnames::casefold::Claimed::new(&dest_path));
     for raw in paths {
-        let src = flea::bytename::view(raw); let src = &*src;
+        let src = dlea::bytename::view(raw); let src = &*src;
         if !src.is_absolute() {
             continue;
         }
@@ -50,7 +50,7 @@ pub(super) fn ask(id: usize, paths: &[String], dest: &str, fat: Option<crate::ba
             Err(_) => continue,
         };
         if fresh && shown.len() < SHOWN {
-            shown.push(Shown { name: flea::bytename::display(&leaf).into_owned(), exact: leaf.clone(), dir: meta.is_dir(), mode: meta.mode() });
+            shown.push(Shown { name: dlea::bytename::display(&leaf).into_owned(), exact: leaf.clone(), dir: meta.is_dir(), mode: meta.mode() });
         }
     }
     (question, shown)

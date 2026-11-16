@@ -1,4 +1,4 @@
-// Ports tests/js/uistate.js (Flea 0.3.12) lines 55-137: the book flow, fromFile, favourites and the document rebuilds.
+// Ports tests/js/uistate.js (Dlea 0.3.12) lines 55-137: the book flow, fromFile, favourites and the document rebuilds.
 use super::*;
 use crate::jsondoc::{parse, Json};
 

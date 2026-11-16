@@ -35,9 +35,9 @@
       "font",
       "bar/dock configuration"
     ],
-    "acceptance": "Controller pairs actual native shell and Flea captures before accepting any UI mirror unit. Source extraction alone does not certify native fidelity."
+    "acceptance": "Controller pairs actual native shell and Dlea captures before accepting any UI mirror unit. Source extraction alone does not certify native fidelity."
   },
-  "adaptation": "Shell-source entries describe observed source behavior. Flea-adaptation entries map that behavior to file-manager geometry. Shared-text-contract entries preserve approved Flea bidi, date, key and content rules; they are not claims of corresponding shell widgets.",
+  "adaptation": "Shell-source entries describe observed source behavior. Dlea-adaptation entries map that behavior to file-manager geometry. Shared-text-contract entries preserve approved Dlea bidi, date, key and content rules; they are not claims of corresponding shell widgets.",
   "text_runs": {
     "names_and_paths": "FSI+unchanged-text+PDI",
     "numbers_dates_keycaps": "LRI+unchanged-text+PDI",
@@ -193,8 +193,8 @@
     },
     "rail": {
       "action": "mirror",
-      "basis": "flea-adaptation",
-      "rule": "Place the application rail at logical leading (right in RTL), including its row mark, cursor edge and pointer targets. This maps mirrored panel contents to Flea; it does not relocate the configured desktop bar or dock.",
+      "basis": "dlea-adaptation",
+      "rule": "Place the application rail at logical leading (right in RTL), including its row mark, cursor edge and pointer targets. This maps mirrored panel contents to Dlea; it does not relocate the configured desktop bar or dock.",
       "sources": [
         "overlay",
         "panel",
@@ -203,7 +203,7 @@
     },
     "columns": {
       "action": "mirror",
-      "basis": "flea-adaptation",
+      "basis": "dlea-adaptation",
       "rule": "Reflect visual column and cell geometry in its container. Preserve model indices and path identities; map input through the inverse rather than reversing the listing or row data.",
       "sources": [
         "overlay",

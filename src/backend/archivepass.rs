@@ -3,8 +3,8 @@ use crate::backend::archive::{Formats, Reader, STORE_LINKS, ZIP_TYPE};
 use crate::backend::archivework::{cancel_failure, failure_message, spawn_stderr_reader, Work, SANDBOX_MISSING};
 use crate::backend::opsreq::op_err;
 use crate::backend::sandbox;
-use crate::error::{from_io, FleaError};
-use flea::bytename::ExactText as _;
+use crate::error::{from_io, DleaError};
+use dlea::bytename::ExactText as _;
 use std::io::Write;
 use std::path::Path;
 use std::process::{Child, Stdio};
@@ -108,7 +108,7 @@ pub fn answer_prompt(child: &mut Child, secret: &str) -> std::io::Result<()> {
 }
 
 // 7z reads one stdin line, so a line break would lock the archive with only the text before it.
-pub(crate) fn refuse_line_break(what: &str, archive: &str, secret: Option<&str>) -> Result<(), FleaError> {
+pub(crate) fn refuse_line_break(what: &str, archive: &str, secret: Option<&str>) -> Result<(), DleaError> {
     if secret.is_some_and(|s| s.contains(['\n', '\r'])) {
         return Err(op_err(what, archive, &format!("the password for {archive} cannot hold a line break")));
     }
@@ -124,7 +124,7 @@ pub fn run_boxed_cancellable_password(
     work: &mut Work,
     secret: Option<&str>,
     cancel: &AtomicBool,
-) -> Result<Option<SevenFailure>, FleaError> {
+) -> Result<Option<SevenFailure>, DleaError> {
     refuse_line_break(what, archive, secret)?;
     run_with(what, inner, read_only, work, secret, cancel, answer_prompt)
 }
@@ -138,7 +138,7 @@ fn run_with(
     secret: Option<&str>,
     cancel: &AtomicBool,
     write: fn(&mut Child, &str) -> std::io::Result<()>,
-) -> Result<Option<SevenFailure>, FleaError> {
+) -> Result<Option<SevenFailure>, DleaError> {
     if !sandbox::available() {
         let tool = inner.first().map_or("", |s| s.as_str());
         return Err(op_err(what, tool, SANDBOX_MISSING));

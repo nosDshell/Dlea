@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-button-press-test
+//@ pragma ShellId dlea-button-press-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/TextSize.js" as TextSize
+import "dlea" as Dlea
+import "dlea/js/TextSize.js" as TextSize
 import "button-probe.js" as Probe
 import "qml-probe.js" as QmlProbe
 
@@ -64,7 +64,7 @@ ShellRoot {
         Item {
             id: host
             anchors.fill: parent
-            Flea.DialogButton {
+            Dlea.DialogButton {
                 id: button
                 x: 30
                 y: 30
@@ -88,8 +88,8 @@ ShellRoot {
         var elapsed = Date.now() - shell.since
         if (shell.phase === 0) {
             var c = shell.cases[shell.caseIndex]
-            Flea.ViewState.state = { display: { textSize: { mode: TextSize.nearest(c[0]) } } }
-            Flea.Theme.reducedMotion = c[2]
+            Dlea.ViewState.state = { display: { textSize: { mode: TextSize.nearest(c[0]) } } }
+            Dlea.Theme.reducedMotion = c[2]
             button.inStrip = c[1]
             shell.nextPhase()
         } else if (shell.phase === 1 && elapsed >= 250) {

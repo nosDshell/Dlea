@@ -1,4 +1,4 @@
-// ViewState.qml's settings bookkeeping from ui/js/UiState.js (Flea 0.3.12), over Json in JS key order, a JS undefined as None.
+// ViewState.qml's settings bookkeeping from ui/js/UiState.js (Dlea 0.3.12), over Json in JS key order, a JS undefined as None.
 use crate::jsondoc::{parse, Json};
 use crate::ui_logic_settings_pages::Text;
 
@@ -11,7 +11,7 @@ use obj::{keys_of, put, same, truthy};
 
 pub use merge::{apply_external, drop_invalid, reverted_state};
 
-// Per-window keys: where a window is, not how Flea behaves (WINDOW_KEYS in UiState.js).
+// Per-window keys: where a window is, not how Dlea behaves (WINDOW_KEYS in UiState.js).
 pub const WINDOW_KEYS: &[&str] = &[
     "view", "pickerView", "columnWidths", "dual", "lastPath", "lastTabs", "trashSweptOn", "stateVersion", "sort",
     "previewFacts",

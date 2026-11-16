@@ -91,7 +91,7 @@ mod rev3_st2_tests;
 mod rev4_st2_tests;
 pub mod durable;
 pub mod icons;
-pub use flea::backend::rastertemp;
+pub use dlea::backend::rastertemp;
 pub mod regfile;
 pub mod exiffacts;
 pub mod imagesize;

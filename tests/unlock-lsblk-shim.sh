@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# The cap_unlock lsblk shim: a loop container lists as a stick in Flea's JSON call, and every other call and byte passes through.
+# The cap_unlock lsblk shim: a loop container lists as a stick in Dlea's JSON call, and every other call and byte passes through.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 # The captures file sources its helpers from $repo, which tests/ui.sh sets for every other caller.
 repo=$PWD
@@ -9,7 +9,7 @@ repo=$PWD
 
 command -v jq >/dev/null || { echo "FAIL: jq is not installed, the shim cannot be driven"; exit 1; }
 
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-unlock-shim-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-unlock-shim-XXXXXX") || exit 1
 case $test_root in
   /*/*) ;;
   *) echo "FAIL: mktemp -d gave '$test_root', which is not an absolute path two components deep"; exit 1 ;;
@@ -179,7 +179,7 @@ jq '(.blockdevices[0]) |= (.children = [{name: "luks-6f1c2a7e", path: "/dev/mapp
 # A listing with no loop0 at all, whose bytes must come back untouched.
 jq --indent 3 'del(.blockdevices[0])' "$test_root/locked.json" > "$test_root/absent.json" || exit 1
 
-# Flea's own call: argv forwarded whole, loop0 renamed and marked, its child marked, every other node unchanged.
+# Dlea's own call: argv forwarded whole, loop0 renamed and marked, its child marked, every other node unchanged.
 for state in locked unlocked; do
     out=$(BODY="$test_root/$state.json" "$shim" --bytes --json -o "$cols")
     check "$state: exit status" "$?" 0

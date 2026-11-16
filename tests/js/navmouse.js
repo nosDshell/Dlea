@@ -60,45 +60,45 @@ function run(check) {
 
     // A press during a load takes the entry it holds, as back does, and leaves the folder it was standing in behind it.
     var busy = forwardPane([])
-    busy.forwardHistory = ["/home/gm/Work/flea"]
+    busy.forwardHistory = ["/home/gm/Work/dlea"]
     busy.listInFlight = true
     MouseNav.forward(busy)
     check("a forward press during a load takes the entry it holds",
-          busy.forwardHistory.join(",") + "|" + busy.listingPath + "|" + busy.history.map(BackReturn.pathOf).join(","), "|/home/gm/Work/flea|/home/gm/Work")
+          busy.forwardHistory.join(",") + "|" + busy.listingPath + "|" + busy.history.map(BackReturn.pathOf).join(","), "|/home/gm/Work/dlea|/home/gm/Work")
 
     // Behind the pane's own context menu or the collision card the press does nothing, as back's does.
     var menuUp = forwardPane([])
-    menuUp.forwardHistory = ["/home/gm/Work/flea"]
+    menuUp.forwardHistory = ["/home/gm/Work/dlea"]
     menuUp.menuVisible = true
     MouseNav.forward(menuUp)
     check("mouse forward behind an open context menu goes nowhere", stood(menuUp), "/home/gm/Work|0|1")
     var cardUp = forwardPane([])
-    cardUp.forwardHistory = ["/home/gm/Work/flea"]
+    cardUp.forwardHistory = ["/home/gm/Work/dlea"]
     cardUp.collide = { opened: true }
     MouseNav.forward(cardUp)
     check("mouse forward behind an open collision card goes nowhere", stood(cardUp), "/home/gm/Work|0|1")
     // Until a transfer asks, the pane has no collision host at all, and the press goes ahead.
     var noHost = forwardPane([])
-    noHost.forwardHistory = ["/home/gm/Work/flea"]
+    noHost.forwardHistory = ["/home/gm/Work/dlea"]
     noHost.collide = null
     MouseNav.forward(noHost)
-    check("mouse forward before any collision host exists goes ahead", noHost.path + "|" + noHost.forwardHistory.length, "/home/gm/Work/flea|0")
+    check("mouse forward before any collision host exists goes ahead", noHost.path + "|" + noHost.forwardHistory.length, "/home/gm/Work/dlea|0")
 
     // The keyboard's forward refuses in Trash and in Recent, so the mouse takes the same entry and the same refusals.
     var trashed = forwardPane([])
-    trashed.forwardHistory = ["/home/gm/Work/flea"]
+    trashed.forwardHistory = ["/home/gm/Work/dlea"]
     trashed.trash.opened = true
     MouseNav.forward(trashed)
     check("mouse forward with Trash open goes nowhere", stood(trashed), "/home/gm/Work|0|1")
     var recent = forwardPane([])
-    recent.forwardHistory = ["/home/gm/Work/flea"]
+    recent.forwardHistory = ["/home/gm/Work/dlea"]
     recent.recentMode = "recent"
     MouseNav.forward(recent)
     check("mouse forward in Recent goes nowhere", stood(recent), "/home/gm/Work|0|1")
 
     // The window's own handler: forward in Trash does nothing, back there closes Trash, and no overlay lets either through.
     var inTrash = forwardPane(["/home/gm"])
-    inTrash.forwardHistory = ["/home/gm/Work/flea"]
+    inTrash.forwardHistory = ["/home/gm/Work/dlea"]
     inTrash.trash.opened = true
     var handler = handlerFor(inTrash)
     handler.tap(null, Qt.ForwardButton)
@@ -107,7 +107,7 @@ function run(check) {
     check("the back button in Trash closes it and goes nowhere", stood(inTrash) + "|" + inTrash.trash.closed, "/home/gm/Work|0|1|1")
     // Flash image covers the listing the way Trash does, so the side buttons treat it the same way.
     var inFlash = forwardPane(["/home/gm"])
-    inFlash.forwardHistory = ["/home/gm/Work/flea"]
+    inFlash.forwardHistory = ["/home/gm/Work/dlea"]
     inFlash.flashActive = true
     var flashHandler = handlerFor(inFlash)
     flashHandler.tap(null, Qt.ForwardButton)
@@ -139,7 +139,7 @@ function run(check) {
     for (var name in blockers) {
         for (var button of [Qt.BackButton, Qt.ForwardButton]) {
             var held = forwardPane(["/home/gm"])
-            held.forwardHistory = ["/home/gm/Work/flea"]
+            held.forwardHistory = ["/home/gm/Work/dlea"]
             var guard = handlerFor(held)
             blockers[name](guard, held)
             guard.tap(null, button)

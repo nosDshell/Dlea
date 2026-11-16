@@ -46,7 +46,7 @@ def capture(padding=GROUND, side=None, corners=None):
 
 class TuiEdgeTests(unittest.TestCase):
     def setUp(self):
-        parent = Path(os.environ.get("FLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
+        parent = Path(os.environ.get("DLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
         parent.mkdir(parents=True, exist_ok=True)
         self.root = Path(tempfile.mkdtemp(prefix="tui-edge.", dir=parent))
         self.addCleanup(shutil.rmtree, self.root, ignore_errors=True)
@@ -59,7 +59,7 @@ class TuiEdgeTests(unittest.TestCase):
         probe = [sys.executable, "-I", "-c", "import json, os; print(json.dumps(dict(os.environ)))"]
         spec.write_text(json.dumps({"argv": probe, "environment": {"PATH": "/usr/bin:/bin", "HOME": str(case)}}))
         environment = dict(PATH="/usr/bin:/bin", PYTHONPATH=str(HERE.parent), PYTHONDONTWRITEBYTECODE="1",
-                           FLEA_PARENT_ONLY="never reaches the terminal", **extra)
+                           DLEA_PARENT_ONLY="never reaches the terminal", **extra)
         result = subprocess.run([sys.executable, "-B", "-m", "tui_battery.native", "--launch", str(spec)], env=environment,
                                 stdin=subprocess.DEVNULL, capture_output=True, timeout=60)
         self.assertEqual(result.returncode, 0, result.stderr.decode(errors="replace"))
@@ -70,12 +70,12 @@ class TuiEdgeTests(unittest.TestCase):
         token = "4f1c2b7e-9d3a-4c55-8e21-0b6a7d9f3c10"
         child, start = self.launch({"HL_EXEC_RULE_TOKEN": token})
         self.assertEqual(child.get("HL_EXEC_RULE_TOKEN"), token)
-        self.assertNotIn("FLEA_PARENT_ONLY", child)
+        self.assertNotIn("DLEA_PARENT_ONLY", child)
         self.assertEqual(child["HOME"], str(self.root / "case-0"))
         self.assertIs(start["exec_rule_token"], True)
         child, start = self.launch({})
         self.assertNotIn("HL_EXEC_RULE_TOKEN", child)
-        self.assertNotIn("FLEA_PARENT_ONLY", child)
+        self.assertNotIn("DLEA_PARENT_ONLY", child)
         self.assertIs(start["exec_rule_token"], False)
 
     def verdict(self, name, frame):
@@ -127,7 +127,7 @@ FAKE_CHECKERS = {
 
 class TerminalConfigTests(unittest.TestCase):
     def setUp(self):
-        parent = Path(os.environ.get("FLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
+        parent = Path(os.environ.get("DLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
         parent.mkdir(parents=True, exist_ok=True)
         self.root = Path(tempfile.mkdtemp(prefix="terminal-config.", dir=parent))
         self.addCleanup(shutil.rmtree, self.root, ignore_errors=True)
@@ -202,7 +202,7 @@ class TerminalConfigTests(unittest.TestCase):
 class DisplayModeTests(unittest.TestCase):
     # Sample: Hyprland 0.56.2 reports a new headless output at 1920x1080 scale 1.6 until it applies the mode about a second later.
     def enter(self, reports, query_failure=None):
-        default = {"name": "FLEA-id", "id": 7, "width": 1920, "height": 1080, "scale": 1.6}
+        default = {"name": "DLEA-id", "id": 7, "width": 1920, "height": 1080, "scale": 1.6}
         applied = dict(default, width=2560, height=1440, scale=1)
         # The first read is the in-use check; None never applies the mode, and a query_failure fails the first poll.
         reads = [[], [default]] if reports is None else [[]] + [[default]] * reports + [[applied]]

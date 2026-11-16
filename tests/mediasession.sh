@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # The real PreviewMedia and Quick Look against a stub MPRIS helper, offscreen: the idle inhibitor is on only while a video plays, the helper starts after play and gets one state line per change and none per position tick, its commands reach the player, and closing the player ends the helper.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 for tool in qs ffmpeg; do
@@ -10,7 +10,7 @@ for tool in qs ffmpeg; do
 done
 
 # A marked sandbox of its own under the fixture root, so cleanup deletes only what this run owns.
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-mediasession-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-mediasession-XXXXXX") || exit 1
 # GNU mktemp -d keeps a relative TMPDIR verbatim, so the path is checked absolute and two components deep.
 case $test_root in
   /*/*) ;;
@@ -21,13 +21,13 @@ sandbox_require "$test_root" || exit 1
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
-mkdir -p "$test_root/config" "$test_root/home" "$test_root/state/flea" "$test_root/runtime" "$test_root/bin" "$test_root/stub" "$test_root/media" || exit 1
+mkdir -p "$test_root/config" "$test_root/home" "$test_root/state/dlea" "$test_root/runtime" "$test_root/bin" "$test_root/stub" "$test_root/media" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/mediasession.qml "$test_root/config/shell.qml" || exit 1
-printf '{}\n' > "$test_root/state/flea/ui.json" || exit 1
+printf '{}\n' > "$test_root/state/dlea/ui.json" || exit 1
 
 # A 4 s clip with a picture and a sound, and a 4 s tone with neither a picture nor a cover.
 ffmpeg -v error -f lavfi -i testsrc=size=64x64:rate=10:duration=4 -f lavfi -i sine=frequency=440:duration=4 \
@@ -35,7 +35,7 @@ ffmpeg -v error -f lavfi -i testsrc=size=64x64:rate=10:duration=4 -f lavfi -i si
 ffmpeg -v error -f lavfi -i sine=frequency=440:duration=4 -c:a libvorbis "$test_root/media/tone.ogg" \
     || { echo "FAIL ffmpeg could not make the tone"; exit 1; }
 
-# Stands for tools/flea-mpris: records its pid and every stdin line, and prints each line appended to cmds.log.
+# Stands for tools/dlea-mpris: records its pid and every stdin line, and prints each line appended to cmds.log.
 cat > "$test_root/bin/stub-mpris" <<'STUB'
 #!/bin/sh
 printf '%s\n' "$$" >> "$STUB_DIR/starts.log"
@@ -46,7 +46,7 @@ chmod +x "$test_root/bin/stub-mpris" || exit 1
 : > "$test_root/stub/cmds.log" || exit 1
 
 output=$(env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
-    FLEA_MPRIS="$test_root/bin/stub-mpris" STUB_DIR="$test_root/stub" MEDIASESSION_MEDIA="$test_root/media" \
+    DLEA_MPRIS="$test_root/bin/stub-mpris" STUB_DIR="$test_root/stub" MEDIASESSION_MEDIA="$test_root/media" \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_RUNTIME_DIR="$test_root/runtime" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
     timeout 90 qs -p "$test_root/config" 2>&1)

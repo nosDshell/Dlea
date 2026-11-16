@@ -1,9 +1,9 @@
-use flea::jsondoc::{self, Json};
-use flea::ui_logic_plugin_settings::{manifest, sentence_key, wire, ERROR_CODES};
+use dlea::jsondoc::{self, Json};
+use dlea::ui_logic_plugin_settings::{manifest, sentence_key, wire, ERROR_CODES};
 use std::collections::BTreeSet;
 
 const GUIDE: &str = include_str!("../PLUGINS.md");
-const CATALOG: &str = include_str!("../i18n/en/flea.json");
+const CATALOG: &str = include_str!("../i18n/en/dlea.json");
 
 #[test]
 fn plugins_doc_repository_examples_obey_runtime_bounds_and_place_mutations() {
@@ -29,7 +29,7 @@ fn plugins_doc_owner_answers_runtime_and_list_when_user_paths_cannot_resolve() {
         .args([
             "--signal=KILL",
             "3s",
-            env!("CARGO_BIN_EXE_flea"),
+            env!("CARGO_BIN_EXE_dlea"),
             "--plugin-host",
         ])
         .env_remove("HOME")
@@ -245,18 +245,18 @@ fn plugins_doc_quick_start_executable_answers_hello_and_settings() {
         .map(|line| jsondoc::parse(line).unwrap())
         .collect();
     assert_eq!(replies.len(), 2);
-    flea::plugin_runtime::protocol::ready(&replies[0]).unwrap();
+    dlea::plugin_runtime::protocol::ready(&replies[0]).unwrap();
     assert_eq!(replies[1].get("op").and_then(Json::as_str), Some("done"));
 }
 
-// Every `flea --action` line in a `sh action` fence parses as the real command line and names an id that resolves.
-// Sample input: "if ! flea --action example.checksums:sha256 --window \"$flea_pid\"; then"
+// Every `dlea --action` line in a `sh action` fence parses as the real command line and names an id that resolves.
+// Sample input: "if ! dlea --action example.checksums:sha256 --window \"$dlea_pid\"; then"
 fn action_lines(guide: &str) -> Vec<Vec<String>> {
     let mut lines = Vec::new();
     for fence in guide.split("```sh action\n").skip(1) {
         let body = fence.split("\n```").next().unwrap_or("");
         for line in body.lines() {
-            let Some((_, command)) = line.split_once("flea --action") else {
+            let Some((_, command)) = line.split_once("dlea --action") else {
                 continue;
             };
             let words = format!("--action{command}");
@@ -266,7 +266,7 @@ fn action_lines(guide: &str) -> Vec<Vec<String>> {
                 .map(|word| {
                     word.trim_end_matches(';')
                         .trim_matches('"')
-                        .replace("$flea_pid", "4242")
+                        .replace("$dlea_pid", "4242")
                 })
                 .collect();
             lines.push(words);
@@ -284,8 +284,8 @@ fn example_plugin_actions() -> BTreeSet<String> {
             continue;
         };
         let parsed = manifest::parse(&text, false).unwrap();
-        for c in flea::ui_logic_plugin_settings::contributions::menu_actions(&parsed).unwrap() {
-            ids.insert(flea::ui_logic_custom_actions::plugins::leaf(&c));
+        for c in dlea::ui_logic_plugin_settings::contributions::menu_actions(&parsed).unwrap() {
+            ids.insert(dlea::ui_logic_custom_actions::plugins::leaf(&c));
         }
     }
     ids
@@ -293,8 +293,8 @@ fn example_plugin_actions() -> BTreeSet<String> {
 
 #[test]
 fn plugins_doc_action_examples_parse_and_name_real_ids() {
-    use flea::ipc::{action, wire::Request};
-    use flea::keys::actions::{parse, Id};
+    use dlea::ipc::{action, wire::Request};
+    use dlea::keys::actions::{parse, Id};
     let lines = action_lines(GUIDE);
     let plugins = example_plugin_actions();
     let (mut builtin, mut plugin, mut list) = (0, 0, 0);
@@ -335,7 +335,7 @@ fn plugins_doc_action_examples_parse_and_name_real_ids() {
         );
     }
     assert!(
-        action_lines("```sh action\nflea --action noSuchAction\n```\n")
+        action_lines("```sh action\ndlea --action noSuchAction\n```\n")
             .iter()
             .all(|w| parse(&w[1]).is_none())
     );

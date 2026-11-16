@@ -1,5 +1,5 @@
 //! The file menu's keys, pointer and rows at work: opening it, stepping it, and each row's request and answer.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::menu_layout::{entries, hit, place, Entry, Sub};
 use crate::tui::{input::{Key, Pointer, WHEEL_DOWN, WHEEL_UP}, keymap::Map, model::Model, wire::{count, flag, number, text, word, Wire}};
 use crate::jsondoc::Json;
@@ -48,7 +48,7 @@ pub fn open(m: &mut Model, w: &mut Wire) -> io::Result<()> {
         .collect();
     // A single target is what the menu acts on, so a selected folder under a file cursor is the target.
     if let [only] = m.menu_view.paths.as_slice() {
-        m.menu_path = flea::bytename::exact(only);
+        m.menu_path = dlea::bytename::exact(only);
     }
     let paths = Json::Arr(m.menu_view.paths.iter().map(|path| word(path)).collect());
     w.send(vec![
@@ -262,7 +262,7 @@ pub fn reply(m: &mut Model, value: &Json, w: &mut Wire) -> io::Result<bool> {
                 .unwrap_or_default()
                 .to_owned();
             let name = |path: &str| {
-                flea::bytename::display(path.rsplit('/').next().unwrap_or_default()).into_owned()
+                dlea::bytename::display(path.rsplit('/').next().unwrap_or_default()).into_owned()
             };
             let stem = match paths.as_slice() {
                 [one] => {

@@ -1,6 +1,6 @@
 // Menu capability discovery reads metadata only; provider status runs on explicit UI entry.
 use crate::json::escape;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::io::Read;
 use std::os::unix::fs::PermissionsExt;
 use std::path::{Path, PathBuf};
@@ -46,7 +46,7 @@ fn command_json(name: &str, paths: &[PathBuf]) -> String {
     format!(r#"{{"installed":{},"command":"{}","reason":"{}"}}"#, installed, escape(&command), escape(&reason))
 }
 
-// Directive 71: what Flea can drive is localsend-cli, not the app's own window, so the row is offered
+// Directive 71: what Dlea can drive is localsend-cli, not the app's own window, so the row is offered
 // when that is on PATH. The helper still takes a list, because a rename upstream is one name away.
 fn command_json_any(names: &[&str], paths: &[PathBuf]) -> String {
     let mut answer = (false, String::new(), String::new());

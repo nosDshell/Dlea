@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The app and compositor that tests/ui-process-ownership.py runs case_xwsettings against.
 
-qs, omarchy-drive, hyprctl, flea, pgrep and world are one-line launchers that pass their own name as the first
+qs, omarchy-drive, hyprctl, dlea, pgrep and world are one-line launchers that pass their own name as the first
 argument. Every call is appended to calls.jsonl, and the windows, the compositor focus and the keys they receive
 live in state.json beside it.
 The settings both windows share live in the XDG_STATE_HOME ui.json, the way the product keeps them.
@@ -18,7 +18,7 @@ FIRST_ROWS_BASE_MS = 1759400000000
 FIRST_ROWS_STEP_MS = 1000
 PID_BASE = 5000
 ADDRESS_BASE = 0x1000
-WINDOW_CLASS = "com.thisisgm.flea"
+WINDOW_CLASS = "com.nosDshell.dlea"
 SECTIONS = ("view", "keys")
 CONTROLS = ("density", "rows")
 ROW_HEIGHTS = {"compact": 28, "normal": 32}
@@ -26,8 +26,8 @@ ROW_HEIGHTS = {"compact": 28, "normal": 32}
 WAIT_POLL_S = 0.02
 WAIT_DEFAULT_S = 15
 
-home = Path(os.environ["FLEA_WORLD"])
-run_root = Path(os.environ["FLEA_TEST_RUN_ROOT"])
+home = Path(os.environ["DLEA_WORLD"])
+run_root = Path(os.environ["DLEA_TEST_RUN_ROOT"])
 tool = sys.argv[1]
 args = sys.argv[2:]
 home.mkdir(parents=True, exist_ok=True)
@@ -40,7 +40,7 @@ state = json.loads(state_file.read_text()) if state_file.exists() else {"seq": 0
 
 
 def ui_file():
-    return Path(os.environ["XDG_STATE_HOME"]) / "flea" / "ui.json"
+    return Path(os.environ["XDG_STATE_HOME"]) / "dlea" / "ui.json"
 
 
 def ui_read():
@@ -133,7 +133,7 @@ def clients():
     # A compositor that reports each window under the other's client pid.
     if os.environ.get("WORLD_SWAP_PIDS"):
         pids.reverse()
-    return [{"address": w["address"], "class": WINDOW_CLASS, "title": "Flea", "pid": pid, "at": [12, 42], "size": [880, 620]}
+    return [{"address": w["address"], "class": WINDOW_CLASS, "title": "Dlea", "pid": pid, "at": [12, 42], "size": [880, 620]}
             for w, pid in zip(state["windows"], pids)]
 
 
@@ -152,7 +152,7 @@ def register(ui, path):
     proc.mkdir(parents=True)
     (proc / "cmdline").write_bytes(f"qs\0-p\0{ui}/boot\0".encode())
     tag = "/foreign" if os.environ.get("WORLD_FOREIGN") else str(run_root)
-    (proc / "environ").write_bytes(f"FLEA_TEST_RUN_ROOT={tag}\0".encode())
+    (proc / "environ").write_bytes(f"DLEA_TEST_RUN_ROOT={tag}\0".encode())
     with open(home / "pids", "a") as pids:
         pids.write(f"{pid}\n")
 
@@ -185,32 +185,32 @@ elif tool == "pgrep":
     if args[-1] != "qs" or not state["windows"]:
         sys.exit(1)
     print("\n".join(str(w["pid"]) for w in state["windows"]))
-elif tool == "flea" and args[0] == "--ui-state":
+elif tool == "dlea" and args[0] == "--ui-state":
     ui_write(json.loads(args[1]))
-elif tool == "flea" and args[0] == "--gui":
+elif tool == "dlea" and args[0] == "--gui":
     # A register that fails, so the late-window wait is exercised against a launch that never delivers.
     if os.environ.get("WORLD_REGISTER_FAIL"):
         sys.exit(1)
-    register(os.environ["FLEA_UI"], args[1])
+    register(os.environ["DLEA_UI"], args[1])
 elif tool == "world" and args[0] == "kill":
     victim = window_with("pid", int(args[1]))
     if victim:
         state["windows"].remove(victim)
         gone = run_root / "proc" / args[1]
         # Hard rule 9: only a fake process directory inside this run's marked root is ever deleted.
-        assert run_root.is_absolute() and (run_root / ".flea-test-sandbox").is_file() and gone.parent.parent == run_root
+        assert run_root.is_absolute() and (run_root / ".dlea-test-sandbox").is_file() and gone.parent.parent == run_root
         shutil.rmtree(gone)
         state["active"] = newest()["address"] if newest() else None
 elif tool == "qs":
-    # Sample: ipc --pid 5001 call flea cursor; a qs that ignored --pid would answer from the newest instance.
+    # Sample: ipc --pid 5001 call dlea cursor; a qs that ignored --pid would answer from the newest instance.
     pid_route = os.environ.get("WORLD_ROUTE") != "newest"
     reply(window_with("pid", int(args[2])) if pid_route else newest(), args[5:])
 elif tool == "omarchy-drive" and args[0] == "ipc":
-    # Sample: ipc -p /ui/boot flea cursor; every tree declares ShellId flea, so the newest instance answers a path.
+    # Sample: ipc -p /ui/boot dlea cursor; every tree declares ShellId dlea, so the newest instance answers a path.
     reply(newest(), args[4:])
 elif tool == "omarchy-drive" and args[0] == "wait":
     # The real wait blocks until the window exists; the lock is let go so the launch that makes it can register.
-    # Sample: wait window flea --timeout 15
+    # Sample: wait window dlea --timeout 15
     if os.environ.get("WORLD_NO_WINDOW"):
         sys.exit(1)
     bound = float(args[args.index("--timeout") + 1]) if "--timeout" in args else WAIT_DEFAULT_S

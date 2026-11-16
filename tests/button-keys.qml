@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-button-keys-test
+//@ pragma ShellId dlea-button-keys-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "qml-probe.js" as QmlProbe
 
 // tests/button-system.sh's key harness: a focused dialog button and a focused close mark answer Return, keypad Enter and Space as a press does, and Tab on a button reports to its dialog's own order.
@@ -108,8 +108,8 @@ ShellRoot {
         implicitHeight: 700
         color: "#303030"
 
-        Item { id: menuHost; width: 800; height: 700; Flea.MenuActionDialog { id: copyTo } }
-        Item { id: permHost; width: 800; height: 700; Flea.PermissionsDialog { id: perm } }
+        Item { id: menuHost; width: 800; height: 700; Dlea.MenuActionDialog { id: copyTo } }
+        Item { id: permHost; width: 800; height: 700; Dlea.PermissionsDialog { id: perm } }
         Item { id: parking; y: 690; width: 10; height: 10; focus: true }
 
         TestEvent { id: driver }
@@ -123,7 +123,7 @@ ShellRoot {
             shell.ticks += 1
             if (shell.ticks < shell.readyTicks) return
             running = false
-            var inside = shell.underRoot(Flea.ViewState.store.path) && shell.underRoot(Quickshell.env("HOME") || "")
+            var inside = shell.underRoot(Dlea.ViewState.store.path) && shell.underRoot(Quickshell.env("HOME") || "")
             shell.check("sandbox: the state file and HOME lie under the harness root", inside, true)
             if (inside) {
                 shell.menuKeys()

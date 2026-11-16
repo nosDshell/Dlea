@@ -3,8 +3,8 @@ use super::{
     sandbox, thumbcache, thumbs, thumbwrite,
 };
 use crate::json::{escape, field_bool, field_str, field_usize};
-use flea::bytename::ExactText as _;
-use flea::ui_logic_model_preview::wire::{Failure, Refusal};
+use dlea::bytename::ExactText as _;
+use dlea::ui_logic_model_preview::wire::{Failure, Refusal};
 use std::io::Read;
 use std::os::unix::fs::{DirBuilderExt, OpenOptionsExt};
 use std::path::{Path, PathBuf};
@@ -16,7 +16,7 @@ const DEADLINE: Duration = Duration::from_secs(20);
 const STDERR_MAX: usize = 8192;
 const STDERR_CHUNK: usize = 4096;
 const REASON_MAX_CHARS: usize = 1024;
-pub(super) const THUMB_TABLE: &str = "flea-3d-v2";
+pub(super) const THUMB_TABLE: &str = "dlea-3d-v2";
 static PARSING: super::model3dadmit::Gate = super::model3dadmit::Gate::new();
 
 #[path = "model3dreq_worker.rs"]
@@ -55,7 +55,7 @@ pub fn spawn(ask: Ask, tx: Sender<OpMsg>) {
             reply(&ask, "cancelled", None, None, &Failure::default())
         } else {
             match ensure(
-                &flea::bytename::view(&ask.path),
+                &dlea::bytename::view(&ask.path),
                 &cache::root(),
                 ask.plate,
                 &ticket,
@@ -290,7 +290,7 @@ pub(super) fn thumbnail(tables: &thumbs::Tables, job: &thumbs::Job) -> thumbs::O
         .large_dir()
         .parent()
         .unwrap_or(Path::new("/"))
-        .join("flea-3d");
+        .join("dlea-3d");
     let ticket = codereq::begin(&format!("model3d-thumb:{}", thumbcache::uri_for(&job.path)));
     let answer = ensure_until(
         &job.path,

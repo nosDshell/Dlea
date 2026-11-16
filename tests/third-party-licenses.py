@@ -18,7 +18,7 @@ from io import StringIO
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parent.parent
-loader = importlib.machinery.SourceFileLoader("third_party", str(ROOT / "tools/flea-third-party-licenses"))
+loader = importlib.machinery.SourceFileLoader("third_party", str(ROOT / "tools/dlea-third-party-licenses"))
 spec = importlib.util.spec_from_loader(loader.name, loader)
 licenses = importlib.util.module_from_spec(spec)
 loader.exec_module(licenses)
@@ -28,19 +28,19 @@ loader.exec_module(licenses)
 def owned_fixture(scratch):
     scratch.mkdir(parents=True, exist_ok=True)
     root = Path(tempfile.mkdtemp(prefix="license-fixture.", dir=scratch))
-    (root / ".flea-test-sandbox").touch()
+    (root / ".dlea-test-sandbox").touch()
     try:
         yield root
     finally:
         assert root.is_absolute() and root != scratch and root.is_relative_to(scratch)
-        assert root.joinpath(".flea-test-sandbox").is_file()
+        assert root.joinpath(".dlea-test-sandbox").is_file()
         shutil.rmtree(root)
 
 
 class InventoryTests(unittest.TestCase):
     def test_shipped_gui_packages_declare_bsd_and_carry_notices(self):
         notice = ROOT / licenses.OUTPUT
-        self.assertTrue(notice.is_file(), "flea-gui ships without third-party notices")
+        self.assertTrue(notice.is_file(), "dlea-gui ships without third-party notices")
         text = notice.read_text()
         expected = set(next(line for line in text.splitlines() if line.startswith("Package licenses: ")).split(": ", 1)[1].split())
         self.assertTrue({"BSD-2-Clause", "BSD-3-Clause", "Zlib", "MPL-2.0", "ISC", "CC0-1.0", "Unicode-3.0"} <= expected)
@@ -72,7 +72,7 @@ class InventoryTests(unittest.TestCase):
     def test_clarified_file_only_license_keeps_its_complete_notice_and_exact_version(self):
         scratch = ROOT / ".superpowers/third-party-licenses"
         with owned_fixture(scratch) as root:
-            (root / "Cargo.toml").write_text('[package]\nname="flea"\nversion="1"\nlicense="MIT"\n')
+            (root / "Cargo.toml").write_text('[package]\nname="dlea"\nversion="1"\nlicense="MIT"\n')
             (root / "Cargo.lock").write_text('version = 4\n')
             (root / "deny.toml").write_text('[licenses]\nallow=["MIT"]\n[[licenses.clarify]]\nname="omi"\nversion="=1.0.0"\nexpression="MIT"\nlicense-files=[{path="LICENSE",hash=0x9a5bab21}]\n')
             (root / "LICENSE").write_text("workspace license\n")
@@ -81,13 +81,13 @@ class InventoryTests(unittest.TestCase):
             crate.mkdir()
             complete = (ROOT / "tests/fixtures/license-fingerprint/omi-1.0.0-LICENSE").read_text()
             (crate / "LICENSE").write_text(complete)
-            packages = [{"id": "flea", "name": "flea", "version": "1", "license": "MIT",
+            packages = [{"id": "dlea", "name": "dlea", "version": "1", "license": "MIT",
                          "source": None, "manifest_path": str(root / "Cargo.toml"), "targets": [{"kind": ["bin"]}]},
                         {"id": "omi", "name": "omi", "version": "1.0.0", "license": None,
                          "license_file": "LICENSE", "source": "registry+fixture",
                          "manifest_path": str(crate / "Cargo.toml"), "targets": [{"kind": ["lib"]}]}]
-            graph = {"packages": packages, "workspace_members": ["flea"], "workspace_root": str(root),
-                     "resolve": {"nodes": [{"id": "flea", "deps": [{"pkg": "omi", "dep_kinds": [{"kind": None}]}]},
+            graph = {"packages": packages, "workspace_members": ["dlea"], "workspace_root": str(root),
+                     "resolve": {"nodes": [{"id": "dlea", "deps": [{"pkg": "omi", "dep_kinds": [{"kind": None}]}]},
                                             {"id": "omi", "deps": []}]}}
             text, selected = licenses.render(root, {target: graph for target in licenses.TARGETS})
             self.assertEqual(selected, {"MIT"})
@@ -210,20 +210,20 @@ class InventoryTests(unittest.TestCase):
     def test_binary_and_source_tarball_artifacts_carry_the_inventory(self):
         scratch = ROOT / ".superpowers/third-party-licenses"
         with owned_fixture(scratch) as box:
-            binary = box / "flea"
+            binary = box / "dlea"
             subprocess.run(["cc", "-x", "c", "-o", str(binary), "-"],
                            input=b'#include <stdio.h>\nint main(void) { puts("0.4.0"); return 0; }\n', check=True)
-            shutil.copy2(binary, box / "flea-gui")
+            shutil.copy2(binary, box / "dlea-gui")
             environment = dict(os.environ, TMPDIR=str(box), SOURCE_DATE_EPOCH="1")
             output = box / "binary-output"
-            subprocess.run([str(ROOT / "packaging/flea-bin-tarball"), str(binary), "0.4.0", platform.machine(), str(output)],
+            subprocess.run([str(ROOT / "packaging/dlea-bin-tarball"), str(binary), "0.4.0", platform.machine(), str(output)],
                            env=environment, check=True, stdout=subprocess.PIPE)
             with tarfile.open(next(output.glob("*.tar.gz"))) as archive:
-                name = f"flea-0.4.0-linux-{platform.machine()}/{licenses.OUTPUT}"
+                name = f"dlea-0.4.0-linux-{platform.machine()}/{licenses.OUTPUT}"
                 self.assertEqual(archive.extractfile(name).read(), (ROOT / licenses.OUTPUT).read_bytes())
             checkout = box / "source"
             (checkout / "packaging").mkdir(parents=True)
-            shutil.copy2(ROOT / "packaging/flea-source-tarball", checkout / "packaging/flea-source-tarball")
+            shutil.copy2(ROOT / "packaging/dlea-source-tarball", checkout / "packaging/dlea-source-tarball")
             shutil.copy2(ROOT / licenses.OUTPUT, checkout / licenses.OUTPUT)
             shim = box / "shim"
             shim.mkdir()
@@ -251,12 +251,12 @@ with tarfile.open(fileobj=sys.stdout.buffer, mode="w|") as archive:
             git.chmod(0o755)
             environment["PATH"] = str(shim) + os.pathsep + os.environ["PATH"]
             output = box / "source-output"
-            command = [str(checkout / "packaging/flea-source-tarball"), "v0.4.0", str(output)]
+            command = [str(checkout / "packaging/dlea-source-tarball"), "v0.4.0", str(output)]
             subprocess.run(command, env=environment, check=True, stdout=subprocess.PIPE)
             with tarfile.open(next(output.glob("*.tar.gz"))) as archive:
-                self.assertEqual(archive.extractfile("flea-0.4.0/" + licenses.OUTPUT).read(), (ROOT / licenses.OUTPUT).read_bytes())
+                self.assertEqual(archive.extractfile("dlea-0.4.0/" + licenses.OUTPUT).read(), (ROOT / licenses.OUTPUT).read_bytes())
             victim = checkout / licenses.OUTPUT
-            assert victim.is_absolute() and victim.is_relative_to(box) and (box / ".flea-test-sandbox").is_file()
+            assert victim.is_absolute() and victim.is_relative_to(box) and (box / ".dlea-test-sandbox").is_file()
             victim.unlink()
             failed = subprocess.run(command, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             self.assertNotEqual(failed.returncode, 0)
@@ -266,7 +266,7 @@ with tarfile.open(fileobj=sys.stdout.buffer, mode="w|") as archive:
         scratch = ROOT / ".superpowers/third-party-licenses"
         scratch.mkdir(parents=True, exist_ok=True)
         with owned_fixture(scratch) as root:
-            (root / "Cargo.toml").write_text('[package]\nname="flea"\nversion="1"\nlicense="MIT"\n')
+            (root / "Cargo.toml").write_text('[package]\nname="dlea"\nversion="1"\nlicense="MIT"\n')
             (root / "Cargo.lock").write_text('version = 4\n')
             (root / "deny.toml").write_text('[licenses]\nallow=["MIT", "Apache-2.0", "BSD-2-Clause"]\n')
             (root / "LICENSE").write_text("shared license text\n")
@@ -277,7 +277,7 @@ with tarfile.open(fileobj=sys.stdout.buffer, mode="w|") as archive:
             (checkout / "LICENSE").write_text("git root license\n")
             (checkout / "NOTICE").write_text("git root notice\n")
             packages = []
-            for name, expression, source in (("flea", "MIT", None), ("normal", "BSD-2-Clause", "registry+fixture"),
+            for name, expression, source in (("dlea", "MIT", None), ("normal", "BSD-2-Clause", "registry+fixture"),
                                              ("arm", "MIT", "registry+fixture"), ("macro", "MIT", "registry+fixture"),
                                              ("missing", "MIT", "registry+fixture"), ("build", "MIT", "registry+fixture"),
                                              ("dev", "MIT", "registry+fixture"), ("fork", "Apache-2.0", "git+fixture#123")):
@@ -287,14 +287,14 @@ with tarfile.open(fileobj=sys.stdout.buffer, mode="w|") as archive:
                     (directory / "LICENSE").write_text("shared license text\n")
                 packages.append({"id": name, "name": name, "version": "1", "license": expression,
                                  "source": source, "manifest_path": str(directory / "Cargo.toml"),
-                                 "targets": [{"kind": ["bin"] if name == "flea" else ["proc-macro"] if name == "macro" else ["lib"]}]})
+                                 "targets": [{"kind": ["bin"] if name == "dlea" else ["proc-macro"] if name == "macro" else ["lib"]}]})
             def metadata(arm):
                 deps = [{"pkg": name, "dep_kinds": [{"kind": kind}]} for name, kind in
                         (("normal", None), ("macro", None), ("missing", None), ("fork", None), ("build", "build"), ("dev", "dev"))]
                 if arm:
                     deps.append({"pkg": "arm", "dep_kinds": [{"kind": None}]})
-                return {"packages": packages, "workspace_members": ["flea"], "workspace_root": str(root),
-                        "resolve": {"nodes": [{"id": p["id"], "deps": deps if p["id"] == "flea" else []} for p in packages]}}
+                return {"packages": packages, "workspace_members": ["dlea"], "workspace_root": str(root),
+                        "resolve": {"nodes": [{"id": p["id"], "deps": deps if p["id"] == "dlea" else []} for p in packages]}}
             (root / "normal/LICENSES/components").mkdir(parents=True)
             (root / "normal/LICENSES/components/BSD-2-Clause.txt").write_text("nested component license\n")
             graphs = {licenses.TARGETS[0]: metadata(False), licenses.TARGETS[1]: metadata(True)}
@@ -318,8 +318,8 @@ with tarfile.open(fileobj=sys.stdout.buffer, mode="w|") as archive:
             def cargo_result(argv, **_kwargs):
                 import json
                 return subprocess.CompletedProcess(argv, 0, json.dumps(graphs[argv[-1]]).encode())
-            with patch.object(licenses, "__file__", str(root / "tools/flea-third-party-licenses")), \
-                    patch("sys.argv", ["flea-third-party-licenses", "--check"]), \
+            with patch.object(licenses, "__file__", str(root / "tools/dlea-third-party-licenses")), \
+                    patch("sys.argv", ["dlea-third-party-licenses", "--check"]), \
                     patch.object(licenses.subprocess, "run", side_effect=cargo_result), redirect_stdout(StringIO()):
                 licenses.main()
                 (root / "Cargo.lock").write_text('version = 4\n[[package]]\nname="new-uncovered-crate"\nversion="1"\n')

@@ -7,7 +7,7 @@ use std::os::unix::process::{CommandExt, ExitStatusExt};
 use std::path::Path;
 use std::process::{Command, ExitStatus, Stdio};
 
-const CHILD: &str = "FLEA_COPY_WIRE_CHILD";
+const CHILD: &str = "DLEA_COPY_WIRE_CHILD";
 const CHILD_TEST: &str = "backend::copyfile::wire_tests::backend_child";
 
 // Re-execute the real CLI entry point with --backend in an isolated process.
@@ -322,7 +322,7 @@ fn a_raw_named_deep_folder_and_a_long_raw_name_copy_by_their_own_bytes() {
     let long = OsStr::from_bytes(&long);
     std::fs::write(d.path().join(long), "body").unwrap();
     std::fs::write(dst.join(long), "occupant").unwrap();
-    let exact = |path: &Path| crate::json::escape(&flea::bytename::path_text(path));
+    let exact = |path: &Path| crate::json::escape(&dlea::bytename::path_text(path));
     let (path, dest) = (exact(&d.path().join(long)), exact(&dst));
     let ask =
         format!("{{\"c\":\"collisions\",\"id\":42,\"paths\":[\"{path}\"],\"dest\":\"{dest}\"}}");

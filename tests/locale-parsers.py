@@ -78,14 +78,14 @@ def main():
         env=temp_env, text=True).strip())
     if not root.is_absolute() or root.parent != parent:
         raise RuntimeError("REFUSED unexpected locale fixture root")
-    (root / ".flea-test-sandbox").write_text("locale parser regression fixtures\n")
+    (root / ".dlea-test-sandbox").write_text("locale parser regression fixtures\n")
     success = False
 
     def cleanup():
         if not args.keep and success:
             if not (str(root) and root.is_absolute() and root.resolve().parent == parent.resolve()
                     and not root.is_symlink() and root.name.startswith("locale-regression.")
-                    and (root / ".flea-test-sandbox").is_file()):
+                    and (root / ".dlea-test-sandbox").is_file()):
                 raise RuntimeError("REFUSED removal of an unmarked or unexpected locale fixture")
             shutil.rmtree(root)
         elif not success:
@@ -137,7 +137,7 @@ def main():
             '"${LANGUAGE-unset}" >> "$I0_FILTER_LOG"\n'
             f'exec /usr/bin/{program} "$@"\n')
         wrapper.chmod(0o755)
-    source = (REPO / "tools/flea-matched-fixture").read_text()
+    source = (REPO / "tools/dlea-matched-fixture").read_text()
     if args.regress_fixture_scope:
         source = source.replace("export LC_ALL=C.UTF-8\n", "")
     pipeline = next(line for line in source.splitlines()
@@ -163,7 +163,7 @@ def main():
 
     raw_name = os.fsencode(files) + b"/caf\xe9.jpg"
     os.close(os.open(raw_name, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600))
-    manifest = (REPO / "tools/flea-bench-manifest").read_text()
+    manifest = (REPO / "tools/dlea-bench-manifest").read_text()
     histogram = next(line for line in manifest.splitlines()
                      if 'ls -U "$FIXTURE" |' in line and "uniq -c" in line)
     byte_pipeline = pipeline
@@ -190,9 +190,9 @@ def main():
     check("matched fixture counts a Latin-1 name as jpg", result.returncode == 0 and
           result.stdout.split() == [b"3", b"jpg", b"1", b"png"], result.stdout)
 
-    capability = (REPO / "tools/flea-bench-capability").read_text()
-    field = (REPO / "tools/flea-field-bench").read_text()
-    showcase = (REPO / "tools/flea-showcase").read_text()
+    capability = (REPO / "tools/dlea-bench-capability").read_text()
+    field = (REPO / "tools/dlea-field-bench").read_text()
+    showcase = (REPO / "tools/dlea-showcase").read_text()
     trim_id = next(line.strip() for line in capability.splitlines()
                    if "id=${id//[[:space:]]/}" in line)
     field_id = next(line.strip() for line in field.splitlines()
@@ -267,9 +267,9 @@ def main():
     check("German sys_seconds and cpu_s use dot decimals", result.returncode == 0 and
           result.stdout == "1.75|1.25", (result.returncode, result.stdout, result.stderr))
 
-    for tool, function_name in [("flea-field-search", "calibrate"),
-                                ("flea-field-instant", "calib_window"),
-                                ("flea-figure-bench", "one")]:
+    for tool, function_name in [("dlea-field-search", "calibrate"),
+                                ("dlea-field-instant", "calib_window"),
+                                ("dlea-figure-bench", "one")]:
         tree = ast.parse((REPO / "tools" / tool).read_text())
         fn = next(n for n in tree.body if isinstance(n, ast.FunctionDef) and n.name == function_name)
         launch = next(n for n in ast.walk(fn) if isinstance(n, ast.Call)

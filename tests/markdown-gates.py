@@ -23,7 +23,7 @@ def check(ok, label):
 with tempfile.TemporaryDirectory(prefix="md-gates-", dir=os.environ.get("TMPDIR")) as tmp:
     root = Path(tmp)
     assert root.is_absolute() and len(root.parts) > 2
-    (root / '.flea-test-sandbox').touch()
+    (root / '.dlea-test-sandbox').touch()
     tree = root / "checkout"
     for directory in ["tests", "tools", "target/debug", "bin"]:
         (tree / directory).mkdir(parents=True)
@@ -32,18 +32,18 @@ with tempfile.TemporaryDirectory(prefix="md-gates-", dir=os.environ.get("TMPDIR"
     (tree / 'ui/boot/Commons/Style.qml').write_text('import QtQuick\nQtObject {\n  id: root\n}\n')
     for name in ["headless-commons.sh", "staticgates.py", "markdown-figures-render.sh", "markdown-figures-render.qml", "markdown-figures-render.js"]:
         shutil.copyfile(REPO / "tests" / name, tree / "tests" / name)
-    shutil.copyfile(REPO / "tools/flea-sandbox-guard", tree / "tools/flea-sandbox-guard")
+    shutil.copyfile(REPO / "tools/dlea-sandbox-guard", tree / "tools/dlea-sandbox-guard")
     for name in ["date", "python3", "dirname", "mkdir", "chmod", "ln", "readlink", "cp", "realpath", "rm", "env", "timeout", "grep", "head", "cat"]:
         (tree / "bin" / name).symlink_to(shutil.which(name))
     qs = tree / "bin/qs"
-    qs.write_text('#!/bin/sh\nprintf "%s\\n" "$FLEA_UI" > "$MD_GATE_TRACE"\nexit 1\n')
+    qs.write_text('#!/bin/sh\nprintf "%s\\n" "$DLEA_UI" > "$MD_GATE_TRACE"\nexit 1\n')
     qs.chmod(0o755)
-    flea = tree / "target/debug/flea"
+    dlea = tree / "target/debug/dlea"
     qjs = tree / "bin/qjs"
     trace = root / "trace"
     env = dict(os.environ, PATH=str(tree / "bin"), HOME=str(root / "operator"),
-               FLEA_FIXTURE_ROOT=str(root / "fixtures"), FLEA_QJS="",
-               FLEA_UI=str(root / "other-ui"), MD_GATE_TRACE=str(trace))
+               DLEA_FIXTURE_ROOT=str(root / "fixtures"), DLEA_QJS="",
+               DLEA_UI=str(root / "other-ui"), MD_GATE_TRACE=str(trace))
 
     def runner():
         trace.unlink(missing_ok=True)
@@ -51,24 +51,24 @@ with tempfile.TemporaryDirectory(prefix="md-gates-", dir=os.environ.get("TMPDIR"
                               env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                               timeout=PROBE_TIMEOUT_SECONDS)
 
-    flea.write_text('#!/bin/sh\nprintf \'{"svg":"<svg/>"}\\n\'\n')
-    flea.chmod(0o755)
+    dlea.write_text('#!/bin/sh\nprintf \'{"svg":"<svg/>"}\\n\'\n')
+    dlea.chmod(0o755)
     result = runner()
     check(result.returncode != 0 and "missing qjs" in result.stdout and not trace.exists(),
           "md3z F1 missing qjs refused before any Qt run")
     qjs.write_text("#!/bin/sh\nexit 0\n")
     qjs.chmod(0o755)
-    flea.unlink()
+    dlea.unlink()
     result = runner()
-    check(result.returncode != 0 and "missing flea binary" in result.stdout and not trace.exists(),
-          "md3z F1 missing flea binary refused before any Qt run")
-    flea.write_text('#!/bin/sh\nprintf \'{"svg":"<svg/>"}\\n\'\n')
-    flea.chmod(0o755)
+    check(result.returncode != 0 and "missing dlea binary" in result.stdout and not trace.exists(),
+          "md3z F1 missing dlea binary refused before any Qt run")
+    dlea.write_text('#!/bin/sh\nprintf \'{"svg":"<svg/>"}\\n\'\n')
+    dlea.chmod(0o755)
     result = runner()
     if not trace.exists():
         print(result.stdout)
     check(trace.exists() and trace.read_text().strip() == str(tree / "ui"),
-          "md3t F1 inherited FLEA_UI replaced with checkout ui")
+          "md3t F1 inherited DLEA_UI replaced with checkout ui")
 
     fixture = root / "capture"
     fixture.mkdir()
@@ -86,7 +86,7 @@ row_index_of() { echo "$1"; }
 settle() { :; }
 shot() { printf 'SHOT %s\\n' "$1"; }
 switch_view() { :; }
-kill_flea() { :; }
+kill_dlea() { :; }
 window_box() { echo '0 0 800 600'; }
 # Sample input: omarchy-drive move 714 50 puts the pointer on the 24 px close button at MD_GATE_CLOSE_X, whatever centre the reader reports.
 hit=false

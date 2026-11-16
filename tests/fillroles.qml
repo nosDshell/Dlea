@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-fillroles-test
+//@ pragma ShellId dlea-fillroles-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "qml-probe.js" as QmlProbe
 
 // tests/fillroles.sh's harness: the real transfer card, seek strip and two dialogs with a sentinel per accent or error role, so each fill and ink is read off the component.
@@ -82,9 +82,9 @@ ShellRoot {
 
     readonly property var plan: [
         { wait: 0, run: function () {
-            Flea.Theme.color.accentFrame = root.frameSentinel
-            Flea.Theme.color.error = root.errorSentinel
-            Flea.Theme.color.errorOnSurface = root.onSurfaceSentinel
+            Dlea.Theme.color.accentFrame = root.frameSentinel
+            Dlea.Theme.color.error = root.errorSentinel
+            Dlea.Theme.color.errorOnSurface = root.onSurfaceSentinel
             card.shown = root.transfer(root.firstShare)
             bulk.open(["/fillroles/a.txt", "/fillroles/b.txt"], parking)
             bulk.newNames = [root.invalidName, "b.txt"]
@@ -92,7 +92,7 @@ ShellRoot {
             unlock.showRefusal(root.unlockMessage)
         } },
         { wait: root.settleTicks, until: function () { return root.landed(root.firstShare) }, run: function () {
-            var c = Flea.Theme.color
+            var c = Dlea.Theme.color
             root.check("the sentinels differ from the raw accent and from each other's role",
                        [root.rgba(c.accentFrame) !== root.rgba(c.accent), root.rgba(c.errorOnSurface) !== root.rgba(c.error)], [true, true])
             root.check("the theme keeps the sentinels the run set", [root.rgba(c.accentFrame), root.rgba(c.error), root.rgba(c.errorOnSurface)],
@@ -112,7 +112,7 @@ ShellRoot {
         } },
         { wait: root.settleTicks, until: function () { return root.landed(root.firstShare) }, run: function () {
             root.check("bulk rename: the footer's terminal error takes errorOnSurface", root.inkOf(root.textWith(bulk.cardItem, "QQuickText", root.terminalMessage)), root.rgba(root.onSurfaceSentinel))
-            Flea.Theme.reducedMotion = true
+            Dlea.Theme.reducedMotion = true
             root.beforeWidth = root.bars().fill.width
             card.shown = root.transfer(root.secondShare)
             root.sameFrameWidth = root.bars().fill.width
@@ -120,7 +120,7 @@ ShellRoot {
                        [root.beforeWidth !== root.sameFrameWidth, Math.abs(root.sameFrameWidth - root.bars().fill.parent.width * root.secondShare) < root.pixelSlack], [true, true])
         } },
         { wait: root.settleTicks, until: function () { return root.landed(root.secondShare) }, run: function () {
-            Flea.Theme.reducedMotion = false
+            Dlea.Theme.reducedMotion = false
             root.beforeWidth = root.bars().fill.width
             card.shown = root.transfer(root.firstShare)
             root.sameFrameWidth = root.bars().fill.width
@@ -159,19 +159,19 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 1000
         implicitHeight: 900
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
         Item {
             anchors.fill: parent
-            Flea.BulkRenameDialog { id: bulk }
-            Flea.UnlockDialog { id: unlock }
+            Dlea.BulkRenameDialog { id: bulk }
+            Dlea.UnlockDialog { id: unlock }
         }
 
         Column {
             x: 400
             width: 600
-            Flea.TransferCard { id: card }
-            Flea.MediaStrip { id: strip; width: parent.width; duration: 60000; position: 30000 }
+            Dlea.TransferCard { id: card }
+            Dlea.MediaStrip { id: strip; width: parent.width; duration: 60000; position: 30000 }
         }
 
         Item { id: parking; width: 10; height: 10; focus: true }

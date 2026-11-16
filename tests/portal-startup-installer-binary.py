@@ -13,7 +13,7 @@ REPO = Path(__file__).resolve().parent.parent
 SCRATCH = REPO / ".superpowers/k123"
 SCRATCH.mkdir(parents=True, exist_ok=True)
 ROOT = Path(tempfile.mkdtemp(prefix="portal-installer-binary.", dir=SCRATCH)).resolve()
-MARKER = ROOT / ".flea-test-sandbox"
+MARKER = ROOT / ".dlea-test-sandbox"
 MARKER.touch()
 
 
@@ -23,8 +23,8 @@ try:
         (repo / directory).mkdir(parents=True)
     script = repo / "tests/portal-startup-installer.py"
     shutil.copyfile(REPO / "tests/portal-startup-installer.py", script)
-    shutil.copyfile(REPO / "packaging/flea.portal", repo / "packaging/flea.portal")
-    binaries = [repo / "target/release/flea", repo / "target/debug/flea", ROOT / "custom-flea"]
+    shutil.copyfile(REPO / "packaging/dlea.portal", repo / "packaging/dlea.portal")
+    binaries = [repo / "target/release/dlea", repo / "target/debug/dlea", ROOT / "custom-dlea"]
     for binary in binaries:
         binary.write_text(
             f"#!{sys.executable}\nimport os, pathlib, sys\n"
@@ -34,14 +34,14 @@ try:
     failures = []
     for index, (label, override, expected) in enumerate([
         ("defaults to the release binary built by run-all", None, binaries[0]),
-        ("honors an explicit FLEA_BIN", binaries[2], binaries[2]),
-        ("refuses a missing binary without a debug or release fallback", ROOT / "absent-flea", None),
+        ("honors an explicit DLEA_BIN", binaries[2], binaries[2]),
+        ("refuses a missing binary without a debug or release fallback", ROOT / "absent-dlea", None),
     ]):
         capture = ROOT / f"selected-{index}"
         env = dict(os.environ, PORTAL_BINARY_CAPTURE=str(capture))
-        env.pop("FLEA_BIN", None)
+        env.pop("DLEA_BIN", None)
         if override is not None:
-            env["FLEA_BIN"] = str(override)
+            env["DLEA_BIN"] = str(override)
         result = subprocess.run([sys.executable, str(script)], env=env, stdout=subprocess.PIPE,
                                 stderr=subprocess.STDOUT, text=True, timeout=30)
         selected = capture.read_text() if capture.exists() else ""

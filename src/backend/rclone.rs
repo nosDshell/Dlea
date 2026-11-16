@@ -118,18 +118,18 @@ pub(super) fn request(out: &mut impl Write, ops: &mut Ops, line: &str) {
 
 // The sentence that refuses one selection path, naming it; None for an absolute path with a file name.
 fn path_error(path: &str) -> Option<String> {
-    let shown = flea::bytename::display(path);
-    if flea::bytename::is_refused(path) {
+    let shown = dlea::bytename::display(path);
+    if dlea::bytename::is_refused(path) {
         Some(format!(
             "rclone cannot send {}, it contains a NUL byte.",
             shown
         ))
-    } else if !flea::bytename::view(path).is_absolute() {
+    } else if !dlea::bytename::view(path).is_absolute() {
         Some(format!(
             "rclone requires an absolute selection path, not {}.",
             shown
         ))
-    } else if flea::bytename::view(path).file_name().is_none() {
+    } else if dlea::bytename::view(path).file_name().is_none() {
         Some(format!(
             "rclone cannot send {}, it has no file name.",
             shown
@@ -160,7 +160,7 @@ mod tests {
 
     #[test]
     fn rclone_sends_a_raw_named_path_and_refuses_only_a_stray_nul() {
-        use flea::bytename::ExactText as _;
+        use dlea::bytename::ExactText as _;
         use std::os::unix::ffi::OsStrExt;
         let raw = std::path::Path::new(std::ffi::OsStr::from_bytes(b"/srv/caf\xe9.txt"))
             .exact_text()

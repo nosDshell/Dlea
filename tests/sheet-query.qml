@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-sheet-query-test
+//@ pragma ShellId dlea-sheet-query-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // tests/sheet-query.sh's harness: the real ui/KeymapSheet.qml over a stub pane measures CommandPalette's query states.
 ShellRoot {
@@ -60,7 +60,7 @@ ShellRoot {
             id: stage
             width: parent.width
             height: parent.height
-            Flea.KeymapSheet { id: sheet; anchors.fill: parent }
+            Dlea.KeymapSheet { id: sheet; anchors.fill: parent }
         }
         Item { anchors.fill: parent; TestEvent { id: driver } }
     }
@@ -171,22 +171,22 @@ ShellRoot {
     function checkLift() {
         var lifts = root.walk(sheet.cardItem, []).filter(function (item) {
             return item.visible && item.height === sheet.rowPitch && item.color !== undefined
-                && item.color.toString() === Qt.alpha(Flea.Theme.color.foreground, Flea.Theme.washHover).toString() })
+                && item.color.toString() === Qt.alpha(Dlea.Theme.color.foreground, Dlea.Theme.washHover).toString() })
         root.expect("one cursor lift is drawn", lifts.length === 1, lifts.length)
         if (lifts.length !== 1)
             return
-        var edge = Flea.Theme.spacing.hairline
+        var edge = Dlea.Theme.spacing.hairline
         var painted = lifts[0].mapToItem(sheet.cardItem, 0, 0)
         root.expect("the lift starts at the card's inner left edge", painted.x === edge, painted.x)
         root.expect("and spans its inner width", lifts[0].width === sheet.cardItem.width - 2 * edge, lifts[0].width + " of " + sheet.cardItem.width)
         var caps = root.walk(sheet.cardItem, []).filter(function (item) { return item.visible && item.text === "shift-delete" })
         var capLeft = caps.length === 1 ? caps[0].mapToItem(sheet.cardItem, 0, 0).x : -1
-        root.expect("the cap keeps its column inside the lift", capLeft >= Flea.Theme.spacing.rowPaddingX, capLeft)
+        root.expect("the cap keeps its column inside the lift", capLeft >= Dlea.Theme.spacing.rowPaddingX, capLeft)
     }
     // CommandPalette callout 3: the preview's own key says where in the muted ink, in the name the UI shows.
     function checkMute() {
         var wheres = root.texts(" in Preview")
-        root.expect("mute carries its muted in Preview suffix", wheres.length === 1 && wheres[0].color.toString() === Flea.Theme.color.muted.toString(), wheres.length)
+        root.expect("mute carries its muted in Preview suffix", wheres.length === 1 && wheres[0].color.toString() === Dlea.Theme.color.muted.toString(), wheres.length)
         root.expect("and no raw context id is drawn", root.texts(" in media").length === 0, root.rowsOf().join("|"))
     }
     function tallWanted() { return sheet.queryResults.length * sheet.rowPitch }
@@ -202,17 +202,17 @@ ShellRoot {
         root.expect("the sheet reads back its results", root.rowsOf().indexOf("shift-delete Delete permanently") >= 0 && root.rowsOf().indexOf(" Permissions") >= 0, root.rowsOf().join("|"))
         // Item 3: the board's query line, the prompt in the cap column and the field on the label column.
         var prompts = root.texts("?")
-        root.expect("a muted ? prompt is drawn", prompts.length === 1 && prompts[0].color.toString() === Flea.Theme.color.muted.toString(), prompts.length)
+        root.expect("a muted ? prompt is drawn", prompts.length === 1 && prompts[0].color.toString() === Dlea.Theme.color.muted.toString(), prompts.length)
         if (prompts.length === 1) {
             root.expect("the prompt fills the cap column", prompts[0].width === sheet.capWidth && prompts[0].horizontalAlignment === Text.AlignHCenter, prompts[0].width)
             var fields = root.walk(sheet.cardItem, []).filter(function (item) {
-                return item.border !== undefined && item.border.color.toString() === Flea.Theme.color.accent.toString() && item.height > 0 })
-            root.expect("one hairline accent field frames the query", fields.length === 1 && fields[0].border.width === Flea.Theme.spacing.hairline, fields.length)
+                return item.border !== undefined && item.border.color.toString() === Dlea.Theme.color.accent.toString() && item.height > 0 })
+            root.expect("one hairline accent field frames the query", fields.length === 1 && fields[0].border.width === Dlea.Theme.spacing.hairline, fields.length)
             if (fields.length === 1)
                 root.expect("the field starts on the label column", fields[0].x === sheet.capWidth + sheet.capGap, fields[0].x)
         }
         // The washed run of a matching label is the same word at caption size; the field draws it at body size.
-        var typed = root.texts("perm").filter(function (item) { return item.font.pixelSize === Flea.Theme.font.body })
+        var typed = root.texts("perm").filter(function (item) { return item.font.pixelSize === Dlea.Theme.font.body })
         root.expect("the query text is drawn at body size", typed.length === 1, typed.length)
         // Item 5: the header reads esc closes under a query.
         root.expect("the header reads esc closes", root.texts("esc closes").length === 1 && root.texts("esc clears").length === 0, "closes=" + root.texts("esc closes").length)
@@ -254,7 +254,7 @@ ShellRoot {
                 if (row.children[i].text === "Open Trash") label = row.children[i]
             root.expect("the suffix sits right after the name", label !== null && Math.abs(where.x - (label.x + label.width)) <= 1, label ? where.x + " vs " + (label.x + label.width) : "no label")
             root.expect("and not at the card's right edge", where.x + where.contentWidth < row.width - sheet.capWidth, where.x + " + " + where.contentWidth + " of " + row.width)
-            root.expect("in the muted ink", where.color.toString() === Flea.Theme.color.muted.toString(), where.color)
+            root.expect("in the muted ink", where.color.toString() === Dlea.Theme.color.muted.toString(), where.color)
         }
     }
 

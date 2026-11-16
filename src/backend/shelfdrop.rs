@@ -14,7 +14,7 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 
 // Rule 4: a token that is unknown, expired, already spent or no longer names the files it was minted
-// for is refused with a sentence. Flea never falls back to a URI copy after promising a move.
+// for is refused with a sentence. Dlea never falls back to a URI copy after promising a move.
 pub(crate) fn start(out: &mut impl Write, ops: &mut Ops, token: &str, dest: &str, collide: Ask) {
     start_from(out, ops, Shelf::user, token, dest, collide)
 }
@@ -106,7 +106,7 @@ fn run_and_settle(
             let _ = tx.send(msg);
         }
         if let Err(e) = shelf.settle(&moved_paths(&reported, &watched, moving)) {
-            eprintln!("flea: the shelf kept its references ({})", e);
+            eprintln!("dlea: the shelf kept its references ({})", e);
         }
     });
     // The guard owns the join, because a JoinHandle dropped any other way only detaches its thread.
@@ -129,7 +129,7 @@ impl Drop for Terminal {
         // The engine's end of the channel has gone either way, so this waits only for the settle.
         if let Some(forward) = self.forward.take() {
             if forward.join().is_err() {
-                eprintln!("flea: the shelf's own bookkeeping stopped before it finished");
+                eprintln!("dlea: the shelf's own bookkeeping stopped before it finished");
             }
         }
         let sent = match self.held.lock() {

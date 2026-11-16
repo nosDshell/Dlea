@@ -176,7 +176,7 @@ fn tui_model3d_fix1_chafa_to_native_cancels_and_reaps() {
     let mut m = model(&root);
     let (mut wire, reader) = wire::echo_wire();
     let (mut graphics, mut shown) = (Graphics::new(), stage::Shown::default());
-    let marker = std::env::var("FLEA_TUI04_FIX1_CHAFA").unwrap();
+    let marker = std::env::var("DLEA_TUI04_FIX1_CHAFA").unwrap();
     let children = || {
         std::fs::read_dir("/proc")
             .unwrap()
@@ -292,7 +292,7 @@ fn tui_model3d_clean_environment_and_chafa_absent() {
         )
         .unwrap();
     }
-    let output = std::process::Command::new(flea::testpath::tool("/usr/bin/setsid"))
+    let output = std::process::Command::new(dlea::testpath::tool("/usr/bin/setsid"))
         .arg("-w")
         .arg(std::env::current_exe().unwrap())
         .args([
@@ -326,7 +326,7 @@ fn tui_model3d_real_tui_board_specimens_and_stepped_transport() {
         return;
     }
     let root = Fixture::new();
-    let binary = crate::cargo_artifacts::binary("flea");
+    let binary = crate::cargo_artifacts::binary("dlea");
     assert!(
         binary.is_file(),
         "cargo test must build the real TUI candidate"

@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-quicklook-zoom-test
+//@ pragma ShellId dlea-quicklook-zoom-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/PreviewKeys.js" as PreviewKeys
+import "dlea" as Dlea
+import "dlea/js/PreviewKeys.js" as PreviewKeys
 
 // Quick Look's image zoom on the real Preview: fit, + steps, a drag and the wheel, 0, a move, a reopen, a small picture, an SVG and a failed SVG redraw.
 ShellRoot {
@@ -52,7 +52,7 @@ ShellRoot {
     function scrollHandlers(node, out) {
         var kids = node.children || []
         for (var i = 0; i < kids.length; i++) {
-            if (kids[i].objectName === "fleaScroll" && kids[i].parent.orientation === undefined) out.push(kids[i])
+            if (kids[i].objectName === "dleaScroll" && kids[i].parent.orientation === undefined) out.push(kids[i])
             shell.scrollHandlers(kids[i], out)
         }
         return out
@@ -117,9 +117,9 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 1000
         implicitHeight: 800
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
         TestEvent { id: driver }
-        Flea.Preview { id: look; anchors.fill: parent }
+        Dlea.Preview { id: look; anchors.fill: parent }
     }
 
     // Every frame: one of the two layers is drawn whenever the picture is, and no frame draws another file at a zoom.
@@ -191,15 +191,15 @@ ShellRoot {
         shell.check(it.fullPicture.x === p.x && it.fullPicture.y === p.y && it.fullPicture.width === p.width && it.fullPicture.height === p.height, "the full layer is not on the fit layer's rect")
         // The band: the media strip's height, on the surface colour, the label centred in the foreground at caption size.
         var band = it.band
-        shell.check(band.visible && band.height === Flea.Theme.chromeHeight && band.y + band.height === it.height && band.x === 0 && band.width === it.width,
+        shell.check(band.visible && band.height === Dlea.Theme.chromeHeight && band.y + band.height === it.height && band.x === 0 && band.width === it.width,
             "band is " + band.x + "," + band.y + " " + band.width + "x" + band.height + " in a " + it.width + "x" + it.height + " surface")
-        shell.check(Qt.colorEqual(band.color, Flea.Theme.color.surface), "band is not the surface colour")
+        shell.check(Qt.colorEqual(band.color, Dlea.Theme.color.surface), "band is not the surface colour")
         var label = band.children[0]
-        shell.check(label.text === "200%" && Qt.colorEqual(label.color, Flea.Theme.color.foreground) && label.font.pixelSize === Flea.Theme.font.caption && label.font.features.tnum === 1,
+        shell.check(label.text === "200%" && Qt.colorEqual(label.color, Dlea.Theme.color.foreground) && label.font.pixelSize === Dlea.Theme.font.caption && label.font.features.tnum === 1,
             "band label is '" + label.text + "' at " + label.font.pixelSize)
         shell.check(Math.abs(label.x + label.width / 2 - band.width / 2) < 1 && Math.abs(label.y + label.height / 2 - band.height / 2) < 1, "band label is not centred")
         var f = it.viewport
-        shell.check(f.height === it.height - Flea.Theme.chromeHeight && f.width === it.width, "viewport is " + f.width + "x" + f.height + ", want the surface less the band")
+        shell.check(f.height === it.height - Dlea.Theme.chromeHeight && f.width === it.width, "viewport is " + f.width + "x" + f.height + ", want the surface less the band")
         shell.check(f.contentWidth === p.width && f.contentHeight === p.height, "content is not the picture")
         shell.check(shell.barsUp(it) === 2, "200% draws " + shell.barsUp(it) + " viewport bars, want both")
         shell.check(shell.scrollHandlers(f, []).length === 1, "200% builds " + shell.scrollHandlers(f, []).length + " wheel handlers, want one")
@@ -288,7 +288,7 @@ ShellRoot {
             shell.rectIs(it, shell.fitRect(it, 120, 68, 0), "small fit")
             for (var i = 0; i < 4; i++) shell.press("zoomIn")
             var p = it.pictureItem
-            var vh = it.height - Flea.Theme.chromeHeight
+            var vh = it.height - Dlea.Theme.chromeHeight
             shell.check(it.zoom === 2 && it.zoomLabel === "200%" && p.width === 240 && p.height === 136, "a 120x68 picture at 200% drew " + p.width + "x" + p.height)
             shell.check(shell.near(p.x, Math.round((it.width - 240) / 2)) && shell.near(p.y, Math.round((vh - 136) / 2)), "small picture at 200% is not centred in the viewport: " + p.x + "," + p.y)
             shell.check(it.band.visible && shell.barsUp(it) === 0, "a picture that fits the viewport drew a knob")

@@ -77,7 +77,7 @@ case_dd() {
         || fail "dd: after the last row the cursor is $(ipc cursor), not $((at - 1))"
     [[ "$(ipc rowAt "$(ipc cursor)")" == "f4.txt|"* ]] \
         || fail "dd: the clamped cursor sits on $(ipc rowAt "$(ipc cursor)")"
-    kill_flea
+    kill_dlea
     # A mount-top trash is shared, so only this run's own entries go, each pair checked in the command.
     if [[ "$dd_trash" != "$XDG_DATA_HOME/Trash/files" ]]; then
         sandbox_trash_remove_own "$dd_trash" "$dir" f2.txt f3.txt f5.txt f6.txt \
@@ -135,7 +135,7 @@ case_ddclick() {
         [[ -s "$ddclick_trash/$want" ]] \
             || fail "ddclick ($view): $want did not land in $ddclick_trash, which holds $(ls -A "$ddclick_trash" 2>&1)"
         printf 'DDCLICK view=%s kept=f0.txt trashed=%s cursor=%s\n' "$view" "$want" "$cur"
-        kill_flea
+        kill_dlea
         # A mount-top trash is shared, so only this run's own entry goes, each pair checked in the command.
         if [[ "$ddclick_trash" != "$XDG_DATA_HOME/Trash/files" ]]; then
             sandbox_trash_remove_own "$ddclick_trash" "$dir" "$want" \
@@ -273,7 +273,7 @@ PY
     for _ in $(seq 1 80); do [[ -f "$dir/bundle/notes.txt" ]] && break; sleep 0.25; done
     [[ -f "$dir/bundle/notes.txt" ]] || fail "operations: extract wrote nothing, bar says $(ipc lastMessage)"
     printf 'OPERATIONS extracted=%s\n' "$(ipc lastMessage)"
-    kill_flea
+    kill_dlea
 }
 
 case_transferlive() {
@@ -308,7 +308,7 @@ case_xwundo() {
     sandbox_scratch "$dirB"
     printf 'note\n' > "$dir/note.txt"
     printf 'boxed\n' > "$dirB/b.txt"
-    local blog="$run_root/flea-b.log"
+    local blog="$run_root/dlea-b.log"
     : > "$blog"
 
     # launch_window empties the session journal; only the two backends share its dir.
@@ -316,29 +316,29 @@ case_xwundo() {
     wait_listing 1
     local pidA="$ipc_pid" addrA="" addrB="" pidB=""
     assert_window
-    addrA=$(omarchy-drive windows --json | jq -r '[.windows[] | select(.title == "Flea")] | .[0].address // empty')
+    addrA=$(omarchy-drive windows --json | jq -r '[.windows[] | select(.title == "Dlea")] | .[0].address // empty')
     [[ -n "$addrA" ]] || fail "xwundo: window A never appeared"
     [[ "$(hyprctl clients -j | jq -r --arg a "$addrA" '.[] | select(.address == $a) | .pid')" == "$pidA" ]] \
         || fail "xwundo: the window at $addrA does not belong to owned pid $pidA"
     local before
-    before=$(flea_pids | tr '\n' ' ')
-    flea_test_launch "$dirB" "$blog" --ui "$flea_ui" --binary "$flea_bin" \
+    before=$(dlea_pids | tr '\n' ' ')
+    dlea_test_launch "$dirB" "$blog" --ui "$dlea_ui" --binary "$dlea_bin" \
         || fail "xwundo: the second owned window launch failed"
     local attempt pid
     for attempt in $(seq 1 150); do
-        if [[ "$(omarchy-drive windows --json | jq '[.windows[] | select(.title == "Flea")] | length')" == "2" ]]; then
-            addrB=$(omarchy-drive windows --json | jq -r --arg a "$addrA" '.windows[] | select(.title == "Flea" and .address != $a) | .address')
+        if [[ "$(omarchy-drive windows --json | jq '[.windows[] | select(.title == "Dlea")] | length')" == "2" ]]; then
+            addrB=$(omarchy-drive windows --json | jq -r --arg a "$addrA" '.windows[] | select(.title == "Dlea" and .address != $a) | .address')
             [[ -n "$addrB" ]] && break
         fi
         sleep 0.1
     done
     [[ -n "$addrB" ]] || fail "xwundo: window B never appeared beside A"
     pidB=""
-    for pid in $(flea_pids); do
+    for pid in $(dlea_pids); do
         [[ " $before " == *" $pid "* ]] || pidB=$pid
     done
     [[ -n "$pidB" ]] || fail "xwundo: window B has no owned pid"
-    flea_process_owned "$pidB" || fail "xwundo: window B pid $pidB is not owned by this run"
+    dlea_process_owned "$pidB" || fail "xwundo: window B pid $pidB is not owned by this run"
     [[ "$pidB" != "$pidA" ]] || fail "xwundo: A and B share pid $pidA"
     [[ "$(hyprctl clients -j | jq -r --arg a "$addrB" '.[] | select(.address == $a) | .pid')" == "$pidB" ]] \
         || fail "xwundo: window B at $addrB does not belong to owned pid $pidB"
@@ -370,7 +370,7 @@ case_xwundo() {
     printf '%s' "$dir" | omarchy-drive key --window "$addrB" - >/dev/null \
         || fail "xwundo: typing the destination failed"
     omarchy-drive key --window "$addrB" -k Return >/dev/null || fail "xwundo: the path bar commit failed"
-    local -a ipcB=(timeout --kill-after="$ipc_call_kill_after" "$ipc_call_timeout" "$FLEA_IPC_HELPER" --pid "$pidB" call flea)
+    local -a ipcB=(timeout --kill-after="$ipc_call_kill_after" "$ipc_call_timeout" "$DLEA_IPC_HELPER" --pid "$pidB" call dlea)
     # B gets path_polls x poll_seconds (15 s) to reach $dir before the paste.
     local path_polls=150 poll_seconds=0.1
     for attempt in $(seq 1 "$path_polls"); do
@@ -389,7 +389,7 @@ case_xwundo() {
     [[ "$(ls -A "$dir")" == "note.txt" ]] || fail "xwundo: A's directory holds more than the restored note"
     printf 'XWUNDO move ok\n'
 
-    cat "$flea_log" >> "$run_log" 2>/dev/null || true
+    cat "$dlea_log" >> "$run_log" 2>/dev/null || true
     cat "$blog" >> "$run_log" 2>/dev/null || true
-    kill_flea
+    kill_dlea
 }

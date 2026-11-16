@@ -2,14 +2,14 @@ import QtQuick
 import QtTest
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
-import "flea/js/Tabs.js" as Tabs
+import "dlea" as Dlea
+import "dlea/js/Tabs.js" as Tabs
 
 // Drive real WindowBody keys and pointers; record new-window launches while forwarding backend/state calls.
 ShellRoot {
     id: root
     readonly property string mode: Quickshell.env("PROBE_MODE")
-    readonly property string here: Quickshell.env("PROBE_BASE") || Quickshell.env("FLEA_PATH")
+    readonly property string here: Quickshell.env("PROBE_BASE") || Quickshell.env("DLEA_PATH")
     readonly property string other: Quickshell.env("PROBE_OTHER_PATH")
     readonly property var body: loader.item
     readonly property var pane: body ? body.currentPane : null
@@ -114,7 +114,7 @@ ShellRoot {
     }
     function step() {
         if (!pane || pane.listInFlight || ["ready", "empty"].indexOf(pane.listingState) < 0 || Date.now() - root.phaseAt < 150) return
-        if (Flea.ViewState.writeBook.inflight.length > 0 || Flea.ViewState.settler.running || Flea.ViewState.settleMode.length > 0) return
+        if (Dlea.ViewState.writeBook.inflight.length > 0 || Dlea.ViewState.settler.running || Dlea.ViewState.settleMode.length > 0) return
         if (root.mode === "watch") {
             if (!otherPane || otherPane.listInFlight || otherPane.listingState !== "ready") return
             if (phase === 0) {

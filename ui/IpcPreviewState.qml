@@ -1,12 +1,12 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Scroll.js" as Scroll
 
 // Quick Look and its shared PDF readers report the surfaces already built by the pane.
 QtObject {
     id: root
 
-    property var fleaWindow: null
+    property var dleaWindow: null
     property var pane: null
     readonly property var columns: root.pane ? root.pane.columnsArea : null
     readonly property int textTailLimit: 4096
@@ -18,7 +18,7 @@ QtObject {
         readonly property bool isImage: false
         readonly property bool isMedia: false
         readonly property bool stripVisible: false
-        readonly property bool muted: Flea.MediaSound.muted
+        readonly property bool muted: Dlea.MediaSound.muted
         readonly property string kind: ""
         readonly property string status: ""
         readonly property int position: 0
@@ -69,7 +69,7 @@ QtObject {
             : root.look.kind === "text" && root.look.isHtml ? root.look.markdownShown : null
         var doc = pane ? (column ? pane : pane.document) : null
         if (!doc) return "{}"
-        return doc.captureState(root.fleaWindow, column ? c : root.look, pane, column)
+        return doc.captureState(root.dleaWindow, column ? c : root.look, pane, column)
     }
     // Read the Compare pane and its real controls only after Quick Look has built it.
     function compareState(): string {
@@ -85,13 +85,13 @@ QtObject {
         return JSON.stringify({ opened: look.active, visible: look.visible, landed: look.openState().landed,
             ready: bar.ready, answer: compare.answer, title: bar.title.text, sentence: sentence,
             patch: compare.patch, rows: compare.rows, mark: bar.markName,
-            titleCentre: root.fleaWindow.centreOf(bar.title), rect: root.fleaWindow.rectOf(compare),
+            titleCentre: root.dleaWindow.centreOf(bar.title), rect: root.dleaWindow.rectOf(compare),
             controls: [bar.copy, bar.close].map(function (control, index) {
                 return { name: index === 0 ? "copy" : "close", label: index === 0 ? control.label : control.accessName,
                     visible: control.visible, enabled: control.enabled,
                     focused: control.activeFocus, hovered: control.hovered, pressed: control.pressed,
                     ring: index === 0 ? control.focusShown : control.ringItem.visible,
-                    centre: root.fleaWindow.centreOf(control), rect: root.fleaWindow.rectOf(control) }
+                    centre: root.dleaWindow.centreOf(control), rect: root.dleaWindow.rectOf(control) }
             }) })
     }
     // Both code surfaces expose their live viewport; absent or unbuilt text answers an empty object.
@@ -138,7 +138,7 @@ QtObject {
     function previewPosition(): int { return root.look.position }
     function previewDuration(): int { return root.look.duration }
     // Fix round 1: what the strip actually draws, not a re-derived guess at its visible: expression.
-    function previewStrip(): string { return JSON.stringify({ visible: root.look.stripVisible, muted: root.look.muted, mute: root.fleaWindow.centreOf(root.look.muteMark) }) }
+    function previewStrip(): string { return JSON.stringify({ visible: root.look.stripVisible, muted: root.look.muted, mute: root.dleaWindow.centreOf(root.look.muteMark) }) }
     // "" means no PDF is loaded, rather than zoom 1 or expanded false.
     function previewPdfPage(): int { var p = root.look.pdfItem; return p ? p.page : -1 }
     function previewPdfZoom(): string { var p = root.look.pdfItem; return p ? String(p.zoom) : "" }
@@ -147,17 +147,17 @@ QtObject {
         var p = overlay ? root.look.pdfItem : root.pane.previewColumnItem
         if (!p) return "null"
         if (!overlay)
-            return JSON.stringify({ page: p.pdfPage(), pages: p.pdfPages, frame: root.fleaWindow.rectOf(p.pdfFrameItem),
-                scrollY: p.pdfScrollY, lastPage: root.fleaWindow.rectOf(p.pdfPageItem(p.pdfPages - 1)), focused: p.activeFocus, landed: p.pdfLanded() })
+            return JSON.stringify({ page: p.pdfPage(), pages: p.pdfPages, frame: root.dleaWindow.rectOf(p.pdfFrameItem),
+                scrollY: p.pdfScrollY, lastPage: root.dleaWindow.rectOf(p.pdfPageItem(p.pdfPages - 1)), focused: p.activeFocus, landed: p.pdfLanded() })
         return JSON.stringify({ page: p.page, pages: p.pageCount, zoom: p.zoom, scrollY: p.pdfScrollY, focused: p.activeFocus, control: p.pdfControlIndex,
             controls: p.pdfControls.map(function (control) { return { name: control.accessName, enabled: control.enabled,
-                visible: control.visible, centre: root.fleaWindow.centreOf(control),
+                visible: control.visible, centre: root.dleaWindow.centreOf(control),
                 hovered: control.hovered, pressed: control.pressed, ring: control.ringItem.visible } }) })
     }
     function previewExpanded(): string { var p = root.look.pdfItem; return p ? String(p.expanded) : "" }
     function previewSwapState(): string { return JSON.stringify({ column: root.columns ? root.columns.swapState() : null, look: root.look.swapState(), lookOpen: root.look.openState(), lookVisible: root.look.visible }) }
-    function previewSurfaceRect(): string { return root.fleaWindow.rectOf(root.look.surfaceItem()) }
-    function previewPictureRect(): string { var p = root.look; if (!p) return ""; if (p.isImage) { var im = p.surfaceItem(); return im ? root.fleaWindow.rectOf(im.pictureItem) : "" } if (p.isMedia) { var me = p.surfaceItem(); return me ? root.fleaWindow.rectOf(me.contentItem) : "" } return "" }
+    function previewSurfaceRect(): string { return root.dleaWindow.rectOf(root.look.surfaceItem()) }
+    function previewPictureRect(): string { var p = root.look; if (!p) return ""; if (p.isImage) { var im = p.surfaceItem(); return im ? root.dleaWindow.rectOf(im.pictureItem) : "" } if (p.isMedia) { var me = p.surfaceItem(); return me ? root.dleaWindow.rectOf(me.contentItem) : "" } return "" }
     function previewMediaLoaded(): bool { return root.look.mediaLoaded() }
     function previewText(): string { return root.look.textShown() }
     function previewMarkdownView(): string { return root.look.markdownView() }
@@ -168,7 +168,7 @@ QtObject {
     function previewTable(): string {
         var m = root.look.markdownItem
         var s = m ? m.tableScroller() : null
-        return JSON.stringify(s ? { scrollX: Math.round(s.contentX), view: root.fleaWindow.rectOf(s), row: root.fleaWindow.rectOf(s.table.firstRow()) } : {})
+        return JSON.stringify(s ? { scrollX: Math.round(s.contentX), view: root.dleaWindow.rectOf(s), row: root.dleaWindow.rectOf(s.table.firstRow()) } : {})
     }
     // Length is in UTF-16 code units; the sweep's ASCII fixture has the same byte count.
     function previewTextLength(): int { return root.look.textShown().length }
@@ -180,6 +180,6 @@ QtObject {
     function previewArchiveNames(): string { return root.look.archiveNames() }
     // The slider centre lets a test wheel over the preview's seek slider without guessing its layout.
     function previewSliderCentre(): string {
-        return root.look.active && root.look.isMedia ? root.fleaWindow.centreOf(root.look.seekSlider) : ""
+        return root.look.active && root.look.isMedia ? root.dleaWindow.centreOf(root.look.seekSlider) : ""
     }
 }

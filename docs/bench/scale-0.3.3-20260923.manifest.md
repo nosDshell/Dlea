@@ -1,6 +1,6 @@
 # Field bench manifest
 
-Written by tools/flea-bench-manifest. Every measurement below is read off the installed artefact.
+Written by tools/dlea-bench-manifest. Every measurement below is read off the installed artefact.
 
 Wording outside the measurements was made neutral after the run; every number, version and setting is as the tool
 recorded it. The text as first recorded is in this file's history before commit b91358a5.
@@ -9,10 +9,10 @@ recorded it. The text as first recorded is in this file's history before commit 
 
 - date: 2026-09-23T00:15:34-04:00
 - host: minipc, kernel 7.2.5-3-omarchy
-- fixture: /home/flea-sandbox/flea-bench-btrfs
+- fixture: /home/dlea-sandbox/dlea-bench-btrfs
 - fixture payload: 100000 visible entries, filesystem btrfs
 - TUI terminal: kitty 0.48.2-1
-- flea launch line: FLEA_BIN=/home/gm/Work/claude/flea-033-field/cand/target/release/flea FLEA_UI=/home/gm/Work/claude/flea-033-field/cand/ui XDG_STATE_HOME=/tmp/flea-bench-state.LHJQmi setsid nohup /home/gm/Work/claude/flea-033-field/cand/target/release/flea --gui /home/flea-sandbox/flea-bench-btrfs
+- dlea launch line: DLEA_BIN=/home/gm/Work/claude/dlea-033-field/cand/target/release/dlea DLEA_UI=/home/gm/Work/claude/dlea-033-field/cand/ui XDG_STATE_HOME=/tmp/dlea-bench-state.LHJQmi setsid nohup /home/gm/Work/claude/dlea-033-field/cand/target/release/dlea --gui /home/dlea-sandbox/dlea-bench-btrfs
 - load average at start: 0.52 0.40 0.40
 - waited 60 seconds for the box to go idle before starting
 - TUI preview target: not recorded by the caller
@@ -37,7 +37,7 @@ recorded it. The text as first recorded is in this file's history before commit 
 ## Entrants
 
 ```
-flea       gui  source 1bd18d9 (clean), release binary built 2026-09-23T00:14:24-04:00, 2706072 bytes
+dlea       gui  source 1bd18d9 (clean), release binary built 2026-09-23T00:14:24-04:00, 2706072 bytes
 nautilus   gui  nautilus 50.3.1-1
 thunar     gui  thunar 4.20.9-1
 pcmanfm    gui  pcmanfm 1.4.0-2
@@ -63,7 +63,7 @@ from the published release, which is equally true of every AUR entrant in the li
 
 ## The TUI group's configuration, as it ran
 
-Provenance per entrant is in `tools/flea-bench-tui/README.md`. lf's is AUTHORED HERE
+Provenance per entrant is in `tools/dlea-bench-tui/README.md`. lf's is AUTHORED HERE
 because lf ships no image preview at all; every other file came from that project's own docs.
 
 ### README.md
@@ -117,7 +117,7 @@ document carrying both says so rather than merging the two tables.
 # whatever font size somebody set last week is not reproducible, and nnn's preview plugin needs
 # remote control switched on, which is not something to turn on in an operator's real terminal.
 allow_remote_control yes
-listen_on unix:/tmp/flea-bench-kitty
+listen_on unix:/tmp/dlea-bench-kitty
 
 # A fixed grid, so every entrant is handed the same viewport and the same amount of preview to draw.
 font_size 12
@@ -212,7 +212,7 @@ before notes before photo. **A never-attempted count is not a capability claim.*
 
 ## The equal-work column
 
-`cpu_tree_s` is the column to compare work on, for every entrant and not for Flea alone: a
+`cpu_tree_s` is the column to compare work on, for every entrant and not for Dlea alone: a
 column carrying CPU-seconds for one entrant and wall-seconds for the rest is the incomparable
 rank this harness now refuses. It is on every row above.
 
@@ -224,11 +224,11 @@ sandboxed decodes added 0.01 s to it against 0.95 s run bare. A column from befo
 that blind figure and compares only against `cpu_reaped_s`. A TUI row's group holds its
 terminal too, so that group's column includes kitty's own drawing, the same kitty for each.
 
-**What it does not yet include.** Flea thumbnails the viewport by design and every other entrant
-thumbnails the directory, so this column is comparable in units and not in work until Flea is
+**What it does not yet include.** Dlea thumbnails the viewport by design and every other entrant
+thumbnails the directory, so this column is comparable in units and not in work until Dlea is
 driven through the whole listing. When that lands, the residual bias belongs here too: the
-driver's own cost falls in omarchy-drive's tree and is excluded, while Flea's cost of
-servicing that drive is included and no other entrant pays it. That biases against Flea, which is the
+driver's own cost falls in omarchy-drive's tree and is excluded, while Dlea's cost of
+servicing that drive is included and no other entrant pays it. That biases against Dlea, which is the
 safe direction, and it is not a reason to leave the number out.
 
 ## Rank refusals
@@ -237,6 +237,6 @@ safe direction, and it is not a reason to leave the number out.
 
 ## Notes
 
-PREWARM one launch through flea --gui, left 0 process(es)
+PREWARM one launch through dlea --gui, left 0 process(es)
 DROP_THUMBS=no: this arm measures the listing, so no entrant's thumbnails are dropped or counted.
 Provenance: product tree 1bd18d98, the 0.3.3 candidate, built clean and run by its own harness. The release commits after it change the command line's portal restart, its tests and docs, none of which is on a measured path. The release's contributor-credit rewrite changed commit names and no tree, so 1bd18d98 is published as 6fe399fa.

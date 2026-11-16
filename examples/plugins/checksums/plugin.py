@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify selected files against the checksum entered in Flea's native input card."""
+"""Verify selected files against the checksum entered in Dlea's native input card."""
 import hashlib
 import json
 import os

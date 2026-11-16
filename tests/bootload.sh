@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # xw6r3: every file under ui/boot/ loads the way the shell loads it, offscreen with no display or lock.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -10,7 +10,7 @@ if ! command -v qs >/dev/null; then
 fi
 
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-bootload.XXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-bootload.XXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER" || exit 1
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
@@ -48,7 +48,7 @@ python3 tests/bootkeys.py "${keys_files[@]}" || exit 1
 output=$(env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_RUNTIME_DIR="$test_root/runtime" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
-    FLEA_BOOTLOAD_FILES="$files" FLEA_BOOTLOAD_ENTRIES="$entries" \
+    DLEA_BOOTLOAD_FILES="$files" DLEA_BOOTLOAD_ENTRIES="$entries" \
     timeout 30 qs -p "$test_root/config" 2>&1)
 
 # Sample input, the probe's own evidence: "  INFO qml: BOOTLOAD PASS files=4".

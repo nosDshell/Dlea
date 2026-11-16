@@ -3,7 +3,7 @@ import qs.Commons
 import qs.Commons as Commons
 import qs.Ui
 
-// Ui/PanelActionButton's shape with Flea's own mark as its ink: the OEM button draws a nerd glyph
+// Ui/PanelActionButton's shape with Dlea's own mark as its ink: the OEM button draws a nerd glyph
 // from a string, and this project's icon language is the Omarchy cut.
 BorderSurface {
   id: root

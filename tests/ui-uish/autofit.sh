@@ -44,7 +44,7 @@ case_columnautofit() {
         || fail "columnautofit: the double click sorted, mark is $(ipc sortMark)"
     local stored=""
     for _attempt in $(seq 1 60); do
-        stored=$(jq -er '.columnWidths.kind // empty' "$XDG_STATE_HOME/flea/ui.json" 2>/dev/null || true)
+        stored=$(jq -er '.columnWidths.kind // empty' "$XDG_STATE_HOME/dlea/ui.json" 2>/dev/null || true)
         [[ "$stored" == "$fitted_w" ]] && break
         sleep 0.05
     done
@@ -73,7 +73,7 @@ case_columnautofit() {
         || fail "columnautofit: the first size fit never ran, width stayed at $narrow_w from $size_before"
     narrow_stored=""
     for _attempt in $(seq 1 60); do
-        narrow_stored=$(jq -er '.columnWidths.size // empty' "$XDG_STATE_HOME/flea/ui.json" 2>/dev/null || true)
+        narrow_stored=$(jq -er '.columnWidths.size // empty' "$XDG_STATE_HOME/dlea/ui.json" 2>/dev/null || true)
         [[ "$narrow_stored" == "$narrow_w" ]] && break
         sleep 0.05
     done
@@ -175,15 +175,15 @@ case_columnautofit() {
     for _attempt in $(seq 1 60); do
         _f4j_ok=1
         # Sample input: jq -er '.columnWidths.size // empty' over ui.json answers "125".
-        [[ "$_f4w_mode" == "$_f4b_mode" || "$(jq -er '.columnWidths.mode // empty' "$XDG_STATE_HOME/flea/ui.json" 2>/dev/null || true)" == "$_f4w_mode" ]] || _f4j_ok=0
-        [[ "$_f4w_size" == "$_f4b_size" || "$(jq -er '.columnWidths.size // empty' "$XDG_STATE_HOME/flea/ui.json" 2>/dev/null || true)" == "$_f4w_size" ]] || _f4j_ok=0
-        [[ "$_f4w_date" == "$_f4b_date" || "$(jq -er '.columnWidths.date // empty' "$XDG_STATE_HOME/flea/ui.json" 2>/dev/null || true)" == "$_f4w_date" ]] || _f4j_ok=0
-        [[ "$_f4w_kind" == "$_f4b_kind" || "$(jq -er '.columnWidths.kind // empty' "$XDG_STATE_HOME/flea/ui.json" 2>/dev/null || true)" == "$_f4w_kind" ]] || _f4j_ok=0
+        [[ "$_f4w_mode" == "$_f4b_mode" || "$(jq -er '.columnWidths.mode // empty' "$XDG_STATE_HOME/dlea/ui.json" 2>/dev/null || true)" == "$_f4w_mode" ]] || _f4j_ok=0
+        [[ "$_f4w_size" == "$_f4b_size" || "$(jq -er '.columnWidths.size // empty' "$XDG_STATE_HOME/dlea/ui.json" 2>/dev/null || true)" == "$_f4w_size" ]] || _f4j_ok=0
+        [[ "$_f4w_date" == "$_f4b_date" || "$(jq -er '.columnWidths.date // empty' "$XDG_STATE_HOME/dlea/ui.json" 2>/dev/null || true)" == "$_f4w_date" ]] || _f4j_ok=0
+        [[ "$_f4w_kind" == "$_f4b_kind" || "$(jq -er '.columnWidths.kind // empty' "$XDG_STATE_HOME/dlea/ui.json" 2>/dev/null || true)" == "$_f4w_kind" ]] || _f4j_ok=0
         (( _f4j_ok == 1 )) && break
         sleep 0.05
     done
     (( _f4j_ok == 1 )) \
-        || fail "columnautofit: the first F4 never reached ui.json, want $_f4w_mode $_f4w_size $_f4w_date $_f4w_kind in $(cat "$XDG_STATE_HOME/flea/ui.json" 2>/dev/null)"
+        || fail "columnautofit: the first F4 never reached ui.json, want $_f4w_mode $_f4w_size $_f4w_date $_f4w_kind in $(cat "$XDG_STATE_HOME/dlea/ui.json" 2>/dev/null)"
     # Seeds sit one offset above their own fits, so no seed can equal the fit the second F4 must return to.
     local SEED_OFFSET=23
     local _f4s_mode _f4s_size _f4s_date _f4s_kind
@@ -198,8 +198,8 @@ case_columnautofit() {
     local _f4seeds _f4wants
     _f4seeds=$(printf '{"mode":%s,"size":%s,"date":%s,"kind":%s}' "$_f4s_mode" "$_f4s_size" "$_f4s_date" "$_f4s_kind")
     _f4wants=$(printf '{"mode":%s,"size":%s,"date":%s,"kind":%s}' "$_f4w_mode" "$_f4w_size" "$_f4w_date" "$_f4w_kind")
-    kill_flea
-    "$flea_bin" --ui-state "{\"columnWidths\":$_f4seeds}" >/dev/null \
+    kill_dlea
+    "$dlea_bin" --ui-state "{\"columnWidths\":$_f4seeds}" >/dev/null \
         || fail "columnautofit: could not seed stored widths to $_f4seeds"
     launch "$dir"
     wait_listing 405
@@ -274,7 +274,7 @@ case_columnautofit() {
         _f4j_ok=1
         for _f4key in mode size date kind; do
             # Sample input: jq -er --arg k "size" '.columnWidths[$k] // empty' over ui.json answers "125".
-            _have=$(jq -er --arg k "$_f4key" '.columnWidths[$k] // empty' "$XDG_STATE_HOME/flea/ui.json" 2>/dev/null || true)
+            _have=$(jq -er --arg k "$_f4key" '.columnWidths[$k] // empty' "$XDG_STATE_HOME/dlea/ui.json" 2>/dev/null || true)
             _want=$(jq -r --arg k "$_f4key" '.[$k] // empty' <<< "$_f4wants")
             [[ "$_have" == "$_want" ]] || _f4j_ok=0
         done
@@ -292,5 +292,5 @@ case_columnautofit() {
     [[ "$widths_twice" == "$widths_once" ]] \
         || fail "columnautofit: a third F4 moved $widths_once to $widths_twice"
 
-    kill_flea
+    kill_dlea
 }

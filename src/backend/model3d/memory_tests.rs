@@ -5,7 +5,7 @@ use std::process::Command;
 
 #[test]
 fn large_bambu_parts_preview_without_aborting() {
-    const CHILD: &str = "FLEA_FX467_MEMORY_CHILD";
+    const CHILD: &str = "DLEA_FX467_MEMORY_CHILD";
     if let Some(root) = std::env::var_os(CHILD) {
         preview(child_root(&root));
         return;
@@ -66,7 +66,7 @@ pub(super) fn fixture_root(tag: &str) -> (TestDir, PathBuf) {
     assert!(made.status.success(), "mktemp creates the fixture root");
     let root = PathBuf::from(std::str::from_utf8(&made.stdout).unwrap().trim());
     sandbox.assert_contains(&root);
-    write_fixture(&root, ".flea-test-sandbox", b"3MF memory fixtures\n");
+    write_fixture(&root, ".dlea-test-sandbox", b"3MF memory fixtures\n");
     (sandbox, root)
 }
 
@@ -74,7 +74,7 @@ pub(super) fn fixture_root(tag: &str) -> (TestDir, PathBuf) {
 pub(super) fn child_root(root: &std::ffi::OsStr) -> &Path {
     let root = Path::new(root);
     assert!(
-        root.is_absolute() && root.join(".flea-test-sandbox").is_file(),
+        root.is_absolute() && root.join(".dlea-test-sandbox").is_file(),
         "child fixture root is not an absolute marked directory: {}",
         root.display()
     );

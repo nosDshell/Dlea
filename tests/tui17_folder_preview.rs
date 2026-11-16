@@ -6,7 +6,7 @@ fn run(mode: &str) {
             "-B",
             "-c",
             include_str!("tui17_folder_preview.py"),
-            env!("CARGO_BIN_EXE_flea"),
+            env!("CARGO_BIN_EXE_dlea"),
             mode,
         ])
         .env("PYTHONPATH", concat!(env!("CARGO_MANIFEST_DIR"), "/tests"))

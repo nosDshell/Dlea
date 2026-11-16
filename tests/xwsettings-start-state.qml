@@ -1,6 +1,6 @@
 import QtQuick
-import "../ui" as Flea
+import "../ui" as Dlea
 
 QtObject {
-    readonly property var sharedState: Flea.ViewState
+    readonly property var sharedState: Dlea.ViewState
 }

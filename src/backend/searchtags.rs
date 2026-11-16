@@ -95,7 +95,7 @@ impl Bound {
     }
 }
 
-// Files whose tags Flea itself changed and one worker to re-read them: busy from the first read until the queue runs dry.
+// Files whose tags Dlea itself changed and one worker to re-read them: busy from the first read until the queue runs dry.
 struct Rewrites {
     queue: Vec<Vec<u8>>,
     busy: bool,

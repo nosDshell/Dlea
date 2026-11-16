@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Applies installed stock palettes and Cool Dawn and Sunset to the real Theme, holding text, frames and cursor wash to their floors.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 verdict=0
@@ -19,7 +19,7 @@ fi
 if [ -f "$stock_dir/starship/colors.toml" ]; then palettes_expected=25; fi
 
 # A marked sandbox of its own under the fixture root, so cleanup deletes only what this run owns.
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-theme-contrast-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-theme-contrast-XXXXXX") || exit 1
 # GNU mktemp -d honours a relative TMPDIR verbatim, so the path is checked absolute and two components deep.
 case $test_root in
   /*/*) ;;
@@ -51,8 +51,8 @@ run_timeout_s=120
 expected_checks=$((palettes * 45 + 4))
 config="$test_root/config"
 mkdir -p "$config" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$config/dlea" || exit 1
 headless_commons "$test_root" "$config/Commons" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$config/Ui" || exit 1
 cp tests/theme-contrast.qml "$config/shell.qml" || exit 1

@@ -173,9 +173,9 @@ fn read_offer_inner(conn: &mut Conn, offer: u32, types: &[String],
     mut receive: impl FnMut(&mut Conn, u32, &str) -> Result<Vec<u8>, String>) -> OfferFiles {
     let none = OfferFiles::none();
     let has = |mime: &str| types.iter().any(|t| t == mime);
-    if has(format::FLEA) {
-        if let Ok(bytes) = receive(conn, offer, format::FLEA) {
-            if let Some((op, token, pid)) = format::parse_flea(&bytes) {
+    if has(format::DLEA) {
+        if let Ok(bytes) = receive(conn, offer, format::DLEA) {
+            if let Some((op, token, pid)) = format::parse_dlea(&bytes) {
                 let mut got = OfferFiles { op, paths: Vec::new(), token, skipped: 0, owner_pid: pid };
                 // The token names our own copy; the paths still come from a file shape beside it.
                 if has(format::GNOME) {
@@ -268,11 +268,11 @@ pub fn clear_on(conn: &mut Conn, token: &str) -> Result<bool, String> {
     let Some(selection) = read_selection(conn)? else {
         return Ok(false);
     };
-    if !selection.types.iter().any(|t| t == format::FLEA) {
+    if !selection.types.iter().any(|t| t == format::DLEA) {
         return Ok(false);
     }
-    let bytes = receive_type(conn, selection.offer, format::FLEA)?;
-    let own = match format::parse_flea(&bytes) {
+    let bytes = receive_type(conn, selection.offer, format::DLEA)?;
+    let own = match format::parse_dlea(&bytes) {
         Some((_, own, _)) => own,
         None => return Ok(false),
     };

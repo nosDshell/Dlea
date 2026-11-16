@@ -1,12 +1,12 @@
-//@ pragma ShellId flea-ring-bounds-test
+//@ pragma ShellId dlea-ring-bounds-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/Buttons.js" as Buttons
-import "flea/js/Ops.js" as Ops
-import "flea/js/Settings.js" as Settings
-import "flea/js/TextSize.js" as TextSize
+import "dlea" as Dlea
+import "dlea/js/Buttons.js" as Buttons
+import "dlea/js/Ops.js" as Ops
+import "dlea/js/Settings.js" as Settings
+import "dlea/js/TextSize.js" as TextSize
 import "ring-bounds.js" as Pins
 
 // A focused field is its own accent hairline with no ring (the error role only on the rename editor, the one field with an error frame); every button frame and check box keyline lies inside its host's clip, and no button holds a ring.
@@ -19,7 +19,7 @@ ShellRoot {
     // A focused button whose hairline would match its rest draws its own frame this wide, inward; no item draws it outside a frame.
     readonly property int thickWidth: Buttons.RING
     // A field's own frame is one hairline wide.
-    readonly property int hairline: Flea.Theme.spacing.hairline
+    readonly property int hairline: Dlea.Theme.spacing.hairline
     // A list row's top and height before the editor opens, so opening it is seen to move nothing.
     property var rowsBefore: []
     property bool renameMeasured: false
@@ -105,7 +105,7 @@ ShellRoot {
         var rule = root.hairline
         var frame = chrome.pathFrame
         root.check(chrome.pathField.activeFocus, tag + " chrome field has no focus")
-        root.checkFieldFrame(tag + " chrome", frame, Flea.Theme.color.accent, "accent", chrome)
+        root.checkFieldFrame(tag + " chrome", frame, Dlea.Theme.color.accent, "accent", chrome)
         var box = frame.mapToItem(chrome, 0, 0, frame.width, frame.height)
         console.log("RINGBOUNDS CHROME " + tag + " frame=" + box.x + "," + box.y + " " + box.width + "x" + box.height + " strip=" + chrome.width + "x" + chrome.height)
         // The frame is whole inside the strip, above the rule row, with no ring to make room for.
@@ -166,12 +166,12 @@ ShellRoot {
         var ink = metrics.ascent + metrics.descent
         console.log("RINGBOUNDS INK " + tag + " ink=" + ink + " line=" + editor.inputItem.contentHeight + " frame=" + editor.inputItem.height)
         root.check(ink <= editor.inputItem.height, tag + " rename glyphs " + ink + " are taller than their frame " + editor.inputItem.height)
-        root.checkFieldFrame(tag + " rename", frame, Flea.Theme.color.accent, "accent", host)
+        root.checkFieldFrame(tag + " rename", frame, Dlea.Theme.color.accent, "accent", host)
         // The error role replaces the accent while the pane holds an error, and goes back the moment it is cleared.
         pane.renameError = "A file by that name exists"
-        root.checkFieldFrame(tag + " rename error", frame, Flea.Theme.color.error, "error role", host)
+        root.checkFieldFrame(tag + " rename error", frame, Dlea.Theme.color.error, "error role", host)
         pane.renameError = ""
-        root.check(Qt.colorEqual(frame.border.color, Flea.Theme.color.accent), tag + " rename frame keeps the error colour after the error clears")
+        root.check(Qt.colorEqual(frame.border.color, Dlea.Theme.color.accent), tag + " rename frame keeps the error colour after the error clears")
         // The extension's muted patch lies inside the frame, so all four sides are whole along their length.
         var patch = editor.extensionPatch
         root.check(patch.visible, tag + " rename extension patch is not showing")
@@ -182,11 +182,11 @@ ShellRoot {
         var viewport
         if (viewMode === "columns") {
             // The column draws one editor over its row at renameViewIndex, the column itself being the clip.
-            var rowTop = host.renameViewIndex * Flea.Theme.fileRowHeight
+            var rowTop = host.renameViewIndex * Dlea.Theme.fileRowHeight
             cell = frame.mapToItem(host, 0, 0, frame.width, frame.height)
             viewport = cell
             cell = { x: cell.x, y: cell.y - rowTop, width: cell.width, height: cell.height }
-            root.clear(tag + " rename frame in its column row", cell, host.width, Flea.Theme.fileRowHeight, 0)
+            root.clear(tag + " rename frame in its column row", cell, host.width, Dlea.Theme.fileRowHeight, 0)
             root.clear(tag + " rename frame in its column", viewport, host.width, host.height, 0)
         } else {
             cell = frame.mapToItem(host, 0, 0, frame.width, frame.height)
@@ -273,7 +273,7 @@ ShellRoot {
     }
     // Every foreground 2 px frame with no fill under this item, visible or not, other than a button's own frame: one found is a ring.
     function rings(item, out) {
-        if (item.objectName !== "buttonFrame" && item.border && item.border.width === root.thickWidth && item.color.a === 0 && Qt.colorEqual(item.border.color, Flea.Theme.color.foreground)) out.push(item)
+        if (item.objectName !== "buttonFrame" && item.border && item.border.width === root.thickWidth && item.color.a === 0 && Qt.colorEqual(item.border.color, Dlea.Theme.color.foreground)) out.push(item)
         var kids = item && item.children ? item.children : []
         for (var i = 0; i < kids.length; i++) root.rings(kids[i], out)
         return out
@@ -358,7 +358,7 @@ ShellRoot {
         root.check(Math.abs(card.contentY - wantY) < root.layoutEpsilon, tag + " card scrolled to " + card.contentY + ", not " + wantY)
         root.check(root.named(button, "buttonRing") === null, tag + " button holds a ring item")
         // A button frames itself: a set member in the accent where it has hue; a primary whose rest frame is the foreground, or a set member without hue, 2 px in the foreground; every other button one foreground hairline.
-        var c = Flea.Theme.color
+        var c = Dlea.Theme.color
         var want = button.setMember ? (c.accentHasHue ? "accent" : "thick") : button.primary && Qt.colorEqual(c.accentFrame, c.foreground) ? "thick" : "foreground"
         root.check(button.focusFrame === want, tag + " button focus look is " + button.focusFrame + ", not " + want)
         var frame = root.buttonFrameOf(button)
@@ -431,11 +431,11 @@ ShellRoot {
                 root.check(edge.x === frame.x - out && edge.y === frame.y - out && edge.width === frame.width + 2 * out && edge.height === frame.height + 2 * out,
                            name + " keyline " + edge.x + "," + edge.y + " " + edge.width + "x" + edge.height + " is not " + out + " px outside the frame " + frame.x + "," + frame.y + " " + frame.width + "x" + frame.height)
                 // Focus never moves the frame: rule 14's colours, on or mixed foreground and off muted.
-                var wantFrame = Flea.Theme.color.foreground
+                var wantFrame = Dlea.Theme.color.foreground
                 root.check(Qt.colorEqual(frameItem.border.color, wantFrame), name + " frame is " + frameItem.border.color + " under focus")
             } else {
                 root.check(!ring.visible, name + " keyline shows on an empty box")
-                root.check(Qt.colorEqual(frameItem.border.color, Flea.Theme.color.foreground), name + " frame is " + frameItem.border.color + " under focus, not foreground")
+                root.check(Qt.colorEqual(frameItem.border.color, Dlea.Theme.color.foreground), name + " frame is " + frameItem.border.color + " under focus, not foreground")
             }
             root.check(frameItem.border.width === box.borderWidth, name + " frame is " + frameItem.border.width + " px wide under focus")
             root.clipChain(name + " keyline", ring)
@@ -470,10 +470,10 @@ ShellRoot {
         for (var i = 0; i < list.length; i++) {
             list[i].forceActiveFocus()
             if (frames[i] === null) continue
-            root.checkFieldFrame(tag + " field " + i, frames[i], Flea.Theme.color.accent, "accent", dialog)
+            root.checkFieldFrame(tag + " field " + i, frames[i], Dlea.Theme.color.accent, "accent", dialog)
             // The fields that do not hold the caret keep the muted frame 0.3.6 drew.
             for (var j = 0; j < list.length; j++)
-                if (j !== i && frames[j]) root.check(Qt.colorEqual(frames[j].border.color, Flea.Theme.color.mutedFrame), tag + " unfocused field " + j + " frame is " + frames[j].border.color + ", not muted")
+                if (j !== i && frames[j]) root.check(Qt.colorEqual(frames[j].border.color, Dlea.Theme.color.mutedFrame), tag + " unfocused field " + j + " frame is " + frames[j].border.color + ", not muted")
         }
     }
 
@@ -537,8 +537,8 @@ ShellRoot {
         var tag = "stop " + combo.stop + " " + combo.density
         if (root.stage === 0) {
             if (!root.ready()) return false
-            Flea.ViewState.setTextSize({ mode: combo.stop })
-            Flea.ViewState.changeKey("density", combo.density)
+            Dlea.ViewState.setTextSize({ mode: combo.stop })
+            Dlea.ViewState.changeKey("density", combo.density)
             root.viewIndex = 0
             root.stage = 1
             return true
@@ -632,30 +632,30 @@ ShellRoot {
         id: window
         implicitWidth: 1000
         implicitHeight: 650
-        Flea.WindowBody { id: body; host: window }
+        Dlea.WindowBody { id: body; host: window }
         Item { anchors.fill: parent; TestEvent { id: driver } }
         // An independent native caption line box, so save-field Y follows the same font on both Qt images without reading the field's own geometry.
         Text {
             id: captionProbe
             visible: false
             text: "Filename"
-            font { family: Flea.Theme.font.family; pixelSize: Flea.Theme.font.caption }
+            font { family: Dlea.Theme.font.family; pixelSize: Dlea.Theme.font.caption }
         }
         // The save picker's answer area, which lives in its own window in the product, at the picker's 840 px.
-        Flea.PickerSave { id: saveCard; picker: fakePicker; width: 840; z: 100 }
+        Dlea.PickerSave { id: saveCard; picker: fakePicker; width: 840; z: 100 }
         // The transfer card, which the status bar hosts in the product, with the status bar's right margin.
-        Flea.TransferCard { id: transferCard; x: root.transferX; y: root.transferY; z: 100 }
+        Dlea.TransferCard { id: transferCard; x: root.transferX; y: root.transferY; z: 100 }
         // A card taller than its body, hosted as every dialog hosts its CardScroll: the focus clearance, a column of real buttons.
-        Flea.CardScroll {
+        Dlea.CardScroll {
             id: scrollCard
             visible: false
             x: root.scrollCardX; y: root.scrollCardY; z: 100
             width: root.scrollCardWidth; height: root.scrollCardHeight
-            bleed: Flea.Theme.focusClearance
+            bleed: Dlea.Theme.focusClearance
             Column {
                 width: parent.width
-                spacing: Flea.Theme.spacing.gap
-                Repeater { model: root.scrollButtons; Flea.DialogButton { label: "Button " + index } }
+                spacing: Dlea.Theme.spacing.gap
+                Repeater { model: root.scrollButtons; Dlea.DialogButton { label: "Button " + index } }
             }
         }
     }

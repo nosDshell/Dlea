@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-quicklook-hold-test
+//@ pragma ShellId dlea-quicklook-hold-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea/js/PreviewKeys.js" as PreviewKeys
-import "flea/js/Swap.js" as Swap
+import "dlea/js/PreviewKeys.js" as PreviewKeys
+import "dlea/js/Swap.js" as Swap
 
 // Sample output: "QLHOLD STEP move frames=31 frozen=0 bare=0 loading=9 holds=0 empty=0 caps=1" is one step, judged once it settles.
 // The hold is the window between Space and the card's first frame; no frame in it may draw the card without its content.

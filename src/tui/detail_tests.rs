@@ -3,7 +3,7 @@ use crate::tui::{actions, input::Key, keymap::Map, render::{self, frame_tests}, 
 use std::time::Duration;
 
 #[test]
-fn i_cycles_all_modes_without_sorting_or_fetching_rows_in_every_flea_preset() {
+fn i_cycles_all_modes_without_sorting_or_fetching_rows_in_every_dlea_preset() {
     let map = Map::load();
     for preset in ["default", "vim", "windows", "mac", "yazi"] {
         let (mut wire, reader) = wire::echo_wire();

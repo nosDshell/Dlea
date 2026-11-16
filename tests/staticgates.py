@@ -41,10 +41,10 @@ def inventory(root, tracked=False):
         result = None
     if result is not None and result.returncode == 0:
         return sorted(set(p for p in result.stdout.decode().split('\0') if p))
-    # The CI lane exports Git's tree to /work/flea and mounts its authoritative tar at /in/tree.tar.
-    archive = Path(os.environ.get('FLEA_SOURCE_ARCHIVE', '/in/tree.tar'))
+    # The CI lane exports Git's tree to /work/dlea and mounts its authoritative tar at /in/tree.tar.
+    archive = Path(os.environ.get('DLEA_SOURCE_ARCHIVE', '/in/tree.tar'))
     if not archive.is_file():
-        raise ValueError('source inventory requires Git or FLEA_SOURCE_ARCHIVE (CI uses /in/tree.tar)')
+        raise ValueError('source inventory requires Git or DLEA_SOURCE_ARCHIVE (CI uses /in/tree.tar)')
     with tarfile.open(archive) as source:
         paths = {member.name for member in source.getmembers() if member.isfile() or member.issym()}
     if any(Path(path).is_absolute() or '..' in Path(path).parts for path in paths):
@@ -260,7 +260,7 @@ def pane_members(root):
 def pane_references(code, file, members):
     refs = set()
     # QML Pane instances and properties are explicit; SettingsPanel's id pane is a SettingsPane.
-    refs.update(re.findall(r'(?:Flea\.)?Pane\s*\{\s*id:\s*(\w+)', code))
+    refs.update(re.findall(r'(?:Dlea\.)?Pane\s*\{\s*id:\s*(\w+)', code))
     refs.update(re.findall(r'property\s+(?:var|Item|Pane)\s+(\w*[Pp]ane)\b', code))
     if file == 'ui/Pane.qml':
         refs.add('root')
@@ -825,7 +825,7 @@ def qml_undeclared_read(root, files, sample=False):
     qml = [f for f in files if f.startswith('ui/') and f.endswith('.qml') and (root / f).is_file()]
     if not qml:
         return 0, []
-    binary = os.environ.get('FLEA_QMLLINT', '/usr/lib/qt6/bin/qmllint')
+    binary = os.environ.get('DLEA_QMLLINT', '/usr/lib/qt6/bin/qmllint')
     if not Path(binary).is_file() or not os.access(binary, os.X_OK):
         return len(qml), [f'qmllint unavailable: {binary}']
     try:
@@ -886,12 +886,12 @@ def qml_undeclared_read(root, files, sample=False):
 
 
 def qmlcachegen_binary():
-    override = os.environ.get('FLEA_QMLCACHEGEN')
+    override = os.environ.get('DLEA_QMLCACHEGEN')
     # An explicit override is used or refused, never skipped for a system binary.
     if override:
         if Path(override).is_file() and os.access(override, os.X_OK):
             return override
-        raise ValueError('FLEA_QMLCACHEGEN is not an executable file: ' + override)
+        raise ValueError('DLEA_QMLCACHEGEN is not an executable file: ' + override)
     for binary in QMLCACHEGEN_PATHS:
         if Path(binary).is_file() and os.access(binary, os.X_OK):
             return binary

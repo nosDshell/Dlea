@@ -8,14 +8,14 @@ for tool in qs; do
     command -v "$tool" >/dev/null || { echo "slowsource-load.sh: $tool is not installed"; exit 1; }
 done
 
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 sandbox_forbidden /tmp && sandbox_refuse "slowsource-load: /tmp is inside a forbidden test target"
-load_root=$(mktemp -d /tmp/flea-slowsource-load.XXXXXXXX) || exit 1
+load_root=$(mktemp -d /tmp/dlea-slowsource-load.XXXXXXXX) || exit 1
 FIXTURE_ROOT=$load_root
 sandbox_root_ok
 load_root=$SANDBOX_ROOT
 readonly load_root
-printf 'Flea slow-source load sandbox\n' > "$load_root/$SANDBOX_MARKER" || exit 1
+printf 'Dlea slow-source load sandbox\n' > "$load_root/$SANDBOX_MARKER" || exit 1
 load_work="$load_root/work"
 readonly load_work
 cleanup() {

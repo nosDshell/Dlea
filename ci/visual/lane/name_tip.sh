@@ -38,7 +38,7 @@ name_tip_shot() (
             { state_failure "decoration:rounding did not change from $previous_rounding to $rounding"; return 1; }
     fi
     mkdir -p "$root" || return 1
-    : > "$root/.flea-test-sandbox" || return 1
+    : > "$root/.dlea-test-sandbox" || return 1
     printf 'Short fixture\n' > "$root/alpha.txt" || return 1
     printf 'Long name fixture\n' > "$root/$long" || return 1
     touch -d "$STAMP" "$root/alpha.txt" "$root/$long" || return 1

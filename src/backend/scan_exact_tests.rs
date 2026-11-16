@@ -51,7 +51,7 @@ fn a_utf8_row_costs_what_it_always_did_and_a_raw_row_adds_its_exact_tail() {
     );
     assert_eq!(lr.spans.len(), raw.len(), "a raw file still holds one Span");
     for i in 0..lr.len() {
-        let exact = flea::bytename::text_path(lr.name(i));
+        let exact = dlea::bytename::text_path(lr.name(i));
         assert!(
             raw.iter()
                 .any(|name| exact.as_os_str().as_bytes() == name.as_slice()),

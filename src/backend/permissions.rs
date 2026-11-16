@@ -2,7 +2,7 @@
 use crate::backend::undo::Step;
 use crate::json::{escape, field_str, field_usize};
 use crate::oflags::O_NOFOLLOW;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::fs::{File, Metadata, OpenOptions};
 use std::os::unix::fs::{MetadataExt, OpenOptionsExt};
 use std::os::unix::io::AsRawFd;
@@ -276,7 +276,7 @@ impl Permissions {
         let id = field_usize(line, "id").unwrap_or(0);
         let op = field_str(line, "op").unwrap_or_default();
         let result = match op.as_str() {
-            "inspect" => self.inspect(id, &flea::bytename::view(&field_str(line, "path").unwrap_or_default())),
+            "inspect" => self.inspect(id, &dlea::bytename::view(&field_str(line, "path").unwrap_or_default())),
             "apply" => self.apply(id, &field_str(line, "mode").unwrap_or_default()).map(|(reply, step)| {
                 journal.push(crate::backend::undo::Entry { op: "permissions".to_string(), steps: vec![step] });
                 reply

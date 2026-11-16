@@ -1,4 +1,4 @@
-"""Measure Mesa renderer fallbacks using real Flea binaries and Wayland buffers."""
+"""Measure Mesa renderer fallbacks using real Dlea binaries and Wayland buffers."""
 
 import json
 import os
@@ -11,9 +11,9 @@ import sys
 import threading
 import time
 
-MESSAGE = "flea: no graphics driver could open a window; install or repair vulkan-swrast and mesa, or run flea --tui"
-NOTICE = ["--app-name=Flea", "--urgency=critical", "--icon=com.thisisgm.flea", "No graphics driver could open Flea",
-          "Install or repair vulkan-swrast and mesa, or run flea --tui in a terminal."]
+MESSAGE = "dlea: no graphics driver could open a window; install or repair vulkan-swrast and mesa, or run dlea --tui"
+NOTICE = ["--app-name=Dlea", "--urgency=critical", "--icon=com.nosDshell.dlea", "No graphics driver could open Dlea",
+          "Install or repair vulkan-swrast and mesa, or run dlea --tui in a terminal."]
 # What an Intel Gen6 (Sandy Bridge) GPU's GL offers: OpenGL 3.3, OpenGL ES 3.0 and no storage buffers.
 GEN6_GL = {"MESA_GL_VERSION_OVERRIDE": "3.3", "MESA_GLSL_VERSION_OVERRIDE": "330", "MESA_GLES_VERSION_OVERRIDE": "3.0",
            "MESA_EXTENSION_OVERRIDE": "-GL_ARB_shader_storage_buffer_object"}
@@ -23,14 +23,14 @@ FAILING = {"neither": ("Failed to create surface:", []),
            "gen6-only": ("No GPU adapter found that can configure the display surface",
                          ["(Gl) was refused: Failed to create wgpu device: Limit 'max_storage_buffer_binding_size'"])}
 ROOT = Path(sys.argv[1])
-assert ROOT.is_absolute() and (ROOT / ".flea-test-sandbox").is_file()
+assert ROOT.is_absolute() and (ROOT / ".dlea-test-sandbox").is_file()
 REPO = Path.cwd()
-# Sample input: pub const APP_ID: &str = "com.thisisgm.flea";
+# Sample input: pub const APP_ID: &str = "com.nosDshell.dlea";
 APP_IDS = re.findall(r'(?m)^pub const APP_ID: &str = "([^"\n]+)";$',
-                     (REPO / "crates/flea-gui/src/window/mod.rs").read_text())
+                     (REPO / "crates/dlea-gui/src/window/mod.rs").read_text())
 assert len(APP_IDS) == 1, "window source must define exactly one APP_ID"
 APP_ID = APP_IDS[0]
-RUNS = int(os.environ.get("FLEA_RENDER_RUNS", "3"))
+RUNS = int(os.environ.get("DLEA_RENDER_RUNS", "3"))
 assert 2 <= RUNS <= 10
 SESSION = {}
 ACTIVE_CASE = None
@@ -58,9 +58,9 @@ def stop(process):
 def environment(home):
     env = dict(os.environ)
     for key in list(env):
-        if key.startswith(("VK_", "FLEA_VK_", "QSG_", "QT_")) or key in (
-            "DISPLAY", "WAYLAND_DISPLAY", "FLEA_RENDERER_AUTOMATIC", "FLEA_SELECT",
-            "FLEA_PREFETCH", "FLEA_PREFETCH_SHELL", "LD_PRELOAD", "LIBGL_DRIVERS_PATH",
+        if key.startswith(("VK_", "DLEA_VK_", "QSG_", "QT_")) or key in (
+            "DISPLAY", "WAYLAND_DISPLAY", "DLEA_RENDERER_AUTOMATIC", "DLEA_SELECT",
+            "DLEA_PREFETCH", "DLEA_PREFETCH_SHELL", "LD_PRELOAD", "LIBGL_DRIVERS_PATH",
             "__EGL_VENDOR_LIBRARY_FILENAMES", "MESA_LOADER_DRIVER_OVERRIDE", "GALLIUM_DRIVER",
         ):
             env.pop(key)
@@ -145,15 +145,15 @@ def run_case(case, run, document, journal, entry, lavapipe, egl_vendor):
     directory.mkdir()
     ACTIVE_CASE = directory
     env = environment(directory)
-    env.update(WAYLAND_DISPLAY=SESSION["WAYLAND_DISPLAY"], WAYLAND_DEBUG="client", FLEA_FRONTEND="gpui",
-               FLEA_BIN=str(REPO / "target/debug/flea"), FLEA_GUI_RENDER_DIAGNOSTICS="1",
-               QSG_RHI_BACKEND="opengl", FLEA_RENDERER_AUTOMATIC="1",
+    env.update(WAYLAND_DISPLAY=SESSION["WAYLAND_DISPLAY"], WAYLAND_DEBUG="client", DLEA_FRONTEND="gpui",
+               DLEA_BIN=str(REPO / "target/debug/dlea"), DLEA_GUI_RENDER_DIAGNOSTICS="1",
+               QSG_RHI_BACKEND="opengl", DLEA_RENDERER_AUTOMATIC="1",
                __EGL_VENDOR_LIBRARY_FILENAMES=str(egl_vendor))
     # Window IPC requires the real owner-only directory; only the compositor needs the short descriptor path.
     env["XDG_RUNTIME_DIR"] = str(ROOT / "runtime")
     # A stand-in notify-send records the desktop notice, so no real notification is shown.
     notice = directory / "notice.log"
-    env.update(PATH=f"{ROOT / 'bin'}:{env.get('PATH', '/usr/bin')}", FLEA_TEST_NOTICE=str(notice))
+    env.update(PATH=f"{ROOT / 'bin'}:{env.get('PATH', '/usr/bin')}", DLEA_TEST_NOTICE=str(notice))
     selected_icd = ROOT / "empty"
     if case.startswith("gen6"):
         env.update(GEN6_GL)
@@ -176,9 +176,9 @@ def run_case(case, run, document, journal, entry, lavapipe, egl_vendor):
                "--bind", str(ROOT / "tmp"), "/tmp", "--dev", "/dev",
                "--bind", str(ROOT / "journal.socket"), "/dev/log"]
     if entry == "fork":
-        command += [str(REPO / "target/debug/flea-gui"), "--", str(directory)]
+        command += [str(REPO / "target/debug/dlea-gui"), "--", str(directory)]
     else:
-        command += [str(REPO / "target/debug/flea"), "--gui", str(directory)]
+        command += [str(REPO / "target/debug/dlea"), "--gui", str(directory)]
     rows = []
     frame = threading.Event()
     timing = []
@@ -225,7 +225,7 @@ def run_case(case, run, document, journal, entry, lavapipe, egl_vendor):
         text = "".join(rows)
     server = (ROOT / "compositor.log").read_bytes()[server_start:].decode(errors="replace")
     mapped = mapped_surface(server, surface_id[0])
-    adapter = next((row.strip() for row in rows if row.startswith("flea-render:")), "none")
+    adapter = next((row.strip() for row in rows if row.startswith("dlea-render:")), "none")
     if "so the shell starts on OpenGL" in text:
         fail(f"{case}: Qt downgrade ran on the GPUI path")
     notices = notice.read_text().split("\n")[:-1] if notice.is_file() else []
@@ -270,10 +270,10 @@ def main():
     mapped_surface_controls()
     for directory in ("empty", "runtime", "tmp"):
         (ROOT / directory).mkdir(mode=0o700)
-    (ROOT / "empty/.flea-test-sandbox").touch()
+    (ROOT / "empty/.dlea-test-sandbox").touch()
     (ROOT / "bin").mkdir(mode=0o700)
     stand_in = ROOT / "bin/notify-send"
-    stand_in.write_text("#!/bin/sh\nprintf '%s\\n' \"$@\" >> \"$FLEA_TEST_NOTICE\"\n")
+    stand_in.write_text("#!/bin/sh\nprintf '%s\\n' \"$@\" >> \"$DLEA_TEST_NOTICE\"\n")
     stand_in.chmod(0o700)
     document, library, lavapipe = manifest()
     egl_vendor = Path("/usr/share/glvnd/egl_vendor.d/50_mesa.json")
@@ -312,7 +312,7 @@ def main():
                     fail("Hyprland did not create its private Wayland and control sockets within 10 seconds")
                 time.sleep(0.02)
             ready = environment(ROOT / "control")
-            subprocess.run(["hyprctl", "output", "create", "headless", "FLEA"], env=ready,
+            subprocess.run(["hyprctl", "output", "create", "headless", "DLEA"], env=ready,
                            stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True, timeout=10)
             for entry in ("fork", "launcher"):
                 for case in CASES:

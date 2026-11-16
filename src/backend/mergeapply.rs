@@ -1,5 +1,5 @@
 // Folder merge, second half: landing entries, manifests, and emptied-folder records.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::merge::{count_tree, real_dir};
 pub(crate) use super::merge::Counts;
 use crate::backend::collide::{Place, Policy};
@@ -7,7 +7,7 @@ use crate::backend::copyfile::{copy_any, move_any, Progress};
 use crate::backend::copymanifest::Writer;
 use crate::backend::durable::Durability;
 use crate::backend::undo::{self, ItemIdentity, Step};
-use crate::error::{from_io, FleaError};
+use crate::error::{from_io, DleaError};
 use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -35,10 +35,10 @@ thread_local! {
 }
 
 // Journals a move the walker already landed; a journal the drive will not take fails the land instead of omitting it.
-fn journal_moved(steps: &mut Vec<Step>, src: &Path, to: &Path) -> Result<(), FleaError> {
+fn journal_moved(steps: &mut Vec<Step>, src: &Path, to: &Path) -> Result<(), DleaError> {
     #[cfg(test)]
     if FAIL_JOURNAL.with(|fail| fail.get()) {
-        return Err(FleaError { where_: "journal".into(), path: to.to_string_lossy().into(), msg: "test journal refusal".into() });
+        return Err(DleaError { where_: "journal".into(), path: to.to_string_lossy().into(), msg: "test journal refusal".into() });
     }
     let meta = to.symlink_metadata().map_err(|e| from_io("move", &to.to_string_lossy(), &e))?;
     steps.push(undo::moved(src, to, ItemIdentity::record(&meta))?);
@@ -46,7 +46,7 @@ fn journal_moved(steps: &mut Vec<Step>, src: &Path, to: &Path) -> Result<(), Fle
 }
 
 // Copies or moves one entry and journals a move; move_any touches what its rename leg needs.
-fn land_one(src: &Path, to: &Path, land: &mut LandCtx) -> Result<(), FleaError> {
+fn land_one(src: &Path, to: &Path, land: &mut LandCtx) -> Result<(), DleaError> {
     let mut p = Progress { cancel: land.cancel, on_bytes: &mut *land.sink, partial: None, tree: Some(*land.carried),
         manifest: land.manifest.take(), durability: Some(&mut *land.ctx), for_move: land.moving };
     let r = if land.moving { move_any(src, to, &mut p) } else { copy_any(src, to, &mut p) };
@@ -75,7 +75,7 @@ pub(crate) fn merge_folder(
     settled: &std::sync::atomic::AtomicU64,
     ctx: &mut Durability,
     counts: &mut Counts,
-) -> Result<(), FleaError> {
+) -> Result<(), DleaError> {
     const EVERY: Duration = Duration::from_millis(150);
     let mut last = Instant::now() - EVERY;
     let mut sink = |done: u64, total: u64| {
@@ -101,16 +101,16 @@ pub(crate) fn merge_folder(
 }
 
 // The manifest names only what the merge created, so undo removes those and never a file already there.
-fn finish_manifest(src: &Path, dst_top: &Path, manifest: Option<Writer>, steps: &mut Vec<Step>, r: &Result<(), FleaError>, merged: usize) -> Result<(), FleaError> {
+fn finish_manifest(src: &Path, dst_top: &Path, manifest: Option<Writer>, steps: &mut Vec<Step>, r: &Result<(), DleaError>, merged: usize) -> Result<(), DleaError> {
     let Some(writer) = manifest else {
         if merged > 0 {
-            eprintln!("flea: merge of {} left {} items without a manifest; undo restores replaced files only", dst_top.display(), merged);
+            eprintln!("dlea: merge of {} left {} items without a manifest; undo restores replaced files only", dst_top.display(), merged);
         }
         return r.as_ref().map(|_| ()).map_err(clone_err);
     };
     let (handle, loud) = crate::backend::copymanifest::finish_loud(Some(writer));
     if let Some(e) = loud {
-        let mut err = r.as_ref().err().map(clone_err).unwrap_or_else(|| FleaError { where_: "transfer".into(), path: dst_top.to_string_lossy().to_string(), msg: String::new() });
+        let mut err = r.as_ref().err().map(clone_err).unwrap_or_else(|| DleaError { where_: "transfer".into(), path: dst_top.to_string_lossy().to_string(), msg: String::new() });
         err.msg = crate::backend::ops::manifest_failed(&err.msg, &e);
         return Err(err);
     }
@@ -125,8 +125,8 @@ fn finish_manifest(src: &Path, dst_top: &Path, manifest: Option<Writer>, steps: 
     r.as_ref().map(|_| ()).map_err(clone_err)
 }
 
-fn clone_err(e: &FleaError) -> FleaError {
-    FleaError { where_: e.where_.clone(), path: e.path.clone(), msg: e.msg.clone() }
+fn clone_err(e: &DleaError) -> DleaError {
+    DleaError { where_: e.where_.clone(), path: e.path.clone(), msg: e.msg.clone() }
 }
 
 // How many failures the item error names before it counts the rest.
@@ -148,7 +148,7 @@ fn merge_into(
     ctx: &mut Durability,
     counts: &mut Counts,
     deferred: &mut Deferred,
-) -> Result<(), FleaError> {
+) -> Result<(), DleaError> {
     let dir_rel = dst_dir.strip_prefix(dest).unwrap_or(dst_dir).to_string_lossy().to_string();
     let entries = match std::fs::read_dir(src_dir) {
         Ok(entries) => entries,
@@ -162,7 +162,7 @@ fn merge_into(
     let before = counts.failed.len();
     for entry in entries {
         if cancel.load(Ordering::Relaxed) {
-            return Err(FleaError { where_: "copy".into(), path: dst_dir.to_string_lossy().to_string(), msg: "cancelled".into() });
+            return Err(DleaError { where_: "copy".into(), path: dst_dir.to_string_lossy().to_string(), msg: "cancelled".into() });
         }
         let entry = match entry {
             Ok(entry) => entry,
@@ -239,7 +239,7 @@ fn merge_into(
     } else {
         let shown = own.iter().take(REPORTED_FAILURES).cloned().collect::<Vec<_>>().join("; ");
         let msg = if own.len() > REPORTED_FAILURES { format!("{shown}; and {} more", own.len() - REPORTED_FAILURES) } else { shown };
-        Err(FleaError { where_: "transfer".into(), path: dst_dir.to_string_lossy().to_string(), msg })
+        Err(DleaError { where_: "transfer".into(), path: dst_dir.to_string_lossy().to_string(), msg })
     }
 }
 
@@ -249,7 +249,7 @@ fn merge_into(
 const MODE_BITS: u32 = 0o7777;
 
 // The mode is read before the remove, so undo recreates the folder as it was, not as the umask would make it.
-pub(crate) fn removed_empty_dir(path: &std::path::Path) -> Result<Step, FleaError> {
+pub(crate) fn removed_empty_dir(path: &std::path::Path) -> Result<Step, DleaError> {
     let mode = path.symlink_metadata().map(|meta| meta.permissions().mode() & MODE_BITS)
         .map_err(|e| from_io("journal", &path.to_string_lossy(), &e))?;
     Ok(Step::RemovedEmptyDir { path: path.to_path_buf(), mode })
@@ -264,9 +264,9 @@ fn remove_emptied(path: &Path, steps: &mut Vec<Step>) {
 }
 
 // Only a folder this operation emptied: a gone parent or a taken name refuses and creates nothing.
-pub(crate) fn recreate_emptied(path: &PathBuf, mode: u32) -> Result<(), FleaError> {
+pub(crate) fn recreate_emptied(path: &PathBuf, mode: u32) -> Result<(), DleaError> {
     if path.symlink_metadata().is_ok() {
-        return Err(FleaError { where_: "undo".into(), path: path.to_string_lossy().into(),
+        return Err(DleaError { where_: "undo".into(), path: path.to_string_lossy().into(),
             msg: "another item now has the emptied folder's name, so undo left the moved items in place".into() });
     }
     let parent = path.parent().filter(|p| !p.as_os_str().is_empty());
@@ -276,7 +276,7 @@ pub(crate) fn recreate_emptied(path: &PathBuf, mode: u32) -> Result<(), FleaErro
         None => false,
     };
     if !held {
-        return Err(FleaError { where_: "undo".into(), path: path.to_string_lossy().into(),
+        return Err(DleaError { where_: "undo".into(), path: path.to_string_lossy().into(),
             msg: "the emptied folder's parent is gone, so undo left the moved items in place".into() });
     }
     std::fs::DirBuilder::new().mode(mode).create(path).map_err(|e| from_io("undo", &path.to_string_lossy(), &e))?;
@@ -285,20 +285,20 @@ pub(crate) fn recreate_emptied(path: &PathBuf, mode: u32) -> Result<(), FleaErro
 }
 
 // Redo takes an emptied folder away again, so the folder must still be the one undo left.
-pub(crate) fn check_emptied(step: &Step) -> Result<(), FleaError> {
+pub(crate) fn check_emptied(step: &Step) -> Result<(), DleaError> {
     let Step::RemovedEmptyDir { path, .. } = step else { return Ok(()) };
     match path.symlink_metadata() {
         Ok(meta) if meta.is_dir() && !meta.file_type().is_symlink() => Ok(()),
-        Ok(_) => Err(FleaError { where_: "redo".into(), path: path.to_string_lossy().into(),
+        Ok(_) => Err(DleaError { where_: "redo".into(), path: path.to_string_lossy().into(),
             msg: "the emptied folder was replaced; redo left it in place".into() }),
-        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Err(FleaError { where_: "redo".into(), path: path.to_string_lossy().into(),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Err(DleaError { where_: "redo".into(), path: path.to_string_lossy().into(),
             msg: "the emptied folder is already gone; redo left it in place".into() }),
         Err(e) => Err(from_io("redo", &path.to_string_lossy(), &e)),
     }
 }
 
 // The Moved replays above emptied it again, so redo takes it away as the operation did.
-pub(crate) fn redo_emptied(path: &Path, mode: u32, steps: &mut Vec<Step>) -> Result<(), FleaError> {
+pub(crate) fn redo_emptied(path: &Path, mode: u32, steps: &mut Vec<Step>) -> Result<(), DleaError> {
     std::fs::remove_dir(path).map_err(|e| from_io("redo", &path.to_string_lossy(), &e))?;
     steps.push(Step::RemovedEmptyDir { path: path.to_path_buf(), mode });
     Ok(())
@@ -336,7 +336,7 @@ pub(crate) fn decode_merge(pairs: &[(String, crate::jsondoc::Json)]) -> bool {
 mod tests;
 
 // A merge undone outside its own window refuses, because only that window's manifest may take entries away.
-pub(crate) fn merge_foreign_undo(to: &Path) -> FleaError {
-    FleaError { where_: "undo".into(), path: to.to_string_lossy().into(),
+pub(crate) fn merge_foreign_undo(to: &Path) -> DleaError {
+    DleaError { where_: "undo".into(), path: to.to_string_lossy().into(),
         msg: "this merge can be undone only in the window that made it, so undo left the merged items in place".into() }
 }

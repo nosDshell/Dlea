@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-langtoggle-test
+//@ pragma ShellId dlea-langtoggle-test
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
-import "flea/js/Icons.js" as Icons
+import "dlea" as Dlea
+import "dlea/js/Icons.js" as Icons
 import "langmark-count.js" as LangCost
 
 // Real WindowBody windows and a second process sharing the same state file.
@@ -65,7 +65,7 @@ ShellRoot {
         return true
     }
     function steady() {
-        return Flea.ViewState.saveStatus === "Saved" && JSON.stringify(Flea.ViewState.unsaved) === "{}" && Date.now() - since >= 700
+        return Dlea.ViewState.saveStatus === "Saved" && JSON.stringify(Dlea.ViewState.unsaved) === "{}" && Date.now() - since >= 700
     }
     function snapshot() {
         listingCounts = panes.map(function (pane) { return pane.backend.listRequests })
@@ -84,7 +84,7 @@ ShellRoot {
             check(LangCost.state(plain[j].row).labelX === plain[j].labelX, "toggle moves the filename column")
     }
     function slots(on, label) {
-        check(Flea.ViewState.langMarks === on, label + " setting")
+        check(Dlea.ViewState.langMarks === on, label + " setting")
         var rows = codeRows(), types = {}
         check(rows.length > 0, label + " has no code-row control")
         for (var i = 0; i < rows.length; i++) {
@@ -213,14 +213,14 @@ ShellRoot {
                     + (retained.types.GridTile || 0) + " codeRows=" + codeRows().length)
             }
             slots(!savedOff, savedOff ? "saved-off" : again ? "relaunch-on" : "default-on")
-            console.log("LANGTOGGLE " + (again ? "RELAUNCH" : "DEFAULT") + " on=" + Flea.ViewState.langMarks)
+            console.log("LANGTOGGLE " + (again ? "RELAUNCH" : "DEFAULT") + " on=" + Dlea.ViewState.langMarks)
             snapshot()
             if (savedOff) { menu(false, false, false); finish(); return }
             if (peer) { panes[0].contextMenu().openBackground(Qt.point(100, 100)); sharedMenu(true) }
             else menu(true)
             next()
         } else if (peer) {
-            var now = Flea.ViewState.langMarks
+            var now = Dlea.ViewState.langMarks
             if (now === peerState) return
             peerState = now
             peerFlips++
@@ -275,24 +275,24 @@ ShellRoot {
             Loader {
                 id: body
                 anchors.fill: parent
-                source: "flea/WindowBody.qml"
+                source: "dlea/WindowBody.qml"
                 onLoaded: item.host = window
                 onStatusChanged: if (status === Loader.Error) { root.check(false, "WindowBody failed to load"); root.finish() }
             }
         }
     }
     Component.onCompleted: {
-        var held = Flea.ViewState.state
-        Flea.ViewState.state = ({})
-        root.check(Flea.ViewState.langMarks, "absent QML preference defaults on")
+        var held = Dlea.ViewState.state
+        Dlea.ViewState.state = ({})
+        root.check(Dlea.ViewState.langMarks, "absent QML preference defaults on")
         var invalid = [null, "false", 1, [], {}]
         for (var v = 0; v < invalid.length; v++) {
-            Flea.ViewState.state = ({langMarks: invalid[v]})
-            root.check(Flea.ViewState.langMarks, "invalid QML preference heals on " + v)
+            Dlea.ViewState.state = ({langMarks: invalid[v]})
+            root.check(Dlea.ViewState.langMarks, "invalid QML preference heals on " + v)
         }
-        Flea.ViewState.state = ({langMarks: false})
-        root.check(!Flea.ViewState.langMarks, "saved QML false stays off")
-        Flea.ViewState.state = held
+        Dlea.ViewState.state = ({langMarks: false})
+        root.check(!Dlea.ViewState.langMarks, "saved QML false stays off")
+        Dlea.ViewState.state = held
         var made = []
         for (var i = 0; i < (peer ? 1 : 3); i++) made.push(windowFactory.createObject(root))
         windows = made

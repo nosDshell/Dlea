@@ -2,16 +2,16 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Headless proof of the real shebang receipt and the native case's strict completion wait.
 set -uo pipefail
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 command -v qs >/dev/null || { echo "FAIL menu-shebang: qs is not installed"; exit 1; }
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-menu-shebang-XXXXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-menu-shebang-XXXXXXXX") || exit 1
 sandbox_require "$test_root" || exit 1
 : > "$test_root/$SANDBOX_MARKER" || exit 1
 trap 'sandbox_remove "$test_root"' EXIT
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/menu-shebang.qml "$test_root/config/shell.qml" || exit 1
@@ -19,7 +19,7 @@ printf '#!/bin/sh\necho built\n' > "$test_root/build.sh"
 printf 'plain notes\n' > "$test_root/notes.txt"
 output=$(env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_RUNTIME_DIR="$test_root/runtime" \
-    FLEA_BIN="$PWD/target/debug/flea" SHEBANG_SCRIPT="$test_root/build.sh" SHEBANG_NOTES="$test_root/notes.txt" \
+    DLEA_BIN="$PWD/target/debug/dlea" SHEBANG_SCRIPT="$test_root/build.sh" SHEBANG_NOTES="$test_root/notes.txt" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 timeout 25 qs -p "$test_root/config" 2>&1)
 status=$?
 backend_checks=15

@@ -64,11 +64,11 @@ function codeOf(text) {
     }
     return out
 }
-// Each Flea.ChromeButton a file declares, named by its id (its glyph where it has none), with only its own lines: comments and nested blocks are left out.
-// Sample input: marksOf("Flea.ChromeButton { id: a; glyph: \"x\"; B { glyph: \"y\" } }") answers [{ name: "a", own: " id: a; glyph: \"x\"; B  " }].
+// Each Dlea.ChromeButton a file declares, named by its id (its glyph where it has none), with only its own lines: comments and nested blocks are left out.
+// Sample input: marksOf("Dlea.ChromeButton { id: a; glyph: \"x\"; B { glyph: \"y\" } }") answers [{ name: "a", own: " id: a; glyph: \"x\"; B  " }].
 function marksOf(text) {
     var code = codeOf(text)
-    var marker = "Flea.ChromeButton {"
+    var marker = "Dlea.ChromeButton {"
     var out = []
     for (var at = code.indexOf(marker); at >= 0; at = code.indexOf(marker, at + marker.length)) {
         var own = ""
@@ -232,7 +232,7 @@ function run(check) {
     for (var host in ruled) {
         var hostText = Source.source(host)
         var wanted = ruled[host]
-        var drawn = hostText.split("Flea.ChromeButton {").length - 1
+        var drawn = hostText.split("Dlea.ChromeButton {").length - 1
         check(host + " gives every strip rule's row to its mark frame", hostText.split("ruleRows: Theme.spacing.hairline").length - 1, wanted)
         check(host + " hosts the buttons the pin counts", drawn === wanted, true)
     }
@@ -246,7 +246,7 @@ function run(check) {
         check(hosts[h] + " gives no mark a focus line", /\bfocusLine\b/.test(hostCode), false)
     }
     check("the mark reader keeps a mark's own line and drops a comment's and a nested block's",
-        JSON.stringify(marksOf("Flea.ChromeButton { id: a // glyph: \"y\"\n B { glyph: \"z\" } }\nFlea.ChromeButton { glyph: \"x\" }")
+        JSON.stringify(marksOf("Dlea.ChromeButton { id: a // glyph: \"y\"\n B { glyph: \"z\" } }\nDlea.ChromeButton { glyph: \"x\" }")
             .map(function (mark) { return mark.name + "=" + valuesOf(mark.own, "glyph").join("|") })), JSON.stringify(["a=", "\"x\"=\"x\""]))
     var chromeButton = codeOf(Source.source("ui/ChromeButton.qml"))
     check("a chrome mark has no focus line to give", /\bfocusLine\b/.test(chromeButton), false)

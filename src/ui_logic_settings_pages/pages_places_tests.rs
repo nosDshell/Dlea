@@ -24,11 +24,11 @@ fn favorites_heading_carries_the_add_action() {
 #[test]
 fn favourite_paths_read_as_written_and_keep_the_stored_value() {
     let homed = places(r#"{"places":{"favourites":[{"label":"Projects","path":"/home/gm/Projects"},
-        {"label":"flea","path":"~/Documents/claude/flea"},{"label":"Archive","path":"/srv/archive"},
+        {"label":"dlea","path":"~/Documents/claude/dlea"},{"label":"Archive","path":"/srv/archive"},
         {"label":"Sibling","path":"/home/gmx/s"}]}}"#, "/home/gm");
     let first = find(&homed, "favourite:0");
     assert_eq!(format!("{}|{}", first.display, say(&first.value)), "~/Projects|/home/gm/Projects");
-    assert_eq!(find(&homed, "favourite:1").display, "~/Documents/claude/flea");
+    assert_eq!(find(&homed, "favourite:1").display, "~/Documents/claude/dlea");
     assert_eq!(find(&homed, "favourite:2").display, "/srv/archive");
     assert_eq!(say(&find(&homed, "favourite:2").value), "/srv/archive");
     assert_eq!(find(&homed, "favourite:3").display, "/home/gmx/s");

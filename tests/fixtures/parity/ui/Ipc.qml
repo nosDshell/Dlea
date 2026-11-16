@@ -2,7 +2,7 @@ import QtQuick
 QtObject {
     function helper() {}
     property IpcHandler seam: IpcHandler {
-        target: "flea"
+        target: "dlea"
         // function commented() {}
         function ready(): bool { return "}" !== "{" }
         function previewState(): string {

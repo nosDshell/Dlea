@@ -185,7 +185,7 @@ function wrapChars(chars, perLine, count) {
     return out
 }
 
-// The caption Flea hands to Text already holds its line breaks, so Qt never wraps.
+// The caption Dlea hands to Text already holds its line breaks, so Qt never wraps.
 // Sample input: gridCaption("screenshot-2026-08-30-final-review-for-gm-after-the-bench-v3.png", 16, 2) answers "screenshot-2026-\n…he-bench-v3.png".
 function gridCaption(name, perLine, lines) {
     var text = String(name)
@@ -197,7 +197,7 @@ function gridCaption(name, perLine, lines) {
     var chars = charsOf(text)
     if (chars.length === 0)
         return text
-    // A wide glyph never straddles a line and wastes a cell, so elide until Flea's own wrap holds every char.
+    // A wide glyph never straddles a line and wastes a cell, so elide until Dlea's own wrap holds every char.
     var capacity = per * count, shown = elideChars(chars, capacity, per)
     while (capacity > 1 && wrapChars(shown, per, count).join("") !== shown.join(""))
         shown = elideChars(chars, --capacity, per)

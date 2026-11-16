@@ -57,7 +57,7 @@ impl Wire {
                 }
                 let _ = (&ring).write(&[1]);
             }
-            let _ = tx.send(Err(super::words::Text::Key("tui.wire.the_file_list_stopped_restart_flea").to_string()));
+            let _ = tx.send(Err(super::words::Text::Key("tui.wire.the_file_list_stopped_restart_dlea").to_string()));
             let _ = (&ring).write(&[1]);
         });
         Ok(Self {
@@ -138,7 +138,7 @@ pub(crate) fn echo_wire() -> (Wire, std::thread::JoinHandle<()>) {
     let quit = jsondoc::render(&Json::Obj(vec![("c".into(), word("quit"))])).replace('\n', "");
     let mut child = Command::new("sh").args(["-c",
         r#"while IFS= read -r line; do [ "$line" = "$1" ] && exit 0; printf '%s\n' "$line"; done"#,
-        "flea-tui-wire-test", &quit]).stdin(Stdio::piped()).stdout(Stdio::piped()).spawn().unwrap();
+        "dlea-tui-wire-test", &quit]).stdin(Stdio::piped()).stdout(Stdio::piped()).spawn().unwrap();
     let input = child.stdin.take().unwrap();
     let output = child.stdout.take().unwrap();
     let (tx, events) = mpsc::channel();
@@ -224,7 +224,7 @@ mod tests {
         assert!(!crate::tui::terminal::wait_input(stdin.as_raw_fd(), wire.wake_fd(), WAKE_WAIT_MS).unwrap());
         assert!(before.elapsed() < Duration::from_millis(WAKE_WAIT_MS as u64), "the wake never rang after the backend exited");
         let event = wire.events.try_recv();
-        assert!(matches!(&event, Ok(Err(error)) if error == "The file list stopped; restart Flea"), "a ringing wake had no stop queued: {:?}", event.map(|value| value.map(|_| ())));
+        assert!(matches!(&event, Ok(Err(error)) if error == "The file list stopped; restart Dlea"), "a ringing wake had no stop queued: {:?}", event.map(|value| value.map(|_| ())));
     }
 
     #[test]
@@ -233,7 +233,7 @@ mod tests {
         // Echo actual Wire::send output; honoring Quit also lets Wire::drop reap the child during a panic.
         let mut child = Command::new("sh").args(["-c",
             r#"while IFS= read -r line; do [ "$line" = "$1" ] && exit 0; printf '%s\n' "$line"; done"#,
-            "flea-tui-wire-test", &quit]).stdin(Stdio::piped()).stdout(Stdio::piped()).spawn().unwrap();
+            "dlea-tui-wire-test", &quit]).stdin(Stdio::piped()).stdout(Stdio::piped()).spawn().unwrap();
         let input = child.stdin.take().unwrap();
         let output = child.stdout.take().unwrap();
         let (tx, events) = mpsc::channel();
@@ -334,23 +334,23 @@ mod tests {
 
     #[test]
     fn the_backend_inherits_the_prefetch_only_when_one_waits() {
-        let bare = backend_command(std::path::Path::new("flea"), None);
+        let bare = backend_command(std::path::Path::new("dlea"), None);
         assert!(bare.get_envs().next().is_none(), "a local start hands the backend no prefetch");
         let found = crate::gvfsprefetch::Prefetch {
-            dest: PathBuf::from("/run/flea/gvfs-1.list"),
+            dest: PathBuf::from("/run/dlea/gvfs-1.list"),
             path: "/run/user/1000/gvfs/smb-share:server=x,share=y/dir".into(),
             start_ms: 1728000000000,
         };
-        let cmd = backend_command(std::path::Path::new("flea"), Some(&found));
+        let cmd = backend_command(std::path::Path::new("dlea"), Some(&found));
         let mut envs: Vec<(String, Option<String>)> = cmd
             .get_envs()
             .map(|(key, value)| (key.to_string_lossy().into_owned(), value.map(|v| v.to_string_lossy().into_owned())))
             .collect();
         envs.sort();
-        // Sample command: FLEA_GVFS_PATH, FLEA_GVFS_PREFETCH and FLEA_GVFS_START beside --backend.
+        // Sample command: DLEA_GVFS_PATH, DLEA_GVFS_PREFETCH and DLEA_GVFS_START beside --backend.
         assert_eq!(envs, vec![
             (String::from(crate::gvfsprefetch::PATH_ENV), Some(String::from("/run/user/1000/gvfs/smb-share:server=x,share=y/dir"))),
-            (String::from(crate::gvfsprefetch::PREFETCH_ENV), Some(String::from("/run/flea/gvfs-1.list"))),
+            (String::from(crate::gvfsprefetch::PREFETCH_ENV), Some(String::from("/run/dlea/gvfs-1.list"))),
             (String::from(crate::gvfsprefetch::START_ENV), Some(String::from("1728000000000"))),
         ]);
     }

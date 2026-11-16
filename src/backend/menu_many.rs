@@ -1,5 +1,5 @@
 // Open With over several selected files: the applications every selected type names, and the launches one choice makes.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::menu_actions::{application_entries, Selected};
 use super::menu_registry::{self, Application, Registry};
 use super::trashmanifest::Cancellation;

@@ -6,7 +6,7 @@ import tempfile
 
 REPO = Path(__file__).resolve().parents[2]
 SCRATCH = (REPO / ".superpowers/u1").resolve()
-MARKER = ".flea-test-sandbox"
+MARKER = ".dlea-test-sandbox"
 
 
 def make(prefix):

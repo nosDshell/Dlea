@@ -113,7 +113,7 @@ function built(check) {
     check("and hands it the crumb the frame belongs to", crumb.indexOf("{ crumb: crumb, pane: crumb.dropPane") >= 0, true)
     var area = Source.source("ui/CrumbDrop.qml")
     check("the crumb's drop is the floor's own receiver, so it decides the verb and sends the one transfer the floor does",
-          area.indexOf("Flea.DropInto {") >= 0 && area.indexOf("text/uri-list") < 0 && area.indexOf("verbFor") < 0, true)
+          area.indexOf("Dlea.DropInto {") >= 0 && area.indexOf("text/uri-list") < 0 && area.indexOf("verbFor") < 0, true)
     check("and is named by the crumb's text", Source.source("ui/DropInto.qml").indexOf("root.label || root.dest") >= 0
           && crumb.indexOf("label: String(crumb.modelData.text") >= 0, true)
     var row = Source.source("ui/RowDrag.qml")

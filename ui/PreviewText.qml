@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell.Io
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Markdown.js" as Markdown
 import "js/Csv.js" as Csv
 
@@ -79,7 +79,7 @@ Item {
         onPathChanged: root.readFailed = false
     }
 
-    Flea.QuickLookBar {
+    Dlea.QuickLookBar {
         id: bar
         anchors.top: parent.top
         anchors.left: parent.left
@@ -91,7 +91,7 @@ Item {
         onCloseRequested: root.closeRequested()
     }
 
-    Flea.CodeLines {
+    Dlea.CodeLines {
         id: lines
         anchors.fill: parent
         anchors.topMargin: bar.height + Theme.spacing.rowPaddingX
@@ -108,11 +108,11 @@ Item {
         scrolls: true
         pixelSize: Theme.font.body
 
-        Flea.FastScrollHandler {
+        Dlea.FastScrollHandler {
             flickable: root.codeList
         }
 
-        Flea.ViewportScrollBar {
+        Dlea.ViewportScrollBar {
             anchors { top: parent.top; right: parent.right }
             flickable: root.codeList
         }
@@ -137,7 +137,7 @@ Item {
         }
     }
 
-    Flea.CodeRefusal {
+    Dlea.CodeRefusal {
         anchors.fill: parent
         topInset: bar.height
         binary: root.binary

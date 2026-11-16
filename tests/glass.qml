@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-glass-test
+//@ pragma ShellId dlea-glass-test
 import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Commons as Commons
-import "flea" as Flea
+import "dlea" as Dlea
 import "glass.js" as Pixels
 
 // The real WindowBody grabbed over magenta and over green; each ground region must solve to one plane (tests/glass.js).
@@ -16,7 +16,7 @@ ShellRoot {
     // The 8-bit alpha the planes must carry at launch: 87 is 0.34, 255 is opaque.
     readonly property int expect: Number(Quickshell.env("GLASS_EXPECT"))
     readonly property bool stock: Quickshell.env("GLASS_STOCK") === "1"
-    readonly property int listedAlpha: Pixels.listAlpha(Flea.Theme.color.opaquePalette, root.expect, root.stock && Flea.Glass.split && Flea.Glass.usesDefault && Flea.Glass.mode === "glassy")
+    readonly property int listedAlpha: Pixels.listAlpha(Dlea.Theme.color.opaquePalette, root.expect, root.stock && Dlea.Glass.split && Dlea.Glass.usesDefault && Dlea.Glass.mode === "glassy")
     // Parse mode: a user value written after launch, which an opaque launch must not take until the next one.
     readonly property string lateUser: Quickshell.env("GLASS_LATE_USER") || ""
     // The 8-bit alpha a late value must reach: its own on a clear launch, 255 on a launch a value pinned opaque.
@@ -106,7 +106,7 @@ ShellRoot {
         root.planeIn(px, tag, root.rectOf(item), role, want === undefined && role === "background" ? root.listedAlpha : want)
     }
     function planeIn(px, tag, box, role, want) {
-        var target = root.rgb(role === "surface" ? Flea.Theme.color.surface : Flea.Theme.color.background)
+        var target = root.rgb(role === "surface" ? Dlea.Theme.color.surface : Dlea.Theme.color.background)
         Pixels.checkPlane(root, stage, target, px, tag, box, want)
     }
     // An overlay hides what is under it: its modal pixel is the same over both backdrops.
@@ -126,7 +126,7 @@ ShellRoot {
     }
     // The written value reached Omarchy's own reader, so a check that follows it is not vacuous.
     function read(value, tag) {
-        var got = Commons.Color.pickAlpha("flea.background-alpha", -1)
+        var got = Commons.Color.pickAlpha("dlea.background-alpha", -1)
         root.check(Math.abs(got - value) < 0.001, tag + " reached Omarchy's reader as " + got)
     }
     function header(px, tag, a) {
@@ -138,7 +138,7 @@ ShellRoot {
     }
     // The listing, the rail, the chrome, the header and the status bar at the expected alpha.
     function listPlanes(px, tag, a) {
-        var listed = root.stock && Flea.Glass.split && Flea.Glass.usesDefault && Flea.Glass.mode === "glassy" ? root.listedAlpha : a
+        var listed = root.stock && Dlea.Glass.split && Dlea.Glass.usesDefault && Dlea.Glass.mode === "glassy" ? root.listedAlpha : a
         root.plane(px, tag + " listing", root.pane.listSlot, "background", listed)
         root.plane(px, tag + " rail", root.find(root.pane, "Sidebar"), "surface", a)
         root.plane(px, tag + " chrome", root.find(body, "ChromeBar"), "surface", a)
@@ -176,7 +176,7 @@ ShellRoot {
                      if (root.expect === 255) root.allOpaque(px, "list")
                  })]
         if (root.mode === "parse" && root.lateUser.length > 0) {
-            s.push(root.act(function () { userFile.setText("[flea]\nbackground-alpha = " + root.lateUser + "\n") }))
+            s.push(root.act(function () { userFile.setText("[dlea]\nbackground-alpha = " + root.lateUser + "\n") }))
             s.push(root.settle(800))
             s.push(root.measure("late", function (px) {
                 root.read(Number(root.lateUser), "late user value")
@@ -230,7 +230,7 @@ ShellRoot {
             root.act(function () { root.pane.act("tabClose") }),
             root.wait(function () { var t = tabs(); return t && !t.visible && root.ready(root.pane) }),
             // Dual: both path strips, both listings, one ground each.
-            root.act(function () { Flea.ViewState.changeKey("view", "dual") }),
+            root.act(function () { Dlea.ViewState.changeKey("view", "dual") }),
             root.wait(function () { return body.dualMode && root.otherPane() !== null && root.ready(root.otherPane()) }),
             root.settle(300),
             root.measure("dual", function (px) {
@@ -241,7 +241,7 @@ ShellRoot {
                 root.plane(px, "dual right listing", right.listSlot, "background")
                 root.noHoles(px, "dual")
             }),
-            root.act(function () { Flea.ViewState.changeKey("view", "list") }),
+            root.act(function () { Dlea.ViewState.changeKey("view", "list") }),
             root.wait(function () { return !body.dualMode && root.ready(root.pane) }),
             // Columns and grid stand on the same pane ground.
             root.act(function () { root.pane.chooseView("columns") }),
@@ -262,14 +262,14 @@ ShellRoot {
             root.act(function () { root.pane.chooseView("list") }),
             root.wait(function () { return root.pane.viewMode === "list" && root.ready(root.pane) }),
             // Auto-hide reveals the rail over the rows, so it is opaque the way a menu is.
-            root.act(function () { Flea.ViewState.changeLeaf("places", { autoHide: true }) }),
-            root.wait(function () { return Flea.ViewState.railAutoHide }),
+            root.act(function () { Dlea.ViewState.changeLeaf("places", { autoHide: true }) }),
+            root.wait(function () { return Dlea.ViewState.railAutoHide }),
             root.act(function () { root.find(root.pane, "PaneRail").revealed = true }),
             root.wait(function () { var s = root.find(root.pane, "Sidebar"); return s && s.visible && s.width > 0 }),
             root.settle(200),
             root.measure("overlay rail", function (px) { root.opaque(px, "overlay rail", root.rectOf(root.find(root.pane, "Sidebar"))) }),
-            root.act(function () { root.find(root.pane, "PaneRail").revealed = false; Flea.ViewState.changeLeaf("places", { autoHide: false }) }),
-            root.wait(function () { return !Flea.ViewState.railAutoHide && root.find(root.pane, "Sidebar") !== null }),
+            root.act(function () { root.find(root.pane, "PaneRail").revealed = false; Dlea.ViewState.changeLeaf("places", { autoHide: false }) }),
+            root.wait(function () { return !Dlea.ViewState.railAutoHide && root.find(root.pane, "Sidebar") !== null }),
             // A menu and a dialog stay opaque.
             root.act(function () { var p = root.pane.listSlot.mapToItem(null, 300, 300); root.pane.contextMenu().openBackground(Qt.point(p.x, p.y)) }),
             root.wait(function () { var m = root.pane.contextMenu(); return m.opened && m.frameItem && m.frameItem.width > 0 }),
@@ -285,16 +285,16 @@ ShellRoot {
             // A glass launch follows the value live: a theme switch first, its palette with it, then the user's file, then opaque.
             root.act(function () {
                 themeColors.setText(root.switched)
-                themeShell.setText("[flea]\nbackground-alpha = 0.5\n")
+                themeShell.setText("[dlea]\nbackground-alpha = 0.5\n")
                 themeName.setText("glass-switched\n")
             }),
-            root.wait(function () { return root.hex(Flea.Theme.color.background) === "#283040" }),
+            root.wait(function () { return root.hex(Dlea.Theme.color.background) === "#283040" }),
             root.settle(800),
             root.measure("theme switch", function (px) { root.read(0.5, "theme switch 0.5"); root.listPlanes(px, "theme switch", 128) }),
-            root.act(function () { userFile.setText("[flea]\nbackground-alpha = 0.6\n") }),
+            root.act(function () { userFile.setText("[dlea]\nbackground-alpha = 0.6\n") }),
             root.settle(800),
             root.measure("live", function (px) { root.read(0.6, "live 0.6"); root.listPlanes(px, "live 0.6", 153) }),
-            root.act(function () { userFile.setText("[flea]\nbackground-alpha = 1\n") }),
+            root.act(function () { userFile.setText("[dlea]\nbackground-alpha = 1\n") }),
             root.settle(800),
             root.measure("live opaque", function (px) {
                 root.read(1, "live 1")
@@ -307,7 +307,7 @@ ShellRoot {
     // The current tab's box less its accent edge, in stage pixels.
     function plateBox(t) {
         var r = root.rectOf(t.itemAt(t.currentIndex))
-        return { x: r.x, y: r.y, w: r.w, h: r.h - Flea.Theme.accentEdge }
+        return { x: r.x, y: r.y, w: r.w, h: r.h - Dlea.Theme.accentEdge }
     }
     // A translucent strip would show the header's titles, wash and rule, so each one under it is down.
     function underStrip(header) {
@@ -361,7 +361,7 @@ ShellRoot {
             id: stage
             anchors.fill: parent
             Rectangle { anchors.fill: parent; color: root.backdrops[root.backdropIndex] }
-            Flea.WindowBody { id: body; host: window }
+            Dlea.WindowBody { id: body; host: window }
         }
         Image {
             id: shot

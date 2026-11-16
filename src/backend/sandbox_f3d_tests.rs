@@ -3,11 +3,11 @@ use crate::backend::{
 };
 use std::path::PathBuf;
 
-// FLEA_TEST_F3D_PREFIX permits an unpacked private /usr for the explicit native proof.
+// DLEA_TEST_F3D_PREFIX permits an unpacked private /usr for the explicit native proof.
 #[test]
 #[ignore = "requires f3d 3.5, Mesa llvmpipe and a working bwrap namespace"]
 fn real_f3d_thumbnail_exec_path_renders_a_mesh_under_llvmpipe() {
-    let prefix = std::env::var_os("FLEA_TEST_F3D_PREFIX").map(PathBuf::from);
+    let prefix = std::env::var_os("DLEA_TEST_F3D_PREFIX").map(PathBuf::from);
     let program = prefix
         .as_ref()
         .map(|p| p.join("bin/f3d"))

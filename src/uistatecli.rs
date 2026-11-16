@@ -2,12 +2,12 @@ use crate::jsondoc;
 use crate::shelfplugin;
 use crate::uistore;
 
-// flea --ui-state, the window's path to the state file (the TUI writes it directly): no argument reads it, a JSON patch merges under the lock.
+// dlea --ui-state, the window's path to the state file (the TUI writes it directly): no argument reads it, a JSON patch merges under the lock.
 pub fn ui_state(args: &[String]) -> i32 {
     let store = match uistore::Store::user() {
         Ok(store) => store,
         Err(e) => {
-            eprintln!("flea: {}", e);
+            eprintln!("dlea: {}", e);
             return 2;
         }
     };
@@ -25,7 +25,7 @@ pub fn ui_state(args: &[String]) -> i32 {
             match merged {
                 Ok(next) => next,
                 Err(e) => {
-                    eprintln!("flea: {}", e);
+                    eprintln!("dlea: {}", e);
                     return 2;
                 }
             }
@@ -36,9 +36,9 @@ pub fn ui_state(args: &[String]) -> i32 {
     if now != was {
         if let Err(e) = shelfplugin::sync(now) {
             if now {
-                eprintln!("flea: the shelf plugin was not installed ({})", e);
+                eprintln!("dlea: the shelf plugin was not installed ({})", e);
             } else {
-                eprintln!("flea: the shelf plugin was not removed ({})", e);
+                eprintln!("dlea: the shelf plugin was not removed ({})", e);
             }
         }
     }

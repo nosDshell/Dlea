@@ -8,26 +8,26 @@
 // Read the native fixture's mktemp path and simple jq object so the parser sees its actual mountpoint.
 function nativeFixture(check) {
     var script = Source.source("tests/drag.sh")
-    // Sample input: XDEV=$(mktemp -d "$XDG_RUNTIME_DIR/flea-drag-xdev-XXXXXXXX") || exit 1
+    // Sample input: XDEV=$(mktemp -d "$XDG_RUNTIME_DIR/dlea-drag-xdev-XXXXXXXX") || exit 1
     var creates = script.match(/XDEV=\$\(mktemp -d [^\n]+/g) || []
     check("all and R7 share one tmpfs fixture creation", creates.length, 1)
-    // Sample input: XDEV=$(mktemp -d "$XDG_RUNTIME_DIR/flea-drag-xdev-XXXXXXXX") captures $XDG_RUNTIME_DIR/flea-drag-xdev-XXXXXXXX.
+    // Sample input: XDEV=$(mktemp -d "$XDG_RUNTIME_DIR/dlea-drag-xdev-XXXXXXXX") captures $XDG_RUNTIME_DIR/dlea-drag-xdev-XXXXXXXX.
     var template = creates.length === 1 ? creates[0].match(/mktemp -d "?([^" )]+)/) : null
     // Sample input: jq -nc --arg path "$XDEV/big" '{blockdevices:[{mountpoints:[$path]}]}' > "$SB/lsblk.json"
     var object = script.match(/jq -nc --arg path "\$XDEV\/big" '([^'\n]+)' > "\$SB\/lsblk.json"/)
     if (!template || !object) throw new Error("native drag lsblk fixture seam moved")
     var runtime = "/run/user/1000"
-    // Sample input: $XDG_RUNTIME_DIR/flea-drag-xdev-XXXXXXXX becomes /run/user/1000/flea-drag-xdev-Fixture1/big.
+    // Sample input: $XDG_RUNTIME_DIR/dlea-drag-xdev-XXXXXXXX becomes /run/user/1000/dlea-drag-xdev-Fixture1/big.
     var path = template[1].replace(/\$XDG_RUNTIME_DIR/g, runtime).replace(/X+$/, "Fixture1") + "/big"
-    // Sample input: {mountpoints:[$path]} becomes {"mountpoints":["/run/user/1000/flea-drag-xdev-Fixture1/big"]}.
+    // Sample input: {mountpoints:[$path]} becomes {"mountpoints":["/run/user/1000/dlea-drag-xdev-Fixture1/big"]}.
     var body = object[1].replace(/\$path/g, JSON.stringify(path)).replace(/([{,])([A-Za-z][A-Za-z0-9_]*):/g, '$1"$2":')
     var rows = Devices.parseDevices(body)
     check("native fixture mounts become exactly one USB row", rows.length, 1)
     check("native USB row preserves its runtime path and capacity", rows.map(function (row) {
         return [row.label, row.kind, row.path, row.mounted, row.size].join("|")
-    }).join(","), "USB|volume|" + runtime + "/flea-drag-xdev-Fixture1/big|true|128000000000")
+    }).join(","), "USB|volume|" + runtime + "/dlea-drag-xdev-Fixture1/big|true|128000000000")
     var old = JSON.parse(body)
-    old.blockdevices[0].mountpoints = ["/dev/shm/flea-drag-xdev-Fixture1/big"]
+    old.blockdevices[0].mountpoints = ["/dev/shm/dlea-drag-xdev-Fixture1/big"]
     check("the former dev-shm fixture is correctly hidden", Devices.parseDevices(JSON.stringify(old)).length, 0)
 }
 

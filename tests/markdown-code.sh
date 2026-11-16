@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 . "$(dirname "$0")/headless-commons.sh"
-# Markdown Source and fenced blocks over the real backend and bat: the Source gutter and inks from line 1, a 3,000-line Source asking only for its window, fences coloured in Quick Look and the column, a one-screen sweep with no fence still owed its colours, and markup drawn as text. Offscreen, in the flea-ci image.
+# Markdown Source and fenced blocks over the real backend and bat: the Source gutter and inks from line 1, a 3,000-line Source asking only for its window, fences coloured in Quick Look and the column, a one-screen sweep with no fence still owed its colours, and markup drawn as text. Offscreen, in the dlea-ci image.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 . "$(dirname "$0")/qslog-gate.sh"
 cd "$(dirname "$0")/.." || exit 1
 
 for tool in qs bat bwrap prlimit python3 qjs; do
-    command -v "$tool" >/dev/null || { echo "markdown-code.sh: $tool is not on PATH; this suite runs in the flea-ci image"; exit 1; }
+    command -v "$tool" >/dev/null || { echo "markdown-code.sh: $tool is not on PATH; this suite runs in the dlea-ci image"; exit 1; }
 done
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [ -x "$bin" ] || { echo "markdown-code.sh: build the backend first: $bin"; exit 1; }
 qs_bin=$(command -v qs)
 timeout_bin=$(command -v timeout)
@@ -17,12 +17,12 @@ timeout_bin=$(command -v timeout)
 RUN_BOUND=300
 
 # The image supplies the Quickshell imports this checkout's qmllint gate needs.
-tools/flea-qmllint-gate
+tools/dlea-qmllint-gate
 lint_status=$?
 printf 'MARKDOWN_CODE_QMLLINT_EXIT %s\n' "$lint_status"
 
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-markdown-code-XXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-markdown-code-XXXXXX") || exit 1
 case $test_root in
   /*/*) ;;
   *) echo "FAIL: mktemp -d gave '$test_root', which is not an absolute path two components deep"; exit 1 ;;
@@ -38,7 +38,7 @@ trap cleanup EXIT
 fixture="$test_root/fixture"
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/runtime" "$fixture" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/markdown-code.qml "$test_root/config/shell.qml" || exit 1
@@ -94,7 +94,7 @@ fi
 {
     printf '%s\n' '```html' '<b>x</b> <img src=x> &amp;' "<img src=\"http://127.0.0.1:$port/x\">" '```' ''
     for i in $(seq 1 36); do printf 'Spacer paragraph %s.\n\n' "$i"; done
-    printf '%s\n' '```flea-unknown-language' 'plain unknown fence' '```'
+    printf '%s\n' '```dlea-unknown-language' 'plain unknown fence' '```'
 } > "$fixture/markup.md"
 
 run_harness() {
@@ -102,7 +102,7 @@ env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     PATH="$PATH" HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_RUNTIME_DIR="$test_root/runtime" \
     XDG_CONFIG_HOME="$test_root/home/.config" XDG_CACHE_HOME="$test_root/home/.cache" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QSG_RENDER_LOOP=basic QT_QPA_UPDATE_IDLE_TIME=16 QT_FORCE_STDERR_LOGGING=1 QT_LOGGING_RULES="$(qslog_rules "${QT_LOGGING_RULES:-}")" \
-    FLEA_BIN="$bin" FLEA_UI="$PWD/ui" MDCODE_DIR="$fixture" \
+    DLEA_BIN="$bin" DLEA_UI="$PWD/ui" MDCODE_DIR="$fixture" \
     "$timeout_bin" "$RUN_BOUND" "$qs_bin" -p "$test_root/config" > "$1" 2>&1
 }
 log="$test_root/markdown-code.log"
@@ -134,8 +134,8 @@ if [ "$rebind_status" -ne 143 ] || [ "$(grep -ac 'MARKDOWN_REBIND DONE' "$rebind
     printf 'FAIL markdown-code backend handoff: qs exit %s\n' "$rebind_status"
     verdict=1
 fi
-if [ -n "${FLEA_CI_SUITE_LOGS:-}" ]; then
-    cp "$rebind_log" "$FLEA_CI_SUITE_LOGS/markdown-code-rebind.log" || exit 1
+if [ -n "${DLEA_CI_SUITE_LOGS:-}" ]; then
+    cp "$rebind_log" "$DLEA_CI_SUITE_LOGS/markdown-code-rebind.log" || exit 1
 fi
 
 seen=$(grep -c connection "$test_root/listener.log")

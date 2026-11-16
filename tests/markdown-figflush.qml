@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-markdown-figflush-test
+//@ pragma ShellId dlea-markdown-figflush-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "markdown-figures-render.js" as Checks
 
 // Every Mermaid figure starts flush on the content column, the way an image does: the first painted pixel of its block is the text's left edge.
@@ -18,7 +18,7 @@ ShellRoot {
     readonly property int flushSlackPx: 1
     readonly property int windowWidth: 560
     readonly property int windowHeight: 600
-    Component.onCompleted: Flea.ViewState.setTextSize({ mode: 14 })
+    Component.onCompleted: Dlea.ViewState.setTextSize({ mode: 14 })
 
     function log(line) { console.log("MARKDOWN_FIGFLUSH " + line) }
     function quit() { Quickshell.execDetached(["kill", String(Quickshell.processId)]) }
@@ -35,11 +35,11 @@ ShellRoot {
         Item {
             id: grabRoot
             anchors.fill: parent
-            Flea.PreviewMarkdown {
+            Dlea.PreviewMarkdown {
                 id: md
                 anchors.fill: parent
                 active: true
-                path: Quickshell.env("FLEA_MARKDOWN_FIGURE_FIXTURE")
+                path: Quickshell.env("DLEA_MARKDOWN_FIGURE_FIXTURE")
                 size: 1
                 view: "rendered"
             }

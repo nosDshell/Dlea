@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-markdown-rebind-test
+//@ pragma ShellId dlea-markdown-rebind-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/CodeRuns.js" as CodeRuns
+import "dlea" as Dlea
+import "dlea/js/CodeRuns.js" as CodeRuns
 
 // A same-file pane handoff over two real backends, with A's reply held until its connection has moved to B.
 ShellRoot {
@@ -46,7 +46,7 @@ ShellRoot {
         property var replies: []
         property var asks: ({})
         signal codeResult(var message)
-        Flea.Backend { id: inner }
+        Dlea.Backend { id: inner }
         function askCode(slot, source, first, count) {
             asks[slot] = (asks[slot] || 0) + 1
             return inner.askCode(slot, source, first, count)
@@ -71,7 +71,7 @@ ShellRoot {
         implicitWidth: 560
         implicitHeight: 600
         color: "#101315"
-        Flea.PreviewMarkdown {
+        Dlea.PreviewMarkdown {
             id: pane
             width: parent.width
             height: 300
@@ -80,7 +80,7 @@ ShellRoot {
             size: 1
             backend: backendA
         }
-        Flea.CodeLines {
+        Dlea.CodeLines {
             id: source
             y: 300
             width: parent.width

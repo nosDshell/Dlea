@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-rename-scroll-test
+//@ pragma ShellId dlea-rename-scroll-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Filter.js" as Filter
+import "dlea" as Dlea
+import "dlea/js/Filter.js" as Filter
 
 // The real ui/List.qml and its Row editor, or ui/GridArea.qml and its GridTile editor (RENAME_SCROLL_MODE), over a stub pane in a real Window.
 ShellRoot {
@@ -43,7 +43,7 @@ ShellRoot {
     // A field in a hidden parent that never began, which must not abandon the live editor.
     Component {
         id: ghostField
-        Flea.RenameField {}
+        Dlea.RenameField {}
     }
 
     property var stubPane: paneStub.createObject(root, { mode: root.mode, totalRows: root.totalRows })
@@ -68,8 +68,8 @@ ShellRoot {
         function onCursorClamped(first, last) { Filter.clampCursor(root.stubPane, first, last) }
     }
 
-    Component { id: listComponent; Flea.List {} }
-    Component { id: gridComponent; Flea.GridArea {} }
+    Component { id: listComponent; Dlea.List {} }
+    Component { id: gridComponent; Dlea.GridArea {} }
 
     // Qt retains one delegate for the current index, the cell the checks read.
     function cellNow() { return root.view ? root.view.currentItem : null }
@@ -157,7 +157,7 @@ ShellRoot {
         [function () { return root.settled() }, function () {
             root.parkedY = root.view.contentY
             var maxY = root.view.originY + root.view.contentHeight - root.view.height
-            root.check(root.parkedY === maxY - Flea.Theme.chromeHeight + Flea.Theme.spacing.gap, "end parks the last tile row one gap clear of the bottom, footer hidden")
+            root.check(root.parkedY === maxY - Dlea.Theme.chromeHeight + Dlea.Theme.spacing.gap, "end parks the last tile row one gap clear of the bottom, footer hidden")
             root.check(root.view.itemAtIndex(root.lastTile) !== null, "the last tile is held")
             root.stubPane.cursorIndex = root.lastTile - 1
         }],

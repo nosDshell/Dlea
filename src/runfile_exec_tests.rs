@@ -3,7 +3,7 @@ use crate::backend::testdir::{with_forking_siblings, TestDir};
 use std::process::Command;
 
 // The outer test sets this on the child only; without it the inner test returns at once, so a normal run forks nothing.
-const REPRO_FLAG: &str = "FLEA_ETXTBSY_REPRO";
+const REPRO_FLAG: &str = "DLEA_ETXTBSY_REPRO";
 // The inner test's full libtest path; --exact selects it, and the ok line check fails the outer test if the path drifts.
 const INNER: &str = "runfile::tests::exec::executables_written_beside_forking_siblings_inner";
 // Bounds the child, so a hang fails the outer test instead of stalling the suite.

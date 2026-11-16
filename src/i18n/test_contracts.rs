@@ -5,11 +5,11 @@ use super::*;
 fn no_test_loads_the_shipped_catalog_dir() {
     const ALLOWED: &[(&str, &str)] = &[
         (
-            "crates/flea-gui/src/window/rail_language_tests.rs",
+            "crates/dlea-gui/src/window/rail_language_tests.rs",
             "Live rail language switching verifies the shipped XDG translations",
         ),
         (
-            "crates/flea-gui/src/window/rail_language_every_tests.rs",
+            "crates/dlea-gui/src/window/rail_language_every_tests.rs",
             "Every-language live rail switching reads each shipped catalog's place words",
         ),
         (
@@ -17,15 +17,15 @@ fn no_test_loads_the_shipped_catalog_dir() {
             "Live TUI language switching draws each shipped catalog's frame words",
         ),
         (
-            "crates/flea-gui/src/g2/settings_pages/sheet_keycap_tests.rs",
+            "crates/dlea-gui/src/g2/settings_pages/sheet_keycap_tests.rs",
             "I50-24 checks key sheet labels against each shipped catalog's keycap words",
         ),
         (
-            "crates/flea-gui/src/row/fit_tests.rs",
+            "crates/dlea-gui/src/row/fit_tests.rs",
             "I50-26 measures that the shipped translations fit their rows",
         ),
         (
-            "crates/flea-gui/src/g2/settings_pages/rail_fit_tests.rs",
+            "crates/dlea-gui/src/g2/settings_pages/rail_fit_tests.rs",
             "S3-5 measures every shipped catalog's Settings rail labels inside the rail",
         ),
         (
@@ -45,11 +45,11 @@ fn no_test_loads_the_shipped_catalog_dir() {
             "FX-I18N3 verifies unsupported-entry reasons and copy/move plurals in every shipped catalog",
         ),
         (
-            "crates/flea-gui/src/window/dispatch/lang_polish_tests.rs",
+            "crates/dlea-gui/src/window/dispatch/lang_polish_tests.rs",
             "LANG polish measures actual German/French/Arabic catalog text in preview metadata",
         ),
         (
-            "crates/flea-gui/src/window/dispatch/rename_refusal_tests.rs",
+            "crates/dlea-gui/src/window/dispatch/rename_refusal_tests.rs",
             "FX-I18N2 reads a drive name refusal under the rename draft in the shipped German catalog",
         ),
     ];
@@ -129,7 +129,7 @@ fn no_test_resolves_the_host_language() {
         (
             "src/plugincli.rs",
             1,
-            "flea plugin prints in the user's language",
+            "dlea plugin prints in the user's language",
         ),
         (
             "src/backend/plugins.rs",
@@ -157,17 +157,17 @@ fn no_test_resolves_the_host_language() {
             "Text's Display implementation resolves the user's catalog only outside tests",
         ),
         (
-            "crates/flea-gui/src/main.rs",
+            "crates/dlea-gui/src/main.rs",
             1,
             "the GUI launch loads the real catalogs",
         ),
         (
-            "crates/flea-gui/src/ipc/server.rs",
+            "crates/dlea-gui/src/ipc/server.rs",
             1,
             "the IPC server answers in the user's language",
         ),
         (
-            "crates/flea-gui/src/g2/media_preview/kit/window.rs",
+            "crates/dlea-gui/src/g2/media_preview/kit/window.rs",
             1,
             "the bench-seam media kit loads catalogs as the shipped app does",
         ),

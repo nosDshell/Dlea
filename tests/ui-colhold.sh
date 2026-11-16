@@ -1,7 +1,7 @@
 # The real native parent-row click, with the same per-frame delegate census as columnsback's move probe.
 colhold_gpui() {
     local dir="$fixture_root/colhold" wx wy cx cy deadline
-    local -x FLEA_COLUMNS_CENSUS=1
+    local -x DLEA_COLUMNS_CENSUS=1
     sandbox_scratch "$dir"
     mkdir -p "$dir/a/child" "$dir/b/child"
     printf 'a\n' > "$dir/a/child/a.txt"
@@ -28,20 +28,20 @@ colhold_gpui() {
         sleep 0.05
     done
     shot colhold-landed
-    kill_flea
-    python3 "$repo/tests/lib/flea_colhold_frames.py" "$flea_log" "$evidence_dir/colhold-frames.jsonl" "$dir/a" "$dir/b" \
+    kill_dlea
+    python3 "$repo/tests/lib/dlea_colhold_frames.py" "$dlea_log" "$evidence_dir/colhold-frames.jsonl" "$dir/a" "$dir/b" \
         || fail 'colhold: a non-empty column drew no row'
 }
 
 case_colhold() {
     if [[ "${test_frontend:-gpui}" == gpui ]]; then colhold_gpui; return; fi
-    local dir="$fixture_root/colhold" copy="$fixture_root/colhold-ui" saved_ui="$flea_ui" wx wy cx cy frames
+    local dir="$fixture_root/colhold" copy="$fixture_root/colhold-ui" saved_ui="$dlea_ui" wx wy cx cy frames
     sandbox_scratch "$dir"
     sandbox_scratch "$copy"
     mkdir -p "$dir/a/child" "$dir/b/child"
     printf 'a\n' > "$dir/a/child/a.txt"
     printf 'b\n' > "$dir/b/child/b.txt"
-    cp -a "$flea_ui/." "$copy/"
+    cp -a "$dlea_ui/." "$copy/"
     cp "$repo/tests/columnsframes.js" "$copy/js/ColumnsFrames.js"
     python3 - "$copy/ColumnsArea.qml" <<'PY'
 import pathlib
@@ -60,7 +60,7 @@ text = text[:at] + '''    Connections {
 path.write_text(text)
 PY
     seed_ui_state "$fixture_root/colhold-state" '{"keys":"default","view":"columns"}'
-    flea_ui="$copy"
+    dlea_ui="$copy"
     launch "$dir/a"
     wait_listing 1
     settle
@@ -77,7 +77,7 @@ PY
     shot colhold-landed
     frames="$evidence_dir/colhold-frames.jsonl"
     # Sample input: COLHOLD FRAME {"path":"/fixture/b","columns":[{"rows":2,"firstName":"a"},{"rows":1,"firstName":"child"},{"rows":1,"firstName":"b.txt"}],"hasThird":true}
-    python3 - "$flea_log" "$frames" "$dir/a" "$dir/b" <<'PY'
+    python3 - "$dlea_log" "$frames" "$dir/a" "$dir/b" <<'PY'
 import json
 import pathlib
 import sys
@@ -98,6 +98,6 @@ for i, frame in enumerate(seen):
 print(f"COLHOLD PASS parent sibling click: {len(seen)} frames, no empty column")
 PY
     [[ "$?" == 0 ]] || fail "colhold: a non-empty column drew no row"
-    kill_flea
-    flea_ui="$saved_ui"
+    kill_dlea
+    dlea_ui="$saved_ui"
 }

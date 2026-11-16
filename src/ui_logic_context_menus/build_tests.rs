@@ -132,8 +132,8 @@ fn update_and_favourite_rows() {
         .iter()
         .map(|r| format!("{}:{}", r.action, r.glyph.unwrap_or("")))
         .collect();
-    check("a known newer build adds Update Flea under Settings, in the same group, with the download mark", tail.join(","), "settings:sliders,updateFlea:download".into());
-    let update = entry(&background, "updateFlea").unwrap();
+    check("a known newer build adds Update Dlea under Settings, in the same group, with the download mark", tail.join(","), "settings:sliders,updateDlea:download".into());
+    let update = entry(&background, "updateDlea").unwrap();
     check(
         "and its hint slot carries that version beside the status square",
         format!("{}|{}", hint(&i18n, Some(update)), update.hint_square),
@@ -145,9 +145,9 @@ fn update_and_favourite_rows() {
             &listing_entries(&st(|p| {
                 p.has_row = false;
                 p.update_version = "0.3.4".into();
-                p.hidden = strings(&["updateFlea"])
+                p.hidden = strings(&["updateDlea"])
             })),
-            "updateFlea",
+            "updateDlea",
         )
         .is_none(),
         true,
@@ -156,14 +156,14 @@ fn update_and_favourite_rows() {
         "a file row's menu never offers it",
         entry(
             &listing_entries(&st(|p| p.update_version = "0.3.4".into())),
-            "updateFlea",
+            "updateDlea",
         )
         .is_none(),
         true,
     );
     check(
         "and neither does an empty version, which is what every state but available gives",
-        entry(&listing_entries(&st(|p| p.has_row = false)), "updateFlea").is_none(),
+        entry(&listing_entries(&st(|p| p.has_row = false)), "updateDlea").is_none(),
         true,
     );
     // 0.4.0 hides Add to Favorites on a file instead of dimming it, since only a folder can be a favourite.
@@ -300,7 +300,7 @@ fn trash_and_rail_rows() {
         ..RailEntry::default()
     };
     check(
-        "a mounted saved place opens like every other Flea menu",
+        "a mounted saved place opens like every other Dlea menu",
         labels(&i18n, &rail_entries(&share)),
         "Open|Unmount|Rename|Edit Address\u{2026}|Remove from Network".into(),
     );

@@ -3,7 +3,7 @@ use crate::i18n::Paths;
 use std::path::PathBuf;
 
 fn english() -> I18n {
-    let none = PathBuf::from("/nonexistent/flea-airdrop");
+    let none = PathBuf::from("/nonexistent/dlea-airdrop");
     I18n::load(Paths {
         omarchy: none.clone(),
         language_file: none,

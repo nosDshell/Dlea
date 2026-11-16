@@ -45,7 +45,7 @@ pub fn validate_runtime(root: &Path) -> io::Result<()> {
 
 pub fn directory(root: &Path) -> io::Result<PathBuf> {
     validate_runtime(root)?;
-    let directory = root.join("flea-ipc");
+    let directory = root.join("dlea-ipc");
     match DirBuilder::new().mode(0o700).create(&directory) {
         Ok(()) => (),
         Err(error) if error.kind() == io::ErrorKind::AlreadyExists => (),
@@ -137,7 +137,7 @@ pub fn pickers(root: &Path) -> io::Result<Vec<(u32, PathBuf)>> {
 
 fn live(root: &Path, pickers: bool) -> io::Result<Vec<(u32, PathBuf)>> {
     validate_runtime(root)?;
-    let directory = root.join("flea-ipc");
+    let directory = root.join("dlea-ipc");
     if !directory.try_exists()? {
         return Ok(Vec::new());
     }

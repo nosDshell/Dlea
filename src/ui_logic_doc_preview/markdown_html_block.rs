@@ -314,7 +314,7 @@ pub fn separate_blocks(lines: &[String]) -> Vec<String> {
     out
 }
 
-// '<h1 align="center">Flea</h1>' and '  <details open>' start a line of their own; '<b>x</b>' does not.
+// '<h1 align="center">Dlea</h1>' and '  <details open>' start a line of their own; '<b>x</b>' does not.
 fn line_opener(line: &str) -> bool {
     let i = spaces_up_to_three(line);
     if at(line, i) != b'<' {

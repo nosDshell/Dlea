@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-rename-scroll-far-test
+//@ pragma ShellId dlea-rename-scroll-far-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Anchor.js" as Anchor
+import "dlea" as Dlea
+import "dlea/js/Anchor.js" as Anchor
 
 // The real ui/List.qml, ui/GridArea.qml or ui/ColumnPane.qml (RENAME_SCROLL_MODE) over the stub pane: a renamed row located far from the held window is revealed whole, the way a keyboard jump reveals it.
 ShellRoot {
@@ -49,9 +49,9 @@ ShellRoot {
     Component { id: paneStub; RenamePaneStub {} }
     property var stubPane: paneStub.createObject(root, { mode: root.mode, totalRows: root.totalRows })
 
-    Component { id: listComponent; Flea.List {} }
-    Component { id: gridComponent; Flea.GridArea {} }
-    Component { id: columnComponent; Flea.ColumnPane {} }
+    Component { id: listComponent; Dlea.List {} }
+    Component { id: gridComponent; Dlea.GridArea {} }
+    Component { id: columnComponent; Dlea.ColumnPane {} }
 
     // The columns view's area as AnchorHold.viewport and Pane.showRow reach it.
     QtObject {
@@ -91,7 +91,7 @@ ShellRoot {
     }
 
     function scroller() { return root.mode === "columns" ? root.view.viewport : root.view }
-    function rowHeightNow() { return root.mode === "grid" ? root.view.cellHeight : Flea.Theme.fileRowHeight }
+    function rowHeightNow() { return root.mode === "grid" ? root.view.cellHeight : Dlea.Theme.fileRowHeight }
     function settled() { return root.waited >= root.settleTicks }
     // The count as the views see it: the stub's total drives the list and the grid, the column's own rows drive the column.
     function setCount(n) {

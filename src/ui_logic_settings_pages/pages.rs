@@ -37,7 +37,7 @@ pub fn section_index(id: &str) -> usize {
     SECTIONS.iter().position(|section| section.id == id).unwrap_or(0)
 }
 
-// What the panel passes in: ui.json as read, and the facts Flea reads but never writes.
+// What the panel passes in: ui.json as read, and the facts Dlea reads but never writes.
 pub struct State<'a> {
     pub data: &'a Json,
     pub home: &'a str,

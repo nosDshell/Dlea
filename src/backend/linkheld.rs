@@ -1,5 +1,5 @@
 //! Source identities captured at Copy and checked again by the journaled link worker.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::{opsreq::OpMsg, undo::ItemIdentity};
 use crate::jsondoc::Json;
 use std::{path::PathBuf, sync::mpsc::Sender};
@@ -14,7 +14,7 @@ pub fn capture(paths: &[String]) -> Result<Vec<Identity>, String> {
     paths
         .iter()
         .map(|path| {
-            let path = flea::bytename::exact(path);
+            let path = dlea::bytename::exact(path);
             if !path.is_absolute() {
                 return Err("link sources must be absolute paths".into());
             }
@@ -55,7 +55,7 @@ pub fn decode(value: &Json) -> Result<Vec<Identity>, String> {
         .iter()
         .map(|v| {
             let path =
-                flea::bytename::exact(v.get("path").and_then(Json::as_str).ok_or_else(invalid)?);
+                dlea::bytename::exact(v.get("path").and_then(Json::as_str).ok_or_else(invalid)?);
             let num = |key| {
                 v.get(key)
                     .and_then(Json::as_str)
@@ -116,7 +116,7 @@ pub fn paths(replies: Sender<OpMsg>, paths: Vec<String>, generation: u64, id: us
                 super::rowguard::stamped(line, generation)
             }
             Err(msg) => {
-                let mut line = super::proto::error_line(&crate::error::FleaError {
+                let mut line = super::proto::error_line(&crate::error::DleaError {
                     where_: "paths".into(),
                     path: String::new(),
                     msg,
@@ -163,7 +163,7 @@ pub fn start(
             let _ = writeln!(
                 out,
                 "{}",
-                super::proto::error_line(&crate::error::FleaError {
+                super::proto::error_line(&crate::error::DleaError {
                     where_: "link".into(),
                     path: dest.into(),
                     msg

@@ -12,12 +12,12 @@
 
 static void hold_directory(const char *path) {
     static atomic_int blocked;
-    const char *target = getenv("FLEA_TEST_SIZE_PATH");
+    const char *target = getenv("DLEA_TEST_SIZE_PATH");
     char resolved[PATH_MAX];
     if (target && (strcmp(path, target) == 0 || (realpath(path, resolved) && strcmp(resolved, target) == 0)) && atomic_exchange(&blocked, 1) == 0) {
-        int fd = open(getenv("FLEA_TEST_SIZE_ENTERED"), O_WRONLY | O_CREAT, 0600);
+        int fd = open(getenv("DLEA_TEST_SIZE_ENTERED"), O_WRONLY | O_CREAT, 0600);
         if (fd >= 0) close(fd);
-        while (access(getenv("FLEA_TEST_SIZE_RELEASE"), F_OK) != 0) usleep(1000);
+        while (access(getenv("DLEA_TEST_SIZE_RELEASE"), F_OK) != 0) usleep(1000);
     }
 }
 

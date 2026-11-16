@@ -12,7 +12,7 @@ const LOSSY_FILE: &str = "caf\u{fffd}.txt";
 
 // The exact text a row carries for raw bytes, see docs/architecture/exact-names.md.
 fn exact(raw: &[u8]) -> String {
-    flea::bytename::path_text(Path::new(OsStr::from_bytes(raw))).into_owned()
+    dlea::bytename::path_text(Path::new(OsStr::from_bytes(raw))).into_owned()
 }
 
 fn raw(d: &TestDir, name: &[u8]) -> PathBuf {

@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Gate off-thread parsing and viewport delegates for a generated README of about 560 KiB.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 . "$(dirname "$0")/qslog-gate.sh"
 cd "$(dirname "$0")/.." || exit 1
 
@@ -73,14 +73,14 @@ if ! command -v qs >/dev/null; then
     exit 1
 fi
 
-test_root="$FIXTURE_ROOT/flea-markdown-lazy-$$"
+test_root="$FIXTURE_ROOT/dlea-markdown-lazy-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/cache" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-cp -a ui "$test_root/config/flea" || exit 1
+cp -a ui "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/markdown-lazy.qml "$test_root/config/shell.qml" || exit 1
@@ -100,7 +100,7 @@ minimum_fixture_bytes=524288
 
 output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_MARKDOWN_FIXTURE="$test_root/notes.md" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_MARKDOWN_FIXTURE="$test_root/notes.md" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 QT_LOGGING_RULES="$(qslog_rules "${QT_LOGGING_RULES:-}")" \
     timeout "$qs_bound_s" qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 check_finished "$?" logged || exit 1
@@ -109,7 +109,7 @@ printf '%s\n' "$output" | qslog_nullptr markdown-lazy || exit 1
 # The same document with no logging rules or qtlogging.ini: the announcement stays off, and the null connect lines prove a worker did start.
 quiet=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u QT_LOGGING_RULES -u QT_LOGGING_CONF \
     HOME="$test_root/home" XDG_CONFIG_HOME="$test_root/home/.config" XDG_CONFIG_DIRS="$test_root/xdg" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_MARKDOWN_FIXTURE="$test_root/notes.md" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_MARKDOWN_FIXTURE="$test_root/notes.md" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 \
     timeout "$qs_bound_s" qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 check_finished "$?" default || exit 1

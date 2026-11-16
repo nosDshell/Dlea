@@ -25,8 +25,8 @@ function run(check) {
     check("a moved rename target no longer has its old index", Places.railCursorAfter(oldRail, expandedRail, 3) === 3, false)
     var records = [{ label: "A", path: "/a" }, { label: "Again", path: "/a" }, 17, { label: "", path: "bad" }]
     var stored = Places.storedEntries(records, "/home/test")
-    check("Flea keeps duplicate paths", stored.length, 4)
-    check("Flea preserves each duplicate label", stored[1].label, "Again")
+    check("Dlea keeps duplicate paths", stored.length, 4)
+    check("Dlea preserves each duplicate label", stored[1].label, "Again")
     check("invalid favourite remains identifiable", stored[2].original, 17)
     check("invalid favourite is marked", stored[2].error.length > 0, true)
     check("an invalid original value keeps its identifying label", stored[2].label, "17")
@@ -173,7 +173,7 @@ function run(check) {
 function heldByCases(check) {
     var dir = { kind: "dir" }
     var homeRow = { group: "home", kind: "home", path: "/home/gm" }
-    var recent = { group: "recent", kind: "recent", path: "flea:recent" }
+    var recent = { group: "recent", kind: "recent", path: "dlea:recent" }
     var documents = { group: "home", kind: "home", path: "/home/gm/Documents" }
     var trashRow = { group: "trash", kind: "trash", path: "trash:///" }
     var fav = { group: "favourite", kind: "favourite", path: "/home/gm/Work", original: { label: "Work", path: "~/Work" } }

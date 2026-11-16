@@ -9,12 +9,12 @@
   one file in the desktop's text editor through the resolved desktop file rather than its bare id,
   `--open-handler <path> <desktop id>` with the same identity hands an AppImage to the handler the
   card named,
-  `--update [check]` asks the installing source for a newer Flea or opens Omarchy's updater,
+  `--update [check]` asks the installing source for a newer Dlea or opens Omarchy's updater,
   `--default [off]` claims or releases the OS-level default, the "Show in folder" registration and
   the chooser routing together,
   `--youleftmeforstrata` is the undocumented second spelling of `--default off`, `--picker [off]`
   claims or releases the desktop's file chooser alone, `--pick <reply>` opens one chooser window
-  for `tools/flea-portal`, `--ui-state [<patch>]` reads or merges the shared view state,
+  for `tools/dlea-portal`, `--ui-state [<patch>]` reads or merges the shared view state,
   `--unlock <device>` opens the unlock dialog over the window for one device, see "Modes",
   `--launch-warm <list> <gvfs-path> <gvfs-dest>` runs both launch jobs under one fork, "-" skipping
   one, which `gui.rs` starts and `tui/warm.rs` starts with "-" for the list, see "The first window",
@@ -24,31 +24,31 @@
   explicit `--tui` requests the terminal interface, `--gui` being the explicit spelling of the
   window a bare invocation already means, see "Modes".
 - `paths.rs` resolves the retained QML data directory and whether a display is available; the GPUI window launch checks the display and resolves its executable separately.
-- `gui.rs` re-exports the GPUI launcher in `gui/launch.rs`, which execs `flea-gui`.
-- `crates/flea-gui/src/window/root.rs` is the GPUI window root. It holds the shell as one cached view and paints
+- `gui.rs` re-exports the GPUI launcher in `gui/launch.rs`, which execs `dlea-gui`.
+- `crates/dlea-gui/src/window/root.rs` is the GPUI window root. It holds the shell as one cached view and paints
   each pane's loading mark over it in an overlay, inside the content mask the mark's slot recorded, so a narrow pane
   cuts the mark at its own edge. A surface that covers a pane (Quick Look, menus, sheets, dialogs) paints in a later
   layer than that overlay, a GPUI `deferred`, so it is never drawn under a mark.
-- `crates/flea-gui/src/path/chrome.rs` renders the GPUI top chrome and owns its path bar, opened by
+- `crates/dlea-gui/src/path/chrome.rs` renders the GPUI top chrome and owns its path bar, opened by
   `:`, `Ctrl+L` or one tap where a tap opens no folder. Under the pointer a copy mark one gap after
-  the path copies the folder as Y does (`crates/flea-gui/src/path/chrome/address.rs`); in the toolbar's
-  keyboard order it sits between Up and Search (`ORDER` in `crates/flea-gui/src/path/chrome.rs`).
+  the path copies the folder as Y does (`crates/dlea-gui/src/path/chrome/address.rs`); in the toolbar's
+  keyboard order it sits between Up and Search (`ORDER` in `crates/dlea-gui/src/path/chrome.rs`).
 - `thp.rs` the `prctl(PR_SET_THP_DISABLE)` declaration behind `disable()` and `enable()`.
-- `icdexclude.rs` filters known Vulkan drivers for absent hardware before `flea-gui` starts; see rule 5.
+- `icdexclude.rs` filters known Vulkan drivers for absent hardware before `dlea-gui` starts; see rule 5.
 - `icdmanifests.rs` supplies that filter's bounded manifest inventory and driver library classification.
 - `gui/gpui_renderer.rs` clears Qt renderer settings and an inherited legacy display pin, then applies the absent-vendor filter without adding a display pin or probe cache.
 - `open.rs` hands one file to `gio open` and waits for it, see "Opening a file".
 - `terminal.rs` hands one directory to `xdg-terminal-exec --dir=` and does not wait, see "Opening a file";
-  its `detach` is the set of guards every program Flea starts and does not wait for carries.
+  its `detach` is the set of guards every program Dlea starts and does not wait for carries.
 - `tearoff.rs` names the three tab tear-off variables and removes them from a child's environment, for `detach` and `open.rs`.
-- `unlock.rs` `flea --unlock <device>`: validates the device and display, then calls `gui::exec_gpui_unlock` to open the GPUI window with that one unlock request.
-- `figurehelper.rs` `flea --figure-helper`: maths and diagrams through quickjs-ng under the
+- `unlock.rs` `dlea --unlock <device>`: validates the device and display, then calls `gui::exec_gpui_unlock` to open the GPUI window with that one unlock request.
+- `figurehelper.rs` `dlea --figure-helper`: maths and diagrams through quickjs-ng under the
   thumbnail jail's flags and caps, see "Markdown figures".
-- `update.rs` `flea --update [check]`: the install kind, the source's answer, and Omarchy's updater, see "Updates".
+- `update.rs` `dlea --update [check]`: the install kind, the source's answer, and Omarchy's updater, see "Updates".
 - `defaults.rs` claims or releases the OS-level default: the desktop-entry install check,
   the `inode/directory` MIME default via `xdg-mime`, and reporting each half, see "Modes".
 - `hyprkeys.rs` adds or removes the additive, markered block in Omarchy's
-  `~/.config/hypr/bindings.lua` that binds the two file-manager chords to Flea, see "Modes".
+  `~/.config/hypr/bindings.lua` that binds the two file-manager chords to Dlea, see "Modes".
 - `userfile.rs` resolves `$HOME`, `$XDG_CONFIG_HOME` and `$XDG_DATA_HOME`, walks the XDG data
   ladder for an installed file, and rewrites a per-user file through an exclusive temp plus
   rename, see "Predictable path writes".
@@ -61,7 +61,7 @@
 - `uistate.rs` the `ui.json` merges: a file onto the defaults, one caller patch, and 0.1.3's `view.json`.
 - `uimigrate.rs` the one-time changes a stored `ui.json` is owed, applied on read and recorded by its
   `stateVersion` stamp, see "The state file".
-- `uistatecli.rs` is `flea --ui-state`, the window's path to read or patch `ui.json` (the TUI writes
+- `uistatecli.rs` is `dlea --ui-state`, the window's path to read or patch `ui.json` (the TUI writes
   through its own `uistore::Store`), and the shelf switch that follows a patch.
 - `uistore.rs` where `ui.json` lives and the one locked, atomic way it is rewritten, see "The state file".
 - `backend/mod.rs` is module declarations and nothing else, the `#[cfg(test)]` ones included. It
@@ -112,7 +112,7 @@
 - `backend/copystage.rs` where a copy's bytes wait until whole: a new folder under one hidden sibling renamed once, a file as an `O_TMPFILE` inode named by `linkat` or, where that is refused, under a hidden sibling.
 - `backend/copysweep.rs` the sweep of dead copies' hidden files and folders before a transfer lands in a folder.
 - `backend/undoshare.rs` the one undo history every backend in the session shares, under
-  `$XDG_RUNTIME_DIR/flea/` with an flocked lock file and predictable-path writes; a take is one
+  `$XDG_RUNTIME_DIR/dlea/` with an flocked lock file and predictable-path writes; a take is one
   locked read-modify-write, so two windows pressing Ctrl+Z undo two different operations.
 - `backend/undocodec.rs` that journal's versioned wire form and its read-time checks, both directions.
 - `backend/undostage.rs` that journal's file text, in and out: `read` parses the file once (a document, a newer
@@ -132,7 +132,7 @@
   `thumb` and `thumbcancel` out and `thumbed` in alongside `list`, `window` and `sort`.
 - `ui/ViewState.qml` reads `ui.json` once at startup with a blocking `FileView` and writes nothing
   itself: every change, the header menu's columns and all three settings sections alike, goes back
-  out through `flea --ui-state` as a patch naming that change alone, see "The state file". It also
+  out through `dlea --ui-state` as a patch naming that change alone, see "The state file". It also
   watches the file and applies another window's settled preferences live through
   `UiState.applyExternal`, owning the apply/prune settler whose exit and collected text join the
   landed/whole way before anything is parsed.
@@ -158,8 +158,8 @@
   was lifted out of `Pane.qml` at the 400-line hard cap and has no behaviour.
 - `ui/Row.qml` renders one row delegate: the icon slot, which a thumbnail replaces in
   place, the PlainText name and the semantic colours.
-- `ui/Opener.qml` is the only component that runs Flea's own opening modes, by running
-  `flea --open`, `flea --terminal` and a one-line `sh` that pipes into `wl-copy`, which is why
+- `ui/Opener.qml` is the only component that runs Dlea's own opening modes, by running
+  `dlea --open`, `dlea --terminal` and a one-line `sh` that pipes into `wl-copy`, which is why
   `wl-clipboard` is a `depends` entry, see "Opening a file".
 - `ui/ContextMenu.qml` is the one pane-owned right-click popup and its single Open action.
 - `ui/StatusBar.qml` renders the path, row counts and transient messages.
@@ -187,8 +187,8 @@
   is transparent), the grid centres the field on its caption's first line, and in the columns the renaming row grows by
   the error line as the list's does (`ColumnRow.errorGrowth`), the line running from the label column to the column's
   right inset. A button's focus frame is never cut: `CardScroll` carries `bleed`,
-  room inside its clip that the caller's margins give back, on every dialog that holds a `Flea.DialogButton`
-  or `Flea.CheckBox` (all of them: Collide, Trash, menu action, open with, convert, permissions, network and
+  room inside its clip that the caller's margins give back, on every dialog that holds a `Dlea.DialogButton`
+  or `Dlea.CheckBox` (all of them: Collide, Trash, menu action, open with, convert, permissions, network and
   the save picker). `CardScroll.reveal()` keeps `bleedY` of clearance on the side an item is revealed from, so
   the first control returns the view to the top and the last to the end with its frame whole (a menu sets no
   bleed and lands flush as before). `tests/ring-bounds.sh` pins all of it from the real window at every text
@@ -217,7 +217,7 @@
   The mixed check box draws the board's bar as a rectangle (8 x 2 at an 18 px box, whole pixels, the check's cut-out
   ink), not the `minus` glyph at stroke 3.
 - `ui/PathJump.qml` is the path bar's folder jump, the Jump board: a name typed into the bar lists
-  matching folders from Flea's favourites, zoxide's ranking and `recently-used.xbel` in one ranked
+  matching folders from Dlea's favourites, zoxide's ranking and `recently-used.xbel` in one ranked
   dropdown under the field, and Enter opens the cursor row. `ui/JumpPath.qml` draws one row's path.
   `ui/js/Jump.js` ranks the rows in this order: a match on the folder's own name, then the
   more contiguous match, then zoxide's frecency, a favourite winning a tie, five rows a source.
@@ -236,7 +236,7 @@
   for the answer, the keys after it are not typed, and each open's answer carries its own id, so the
   same keys open the same folder however fast they come. `tests/jump-ui.sh` drives all of
   this through the real bar, offscreen.
-- `keys.toml` is the one key table, and `tools/flea-keymap-gen` turns it into `Keymap.js`.
+- `keys.toml` is the one key table, and `tools/dlea-keymap-gen` turns it into `Keymap.js`.
 - `ui/js/Keymap.js` is the generated key-to-action lookup and imports no QML.
 - `ui/js/Format.js` is the pure size, date, permission and name-elision formatter.
 - `ui/js/Errors.js` turns a backend failure into the one sentence the status bar shows, and
@@ -260,7 +260,7 @@
   aliases `textSizeUp`, `textSizeDown` and `textSizeReset` onto the same three writers, so no
   surface reads the chord itself and a chord and a row cannot hold two different sizes. The monitor
   scale is the compositor's: `ui/Theme.qml` reads it once from `hyprctl monitors -j` and the panel
-  shows it read-only, because the board rules that Flea does not step or cycle it.
+  shows it read-only, because the board rules that Dlea does not step or cycle it.
 - `ui/js/Settings.js` is the settings panel's whole model: the three sections, the context-menu
   action inventory and its groups, the tri-state master over the six basic actions, which
   `masterState` derives from `menu.hidden` rather than storing beside it, the Shortcuts group's
@@ -275,9 +275,9 @@
   routes `rows("about")` to it.
 - `ui/UpdateCheck.qml` is the updater singleton: the check and launch processes and the six hour poll,
   see "Updates". `ui/js/Update.js` is its state and every word the row, the note and the footer use.
-- `ui/DefaultClaim.qml` is the Make Flea the default singleton: the handler read, the entry probe,
-  the `flea --default [off]` run and the portal restart after it. `ui/js/MakeDefault.js` is its state, the row, the note and what a press
-  runs; see "Make Flea the default, in Settings > About".
+- `ui/DefaultClaim.qml` is the Make Dlea the default singleton: the handler read, the entry probe,
+  the `dlea --default [off]` run and the portal restart after it. `ui/js/MakeDefault.js` is its state, the row, the note and what a press
+  runs; see "Make Dlea the default, in Settings > About".
 - `ui/js/MenuRefresh.js` is where the menu's keyboard cursor lands when a provider refresh rebuilds the
   rows under it, and `ui/MenuEdgeFade.qml` is one edge of a menu that scrolls; both came out of
   `ui/js/Menu.js` and `ui/ContextMenu.qml` whole, see "File budget".

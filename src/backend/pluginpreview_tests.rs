@@ -1,14 +1,14 @@
 use super::pluginpreview::{argv, preview_with, Limits, INPUT, OUTPUT};
 use super::plugins_tests::{ask, code, env};
 use super::testdir::TestDir;
-use flea::jsondoc::{self, Json};
+use dlea::jsondoc::{self, Json};
 use std::path::Path;
 use std::time::{Duration, Instant};
 
 const TEXT: &str = "#!/bin/sh\nread hello\necho '{\"op\":\"ready\"}'\nread req\nprintf '{\"op\":\"preview\",\"text\":\"first line\\\\nsecond\\\\u0007line\"}\\n'\n";
 
 pub(super) fn previewer(dir: &TestDir, id: &str, output: &str, script: &str) {
-    let folder = format!("config/flea/plugins/{id}");
+    let folder = format!("config/dlea/plugins/{id}");
     dir.dir(&format!("{folder}/bin"));
     dir.file(&format!("{folder}/manifest.json"), &format!(
         r#"{{"schemaVersion":1,"id":"{id}","name":"Peek","version":"1.0.0","author":"me","description":"A previewer.",
@@ -140,7 +140,7 @@ fn plugin_preview_text_is_plain_and_runs_through_the_runtime_route() {
     let file = dir.file("a.txt", "hello\n");
     let line = format!(
         r#"{{"c":"plugins","op":"runtime","id":2,"plugin":"example.peek","request":{}}}"#,
-        flea::ui_logic_plugin_settings::wire::compact(&request(&file))
+        dlea::ui_logic_plugin_settings::wire::compact(&request(&file))
     );
     let lines = super::plugins::handle(&line, &env);
     let reply = jsondoc::parse(&lines[0]).unwrap();

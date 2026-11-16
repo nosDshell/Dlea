@@ -247,7 +247,7 @@ pub(super) fn cancellation_catalog(m: &mut Model, root: &std::path::Path) {
     let catalog = root.join("catalog/en");
     std::fs::create_dir_all(&catalog).unwrap();
     std::fs::write(
-        catalog.join("flea.json"),
+        catalog.join("dlea.json"),
         r#"{"dialogs.output.cancelled":"Printing cancelled. Sent: %1. Not sent: %2."}"#,
     )
     .unwrap();
@@ -280,7 +280,7 @@ fn tui_print_fix_mime_is_lazy_and_first_print_initializes_once() {
 fn tui_print_fix_copies_respect_shared_limits() {
     let (mut w, reader) = wire::echo_wire();
     let mut m = ready(&mut w);
-    let max = flea::ui_logic_print_convert::printing::MAX_COPIES;
+    let max = dlea::ui_logic_print_convert::printing::MAX_COPIES;
     let f = m.printing.card.as_mut().unwrap();
     f.focus = 1;
     f.copies = max.to_string();

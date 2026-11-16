@@ -3,13 +3,13 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 # Completion reads run on the pane's backend, so the path modules never touch the filesystem themselves.
-if grep -rnE 'std::fs|read_dir|File::open|metadata\(' crates/flea-gui/src/path crates/flea-gui/src/ipc/path.rs; then
+if grep -rnE 'std::fs|read_dir|File::open|metadata\(' crates/dlea-gui/src/path crates/dlea-gui/src/ipc/path.rs; then
     printf 'G1_12 FAIL the path surface reads the filesystem on the UI thread\n'
     exit 1
 fi
 mkdir -p "$PWD/.superpowers/g1-12"
 unit_root=$(mktemp -d "$PWD/.superpowers/g1-12/ci.XXXXXXXX")
-: > "$unit_root/.flea-test-sandbox"
+: > "$unit_root/.dlea-test-sandbox"
 mkdir -p "$unit_root/home" "$unit_root/config" "$unit_root/cache" "$unit_root/state" "$unit_root/runtime"
 run() {
     setsid -w env -i PATH="$PATH" HOME="$unit_root/home" \
@@ -20,9 +20,9 @@ run() {
         CARGO_PROFILE_TEST_DEBUG=line-tables-only CARGO_PROFILE_DEV_DEBUG=line-tables-only \
         "$@" < /dev/null
 }
-run cargo test --locked -p flea-gui --test g1_12
-run cargo test --locked -p flea-gui --lib state::tests::g1_12
+run cargo test --locked -p dlea-gui --test g1_12
+run cargo test --locked -p dlea-gui --lib state::tests::g1_12
 clippy_root=$(mktemp -d "$PWD/.superpowers/g1-12/clippy.XXXXXXXX")
-: > "$clippy_root/.flea-test-sandbox"
-tools/flea-clippy tools/clippy-baseline.txt "$clippy_root"
+: > "$clippy_root/.dlea-test-sandbox"
+tools/dlea-clippy tools/clippy-baseline.txt "$clippy_root"
 printf 'G1_12 PASS crumbs, path entry, completion, suggestions, IPC readers, window wiring and clippy\n'

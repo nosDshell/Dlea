@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/ClipMarks.js" as ClipMarks
 import "js/DirSizes.js" as DirSizes
 import "js/ExtThumbs.js" as ExtThumbs
@@ -18,7 +18,7 @@ ListView {
     property var menu: null
 
     // Parked rows built ahead of the next landing; a row parks invisible and the landing shows it again.
-    readonly property Flea.PrebuildDriver prebuild: Flea.PrebuildDriver {
+    readonly property Dlea.PrebuildDriver prebuild: Dlea.PrebuildDriver {
         view: root
         model: stable
         pane: root.pane
@@ -64,7 +64,7 @@ ListView {
     focus: true
     keyNavigationEnabled: false
     // Hidden holds no delegates; an edit the List held when it hid keeps its own per RenameField.qml.
-    model: Flea.StableModel { id: stable; view: root; total: (root.visible || root.renameHeld) ? root.pane.shownTotal : 0
+    model: Dlea.StableModel { id: stable; view: root; total: (root.visible || root.renameHeld) ? root.pane.shownTotal : 0
                               warm: root.visible && root.pane.searchMode.length > 0 && root.pane.swap.searchWarm === true; warmRows: Math.floor((root.height + root.cacheBuffer) / Theme.fileRowHeight) + 1 }
     clip: true
     cacheBuffer: Theme.fileRowHeight * pane.cacheRows
@@ -73,33 +73,33 @@ ListView {
     // Every property the delegate draws binds to index and cursor is refiled by listingIndex, so a row leaving the buffer is re-bound rather than rebuilt.
     reuseItems: true
     // The one row drawn as the cursor; a cursor move touches two delegates, not every live one.
-    Flea.CursorMark { id: cursorMark; row: root.pane.cursorIndex }
+    Dlea.CursorMark { id: cursorMark; row: root.pane.cursorIndex }
 
-    Flea.FastScrollHandler {
+    Dlea.FastScrollHandler {
         parent: root
         flickable: root
     }
 
     readonly property alias scrollBar: verticalScroll
-    Flea.ViewportScrollBar {
+    Dlea.ViewportScrollBar {
         id: verticalScroll
         parent: root
         anchors { top: parent.top; right: parent.right }
         flickable: root
     }
 
-    Flea.SelectionBand {
+    Dlea.SelectionBand {
         parent: root
         pane: root.pane
         flickable: root
     }
 
-    Flea.FileDrag {
+    Dlea.FileDrag {
         id: dragSession
         pane: root.pane
     }
 
-    delegate: Flea.Row {
+    delegate: Dlea.Row {
         id: cell
         required property int index
         // Parked while pooled: each listing read returns its own last value until onReused rebinds it before the next frame; a row holding the open editor stays live, since a prebuild create pools and reuses the shown rows and pooling would destroy the editor.
@@ -188,7 +188,7 @@ ListView {
             }
         }
 
-        Flea.RowDrag {
+        Dlea.RowDrag {
             session: dragSession
             listingIndex: cell.listingIndex
             row: cell.row

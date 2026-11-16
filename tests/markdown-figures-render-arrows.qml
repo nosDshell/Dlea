@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-markdown-arrows-test
+//@ pragma ShellId dlea-markdown-arrows-test
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 
 ShellRoot {
     id: shell
@@ -30,7 +30,7 @@ ShellRoot {
             Repeater {
                 id: figures
                 model: shell.arrowCases
-                Flea.MarkdownFigure {
+                Dlea.MarkdownFigure {
                     required property string modelData
                     required property int index
                     x: (index % 4) * 240

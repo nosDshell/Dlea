@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # Real WindowBody toggles, shared windows, relaunch persistence and two negative controls.
 set -uo pipefail
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 . "$(dirname "$0")/headless-commons.sh"
 cd "$(dirname "$0")/.." || exit 1
 for tool in qs dbus-run-session jq; do
     command -v "$tool" >/dev/null || { printf 'FAIL langtoggle: %s is required\n' "$tool"; exit 1; }
 done
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-langtoggle.XXXXXXXX") || exit 1
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-langtoggle.XXXXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
@@ -18,14 +18,14 @@ for view in list grid columns; do
     printf 'fn main() { let answer = 42; }\n' > "$test_root/fixture/$view/a.rs"
     printf 'plain note\n' > "$test_root/fixture/$view/notes.ini"
 done
-cp -a ui "$test_root/config/flea" || exit 1
+cp -a ui "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -m ui/boot/Ui)" "$test_root/config/Ui" || exit 1
-ln -s "$test_root/config/flea/boot/fleatab.qml" "$test_root/config/fleatab.qml" || exit 1
+ln -s "$test_root/config/dlea/boot/dleatab.qml" "$test_root/config/dleatab.qml" || exit 1
 cp tests/langtoggle.qml "$test_root/config/shell.qml" || exit 1
 cp tests/langmark-count.js "$test_root/config/langmark-count.js" || exit 1
 # Count the real backend requests in the test copy, including columns' directory peeks.
-python3 - "$test_root/config/flea/Backend.qml" <<'PY' || exit 1
+python3 - "$test_root/config/dlea/Backend.qml" <<'PY' || exit 1
 from pathlib import Path
 import sys
 path = Path(sys.argv[1])
@@ -36,11 +36,11 @@ replacement = '    property int langtoggleWalks: 0\n' + anchor + '\n        if (
 path.write_text(source.replace(anchor, replacement))
 PY
 # Production has one body per process; this test gives each body's IPC handlers unique names.
-python3 - "$test_root/config/flea" <<'PY' || exit 1
+python3 - "$test_root/config/dlea" <<'PY' || exit 1
 from pathlib import Path
 import sys
 root = Path(sys.argv[1])
-for name, target in [('Ipc.qml', 'flea'), ('boot/fleatab.qml', 'fleatab')]:
+for name, target in [('Ipc.qml', 'dlea'), ('boot/dleatab.qml', 'dleatab')]:
     path = root / name
     source = path.read_text()
     anchor = 'target: "' + target + '"'
@@ -57,7 +57,7 @@ probe() {
     local leg="$1" log="$2" status
     env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
         HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-        XDG_RUNTIME_DIR="$test_root/runtime" FLEA_BIN="$bin" FLEA_PATH="$test_root/fixture/list" FLEA_REDUCED_MOTION=1 \
+        XDG_RUNTIME_DIR="$test_root/runtime" DLEA_BIN="$bin" DLEA_PATH="$test_root/fixture/list" DLEA_REDUCED_MOTION=1 \
         LANGTOGGLE_FIXTURE="$test_root/fixture" \
         LANGTOGGLE_LEG="$leg" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software \
         QT_FORCE_STDERR_LOGGING=1 dbus-run-session -- bash -c 'timeout 75 qs -p "$1" > "$2" 2>&1' \
@@ -83,7 +83,7 @@ probe again "$test_root/again.log"; again_rc=$?
 probe saved-off "$test_root/saved-off.log"; saved_off_rc=$?
 for leg in fresh peer again saved-off; do
     grep -ao 'LANGTOGGLE .*' "$test_root/$leg.log"
-    [ -z "${FLEA_CI_SUITE_LOGS:-}" ] || cp "$test_root/$leg.log" "$FLEA_CI_SUITE_LOGS/langtoggle-$leg.log" || exit 1
+    [ -z "${DLEA_CI_SUITE_LOGS:-}" ] || cp "$test_root/$leg.log" "$DLEA_CI_SUITE_LOGS/langtoggle-$leg.log" || exit 1
 done
 if (( fresh_rc != 0 || peer_rc != 0 || again_rc != 0 || saved_off_rc != 0 )); then
     printf 'FAIL langtoggle: fresh=%s peer=%s again=%s saved-off=%s\n' "$fresh_rc" "$peer_rc" "$again_rc" "$saved_off_rc"
@@ -102,7 +102,7 @@ fi
 printf 'LANGTOGGLE MUTANT default-false rejected by default-on setting\n'
 
 # A live-only writer updates this engine but leaves the real ui.json for relaunch unchanged.
-python3 - "$test_root/config/flea/ViewState.qml" <<'PY' || exit 1
+python3 - "$test_root/config/dlea/ViewState.qml" <<'PY' || exit 1
 from pathlib import Path
 import sys
 path = Path(sys.argv[1])
@@ -118,8 +118,8 @@ if probe saved-off "$test_root/nonpersist-again.log" || ! grep -aq 'LANGTOGGLE F
     printf 'FAIL langtoggle: nonpersisting mutant was not rejected on relaunch\n'; exit 1
 fi
 printf 'LANGTOGGLE MUTANT nonpersisting rejected by saved-off setting\n'
-if [ -n "${FLEA_CI_SUITE_LOGS:-}" ]; then
-    cp "$test_root/default-false.log" "$FLEA_CI_SUITE_LOGS/langtoggle-default-false.log" || exit 1
-    cp "$test_root/nonpersist-again.log" "$FLEA_CI_SUITE_LOGS/langtoggle-nonpersisting.log" || exit 1
+if [ -n "${DLEA_CI_SUITE_LOGS:-}" ]; then
+    cp "$test_root/default-false.log" "$DLEA_CI_SUITE_LOGS/langtoggle-default-false.log" || exit 1
+    cp "$test_root/nonpersist-again.log" "$DLEA_CI_SUITE_LOGS/langtoggle-nonpersisting.log" || exit 1
 fi
 printf 'langtoggle: live panes and windows, teardown, persistence and both negative controls passed\n'

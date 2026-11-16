@@ -1,4 +1,4 @@
-//@ pragma ShellId flea-cohesion-picker-reader-test
+//@ pragma ShellId dlea-cohesion-picker-reader-test
 import QtQuick
 import Quickshell
 
@@ -18,8 +18,8 @@ ShellRoot {
     }
     function handler() {
         for (var i = 0; i < win.data.length; i++)
-            if (win.data[i].target === "fleapicker") return win.data[i]
-        throw new Error("the picker window has no fleapicker IPC handler")
+            if (win.data[i].target === "dleapicker") return win.data[i]
+        throw new Error("the picker window has no dleapicker IPC handler")
     }
     function find(item, kind) {
         if (String(item).indexOf(kind) === 0) return item
@@ -36,7 +36,7 @@ ShellRoot {
     }
 
     Component.onCompleted: {
-        var comp = Qt.createComponent("flea/PickerWindow.qml")
+        var comp = Qt.createComponent("dlea/PickerWindow.qml")
         if (comp.status !== Component.Ready) { console.log("COHPICKER FAIL compile " + comp.errorString()); root.report(); return }
         win = comp.createObject(root).pickerWin
         win.width = 1040
@@ -56,7 +56,7 @@ ShellRoot {
             if (root.focused) {
                 if (!root.menuOpened)
                     root.check(!!st.focus && st.focus.via === "owner" && st.focus.kind === "DialogButton", "the focus names the answer by the owner walk: " + JSON.stringify(st.focus))
-                if (Quickshell.env("FLEA_COH_CAPTURE") === "true") {
+                if (Quickshell.env("DLEA_COH_CAPTURE") === "true") {
                     if (!root.menuOpened) {
                         root.find(win.contentItem, "PickerFilter").open()
                         root.menuOpened = true

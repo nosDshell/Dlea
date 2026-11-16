@@ -3,7 +3,7 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
-const CHILD: &str = "FLEA_FILTER_PROTOCOL_CHILD";
+const CHILD: &str = "DLEA_FILTER_PROTOCOL_CHILD";
 const CHILD_TEST: &str = "backend::filter_tests::backend_child";
 
 // Re-execute the real CLI entry point with --backend in an isolated process.
@@ -16,11 +16,11 @@ struct Fixture { root: PathBuf, tree: PathBuf }
 
 impl Fixture {
     fn new(count: usize) -> Self {
-        let output = Command::new("mktemp").args(["-d", "-t", "flea-filter-XXXXXX"]).output().expect("mktemp");
+        let output = Command::new("mktemp").args(["-d", "-t", "dlea-filter-XXXXXX"]).output().expect("mktemp");
         assert!(output.status.success());
         let root = PathBuf::from(String::from_utf8(output.stdout).unwrap().trim());
         assert!(root.is_absolute() && !root.as_os_str().is_empty());
-        std::fs::write(root.join(".flea-test-sandbox"), "filter protocol fixture\n").unwrap();
+        std::fs::write(root.join(".dlea-test-sandbox"), "filter protocol fixture\n").unwrap();
         let tree = root.join("tree");
         std::fs::create_dir(&tree).unwrap();
         for row in 0..count {
@@ -53,8 +53,8 @@ impl Fixture {
 impl Drop for Fixture {
     fn drop(&mut self) {
         assert!(self.root.is_absolute() && !self.root.as_os_str().is_empty()
-            && self.root.file_name().unwrap().to_str().unwrap().starts_with("flea-filter-")
-            && self.root.join(".flea-test-sandbox").is_file());
+            && self.root.file_name().unwrap().to_str().unwrap().starts_with("dlea-filter-")
+            && self.root.join(".dlea-test-sandbox").is_file());
         std::fs::remove_dir_all(&self.root).expect("remove only the marked mktemp root");
     }
 }

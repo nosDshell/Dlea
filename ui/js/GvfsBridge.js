@@ -2,7 +2,7 @@
 
 .import "Format.js" as Format
 
-// Phones and shares open through the GVFS FUSE bridge, and Flea starts it the way gvfsd
+// Phones and shares open through the GVFS FUSE bridge, and Dlea starts it the way gvfsd
 // does when the folder is not serving yet. The QML service owns the processes and the three
 // timers; this module owns every decision, so tests/js/gvfsbridge.js pins each one with no
 // process and no clock. An action is what the service executes next: check (test -d the

@@ -197,17 +197,17 @@ fn a_path_gone_between_the_sort_and_its_rename_is_a_failure_that_never_reaches_g
 fn a_relative_path_is_never_renamed_in_process() {
     let d = TestDir::new("trash-fast-relative");
     let here = std::env::current_dir().unwrap();
-    let (_sandbox, _calls) = counted_gio(&d, &here.join("flea-test-no-such-xdg"));
+    let (_sandbox, _calls) = counted_gio(&d, &here.join("dlea-test-no-such-xdg"));
     // Same folder and same device as the Trash root, so only the absolute check tells the two apart.
-    assert!(renames_to_home(&here.join("flea-test-no-such-file")), "the absolute twin is renameable");
-    assert!(!renames_to_home(Path::new("./flea-test-no-such-file")), "the relative path is left to gio");
+    assert!(renames_to_home(&here.join("dlea-test-no-such-file")), "the absolute twin is renameable");
+    assert!(!renames_to_home(Path::new("./dlea-test-no-such-file")), "the relative path is left to gio");
 }
 
 #[test]
 fn an_item_that_is_its_own_mount_is_left_to_gio_though_its_parent_shares_the_trash_device() {
     use std::os::unix::fs::MetadataExt;
     let d = TestDir::new("trash-fast-mount");
-    let (_sandbox, _calls) = counted_gio(&d, Path::new("/dev/flea-test-no-such-xdg"));
+    let (_sandbox, _calls) = counted_gio(&d, Path::new("/dev/dlea-test-no-such-xdg"));
     // /dev/shm is a mount of its own below /dev, and the /dev/fd symlink sits on /dev itself (a container's /dev is a tmpfs, so /dev/null is not).
     let (shm, fd) = (Path::new("/dev/shm"), Path::new("/dev/fd"));
     let device = |p: &Path| p.symlink_metadata().ok().map(|m| m.dev());

@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-scrolloff-view-test
+//@ pragma ShellId dlea-scrolloff-view-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/ScrollOff.js" as ScrollOff
+import "dlea" as Dlea
+import "dlea/js/ScrollOff.js" as ScrollOff
 
 // F4 scrolloff-view: the real List and ColumnPane prove the scrolloff wiring offscreen.
 ShellRoot {
@@ -96,7 +96,7 @@ ShellRoot {
     property var stubMenu: menuStub.createObject(root)
     property var stubPane: paneStub.createObject(root, { backend: root.stubBackend, rows: root.buildRows() })
 
-    Flea.List {
+    Dlea.List {
         id: list
         width: 700
         height: 300
@@ -104,7 +104,7 @@ ShellRoot {
         menu: root.stubMenu
     }
 
-    Flea.ColumnPane {
+    Dlea.ColumnPane {
         id: col
         x: 0
         y: 320
@@ -114,7 +114,7 @@ ShellRoot {
         selectedIndex: -1
     }
 
-    Flea.List {
+    Dlea.List {
         id: endList
         y: 540
         width: 700
@@ -123,7 +123,7 @@ ShellRoot {
         menu: root.stubMenu
     }
 
-    Flea.ColumnPane {
+    Dlea.ColumnPane {
         id: endCol
         x: 720
         y: 540
@@ -133,7 +133,7 @@ ShellRoot {
         selectedIndex: -1
     }
 
-    Flea.ColumnPane {
+    Dlea.ColumnPane {
         id: endColPane
         x: 1140
         y: 540
@@ -153,7 +153,7 @@ ShellRoot {
 
     // A keyboard move keeps three rows of context; a pointer move never scrolls under the pointer.
     function measure() {
-        var rowH = Flea.Theme.fileRowHeight
+        var rowH = Dlea.Theme.fileRowHeight
         if (!(rowH > 0)) { root.fail("no row height"); root.report(); return }
         var listV = ScrollOff.fullyVisible(list.height, rowH)
         var colViewH = 200
@@ -226,7 +226,7 @@ ShellRoot {
 
     // End parks the last row flush on the view's bottom edge and whole; the footer's bare ground stays one wheel step beyond.
     function endChecks(label, pane, view, height) {
-        var rowH = Flea.Theme.fileRowHeight
+        var rowH = Dlea.Theme.fileRowHeight
         var last = root.rowCount - 1
         pane.height = height
         view.contentY = view.originY

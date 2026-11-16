@@ -22,7 +22,7 @@ MIN_ARG_MAX_BYTES = 128 * 1024
 
 
 def owned(root, path):
-    assert root.is_absolute() and (root / ".flea-test-sandbox").is_file()
+    assert root.is_absolute() and (root / ".dlea-test-sandbox").is_file()
     assert path.is_absolute() and path != root and path.is_relative_to(root)
     assert not path.is_symlink() and path.resolve().is_relative_to(root.resolve())
     return path
@@ -95,7 +95,7 @@ def escaped_exec_controls(binary, root, env, desktop, viewer, paths):
         for code in ["F", "U"]:
             write(root, desktop, f'[Desktop Entry]\nType=Application\nName=Viewer order\nX-GIO-NoFuse=true\nExec="{viewer}" {argument} %{code}\n')
             received = []
-            for mode in ["direct", "flea"]:
+            for mode in ["direct", "dlea"]:
                 receipt = owned(root, root / f"escape-{label}-{code}-{mode}.json")
                 env["VIEWERORDER_RECEIPT"] = str(receipt)
                 launcher = ["gio", "launch", str(desktop)] if mode == "direct" else [binary, "--open"]
@@ -118,7 +118,7 @@ def escaped_exec_controls(binary, root, env, desktop, viewer, paths):
                 assert image_args == paths, (label, code, mode, image_args, paths)
                 received.append(args)
             assert received[0] == received[1], (label, code, received)
-            print(f"viewerorder-backend: escape {label} %{code}, direct GIO and Flea agree on both images", flush=True)
+            print(f"viewerorder-backend: escape {label} %{code}, direct GIO and Dlea agree on both images", flush=True)
 
 
 def run(binary, root):
@@ -227,6 +227,6 @@ if __name__ == "__main__":
             while len(os.fsencode(long_root)) < 400:
                 long_root = owned(root, long_root / ("long-root-" + "x" * 118))
                 long_root.mkdir()
-            with owned(root, long_root / ".flea-test-sandbox").open("x") as marker:
+            with owned(root, long_root / ".dlea-test-sandbox").open("x") as marker:
                 marker.write("viewerorder long-root fixture\n")
             run(binary, long_root)

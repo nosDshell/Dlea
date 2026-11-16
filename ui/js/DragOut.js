@@ -108,7 +108,7 @@ function shouldOpen(hoverMs, settingOn, moved) {
 
 // #259: the drag's modifier transitions, kept here so a launch builds no store; each key is 1 held, 0 released, -1 unseen.
 var keys = {
-    liftMime: "application/x-flea-lift",
+    liftMime: "application/x-dlea-lift",
     lifts: 0,
     marker: "",
     lift: "",
@@ -137,7 +137,7 @@ var keys = {
         }
     },
 
-    // A drag with no lift, another app's or an older Flea's, ends at a leave that no enter follows in the same turn.
+    // A drag with no lift, another app's or an older Dlea's, ends at a leave that no enter follows in the same turn.
     leave: function () {
         if (keys.lift !== "") return
         keys.leaving = true

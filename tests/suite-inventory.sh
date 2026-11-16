@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Check suite accounting and each independent refusal against owned fixture copies.
 suite_inventory_layout() {
-    local repo=$1 input=${FLEA_CI_INPUT_DIR:-/in}
-    local layout=${FLEA_CI_LAYOUT:-$input/suite-inventory.layout}
-    local evidence=${FLEA_CI_EVIDENCE:-$input/suite-evidence.txt}
-    if [[ ${FLEA_CI_LAYOUT+x} || ${FLEA_CI_EVIDENCE+x} || ${FLEA_CI_INPUT_DIR+x} || -e "$layout" || -f "$input/worker-files.sha256" ]]; then
-        "$repo/tools/flea-suite-inventory" --layout "$layout" --evidence "$evidence"
+    local repo=$1 input=${DLEA_CI_INPUT_DIR:-/in}
+    local layout=${DLEA_CI_LAYOUT:-$input/suite-inventory.layout}
+    local evidence=${DLEA_CI_EVIDENCE:-$input/suite-evidence.txt}
+    if [[ ${DLEA_CI_LAYOUT+x} || ${DLEA_CI_EVIDENCE+x} || ${DLEA_CI_INPUT_DIR+x} || -e "$layout" || -f "$input/worker-files.sha256" ]]; then
+        "$repo/tools/dlea-suite-inventory" --layout "$layout" --evidence "$evidence"
     fi
 }
 

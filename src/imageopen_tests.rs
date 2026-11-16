@@ -3,7 +3,7 @@ use std::os::unix::fs::PermissionsExt;
 
 #[test]
 fn image_open_child() {
-    if let Ok(line) = std::env::var("FLEA_TEST_IMAGES") {
+    if let Ok(line) = std::env::var("DLEA_TEST_IMAGES") {
         std::process::exit(crate::open::open_many(&crate::json::field_str_array(
             &line, "paths",
         )));
@@ -27,7 +27,7 @@ fn handoff_with(
     mime: &str,
     companion: &std::ffi::OsStr,
 ) -> (std::process::Output, Vec<u8>) {
-    use flea::bytename::ExactText as _;
+    use dlea::bytename::ExactText as _;
     let dir = TestDir::new("image-handoff");
     let apps = dir.path().join("applications");
     std::fs::create_dir(&apps).unwrap();
@@ -37,7 +37,7 @@ fn handoff_with(
         std::fs::set_permissions(&first, std::fs::Permissions::from_mode(0o755)).unwrap();
     }
     let log = dir.path().join("handoff.log");
-    let stub = dir.script("gio", "#!/bin/sh\ncase \"$1\" in\ninfo) printf '  standard::content-type: %s\\n' \"$FLEA_TEST_MIME\";;\nmime) printf \"Default application for '%s': viewer.desktop\\n\" \"$2\";;\nopen|launch) printf '%s\\n' \"$@\" >> \"$FLEA_TEST_LOG\";;\nesac\n");
+    let stub = dir.script("gio", "#!/bin/sh\ncase \"$1\" in\ninfo) printf '  standard::content-type: %s\\n' \"$DLEA_TEST_MIME\";;\nmime) printf \"Default application for '%s': viewer.desktop\\n\" \"$2\";;\nopen|launch) printf '%s\\n' \"$@\" >> \"$DLEA_TEST_LOG\";;\nesac\n");
     let paths = format!(
         r#"{{"paths":["{}","{}"]}}"#,
         crate::json::escape(&first.to_string_lossy()),
@@ -52,9 +52,9 @@ fn handoff_with(
             "--nocapture",
             "--test-threads=1",
         ])
-        .env("FLEA_TEST_IMAGES", paths)
-        .env("FLEA_TEST_MIME", mime)
-        .env("FLEA_TEST_LOG", &log)
+        .env("DLEA_TEST_IMAGES", paths)
+        .env("DLEA_TEST_MIME", mime)
+        .env("DLEA_TEST_LOG", &log)
         .env(
             "PATH",
             format!("{}:/usr/bin:/bin", stub.parent().unwrap().display()),

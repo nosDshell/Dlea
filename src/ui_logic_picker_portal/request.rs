@@ -1,4 +1,4 @@
-// The portal request as tools/flea-portal hands it in FLEA_PICKER, read the way ui/js/Picker.js reads it.
+// The portal request as tools/dlea-portal hands it in DLEA_PICKER, read the way ui/js/Picker.js reads it.
 use crate::jsondoc::{self, Json};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

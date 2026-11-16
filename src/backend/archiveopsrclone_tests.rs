@@ -17,7 +17,7 @@ fn on_a_copy_fallback_mount<T>(run: impl FnOnce() -> T) -> T {
 // Only a publish that took the copy meets this cancel, raised after the copy's first chunk, so it pins the branch.
 fn cancelled_mid_copy(
     d: &TestDir,
-    run: impl FnOnce(&AtomicBool) -> Result<(), FleaError>,
+    run: impl FnOnce(&AtomicBool) -> Result<(), DleaError>,
 ) -> String {
     let names = || {
         let mut all: Vec<_> = std::fs::read_dir(d.path())

@@ -1,15 +1,15 @@
 // Rename work and ordered journal publication never wait on the request dispatcher.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::opsdispatch::{forget_pending, Ops, SlowClaim};
 use super::opsreq::{renamed_line, OpMsg};
 use super::proto::error_line;
 use super::undo::{Entry, Journal, Step};
-use crate::error::FleaError;
+use crate::error::DleaError;
 use std::io::Write;
 use std::path::PathBuf;
 use std::time::Duration;
 
-pub(crate) type Outcome = Result<(PathBuf, Vec<Step>), FleaError>;
+pub(crate) type Outcome = Result<(PathBuf, Vec<Step>), DleaError>;
 
 // The placeholder records every journal mutation while its history belongs to the publisher.
 pub(crate) enum Publication {
@@ -29,7 +29,7 @@ pub(crate) fn start(
     let id = ops.claim_id();
     ops.journal.reserve(id);
     let body = super::iomount::mount_body();
-    let mount = super::iomount::mount_key(&flea::bytename::view(&path), &body);
+    let mount = super::iomount::mount_key(&dlea::bytename::view(&path), &body);
     ops.pending.push(SlowClaim {
         id,
         path: path.clone(),
@@ -38,7 +38,7 @@ pub(crate) fn start(
     let tx = ops.tx.clone();
     let timer = tx.clone();
     let (finished, wait) = std::sync::mpsc::channel();
-    let failure_path = flea::bytename::exact(&path);
+    let failure_path = dlea::bytename::exact(&path);
     std::thread::spawn(move || {
         let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(work))
             .unwrap_or_else(|_| Err(super::iomount::internal_failure("rename", &failure_path)));

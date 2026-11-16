@@ -37,9 +37,9 @@ refusal!(prepare_delete, Outcome::Prepare(Delete),
 refusal!(prepare_restore, Outcome::Prepare(Restore),
     "Could not prepare the restore, so nothing was restored: permission denied.");
 refusal!(norecord_delete, Outcome::NoRecord(Delete),
-    "Flea could not keep a record of this deletion, so nothing was deleted: permission denied.");
+    "Dlea could not keep a record of this deletion, so nothing was deleted: permission denied.");
 refusal!(norecord_restore, Outcome::NoRecord(Restore),
-    "Flea could not keep a record of this restore, so nothing was restored: permission denied.");
+    "Dlea could not keep a record of this restore, so nothing was restored: permission denied.");
 refusal!(stuck_delete_at, Outcome::Stuck(Delete, PathBuf::from("/kept")),
     "The deletion could not finish: permission denied. The remaining items are kept at /kept.");
 refusal!(stuck_restore_at, Outcome::Stuck(Restore, PathBuf::from("/kept")),
@@ -61,15 +61,15 @@ refusal!(infoleft_delete_at, Outcome::InfoLeft(Delete, PathBuf::from("/kept")),
 refusal!(infoleft_restore_at, Outcome::InfoLeft(Restore, PathBuf::from("/kept")),
     "The item was restored, but a Trash record at /kept could not be removed: permission denied.");
 refusal!(folderleft_delete, Outcome::FolderLeft(Delete, None),
-    "The item was deleted, but Flea could not remove its temporary folder: permission denied.");
+    "The item was deleted, but Dlea could not remove its temporary folder: permission denied.");
 refusal!(folderleft_restore, Outcome::FolderLeft(Restore, None),
-    "The item was restored, but Flea could not remove its temporary folder: permission denied.");
+    "The item was restored, but Dlea could not remove its temporary folder: permission denied.");
 refusal!(recordleft_some_delete, Outcome::RecordLeft(Some(Delete)),
-    "The item was deleted, but Flea could not remove its recovery record: permission denied.");
+    "The item was deleted, but Dlea could not remove its recovery record: permission denied.");
 refusal!(recordleft_some_restore, Outcome::RecordLeft(Some(Restore)),
-    "The item was restored, but Flea could not remove its recovery record: permission denied.");
+    "The item was restored, but Dlea could not remove its recovery record: permission denied.");
 refusal!(recordleft_none, Outcome::RecordLeft(None),
-    "The interrupted operation was recovered, but Flea could not remove its recovery record: permission denied.");
+    "The interrupted operation was recovered, but Dlea could not remove its recovery record: permission denied.");
 refusal!(childchanged, Outcome::ChildChanged,
     "An item in the Trash changed, so the rest was kept.");
 refusal!(childleft, Outcome::ChildLeft,
@@ -79,9 +79,9 @@ refusal!(blocked, Outcome::Blocked,
 refusal!(originalchanged, Outcome::OriginalChanged,
     "The item's original folder changed; select it again.");
 refusal!(held_at, Outcome::Held(PathBuf::from("/kept")),
-    "Flea found an interrupted Trash operation; its items are kept at /kept.");
+    "Dlea found an interrupted Trash operation; its items are kept at /kept.");
 refusal!(nothingmoved, Outcome::NothingMoved,
-    "Flea found an interrupted Trash operation; nothing was moved.");
+    "Dlea found an interrupted Trash operation; nothing was moved.");
 refusal!(unreadable, Outcome::Unreadable,
     "The Trash could not be read.");
 refusal!(tooktoolong, Outcome::TookTooLong,

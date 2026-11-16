@@ -41,7 +41,7 @@ pub fn receive(m: &mut Model, value: &Json, w: &mut Wire) -> io::Result<bool> {
                     && paths.len() <= MAX_ITEMS
                     && paths.iter().all(|path| {
                         path.starts_with('/')
-                            && !flea::bytename::is_refused(path)
+                            && !dlea::bytename::is_refused(path)
                             && classify(m, path).printable()
                     })
             });

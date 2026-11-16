@@ -19,9 +19,9 @@ subprocess.run(['cc', '-shared', '-fPIC', '-o', str(library), 'tests/tui_owner_s
 arm, entered, release = root / 'arm', root / 'entered', root / 'release'
 mounts = root / 'mounts'
 mounts.write_text(f'1 0 8:1 / / rw - ext4 /dev/review rw\n30 1 0:45 / {work} rw - nfs review:/s rw\n')
-env.update(LD_PRELOAD=str(library), FLEA_OWNER_TEST_STAT=str(work / 'large.txt'),
-           FLEA_OWNER_TEST_ARM=str(arm), FLEA_OWNER_TEST_ENTERED=str(entered),
-           FLEA_OWNER_TEST_RELEASE=str(release), FLEA_OWNER_TEST_MOUNTS=str(mounts))
+env.update(LD_PRELOAD=str(library), DLEA_OWNER_TEST_STAT=str(work / 'large.txt'),
+           DLEA_OWNER_TEST_ARM=str(arm), DLEA_OWNER_TEST_ENTERED=str(entered),
+           DLEA_OWNER_TEST_RELEASE=str(release), DLEA_OWNER_TEST_MOUNTS=str(mounts))
 
 with Session(binary, root, work, env) as terminal:
     wait, send, grid = terminal.wait, terminal.send, terminal.grid

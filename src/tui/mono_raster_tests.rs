@@ -1,5 +1,5 @@
 use super::*;
-use flea::ui_logic_print_convert::composition::Spacing;
+use dlea::ui_logic_print_convert::composition::Spacing;
 
 #[test]
 fn mono_raster_roles_keep_badges_models_and_grid_visible() {
@@ -15,8 +15,8 @@ fn mono_raster_roles_keep_badges_models_and_grid_visible() {
             ("combine digits and model grid", palette.muted),
             ("model plate edge", palette.frame),
         ] {
-            let ground = flea::ui_logic_model_preview::color::to_bytes(palette.ground);
-            let ink = flea::ui_logic_model_preview::color::to_bytes(ink);
+            let ground = dlea::ui_logic_model_preview::color::to_bytes(palette.ground);
+            let ink = dlea::ui_logic_model_preview::color::to_bytes(ink);
             assert_ne!(ink, ground, "{consumer} collapsed into its ground: {text}");
             assert_eq!(ink[0], ink[1], "Mono raster ink must be achromatic");
             assert_eq!(ink[1], ink[2], "Mono raster ink must be achromatic");
@@ -27,9 +27,9 @@ fn mono_raster_roles_keep_badges_models_and_grid_visible() {
 #[test]
 fn sixteen_colour_raster_roles_decode_instead_of_collapsing_into_the_ground() {
     let palette = crate::tui::graphics::palette(&Theme::with_depth(PALETTE, Depth::Sixteen));
-    let ground = flea::ui_logic_model_preview::color::to_bytes(palette.ground);
+    let ground = dlea::ui_logic_model_preview::color::to_bytes(palette.ground);
     for ink in [palette.foreground, palette.muted, palette.frame] {
-        assert_ne!(flea::ui_logic_model_preview::color::to_bytes(ink), ground);
+        assert_ne!(dlea::ui_logic_model_preview::color::to_bytes(ink), ground);
     }
 }
 

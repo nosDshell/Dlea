@@ -1,4 +1,4 @@
-//@ pragma ShellId flea-network-alias-test
+//@ pragma ShellId dlea-network-alias-test
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -8,7 +8,7 @@ import "js/Mounts.js" as Mounts
 // A held bridge check, a second open, live gio names, renames, a failed wait, then the smb repair and picked arms.
 ShellRoot {
     id: root
-    readonly property string fixture: Quickshell.env("FLEA_TEST_ALIAS_ROOT")
+    readonly property string fixture: Quickshell.env("DLEA_TEST_ALIAS_ROOT")
     readonly property string firstPath: Quickshell.env("XDG_RUNTIME_DIR") + "/gvfs/dav:host=first.example/space"
     readonly property string secondPath: root.fixture + "/second"
     readonly property string firstUri: "davs://first.example/space"

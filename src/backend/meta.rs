@@ -76,7 +76,7 @@ fn cached_or(base: &Path, l: &Listing, i: usize, stat: &(impl Fn(&Path, &str) ->
 
 // corner: a cached symlink pays meta_one's one follow-stat so a linked folder draws as one; no other kind stats.
 fn linked_dir(base: &Path, name: &str, is_symlink: bool) -> bool {
-    is_symlink && base.join(flea::bytename::text_path(name)).metadata().map(|t| t.is_dir()).unwrap_or(false)
+    is_symlink && base.join(dlea::bytename::text_path(name)).metadata().map(|t| t.is_dir()).unwrap_or(false)
 }
 
 // Contiguous chunks, joined in order, so the rows come back exactly as the serial walk returns them.
@@ -107,7 +107,7 @@ fn meta_one(base: &Path, name: &str) -> Meta {
     #[cfg(test)]
     SEARCH_STAT_CALLS.with(|calls| calls.set(calls.get() + 1));
     // corner: a row that vanished between listing and stat reports zeroes, see AGENTS.md.
-    let path = base.join(flea::bytename::text_path(name));
+    let path = base.join(dlea::bytename::text_path(name));
     match path.symlink_metadata() {
         Ok(m) => {
             // corner: only a symlink pays a second stat, and only so its icon can be a folder; see AGENTS.md "Icons in the row".
@@ -229,7 +229,7 @@ fn stat_all_with(base: &Path, l: &Listing, stat: impl Fn(&Path, &str) -> Stat + 
 
 // corner: a row that vanished between listing and stat reports zeroes, the same zeroes stat_range sends.
 fn stat_one(base: &Path, name: &str) -> Stat {
-    match base.join(flea::bytename::text_path(name)).symlink_metadata() {
+    match base.join(dlea::bytename::text_path(name)).symlink_metadata() {
         Ok(m) => Stat { size: m.size(), mtime: m.mtime() },
         Err(_) => Stat { size: 0, mtime: 0 },
     }

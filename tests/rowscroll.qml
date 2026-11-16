@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-rowscroll-test
+//@ pragma ShellId dlea-rowscroll-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // Rowscroll: a real ui/List.qml over a counting stub pane, scrolled by ten wheel notches, counts what the rows that enter the view cost.
 ShellRoot {
@@ -105,7 +105,7 @@ ShellRoot {
     property var stubBackend: backendStub.createObject(root)
     property var stubPane: paneStub.createObject(root, { backend: root.stubBackend, rows: root.sampleRows })
 
-    Flea.List {
+    Dlea.List {
         id: list
         width: 700
         height: 300
@@ -134,7 +134,7 @@ ShellRoot {
     function wheelHandler() {
         for (var i = 0; i < list.children.length; i++) {
             var c = list.children[i]
-            if (c && c.objectName === "fleaScroll" && c.handleWheel !== undefined)
+            if (c && c.objectName === "dleaScroll" && c.handleWheel !== undefined)
                 return c
         }
         return null

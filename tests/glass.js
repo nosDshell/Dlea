@@ -1,6 +1,6 @@
 // Pixel pairs for tests/glass.qml, [r1, g1, b1, r2, g2, b2] over magenta then green, each channel c = p*a + m*(1 - a).
 .pragma library
-.import "flea/js/Contrast.js" as Contrast
+.import "dlea/js/Contrast.js" as Contrast
 
 // Sample input: [174, 6, 175, 5, 174, 7], the plane #101315 at 0.34, solves to alpha 87 and colour [15, 18, 21].
 function solvePair(v) {

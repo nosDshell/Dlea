@@ -1,12 +1,12 @@
 [package]
-name = "flea"
+name = "dlea"
 version = "0.4.3"
 edition = "2021"
 license = "MIT"
 rust-version.workspace = true
 
 [workspace]
-members = ["crates/flea-gui"]
+members = ["crates/dlea-gui"]
 default-members = ["."]
 resolver = "2"
 

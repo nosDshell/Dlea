@@ -65,7 +65,7 @@ def bundle_dry_run(owner, boards):
 def leaked_fixtures(marker):
     """Case fixtures this process left on tmpfs; each lives there only until the driver's retain copies it out."""
     leaked = []
-    for root in sorted(TMPFS.glob("flea-battery-fx.*")):
+    for root in sorted(TMPFS.glob("dlea-battery-fx.*")):
         try:
             if (root / MARKER).read_text() == marker:
                 leaked.append(str(root))
@@ -87,8 +87,8 @@ def main(scratch):
         raise Blocked("offline suite must have no controlling terminal")
     boards = references(owner)
     print("tui-battery: private environment, no controlling tty, pinned references, native capture disabled", flush=True)
-    if (os.environ.get("FLEA_BATTERY_BOARDS") != str(boards)
-            or os.environ.get("FLEA_BATTERY_TEST_ROOT") != str(owner.child("tests"))):
+    if (os.environ.get("DLEA_BATTERY_BOARDS") != str(boards)
+            or os.environ.get("DLEA_BATTERY_TEST_ROOT") != str(owner.child("tests"))):
         raise Blocked("offline inputs must use the wrapper's marked scratch root")
     suite = unittest.defaultTestLoader.discover(str(HERE), pattern="test_*.py", top_level_dir=str(HERE.parent))
     count = suite.countTestCases()

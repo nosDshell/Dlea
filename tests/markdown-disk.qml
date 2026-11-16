@@ -1,15 +1,15 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 import "qml-probe.js" as QmlProbe
 
 // The shown Markdown file's place and failures across saves: a read that fails, a save that truncates first, a shorter file, a file past the worker threshold, a file switched mid-save.
 ShellRoot {
     id: root
-    property string scenario: Quickshell.env("FLEA_PREVIEW_HUNT_CASE")
-    property string fixture: Quickshell.env("FLEA_PREVIEW_HUNT_DIR") + "/" + scenario + ".md"
-    property string otherFixture: Quickshell.env("FLEA_PREVIEW_HUNT_DIR") + "/" + scenario + "-b.md"
+    property string scenario: Quickshell.env("DLEA_PREVIEW_HUNT_CASE")
+    property string fixture: Quickshell.env("DLEA_PREVIEW_HUNT_DIR") + "/" + scenario + ".md"
+    property string otherFixture: Quickshell.env("DLEA_PREVIEW_HUNT_DIR") + "/" + scenario + "-b.md"
     property int loadsAtSwitch: 0
     property int stage: 0
     property int settle: 0
@@ -47,7 +47,7 @@ ShellRoot {
     // Fallback matching the shell default, used only when the harness passes no outer timeout.
     readonly property int fallbackOuterS: 15
     // The shell's outer kill, in seconds; the probe caps its give-up below it so the timeout line lands first.
-    readonly property int outerTimeoutS: Number(Quickshell.env("FLEA_PREVIEW_HUNT_TIMEOUT_S")) || root.fallbackOuterS
+    readonly property int outerTimeoutS: Number(Quickshell.env("DLEA_PREVIEW_HUNT_TIMEOUT_S")) || root.fallbackOuterS
     // The probe gives up this far before the outer kill, so its own timeout line is what reports a stall.
     readonly property int timeoutMarginMs: 2000
     readonly property int giveUpMs: Math.min(Math.max(probeGiveUpMs, giveUpScale * firstStageMs), root.outerTimeoutS * root.msPerS - root.timeoutMarginMs)
@@ -99,8 +99,8 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 760
         implicitHeight: 700
-        color: Flea.Theme.color.background
-        Flea.PreviewMarkdown {
+        color: Dlea.Theme.color.background
+        Dlea.PreviewMarkdown {
             id: md
             width: 600
             height: 580
@@ -108,14 +108,14 @@ ShellRoot {
             path: root.fixture
             size: 2000
         }
-        Flea.Preview {
+        Dlea.Preview {
             id: quick
             active: root.failCase
             kind: "text"
             path: root.fixture
             size: 100
         }
-        Flea.PreviewColumn {
+        Dlea.PreviewColumn {
             id: column
             width: 300
             height: 600

@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-search-exit-columns-test
+//@ pragma ShellId dlea-search-exit-columns-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // Escape out of a live search in every view on the real Pane and backend, in case_searchnoblank's order, landing whole.
 ShellRoot {
@@ -105,12 +105,12 @@ ShellRoot {
         id: win
         implicitWidth: 1400
         implicitHeight: 800
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
     }
-    Flea.Backend { id: realBackend }
+    Dlea.Backend { id: realBackend }
     Component {
         id: paneComponent
-        Flea.Pane {
+        Dlea.Pane {
             width: 1400
             height: 800
             backend: realBackend
@@ -172,7 +172,7 @@ ShellRoot {
 
     function run(op) {
         if (op.open) {
-            Flea.ViewState.changeKey("view", "list")
+            Dlea.ViewState.changeKey("view", "list")
             root.pane = paneComponent.createObject(win.contentItem)
             root.keys = Qt.createQmlObject("import QtTest; TestEvent {}", root.pane.listArea)
             root.pane.open(root.fixture)

@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/CodeRuns.js" as CodeRuns
 
 // The Source view: the file's lines coloured by the backend's code engine and numbered, asked a screen at a time through CodeLines.
@@ -109,7 +109,7 @@ Item {
                 return null
             }
 
-            Flea.CodeLines {
+            Dlea.CodeLines {
                 id: codeLines
                 anchors.fill: parent
                 anchors.leftMargin: root.insetX
@@ -131,12 +131,12 @@ Item {
             }
 
             // The wheel and the bar belong to the frame, as in Rendered: the bar sits on the frame edge beside the list's top.
-            Flea.FastScrollHandler {
+            Dlea.FastScrollHandler {
                 flickable: frameItem.list
                 visible: !root.refused
             }
 
-            Flea.ViewportScrollBar {
+            Dlea.ViewportScrollBar {
                 anchors { top: parent.top; topMargin: root.insetY; right: parent.right }
                 flickable: frameItem.list
                 visible: !root.refused
@@ -144,7 +144,7 @@ Item {
         }
     }
 
-    Flea.CodeRefusal {
+    Dlea.CodeRefusal {
         anchors.fill: parent
         visible: root.refused
         binary: root.binary

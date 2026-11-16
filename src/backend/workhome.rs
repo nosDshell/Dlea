@@ -4,7 +4,7 @@ use crate::backend::archivework::{Work, WORK_PREFIX};
 use crate::backend::fsinfo;
 use crate::backend::mountinfo::mount_type_in;
 use crate::backend::opsreq::op_err;
-use crate::error::{from_io, FleaError};
+use crate::error::{from_io, DleaError};
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime};
 
@@ -43,7 +43,7 @@ pub(crate) fn work_for(
     what: &str,
     leaf: &str,
     need: impl FnOnce() -> u64,
-) -> Result<Work, FleaError> {
+) -> Result<Work, DleaError> {
     let work = choose(dest_parent, tag, what, leaf, need);
     #[cfg(test)]
     if let Ok(work) = &work {
@@ -58,7 +58,7 @@ fn choose(
     what: &str,
     leaf: &str,
     need: impl FnOnce() -> u64,
-) -> Result<Work, FleaError> {
+) -> Result<Work, DleaError> {
     if !stages_off(dest_parent) {
         return Work::new(dest_parent, tag);
     }
@@ -124,11 +124,11 @@ pub(crate) fn stages_off_in(dest: &Path, mountinfo: &str) -> bool {
         .is_some_and(|fstype| COPY_FALLBACK_MOUNTS.contains(&fstype.as_str()))
 }
 
-// A stage this old whose Flea is gone was left by a kill; a live job's stage always has its Flea running.
+// A stage this old whose Dlea is gone was left by a kill; a live job's stage always has its Dlea running.
 pub(crate) const STALE_AFTER: Duration = Duration::from_secs(24 * 60 * 60);
 
 fn cache_root() -> PathBuf {
-    crate::userfile::cache_home().join("flea").join("work")
+    crate::userfile::cache_home().join("dlea").join("work")
 }
 
 // Backend start: only the cache's own folder is swept, since /var/tmp and /tmp are shared and the system clears them.
@@ -139,7 +139,7 @@ pub fn sweep_at_start() -> Option<std::thread::JoinHandle<usize>> {
         return None;
     }
     std::thread::Builder::new()
-        .name("flea-worksweep".into())
+        .name("dlea-worksweep".into())
         .spawn(move || sweep(&root, SystemTime::now()))
         .ok()
 }
@@ -170,7 +170,7 @@ pub(crate) fn sweep(root: &Path, now: SystemTime) -> usize {
     cleared
 }
 
-// Sample input: ".flea-work-ext-4123-7" is pid 4123's seventh stage (Work::new); any other name is not a stage.
+// Sample input: ".dlea-work-ext-4123-7" is pid 4123's seventh stage (Work::new); any other name is not a stage.
 fn stage_pid(name: &str) -> Option<u32> {
     let mut parts = name.strip_prefix(WORK_PREFIX)?.rsplitn(3, '-');
     parts.next()?.parse::<usize>().ok()?;
@@ -199,7 +199,7 @@ fn local_roots() -> Vec<PathBuf> {
 }
 
 // /var/tmp and /tmp are shared, so the work folder in them shows nothing of the job to another user.
-fn private(work: Work) -> Result<Work, FleaError> {
+fn private(work: Work) -> Result<Work, DleaError> {
     use std::os::unix::fs::PermissionsExt;
     std::fs::set_permissions(&work.dir, std::fs::Permissions::from_mode(0o700))
         .map_err(|e| from_io("archive", &work.dir.to_string_lossy(), &e))?;

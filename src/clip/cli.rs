@@ -1,4 +1,4 @@
-// flea --clip: the terminal and test seam over the clipboard; shape errors belong to usage() in main.rs.
+// dlea --clip: the terminal and test seam over the clipboard; shape errors belong to usage() in main.rs.
 use super::control;
 use super::own;
 use super::reply;
@@ -20,14 +20,14 @@ pub fn set(op: &str) -> i32 {
     let input = match own::read_capped_stdin() {
         Ok(input) => input,
         Err(e) => {
-            eprintln!("flea: {}", e);
+            eprintln!("dlea: {}", e);
             return 2;
         }
     };
     let paths = match own::nul_paths(&input) {
         Ok(paths) => paths,
         Err(e) => {
-            eprintln!("flea: {}", e);
+            eprintln!("dlea: {}", e);
             return 2;
         }
     };
@@ -37,7 +37,7 @@ pub fn set(op: &str) -> i32 {
             0
         }
         Err(e) => {
-            eprintln!("flea: {}", e);
+            eprintln!("dlea: {}", e);
             2
         }
     }
@@ -45,7 +45,7 @@ pub fn set(op: &str) -> i32 {
 
 pub fn clear(token: &str) -> i32 {
     if token.is_empty() {
-        eprintln!("flea: the token names the copy to clear");
+        eprintln!("dlea: the token names the copy to clear");
         return 2;
     }
     match control::clear(token, None) {

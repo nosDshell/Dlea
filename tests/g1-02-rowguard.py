@@ -9,13 +9,13 @@ import sys
 import threading
 
 root = Path(sys.argv[1])
-if not root.is_absolute() or not (root / ".flea-test-sandbox").is_file():
+if not root.is_absolute() or not (root / ".dlea-test-sandbox").is_file():
     raise SystemExit("g1-02 rowguard requires an absolute marked fixture")
 for folder in ("a", "b"):
     (root / folder).mkdir()
     with (root / folder / "keep.txt").open("x") as stream:
         stream.write(folder)
-child = subprocess.Popen([os.environ["FLEA_BIN"], "--backend"], stdin=subprocess.PIPE,
+child = subprocess.Popen([os.environ["DLEA_BIN"], "--backend"], stdin=subprocess.PIPE,
                          stdout=subprocess.PIPE, text=True)
 replies = queue.Queue()
 

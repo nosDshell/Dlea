@@ -8,7 +8,7 @@ fn a_row_whose_name_is_not_utf8_acts_on_its_own_file_through_every_operation() {
             "-I",
             "-B",
             concat!(env!("CARGO_MANIFEST_DIR"), "/tests/exact_names.py"),
-            env!("CARGO_BIN_EXE_flea"),
+            env!("CARGO_BIN_EXE_dlea"),
         ])
         .output()
         .unwrap();

@@ -3,13 +3,13 @@
 # Permissions dismissal must return the first key and pointer gesture to the real listing.
 set -u
 cd "$(dirname "$0")/.." || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 command -v qs >/dev/null || { echo 'FAIL permissions-focus needs qs'; exit 1; }
 command -v dbus-run-session >/dev/null || { echo 'FAIL permissions-focus needs private D-Bus'; exit 1; }
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [[ -x "$bin" ]] || { echo 'FAIL permissions-focus needs the candidate backend'; exit 1; }
 sandbox_root_ok
-probe=$(mktemp -d "$SANDBOX_ROOT/flea-permissions-focus.XXXXXXXX") || exit 1
+probe=$(mktemp -d "$SANDBOX_ROOT/dlea-permissions-focus.XXXXXXXX") || exit 1
 : > "$probe/$SANDBOX_MARKER" || exit 1
 cleanup() { sandbox_remove "$probe"; }
 trap cleanup EXIT
@@ -19,18 +19,18 @@ for name in a-special.txt b.txt c.txt d.txt; do printf 'permission focus fixture
 chmod 4644 "$probe/home/fixture/a-special.txt" || exit 1
 env HOME="$probe/home" XDG_STATE_HOME="$probe/state" "$bin" --ui-state \
     '{"view":"list","keys":"default","menu":{"hidden":[]},"preview":{"column":false,"thumbnails":"off"},"updates":{"autoCheck":false},"display":{"textSize":{"mode":14}}}' >/dev/null || exit 1
-ln -s "$PWD/ui" "$probe/config/flea" || exit 1
+ln -s "$PWD/ui" "$probe/config/dlea" || exit 1
 headless_commons "$probe" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$probe/config/Ui" || exit 1
 cp tests/permissions-focus.qml "$probe/config/shell.qml" || exit 1
-ln -s "$PWD/ui/boot/fleatab.qml" "$probe/config/fleatab.qml" || exit 1
+ln -s "$PWD/ui/boot/dleatab.qml" "$probe/config/dleatab.qml" || exit 1
 cp tests/permissions-layout.js "$probe/config/permissions-layout.js" || exit 1
 log="$probe/qs.log"
 readonly runLimitSeconds=60 expectedChecks=220 expectedQsStatus=143
-env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u FLEA_SELECT \
+env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u DLEA_SELECT \
     HOME="$probe/home" XDG_STATE_HOME="$probe/state" XDG_CONFIG_HOME="$probe/config" \
     XDG_DATA_HOME="$probe/data" XDG_CACHE_HOME="$probe/cache" XDG_RUNTIME_DIR="$probe/runtime" \
-    FLEA_PATH="$probe/home/fixture" FLEA_BIN="$bin" GIO_USE_VOLUME_MONITOR=unix QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
+    DLEA_PATH="$probe/home/fixture" DLEA_BIN="$bin" GIO_USE_VOLUME_MONITOR=unix QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
     QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
     timeout "$runLimitSeconds" dbus-run-session -- qs -p "$probe/config" > "$log" 2>&1
 qs_status=$?

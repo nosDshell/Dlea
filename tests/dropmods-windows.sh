@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-. "$(dirname "${BASH_SOURCE[0]}")/../tools/flea-ipc"
-flea_ipc_init qs
+. "$(dirname "${BASH_SOURCE[0]}")/../tools/dlea-ipc"
+dlea_ipc_init qs
 test_frontend=qml
 # tests/ui.sh and tests/ui-captures-dropmods.sh window helpers against hyprctl, omarchy-drive and ipc doubles: geometry, focus, keys and the cursor seek are per qs pid, and a lookup or a key that fails ends the case.
 set -u
@@ -11,7 +11,7 @@ failed=0
 ok() { printf 'ok   %s\n' "$*"; }
 bad() { printf 'FAIL %s\n' "$*"; failed=1; }
 
-MARKER=.flea-test-sandbox
+MARKER=.dlea-test-sandbox
 box=$(mktemp -d) || exit 1
 : > "$box/$MARKER"
 # Removes only an absolute, non-empty root that still carries its marker.
@@ -27,15 +27,15 @@ eval "$(sed -n -e '/^cap_dropmods_box()/,/^}/p' -e '/^cap_dropmods_focus_pid()/,
 eval "$(sed -n -e '/^ipc_pid=""$/,/^}$/p' -e '/^focused_class()/,/^}/p' -e '/^focused_pid()/,/^}/p' -e '/^window_addr_of_pid()/,/^}/p' \
     -e '/^assert_focus()/,/^}/p' -e '/^key()/,/^}/p' -e '/^hotkey()/,/^}/p' -e '/^async_wait_ms=/p' -e '/^seek_row_named()/,/^}/p' tests/ui.sh)"
 
-# Sample input, hyprctl clients -j: [{"class":"com.thisisgm.flea","pid":11,"address":"0xa1","at":[0,40],"size":[900,700]}], one entry per window.
-clients='[{"class":"com.thisisgm.flea","pid":11,"address":"0xa1","at":[0,40],"size":[900,700]},{"class":"com.thisisgm.flea","pid":22,"address":"0xb2","at":[900,40],"size":[950,700]},{"class":"other","pid":33,"address":"0xc3","at":[1,1],"size":[2,2]}]'
+# Sample input, hyprctl clients -j: [{"class":"com.nosDshell.dlea","pid":11,"address":"0xa1","at":[0,40],"size":[900,700]}], one entry per window.
+clients='[{"class":"com.nosDshell.dlea","pid":11,"address":"0xa1","at":[0,40],"size":[900,700]},{"class":"com.nosDshell.dlea","pid":22,"address":"0xb2","at":[900,40],"size":[950,700]},{"class":"other","pid":33,"address":"0xc3","at":[1,1],"size":[2,2]}]'
 active=11
-active_class=com.thisisgm.flea
+active_class=com.nosDshell.dlea
 # The newest window answers the path route whichever one has focus, as two windows over one ShellId do.
 route_reply=/two
-flea_ui=/none
-flea_window_class=com.thisisgm.flea
-# ambiguous answers a class match with the driver's refusal, as two Flea windows do; refuse_key refuses one key outright.
+dlea_ui=/none
+dlea_window_class=com.nosDshell.dlea
+# ambiguous answers a class match with the driver's refusal, as two Dlea windows do; refuse_key refuses one key outright.
 ambiguous=no
 refuse_key=""
 rows=(a.txt b1.txt b2.txt sub)
@@ -64,7 +64,7 @@ rows_reply() {
         *) return 1 ;;
     esac
 }
-# Records every argv; a --window com.thisisgm.flea key is refused with exit 3 and the driver's own text while two windows match.
+# Records every argv; a --window com.nosDshell.dlea key is refused with exit 3 and the driver's own text while two windows match.
 omarchy-drive() {
     printf '%s\n' "$*" >> "$box/argv"
     case "$1" in
@@ -73,11 +73,11 @@ omarchy-drive() {
             if [ "$1" = path ]; then printf '%s\n' "$route_reply"; else rows_reply "$@"; fi ;;
         key)
             [ "$2" = --window ] || return 1
-            if [ "$3" = com.thisisgm.flea ] && [ "$ambiguous" = yes ]; then
-                printf "omarchy-drive: 'com.thisisgm.flea' matches 2 windows: com.thisisgm.flea,com.thisisgm.flea, narrow it\n" >&2
+            if [ "$3" = com.nosDshell.dlea ] && [ "$ambiguous" = yes ]; then
+                printf "omarchy-drive: 'com.nosDshell.dlea' matches 2 windows: com.nosDshell.dlea,com.nosDshell.dlea, narrow it\n" >&2
                 return 3
             fi
-            case "$3" in com.thisisgm.flea | 0xa1 | 0xb2) ;; *) return 1 ;; esac
+            case "$3" in com.nosDshell.dlea | 0xa1 | 0xb2) ;; *) return 1 ;; esac
             if [ "$4" = "$refuse_key" ]; then printf 'omarchy-drive: key refused\n' >&2; return 3; fi
             printf '%s\n' "$4" >> "$box/keys.ok" ;;
         hotkey) ;;
@@ -100,10 +100,10 @@ out=$(cap_dropmods_box 22 2>&1)
 out=$(cap_dropmods_box 99 2>&1)
 [ "$out" = "FAIL: cap_dropmods: no native geometry for qs pid 99" ] && ok "a pid with no client fails by name" || bad "an unknown pid must fail by name, got: $out"
 
-clients='[{"class":"com.thisisgm.flea","pid":11,"address":"0xa1","at":[0.5,40],"size":[900,700]}]'
+clients='[{"class":"com.nosDshell.dlea","pid":11,"address":"0xa1","at":[0.5,40],"size":[900,700]}]'
 out=$(cap_dropmods_box 11 2>&1)
 [ "$out" = "FAIL: cap_dropmods: no native geometry for qs pid 11" ] && ok "a fractional geometry is no geometry" || bad "a fractional box must fail, got: $out"
-clients='[{"class":"com.thisisgm.flea","pid":11,"address":"0xa1","at":[0,40],"size":[900,700]},{"class":"com.thisisgm.flea","pid":22,"address":"0xb2","at":[900,40],"size":[950,700]},{"class":"other","pid":33,"address":"0xc3","at":[1,1],"size":[2,2]}]'
+clients='[{"class":"com.nosDshell.dlea","pid":11,"address":"0xa1","at":[0,40],"size":[900,700]},{"class":"com.nosDshell.dlea","pid":22,"address":"0xb2","at":[900,40],"size":[950,700]},{"class":"other","pid":33,"address":"0xc3","at":[1,1],"size":[2,2]}]'
 
 # A caller's own read, as the case writes it: a failed lookup must end it, not hand it empty numbers.
 site() { local wx wy ww wh; read -r wx wy ww wh < <(cap_dropmods_box "$1") || exit 1; printf 'reached %s\n' "$wx"; }
@@ -152,7 +152,7 @@ reset_drive
 active=11
 out=$(seek_row_named b1.txt 2>&1)
 [ "$out" = "FAIL: focus is on qs pid '11', not 22, so this case sends no more keys" ] && [ ! -s "$box/argv" ] \
-    && ok "a pinned pid refuses a key while another Flea window has focus" || bad "focus on the other window must refuse the key, got: $out / $(paste -sd'|' "$box/argv")"
+    && ok "a pinned pid refuses a key while another Dlea window has focus" || bad "focus on the other window must refuse the key, got: $out / $(paste -sd'|' "$box/argv")"
 
 reset_drive
 active=22
@@ -177,22 +177,22 @@ active=11
 ambiguous=no
 reset_drive
 out=$(seek_row_named b1.txt 2>&1)
-[ -z "$out" ] && [ "$(grep '^key ' "$box/argv")" = "key --window com.thisisgm.flea g
-key --window com.thisisgm.flea j" ] \
-    && ok "with no pid set the seek sends today's class route" || bad "an unset pid must keep the --window com.thisisgm.flea route, got: $out / $(paste -sd'|' "$box/argv")"
+[ -z "$out" ] && [ "$(grep '^key ' "$box/argv")" = "key --window com.nosDshell.dlea g
+key --window com.nosDshell.dlea j" ] \
+    && ok "with no pid set the seek sends today's class route" || bad "an unset pid must keep the --window com.nosDshell.dlea route, got: $out / $(paste -sd'|' "$box/argv")"
 
 ambiguous=yes
 reset_drive
 out=$(seek_row_named b1.txt 2>&1)
-[ "$out" = "omarchy-drive: 'com.thisisgm.flea' matches 2 windows: com.thisisgm.flea,com.thisisgm.flea, narrow it
+[ "$out" = "omarchy-drive: 'com.nosDshell.dlea' matches 2 windows: com.nosDshell.dlea,com.nosDshell.dlea, narrow it
 FAIL: seek_row_named: key g was refused on the way to b1.txt, so no key can move the cursor" ] && [ "$(grep -c '^key ' "$box/argv")" = 1 ] \
     && ok "an ambiguous class ends the seek on its first key, not after forty tries" || bad "an ambiguous class must end the seek at once, got: $out / $(grep -c '^key ' "$box/argv") keys"
 
 active_class=other
 out=$(assert_focus 2>&1)
-[ "$out" = "FAIL: focus is on class 'other', not com.thisisgm.flea, so this case sends no more keys" ] \
+[ "$out" = "FAIL: focus is on class 'other', not com.nosDshell.dlea, so this case sends no more keys" ] \
     && ok "with no pid set the focus check reads the class" || bad "an unset pid must check the class, got: $out"
-active_class=com.thisisgm.flea
+active_class=com.nosDshell.dlea
 
 ipc_pid=99
 out=$( (key g) 2>&1)
@@ -201,21 +201,21 @@ out=$( (key g) 2>&1)
 ipc_pid=22
 active=22
 reset_drive
-clients='[{"class":"com.thisisgm.flea","pid":11,"address":"0xa1","at":[0,40],"size":[900,700]}]'
+clients='[{"class":"com.nosDshell.dlea","pid":11,"address":"0xa1","at":[0,40],"size":[900,700]}]'
 out=$( (key g) 2>&1)
 [ "$out" = "FAIL: no client address for qs pid 22" ] && [ ! -s "$box/argv" ] \
     && ok "a pinned pid whose window is gone sends no key" || bad "a pid with no client must send no key, got: $out"
-clients='[{"class":"com.thisisgm.flea","pid":11,"address":"0xa1","at":[0,40],"size":[900,700]},{"class":"com.thisisgm.flea","pid":22,"address":"0xb2","at":[900,40],"size":[950,700]},{"class":"other","pid":33,"address":"0xc3","at":[1,1],"size":[2,2]}]'
+clients='[{"class":"com.nosDshell.dlea","pid":11,"address":"0xa1","at":[0,40],"size":[900,700]},{"class":"com.nosDshell.dlea","pid":22,"address":"0xb2","at":[900,40],"size":[950,700]},{"class":"other","pid":33,"address":"0xc3","at":[1,1],"size":[2,2]}]'
 
 # hotkey takes no --window, so a pinned pid is held to its focus check and the call is otherwise today's.
 reset_drive
 active=11
-out=$( (hotkey --global ctrl t flea) 2>&1)
+out=$( (hotkey --global ctrl t dlea) 2>&1)
 [ "$out" = "FAIL: focus is on qs pid '11', not 22, so this case sends no more keys" ] && [ ! -s "$box/argv" ] \
-    && ok "a pinned pid refuses a hotkey while another Flea window has focus" || bad "a hotkey on the wrong window must be refused, got: $out"
+    && ok "a pinned pid refuses a hotkey while another Dlea window has focus" || bad "a hotkey on the wrong window must be refused, got: $out"
 active=22
-hotkey --global ctrl t flea
-[ "$(cat "$box/argv")" = "hotkey --global ctrl t flea" ] \
+hotkey --global ctrl t dlea
+[ "$(cat "$box/argv")" = "hotkey --global ctrl t dlea" ] \
     && ok "a hotkey on the pinned window is sent as written" || bad "the hotkey argv must be unchanged, got: $(paste -sd'|' "$box/argv")"
 ipc_pid=""
 

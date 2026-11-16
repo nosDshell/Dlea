@@ -259,10 +259,10 @@ function pendingRetirementStep(turn) {
         probe.finish()
     }
 }
-const made = spawnSync("mktemp", ["-d", path.join(process.env.FLEA_RENAME_GRID_ROOT || process.env.FLEA_FIXTURE_ROOT || "/home/flea-sandbox", ".rename-grid-bottom.XXXXXXXX")], {encoding: "utf8"}); // hard rule 9: writes stay under the sandbox root
+const made = spawnSync("mktemp", ["-d", path.join(process.env.DLEA_RENAME_GRID_ROOT || process.env.DLEA_FIXTURE_ROOT || "/home/dlea-sandbox", ".rename-grid-bottom.XXXXXXXX")], {encoding: "utf8"}); // hard rule 9: writes stay under the sandbox root
 assert.equal(made.status, 0, made.stderr);
 const testRoot = made.stdout.trim();
-fs.writeFileSync(path.join(testRoot, ".flea-test-sandbox"), "real Qt bottom Grid rename regression\n");
+fs.writeFileSync(path.join(testRoot, ".dlea-test-sandbox"), "real Qt bottom Grid rename regression\n");
 function write(name, text) {
     const file = path.join(testRoot, name);
     fs.mkdirSync(path.dirname(file), {recursive: true});
@@ -270,12 +270,12 @@ function write(name, text) {
 }
 // Use the complete product view, model, tile and editor. Only unrelated chrome and services are stubbed.
 for (const name of ["GridArea", "StableModel", "CursorMark", "GridTile", "RenameField", "PrebuildDriver", "FastScrollHandler"])
-    write(`flea/${name}.qml`, fs.readFileSync(path.join(name === "FastScrollHandler" ? repo : productRoot, "ui", `${name}.qml`), "utf8"));
-fs.cpSync(path.join(repo, "ui/js"), path.join(testRoot, "flea/js"), {recursive: true});
-write("flea/qmldir", ["Theme", "ViewState", "Style", "Util"].map(name => `singleton ${name} 1.0 ${name}.qml`).join("\n") + "\n");
+    write(`dlea/${name}.qml`, fs.readFileSync(path.join(name === "FastScrollHandler" ? repo : productRoot, "ui", `${name}.qml`), "utf8"));
+fs.cpSync(path.join(repo, "ui/js"), path.join(testRoot, "dlea/js"), {recursive: true});
+write("dlea/qmldir", ["Theme", "ViewState", "Style", "Util"].map(name => `singleton ${name} 1.0 ${name}.qml`).join("\n") + "\n");
 write("imports/qs/Commons/qmldir", "module qs.Commons\nsingleton Dummy 1.0 Dummy.qml\n");
 write("imports/qs/Commons/Dummy.qml", "pragma Singleton\nimport QtQuick\nQtObject {}\n");
-write("flea/Theme.qml", `pragma Singleton
+write("dlea/Theme.qml", `pragma Singleton
 import QtQuick
 QtObject {
     property int rowHeight: 31
@@ -290,7 +290,7 @@ QtObject {
     property var scroll: ({notchPx: 24, multiplier: 4})
 }
 `);
-write("flea/ViewState.qml", `pragma Singleton
+write("dlea/ViewState.qml", `pragma Singleton
 import QtQuick
 QtObject {
     property string density: "compact"
@@ -301,7 +301,7 @@ QtObject {
     property var preview: ({})
 }
 `);
-write("flea/Style.qml", `pragma Singleton
+write("dlea/Style.qml", `pragma Singleton
 import QtQuick
 QtObject {
     property color selectedAccentFill: "#224466"
@@ -310,12 +310,12 @@ QtObject {
     property real hoverFillAlpha: 0.2
 }
 `);
-write("flea/Util.qml", "pragma Singleton\nimport QtQuick\nQtObject { function alpha(color, value) { return color } }\n");
-write("flea/Glyph.qml", "import QtQuick\nItem { property int maxSize: 128; property string name; property color color }\n");
-write("flea/ViewportScrollBar.qml", "import QtQuick\nItem { property var flickable; property var ctrlWheelAction }\n");
-write("flea/SelectionBand.qml", "import QtQuick\nItem { property var pane; property var flickable; property int columns; property real cellWidth; property real cellHeight; property var rowAt }\n");
-write("flea/FileDrag.qml", "import QtQuick\nItem { property var pane; property int dropIndex: -1; property bool dragCopy: false; property bool dragLink: false }\n");
-write("flea/RowDrag.qml", "import QtQuick\nItem { property var session; property int listingIndex; property var row }\n");
+write("dlea/Util.qml", "pragma Singleton\nimport QtQuick\nQtObject { function alpha(color, value) { return color } }\n");
+write("dlea/Glyph.qml", "import QtQuick\nItem { property int maxSize: 128; property string name; property color color }\n");
+write("dlea/ViewportScrollBar.qml", "import QtQuick\nItem { property var flickable; property var ctrlWheelAction }\n");
+write("dlea/SelectionBand.qml", "import QtQuick\nItem { property var pane; property var flickable; property int columns; property real cellWidth; property real cellHeight; property var rowAt }\n");
+write("dlea/FileDrag.qml", "import QtQuick\nItem { property var pane; property int dropIndex: -1; property bool dragCopy: false; property bool dragLink: false }\n");
+write("dlea/RowDrag.qml", "import QtQuick\nItem { property var session; property int listingIndex; property var row }\n");
 let fixture = fs.readFileSync(path.join(repo, "tests/rename-grid-bottom.qml"), "utf8");
 assert.ok(fixture.includes("TextSize.STOPS"), "tall step reads the top stop from TextSize.js");
 assert.ok(!fixture.includes("20 * 0.917") && !fixture.includes("20 * 0.833"), "tall step reads both ratios from TextSize.js, never bare");

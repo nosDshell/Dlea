@@ -1,7 +1,7 @@
 ## Markdown figures
 
 Maths (MathJax 4.1.3) and diagrams (Pele 1.6.0) render in a sandboxed quickjs-ng
-helper, `flea --figure-helper`, because neither Qt engine runs them. Qt's WorkerScript engine
+helper, `dlea --figure-helper`, because neither Qt engine runs them. Qt's WorkerScript engine
 could not run MathJax or the first diagram bundle (no lookbehind, no Unicode property escapes, no `new Worker` for ELK,
 bare-`this` errors), and the GUI process went from 80-108 MB PSS to about 357 MB after one
 formula. QtWebEngine is not an option: on minipc a Quickshell 0.3.1 config with a `WebEngineView`
@@ -20,7 +20,7 @@ limits, with everything that only existed for the Qt worker engine deleted.
 The protocol is one JSON line per request and one line back. A request carries `{id, kind,
 source, display, theme}` and an answer carries `{id, svg}` or `{id, error}`; a line that is not
 JSON answers `{id: 0, error}`. One bad request never ends the loop, and EOF ends the process at
-0. `flea --figure-helper` (`src/figurehelper.rs`) resolves `/usr/bin/qjs`, or `FLEA_QJS` when it
+0. `dlea --figure-helper` (`src/figurehelper.rs`) resolves `/usr/bin/qjs`, or `DLEA_QJS` when it
 is an absolute path (a test hook, documented as one), resolves the UI tree's `vendor/` directory
 the same way the GUI's own root is resolved, and execs the helper under
 `sandbox::wrap_readonly_extra`: the thumbnail jail's flags and prlimit caps (2 GiB address space,
@@ -44,19 +44,19 @@ one log line, and every figure shows its fenced source exactly as a render failu
 retry storm. `ui/MarkdownFigure.qml` is unchanged by the move: the ask/done ticket API is the
 same, so md3 wires figures into the Markdown view later without touching this unit.
 
-mdfast 2026-10-04 makes the first figure show sooner, in three kept changes under `$XDG_CACHE_HOME/flea/figures` (`FLEA_FIGURE_CACHE=off` turns every
+mdfast 2026-10-04 makes the first figure show sooner, in three kept changes under `$XDG_CACHE_HOME/dlea/figures` (`DLEA_FIGURE_CACHE=off` turns every
 cache off, `=svg` only the bytecode, both test hooks). Bytecode: `ui/vendor/figure-compile.mjs` compiles `math.mjs` and `mermaid.mjs` to quickjs-ng
 bytecode (`ui/vendor/figure-bytecode.mjs`, stripped source, the final export clause rewritten to a global because compiled modules are unnamed), and
 the helper loads `<key>/math.bc` and `mermaid.bc` through `--bytecode=DIR`. The key is a 128-bit digest (`src/figurecache.rs`) over the engine binary,
 its `libqjs*` and six sources, so a changed engine or source misses the old directory. Bytecode is trusted input, so `figurecache::verified` checks each
 blob's size and digest against the manifest before the launcher names the directory, refuses a link or a foreign manifest, and any refusal runs the
-helper from source. The first start runs from source and spawns `flea --figure-compile` detached (`src/figurebuild.rs`: lock, `.failed` mark retried after
+helper from source. The first start runs from source and spawns `dlea --figure-compile` detached (`src/figurebuild.rs`: lock, `.failed` mark retried after
 an hour, scratch `.tmp-PID` swept when stale, the swap one rename); the build runs in a jail whose only writable path is its scratch directory
 (`sandbox::wrap_compile`), proves the bytecode answers what the source answers on two requests, and sweeps other keys. The render jail never gains a
 writable bind: the verified directory is one more read-only bind. Warm start: `PreviewMarkdown` calls `FigureService.warm` when a rendered document
 with figures rests, which asks the store whether every figure is already on disk and, when not, starts the helper with `--warm=KINDS` so it loads those
 bundles and renders a throwaway figure before the first ask (about 26 MB resident with both kinds against 12 MB idle, gone at the 30 s idle exit; a moving
-cursor, Source view and a document with no figures start nothing). Remembered figures: `flea --figure-store` (`src/figurestore.rs`, `ui/FigureStore.qml`)
+cursor, Source view and a document with no figures start nothing). Remembered figures: `dlea --figure-store` (`src/figurestore.rs`, `ui/FigureStore.qml`)
 keeps one file per drawn figure in `figures/svg`, named by the source digest and the digest of the whole in-memory cache key (theme, advances, display
 mode, kind, source), holding the key itself so a name that matches while the key does not is a miss; a get is also an access, the oldest access goes first
 past 512 entries or 64 MiB, a figure over 4 MiB is not kept, writes are exclusive scratch plus one rename at mode 0600 in a 0700 directory, and a link,
@@ -64,7 +64,7 @@ a truncated or foreign file is a miss that the next put replaces. A hit answers 
 store off for the session. Not changed: `ui/vendor/mermaid.mjs`, `tools/vendor-js` and `tests/js-runtime.mjs`. The 50 ms `askSettleMs` in
 `ui/MarkdownFigure.qml` is now the largest term left on a cold first figure; it is a placement race, so it waits for a native capture before it moves.
 
-mdfast-r2 2026-10-04 closes the first review round. The helper takes `--report` (the launcher adds it under `FLEA_FIGURE_REPORT=1`, a test hook) and prints
+mdfast-r2 2026-10-04 closes the first review round. The helper takes `--report` (the launcher adds it under `DLEA_FIGURE_REPORT=1`, a test hook) and prints
 `{"id":0,"bundle":"math","from":"bytecode"}` once per bundle it loads, because a failed bytecode load falls back to source and answers the same bytes: the
 build installs a cache only when its bytecode run reports bytecode for both bundles and its source run reports source, and `tests/markdown-figures.sh` makes
 the same assertion on the corpus runs and proves it refuses a helper that answered from source. The build's lock holds an owner token, so the final unlock
@@ -97,19 +97,19 @@ out with the whole graph, as mermaid.js's dagre wrapper does (its docs example d
 flattened frames hug their members, the edges between them and their child frames, and the layout falls back to the nested one when a frame would take in a foreign node or cross a
 sibling (LR docs example, nested clusters with outside edges). A later bare mention keeps a node's first shape through the library's own `registerNode` isNew guard, unpatched (pinned in tests/mermaid-syntax.mjs).
 
-pele 2026-10-18 replaces beautiful-mermaid 1.1.3, its Flea patch and ELK with Pele 1.6.0 (npm `pele`, MIT, obsidianmd/pele tag 1.6.0 at commit
+pele 2026-10-18 replaces beautiful-mermaid 1.1.3, its Dlea patch and ELK with Pele 1.6.0 (npm `pele`, MIT, obsidianmd/pele tag 1.6.0 at commit
 659c3593ce43794dce7ec7ab45d424ad2de182a5, `ui/vendor/LICENSES/MIT-pele.txt`), which draws all 33 Mermaid 12.1.0 diagram types where the old bundle drew 6
 (flowchart, sequence, class, state, ER and XY chart); the mermaid-r1 to r3 notes above describe the old bundle. `tools/vendor-js/mermaid-entry.mjs` hands Pele a measurer built from the request's `advances` and
 `boldAdvances` (wide and zero-width rules as before, other non-ASCII at the table's mean), turns off links, images, responsive sizing and automatic direction,
 draws the Gantt today marker at noon of the day the request's theme names as `today` (`FigureService.datedTheme` sets it for a Gantt source, and
 `cacheKeyOf` joins it to the key, so a stored chart is that day's drawing and every other figure keeps the key it had), and resolves every `--pele-*`
-variable in an attribute value, never in a label's words, to a concrete value of a Flea theme role. The mapping is `bg`, `fg` and `accent` as named, line and border in `muted`, surface in `surface`, surface-alt on the pane ground `bg`, critical and
+variable in an attribute value, never in a label's words, to a concrete value of a Dlea theme role. The mapping is `bg`, `fg` and `accent` as named, line and border in `muted`, surface in `surface`, surface-alt on the pane ground `bg`, critical and
 error in the accent, both fonts in `theme.font`, and the eight chart series from the four colour roles, each pure and then mixed toward another. The entry
 also folds the one `color-mix` Pele writes (the halo a link gets where it crosses a nested subgraph title) into one colour, so neither the post-pass nor
 either renderer sees a `var()` or a `color-mix`. `postMermaid` turns Pele's style attributes into presentation attributes (Qt SVG reads no `rx` and no
 `var()` from a style, and no font family is kept since every label is measured in the theme font the root names), turns each nested icon `<svg>` into a translated and
 scaled group drawn in the foreground, rebuilds
-a multi-line label as one text per line because Qt SVG draws no tspan placed by its own x and y, gives an unstyled link's marks the accent as Flea drew them
+a multi-line label as one text per line because Qt SVG draws no tspan placed by its own x and y, gives an unstyled link's marks the accent as Dlea drew them
 before (a link a user style colours keeps that colour), unwraps links and drops images, grows the canvas when a user style's border is wider than Pele's
 one-unit pad, and then runs `checkSafe`. `checkSafe` is an allowlist and refuses by default: it reads every tag whole and passes only the elements,
 attributes, data attribute names and style properties that the diagrams and formulas of the figure corpus draw, plus the four presentation attributes
@@ -119,7 +119,7 @@ instruction or character data refuses). Each attribute value is read in either q
 not a same-document fragment, a `url()` that is not one in any case, remote text and a leftover `var()` or `color-mix` refuse; a data attribute holds
 words, a formula's TeX among them, so only its name is checked, and the literal checks for `http:`, `https:`, `@import` and a non-local `url(` read the
 whole document but its namespace name. `FigureService.cached` dates a Gantt theme as `ask` does, so a revisited chart draws in the first frame.
-`currentColor` is replaced in attribute values only, like the entry's colours. `src/figurestore.rs` moves its entry format to `flea-figure-svg 2`,
+`currentColor` is replaced in attribute values only, like the entry's colours. `src/figurestore.rs` moves its entry format to `dlea-figure-svg 2`,
 because a stored figure is keyed by its request and not by the engine, and its `known` query reads each entry's format line, so a figure the old bundle
 stored warms the helper; the bytecode key moves on its own with the bundle digest. `tests/mermaid-types.mjs` renders one docs example per type from
 `tests/fixtures/markdown-mermaid/` and fails by name when a type stops rendering, loses its own mark class or a label, or has no canvas, and
@@ -131,7 +131,7 @@ old bundle 115.
 sequence-defaults 2026-10-25: Pele drew a sequence's participants 64 px wide and 40 apart over solid lifelines, where v0.3.12 and the Quick Look
 figures board draw them 80 by 40, 60 apart, over lifelines dashed `6 4` at 0.75. For a sequence source the entry writes those three numbers as
 the first `init` directive, after any front matter and leaving out a key its `sequence` section names, because Pele merges directives key by key but a
-`render` config whole; every key a source sets still wins. It dashes the `pele-lifelines` group, and the store moves to `flea-figure-svg 3` so no
+`render` config whole; every key a source sets still wins. It dashes the `pele-lifelines` group, and the store moves to `dlea-figure-svg 3` so no
 format 2 sequence is served again.
 
 pele-geom 2026-10-25: Pele laid a diagram out at the body size, with round flowchart boxes at least 48 wide (44 high at body 13) and a sequence's first message 46 below
@@ -142,7 +142,7 @@ sets the root font at 13 to match). A sequence takes `messageMargin` 42 among it
 activation above it, a created or destroyed participant, no closing row, or the source's own messageMargin), the content rises 26, its labels 2.5 less, and the closing row 6. A flowchart's plain boxes are redrawn at v0.3.12's size; each rank closes or
 opens along the flow by what its furthest reaching shape along the flow gained or lost, edge ends, markers, labels and subgraphs move with it, ranks that overlap (side
 by side subgraphs) move as one band at their own spacing, and a drawing the pass cannot place exactly (a relative path or an unknown group) keeps
-Pele's own. The store moves to `flea-figure-svg 4`.
+Pele's own. The store moves to `dlea-figure-svg 4`.
 
 mathsize 2026-10-04: a display formula's ex equals the body font's x-height, so maths and prose letters stand level.
 `ui/MarkdownFigure.qml` measures `FontMetrics.xHeight` on its own family at `bodyPx` and sends it in the theme as `exPx`;

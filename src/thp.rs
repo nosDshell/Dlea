@@ -14,7 +14,7 @@ extern "C" {
 pub fn disable() {
     // corner: a failure costs memory and never the launch, see AGENTS.md "Transparent huge pages".
     if unsafe { prctl(PR_SET_THP_DISABLE, DISABLED as c_ulong, 0 as c_ulong, 0 as c_ulong, 0 as c_ulong) } != 0 {
-        eprintln!("flea: transparent huge pages stayed on, the window will use more memory");
+        eprintln!("dlea: transparent huge pages stayed on, the window will use more memory");
     }
 }
 
@@ -22,6 +22,6 @@ pub fn disable() {
 pub fn enable() {
     // corner: a failure costs the child memory and never the launch, see AGENTS.md "Transparent huge pages".
     if unsafe { prctl(PR_SET_THP_DISABLE, ENABLED as c_ulong, 0 as c_ulong, 0 as c_ulong, 0 as c_ulong) } != 0 {
-        eprintln!("flea: transparent huge pages stayed off for the program being opened");
+        eprintln!("dlea: transparent huge pages stayed off for the program being opened");
     }
 }

@@ -2,15 +2,15 @@
 
 There are four, they measure different halves of the product, and **none may live on
 tmpfs**. `drop_caches` cannot evict tmpfs pages, so a cold number taken there is a
-fabrication. `/tmp` on this box is tmpfs, which is why all three default to `/home/flea-sandbox`, on the same btrfs filesystem as home but outside it, and
+fabrication. `/tmp` on this box is tmpfs, which is why all three default to `/home/dlea-sandbox`, on the same btrfs filesystem as home but outside it, and
 all three scripts refuse to build anywhere `findmnt` calls tmpfs or cannot name at all.
 
 | Fixture | Built by | Holds | Measures |
 |---|---|---|---|
-| `/home/flea-sandbox/flea-bench-btrfs` | `tools/flea-bench`, warm run | 100,000 empty `.txt` files | listing: readdir, sort, window stat |
-| `/home/flea-sandbox/flea-media-btrfs` | `tools/flea-media-fixture` | 2,000 real media files, 4.7 GB | thumbnail generation and icon resolution |
-| `/home/flea-sandbox/flea-matched-btrfs` | `tools/flea-matched-fixture` | the media fixture minus heic and mkv, 1,700 files, 4.0 GB | the same comparison with every entrant at equal capability |
-| a `mktemp -d` of its own | `tools/flea-gvfs-fixture` | a read-only loopback DAV endpoint (`tools/flea-gvfs-dav.py`) mounted through `gvfsd-dav` | the NETWORK rail and anything needing a real FUSE mount, at zero privilege |
+| `/home/dlea-sandbox/dlea-bench-btrfs` | `tools/dlea-bench`, warm run | 100,000 empty `.txt` files | listing: readdir, sort, window stat |
+| `/home/dlea-sandbox/dlea-media-btrfs` | `tools/dlea-media-fixture` | 2,000 real media files, 4.7 GB | thumbnail generation and icon resolution |
+| `/home/dlea-sandbox/dlea-matched-btrfs` | `tools/dlea-matched-fixture` | the media fixture minus heic and mkv, 1,700 files, 4.0 GB | the same comparison with every entrant at equal capability |
+| a `mktemp -d` of its own | `tools/dlea-gvfs-fixture` | a read-only loopback DAV endpoint (`tools/dlea-gvfs-dav.py`) mounted through `gvfsd-dav` | the NETWORK rail and anything needing a real FUSE mount, at zero privilege |
 
 The listing fixture contains no media at all, so it cannot exercise a thumbnailer. The
 media fixture is small enough that its listing time says nothing. Report both.
@@ -57,7 +57,7 @@ to sweep, so a ratio taken from it carries the same work-rate caveat the media t
   in all three, so the spread is time waited rather than time computed and it is not the
   encoders; no mechanism beyond that was established. Deleting a previous fixture is not
   the cause: `rm -rf` of the whole 4.7 GB takes 0.5 s.
-- The fixture directory carries a `.flea-media-fixture` marker, and the script refuses to
+- The fixture directory carries a `.dlea-media-fixture` marker, and the script refuses to
   `rm -rf` any existing `DIR` that does not have one. That is the only thing standing
   between a mistyped `DIR` and the deletion, so do not remove the marker by hand. It is a
   dotfile, so the fixture lists 2,000 visible entries and 2,001 in total.

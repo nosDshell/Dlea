@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-tagrows-test
+//@ pragma ShellId dlea-tagrows-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Tags.js" as TagsLib
+import "dlea" as Dlea
+import "dlea/js/Tags.js" as TagsLib
 
 // Tag slots on the real delegates: an untagged row builds nothing, a tagged one mounts one slot, and a delegate that gets another row reuses it.
 ShellRoot {
@@ -25,7 +25,7 @@ ShellRoot {
         Repeater {
             id: colRep
             model: [root.plain, root.tagged]
-            delegate: Flea.ColumnRow {
+            delegate: Dlea.ColumnRow {
                 required property var modelData
                 width: 280
                 row: modelData
@@ -41,7 +41,7 @@ ShellRoot {
         Repeater {
             id: gridRep
             model: [root.plain, root.tagged]
-            delegate: Flea.GridTile {
+            delegate: Dlea.GridTile {
                 required property var modelData
                 width: 160
                 height: 120
@@ -57,7 +57,7 @@ ShellRoot {
         Repeater {
             id: listRep
             model: [root.plain, root.tagged]
-            delegate: Flea.Row {
+            delegate: Dlea.Row {
                 required property var modelData
                 width: 800
                 row: modelData
@@ -71,8 +71,8 @@ ShellRoot {
     Column {
         id: menuHost
         y: 500
-        Flea.MenuRow { id: plainMenuRow; width: 240; entry: ({ label: "Copy", glyph: "copy", action: "copy", hint: "y" }) }
-        Flea.MenuRow {
+        Dlea.MenuRow { id: plainMenuRow; width: 240; entry: ({ label: "Copy", glyph: "copy", action: "copy", hint: "y" }) }
+        Dlea.MenuRow {
             id: tagMenuRow
             width: 240
             entry: ({ label: "Red", glyph: "tag", action: "tags", hint: "1", id: "Red", tagRow: { swatch: "Red", fallback: false, state: "applied", digit: "1" } })
@@ -88,13 +88,13 @@ ShellRoot {
     Column {
         id: sevenHost
         y: 820
-        Flea.Row { id: sevenRow; width: 800; row: root.seven; kindNames: []; hiddenCols: []; clipMark: "" }
-        Flea.ColumnRow { id: sevenColumn; width: 280; row: root.seven; showSize: true; nameBudget: 40 }
-        Flea.GridTile { id: sevenTile; width: 90; height: 120; row: root.seven; clipMark: "" }
+        Dlea.Row { id: sevenRow; width: 800; row: root.seven; kindNames: []; hiddenCols: []; clipMark: "" }
+        Dlea.ColumnRow { id: sevenColumn; width: 280; row: root.seven; showSize: true; nameBudget: 40 }
+        Dlea.GridTile { id: sevenTile; width: 90; height: 120; row: root.seven; clipMark: "" }
     }
 
     // The production Tags flyout through the real menu; a binding loop in its fit lands in the log the suite refuses.
-    Flea.ContextMenu {
+    Dlea.ContextMenu {
         id: tagsMenu
         width: 800
         height: 600
@@ -105,7 +105,7 @@ ShellRoot {
     function measureFlyoutFit() {
         var states = TagsLib.statesFor([["Red"], ["Red", "Blue"]])
         tagsMenu.setEntries([
-            { label: "Tags", action: "tags", glyph: "tag", submenu: TagsLib.tagEntries(states, Flea.Theme.tag.fallback) },
+            { label: "Tags", action: "tags", glyph: "tag", submenu: TagsLib.tagEntries(states, Dlea.Theme.tag.fallback) },
             { label: "Sort by", action: "sort", submenu: [{ label: "Name" }, { label: "Size" }, { label: "Date" }, { label: "Kind" }] }
         ])
         tagsMenu.openSubmenu(0)
@@ -192,7 +192,7 @@ ShellRoot {
     }
 
     function measureShape() {
-        var gap = Flea.Theme.spacing.gap
+        var gap = Dlea.Theme.spacing.gap
         root.kind("columns row", colRep.itemAt(0), colRep.itemAt(1), function (slot) {
             var row = colRep.itemAt(1)
             var name = row.nameItem()
@@ -215,7 +215,7 @@ ShellRoot {
             var mode = row.cell("mode")
             var size = row.cell("size")
             root.check(Math.abs(slot.x - (mode.x + mode.width + gap)) <= 1, "list row: the slot does not start where Mode ends, x=" + slot.x)
-            root.check(slot.x + Flea.Theme.tagSlotWidth <= size.x + 1, "list row: the 88 px slot runs into Size, slot=" + slot.x + " size=" + size.x)
+            root.check(slot.x + Dlea.Theme.tagSlotWidth <= size.x + 1, "list row: the 88 px slot runs into Size, slot=" + slot.x + " size=" + size.x)
             root.check(Math.abs((slot.y + slot.height / 2) - (mode.y + mode.height / 2)) <= 1, "list row: the swatches are not centred on the row")
         })
         // A row with no tag but a stood slot still reserves the 88 px, so the name column does not move.
@@ -224,7 +224,7 @@ ShellRoot {
 
     // The 88 px slot holds five whole swatches, so seven tags draw five and never reach Size; a tile never leaves its cell.
     function measureSeven() {
-        var room = Flea.Theme.tagSlotWidth
+        var room = Dlea.Theme.tagSlotWidth
         var slot = sevenRow.tagItem
         root.check(slot !== null, "seven tags: the list row mounted no slot")
         if (slot !== null) {
@@ -238,7 +238,7 @@ ShellRoot {
         if (cslot !== null) {
             var name = sevenColumn.nameItem()
             root.check(cslot.width <= room, "seven tags: the columns slot is " + cslot.width + " wide, past the reserved " + room)
-            root.check(cslot.x + cslot.width <= name.x + name.width + Flea.Theme.spacing.gap + room, "seven tags: the columns swatches run past the reserved slot")
+            root.check(cslot.x + cslot.width <= name.x + name.width + Dlea.Theme.spacing.gap + room, "seven tags: the columns swatches run past the reserved slot")
         }
         var tslot = sevenTile.tagItem
         root.check(tslot !== null, "seven tags: the grid tile mounted no slot")
@@ -264,7 +264,7 @@ ShellRoot {
     }
 
     function measureRail() {
-        var section = Qt.createComponent("flea/TagRailSection.qml").createObject(railHost, { sidebar: railStub })
+        var section = Qt.createComponent("dlea/TagRailSection.qml").createObject(railHost, { sidebar: railStub })
         root.check(section !== null, "rail: the TAGS section did not build")
         if (section === null) return
         root.check(section.entries.length === 2 && section.base === 5, "rail: the section lists " + section.entries.length + " rows from base " + section.base)
@@ -345,7 +345,7 @@ ShellRoot {
             root.attempt(tagProbe.measureRead)
             root.attempt(tagProbe.measureWalk)
             root.attempt(root.measureFlyoutFit)
-            Flea.Theme.tag = { colors: root.palette, menuColors: root.palette, fallback: false }
+            Dlea.Theme.tag = { colors: root.palette, menuColors: root.palette, fallback: false }
             step.start()
         }
     }
@@ -375,7 +375,7 @@ ShellRoot {
                 root.attempt(root.reused)
             } else if (root.phase === 1) {
                 root.attempt(root.settled)
-                Flea.Theme.tag = { colors: root.palette, menuColors: root.palette, fallback: true }
+                Dlea.Theme.tag = { colors: root.palette, menuColors: root.palette, fallback: true }
             } else {
                 root.attempt(root.digits)
                 root.report()

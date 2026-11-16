@@ -115,7 +115,7 @@ def generate_rust(data, bindings, shared, contexts, extra):
         escapes = {'\\': '\\\\', '"': '\\"', '\n': '\\n', '\r': '\\r', '\t': '\\t'}
         return '"' + ''.join(escapes.get(char, f'\\u{{{ord(char):x}}}' if ord(char) < 32 else char)
                              for char in value) + '"'
-    lines = ['// Generated from keys.toml by tools/flea-keymap-gen. Do not edit.',
+    lines = ['// Generated from keys.toml by tools/dlea-keymap-gen. Do not edit.',
              'use super::{Binding, Digit, PointerBinding, SequenceBinding, SheetBinding, SheetGroup};']
     def table(name, kind, rows):
         lines.extend(['', '#[rustfmt::skip]', f'pub static {name}: &[{kind}] = &['])

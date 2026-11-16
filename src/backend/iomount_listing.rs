@@ -1,6 +1,6 @@
 // Listing I/O shared by the bounded scanner and deadline-bound direct callers.
 use super::{call_with_flag, CALL_DEADLINE, STUCK_TTL};
-use crate::error::FleaError;
+use crate::error::DleaError;
 
 // One listing's syscalls, computed on a worker with the listing, never on the loop.
 pub struct ListOut {
@@ -19,7 +19,7 @@ pub struct ListOut {
 // A failed listing carries its mode for the denial tile, or zero when no stat ran, with the armed descriptor or -1 when none needs removing.
 #[derive(Debug)]
 pub struct ListErr {
-    pub error: FleaError,
+    pub error: DleaError,
     pub mode: u32,
     pub watch_wd: i32,
 }
@@ -54,7 +54,7 @@ pub fn list_dir(
     loop_tx: crate::backend::events::Sender<crate::backend::events::Event>,
     body: &str,
 ) -> Result<ListOut, ListErr> {
-    let path_buf = flea::bytename::exact(&path);
+    let path_buf = dlea::bytename::exact(&path);
     let late_tx = loop_tx.clone();
     call_with_flag(
         &path_buf,
@@ -83,7 +83,7 @@ pub(crate) fn scan_dir(
     fd: std::ffi::c_int,
     loop_tx: crate::backend::events::Sender<crate::backend::events::Event>,
 ) -> Result<ListOut, ListErr> {
-    let base = flea::bytename::exact(&path);
+    let base = dlea::bytename::exact(&path);
     let wd = crate::backend::watch::Watch::add_raw(fd, &base);
     match crate::backend::scan::scan(&path, hidden) {
         Ok((mut l, read_ms)) => {
@@ -92,7 +92,7 @@ pub(crate) fn scan_dir(
                 match crate::backend::ordering::request(&mut l, &base, &mime, &line) {
                     Ok(timing) => timing,
                     Err(msg) => {
-                        let error = FleaError {
+                        let error = DleaError {
                             where_: "sort".to_string(),
                             path: path.clone(),
                             msg: msg.to_string(),

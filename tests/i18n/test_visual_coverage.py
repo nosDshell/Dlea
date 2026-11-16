@@ -8,7 +8,7 @@ import tempfile
 import unittest
 
 REPO = Path(__file__).resolve().parents[2]
-TOOL = REPO / 'tools/flea-i18n-native'
+TOOL = REPO / 'tools/dlea-i18n-native'
 CONTRACT = REPO / 'ci/visual/i50/contract.json'
 UNDRIVEN = REPO / 'ci/visual/undriven.txt'
 FIT = ['de', 'ar', 'ja', 'zh-CN', 'th', 'hi']
@@ -16,7 +16,7 @@ STATES = {'rest', 'hover', 'focus', 'pressed', 'disabled'}
 
 
 def load_tool():
-    loader = importlib.machinery.SourceFileLoader('flea_i18n_native', str(TOOL))
+    loader = importlib.machinery.SourceFileLoader('dlea_i18n_native', str(TOOL))
     spec = importlib.util.spec_from_loader(loader.name, loader)
     module = importlib.util.module_from_spec(spec)
     loader.exec_module(module)

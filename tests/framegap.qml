@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-framegap-test
+//@ pragma ShellId dlea-framegap-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Settings.js" as Settings
+import "dlea" as Dlea
+import "dlea/js/Settings.js" as Settings
 import "framegap.js" as Gap
 import "button-probe.js" as Probe
 
@@ -50,7 +50,7 @@ ShellRoot {
         root.at = root.plan.length + 1
         Quickshell.execDetached(["kill", String(Quickshell.processId)])
     }
-    function stopState(stop) { Flea.ViewState.load(JSON.stringify({ display: { textSize: { mode: stop } } })) }
+    function stopState(stop) { Dlea.ViewState.load(JSON.stringify({ display: { textSize: { mode: stop } } })) }
 
     // Each host is measured on its card, its own root where it has no card.
     function hosts() {
@@ -70,7 +70,7 @@ ShellRoot {
     // A control row must be flagged; an unflagged one means the reader went blind, not that the fixtures are clear.
     function measure(name, host, state, stop, control) {
         if (!control) root.seen[name] = true
-        var rows = Gap.rows(name, host, Flea.Theme.spacing.hairline, Flea.Theme.chromeControlInset, state, stop)
+        var rows = Gap.rows(name, host, Dlea.Theme.spacing.hairline, Dlea.Theme.chromeControlInset, state, stop)
         for (var i = 0; i < rows.length; i++) {
             var r = rows[i]
             var line = [r.host, r.owner, r.name, r.frame, r.box, r.state, r.stop, r.side, r.rule, r.edge, r.inset].join("\t")
@@ -108,8 +108,8 @@ ShellRoot {
             root.log("FAIL PickerChips chip " + root.chipWant + " does not hold the focus at stop " + stop)
         }
         // The answer row's rule is its top hairline; its bottom edge is the far rule the trigger keeps clear of.
-        var stripTop = Flea.Theme.spacing.hairline
-        var ruleTop = pickerAnswers.height - Flea.Theme.spacing.hairline
+        var stripTop = Dlea.Theme.spacing.hairline
+        var ruleTop = pickerAnswers.height - Dlea.Theme.spacing.hairline
         chips.forEach(function (chip) {
             var frame = Gap.chipFind(chip, "frame")
             if (!frame) {
@@ -119,7 +119,7 @@ ShellRoot {
                 return
             }
             var box = frame.mapToItem(pickerAnswers, 0, 0, frame.width, frame.height)
-            Gap.chipRows("PickerChips", chip.name, box, stripTop, ruleTop, Flea.Theme.spacing.hairline, Flea.Theme.chromeControlInset, state, stop, chip.focus).forEach(function (r) {
+            Gap.chipRows("PickerChips", chip.name, box, stripTop, ruleTop, Dlea.Theme.spacing.hairline, Dlea.Theme.chromeControlInset, state, stop, chip.focus).forEach(function (r) {
                 var line = [r.host, r.name, r.state, r.stop, r.side, r.rule, r.edge, r.inset, r.focused].join("\t")
                 root.chipChecks += 1
                 root.log("CHIPROW " + line)
@@ -136,7 +136,7 @@ ShellRoot {
     function drawsFocus(button) {
         var frame = Probe.find(button, "buttonFrame")
         if (frame === null) return false
-        var want = button.setMember && Flea.Theme.color.accentHasHue ? Flea.Theme.color.accent : Flea.Theme.color.foreground
+        var want = button.setMember && Dlea.Theme.color.accentHasHue ? Dlea.Theme.color.accent : Dlea.Theme.color.foreground
         var colour = Probe.rgba(frame.border.color)
         var width = frame.border.width
         button.focused = false
@@ -191,7 +191,7 @@ ShellRoot {
 
     function buildPlan() {
         var plan = [function () {
-            Flea.Theme.applyColors(Probe.COLOURED_THEME)
+            Dlea.Theme.applyColors(Probe.COLOURED_THEME)
             openWith.open("openWith", 1, "", parking)
             openWith.receive({ op: "applications", id: 1, ok: true, path: "/framegap/notes.txt", kind: "Plain text document", mime: "text/plain",
                                applications: [{ id: "a.desktop", label: "Alpha", icon: "a", default: true }],
@@ -254,36 +254,36 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: root.windowWidth
         implicitHeight: root.windowHeight
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
         Item {
             anchors.fill: parent
-            Flea.OpenWithDialog { id: openWith }
-            Flea.ConvertDialog { id: convert }
-            Flea.ArchiveCompressDialog { id: compress }
-            Flea.ArchivePasswordDialog { id: password }
-            Flea.FatNamesConfirm { id: fat }
-            Flea.TrashConfirm { id: trash }
-            Flea.CollideConfirm { id: collide }
-            Flea.BulkRenameDialog { id: bulk }
-            Flea.MenuActionDialog { id: menuAction }
-            Flea.UnlockDialog { id: unlock }
-            Flea.NetworkDialog { id: network }
-            Flea.RunCard { id: runCard }
-            Flea.KeymapSheet { id: sheet; anchors.fill: parent }
-            Flea.SettingsPanel { id: settings; anchors.fill: parent }
+            Dlea.OpenWithDialog { id: openWith }
+            Dlea.ConvertDialog { id: convert }
+            Dlea.ArchiveCompressDialog { id: compress }
+            Dlea.ArchivePasswordDialog { id: password }
+            Dlea.FatNamesConfirm { id: fat }
+            Dlea.TrashConfirm { id: trash }
+            Dlea.CollideConfirm { id: collide }
+            Dlea.BulkRenameDialog { id: bulk }
+            Dlea.MenuActionDialog { id: menuAction }
+            Dlea.UnlockDialog { id: unlock }
+            Dlea.NetworkDialog { id: network }
+            Dlea.RunCard { id: runCard }
+            Dlea.KeymapSheet { id: sheet; anchors.fill: parent }
+            Dlea.SettingsPanel { id: settings; anchors.fill: parent }
         }
 
         // The cards and strips a window hosts outside a dialog, each at the width its host gives it.
         Column {
             x: root.windowWidth - root.sideHostWidth
             width: root.sideHostWidth
-            Flea.TransferCard { id: transfer; transfer: root.inFlight }
-            Flea.FlashStepRow { id: flashRow; width: parent.width; transfer: root.inFlight; words: ({ erase: "Erase Backup", action: "Flash" }); live: true; cursor: true }
-            Flea.MediaStrip { id: framedStrip; width: parent.width; duration: 60000 }
-            Flea.MediaStrip { id: bareStrip; width: parent.width; duration: 60000; framed: false }
-            Flea.PickerChrome { id: pickerChrome; width: parent.width; picker: mockPicker }
-            Flea.PickerAnswers { id: pickerAnswers; width: parent.width; picker: mockPicker }
+            Dlea.TransferCard { id: transfer; transfer: root.inFlight }
+            Dlea.FlashStepRow { id: flashRow; width: parent.width; transfer: root.inFlight; words: ({ erase: "Erase Backup", action: "Flash" }); live: true; cursor: true }
+            Dlea.MediaStrip { id: framedStrip; width: parent.width; duration: 60000 }
+            Dlea.MediaStrip { id: bareStrip; width: parent.width; duration: 60000; framed: false }
+            Dlea.PickerChrome { id: pickerChrome; width: parent.width; picker: mockPicker }
+            Dlea.PickerAnswers { id: pickerAnswers; width: parent.width; picker: mockPicker }
         }
 
         // The holders the dialogs read: a source, a list area, a backend that answers nothing, and the sheet's pane.
@@ -347,26 +347,26 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 340
         implicitHeight: 640
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
         Item {
             anchors.fill: parent
             Item {
                 id: controlDialogHost
                 x: 20; y: 20; width: 300; height: 120
-                Flea.DialogButton { id: controlDialog; x: 40; y: 30; width: 220; height: 48; label: "Gap control" }
-                Rectangle { height: Flea.Theme.spacing.hairline; x: 40; width: 220; anchors.top: controlDialog.bottom; anchors.topMargin: 1; color: Flea.Theme.color.muted }
-                Rectangle { height: Flea.Theme.spacing.hairline; x: 40; width: 220; anchors.bottom: controlDialog.top; anchors.bottomMargin: 1; color: Flea.Theme.color.muted }
-                Rectangle { width: Flea.Theme.spacing.hairline; y: 30; height: 48; anchors.right: controlDialog.left; anchors.rightMargin: 1; color: Flea.Theme.color.muted }
-                Rectangle { width: Flea.Theme.spacing.hairline; y: 30; height: 48; anchors.left: controlDialog.right; anchors.leftMargin: 1; color: Flea.Theme.color.muted }
+                Dlea.DialogButton { id: controlDialog; x: 40; y: 30; width: 220; height: 48; label: "Gap control" }
+                Rectangle { height: Dlea.Theme.spacing.hairline; x: 40; width: 220; anchors.top: controlDialog.bottom; anchors.topMargin: 1; color: Dlea.Theme.color.muted }
+                Rectangle { height: Dlea.Theme.spacing.hairline; x: 40; width: 220; anchors.bottom: controlDialog.top; anchors.bottomMargin: 1; color: Dlea.Theme.color.muted }
+                Rectangle { width: Dlea.Theme.spacing.hairline; y: 30; height: 48; anchors.right: controlDialog.left; anchors.rightMargin: 1; color: Dlea.Theme.color.muted }
+                Rectangle { width: Dlea.Theme.spacing.hairline; y: 30; height: 48; anchors.left: controlDialog.right; anchors.leftMargin: 1; color: Dlea.Theme.color.muted }
             }
             Item {
                 id: controlCheckHost
                 x: 20; y: 160; width: 300; height: 120
-                Flea.CheckBox { id: controlCheck; objectName: "GapCheck"; x: 40; y: 0 }
-                Rectangle { width: Flea.Theme.spacing.hairline; anchors.top: parent.top; anchors.bottom: parent.bottom; anchors.right: controlCheck.left; anchors.rightMargin: 1; color: Flea.Theme.color.muted }
-                Rectangle { width: Flea.Theme.spacing.hairline; anchors.top: parent.top; anchors.bottom: parent.bottom; anchors.left: controlCheck.right; anchors.leftMargin: 1; color: Flea.Theme.color.muted }
-                Rectangle { height: Flea.Theme.spacing.hairline; anchors.left: parent.left; anchors.right: parent.right; anchors.top: controlCheck.bottom; anchors.topMargin: 1; color: Flea.Theme.color.muted }
+                Dlea.CheckBox { id: controlCheck; objectName: "GapCheck"; x: 40; y: 0 }
+                Rectangle { width: Dlea.Theme.spacing.hairline; anchors.top: parent.top; anchors.bottom: parent.bottom; anchors.right: controlCheck.left; anchors.rightMargin: 1; color: Dlea.Theme.color.muted }
+                Rectangle { width: Dlea.Theme.spacing.hairline; anchors.top: parent.top; anchors.bottom: parent.bottom; anchors.left: controlCheck.right; anchors.leftMargin: 1; color: Dlea.Theme.color.muted }
+                Rectangle { height: Dlea.Theme.spacing.hairline; anchors.left: parent.left; anchors.right: parent.right; anchors.top: controlCheck.bottom; anchors.topMargin: 1; color: Dlea.Theme.color.muted }
             }
             Item {
                 id: controlChromeHost
@@ -376,16 +376,16 @@ ShellRoot {
                 readonly property real ringY: controlChrome.y + (controlChrome.height - controlChrome.ringItem.height) / 2
                 readonly property real ringW: controlChrome.ringItem.width
                 readonly property real ringH: controlChrome.ringItem.height
-                Flea.ChromeButton { id: controlChrome; x: 40; y: 30; width: 64; height: 40 }
-                Rectangle { height: Flea.Theme.spacing.hairline; width: controlChromeHost.ringW + 8; x: controlChromeHost.ringX - 4; y: controlChromeHost.ringY - 1 - Flea.Theme.spacing.hairline; color: Flea.Theme.color.muted }
-                Rectangle { height: Flea.Theme.spacing.hairline; width: controlChromeHost.ringW + 8; x: controlChromeHost.ringX - 4; y: controlChromeHost.ringY + controlChromeHost.ringH + 1; color: Flea.Theme.color.muted }
-                Rectangle { width: Flea.Theme.spacing.hairline; height: controlChromeHost.ringH + 8; x: controlChromeHost.ringX - 1 - Flea.Theme.spacing.hairline; y: controlChromeHost.ringY - 4; color: Flea.Theme.color.muted }
-                Rectangle { width: Flea.Theme.spacing.hairline; height: controlChromeHost.ringH + 8; x: controlChromeHost.ringX + controlChromeHost.ringW + 1; y: controlChromeHost.ringY - 4; color: Flea.Theme.color.muted }
+                Dlea.ChromeButton { id: controlChrome; x: 40; y: 30; width: 64; height: 40 }
+                Rectangle { height: Dlea.Theme.spacing.hairline; width: controlChromeHost.ringW + 8; x: controlChromeHost.ringX - 4; y: controlChromeHost.ringY - 1 - Dlea.Theme.spacing.hairline; color: Dlea.Theme.color.muted }
+                Rectangle { height: Dlea.Theme.spacing.hairline; width: controlChromeHost.ringW + 8; x: controlChromeHost.ringX - 4; y: controlChromeHost.ringY + controlChromeHost.ringH + 1; color: Dlea.Theme.color.muted }
+                Rectangle { width: Dlea.Theme.spacing.hairline; height: controlChromeHost.ringH + 8; x: controlChromeHost.ringX - 1 - Dlea.Theme.spacing.hairline; y: controlChromeHost.ringY - 4; color: Dlea.Theme.color.muted }
+                Rectangle { width: Dlea.Theme.spacing.hairline; height: controlChromeHost.ringH + 8; x: controlChromeHost.ringX + controlChromeHost.ringW + 1; y: controlChromeHost.ringY - 4; color: Dlea.Theme.color.muted }
             }
             Item {
                 id: controlCrossingHost
                 x: 20; y: 460; width: 300; height: 120
-                Flea.DialogButton { x: 0; y: 0; width: 300; height: 140; label: "Gap crossing" }
+                Dlea.DialogButton { x: 0; y: 0; width: 300; height: 140; label: "Gap crossing" }
             }
         }
     }

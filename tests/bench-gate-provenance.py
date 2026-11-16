@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Drive tools/flea-bench-gate report through valid and deliberately broken B2 evidence."""
+"""Drive tools/dlea-bench-gate report through valid and deliberately broken B2 evidence."""
 import copy
 import csv
 import hashlib
@@ -12,23 +12,23 @@ import sys
 import unittest
 
 repo, scratch, gate = map(Path, sys.argv[1:4])
-if not (scratch / ".flea-test-sandbox").is_file():
+if not (scratch / ".dlea-test-sandbox").is_file():
     raise SystemExit("bench-gate-provenance: scratch root has no sandbox marker")
 
 HEADER = ("id,run,mapped_ms,settled_ms,pss_kb,cpu_s,child_pss_kb,thumbs_n,pss_anon_kb,uss_kb,drm_kb,thumbs_by_dir,"
           "cpu_tree_s,thumbs_by_format,ranked,preview_ms,cpu_reaped_s,cpu_sys_s,dirty_wb_kb,pgpgout_pre_kb,"
           "pgpgout_launch_kb,write_clean,rerun,first_rows_ms,cpu_main_s,cold_pss_kb,cold_drm_kb,cold_child_pss_kb,"
           "cold_sample_after_map_ms,launch_pos").split(",")
-ROSTER = ("flea", "flea-anchor", "dolphin", "nautilus", "thunar", "pcmanfm", "nemo", "strata-stable", "strata-nightly")
+ROSTER = ("dlea", "dlea-anchor", "dolphin", "nautilus", "thunar", "pcmanfm", "nemo", "strata-stable", "strata-nightly")
 PACKAGED = ROSTER[2:7]
 CANDIDATE_COMMIT = "1" * 40
 ANCHOR_COMMIT = "f21789e56cc4b0877caa3156fff7bce52a8dd9c2"
 CPU_METHOD = ("complete run cgroup plus an external helper, identical to cpu_tree_s; "
               "cpu_main_s retains the main-process reading")
 WORKLOADS = {
-    "field_a": ("/home/flea-sandbox/flea-bench-btrfs", 100000, "field", "yes", 0),
-    "field_b": ("/home/flea-sandbox/flea-media-btrfs", 2000, "field", "yes", 1800),
-    "engine": ("/home/flea-sandbox/flea-bench-btrfs", 100000, "engine", "no", 0),
+    "field_a": ("/home/dlea-sandbox/dlea-bench-btrfs", 100000, "field", "yes", 0),
+    "field_b": ("/home/dlea-sandbox/dlea-media-btrfs", 2000, "field", "yes", 1800),
+    "engine": ("/home/dlea-sandbox/dlea-bench-btrfs", 100000, "engine", "no", 0),
 }
 CELL_KEYS = [f"B2:{label}:{metric}" for label, metrics in (
     ("field-a", ("mapped_ms", "settled_ms", "memory_mib", "cpu_s")),
@@ -53,7 +53,7 @@ def context(workload):
             "id": name, "expected_version": version, "binary_path": record["path"], "binary_sha256": record["sha256"],
             "version_check": {"rc": 0, "stdout": version}, "tag": f"v-{name}", "url": f"https://example.invalid/{name}",
             "sha256": digest(name + "archive"), "source_commit": "2" * 40, "tag_commit": "3" * 40}}
-    anchor = binary("anchor-flea", "0.3.12")
+    anchor = binary("anchor-dlea", "0.3.12")
     return {
         "host": "minipc", "kernel": "6.17.1-arch1-1",
         "session": {"boot_id": "boot-1", "hyprland_instance": "hypr-1", "wayland_display": "wayland-1",
@@ -61,9 +61,9 @@ def context(workload):
                     "gpu": ["00:02.0 VGA compatible controller [0300]: Intel Corporation [UHD Graphics 630]"]},
         "storage": {"source": "/dev/nvme0n1p2", "fstype": "btrfs", "target": fixture, "fsroot": f"/@{Path(fixture).name}",
                     "uuid": "uuid-1", "maj:min": "0:40"},
-        "builds": {"flea": {"commit": CANDIDATE_COMMIT, "launcher": binary("flea", "0.4.0"), "gui": binary("flea-gui")},
-                   "flea-anchor": {"commit": ANCHOR_COMMIT, "launcher": anchor,
-                                   "package": f"{anchor['path']} is owned by flea 0.3.12-1",
+        "builds": {"dlea": {"commit": CANDIDATE_COMMIT, "launcher": binary("dlea", "0.4.0"), "gui": binary("dlea-gui")},
+                   "dlea-anchor": {"commit": ANCHOR_COMMIT, "launcher": anchor,
+                                   "package": f"{anchor['path']} is owned by dlea 0.3.12-1",
                                    "ui_sha256": digest("anchor-ui")}},
         "rivals": rivals, "drop_thumbs": drop,
     }
@@ -74,7 +74,7 @@ def rows(workload):
     result = []
     for run in (1, 2, 3):
         for place, entrant in enumerate(entrants):
-            factor = 1 if entrant == "flea" else 2 + place / 10
+            factor = 1 if entrant == "dlea" else 2 + place / 10
             cpu = f"{0.5 * factor:.2f}"
             row = dict.fromkeys(HEADER, "0")
             row.update(id=entrant, run=str(run), mapped_ms=str(int(100 * factor)), settled_ms=str(int(300 * factor)),
@@ -97,7 +97,7 @@ def manifest(workload, csv_text, record, closed=True, assertion=None, strata=Non
     lines = ["# Field bench manifest", "", "## Run", "", "- date: 2026-10-25T10:00:00+00:00",
              f"- host: {record['host']}, kernel {record['kernel']}", f"- fixture: {fixture}", "- fixture kind: btrfs",
              f"- fixture payload: {count} visible entries, filesystem btrfs", f"- front end: gpui; profile: {profile}",
-             f"- candidate source commit: {builds['flea']['commit']}",
+             f"- candidate source commit: {builds['dlea']['commit']}",
              f"- gate context: {json.dumps(record, sort_keys=True)}", f"- cpu_s: {cpu_method}"]
     if profile == "engine":
         lines += ["- engine method: cold cache, 3 s pause, Hyprland openwindow event, PSS and resident DRM at map "
@@ -108,14 +108,14 @@ def manifest(workload, csv_text, record, closed=True, assertion=None, strata=Non
         item = record["rivals"][name]["binary"]
         lines.append(f"- Strata {name.removeprefix('strata-')}: {item['path']}; exact version: {item['version']}; "
                      f"sha256: {item['sha256']}")
-    for sha in identities or (builds["flea"]["launcher"]["sha256"], builds["flea"]["gui"]["sha256"],
-                              builds["flea-anchor"]["launcher"]["sha256"]):
-        lines.append(f"- Flea binary identity: /opt/bench/some-flea sha256 {sha}")
+    for sha in identities or (builds["dlea"]["launcher"]["sha256"], builds["dlea"]["gui"]["sha256"],
+                              builds["dlea-anchor"]["launcher"]["sha256"]):
+        lines.append(f"- Dlea binary identity: /opt/bench/some-dlea sha256 {sha}")
     lines += [f"- fixture payload assertion: {assertion or f'PASSED, {count} visible entries against the expected {count}'}",
               f"- thumbnailable denominator: {denominator}, from {count} visible entries less the 0 above",
               "", "## Entrants", "", "```",
-              f"flea       gui  source {CANDIDATE_COMMIT[:9]} untagged ({dirty}), release binary built 2026-10-25, 1 bytes",
-              f"flea-anchor gui source {ANCHOR_COMMIT[:9]} v0.3.12 (clean), release binary built 2026-10-06, 1 bytes"]
+              f"dlea       gui  source {CANDIDATE_COMMIT[:9]} untagged ({dirty}), release binary built 2026-10-25, 1 bytes",
+              f"dlea-anchor gui source {ANCHOR_COMMIT[:9]} v0.3.12 (clean), release binary built 2026-10-06, 1 bytes"]
     lines += [f"{name}    gui  {record['rivals'][name]['package']}" for name in PACKAGED] + ["```", ""]
     if closed:
         lines += ["## Run close", "", "- ended: 2026-10-25T11:00:00+00:00", "## Rank refusals", "",
@@ -268,26 +268,26 @@ class GateProvenance(unittest.TestCase):
         states = cells(receipt)
         for key in CELL_KEYS:
             self.assertEqual(states[key]["state"], "UNKNOWN", key)
-            self.assertEqual(states[key]["incomplete_entrants"], ["flea"])
+            self.assertEqual(states[key]["incomplete_entrants"], ["dlea"])
         reasons = {workload: audited[0]["reasons"] for workload, audited in receipt["rows"].items()}
         self.assertEqual(reasons["field_a"], ["whole-cgroup CPU is below the main process, so child CPU is missing"])
         self.assertEqual(reasons["field_b"], ["mixed CPU accounting: cpu_s is not the whole-cgroup cpu_tree_s"])
         self.assertEqual(reasons["engine"], ["missing whole-cgroup or main-process CPU"])
-        self.assertIn("INELIGIBLE field_a line 2 flea run 1", result.stdout)
+        self.assertIn("INELIGIBLE field_a line 2 dlea run 1", result.stdout)
         evidence = Evidence()
         evidence.options["field_b"]["cpu_method"] = "main process only"
         self.refused(evidence.write(), "whole-cgroup method")
 
     def test_stale_binary(self):
         evidence = Evidence()
-        evidence.contexts["engine"]["builds"]["flea"]["launcher"] = binary("older-flea", "0.4.0")
+        evidence.contexts["engine"]["builds"]["dlea"]["launcher"] = binary("older-dlea", "0.4.0")
         self.refused(evidence.write(), "engine: builds differs")
         evidence = Evidence()
-        evidence.options["field_a"]["identities"] = (digest("older-flea"), digest("flea-gui"), digest("anchor-flea"))
+        evidence.options["field_a"]["identities"] = (digest("older-dlea"), digest("dlea-gui"), digest("anchor-dlea"))
         self.refused(evidence.write(), "binary is stale")
         evidence = Evidence()
         for workload in WORKLOADS:
-            evidence.contexts[workload]["builds"]["flea"]["launcher"]["version"] = "0.3.12"
+            evidence.contexts[workload]["builds"]["dlea"]["launcher"]["version"] = "0.3.12"
         self.refused(evidence.write(), "binary identity/version")
         evidence = Evidence()
         evidence.contexts["engine"]["rivals"]["dolphin"]["package"] = "dolphin 0.9-1"
@@ -304,14 +304,14 @@ class GateProvenance(unittest.TestCase):
     def test_candidate_and_anchor_identity(self):
         evidence = Evidence()
         evidence.options["field_a"]["dirty"] = "DIRTY"
-        self.refused(evidence.write(), "flea: manifest source tree is not one clean checkout")
+        self.refused(evidence.write(), "dlea: manifest source tree is not one clean checkout")
         evidence = Evidence()
         for workload in WORKLOADS:
-            evidence.contexts[workload]["builds"]["flea-anchor"]["package"] = None
-        self.refused(evidence.write(), "installed flea 0.3.12 package")
+            evidence.contexts[workload]["builds"]["dlea-anchor"]["package"] = None
+        self.refused(evidence.write(), "installed dlea 0.3.12 package")
         evidence = Evidence()
         for workload in WORKLOADS:
-            evidence.contexts[workload]["builds"]["flea-anchor"]["commit"] = "4" * 40
+            evidence.contexts[workload]["builds"]["dlea-anchor"]["commit"] = "4" * 40
         self.refused(evidence.write(), "installed 0.3.12 build")
 
     def test_duplicate_row_ids_and_unknown_entrants(self):
@@ -326,7 +326,7 @@ class GateProvenance(unittest.TestCase):
         # A default producer run carries TUI rows, and its engine profile every GUI rival as well.
         evidence = Evidence()
         for run in ("1", "2", "3"):
-            for extra in ("flea-tui", "yazi", "strata-nightly-channel"):
+            for extra in ("dlea-tui", "yazi", "strata-nightly-channel"):
                 evidence.rows["field_a"].append(dict(evidence.rows["field_a"][0], id=extra, run=run, mapped_ms="1"))
             evidence.rows["engine"].append(dict(evidence.rows["field_a"][2], run=run, mapped_ms="1"))
         channel = evidence.contexts["field_a"]["rivals"]
@@ -337,7 +337,7 @@ class GateProvenance(unittest.TestCase):
         self.assertTrue(receipt["release_pass"])
         outside = {(row["id"], tuple(row["reasons"])) for audited in receipt["rows"].values()
                    for row in audited if not row["eligible"]}
-        self.assertEqual(outside, {("flea-tui", ("outside the field_a roster, so it is listed and never ranked",)),
+        self.assertEqual(outside, {("dlea-tui", ("outside the field_a roster, so it is listed and never ranked",)),
                                    ("yazi", ("outside the field_a roster, so it is listed and never ranked",)),
                                    ("strata-nightly-channel",
                                     ("outside the field_a roster, so it is listed and never ranked",)),
@@ -363,15 +363,15 @@ class GateProvenance(unittest.TestCase):
     def test_installed_anchor_package_names(self):
         evidence = Evidence()
         for workload in WORKLOADS:
-            anchor = evidence.contexts[workload]["builds"]["flea-anchor"]
-            anchor["package"] = f"{anchor['launcher']['path']} is owned by flea-bin 0.3.12-1"
+            anchor = evidence.contexts[workload]["builds"]["dlea-anchor"]
+            anchor["package"] = f"{anchor['launcher']['path']} is owned by dlea-bin 0.3.12-1"
         result, _ = evidence.write().run()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         evidence = Evidence()
         for workload in WORKLOADS:
-            anchor = evidence.contexts[workload]["builds"]["flea-anchor"]
-            anchor["package"] = f"{anchor['launcher']['path']} is owned by flea-bin 0.3.11-1"
-        self.refused(evidence.write(), "installed flea 0.3.12 package")
+            anchor = evidence.contexts[workload]["builds"]["dlea-anchor"]
+            anchor["package"] = f"{anchor['launcher']['path']} is owned by dlea-bin 0.3.11-1"
+        self.refused(evidence.write(), "installed dlea 0.3.12 package")
 
     def test_engine_sample_outside_its_window_is_listed(self):
         evidence = Evidence()
@@ -380,7 +380,7 @@ class GateProvenance(unittest.TestCase):
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
         self.assertEqual(receipt["rows"]["engine"][0]["reasons"],
                          ["cold sample 3140 ms after map, outside 3000 to 3100"])
-        self.assertIn("INELIGIBLE engine line 2 flea run 1", result.stdout)
+        self.assertIn("INELIGIBLE engine line 2 dlea run 1", result.stdout)
 
     def test_unexpected_failures_refuse_and_never_hold(self):
         evidence = Evidence()
@@ -415,7 +415,7 @@ class GateProvenance(unittest.TestCase):
     def test_incomplete_eleven_cell_coverage(self):
         evidence = Evidence()
         evidence.rows["engine"] = [row for row in evidence.rows["engine"]
-                                   if (row["id"], row["run"]) != ("flea-anchor", "3")]
+                                   if (row["id"], row["run"]) != ("dlea-anchor", "3")]
         evidence.rows["field_a"][4].update(write_clean="0", ranked="unranked: writes in flight")
         result, receipt = evidence.write().run()
         self.assertEqual(result.returncode, 1, result.stdout + result.stderr)

@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Collide.js" as Collide
 import "js/Icons.js" as Icons
 
@@ -40,7 +40,7 @@ FocusScope {
         opened = false
         chosen(choice)
     }
-    Flea.Reveal { target: root; shown: root.opened; lift: card }
+    Dlea.Reveal { target: root; shown: root.opened; lift: card }
     // A press lands on its own button first, so the accent never shows one choice while another is taken.
     function press(choice) {
         focusName = choice
@@ -54,7 +54,7 @@ FocusScope {
         if (root.opened) body.reveal(root.buttonItem(root.focusName))
         event.accepted = true
     }
-    Flea.DialogScrim {
+    Dlea.DialogScrim {
         onDismissed: root.choose("cancel")
     }
     Rectangle {
@@ -73,7 +73,7 @@ FocusScope {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             onWheel: function(wheel) { wheel.accepted = true }
         }
-        Flea.CardFrame {
+        Dlea.CardFrame {
             id: body
             bleed: Theme.focusClearance
             anchors.fill: parent
@@ -84,7 +84,7 @@ FocusScope {
             title: Column {
                 width: parent.width
                 spacing: Theme.spacing.gap
-                Flea.DialogTitle {
+                Dlea.DialogTitle {
                     width: parent.width
                     text: root.titleText
                 }
@@ -94,9 +94,9 @@ FocusScope {
                 id: buttons
                 anchors.right: parent.right
                 spacing: Theme.spacing.gap
-                Flea.DialogButton { id: cancelButton; label: Collide.FAT_BUTTONS.cancel; focused: root.focusName === "cancel"; onActivated: root.press("cancel") }
-                Flea.DialogButton { id: skipButton; label: Collide.FAT_BUTTONS.skip; focused: root.focusName === "skip"; onActivated: root.press("skip") }
-                Flea.DialogButton { id: renameButton; label: Collide.FAT_BUTTONS.rename; primary: true; focused: root.focusName === "rename"; onActivated: root.press("rename") }
+                Dlea.DialogButton { id: cancelButton; label: Collide.FAT_BUTTONS.cancel; focused: root.focusName === "cancel"; onActivated: root.press("cancel") }
+                Dlea.DialogButton { id: skipButton; label: Collide.FAT_BUTTONS.skip; focused: root.focusName === "skip"; onActivated: root.press("skip") }
+                Dlea.DialogButton { id: renameButton; label: Collide.FAT_BUTTONS.rename; primary: true; focused: root.focusName === "rename"; onActivated: root.press("rename") }
             }
             Column {
                 width: parent.width
@@ -113,7 +113,7 @@ FocusScope {
                             width: parent.width
                             height: Theme.fileRowHeight
                             spacing: Theme.spacing.gap
-                            Flea.Glyph { width: Theme.markSize; height: parent.height; name: nameRow.modelData.d ? "folder" : Icons.glyphFor(nameRow.modelData.i); color: Theme.color.foreground }
+                            Dlea.Glyph { width: Theme.markSize; height: parent.height; name: nameRow.modelData.d ? "folder" : Icons.glyphFor(nameRow.modelData.i); color: Theme.color.foreground }
                             Text {
                                 id: oldName
                                 width: Math.min(implicitWidth, Math.max(0, nameRow.labelWidth - arrow.implicitWidth))

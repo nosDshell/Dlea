@@ -61,7 +61,7 @@ fn mono_colour_ansi_snapshots() {
         }
         let mut m = model();
         m.rows.get_mut(&7).unwrap().name = "plates.3mf".into();
-        m.model3d.data = Some(Box::new(flea::ui_logic_model_preview::wire::Data {
+        m.model3d.data = Some(Box::new(dlea::ui_logic_model_preview::wire::Data {
             plates: vec![Default::default(), Default::default()],
             ..Default::default()
         }));

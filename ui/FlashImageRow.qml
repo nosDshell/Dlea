@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Flash.js" as Flash
 import "js/Format.js" as Format
 
@@ -48,7 +48,7 @@ Column {
             anchors.leftMargin: Theme.spacing.rowPaddingX
             anchors.rightMargin: Theme.spacing.rowPaddingX
             spacing: Theme.spacing.gap
-            Flea.Glyph { width: Theme.markSize; height: parent.height; name: root.image ? "file" : "folder-open"; color: Theme.color.foreground }
+            Dlea.Glyph { width: Theme.markSize; height: parent.height; name: root.image ? "file" : "folder-open"; color: Theme.color.foreground }
             Text {
                 width: Math.max(0, parent.width - Theme.markSize - imageDetail.width - imageSize.width - 3 * parent.spacing)
                 anchors.verticalCenter: parent.verticalCenter

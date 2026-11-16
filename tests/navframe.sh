@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Enter and Back draw no frame and dirty no item before the landing in List, Columns and Grid, offscreen with the real backend.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 command -v qs >/dev/null || { echo 'FAIL navframe: qs is missing'; exit 1; }
 root=$(mktemp -d "$FIXTURE_ROOT/navframe-XXXXXXXX") || exit 1
@@ -10,7 +10,7 @@ sandbox_require "$root" || exit 1
 : > "$root/$SANDBOX_MARKER" || exit 1
 trap 'sandbox_remove "$root"' EXIT
 mkdir -p "$root/config" "$root/fixture/a" "$root/fixture/e" "$root/bin" || exit 1
-ln -s "$PWD/ui" "$root/config/flea" || exit 1
+ln -s "$PWD/ui" "$root/config/dlea" || exit 1
 headless_commons "$root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$root/config/Ui" || exit 1
 cp tests/navframe.qml "$root/config/shell.qml" || exit 1
@@ -18,20 +18,20 @@ cp tests/navframe.qml "$root/config/shell.qml" || exit 1
 for i in $(seq -w 1 80); do printf 'row %s\n' "$i" > "$root/fixture/file-$i.txt"; done
 for i in 1 2 3; do printf 'a %s\n' "$i" > "$root/fixture/a/inner-$i.txt"; done
 # The backend writes its own pid before it starts, so the probe can pause it while a listing is out.
-printf '#!/bin/sh\n[ "$1" = --backend ] && echo $$ > "%s"\nexec "%s" "$@"\n' "$root/backend.pid" "$PWD/target/debug/flea" > "$root/bin/flea"
-chmod +x "$root/bin/flea" || exit 1
+printf '#!/bin/sh\n[ "$1" = --backend ] && echo $$ > "%s"\nexec "%s" "$@"\n' "$root/backend.pid" "$PWD/target/debug/dlea" > "$root/bin/dlea"
+chmod +x "$root/bin/dlea" || exit 1
 failed=0
 for view in list columns grid; do
     run="$root/run-$view"
     # An earlier view's pid must not be signalled when this view's backend never writes its own.
     : > "$root/backend.pid" || exit 1
-    mkdir -p "$run/home" "$run/state/flea" "$run/cache" "$run/runtime" || exit 1
+    mkdir -p "$run/home" "$run/state/dlea" "$run/cache" "$run/runtime" || exit 1
     chmod 700 "$run/runtime" || exit 1
-    printf '{"updates":{"autoCheck":false},"view":"%s"}\n' "$view" > "$run/state/flea/ui.json" || exit 1
+    printf '{"updates":{"autoCheck":false},"view":"%s"}\n' "$view" > "$run/state/dlea/ui.json" || exit 1
     env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
         HOME="$run/home" XDG_STATE_HOME="$run/state" XDG_CACHE_HOME="$run/cache" XDG_RUNTIME_DIR="$run/runtime" \
-        FLEA_BIN="$root/bin/flea" FLEA_NAVFRAME_DIR="$root/fixture" FLEA_NAVFRAME_PID="$root/backend.pid" \
-        FLEA_NAVFRAME_VIEW="$view" FLEA_NAVFRAME_ENTRIES=82 QT_LOGGING_RULES='qt.quick.dirty.debug=true' \
+        DLEA_BIN="$root/bin/dlea" DLEA_NAVFRAME_DIR="$root/fixture" DLEA_NAVFRAME_PID="$root/backend.pid" \
+        DLEA_NAVFRAME_VIEW="$view" DLEA_NAVFRAME_ENTRIES=82 QT_LOGGING_RULES='qt.quick.dirty.debug=true' \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
         timeout 40 qs -p "$root/config" > "$run/probe.log" 2>&1
     status=$?

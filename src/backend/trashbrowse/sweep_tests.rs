@@ -80,8 +80,8 @@ fn left(trash: &Path) -> Vec<String> {
 fn the_sweep_removes_every_left_out_entry_and_orphan_record_and_nothing_else() {
     let d = TestDir::new("trash-sweep");
     let (trash, listed) = fixture(&d);
-    let quarantine = d.dir("Trash/files/.flea-delete-1-2");
-    d.file("Trash/files/.flea-delete-1-2/payload", "held by a claim");
+    let quarantine = d.dir("Trash/files/.dlea-delete-1-2");
+    d.file("Trash/files/.dlea-delete-1-2/payload", "held by a claim");
     let (scratch, recovery) = (d.dir("scratch"), d.join("recovery"));
     let mut trees = Manifest::new(&scratch).unwrap();
     let review = |trees: &mut Manifest| {
@@ -118,7 +118,7 @@ fn the_sweep_removes_every_left_out_entry_and_orphan_record_and_nothing_else() {
     assert_eq!(
         left(&trash),
         [
-            "files/.flea-delete-1-2",
+            "files/.dlea-delete-1-2",
             "files/good.txt",
             "info/gone.txt.trashinfo",
             "info/good.txt.trashinfo",
@@ -143,7 +143,7 @@ fn the_sweep_removes_every_left_out_entry_and_orphan_record_and_nothing_else() {
         [trash.join("info/gone.txt.trashinfo")]
     );
     // A claim stuck between the review and the removal keeps the record as well.
-    let late = d.dir("Trash/files/.flea-delete-3-4");
+    let late = d.dir("Trash/files/.dlea-delete-3-4");
     assert_eq!(
         sweep.remove(&recovery, &Cancellation::default(), &mut thumbnails),
         1
@@ -272,7 +272,7 @@ fn a_record_rewritten_after_the_review_is_left_over() {
 fn a_record_the_review_left_counts_only_while_it_is_still_an_orphan_on_disk() {
     let d = TestDir::new("trash-sweep-held");
     let (trash, listed) = fixture(&d);
-    let quarantine = d.dir("Trash/files/.flea-delete-1-2");
+    let quarantine = d.dir("Trash/files/.dlea-delete-1-2");
     let (scratch, recovery) = (d.dir("scratch"), d.join("recovery"));
     let mut trees = Manifest::new(&scratch).unwrap();
     let sweep = Sweep::review(

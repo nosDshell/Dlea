@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# Proves Flea's test fixture crosses the real GIO, GVfs, FUSE, and unmount boundaries.
+# Proves Dlea's test fixture crosses the real GIO, GVfs, FUSE, and unmount boundaries.
 set -euo pipefail
 cd "$(dirname "$0")/.." || exit 1
-. ./tools/flea-sandbox-guard
+. ./tools/dlea-sandbox-guard
 sandbox_root_ok
 mkdir -p "$SANDBOX_ROOT"
-fixture_dir=$(mktemp -d "$SANDBOX_ROOT/flea-gvfs-suite.XXXXXXXX")
+fixture_dir=$(mktemp -d "$SANDBOX_ROOT/dlea-gvfs-suite.XXXXXXXX")
 : > "$fixture_dir/$SANDBOX_MARKER"
 chmod 700 "$fixture_dir"
 

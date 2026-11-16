@@ -12,7 +12,7 @@ fn adv_d_r1_keypad_keys_keep_legacy_actions_and_filter_text() {
             let encoded = format!("\x1b[{code};{modifiers}u");
             let keys = Decoder::default().feed(encoded.as_bytes(), false);
             assert_eq!(keys, [Key::character(c, "")], "keypad code {code}");
-            assert_eq!(map.action(&keys[0], "flea"), map.action(&Key::character(c, ""), "flea"));
+            assert_eq!(map.action(&keys[0], "dlea"), map.action(&Key::character(c, ""), "dlea"));
             if modifiers == 1 { editor.update(&keys[0]); }
         }
     }
@@ -23,7 +23,7 @@ fn adv_d_r1_keypad_keys_keep_legacy_actions_and_filter_text() {
     assert_eq!(editor.value, "0123456789./*-+=,,");
     editor.update(&keys[1]);
     assert_eq!(editor.value, "0123456789./*-+=,,", "keypad Enter does not insert a private-use character");
-    for preset in ["default", "flea", "mac", "windows", "vim"] {
+    for preset in ["default", "dlea", "mac", "windows", "vim"] {
         assert_eq!(map.action(&keys[1], preset), map.action(&Key::named("Return", ""), preset));
     }
 }
@@ -45,7 +45,7 @@ fn adv_d_r1_shifted_printables_match_legacy_keys_in_the_real_keymap() {
             let keys = Decoder::default().feed(encoded.as_bytes(), false);
             let legacy = Key::character(shifted, "");
             assert_eq!(keys.as_slice(), std::slice::from_ref(&legacy), "{encoded:?}");
-            for preset in ["default", "flea", "mac", "windows", "vim"] {
+            for preset in ["default", "dlea", "mac", "windows", "vim"] {
                 for context in ["listing", "editor", "pdf", "media"] {
                     assert_eq!(map.in_context(&keys[0].for_action(), preset, context), map.in_context(&legacy, preset, context), "{preset} {context} {shifted}");
                 }
@@ -68,10 +68,10 @@ fn adv_d_r2_shift_without_shifted_text_keeps_its_modifier() {
         let keys = Decoder::default().feed(encoded, false);
         let expected = Key::character(printed, "shift");
         assert_eq!(keys.as_slice(), std::slice::from_ref(&expected), "{encoded:?}");
-        assert_eq!(map.action(&keys[0], "flea"), map.action(&expected, "flea"));
+        assert_eq!(map.action(&keys[0], "dlea"), map.action(&expected, "dlea"));
         assert_ne!(
-            map.action(&keys[0], "flea"),
-            map.action(&Key::character(printed, ""), "flea")
+            map.action(&keys[0], "dlea"),
+            map.action(&Key::character(printed, ""), "dlea")
         );
         let mut editor = crate::tui::editor::Editor::new("filter", String::new(), "/".into());
         editor.update(&keys[0]);
@@ -93,7 +93,7 @@ fn adv_d_r3_equal_base_shift_metadata_matches_true_legacy_input() {
         ] {
             let keys = Decoder::default().feed(encoded.as_bytes(), false);
             assert_eq!(keys.as_slice(), std::slice::from_ref(&legacy), "{encoded:?}");
-            for preset in ["default", "flea", "mac", "windows", "vim"] {
+            for preset in ["default", "dlea", "mac", "windows", "vim"] {
                 for context in ["listing", "editor", "pdf", "media"] {
                     assert_eq!(map.in_context(&keys[0], preset, context), map.in_context(&legacy, preset, context));
                 }
@@ -190,7 +190,7 @@ fn physical_letters_preserve_cyrillic_text_in_editors_and_drive_actions() {
     editor.update(&keys[0]);
     assert_eq!(editor.value, "о");
     let map = crate::tui::keymap::Map::load();
-    assert_eq!(map.action(&keys[0].for_action(), "flea"), "cursorDown");
+    assert_eq!(map.action(&keys[0].for_action(), "dlea"), "cursorDown");
     let primary = d.feed("\x1b[1086:74;1u".as_bytes(), false);
     assert_eq!(primary[0].for_action().text, "j");
     let legacy = d.feed("о".as_bytes(), false);

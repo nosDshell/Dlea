@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Two overlapping DeviceLock locks each run, and each refusal names its own drive.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -10,7 +10,7 @@ if ! command -v qs >/dev/null; then
 fi
 
 # A marked sandbox of its own under the fixture root, so cleanup deletes only what this run owns.
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-devicelock-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-devicelock-XXXXXX") || exit 1
 case $test_root in
   /*/*) ;;
   *) echo "FAIL: mktemp -d gave '$test_root', which is not an absolute path two components deep"; exit 1 ;;
@@ -28,7 +28,7 @@ ln -s "$PWD/ui/js" "$test_root/config/js" || exit 1
 
 # The harness drives the real DeviceLock with two overlapping locks against a stub udisksctl that holds each lock two seconds, then refuses it.
 cat > "$test_root/config/shell.qml" <<'QML_EOF'
-//@ pragma ShellId flea-devicelock-test
+//@ pragma ShellId dlea-devicelock-test
 
 import QtQuick
 import Quickshell

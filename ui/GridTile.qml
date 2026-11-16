@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Density.js" as Density
 import "js/Drag.js" as DragOps
 import "js/Format.js" as Format
@@ -130,7 +130,7 @@ Item {
             cache: false
         }
 
-        Flea.Glyph {
+        Dlea.Glyph {
             id: markGlyph
             anchors.fill: parent
             visible: !root.thumbDrawn && root.langSlug === ""
@@ -166,7 +166,7 @@ Item {
         sourceComponent: Item {
             id: washes
             FontMetrics { id: captionFace; font: nameLabel.font }
-            // Only lines Qt drew as Flea broke them are measured; a caption Qt wrapped or elided again would place a box off its letters.
+            // Only lines Qt drew as Dlea broke them are measured; a caption Qt wrapped or elided again would place a box off its letters.
             readonly property bool laidAsBroken: nameLabel.lineCount === nameLabel.text.split("\n").length && !nameLabel.truncated
             readonly property var boxes: washes.laidAsBroken ? washes.measure(GridNames.captionMarks(nameLabel.text, root.markQuery), captionFace.font, washes.width) : []
             // One box per line the run touches; face is read only so a font change re-measures, as RenameField's edgeX does.
@@ -182,7 +182,7 @@ Item {
         }
     }
 
-    // corner: a filename is arbitrary text, so PlainText; the breaks are Flea's own, WrapAnywhere only catches wide glyphs.
+    // corner: a filename is arbitrary text, so PlainText; the breaks are Dlea's own, WrapAnywhere only catches wide glyphs.
     readonly property int captionLines: root.dropTarget ? 1 : 2
     // Cells of one caption line at the bodySmall advance the label draws at; a wide glyph counts two.
     readonly property int captionPerLine: Theme.bodySmallAdvance > 0 && nameLabel.width > 0 ? Math.floor(nameLabel.width / Theme.bodySmallAdvance) : -1
@@ -230,7 +230,7 @@ Item {
         // One gap past the centred last line's own right end, capped at the strip the margin reserves; a tile with no mark measures nothing.
         x: clipLoader.active ? Math.min(nameLabel.x + (nameLabel.width + GridNames.lastLineCells(nameLabel.text) * Theme.bodySmallAdvance) / 2 + Theme.spacing.gap, nameLabel.x + nameLabel.width + Theme.spacing.gap) : 0
         y: clipLoader.active ? nameLabel.y + Math.min(nameLabel.text.split("\n").length, root.captionLines) * Theme.grid.captionLineHeight - (Theme.grid.captionLineHeight + root.clipPx) / 2 - 1 : 0
-        sourceComponent: Flea.Glyph {
+        sourceComponent: Dlea.Glyph {
             width: root.clipPx
             height: root.clipPx
             name: root.clipMark
@@ -246,7 +246,7 @@ Item {
         y: root.renameY
         // A normal editor's expansion starts and stays zero, so no height-change signal measures it.
         onLoaded: Qt.callLater(root.applyRenameHeight)
-        sourceComponent: Flea.RenameField {
+        sourceComponent: Dlea.RenameField {
             height: implicitHeight
             editorHost: root
             pane: root.renamePane
@@ -275,7 +275,7 @@ Item {
         }
     }
 
-    // Flea elides the caption itself, so Qt reports truncated only when it had to cut a caption Flea handed over whole.
+    // Dlea elides the caption itself, so Qt reports truncated only when it had to cut a caption Dlea handed over whole.
     function captionElided() {
         return nameLabel.truncated || (root.row ? nameLabel.text.split("\n").join("") !== String(root.row.n) : false)
     }

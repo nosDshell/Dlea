@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-headercost-test
+//@ pragma ShellId dlea-headercost-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/ColumnFit.js" as CellRef
-import "flea/js/Columns.js" as ClampRef
+import "dlea" as Dlea
+import "dlea/js/ColumnFit.js" as CellRef
+import "dlea/js/Columns.js" as ClampRef
 
 // Headercost: one Header as ui/Pane.qml builds it holds no accent or metrics at rest; both build only while used. The fit loader stays empty until a double click or F4, persists one widths-map update per fit, and releases after; refusals persist nothing.
 ShellRoot {
@@ -17,28 +17,28 @@ ShellRoot {
 
     Loader { id: recentProbe; source: "recentcol.qml" }
 
-    Flea.Header {
+    Dlea.Header {
         id: probeHeader
         width: 800
         pane: ({ rows: [root.singleRow], kindNames: [], dirSizeState: { file: {}, order: [] }, held: 0 })
     }
 
     // All four columns drawn, so one F4 can owe four widths in a single update.
-    Flea.Header {
+    Dlea.Header {
         id: fitHeader
         width: 2000
         hiddenCols: []
         pane: ({ rows: [root.singleRow], kindNames: ["File", "Image"], dirSizeState: { file: {}, order: [] }, held: 0 })
     }
 
-    Flea.Header {
+    Dlea.Header {
         id: emptyHeader
         width: 2000
         hiddenCols: []
         pane: ({ rows: [], kindNames: [], dirSizeState: { file: {}, order: [] }, held: 0 })
     }
 
-    Flea.Header {
+    Dlea.Header {
         id: gateHeader
         width: 2000
         hiddenCols: []
@@ -124,18 +124,18 @@ ShellRoot {
 
     // Owned write double: the shell stages this spy as ViewState.qml before construction, so autofit paths run against actual Header.qml with no file write, no production seam and no runtime patching. The liveness probe fails the run closed when the fixture is not talking to the constructed spy; call grouping only.
     function armWriteCapture() {
-        Flea.ViewState.reset()
-        Flea.ViewState.seed({})
-        check("write spy is live", JSON.stringify(Flea.ViewState.state.columnWidths), "{}")
+        Dlea.ViewState.reset()
+        Dlea.ViewState.seed({})
+        check("write spy is live", JSON.stringify(Dlea.ViewState.state.columnWidths), "{}")
         return root.failures.length === 0
     }
 
-    function writes() { return Flea.ViewState.commits }
+    function writes() { return Dlea.ViewState.commits }
 
-    function resetWrites() { Flea.ViewState.reset() }
+    function resetWrites() { Dlea.ViewState.reset() }
 
     // Seed the stored widths without writing, so unchanged and multi-change phases start exact.
-    function seedWidths(map) { Flea.ViewState.seed(map) }
+    function seedWidths(map) { Dlea.ViewState.seed(map) }
 
     // A fit path must leave no metrics object behind, or rest is a leak with one autofit of history.
     function checkReleased(who, h) {
@@ -208,7 +208,7 @@ ShellRoot {
             var accent = root.accentUnder(sizeHandle)
             check("dragged column builds an accent to measure", accent !== null, true)
             if (accent !== null) {
-                var hairline = Flea.Theme.spacing.hairline
+                var hairline = Dlea.Theme.spacing.hairline
                 // Qt rounds a centred item to a whole pixel, so the centre holds to half a pixel.
                 check("hot accent is the hairline wide", Math.abs(accent.width - hairline) <= 0.001, true)
                 var mid = accent.mapToItem(sizeHandle, accent.width / 2, 0).x
@@ -232,8 +232,8 @@ ShellRoot {
         check("a size cell measures positive", first > 0, true)
         check("two fits agree", second, first)
         // The same string Row draws, measured here in the caption face FitMetrics must use.
-        refText.font.family = Flea.Theme.font.family
-        refText.font.pixelSize = Flea.Theme.font.caption
+        refText.font.family = Dlea.Theme.font.family
+        refText.font.pixelSize = Dlea.Theme.font.caption
         refText.text = CellRef.cellText("size", root.singleRow, [], null)
         var expectedSize = ClampRef.clampListWidth(Math.max(ClampRef.MIN_LIST_WIDTH, Math.ceil(refText.advanceWidth)))
         check("fit measures the caption face", first, expectedSize)

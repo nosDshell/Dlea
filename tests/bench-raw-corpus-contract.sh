@@ -5,13 +5,13 @@ repo=$(cd "$(dirname "$0")/.." && pwd -P)
 mkdir -p "$repo/.superpowers/bench-raw-corpus-contract"
 scratch=$(mktemp -d "$repo/.superpowers/bench-raw-corpus-contract/test.XXXXXXXX")
 [[ -n "$scratch" && "$scratch" == /* ]] || exit 1
-: > "$scratch/.flea-test-sandbox"
+: > "$scratch/.dlea-test-sandbox"
 cleanup() {
-    [[ -n "$scratch" && "$scratch" == "$repo"/.superpowers/bench-raw-corpus-contract/test.* && "$scratch" == /* && -f "$scratch/.flea-test-sandbox" ]] || exit 1
+    [[ -n "$scratch" && "$scratch" == "$repo"/.superpowers/bench-raw-corpus-contract/test.* && "$scratch" == /* && -f "$scratch/.dlea-test-sandbox" ]] || exit 1
     rm -rf -- "$scratch"
 }
 trap cleanup EXIT
-python3 -B - "$repo" "$scratch" "${RAW_CORPUS_TOOL:-$repo/tools/flea-raw-corpus}" <<'PY'
+python3 -B - "$repo" "$scratch" "${RAW_CORPUS_TOOL:-$repo/tools/dlea-raw-corpus}" <<'PY'
 import csv
 import hashlib
 from pathlib import Path
@@ -22,7 +22,7 @@ import sys
 repo, scratch, tool = map(Path, sys.argv[1:])
 module = runpy.run_path(str(tool))
 fields, filename = module['FIELDS'], module['filename']
-manifest = repo / 'tools/flea-raw-corpus.tsv'
+manifest = repo / 'tools/dlea-raw-corpus.tsv'
 rows = module['load_manifest'](manifest)
 twelve = [r for r in rows if r['set'] == 'twelve']
 hundred = [r for r in rows if r['set'] == 'hundred']
@@ -37,7 +37,7 @@ print('PASS bench-raw-corpus-contract: manifest pins 12 formats and 100 distinct
 
 def owned(path):
     assert path.is_absolute() and path.is_relative_to(scratch)
-    assert (scratch / '.flea-test-sandbox').is_file()
+    assert (scratch / '.dlea-test-sandbox').is_file()
     return path
 
 
@@ -151,7 +151,7 @@ print('PASS bench-raw-corpus-contract: one altered byte, one extra byte or a lin
 
 generated_root = owned(scratch / 'generated')
 generated_root.mkdir()
-(generated_root / '.flea-test-sandbox').touch()
+(generated_root / '.dlea-test-sandbox').touch()
 # Sample input: 751567ed42146f61462141bf4a26a028f98929de2079e5ab93c314189deca28f  L1000921.DNG
 line = subprocess.run([sys.executable, '-B', str(repo / 'tests/fixtures/raw/generate.py'), str(generated_root)],
                       capture_output=True, text=True, check=True, timeout=120).stdout.split()

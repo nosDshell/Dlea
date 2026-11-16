@@ -13,11 +13,11 @@ fn german() -> (TestDir, I18n) {
         include_str!("../i18n/fixtures/locales.json"),
     );
     for (code, text) in [
-        ("en", include_str!("../../i18n/en/flea.json")),
-        ("de", include_str!("../../i18n/de/flea.json")),
+        ("en", include_str!("../../i18n/en/dlea.json")),
+        ("de", include_str!("../../i18n/de/dlea.json")),
     ] {
         std::fs::create_dir_all(root.join(&format!("catalog/{code}"))).unwrap();
-        root.file(&format!("catalog/{code}/flea.json"), text);
+        root.file(&format!("catalog/{code}/dlea.json"), text);
     }
     root.file("language", "de");
     let catalog = I18n::load(Paths {

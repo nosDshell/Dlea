@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-menu-scroll-width-test
+//@ pragma ShellId dlea-menu-scroll-width-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Scroll.js" as Scroll
+import "dlea" as Dlea
+import "dlea/js/Scroll.js" as Scroll
 
 // tests/menu-scroll-width.sh's harness: an overflowing context menu draws no bar in any state and
 // steps the highlight on wheel and touchpad, while an ordinary CardScroll keeps pixel scrolling.
@@ -59,20 +59,20 @@ ShellRoot {
         implicitHeight: 480
         color: "#303030"
 
-        Flea.CardScroll {
+        Dlea.CardScroll {
             id: plain
             width: 320
             height: 200
             Column { width: parent.width; Repeater { model: 40; Text { text: "line " + index } } }
         }
 
-        Flea.ContextMenu {
+        Dlea.ContextMenu {
             id: menu
             anchors.fill: parent
             opened: true
         }
 
-        Flea.OpenWithDialog {
+        Dlea.OpenWithDialog {
             id: openWith
             anchors.fill: parent
         }
@@ -134,7 +134,7 @@ ShellRoot {
         var sh = shell.handlerUnder(sub)
         shell.check(tag + ":main-step", mh && mh.stepMode === true, "pixel scroll")
         shell.check(tag + ":flyout-step", sh && sh.stepMode === true, "pixel scroll")
-        shell.check(tag + ":step-row", mh && mh.stepRowHeight === Flea.Theme.rowHeight,
+        shell.check(tag + ":step-row", mh && mh.stepRowHeight === Dlea.Theme.rowHeight,
                     String(mh ? mh.stepRowHeight : "none"))
         // The dialog body keeps pixel scrolling and itself carries no bar either.
         shell.check(tag + ":plain-nobar", shell.barUnder(plain) === null, "a bar stands")
@@ -183,7 +183,7 @@ ShellRoot {
             var mh = shell.handlerUnder(main)
             var sub = shell.findFirst(menu.submenuFrameItem, "CardScroll")
             var sh = shell.handlerUnder(sub)
-            var rowH = Flea.Theme.rowHeight
+            var rowH = Dlea.Theme.rowHeight
             // The flyout steps through its own cursor on the same wheel; first, while the
             // phase-1 openSubmenu(0) is still standing, because a main-frame wheel below closes it.
             var sat = menu.submenuCursor
@@ -365,8 +365,8 @@ ShellRoot {
             shell.check("shut", menu.opened === false, "still open")
             if (shell.failures.length === 0)
                 shell.log("PASS " + shell.shortNote + " " + shell.longNote
-                          + " text=" + Flea.Theme.font.body + "/" + Flea.Theme.font.caption
-                          + " pad=" + Flea.Theme.spacing.rowPaddingX)
+                          + " text=" + Dlea.Theme.font.body + "/" + Dlea.Theme.font.caption
+                          + " pad=" + Dlea.Theme.spacing.rowPaddingX)
             else
                 for (var i = 0; i < shell.failures.length; i++)
                     shell.log("FAIL " + shell.failures[i])

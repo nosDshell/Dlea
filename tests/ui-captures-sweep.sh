@@ -64,7 +64,7 @@ sweep_json() {
 sweep_launch() {
     local path="$1" patch="${2:-}" count
     [[ -n "$patch" ]] || patch='{}'
-    kill_flea
+    kill_dlea
     # Sample input: {"view":"grid","preview":{"thumbSize":"large"}}, merged into the default state.
     seed_ui_state "$sweep_root/state" "$(jq -cn --arg path "$sweep_root/views" --argjson patch "$patch" '
         {keys:"default",view:"list",hidden:false,columnsLimit:3,display:{textSize:{mode:14}},
@@ -147,7 +147,7 @@ sweep_columns() {
     sweep_wait viewMode columns
     sweep_wait columnCount 3
     sweep_view_states columns-deep 2
-    kill_flea
+    kill_dlea
 }
 
 # Views: List, default and larger Grid tiles, three Columns at rest and a deep path.
@@ -211,7 +211,7 @@ sweep_previews() {
             markdown) sweep_text columnMarkdownText 'Release notes' ;;
             remote) sweep_text columnMarkdownText 'cdn.example.com' ;;
             audio) sweep_wait columnPlayerLoaded false; sweep_wait columnMediaPlaying false; sweep_text columnPlayCentre ' ' ;;
-            text) sweep_wait columnTextLines 'hello from flea|second line' ;;
+            text) sweep_wait columnTextLines 'hello from dlea|second line' ;;
             large) sweep_text columnTextLines 'Log row 00000' ;;
             overlimit) sweep_wait columnTextLines 'too large' ;;
         esac
@@ -231,7 +231,7 @@ sweep_previews() {
         sweep_wait previewState "$expected"
         if [[ "$tag" == markdown ]]; then sweep_wait previewMarkdownView rendered; fi
         if [[ "$tag" == pdf ]]; then pdf_expect true '.page == 0 and .pages == 2' 'sweep first page decoded'; fi
-        if [[ "$tag" == text ]]; then [[ "$(ipc previewText)" == *'hello from flea'* ]] || fail 'capsweep: Quick Look text missing'; fi
+        if [[ "$tag" == text ]]; then [[ "$(ipc previewText)" == *'hello from dlea'* ]] || fail 'capsweep: Quick Look text missing'; fi
         if [[ "$tag" == large ]]; then
             # textShown returns retained windows; the paged owner supplies the whole file's line count.
             text_lines=$(wc -l < "$sweep_root/previews/$file")
@@ -302,7 +302,7 @@ sweep_previews() {
     printf 'SWEEP_NOTE Quick Look autoplays video; p pauses it to show its poster.\n'
     key -k Escape >/dev/null
     sweep_wait previewOpen false
-    kill_flea
+    kill_dlea
 }
 
 # Escape closes each flyout and its parent before the next menu specimen.
@@ -356,7 +356,7 @@ sweep_menus() {
     [[ "$(ipc contextMenuEntries)" == *'Remove from Favorites'* ]] || fail 'capsweep: sidebar menu missing favourite actions'
     sweep_shot menu-sidebar-open
     sweep_close_menu
-    kill_flea
+    kill_dlea
 }
 
 # Dialogs: delete, collision, one and several Permissions, New File, New Folder, inline Rename and Open with.
@@ -427,7 +427,7 @@ sweep_dialogs() {
     menus_expect collideState '.opened | not' 'collision cancelled'
     [[ "$(cat "$dir/to/a.txt")" == Destination ]] || fail 'capsweep: collision changed destination'
     [[ "$(cat "$dir/a.txt")" == Source && "$(cat "$dir/b.txt")" == 'Other row' ]] || fail 'capsweep: a cancelled dialog changed source bytes'
-    kill_flea
+    kill_dlea
 }
 
 # Settings: every live rail page once, plus the keymap sheet filtered by a typed query.
@@ -456,7 +456,7 @@ sweep_settings() {
     # The first Escape closes the sheet from a standing query (SheetKeys.sheetKey, CommandPalette callout 2).
     key -k Escape >/dev/null
     sweep_wait keymapSheetOpen false
-    kill_flea
+    kill_dlea
 }
 
 # Two owned windows fill equal monitor halves, with a selected file held in flight over B.
@@ -464,7 +464,7 @@ sweep_windows() {
     local apid aid bpid bid ax ay bx by width height sx sy dx dy result client address pid x end
     local drag_wait_seconds=10 drag_poll_seconds=0.1 placement_wait_seconds=20 drag_seen=false mouse_press=0x40 mouse_release=0x80
     sweep_launch "$sweep_root/views"
-    apid=$(flea_pid)
+    apid=$(dlea_pid)
     aid=$(xwdrag_qsid "$apid")
     xwdrag_launch_second "$sweep_root/dialogs"
     bpid=$XW_SECOND_PID
@@ -530,8 +530,8 @@ sweep_windows() {
     sweep_desktop_shot windows-drag-held
     ydotool click "$mouse_release" >/dev/null 2>&1 || fail 'capsweep: pointer release failed'
     xwdrag_kill_second "$bpid"
-    cat "$run_root/flea-second.log" >> "$run_log"
-    kill_flea
+    cat "$run_root/dlea-second.log" >> "$run_log"
+    kill_dlea
     trap - EXIT HUP INT TERM
 }
 
@@ -550,11 +550,11 @@ sweep_desktop_shot() {
 
 # Current palette or Cool Dawn runs through the same cases and an isolated child HOME.
 sweep_run() {
-    local sweep_theme="$1" sweep_root="$fixture_root/capsweep-$1" sweep_real_bin="$flea_bin" sweep_home
+    local sweep_theme="$1" sweep_root="$fixture_root/capsweep-$1" sweep_real_bin="$dlea_bin" sweep_home
     # A section run names its evidence for its sections at the pinned size, apart from the theme runs.
     local sweep_evidence="${2:-$1}"
     [[ -n "${2:-}" ]] && sweep_evidence="${sweep_evidence}14"
-    local real_foreground="$real_foreground" flea_bin="$flea_bin" evidence_dir="$evidence_dir/$sweep_evidence" menus_checks=0 picker_wait_seconds=180
+    local real_foreground="$real_foreground" dlea_bin="$dlea_bin" evidence_dir="$evidence_dir/$sweep_evidence" menus_checks=0 picker_wait_seconds=180
     local -a sweep_sections=(${2:-views previews menus dialogs settings windows picker})
     local section
     sandbox_make "$sweep_root"
@@ -570,13 +570,13 @@ sweep_run() {
     mkdir -p "$evidence_dir" "$sweep_root/views"
     [[ ! -e "$evidence_dir/manifest.tsv" ]] || fail 'capsweep: evidence directory already used'
     # Only the child receives HOME; the operator environment and every session file stay intact.
-    local -a flea_launch_wrap=()
+    local -a dlea_launch_wrap=()
     if [[ "$test_frontend" == gpui ]]; then
-        flea_launch_wrap=(env "HOME=$sweep_home" "XDG_CONFIG_HOME=$sweep_home/.config")
+        dlea_launch_wrap=(env "HOME=$sweep_home" "XDG_CONFIG_HOME=$sweep_home/.config")
     else
-        flea_bin="$sweep_root/launcher"
-        { printf '#!/usr/bin/env bash\n'; printf 'exec env HOME=%q %q "$@"\n' "$sweep_home" "$sweep_real_bin"; } > "$flea_bin"
-        chmod +x "$flea_bin"
+        dlea_bin="$sweep_root/launcher"
+        { printf '#!/usr/bin/env bash\n'; printf 'exec env HOME=%q %q "$@"\n' "$sweep_home" "$sweep_real_bin"; } > "$dlea_bin"
+        chmod +x "$dlea_bin"
     fi
     printf 'SWEEP_THEME %s textSize=14 seam=display.textSize childHome=%s\n' "$sweep_theme" "$sweep_home"
     for section in "${sweep_sections[@]}"; do
@@ -593,7 +593,7 @@ sweep_run() {
         esac
     done
     if [[ " ${sweep_sections[*]} " == *" picker "* ]]; then
-        FLEA_BIN="$sweep_real_bin" FLEA_UI="$flea_ui" timeout "$picker_wait_seconds" python3 "$repo/tests/ui-captures-sweep-picker.py" "$sweep_root/picker" "$sweep_home" "$evidence_dir" \
+        DLEA_BIN="$sweep_real_bin" DLEA_UI="$dlea_ui" timeout "$picker_wait_seconds" python3 "$repo/tests/ui-captures-sweep-picker.py" "$sweep_root/picker" "$sweep_home" "$evidence_dir" \
             || fail "capsweep: picker sweep failed, status $?"
         cat "$evidence_dir/picker-backend.log" >> "$run_log"
     fi
@@ -649,5 +649,5 @@ case_capsweepstl() {
     key -k Escape >/dev/null
     sweep_wait previewOpen false
     printf 'CAPSWEEPSTL column=model3d quicklook=model3d state=%s\n' "$seen"
-    kill_flea
+    kill_dlea
 }

@@ -1,5 +1,5 @@
 // The GVFS FUSE root /run/user/<uid>/gvfs and the share folder under it; a folder named gvfs anywhere else is no mount.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::path::{Path, PathBuf};
 
 // The directory whose children are the per-user run folders; a test points it at a sandbox, since /run/user is not writable.
@@ -93,7 +93,7 @@ pub(crate) fn gvfs_modes_are_real(path: &Path) -> Option<bool> {
 pub fn gvfs_root(path: &Path) -> Option<PathBuf> {
     let (root, share) = mounted(path)?;
     let name = share.split('/').next().filter(|name| !name.is_empty())?;
-    Some(flea::bytename::exact(root + name))
+    Some(dlea::bytename::exact(root + name))
 }
 
 #[cfg(test)]

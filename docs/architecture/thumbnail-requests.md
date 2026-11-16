@@ -4,7 +4,7 @@
 generated only for a row a client named in a `thumb` request.** Nothing in the loop walks
 the listing looking for work at any priority, and the proof is on the record: listing the
 100,000-file fixture and stat'ing every row through two full windows grows
-`~/.cache/thumbnails/large` by zero files and never creates `fail/flea`.
+`~/.cache/thumbnails/large` by zero files and never creates `fail/dlea`.
 
 **`THUMB_WORKERS` is 6 since 0.3.2, and it is a measured choice and not a core count.** It lives here and
 not in `thumbs.rs` because it is scheduling policy and belongs with the request policy.
@@ -52,7 +52,7 @@ control, and `ready()`, which returns a constant and reads no UI state, costs th
 at every load. Those numbers are the harness measuring itself. `inputToRows()` exists for this; see
 "Testing".
 
-Measured with it: a Flea window on the 100,000-file fixture, `omarchy-drive key --window flea G`
+Measured with it: a Dlea window on the 100,000-file fixture, `omarchy-drive key --window dlea G`
 and `g` to jump to the far end and back, a 210-row generation burst at the arm's own width running
 beside it, eight rounds an arm with every arm twice in every position. With no burst every arm
 reads a median of 38 ms over 48 samples; that is a sanity check and not a result, since each
@@ -102,7 +102,7 @@ fixed was the harness timing itself. Anyone revisiting this constant should star
 199.5 and not from the conclusion.
 
 **0.3.2 moved it to 6, on a different question.** Strata's settle on the media fixture came level with
-Flea's through a reusable sandbox worker of its own, and the harness was measured at
+Dlea's through a reusable sandbox worker of its own, and the harness was measured at
 both widths on the final 0.3.2 candidate, two interleaved batches of three: settled 2701 to 2860 ms
 at 4 and 2333 to 2631 at 6, against strata's 2804 to 3071. The rule for that release was to
 keep 4 only if 6 cost input latency a person would feel. Re-timed with `inputToRows()` by the method
@@ -212,16 +212,16 @@ waits forever.
 after itself is the one where the drain runs out of budget: the process exits and the four worker
 threads die inside `run_with_timeout`, after `thumbwrite::exclusive_temp` and before `discard`.
 Reproduced with eight hung jobs against four workers under a scratch cache root: four zero-byte
-`.flea-<pid>-<hex>.png` files were left behind, which matches the ten found in the
+`.dlea-<pid>-<hex>.png` files were left behind, which matches the ten found in the
 real cache. `drain` therefore calls `thumbwrite::sweep_own_temps` on the `large/` directory after
 `cancel_all` and only when `outstanding` is still above zero. The order is load bearing: with the
 queue emptied first, no worker can start a new job, so the temps on disk at that moment are exactly
 the abandoned ones and the sweep cannot race a fresh one. The name carries this process's pid, so
 the sweep provably cannot touch a published entry, another application's file, or a concurrent
-flea's in-flight temp; a unit test plants all three next to a real temp and asserts only ours goes.
-Two alternatives were rejected. Sweeping stale `.flea-*` at STARTUP would put a `readdir` of a
+dlea's in-flight temp; a unit test plants all three next to a real temp and asserts only ours goes.
+Two alternatives were rejected. Sweeping stale `.dlea-*` at STARTUP would put a `readdir` of a
 possibly huge shared directory on the product path, which is the one thing this product does not
-do, and "stale" needs an age heuristic that races a concurrent flea. Registering each temp in a
+do, and "stale" needs an age heuristic that races a concurrent dlea. Registering each temp in a
 shared list would be exact but replaces one function with an invariant that every return path in
 `run_one` has to maintain, which is the class of bug this is. Neither this nor any other design
 covers a `SIGKILL`; nothing running inside the process can.
@@ -247,14 +247,14 @@ second copy of the alias and thumbnailer tables was what carried it, and `Pool::
 nothing: both tables arrive as `Arc`s from the caller (`src/backend/thumbs.rs:76`,
 `src/backend/run.rs:104`), which is the 0.11 MiB recorded above. What eager construction still
 costs is four worker threads blocked on a condvar, and a backend whose client never asks for a
-thumbnail still pays for those, `flea --backend` driven from a script being exactly that client.
+thumbnail still pays for those, `dlea --backend` driven from a script being exactly that client.
 Constructing the pool on the first `thumb` request would give back 0.042 MiB and about 0.32 ms;
 it is dropped on its size alone, and the measurement behind those two numbers is in "Backend
 memory levers that were measured and dropped".
 
 ### Thumbnail requests in the GUI
 
-The QML-specific launch and geometry discussion below describes the retained reference components; the production GPUI window is created by `crates/flea-gui/src/window/mod.rs`.
+The QML-specific launch and geometry discussion below describes the retained reference components; the production GPUI window is created by `crates/dlea-gui/src/window/mod.rs`.
 
 `ui/Pane.qml` decides which rows are asked about and `ui/js/Thumbs.js` does the arithmetic, as
 pure functions with no QML imports so `./tests/js.sh` can redden on a mutation. **`Thumbs.viewport`
@@ -299,7 +299,7 @@ not, is corroboration and not the gate. `tests/ui.sh nosweep` asserts a full tra
 120 ms is a feel decision, confirmed on the box against 60 ms and 250 ms rather than measured.
 
 **The first screen races the compositor's resize, and `firstSettleMs` exists to lose that race on
-purpose.** Flea's `FloatingWindow` declares `implicitHeight: 600` at `ui/boot/shell.qml:20`, Hyprland
+purpose.** Dlea's `FloatingWindow` declares `implicitHeight: 600` at `ui/boot/shell.qml:20`, Hyprland
 then tiles it to the full screen, and the viewport a request would name depends on which of the two
 arrives first. Before the resize the list is **526 px** tall and `visibleRows` is **15**; both
 `ui/Header.qml` and `ui/StatusBar.qml` declare `implicitHeight: Theme.rowHeight`, which the IPC

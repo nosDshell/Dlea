@@ -1,4 +1,4 @@
-"""The TUI language preparation in tools/flea-i18n-native: omarchy-language run on a marked fixture, never on the host."""
+"""The TUI language preparation in tools/dlea-i18n-native: omarchy-language run on a marked fixture, never on the host."""
 import hashlib
 import importlib.machinery
 import importlib.util
@@ -13,9 +13,9 @@ import unittest
 from unittest.mock import patch
 
 REPO = Path(__file__).resolve().parents[2]
-TOOL = REPO / 'tools/flea-i18n-native'
+TOOL = REPO / 'tools/dlea-i18n-native'
 # The pinned Omarchy 4.5.0 rc1 source; the real-helper test runs only where it exists.
-OMARCHY_SOURCE = Path(os.environ.get('FLEA_OMARCHY_SOURCE', '/home/gm/flea-work/omarchy-450rc1/src'))
+OMARCHY_SOURCE = Path(os.environ.get('DLEA_OMARCHY_SOURCE', '/home/gm/dlea-work/omarchy-450rc1/src'))
 # A stand-in that calls what the real helper calls, and also tries to write SENTINEL at its host path.
 FAKE_LANGUAGE = r'''#!/bin/bash
 set -euo pipefail
@@ -36,7 +36,7 @@ omarchy-notification-send done
 
 
 def load_tool():
-    loader = importlib.machinery.SourceFileLoader('flea_i18n_native', str(TOOL))
+    loader = importlib.machinery.SourceFileLoader('dlea_i18n_native', str(TOOL))
     spec = importlib.util.spec_from_loader(loader.name, loader)
     module = importlib.util.module_from_spec(spec)
     loader.exec_module(module)
@@ -52,7 +52,7 @@ class Prepare(unittest.TestCase):
     def setUp(self):
         self.tool = load_tool()
         self.root = Path(tempfile.mkdtemp(prefix='native-prepare.'))
-        (self.root / '.flea-test-sandbox').write_text('tui-prepare test\n')
+        (self.root / '.dlea-test-sandbox').write_text('tui-prepare test\n')
         self.addCleanup(self.remove, self.root)
         self.sentinel = self.root / 'host/sentinel'
         self.omarchy = self.root / 'omarchy'
@@ -67,7 +67,7 @@ class Prepare(unittest.TestCase):
         self.fx.mkdir()
 
     def remove(self, root):
-        if root.name.startswith('native-prepare.') and (root / '.flea-test-sandbox').is_file():
+        if root.name.startswith('native-prepare.') and (root / '.dlea-test-sandbox').is_file():
             shutil.rmtree(root)
 
     def prepare(self, language='ja', fx=None, omarchy=None, group='us'):
@@ -82,8 +82,8 @@ class Prepare(unittest.TestCase):
     def test_tui_prepare_writes_only_inside_the_fixture(self):
         (self.fx / 'v/work').mkdir(parents=True)
         (self.fx / 'v/work/a.txt').write_text('battery fixture\n')
-        (self.fx / 'config/flea').mkdir(parents=True)
-        (self.fx / 'config/flea/keep.json').write_text('{}\n')
+        (self.fx / 'config/dlea').mkdir(parents=True)
+        (self.fx / 'config/dlea/keep.json').write_text('{}\n')
         hashed, real_sha = [], self.tool.sha
         host = self.tool.host_state()
         with patch.dict(os.environ, {'HYPRLAND_INSTANCE_SIGNATURE': 'live-session'}), \
@@ -102,8 +102,8 @@ class Prepare(unittest.TestCase):
         for name, sha in receipt['artifacts'].items():
             self.assertEqual(digest(self.fx / name), sha, name)
         # An unchanged file is not an artifact, and the battery tree under v/ is never hashed.
-        self.assertNotIn('config/flea/keep.json', receipt['artifacts'])
-        self.assertIn(self.fx / 'config/flea/keep.json', hashed)
+        self.assertNotIn('config/dlea/keep.json', receipt['artifacts'])
+        self.assertIn(self.fx / 'config/dlea/keep.json', hashed)
         self.assertFalse([path for path in hashed if path.is_relative_to(self.fx / 'v')])
         # The live session never reaches the namespace: no Hyprland signature, so no hyprctl call either.
         seen = (self.fx / 'omarchy/seen-env').read_text().split()
@@ -137,7 +137,7 @@ class Prepare(unittest.TestCase):
         bare = Path(tempfile.mkdtemp(prefix='native-prepare.'))
         self.addCleanup(shutil.rmtree, bare)
         (bare / 'fx').mkdir()
-        with self.assertRaisesRegex(ValueError, 'no nonempty .flea-test-sandbox marker'):
+        with self.assertRaisesRegex(ValueError, 'no nonempty .dlea-test-sandbox marker'):
             self.prepare(fx=bare / 'fx')
         self.assertEqual(list((bare / 'fx').iterdir()), [])
 
@@ -185,12 +185,12 @@ class Prepare(unittest.TestCase):
             root = Path(row['root'])
             self.assertEqual(root.parent, self.root / 'tmp')
             self.assertIn(f'I50_TUI_PREPARE {row["case"]} language={row["receipt"]["language"]} root={root}', done.stdout)
-            self.assertTrue((root / '.flea-test-sandbox').read_text().strip())
+            self.assertTrue((root / '.dlea-test-sandbox').read_text().strip())
             self.assertEqual((root / 'fx/config/omarchy/language').read_text().strip(), row['receipt']['language'])
         # An unmarked output is refused before any case root is made.
         done = self.run_tool(self.root / 'tmp2', '--output', self.root / 'unmarked/x.json')
         self.assertEqual(done.returncode, 2)
-        self.assertIn('no nonempty .flea-test-sandbox marker', done.stderr)
+        self.assertIn('no nonempty .dlea-test-sandbox marker', done.stderr)
         self.assertEqual(list((self.root / 'tmp2').iterdir()), [])
 
     @unittest.skipUnless((OMARCHY_SOURCE / 'bin/omarchy-language').is_file(), 'pinned Omarchy source absent')

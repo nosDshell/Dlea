@@ -19,7 +19,7 @@ function withoutComments(text) {
 
 // The transitions a fullscreen take or a dialog open runs through, so a curve change here is a product change.
 function runStructural(check) {
-    var files = ["ui/Preview.qml", "ui/Reveal.qml", "ui/EmptyState.qml", "ui/FleaMark.qml"]
+    var files = ["ui/Preview.qml", "ui/Reveal.qml", "ui/EmptyState.qml", "ui/DleaMark.qml"]
     for (var i = 0; i < files.length; i++) {
         var src = Source.source(files[i])
         check(files[i] + " carries OutCubic", src.indexOf("Easing.OutCubic") >= 0, true)
@@ -34,10 +34,10 @@ function runStructural(check) {
     runCurve(check)
 }
 
-// Every Flea transition runs on OutCubic, so a press scale or a caption fade on another curve is a product change.
+// Every Dlea transition runs on OutCubic, so a press scale or a caption fade on another curve is a product change.
 function runCurve(check) {
     var press = ["ui/ChromeButton.qml", "ui/DialogButton.qml"]
-    var fades = [{ file: "ui/EmptyState.qml", durations: ["close", "open"] }, { file: "ui/FleaMark.qml", durations: ["close"] }]
+    var fades = [{ file: "ui/EmptyState.qml", durations: ["close", "open"] }, { file: "ui/DleaMark.qml", durations: ["close"] }]
     var files = ["ui/PickerChrome.qml"].concat(press, fades.map(function(fade) { return fade.file }))
     for (var i = 0; i < files.length; i++) {
         var src = Source.source(files[i])

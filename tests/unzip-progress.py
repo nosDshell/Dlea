@@ -133,15 +133,15 @@ def cancellation(root, backend):
     wrap(root, cancel=True)
     ident = extract(backend, archive, root/'out')
     deadline = time.monotonic()+15
-    while not list(root.glob('.flea-work-ext-*/out/partial')):
+    while not list(root.glob('.dlea-work-ext-*/out/partial')):
         assert time.monotonic()<deadline, 'extract never entered its staged child'
         time.sleep(.02)
-    pid = int(next(root.glob('.flea-work-ext-*/out/sibling.pid')).read_text())
+    pid = int(next(root.glob('.dlea-work-ext-*/out/sibling.pid')).read_text())
     backend.send(c='jobs', op='cancel', id=ident)
     result = finish(backend, ident)
     assert result['cancelled'] and result['state']=='done', result
     assert not (root/'out').exists(), 'cancel published partial destination'
-    assert not list(root.glob('.flea-work-ext-*')), 'cancel left staging folder'
+    assert not list(root.glob('.dlea-work-ext-*')), 'cancel left staging folder'
     deadline = time.monotonic()+3
     while Path(f'/proc/{pid}/stat').exists():
         state=Path(f'/proc/{pid}/stat').read_text().rsplit(')',1)[1].split()[0]
@@ -160,7 +160,7 @@ def corrupt(root, backend):
 
 def rar(root, backend):
     archive=root/'sample.rar'
-    subprocess.run(['./tools/flea-rar-fixture',str(archive),'hello.txt','hello from rar'],check=True)
+    subprocess.run(['./tools/dlea-rar-fixture',str(archive),'hello.txt','hello from rar'],check=True)
     wrap(root)
     ident=extract(backend,archive,root/'out')
     finish(backend,ident)

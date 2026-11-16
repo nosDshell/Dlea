@@ -57,7 +57,7 @@ fn sol_tui_arabic_board_panes_and_heading_keep_leading_alignment() {
     for directory in ["catalog/ar", "omarchy/default/i18n"] {
         std::fs::create_dir_all(fixture.join(directory)).unwrap();
     }
-    std::fs::write(fixture.join("catalog/ar/flea.json"), r#"{"window.column_name":"الاسم","items.count":{"other":"%1 عناصر"},"tui.frame.keys":"%1 الاختصارات"}"#).unwrap();
+    std::fs::write(fixture.join("catalog/ar/dlea.json"), r#"{"window.column_name":"الاسم","items.count":{"other":"%1 عناصر"},"tui.frame.keys":"%1 الاختصارات"}"#).unwrap();
     std::fs::write(
         fixture.join("omarchy/default/i18n/locales.json"),
         include_str!("../i18n/fixtures/locales.json"),

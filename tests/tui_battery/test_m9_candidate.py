@@ -20,9 +20,9 @@ HERE = Path(__file__).resolve().parent
 
 class CandidateTests(unittest.TestCase):
     def setUp(self):
-        self.root = Path(tempfile.mkdtemp(prefix="m9-candidate.", dir=os.environ["FLEA_BATTERY_TEST_ROOT"]))
+        self.root = Path(tempfile.mkdtemp(prefix="m9-candidate.", dir=os.environ["DLEA_BATTERY_TEST_ROOT"]))
         (self.root / MARKER).write_text("owned candidate regression\n")
-        self.spec = driver.contract(Path(os.environ["FLEA_BATTERY_BOARDS"]))
+        self.spec = driver.contract(Path(os.environ["DLEA_BATTERY_BOARDS"]))
         self.required = candidate.inventory(self.spec)
 
     def manifest(self):
@@ -64,10 +64,10 @@ class CandidateTests(unittest.TestCase):
     def test_m9_candidate_binds_catalog_and_keymap_identity(self):
         repo = self.root / "repo"
         (repo / "i18n/en").mkdir(parents=True)
-        for name in ("keys.toml", "i18n/source-index.json", "i18n/translation-manifest.json", "i18n/en/flea.json"):
+        for name in ("keys.toml", "i18n/source-index.json", "i18n/translation-manifest.json", "i18n/en/dlea.json"):
             (repo / name).write_text("original")
         original = candidate.input_identity(repo)
-        for name in ("keys.toml", "i18n/source-index.json", "i18n/translation-manifest.json", "i18n/en/flea.json"):
+        for name in ("keys.toml", "i18n/source-index.json", "i18n/translation-manifest.json", "i18n/en/dlea.json"):
             (repo / name).write_text("changed")
             self.assertNotEqual(candidate.input_identity(repo), original)
             (repo / name).write_text("original")
@@ -112,7 +112,7 @@ class CandidateTests(unittest.TestCase):
             candidate.output_proof(self.root, record)
         body = b"\x02\x00\x00\x02\x00\x00\x00\x01\x03" + source.read_bytes()
         traffic = self.root / "cups-request.bin"
-        traffic.write_bytes(b"POST /printers/flea HTTP/1.1\r\nContent-Type: application/ipp\r\n\r\n" + body)
+        traffic.write_bytes(b"POST /printers/dlea HTTP/1.1\r\nContent-Type: application/ipp\r\n\r\n" + body)
         receipt = {"transport": "private-unix", "socket": "/fx/runtime/cups.sock",
                    "requests": [{"path": traffic.name, "sha256": digest(traffic)}]}
         with self.assertRaises(Blocked):
@@ -124,7 +124,7 @@ class CandidateTests(unittest.TestCase):
     def test_candidate_cli_lists_all_records_and_refuses_partial_execution(self):
         import contextlib
         out, error = io.StringIO(), io.StringIO()
-        boards = os.environ["FLEA_BATTERY_BOARDS"]
+        boards = os.environ["DLEA_BATTERY_BOARDS"]
         with contextlib.redirect_stdout(out):
             self.assertEqual(candidate.main(["--boards", boards, "--list"]), 0)
         self.assertEqual(json.loads(out.getvalue())["counts"], self.required["counts"])

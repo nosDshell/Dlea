@@ -616,13 +616,13 @@ fn a_twin_move_through_move_any_names_its_temp() {
     let mut p = quiet(&flag, &mut sink);
     let error = move_any(&from, &twin, &mut p).expect_err("a failed move-back strands the file");
     assert_eq!(error.where_, "rename-stranded", "a stranded twin answers its own kind");
-    assert!(error.msg.starts_with("the file was left as .flea-case-"), "msg names temp leaf: {}", error.msg);
+    assert!(error.msg.starts_with("the file was left as .dlea-case-"), "msg names temp leaf: {}", error.msg);
     let leaf = error.msg.split(" as ").nth(1).unwrap().split(" in ").next().unwrap();
     assert!(d.path().join(leaf).is_file(), "the temp holds the file");
 }
 
 // Forces fuse.rclone's EINVAL answer to RENAME_NOREPLACE on a directory (issue 282) and its copy fallback.
-fn rclone_move(src: &Path, dst: &Path, p: &mut Progress) -> Result<(), FleaError> {
+fn rclone_move(src: &Path, dst: &Path, p: &mut Progress) -> Result<(), DleaError> {
     crate::backend::renamecompat::test_force_fallback(true);
     crate::backend::renamecompat::test_force_copy_fallback(true);
     let outcome = move_any(src, dst, p);

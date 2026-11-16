@@ -34,7 +34,7 @@ mod tests {
     use super::*;
 
     // The probe runs in a child behind this marker, because 127 other tests share this process's heap.
-    const CHILD_MARKER: &str = "FLEA_HEAP_PROBE";
+    const CHILD_MARKER: &str = "DLEA_HEAP_PROBE";
     const CHILD_TEST: &str = "heap::tests::a_freed_large_block_does_not_ratchet_the_mmap_threshold";
     // Larger than any threshold glibc adopts on its own, so freeing it is what would raise the threshold unpinned.
     const RATCHET_BYTES: usize = 8 * 1024 * 1024;
@@ -137,7 +137,7 @@ mod tests {
         assert!(report.contains("1 passed"), "the probe child ran no test, so {} no longer names one: {}", test, report);
     }
 
-    const ARENA_CHILD_MARKER: &str = "FLEA_ARENA_PROBE";
+    const ARENA_CHILD_MARKER: &str = "DLEA_ARENA_PROBE";
     const ARENA_REPORT: &str = "arenas before main: ";
     // Threads that allocate as a picture job does; each would open its own arena without the cap.
     const HELPER_THREADS: usize = 4;
@@ -201,7 +201,7 @@ mod tests {
         assert!(report.contains(&format!("{}1 then 1\n", ARENA_REPORT)), "a helper thread opened an arena of its own: {}", report);
     }
 
-    const GIVE_BACK_MARKER: &str = "FLEA_GIVE_BACK_PROBE";
+    const GIVE_BACK_MARKER: &str = "DLEA_GIVE_BACK_PROBE";
     const GIVE_BACK_TEST: &str = "heap::tests::a_sent_picture_returns_the_heap_pages_freed_below_live_blocks";
     // Under the pinned threshold, so every block comes from [heap]; 128 of them free 1 MiB below the block kept after them.
     const SMALL_BYTES: usize = 8192;

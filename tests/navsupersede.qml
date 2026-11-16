@@ -1,17 +1,17 @@
-//@ pragma ShellId flea-navsupersede-test
+//@ pragma ShellId dlea-navsupersede-test
 import QtQuick
 import QtTest
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
-import "flea/js/Swap.js" as Swap
+import "dlea" as Dlea
+import "dlea/js/Swap.js" as Swap
 
 // A folder asked for while another listing is out is taken: the pane keeps the rows it drew and lands on it alone, heldMs inside Swap.CAP_MS.
 ShellRoot {
     id: root
-    readonly property string fixture: Quickshell.env("FLEA_NAVSUPERSEDE_DIR") || ""
-    readonly property string pidFile: Quickshell.env("FLEA_NAVSUPERSEDE_PID") || ""
-    readonly property int entries: Number(Quickshell.env("FLEA_NAVSUPERSEDE_ENTRIES") || "0")
+    readonly property string fixture: Quickshell.env("DLEA_NAVSUPERSEDE_DIR") || ""
+    readonly property string pidFile: Quickshell.env("DLEA_NAVSUPERSEDE_PID") || ""
+    readonly property int entries: Number(Quickshell.env("DLEA_NAVSUPERSEDE_ENTRIES") || "0")
     readonly property int heldMs: Swap.CAP_MS - 25
     property int checks: 0
     property int failures: 0
@@ -73,10 +73,10 @@ ShellRoot {
         id: win
         implicitWidth: 1200
         implicitHeight: 800
-        Flea.Backend { id: probeBackend }
+        Dlea.Backend { id: probeBackend }
         Component {
             id: paneComponent
-            Flea.Pane {
+            Dlea.Pane {
                 width: 1200
                 height: 800
                 backend: probeBackend

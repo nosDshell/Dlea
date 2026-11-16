@@ -105,7 +105,7 @@ impl Drop for Renumber {
 
 fn review(d: &TestDir, path: &Path) -> PathReview {
     assert!(path.is_absolute() && path.starts_with(d.path()));
-    assert!(d.path().join(".flea-test-sandbox").is_file());
+    assert!(d.path().join(".dlea-test-sandbox").is_file());
     PathReview::prepare(
         path.to_path_buf(),
         &mut Manifest::new(d.path()).unwrap(),

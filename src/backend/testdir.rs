@@ -10,9 +10,9 @@ mod init;
 use init::UnmarkedDir;
 
 // The one name that makes a directory deletable by this module; a directory without it is never touched.
-const MARKER: &str = ".flea-test-sandbox";
+const MARKER: &str = ".dlea-test-sandbox";
 // Every sandbox this process makes shares it, so a stray path outside the pattern is refused on the name alone.
-const PREFIX: &str = "flea-test-";
+const PREFIX: &str = "dlea-test-";
 // A sandbox lives under the temp root, which is at least two components deep, so a shallower path is a bug and not a root.
 const MIN_COMPONENTS: usize = 3;
 
@@ -78,7 +78,7 @@ impl TestDir {
             .expect("hold the newly created test sandbox");
         let mut marker = rollback.marker().expect("test sandbox marker");
         marker
-            .write_all(b"flea test sandbox\n")
+            .write_all(b"dlea test sandbox\n")
             .expect("test sandbox marker");
         rollback.disarm();
         TestDir { path, root }
@@ -125,7 +125,7 @@ impl TestDir {
     pub fn executable(&self, name: &str, body: &[u8], mode: u32) -> PathBuf {
         let p = self.join(name);
         self.assert_contains(&p);
-        flea::executable_file::write(&p, body, mode).expect("test script writer");
+        dlea::executable_file::write(&p, body, mode).expect("test script writer");
         p
     }
 
@@ -198,7 +198,7 @@ impl Drop for TestDir {
             // Loud: a sandbox outliving its test is the state that left eleven roots on this box.
             if let Err(e) = std::fs::remove_dir_all(&self.path) {
                 eprintln!(
-                    "flea test sandbox left behind: {}: {}",
+                    "dlea test sandbox left behind: {}: {}",
                     self.path.display(),
                     e
                 );
@@ -260,7 +260,7 @@ pub fn with_forking_siblings<T>(body: impl FnOnce() -> T) -> T {
         for _ in 0..SIBLING_FORKERS {
             scope.spawn(|| {
                 while !stop.load(Ordering::Relaxed) {
-                    let mut child = std::process::Command::new(flea::testpath::tool("/bin/true"));
+                    let mut child = std::process::Command::new(dlea::testpath::tool("/bin/true"));
                     // SAFETY: the hook only sleeps and touches no shared state, and it runs in the forked child before exec.
                     unsafe {
                         child.pre_exec(|| {

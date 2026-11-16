@@ -1,4 +1,4 @@
-// `flea --thumb-worker`: libffmpegthumbnailer linked once, then one forked and confined child per video; see AGENTS.md "Thumbnail worker".
+// `dlea --thumb-worker`: libffmpegthumbnailer linked once, then one forked and confined child per video; see AGENTS.md "Thumbnail worker".
 use crate::backend::fdpass;
 use crate::backend::sandbox;
 use crate::backend::thumbs::JOB_TIMEOUT;

@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Trash.js" as Trash
 
 // The destructive choice must be reached deliberately; a reflexive Enter activates Cancel.
@@ -34,7 +34,7 @@ FocusScope {
         close()
         confirmed(token)
     }
-    Flea.Reveal { target: root; shown: root.opened; lift: card }
+    Dlea.Reveal { target: root; shown: root.opened; lift: card }
     Keys.onPressed: function(event) {
         if (event.key === Qt.Key_Escape) root.cancel()
         else if (event.modifiers & (Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier)) { event.accepted = true; return }
@@ -74,7 +74,7 @@ FocusScope {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             onWheel: function(wheel) { wheel.accepted = true }
         }
-        Flea.CardFrame {
+        Dlea.CardFrame {
             id: body
             bleed: Theme.focusClearance
             anchors.fill: parent
@@ -85,7 +85,7 @@ FocusScope {
             title: Row {
                 width: parent.width
                 spacing: Theme.spacing.gap
-                Flea.Glyph { id: alertMark; width: Theme.font.bodySmall * 1.3; height: title.height; name: "alert"; color: Theme.color.error }
+                Dlea.Glyph { id: alertMark; width: Theme.font.bodySmall * 1.3; height: title.height; name: "alert"; color: Theme.color.error }
                 Text {
                     id: title
                     width: parent.width - alertMark.width - parent.spacing
@@ -100,14 +100,14 @@ FocusScope {
                 width: Math.min(parent.width, cancelButton.implicitWidth + dangerButton.implicitWidth + spacing)
                 anchors.right: parent.right
                 spacing: Theme.spacing.gap
-                Flea.DialogButton {
+                Dlea.DialogButton {
                     id: cancelButton
                     label: "Cancel"
                     primary: true
                     focused: !root.destructiveFocus
                     onActivated: root.cancel()
                 }
-                Flea.DialogButton {
+                Dlea.DialogButton {
                     id: dangerButton
                     label: root.snapshot.all ? "Empty Trash" : "Delete"
                     destructive: true

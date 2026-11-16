@@ -9,7 +9,7 @@ var PROBE = 'for a in "$@"; do printf "%s %s %s\\n" "$a" "$(hyprctl getprop "add
 // Applies "address tag" argument pairs with the Lua dispatcher, else the classic one, as omarchy-hyprland-window-pop does.
 var DISPATCH = 'while [ "$#" -ge 2 ]; do hyprctl dispatch "hl.dsp.window.tag({ window = \\"address:$1\\", tag = \\"$2\\" })" >/dev/null 2>&1 || hyprctl dispatch tagwindow "$2" "address:$1" >/dev/null; shift 2; done'
 
-// Sample input: hyprctl clients -j, '[{"address":"0x55bacb0a1f80","pid":4211,"class":"com.thisisgm.flea"}]'.
+// Sample input: hyprctl clients -j, '[{"address":"0x55bacb0a1f80","pid":4211,"class":"com.nosDshell.dlea"}]'.
 function ownAddresses(json, pid) {
     var list
     try {
@@ -36,17 +36,17 @@ function parseProps(line) {
     return {address: f[0], opacity: Number(f[1]), inactive: Number(f[2])}
 }
 
-// "add", "remove" or "keep" for one Flea window: the tag goes only where Omarchy draws Transparent and Hyprland leaves the window at 1.
-function decide(mode, usesDefault, opacity, inactive, taggedByFlea) {
+// "add", "remove" or "keep" for one Dlea window: the tag goes only where Omarchy draws Transparent and Hyprland leaves the window at 1.
+function decide(mode, usesDefault, opacity, inactive, taggedByDlea) {
     var wanted = mode === "transparent" && usesDefault
     // The hotkey's own test, which also re-tags a window that reuses a closed one's address: a window Hyprland already draws
     // below 1, as stable Omarchy draws every window, keeps its rule.
     if (wanted && opacity === 1 && inactive === 1)
         return "add"
-    return taggedByFlea && !wanted ? "remove" : "keep"
+    return taggedByDlea && !wanted ? "remove" : "keep"
 }
 
-// The dispatch pairs for PROBE's output, and the set Flea has tagged once they run; a closed window's record drops out.
+// The dispatch pairs for PROBE's output, and the set Dlea has tagged once they run; a closed window's record drops out.
 function plan(text, mode, usesDefault, tagged) {
     var next = {}
     var pairs = []

@@ -17,18 +17,18 @@ pub const IS_DIRECTORY: i32 = 3;
 
 // Canonical, so a file named --output=/etc/x cannot be read as a flag by the child.
 fn resolved(path: &str) -> Option<PathBuf> {
-    std::fs::canonicalize(flea::bytename::text_path(path)).ok()
+    std::fs::canonicalize(dlea::bytename::text_path(path)).ok()
 }
 
-// The environment every program Flea starts carries: huge pages back on, Qt's own pin, driver exclusion and theme dropped, the tear-off hand-off kept to its window. runfile.rs reuses this.
+// The environment every program Dlea starts carries: huge pages back on, Qt's own pin, driver exclusion and theme dropped, the tear-off hand-off kept to its window. runfile.rs reuses this.
 pub fn prepare(child: &mut Command) {
-    flea::qscrash::restore(child);
+    dlea::qscrash::restore(child);
     // The setting is inherited across exec, so this is the last point that can hand it back.
     thp::enable();
     // The display-GPU pin and the driver exclusion are Qt's alone, and only this launcher's own are dropped.
     vulkan::drop_display_pin(child);
     crate::icdexclude::drop_exclusion(child);
-    // The platform theme Flea traded for its own startup is Qt's alone too, and is handed back here.
+    // The platform theme Dlea traded for its own startup is Qt's alone too, and is handed back here.
     gui::restore_platform_theme(child);
     // The tear-off hand-off belongs to the one window a tear-off starts, never to a program it opens.
     tearoff::drop_env(child);
@@ -59,7 +59,7 @@ fn open_inner(path: &str, ask: bool, images: &[String]) -> i32 {
         Some(p) => p,
         // The reason is elided, never shown raw, and the path is the user's own input.
         None => {
-            eprintln!("flea: that file could not be opened, check that it still exists");
+            eprintln!("dlea: that file could not be opened, check that it still exists");
             return FAILED;
         }
     };
@@ -74,7 +74,7 @@ fn open_inner(path: &str, ask: bool, images: &[String]) -> i32 {
     let opened = match crate::runid::snapshot(&target) {
         Some(o) => o,
         None => {
-            eprintln!("flea: that file could not be opened, check that it still exists");
+            eprintln!("dlea: that file could not be opened, check that it still exists");
             return FAILED;
         }
     };
@@ -89,7 +89,7 @@ fn open_snapshot(target: &Path, opened: &crate::runid::Opened, ask: bool, mounts
     match runfile::decide_opened(opened, target, mounts) {
         runfile::Decision::Ask(kind) => {
             if !ask {
-                eprintln!("flea: that file is a program, so it was not opened");
+                eprintln!("dlea: that file is a program, so it was not opened");
                 return FAILED;
             }
             let handler = if matches!(kind, runfile::Kind::AppImage) {
@@ -107,12 +107,12 @@ fn open_snapshot(target: &Path, opened: &crate::runid::Opened, ask: bool, mounts
         runfile::Decision::MakeExecutable(runfile::Kind::Script) => {}
         // A binary missing its bit is refused for every caller, since an AppImage launcher would run it; its own status names that cause, not a missing application.
         runfile::Decision::MakeExecutable(_) => {
-            eprintln!("flea: that file is a program, so it was not opened");
+            eprintln!("dlea: that file is a program, so it was not opened");
             return runfile::NOT_EXECUTABLE;
         }
         // A program on a noexec volume answers the run card's own status, so the window names the volume and not a missing application.
         runfile::Decision::RefuseNoExec => {
-            eprintln!("flea: that program is on a volume that does not allow running files");
+            eprintln!("dlea: that program is on a volume that does not allow running files");
             return runfile::RUN_NOEXEC;
         }
         runfile::Decision::OpenNormally => {}
@@ -136,7 +136,7 @@ fn open_normally(target: &Path, ask: bool, images: &[String]) -> i32 {
         .stdin(Stdio::null())
         .stdout(Stdio::null())
         .stderr(Stdio::null())
-        // Its own process group, so nothing that later kills Flea's group reaches the opened program.
+        // Its own process group, so nothing that later kills Dlea's group reaches the opened program.
         .process_group(0)
         .status();
     match finished {
@@ -148,11 +148,11 @@ fn open_normally(target: &Path, ask: bool, images: &[String]) -> i32 {
                 println!(r#"{{"ask":"openWith"}}"#);
                 return runfile::ASK_OPEN_WITH;
             }
-            eprintln!("flea: no application on this system opened that file");
+            eprintln!("dlea: no application on this system opened that file");
             FAILED
         }
         Err(_) => {
-            eprintln!("flea: nothing on this system could be asked to open that file");
+            eprintln!("dlea: nothing on this system could be asked to open that file");
             FAILED
         }
     }

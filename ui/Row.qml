@@ -7,7 +7,7 @@ import "js/Icons.js" as Icons
 import "js/LangMarks.js" as LangMarks
 import "js/Match.js" as Match
 import "js/Recent.js" as Recent
-import "." as Flea
+import "." as Dlea
 
 Item {
     id: root
@@ -59,7 +59,7 @@ Item {
     readonly property bool searching: !root.filtering && root.searchQuery.length > 0 && root.row !== null && root.row.n.length > 0
     readonly property bool locating: root.searching || root.recenting
     readonly property string displayName: root.row ? (root.locating ? Match.base(root.row.n) : root.row.n) : ""
-    // FleaWindow.html and ThemeRoles.html both spell it "shell -> /usr/share/omarchy".
+    // DleaWindow.html and ThemeRoles.html both spell it "shell -> /usr/share/omarchy".
     readonly property string linkMark: root.row && root.row.l ? " -> " + root.row.l : ""
     // The name, then a link's target; a folder carries no slash, its glyph and the folders-first order already say it.
     readonly property string decoratedName: root.displayName + root.linkMark
@@ -207,7 +207,7 @@ Item {
         x: Math.round(icon.x + icon.width) + Theme.spacing.gap
         y: Math.round((root.height - renameLoader.height) / 2)
         width: Math.round(mode.x - (root.modeShown ? Theme.spacing.gap : 0)) - x
-        sourceComponent: Flea.RenameField {
+        sourceComponent: Dlea.RenameField {
             height: implicitHeight
             pane: root.renamePane
             viewport: root.ListView.view

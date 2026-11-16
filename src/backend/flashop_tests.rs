@@ -10,7 +10,7 @@ use crate::backend::testdir::TestDir;
 use std::sync::mpsc::channel;
 
 // A disk name no sysfs lists, so a failed write reads as gone rather than depending on this box.
-const GONE_DEV: &str = "flea-no-such-disk";
+const GONE_DEV: &str = "dlea-no-such-disk";
 const IMAGE_BYTES: usize = 9_000_000;
 const DRIVE_BYTES: usize = 16_000_000;
 const MIB: usize = 1024 * 1024;
@@ -304,7 +304,7 @@ fn eject_never_runs_the_helper_for_a_system_disk_or_a_path() {
 // A6: the log line for a failed phase names the phase, the disk and the cause.
 #[test]
 fn a6_the_io_log_line_names_phase_disk_and_detail() {
-    assert_eq!(io_line("write", "sdb", "Input/output error at offset 4194304"), "flea: the flash write on /dev/sdb failed (Input/output error at offset 4194304)");
+    assert_eq!(io_line("write", "sdb", "Input/output error at offset 4194304"), "dlea: the flash write on /dev/sdb failed (Input/output error at offset 4194304)");
 }
 
 // A live disk name where io_ending reads io rather than gone; the kernel may list none here.

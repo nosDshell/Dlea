@@ -1,8 +1,8 @@
 #!/bin/bash
-# Gates tools/flea-field-bench's launch rotation, pair balance over 2N runs and final launch_pos CSV column.
+# Gates tools/dlea-field-bench's launch rotation, pair balance over 2N runs and final launch_pos CSV column.
 set -u
 cd "$(dirname "$0")/.." || exit 1
-bench="$PWD/tools/flea-field-bench"
+bench="$PWD/tools/dlea-field-bench"
 
 bad=0
 check() {
@@ -55,18 +55,18 @@ check "eight entrants: each leads twice, each pair leads both ways eight times o
 
 # The kinds rotate on their own: gui places run 1 to 3, tui places run 1 to 3, and every row is listed once.
 ENTRANTS=(
-  "flea|gui|x|sh" "flea-anchor|gui|x|sh" "nautilus|gui|x|sh"
-  "flea-tui|tui|x|sh" "yazi|tui|x|sh" "mc|tui|x|sh"
+  "dlea|gui|x|sh" "dlea-anchor|gui|x|sh" "nautilus|gui|x|sh"
+  "dlea-tui|tui|x|sh" "yazi|tui|x|sh" "mc|tui|x|sh"
 )
 # The run order reads the bench's ONLY split, so each case sets ONLY and re-splits before ordering.
 only_split=$(grep -E '^(set -f|ONLY_IDS=|set \+f)' "$bench")
 only_has_src=$(grep '^only_has() {' "$bench")
 with_only() { ONLY="$1"; eval "$only_split"; eval "$only_has_src"; }
-# flea-tui runs the arm's own binary with --tui, so its presence is FLEA_BIN and never a flea on PATH.
-FLEA_BIN=/bin/sh
+# dlea-tui runs the arm's own binary with --tui, so its presence is DLEA_BIN and never a dlea on PATH.
+DLEA_BIN=/bin/sh
 with_only ""
 run2=$(run_order 2 | while read -r i place; do printf '%s@%s ' "${ENTRANTS[$i]%%|*}" "$place"; done)
-check "run 2 places each kind from 1 and lists every row" "flea-anchor@1 nautilus@2 flea@3 yazi@1 mc@2 flea-tui@3 " "$run2"
+check "run 2 places each kind from 1 and lists every row" "dlea-anchor@1 nautilus@2 dlea@3 yazi@1 mc@2 dlea-tui@3 " "$run2"
 check "run order lists every ENTRANTS row once" 6 "$(run_order 1 | wc -l)"
 # ONLY runs the real filter: excluded rows take no place and the kept rows are placed from 1.
 with_only "nautilus yazi"
@@ -76,12 +76,12 @@ with_only ""
 # Ghost's comm names no program, so it is retained for SKIP without taking a launch place.
 ENTRANTS+=("ghost|gui|x|definitely-not-a-command")
 ghost_run1=$(run_order 1 | while read -r i place; do printf '%s@%s ' "${ENTRANTS[$i]%%|*}" "$place"; done)
-check "an absent entrant takes no place" "flea@1 flea-anchor@2 nautilus@3 ghost@- flea-tui@1 yazi@2 mc@3 " "$ghost_run1"
+check "an absent entrant takes no place" "dlea@1 dlea-anchor@2 nautilus@3 ghost@- dlea-tui@1 yazi@2 mc@3 " "$ghost_run1"
 
 # The real entrant loop refuses the whole field when a selected row is absent, including a missing Strata binary, and launches nothing after it.
-scratch=$(mktemp -d /tmp/flea-launch-order.XXXXXX) || exit 1
-: > "$scratch/.flea-test-sandbox"
-trap 'case $scratch in /tmp/?*) [ -f "$scratch/.flea-test-sandbox" ] && rm -rf -- "$scratch" ;; esac' EXIT
+scratch=$(mktemp -d /tmp/dlea-launch-order.XXXXXX) || exit 1
+: > "$scratch/.dlea-test-sandbox"
+trap 'case $scratch in /tmp/?*) [ -f "$scratch/.dlea-test-sandbox" ] && rm -rf -- "$scratch" ;; esac' EXIT
 run_text=$(sed -n '/^# entrant runs begin$/,/^# entrant runs end$/p' "$bench")
 [ -n "$run_text" ] || { echo "FAIL: no entrant run block in $bench"; exit 1; }
 STRATA_BIN="$scratch/absent-strata"
@@ -111,11 +111,11 @@ check "only_has is defined before the startup check first runs" yes "$([ -n "$fi
 pre_src=$(sed -n '/^require_selected_entrants() {$/,/^}$/p' "$bench")
 preflight_case() { ( ENTRANTS=("$@"); eval "$pre_src"; require_selected_entrants ) 2>&1; echo "rc=$?"; }
 check "the startup check refuses a missing command" "FAIL: required entrant is absent: ghost rc=1" "$(preflight_case "ghost|gui|x|definitely-not-a-command" | paste -sd' ')"
-# A TUI arm whose binary exists, on a box with no flea on PATH, passes the startup check, takes a place and launches.
-printf '#!/bin/sh\n' > "$scratch/flea-arm"; chmod +x "$scratch/flea-arm"
-FLEA_BIN=$scratch/flea-arm
+# A TUI arm whose binary exists, on a box with no dlea on PATH, passes the startup check, takes a place and launches.
+printf '#!/bin/sh\n' > "$scratch/dlea-arm"; chmod +x "$scratch/dlea-arm"
+DLEA_BIN=$scratch/dlea-arm
 saved_path=$PATH
-# Keep every other command when an installed flea shares its directory with the system tools.
+# Keep every other command when an installed dlea shares its directory with the system tools.
 PATH=$(python3 - "$scratch" <<'PY'
 import os
 from pathlib import Path
@@ -124,24 +124,24 @@ import sys
 paths = []
 for i, directory in enumerate(os.environ['PATH'].split(':')):
     source = Path(directory or '.')
-    if os.access(source / 'flea', os.X_OK):
-        shim = Path(sys.argv[1]) / ('no-flea-%d' % i)
+    if os.access(source / 'dlea', os.X_OK):
+        shim = Path(sys.argv[1]) / ('no-dlea-%d' % i)
         shim.mkdir()
         for entry in source.iterdir():
-            if entry.name != 'flea':
+            if entry.name != 'dlea':
                 (shim / entry.name).symlink_to(entry.absolute())
         directory = str(shim)
     paths.append(directory)
 print(':'.join(paths))
 PY
 )
-check "the startup check finds flea-tui by its arm binary" "rc=0" "$(preflight_case "flea-tui|tui|x|flea")"
-ENTRANTS=("flea-tui|tui|x|flea")
-check "the run order places flea-tui by its arm binary" "flea-tui@1 " "$(run_order 1 | while read -r i place; do printf '%s@%s ' "${ENTRANTS[$i]%%|*}" "$place"; done)"
+check "the startup check finds dlea-tui by its arm binary" "rc=0" "$(preflight_case "dlea-tui|tui|x|dlea")"
+ENTRANTS=("dlea-tui|tui|x|dlea")
+check "the run order places dlea-tui by its arm binary" "dlea-tui@1 " "$(run_order 1 | while read -r i place; do printf '%s@%s ' "${ENTRANTS[$i]%%|*}" "$place"; done)"
 ( eval "$run_text" ) > "$scratch/launched-tui" 2> "$scratch/skips-tui"
 PATH=$saved_path
-check "the run loop launches flea-tui by its arm binary" 3 "$(grep -cx 'flea-tui@1' "$scratch/launched-tui")"
-FLEA_BIN=/bin/sh
+check "the run loop launches dlea-tui by its arm binary" 3 "$(grep -cx 'dlea-tui@1' "$scratch/launched-tui")"
+DLEA_BIN=/bin/sh
 
 # Scope the real roster and kill rows, so a valid word cannot hide a typo beside it.
 entrant_src=$(sed -n '/^build_entrants() {$/,/^}$/p' "$bench")
@@ -152,57 +152,57 @@ scope_src=$(sed -n '/^# only scope begin$/,/^# only scope end$/p' "$bench")
 scope_case() {
   (
     fail() { printf 'refused: %s\n' "$*"; exit 3; }
-    FLEA_UI=$scratch/ui; FLEA_BIN=$scratch/flea; FLEA_QMLCACHE=$scratch/qml; FIXTURE=$scratch
-    FIELD_FRONTEND=${2:-qml}; FLEA_FRONTEND=$FIELD_FRONTEND
+    DLEA_UI=$scratch/ui; DLEA_BIN=$scratch/dlea; DLEA_QMLCACHE=$scratch/qml; FIXTURE=$scratch
+    FIELD_FRONTEND=${2:-qml}; DLEA_FRONTEND=$FIELD_FRONTEND
     # The selection check needs each selected entrant to exist, so stand-ins take their names.
-    mkdir -p "$scratch/bin"; for stand_in in "$scratch/flea" "$scratch/flea-gui" "$scratch/bin/thunar"; do printf '#!/bin/sh\n' > "$stand_in"; chmod +x "$stand_in"; done
+    mkdir -p "$scratch/bin"; for stand_in in "$scratch/dlea" "$scratch/dlea-gui" "$scratch/bin/thunar"; do printf '#!/bin/sh\n' > "$stand_in"; chmod +x "$stand_in"; done
     PATH="$scratch/bin:$PATH"
-    FLEA_STATE=""; TUI_CONF=""; TUI_CLASS=flea-test-kitty; TUI_TERM=kitty; STRATA_BIN=$scratch/strata; WITH_ANCHOR=no
+    DLEA_STATE=""; TUI_CONF=""; TUI_CLASS=dlea-test-kitty; TUI_TERM=kitty; STRATA_BIN=$scratch/strata; WITH_ANCHOR=no
     eval "$entrant_src"; build_entrants
-    FLEA_STATE=$scratch/state; TUI_CONF=$scratch/tui
+    DLEA_STATE=$scratch/state; TUI_CONF=$scratch/tui
     build_entrants
     eval "$kill_src"; eval "$kill_comms_src"; eval "$validate_src"
     with_only "$1"; eval "$scope_src"
     selected=""
     for row in "${ENTRANTS[@]}"; do only_has "${row%%|*}" && selected+="${row%%|*} "; done
     printf 'targets=%s selected=%s\n' "$(printf '%s\n' "${KILL_TARGETS[@]}" | paste -sd' ')" "${selected% }"
-    [[ "${ENTRANTS[0]}" = *"XDG_STATE_HOME=$FLEA_STATE "* ]] && printf 'fresh state\n'
+    [[ "${ENTRANTS[0]}" = *"XDG_STATE_HOME=$DLEA_STATE "* ]] && printf 'fresh state\n'
     for row in "${ENTRANTS[@]}"; do
-      if [ "${row%%|*}" = flea-tui ] && [[ "$row" = *"XDG_CONFIG_HOME=$TUI_CONF "* ]]; then printf 'fresh config\n'; fi
+      if [ "${row%%|*}" = dlea-tui ] && [[ "$row" = *"XDG_CONFIG_HOME=$TUI_CONF "* ]]; then printf 'fresh config\n'; fi
     done
   )
 }
-out=$(scope_case flea-anchor); rc=$?
-check "ONLY=flea-anchor without an anchor tree is refused" 3 "$rc"
-check "the missing anchor keeps its exact refusal message" "refused: ONLY names flea-anchor but ANCHOR_REPO is not a separate tree, so that arm would never launch" "$out"
-out=$(scope_case "flea thunr"); rc=$?
-check "ONLY=flea thunr refuses the whole selection" 3 "$rc"
+out=$(scope_case dlea-anchor); rc=$?
+check "ONLY=dlea-anchor without an anchor tree is refused" 3 "$rc"
+check "the missing anchor keeps its exact refusal message" "refused: ONLY names dlea-anchor but ANCHOR_REPO is not a separate tree, so that arm would never launch" "$out"
+out=$(scope_case "dlea thunr"); rc=$?
+check "ONLY=dlea thunr refuses the whole selection" 3 "$rc"
 check "the ONLY refusal names the unknown word" "refused: ONLY names unknown entrant 'thunr'" "$out"
-out=$(scope_case "flea thunar"); rc=$?
-check "ONLY=flea thunar scopes both QML entrants and thunar's helper" "targets=qs|$scratch/ui flea|--backend thunar| tumblerd| selected=flea thunar
+out=$(scope_case "dlea thunar"); rc=$?
+check "ONLY=dlea thunar scopes both QML entrants and thunar's helper" "targets=qs|$scratch/ui dlea|--backend thunar| tumblerd| selected=dlea thunar
 fresh state
 fresh config" "$out"
 check "a valid multi-word ONLY exits zero" 0 "$rc"
-out=$(scope_case "flea thunar" gpui); rc=$?
-check "ONLY=flea thunar scopes the GPUI child and thunar's helper" "targets=flea-gui|$scratch/flea-gui flea|--backend thunar| tumblerd| selected=flea thunar
+out=$(scope_case "dlea thunar" gpui); rc=$?
+check "ONLY=dlea thunar scopes the GPUI child and thunar's helper" "targets=dlea-gui|$scratch/dlea-gui dlea|--backend thunar| tumblerd| selected=dlea thunar
 fresh state
 fresh config" "$out"
 check "a valid GPUI multi-word ONLY exits zero" 0 "$rc"
 
 # Run the capability tool's own roster read, so the earlier builder remains visible to its caller.
-cap_src=$(sed -n '/^# capability roster begin$/,/^# capability roster end$/p' tools/flea-bench-capability)
+cap_src=$(sed -n '/^# capability roster begin$/,/^# capability roster end$/p' tools/dlea-bench-capability)
 [ -n "$cap_src" ] || { echo "FAIL: no capability roster block"; exit 1; }
 cap_case() {
   (
-    FLEA_REPO=$PWD; FLEA_UI=$scratch/ui; FLEA_BIN=$scratch/flea; STRATA_BIN=$scratch/strata; FIXTURE=$scratch; FLEA_STATE=$scratch/state
-    FLEA_QMLCACHE=$scratch/qmlcache
+    DLEA_REPO=$PWD; DLEA_UI=$scratch/ui; DLEA_BIN=$scratch/dlea; STRATA_BIN=$scratch/strata; FIXTURE=$scratch; DLEA_STATE=$scratch/state
+    DLEA_QMLCACHE=$scratch/qmlcache
     eval "$cap_src"
     gui=0
     for row in "${CAP_ROWS[@]}"; do [[ "$row" = *'|gui|'* ]] && gui=$(( gui + 1 )); done
     printf 'gui=%s' "$gui"
-    [[ "${CAP_ROWS[0]:-}" = *"FLEA_UI=$FLEA_UI "* ]] && printf ' ui expanded'
-    [[ "${CAP_ROWS[0]:-}" = *"XDG_STATE_HOME=$FLEA_STATE "* ]] && printf ' state expanded'
-    [[ "${CAP_ROWS[0]:-}" = *"QML_DISK_CACHE_PATH=$FLEA_QMLCACHE "* ]] && printf ' cache expanded'
+    [[ "${CAP_ROWS[0]:-}" = *"DLEA_UI=$DLEA_UI "* ]] && printf ' ui expanded'
+    [[ "${CAP_ROWS[0]:-}" = *"XDG_STATE_HOME=$DLEA_STATE "* ]] && printf ' state expanded'
+    [[ "${CAP_ROWS[0]:-}" = *"QML_DISK_CACHE_PATH=$DLEA_QMLCACHE "* ]] && printf ' cache expanded'
     for row in "${CAP_ROWS[@]}"; do
       if [[ "$row" = *'|gui|'* && "$row" = *'$'* ]]; then printf ' unresolved variable'; fi
     done

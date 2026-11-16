@@ -3,11 +3,11 @@
 set -uo pipefail
 repo="$(cd "$(dirname "$0")/.." && pwd)"
 box=$(mktemp -d) || exit 1
-: > "$box/.flea-test-sandbox"
+: > "$box/.dlea-test-sandbox"
 # Removes only an absolute, non-empty root that still carries its marker.
 cleanup() {
     case $box in
-        /?*) [ -f "$box/.flea-test-sandbox" ] && rm -rf -- "$box" ;;
+        /?*) [ -f "$box/.dlea-test-sandbox" ] && rm -rf -- "$box" ;;
     esac
 }
 trap cleanup EXIT

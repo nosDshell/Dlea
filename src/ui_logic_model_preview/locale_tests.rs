@@ -16,7 +16,7 @@ impl Root {
         assert!(out.status.success());
         let path = PathBuf::from(String::from_utf8(out.stdout).unwrap().trim());
         assert!(path.is_absolute() && path.starts_with(&base) && path != base);
-        fs::write(path.join(".pv4-test-root"), b"flea pv4 locale test\n").unwrap();
+        fs::write(path.join(".pv4-test-root"), b"dlea pv4 locale test\n").unwrap();
         Self(path)
     }
 
@@ -43,7 +43,7 @@ fn german_numbers_take_the_comma_and_an_untranslated_string_falls_back_to_englis
     let root = Root::new();
     root.write("omarchy/default/i18n/locales.json", include_str!("../i18n/fixtures/locales.json"));
     let language = root.write("config/omarchy/language", "de\n");
-    root.write("i18n/de/flea.json", r#"{"model3d.fact.dimensions":"Abmessungen","model3d.plate":"Platte %1"}"#);
+    root.write("i18n/de/dlea.json", r#"{"model3d.fact.dimensions":"Abmessungen","model3d.plate":"Platte %1"}"#);
     let i = I18n::load(Paths {
         omarchy: root.0.join("omarchy"),
         language_file: language,

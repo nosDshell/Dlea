@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/ClipMarks.js" as ClipMarks
 import "js/Density.js" as Density
 import "js/DirSizes.js" as DirSizes
@@ -110,7 +110,7 @@ GridView {
     readonly property int cursorView: Filter.viewOf(root.pane.shown, root.pane.renamingIndex >= 0 ? root.pane.renamingIndex : root.pane.cursorIndex)
     onCursorViewChanged: { root.prebuild.kick(); root.askLanding(); root.currentIndex = root.cursorView }
     // Hidden holds no delegates; an edit in flight keeps its own per RenameField.qml.
-    model: Flea.StableModel { view: root; total: (root.visible || root.pane.renamingIndex >= 0) ? root.pane.shownTotal : 0; onResized: root.modelResized(); holdCurrent: root.pane.renamingIndex >= 0
+    model: Dlea.StableModel { view: root; total: (root.visible || root.pane.renamingIndex >= 0) ? root.pane.shownTotal : 0; onResized: root.modelResized(); holdCurrent: root.pane.renamingIndex >= 0
                               warm: root.visible && root.pane.searchMode.length > 0 && root.pane.swap.searchWarm === true; warmRows: root.columns * (Math.floor(Math.max(0, root.height - root.topMargin + root.cacheFull) / root.cellHeight) + 2) }
     clip: true
     // Qt's own tracking scrolls a flush-parked end to the footer's end on a cursor move; revealCursor's Contain leaves a whole tile alone.
@@ -162,7 +162,7 @@ GridView {
     boundsBehavior: Flickable.StopAtBounds
     reuseItems: true
     // Parked tiles for the next landing: a tile parks unparented and the landing's layout parents it again.
-    readonly property Flea.PrebuildDriver prebuild: Flea.PrebuildDriver {
+    readonly property Dlea.PrebuildDriver prebuild: Dlea.PrebuildDriver {
         view: root
         model: root.model
         pane: root.pane
@@ -179,9 +179,9 @@ GridView {
         return n
     }
     // The one tile drawn as the cursor; a cursor move touches two delegates, not every live one.
-    Flea.CursorMark { id: cursorMark; row: root.pane.cursorIndex }
+    Dlea.CursorMark { id: cursorMark; row: root.pane.cursorIndex }
 
-    Flea.FastScrollHandler {
+    Dlea.FastScrollHandler {
         parent: root
         flickable: root
         ctrlWheelAction: function (wheel) { return root.zoomWheel(wheel) }
@@ -191,7 +191,7 @@ GridView {
     onMovementStarted: root.endLanding(false)
 
     readonly property alias scrollBar: verticalScroll
-    Flea.ViewportScrollBar {
+    Dlea.ViewportScrollBar {
         id: verticalScroll
         parent: root
         anchors { top: parent.top; right: parent.right }
@@ -200,7 +200,7 @@ GridView {
         onUserScrolled: root.endLanding(false)
     }
 
-    Flea.SelectionBand {
+    Dlea.SelectionBand {
         parent: root
         pane: root.pane
         flickable: root
@@ -210,12 +210,12 @@ GridView {
         rowAt: root.tileAt
     }
 
-    Flea.FileDrag {
+    Dlea.FileDrag {
         id: dragSession
         pane: root.pane
     }
 
-    delegate: Flea.GridTile {
+    delegate: Dlea.GridTile {
         id: cell
         required property int index
 
@@ -283,7 +283,7 @@ GridView {
             }
         }
 
-        Flea.RowDrag {
+        Dlea.RowDrag {
             id: rowDragItem
             containmentMask: cell.pressMask
             session: dragSession

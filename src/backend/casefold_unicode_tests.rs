@@ -10,7 +10,7 @@ struct Probe {
 
 const PROBES: [Probe; 9] = [
     Probe {
-        name: "Flea folded-name collision U+A7DD/U+0277",
+        name: "Dlea folded-name collision U+A7DD/U+0277",
         observe: || (key("\u{A7DD}.txt", true) == key("\u{277}.txt", true)).to_string(),
         expected: ["false", "true"],
     },
@@ -25,7 +25,7 @@ const PROBES: [Probe; 9] = [
         expected: ["\u{AB4B}", "\u{AB6C}"],
     },
     Probe {
-        name: "Flea key U+A7DD lowercase",
+        name: "Dlea key U+A7DD lowercase",
         observe: || key("\u{A7DD}", true),
         expected: ["\u{A7DD}", "\u{277}"],
     },

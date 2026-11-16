@@ -96,13 +96,13 @@ case_runscript() {
     printf 'two\n' > "$dir/b.txt"
     local config="$fixture_root/runscript-config"
     sandbox_scratch "$config"
-    mkdir -p "$config/flea/scripts"
+    mkdir -p "$config/dlea/scripts"
     export XDG_CONFIG_HOME="$config"
     # Three, one of them not executable and one failing, which is the whole of the rule's own edges.
-    printf '#!/bin/sh\nprintf "%%s\\n" "$@" > %s/ran.log\nprintf "%%s\\n" "$PWD" >> %s/ran.log\n' "$dir" "$dir" > "$config/flea/scripts/stamp.sh"
-    printf '#!/bin/sh\nprintf "no such page\\n" >&2\nexit 2\n' > "$config/flea/scripts/ocr.sh"
-    printf '#!/bin/sh\nexit 0\n' > "$config/flea/scripts/not-executable.sh"
-    chmod +x "$config/flea/scripts/stamp.sh" "$config/flea/scripts/ocr.sh"
+    printf '#!/bin/sh\nprintf "%%s\\n" "$@" > %s/ran.log\nprintf "%%s\\n" "$PWD" >> %s/ran.log\n' "$dir" "$dir" > "$config/dlea/scripts/stamp.sh"
+    printf '#!/bin/sh\nprintf "no such page\\n" >&2\nexit 2\n' > "$config/dlea/scripts/ocr.sh"
+    printf '#!/bin/sh\nexit 0\n' > "$config/dlea/scripts/not-executable.sh"
+    chmod +x "$config/dlea/scripts/stamp.sh" "$config/dlea/scripts/ocr.sh"
     # The switch on: everything else in the shipped set stays as it is.
     seed_ui_state "$fixture_root/runscript-state" '{"menu":{"hidden":["delete","openTerminal","placeMenu","moveto","copyto","properties","permissions","copyAs","pasteAs","invertSelection","extThumbs"]}}'
 
@@ -146,7 +146,7 @@ case_runscript() {
     printf 'RUNSCRIPT said=%s\n' "$(ipc lastMessage)"
 
     echo "-- an empty directory offers no row at all --"
-    rm -f "$config/flea/scripts/stamp.sh" "$config/flea/scripts/ocr.sh"
+    rm -f "$config/dlea/scripts/stamp.sh" "$config/dlea/scripts/ocr.sh"
     click_row "$(ipc cursor)" right
     settle
     key -k Escape >/dev/null
@@ -157,7 +157,7 @@ case_runscript() {
     [[ "$(ipc contextMenuEntries)" != *"Actions"* ]] \
         || fail "runscript: an empty directory still offers $(ipc contextMenuEntries)"
     printf 'RUNSCRIPT empty=%s\n' "$(ipc contextMenuEntries)"
-    kill_flea
+    kill_dlea
 }
 
 # APL-MENU-04: the background menu rows take title case and Settings… its ellipsis.
@@ -185,7 +185,7 @@ case_background() {
         "$(ipc contextMenuGlyphs)" "$(ipc contextMenuHints)"
     shot background-menu
     printf 'BACKGROUND_OCR_BEGIN\n'
-    omarchy-drive ocr flea || true
+    omarchy-drive ocr dlea || true
     printf 'BACKGROUND_OCR_END\n'
     [[ "$(ipc contextMenuVisible)" == "true" ]] \
         || fail "background: a right click on empty space opened no menu"
@@ -273,7 +273,7 @@ case_background() {
     rm -f "$png"
     for _attempt in $(seq 1 "$mark_poll_shots"); do
         shots=$_attempt
-        omarchy-drive shot "$png" flea >/dev/null || { captured=0; break; }
+        omarchy-drive shot "$png" dlea >/dev/null || { captured=0; break; }
         lit=$(count_pixels "$png" "${3}x${4}+${1}+${2}" "((r+g+b)/3) > 0.25")
         (( lit > 0 )) && break
         sleep "$mark_poll_s"
@@ -400,7 +400,7 @@ case_hidden() {
     [[ "$(ipc rowAt 0)" == "visible.txt|"* ]] || fail "hidden: toggling back off left the dotfile visible, row 0 is $(ipc rowAt 0)"
 
     printf 'HIDDEN default=ok toggle-on=ok menu-label=ok toggle-off=ok\n'
-    kill_flea
+    kill_dlea
 }
 
 # reload-notice board: the notice counts items, where v0.3.12 counted rows.
@@ -416,10 +416,10 @@ case_reload() {
         if [[ "$chord" == F5 ]]; then
             key -k F5 >/dev/null
         else
-            hotkey --global ctrl r flea >/dev/null
+            hotkey --global ctrl r dlea >/dev/null
         fi
         settle
-        errors=$(grep -E 'TypeError|ReferenceError' "$flea_log" | grep -E 'Reload\.js|Focus\.js|Pane\.qml' || true)
+        errors=$(grep -E 'TypeError|ReferenceError' "$dlea_log" | grep -E 'Reload\.js|Focus\.js|Pane\.qml' || true)
         [[ -z "$errors" ]] || fail "reload: $chord raised $errors"
         after=$(ipc listRequests)
         [[ "$after" =~ ^[0-9]+$ && "$before" =~ ^[0-9]+$ ]] || fail "reload: $chord returned invalid listRequests ($before to $after)"
@@ -433,13 +433,13 @@ case_reload() {
 
     # The watcher re-reads 400 ms after a change and no hold lets a key through, so the owned backend is held: the reload's list is sent before the change is reported.
     local qs_pid pid held_pid="" held_requests held_inflight
-    qs_pid=$(flea_pid)
-    # Sample input: /proc/<pid>/cmdline "/usr/bin/flea\0--backend\0"; ViewState's writer is a flea child too, run as --ui-state.
-    for pid in $(pgrep -P "$qs_pid" -x flea); do
+    qs_pid=$(dlea_pid)
+    # Sample input: /proc/<pid>/cmdline "/usr/bin/dlea\0--backend\0"; ViewState's writer is a dlea child too, run as --ui-state.
+    for pid in $(pgrep -P "$qs_pid" -x dlea); do
         tr '\0' ' ' 2>/dev/null < "/proc/$pid/cmdline" | grep -Fq -- ' --backend ' && held_pid="$held_pid $pid"
     done
     held_pid=${held_pid# }
-    [[ "$held_pid" =~ ^[0-9]+$ ]] || fail "reload: expected one flea --backend child of qs $qs_pid to hold, found '$held_pid'"
+    [[ "$held_pid" =~ ^[0-9]+$ ]] || fail "reload: expected one dlea --backend child of qs $qs_pid to hold, found '$held_pid'"
     before=$(ipc listRequests)
     # The pid is expanded here because the trap runs after this function's locals are gone.
     trap "kill -CONT $held_pid 2>/dev/null || true" EXIT
@@ -454,7 +454,7 @@ case_reload() {
     [[ "$held_requests" == "$((before + 1))" && "$held_inflight" == true ]] \
         || fail "reload: with the backend held F5 sent $before to $held_requests list requests, in flight $held_inflight, want one unanswered request"
     settle
-    errors=$(grep -E 'TypeError|ReferenceError' "$flea_log" | grep -E 'Reload\.js|Focus\.js|Pane\.qml' || true)
+    errors=$(grep -E 'TypeError|ReferenceError' "$dlea_log" | grep -E 'Reload\.js|Focus\.js|Pane\.qml' || true)
     [[ -z "$errors" ]] || fail "reload: changed-row F5 raised $errors"
     after=$(ipc listRequests)
     [[ "$after" =~ ^[0-9]+$ ]] || fail "reload: changed-row F5 returned invalid listRequests: $after"
@@ -465,7 +465,7 @@ case_reload() {
     [[ "$(ipc path)" == "$dir" ]] || fail "reload: changed-row F5 left the listing path; observed [$(ipc path)], expected [$dir]"
     [[ "$(ipc rowAt 1)" == b.txt\|* ]] || fail "reload: changed-row F5 did not draw b.txt; observed [$(ipc rowAt 1)]"
     printf 'RELOAD changed-row F5=ok notice=%s log=clean\n' "$message"
-    kill_flea
+    kill_dlea
 }
 
 # The transport gives the window a sandbox HOME, so Home is read from the window.
@@ -475,7 +475,7 @@ case_focus() {
     : > "$dir/plain.txt"
     launch "$dir"
     wait_listing 1
-    [[ "$(ipc focusView)" == "list" ]] || fail "focus: Flea does not start on the list"
+    [[ "$(ipc focusView)" == "list" ]] || fail "focus: Dlea does not start on the list"
     key -k Tab >/dev/null
     settle
     [[ "$(ipc focusView)" == "rail" ]] || fail "focus: tab did not reach the rail"
@@ -509,7 +509,7 @@ case_focus() {
     [[ "$(ipc focusView)" == "list" ]] || fail "focus: escape did not return to the list"
     printf 'FOCUS view=%s railCursor=%s path=%s\n' "$(ipc focusView)" "$(ipc railCursor)" "$(ipc path)"
     shot focus-listed
-    kill_flea
+    kill_dlea
 }
 
 case_columnsbackground() {
@@ -534,7 +534,7 @@ case_columnsbackground() {
     printf 'COLUMNSBACKGROUND parent=%s\n' "$(ls -A "$root/P" | tr '\n' '|')"
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
 
     # Current: the middle column's own background still creates in A alone.
     columnsbg_fixture "$root"
@@ -552,7 +552,7 @@ case_columnsbackground() {
     printf 'COLUMNSBACKGROUND active=%s\n' "$(ls -A "$root/P/A" | tr '\n' '|')"
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
 
     # Child: empty space in B's column opens B's menu while the window stays on A (Finder rule 5, EY-379), and New Folder lands in B alone.
     columnsbg_fixture "$root"
@@ -572,7 +572,7 @@ case_columnsbackground() {
     printf 'COLUMNSBACKGROUND child=%s\n' "$(ls -A "$root/P/A/B" | tr '\n' '|')"
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
 
     # Empty active: the middle column's own background still creates in an empty E alone.
     columnsbg_fixture "$root"
@@ -590,7 +590,7 @@ case_columnsbackground() {
     printf 'COLUMNSBACKGROUND empty-active=%s\n' "$(ls -A "$root/P/A/E" | tr '\n' '|')"
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
 
     # Empty child: E draws no row, so its x comes from the column pitch (active minus parent); New Folder still lands in E alone.
     columnsbg_fixture "$root"
@@ -614,7 +614,7 @@ case_columnsbackground() {
     printf 'COLUMNSBACKGROUND empty-child=%s\n' "$(ls -A "$root/P/A/E" | tr '\n' '|')"
     key -k Escape >/dev/null
     settle
-    kill_flea
+    kill_dlea
 
     printf 'COLUMNSBACKGROUND parent+active+child+empty-active+empty-child=ok\n'
 }

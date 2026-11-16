@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "id": "io.github.thisisgm.flea-shelf",
-  "name": "Flea shelf",
+  "id": "io.github.thisisgm.dlea-shelf",
+  "name": "Dlea shelf",
   "version": "0.4.3",
   "author": "GM",
   "license": "MIT",
@@ -13,14 +13,14 @@
     "barWidget": "Panel.qml"
   },
   "barWidget": {
-    "displayName": "Flea shelf",
+    "displayName": "Dlea shelf",
     "description": "Hold files from anywhere in one pile and drag them out together.",
     "category": "Files",
     "allowMultiple": false,
     "defaultSection": "right",
     "defaults": {
       "refreshIntervalSec": 5,
-      "fleaCommand": "flea"
+      "dleaCommand": "dlea"
     },
     "schema": [
       {
@@ -33,10 +33,10 @@
         "step": 1
       },
       {
-        "key": "fleaCommand",
+        "key": "dleaCommand",
         "type": "string",
-        "label": "The flea command that owns the pile",
-        "defaultValue": "flea"
+        "label": "The dlea command that owns the pile",
+        "defaultValue": "dlea"
       }
     ]
   }

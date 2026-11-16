@@ -2,24 +2,24 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Exercise formula and diagram rendering, malformed and hostile inputs, size limits, EOF, engine refusals and the FigureService lifecycle.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
-export FLEA_UI="${FLEA_UI:-$PWD/ui}"
+export DLEA_UI="${DLEA_UI:-$PWD/ui}"
 # The service checks below are about tickets and the helper's life, so they run from source; the bytecode block turns the cache back on.
-export FLEA_FIGURE_CACHE=off
+export DLEA_FIGURE_CACHE=off
 
-fleabin="$PWD/target/debug/flea"
-[ -x "$fleabin" ] || {
-    echo "markdown-figures.sh: no debug binary at $fleabin, run cargo build first"
+dleabin="$PWD/target/debug/dlea"
+[ -x "$dleabin" ] || {
+    echo "markdown-figures.sh: no debug binary at $dleabin, run cargo build first"
     exit 1
 }
-python3 tests/figure-helper-start.py "$fleabin" || exit 1
+python3 tests/figure-helper-start.py "$dleabin" || exit 1
 python3 tests/figure-harness.py || exit 1
-env -u FLEA_FIGURE_CACHE python3 tests/figure-bytecode.py "$fleabin" || exit 1
-# FLEA_QJS names the engine: an absolute executable path wins, then the Arch system binary, then the dev tree copy.
+env -u DLEA_FIGURE_CACHE python3 tests/figure-bytecode.py "$dleabin" || exit 1
+# DLEA_QJS names the engine: an absolute executable path wins, then the Arch system binary, then the dev tree copy.
 resolve_qjs() {
-    if [ -n "${FLEA_QJS:-}" ] && [ "${FLEA_QJS#/}" != "${FLEA_QJS}" ] && [ -x "${FLEA_QJS}" ]; then
-        printf '%s\n' "${FLEA_QJS}"
+    if [ -n "${DLEA_QJS:-}" ] && [ "${DLEA_QJS#/}" != "${DLEA_QJS}" ] && [ -x "${DLEA_QJS}" ]; then
+        printf '%s\n' "${DLEA_QJS}"
     elif [ -x /usr/bin/qjs ]; then
         printf '%s\n' /usr/bin/qjs
     elif [ -x "$PWD/.superpowers/tools/qjs" ]; then
@@ -29,11 +29,11 @@ resolve_qjs() {
     fi
 }
 qjs=$(resolve_qjs) || {
-    echo "markdown-figures.sh: no qjs (FLEA_QJS=${FLEA_QJS:-unset}, /usr/bin/qjs, $PWD/.superpowers/tools/qjs)"
+    echo "markdown-figures.sh: no qjs (DLEA_QJS=${DLEA_QJS:-unset}, /usr/bin/qjs, $PWD/.superpowers/tools/qjs)"
     exit 1
 }
 
-test_root="$FIXTURE_ROOT/flea-markdown-figures-$$"
+test_root="$FIXTURE_ROOT/dlea-markdown-figures-$$"
 sandbox_make "$test_root"
 cleanup() {
     sandbox_remove "$test_root"
@@ -46,7 +46,7 @@ trap cleanup EXIT
 PROBE_BOUND_SECONDS=10
 # The probe and the first drive run with no home, so the launcher builds no cache and the whole corpus runs from source.
 nocache=(env -u HOME -u XDG_CACHE_HOME)
-probe_out=$(printf '%s\n' '{"id":1,"kind":"math","source":"x^2","display":false,"theme":{"bg":"#101315","fg":"#c0caf5"}}' | FLEA_QJS="$qjs" timeout "$PROBE_BOUND_SECONDS" "${nocache[@]}" "$fleabin" --figure-helper 2> "$test_root/probe.stderr")
+probe_out=$(printf '%s\n' '{"id":1,"kind":"math","source":"x^2","display":false,"theme":{"bg":"#101315","fg":"#c0caf5"}}' | DLEA_QJS="$qjs" timeout "$PROBE_BOUND_SECONDS" "${nocache[@]}" "$dleabin" --figure-helper 2> "$test_root/probe.stderr")
 probe_rc=$?
 # Sample input: {"id":1,"svg":"<svg/>"}, exactly one successful answer to the probe.
 if [ "$probe_rc" -eq 0 ] && [ ! -s "$test_root/probe.stderr" ] && printf '%s' "$probe_out" | python3 -c '
@@ -59,7 +59,7 @@ except (ValueError, AttributeError):
     valid = False
 sys.exit(not valid)
 '; then
-    engine=("${nocache[@]}" "$fleabin" --figure-helper)
+    engine=("${nocache[@]}" "$dleabin" --figure-helper)
     jailed=1
     echo "markdown-figures.sh: driving the jailed helper"
 elif [ "$probe_rc" -ne 0 ] && grep -q '^bwrap: No permissions to create new namespace' "$test_root/probe.stderr"; then
@@ -111,7 +111,7 @@ body = "".join(json.dumps(r) + "\n" for r in reqs[:3])
 body += "this is not json\n"
 body += "".join(json.dumps(r) + "\n" for r in reqs[3:])
 p = subprocess.run(command, input=body, capture_output=True, text=True, timeout=300)
-# Sample input: {"id":0,"bundle":"math","from":"bytecode"}, the load report a helper prints under FLEA_FIGURE_REPORT=1; it is not an answer.
+# Sample input: {"id":0,"bundle":"math","from":"bytecode"}, the load report a helper prints under DLEA_FIGURE_REPORT=1; it is not an answer.
 raw = p.stdout.splitlines()
 parsed = [json.loads(l) for l in raw]
 reports = [(a["bundle"], a["from"]) for a in parsed if "bundle" in a]
@@ -187,33 +187,33 @@ for runner in "${js_runners[@]}"; do
 done
 
 # Under the launcher, the helper says where each bundle came from; a direct qjs run has no launcher and reports nothing.
-report_env=(FLEA_FIGURE_REPORT=1)
+report_env=(DLEA_FIGURE_REPORT=1)
 [ "$jailed" -eq 1 ] && source_expect=(FIG_EXPECT_FROM=source) || source_expect=()
-if ! env FLEA_QJS="$qjs" "${report_env[@]}" "${source_expect[@]}" python3 "$test_root/drive.py" "${engine[@]}" "$test_root"; then
+if ! env DLEA_QJS="$qjs" "${report_env[@]}" "${source_expect[@]}" python3 "$test_root/drive.py" "${engine[@]}" "$test_root"; then
     echo "markdown-figures.sh: the helper run failed"
     exit 1
 fi
 # The same corpus through the bytecode path: the real compile jail builds the cache, then the helper answers the same bytes from it; with no jail the SKIP above already said so.
 if [ "$jailed" -eq 1 ]; then
     mkdir -p "$test_root/home" || exit 1
-    cached=(env -u FLEA_FIGURE_CACHE HOME="$test_root/home" XDG_CACHE_HOME="$test_root/cache" FLEA_QJS="$qjs")
+    cached=(env -u DLEA_FIGURE_CACHE HOME="$test_root/home" XDG_CACHE_HOME="$test_root/cache" DLEA_QJS="$qjs")
     # The launcher makes the cache root before it starts a build, so the foreground build is given one too.
-    mkdir -p "$test_root/cache/flea/figures" || exit 1
-    "${cached[@]}" "$fleabin" --figure-compile || {
+    mkdir -p "$test_root/cache/dlea/figures" || exit 1
+    "${cached[@]}" "$dleabin" --figure-compile || {
         echo "markdown-figures.sh: FAIL the compile jail built no cache"
         exit 1
     }
-    ls "$test_root"/cache/flea/figures/*/manifest > /dev/null 2>&1 || {
+    ls "$test_root"/cache/dlea/figures/*/manifest > /dev/null 2>&1 || {
         echo "markdown-figures.sh: FAIL no verified bytecode directory after the compile"
         exit 1
     }
     echo "PASS the compile jail built a bytecode directory"
-    if ! env "${report_env[@]}" FIG_EXPECT_FROM=bytecode FIG_TAG=bytecode python3 "$test_root/drive.py" "${cached[@]}" "$fleabin" --figure-helper "$test_root"; then
+    if ! env "${report_env[@]}" FIG_EXPECT_FROM=bytecode FIG_TAG=bytecode python3 "$test_root/drive.py" "${cached[@]}" "$dleabin" --figure-helper "$test_root"; then
         echo "markdown-figures.sh: the bytecode helper run failed"
         exit 1
     fi
     # The bytecode leg's own assertion must have teeth: a helper that ran from source, which answers the same bytes, is refused by it.
-    if env FLEA_QJS="$qjs" "${report_env[@]}" FIG_EXPECT_FROM=bytecode FIG_TAG=control python3 "$test_root/drive.py" "${engine[@]}" "$test_root" > "$test_root/control.log" 2>&1; then
+    if env DLEA_QJS="$qjs" "${report_env[@]}" FIG_EXPECT_FROM=bytecode FIG_TAG=control python3 "$test_root/drive.py" "${engine[@]}" "$test_root" > "$test_root/control.log" 2>&1; then
         echo "markdown-figures.sh: FAIL a helper that ran from source passed the bytecode leg's assertion"
         exit 1
     fi
@@ -238,13 +238,13 @@ for tool in bwrap prlimit; do
     }
     ln -sf "$tool_path" "$test_root/sandbox-tools/$tool" || exit 1
 done
-PATH="$test_root/sandbox-tools" FLEA_QJS="$test_root/no-such-qjs" "$fleabin" --figure-helper < /dev/null > "$test_root/missing-qjs.stdout" 2> "$test_root/missing-qjs.stderr"
+PATH="$test_root/sandbox-tools" DLEA_QJS="$test_root/no-such-qjs" "$dleabin" --figure-helper < /dev/null > "$test_root/missing-qjs.stdout" 2> "$test_root/missing-qjs.stderr"
 missing_rc=$?
 [ "$missing_rc" -eq 127 ] || {
     echo "markdown-figures.sh: FAIL missing qjs exited $missing_rc, want 127"
     exit 1
 }
-missing_expected="flea: the figure helper needs quickjs-ng at $test_root/no-such-qjs, and it is missing"
+missing_expected="dlea: the figure helper needs quickjs-ng at $test_root/no-such-qjs, and it is missing"
 printf '%s\n' "$missing_expected" > "$test_root/missing-qjs.expected"
 if [ -s "$test_root/missing-qjs.stdout" ] || ! cmp -s "$test_root/missing-qjs.expected" "$test_root/missing-qjs.stderr"; then
     echo "markdown-figures.sh: FAIL missing qjs did not print the exact refusal on stderr"
@@ -253,13 +253,13 @@ fi
 echo "PASS $missing_expected (exit 127)"
 
 # The missing sandbox has its own refusal branch, with a present engine.
-PATH="$test_root/no-sandbox" FLEA_QJS="$qjs" "$fleabin" --figure-helper < /dev/null > "$test_root/missing-sandbox.stdout" 2> "$test_root/missing-sandbox.stderr"
+PATH="$test_root/no-sandbox" DLEA_QJS="$qjs" "$dleabin" --figure-helper < /dev/null > "$test_root/missing-sandbox.stdout" 2> "$test_root/missing-sandbox.stderr"
 sandbox_rc=$?
 [ "$sandbox_rc" -eq 127 ] || {
     echo "markdown-figures.sh: FAIL missing sandbox exited $sandbox_rc, want 127"
     exit 1
 }
-sandbox_expected="flea: the figure helper needs bwrap and prlimit, and one of them is missing"
+sandbox_expected="dlea: the figure helper needs bwrap and prlimit, and one of them is missing"
 printf '%s\n' "$sandbox_expected" > "$test_root/missing-sandbox.expected"
 if [ -s "$test_root/missing-sandbox.stdout" ] || ! cmp -s "$test_root/missing-sandbox.expected" "$test_root/missing-sandbox.stderr"; then
     echo "markdown-figures.sh: FAIL missing sandbox did not print the exact refusal on stderr"
@@ -312,16 +312,16 @@ if ! command -v qs >/dev/null; then
     exit 1
 fi
 mkdir -p "$test_root/qsconfig" || exit 1
-ln -s "$PWD/ui" "$test_root/qsconfig/flea" || exit 1
+ln -s "$PWD/ui" "$test_root/qsconfig/dlea" || exit 1
 headless_commons "$test_root" "$test_root/qsconfig/Commons" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/qsconfig/Ui" || exit 1
 cp tests/markdown-figures.qml "$test_root/qsconfig/shell.qml" || exit 1
 cp -R tests/figure-memory "$test_root/qsconfig/figure-memory" || exit 1
 mkdir -p "$test_root/stubbin" || exit 1
 printf 'answer\n' > "$test_root/phase" || exit 1
-# With FLEA_BIN unset the service's stub hangs, refuses or execs the selected engine according to the phase file, and its store mode ends at once so the persistent cache latches off.
+# With DLEA_BIN unset the service's stub hangs, refuses or execs the selected engine according to the phase file, and its store mode ends at once so the persistent cache latches off.
 printf -v engine_exec '%q ' "${engine[@]}"
-cat > "$test_root/stubbin/flea" <<EOF
+cat > "$test_root/stubbin/dlea" <<EOF
 #!/bin/bash
 [ "\$1" = "--figure-store" ] && exit 127
 if [ "\$1" = "--figure-helper" ]; then
@@ -336,20 +336,20 @@ if [ "\$1" = "--figure-helper" ]; then
             ;;
         exit42) exit 42 ;;
         refused)
-            echo "flea: stub has no engine" >&2
+            echo "dlea: stub has no engine" >&2
             exit 127
             ;;
         *) exec $engine_exec ;;
     esac
 fi
-echo "stub flea: unexpected argv \$*" >&2
+echo "stub dlea: unexpected argv \$*" >&2
 exit 2
 EOF
-chmod +x "$test_root/stubbin/flea" || exit 1
-output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u FLEA_BIN \
+chmod +x "$test_root/stubbin/dlea" || exit 1
+output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u DLEA_BIN \
     HOME="$test_root" XDG_STATE_HOME="$test_root" XDG_CACHE_HOME="$test_root" \
-    XDG_RUNTIME_DIR="$test_root" FLEA_QJS="$qjs" \
-    FLEA_FIG_PHASE_FILE="$test_root/phase" PATH="$test_root/stubbin:$PATH" \
+    XDG_RUNTIME_DIR="$test_root" DLEA_QJS="$qjs" \
+    DLEA_FIG_PHASE_FILE="$test_root/phase" PATH="$test_root/stubbin:$PATH" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
     timeout 150 qs -p "$test_root/qsconfig" 2>&1 ) 2>/dev/null )
 qs_status=$?

@@ -2,10 +2,10 @@
 use super::*;
 
 fn batch_child(paths: &[PathBuf], path: OsString, data: &Path) -> std::process::Output {
-    let mut args = vec!["flea".to_string(), "--open-selection".to_string()];
+    let mut args = vec!["dlea".to_string(), "--open-selection".to_string()];
     args.extend(paths.iter().map(|path| path.to_string_lossy().into_owned()));
     run_child_with(
-        "FLEA_TEST_DISPATCH",
+        "DLEA_TEST_DISPATCH",
         args.join("\n").as_ref(),
         path,
         &[
@@ -22,8 +22,8 @@ fn fixture_batch() -> (crate::backend::testdir::TestDir, OsString, PathBuf, Path
     let log = dir.join("launches");
     dir.executable("bin/gio", format!(r#"#!/bin/sh
 case "$1" in
-info) case "$3" in *.txt) type=text/plain;; *.unknown) type=application/x-flea-unknown;; *.blob) type=application/zip;; *) type=image/png;; esac; printf '  standard::content-type: %s\n' "$type";;
-mime) case "$2" in application/x-flea-unknown) exit 0;; text/plain) app=text.desktop;; *) app=images.desktop;; esac; printf "Default application for '%s': %s\n\t%s\n" "$2" "$app" "$app";;
+info) case "$3" in *.txt) type=text/plain;; *.unknown) type=application/x-dlea-unknown;; *.blob) type=application/zip;; *) type=image/png;; esac; printf '  standard::content-type: %s\n' "$type";;
+mime) case "$2" in application/x-dlea-unknown) exit 0;; text/plain) app=text.desktop;; *) app=images.desktop;; esac; printf "Default application for '%s': %s\n\t%s\n" "$2" "$app" "$app";;
 launch) printf '%s\n' "$*" >> '{}';;
 *) exit 1;;
 esac

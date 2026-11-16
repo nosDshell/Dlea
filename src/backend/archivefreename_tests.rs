@@ -10,7 +10,7 @@ fn names(dir: &Path) -> Vec<String> {
     let mut out: Vec<String> = std::fs::read_dir(dir)
         .unwrap()
         .map(|e| e.unwrap().file_name().to_string_lossy().to_string())
-        .filter(|n| !n.starts_with(".flea"))
+        .filter(|n| !n.starts_with(".dlea"))
         .collect();
     out.sort();
     out

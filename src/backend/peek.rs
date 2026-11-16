@@ -12,13 +12,13 @@ use crate::json::escape;
 // One peek, answered on a worker when the mount is slow; the columns view's own also arms a watch BEFORE the scan, so no change is lost to its gap.
 pub(crate) fn answer(path: &str, (first, details): (usize, bool), hidden: bool, order: Order, focus: String, watch: Option<(std::ffi::c_int, crate::backend::events::Sender<crate::backend::events::Event>)>, tb: &crate::backend::state::Tables) -> String {
     let body = std::fs::read_to_string("/proc/self/mountinfo").unwrap_or_default();
-    let base = flea::bytename::exact(path);
+    let base = dlea::bytename::exact(path);
     let (mime, icons) = (std::sync::Arc::clone(&tb.mime), std::sync::Arc::clone(&tb.icons));
     let owned = path.to_string();
     match super::iomount::call(&base, &body, "peek", move || {
         if let Some((fd, tx)) = watch {
-            let wd = super::watch::Watch::add_raw(fd, &flea::bytename::view(&owned));
-            let _ = tx.send(crate::backend::events::Event::PeekArmed(wd, flea::bytename::exact(&owned)));
+            let wd = super::watch::Watch::add_raw(fd, &dlea::bytename::view(&owned));
+            let _ = tx.send(crate::backend::events::Event::PeekArmed(wd, dlea::bytename::exact(&owned)));
         }
         if details { peek_line_details(&owned, first, true, hidden, order, &focus, (&mime, &icons)) }
         else { peek_line(&owned, first, hidden, order, &focus, &mime, &icons) }
@@ -68,7 +68,7 @@ fn peek_line_details(path: &str, first: usize, details: bool, hidden: bool, orde
         Some((by, desc)) => {
             crate::backend::sort::sort_listing(
                 &mut listing,
-                &flea::bytename::view(path),
+                &dlea::bytename::view(path),
                 by,
                 desc,
                 hidden_last,
@@ -80,8 +80,8 @@ fn peek_line_details(path: &str, first: usize, details: bool, hidden: bool, orde
     }
     // The directory's own device and writability, once per peek, so a drag from a column takes the listing's verb.
     let (dev, writable) = (
-        dev_of(&flea::bytename::view(path)),
-        dir_writable(&flea::bytename::view(path)),
+        dev_of(&dlea::bytename::view(path)),
+        dir_writable(&dlea::bytename::view(path)),
     );
     let total = listing.len();
     let count = first.min(PEEK_CAP).min(total);

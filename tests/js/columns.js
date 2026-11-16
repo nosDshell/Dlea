@@ -25,7 +25,7 @@ var OTHER = { rowPaddingX: 6, gap: 4, iconSize: 16, nameMin: 100, mode: 40, size
 var PICKER = { rowPaddingX: 14, gap: 9, iconSize: 23, nameMin: 156, mode: 70, size: 70, date: 80, kind: 130 }
 
 // The chooser's list area on this box: Hyprland floats the picker at 875 px and ui/PickerPlaces.qml
-// takes Theme.space(150), 175 px of it, measured off the window Hyprland reported for flea --pick.
+// takes Theme.space(150), 175 px of it, measured off the window Hyprland reported for dlea --pick.
 var PICKER_SLOT = 700
 
 // The anchor chain in ui/Row.qml, walked here independently of ui/js/Columns.js: the row, less its
@@ -58,7 +58,7 @@ function run(check) {
     check("the four floors nest, widest last",
           f.mode < f.size && f.size < f.date && f.date < f.kind, true)
 
-    // 732 is the list area of the 900 px window Flea asks for, beside this box's 168 px rail.
+    // 732 is the list area of the 900 px window Dlea asks for, beside this box's 168 px rail.
     check("the default window draws every column",
           Columns.names(Columns.set(732, BOX)), "name,mode,size,date,kind")
     check("a column is kept at exactly its floor",
@@ -73,7 +73,7 @@ function run(check) {
           Columns.names(Columns.set(373, BOX)), "name,mode")
     check("mode goes last, and the last layout is the mark and the name",
           Columns.names(Columns.set(294, BOX)), "name")
-    // 453 is the list area at the 621 px window Hyprland handed Flea beside three terminals.
+    // 453 is the list area at the 621 px window Hyprland handed Dlea beside three terminals.
     check("the width that drew no name at all now draws the name, mode and size",
           Columns.names(Columns.set(453, BOX)), "name,mode,size")
 
@@ -650,7 +650,7 @@ function runColumnMenu(check) {
     check("while the waiting intent is dropped", drops.pendingBackground, "")
     var pane = Source.source("ui/ColumnPane.qml")
     check("a peek's empty space has its own route", pane.indexOf("signal neighbourBackgroundRequested(var eventPoint)") >= 0, true)
-    var bgBody = Source.slice(pane, "Empty space below the last row", "delegate: Flea.ColumnRow")
+    var bgBody = Source.slice(pane, "Empty space below the last row", "delegate: Dlea.ColumnRow")
     check("and a peek emits it instead of the active menu", bgBody.indexOf("root.neighbourBackgroundRequested(eventPoint)") >= 0, true)
     var area = Source.source("ui/ColumnsArea.qml")
     check("the area navigates a neighbour background", area.indexOf("function menuOnNeighbourBackground(base, eventPoint)") >= 0, true)
@@ -663,7 +663,7 @@ function runColumnMenu(check) {
     check("the great-grandparent routes its own", area.indexOf("menuOnNeighbourBackground(root.greatGrandparentPath, eventPoint)") >= 0, true)
     check("the great-grandparent stays gated on its shown ancestor", area.indexOf("if (root.showGreatGrandparent && root.greatGrandparentShown)") >= 0, true)
     check("the child routes its drawn folder", area.indexOf("menuOnNeighbourBackground(root.shownChildPath, eventPoint)") >= 0, true)
-    var childBody = Source.slice(area, "id: childColumn", "Flea.SelectionPreview")
+    var childBody = Source.slice(area, "id: childColumn", "Dlea.SelectionPreview")
     check("and the child waits on the shown folder, never the pending one",
         childBody.indexOf("root.shownChildPath") >= 0 && childBody.indexOf("root.childPath") < 0, true)
     check("and a file preview offers no directory", childBody.indexOf("root.shownIsDir") >= 0, true)

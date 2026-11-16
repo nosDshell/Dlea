@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 . "$(dirname "$0")/headless-commons.sh"
-# The Columns preview column over the real backend and bat: code in the theme's inks, the binary, too large and long-line frames, no plain frame before the coloured one, plain lines without bat, markup drawn as text. Offscreen, in the flea-ci image.
+# The Columns preview column over the real backend and bat: code in the theme's inks, the binary, too large and long-line frames, no plain frame before the coloured one, plain lines without bat, markup drawn as text. Offscreen, in the dlea-ci image.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 for tool in qs bat bwrap prlimit python3; do
-    command -v "$tool" >/dev/null || { echo "code-column.sh: $tool is not on PATH; this suite runs in the flea-ci image"; exit 1; }
+    command -v "$tool" >/dev/null || { echo "code-column.sh: $tool is not on PATH; this suite runs in the dlea-ci image"; exit 1; }
 done
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [ -x "$bin" ] || { echo "code-column.sh: build the backend first: $bin"; exit 1; }
 qs_bin=$(command -v qs)
 # Both are resolved here: the second run's PATH holds only the jail tools, and env looks timeout up on it.
@@ -17,7 +17,7 @@ timeout_bin=$(command -v timeout)
 RUN_BOUND=120
 
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-code-column-XXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-code-column-XXXXXX") || exit 1
 case $test_root in
   /*/*) ;;
   *) echo "FAIL: mktemp -d gave '$test_root', which is not an absolute path two components deep"; exit 1 ;;
@@ -33,8 +33,8 @@ trap cleanup EXIT
 fixture="$test_root/fixture"
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/runtime" "$test_root/nobat" "$fixture" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/code-column.qml "$test_root/config/shell.qml" || exit 1
@@ -88,7 +88,7 @@ run_harness() {
         PATH="$path" HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_RUNTIME_DIR="$test_root/runtime" \
         XDG_CONFIG_HOME="$test_root/home/.config" XDG_CACHE_HOME="$test_root/home/.cache" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=16 QT_FORCE_STDERR_LOGGING=1 \
-        FLEA_BIN="$bin" CODECOL_DIR="$fixture" CODECOL_NOBAT="$nobat" CODECOL_IMG="$img" \
+        DLEA_BIN="$bin" CODECOL_DIR="$fixture" CODECOL_NOBAT="$nobat" CODECOL_IMG="$img" \
         "$timeout_bin" "$RUN_BOUND" "$qs_bin" -p "$test_root/config" > "$log" 2>&1
     status=$?
     # Sample input, the receipt: "  INFO qml: CODECOL DONE 41 checks, 0 failed".

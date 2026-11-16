@@ -2,9 +2,9 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Commons as Commons
-import "Oracle" as Flea
+import "Oracle" as Dlea
 
-// The runner supplies read-only Commons and frozen Flea modules plus an isolated marked HOME.
+// The runner supplies read-only Commons and frozen Dlea modules plus an isolated marked HOME.
 ShellRoot {
     id: root
     property var palettes: []
@@ -14,7 +14,7 @@ ShellRoot {
 
     FileView {
         id: manifest
-        path: Quickshell.env("FLEA_GOLDEN_MANIFEST")
+        path: Quickshell.env("DLEA_GOLDEN_MANIFEST")
         blockLoading: true
         printErrors: true
     }
@@ -51,8 +51,8 @@ ShellRoot {
                 if (seen[key] || (i !== 6 && tagIsGrey(hex))) fallback = true
                 seen[key] = true
             }
-            row("tag.colors." + names[i], hex ? color(Flea.Theme.tag.colors[names[i]]) : "")
-            row("tag.menuColors." + names[i], hex ? color(Flea.Theme.tag.menuColors[names[i]]) : "")
+            row("tag.colors." + names[i], hex ? color(Dlea.Theme.tag.colors[names[i]]) : "")
+            row("tag.menuColors." + names[i], hex ? color(Dlea.Theme.tag.menuColors[names[i]]) : "")
         }
         row("tag.fallback", fallback)
         row("tag.swatchSize", 14)
@@ -68,7 +68,7 @@ ShellRoot {
     }
 
     function dump() {
-        var theme = Flea.Theme, style = Commons.Style, c = theme.color
+        var theme = Dlea.Theme, style = Commons.Style, c = theme.color
         var names = ["background", "foreground", "opaqueForegroundBright", "foregroundBright", "opaqueMuted", "muted",
             "opaqueMutedFrame", "mutedFrame", "opaqueMetadata", "metadata", "opaqueMetadataFrame", "metadataFrame", "accent",
             "opaqueError", "error", "opaqueErrorOnSurface", "errorOnSurface", "surface", "opaqueSymlink", "symlink",
@@ -150,16 +150,16 @@ ShellRoot {
             Commons.Color.accent = "#cacccc"
             Commons.Color.urgent = "#a55555"
             Commons.Color.muted = "#707880"
-            Flea.ViewState.setTextSize({mode: "system"})
+            Dlea.ViewState.setTextSize({mode: "system"})
             Commons.Color.loadShell(p.shell)
             Commons.Color.loadUserShell(user)
-            Flea.Theme.applyColors(p.colors)
+            Dlea.Theme.applyColors(p.colors)
             Commons.Style.cornerRadius = 0
             Commons.Style.gapsOut = 5
             Commons.Style.reduceMotion = false
             Qt.callLater(function() {
                 guarded(function() {
-                    input("colors", Flea.Theme.palette)
+                    input("colors", Dlea.Theme.palette)
                     input("shell", Commons.Color.parseShell(p.shell))
                     input("user", Commons.Color.parseShell(user))
                     dump()
@@ -181,7 +181,7 @@ ShellRoot {
                 Commons.Color.shellFile.waitForJob()
                 Commons.Color.userShellFile.waitForJob()
                 // The probe's fixture is opaque regardless of the controller's compositor transparency setting.
-                Flea.Glass.clear = false
+                Dlea.Glass.clear = false
                 root.next()
             })
         }

@@ -65,7 +65,7 @@ def completion(manifest, required):
 def input_identity(repo=REPO, extra=None, boards=None):
     """Bind all shipped catalog inputs, the source index, policy and the actual keymap."""
     repo = absolute(repo)
-    required = ["keys.toml", "i18n/source-index.json", "i18n/translation-manifest.json", "i18n/en/flea.json"]
+    required = ["keys.toml", "i18n/source-index.json", "i18n/translation-manifest.json", "i18n/en/dlea.json"]
     names = set(required) | {str(p.relative_to(repo)) for p in (repo / "i18n").rglob("*.json")}
     files = {name: digest(absolute(repo / name)) for name in sorted(names)}
     auxiliary = {}

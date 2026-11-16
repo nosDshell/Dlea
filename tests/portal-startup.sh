@@ -10,11 +10,11 @@ trap_signals() {
     trap 'exit 143' TERM
 }
 
-frontend_bin=${FLEA_PORTAL_FRONTEND:-/usr/lib/xdg-desktop-portal}
-backend=org.freedesktop.impl.portal.desktop.flea
+frontend_bin=${DLEA_PORTAL_FRONTEND:-/usr/lib/xdg-desktop-portal}
+backend=org.freedesktop.impl.portal.desktop.dlea
 desktop=org.freedesktop.portal.Desktop
 
-if [ -z "${FLEA_PORTAL_STARTUP_BUS:-}" ]; then
+if [ -z "${DLEA_PORTAL_STARTUP_BUS:-}" ]; then
     # Stage one builds the sandbox before the bus exists, because the bus daemon reads its service directory once at its own start.
     command -v dbus-run-session >/dev/null 2>&1 && command -v setsid >/dev/null 2>&1 || {
         printf 'portal-startup.sh: dbus-run-session or setsid is missing, and this suite will not run on the session bus\n' >&2
@@ -25,14 +25,14 @@ if [ -z "${FLEA_PORTAL_STARTUP_BUS:-}" ]; then
         exit 1
     }
     # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete below.
-    . "$(dirname "$0")/../tools/flea-sandbox-guard"
+    . "$(dirname "$0")/../tools/dlea-sandbox-guard"
     cd "$(dirname "$0")/.." || exit 1
     tree=$PWD
-    installer_binary=${FLEA_BIN:-"$tree/target/release/flea"}
-    for file in tools/flea-portal packaging/flea.portal packaging/$backend.service; do
+    installer_binary=${DLEA_BIN:-"$tree/target/release/dlea"}
+    for file in tools/dlea-portal packaging/dlea.portal packaging/$backend.service; do
         [ -f "$file" ] || { printf 'portal-startup.sh: %s is missing, refusing to report on nothing\n' "$file" >&2; exit 1; }
     done
-    dir="$FIXTURE_ROOT/flea-portal-startup-$$"
+    dir="$FIXTURE_ROOT/dlea-portal-startup-$$"
     session=
     # The document portal mounts a FUSE tree under the runtime dir and unmounts it as it exits, so nothing is deleted while a mount is still there.
     remove_sandbox() {
@@ -60,7 +60,7 @@ if [ -z "${FLEA_PORTAL_STARTUP_BUS:-}" ]; then
     trap remove_sandbox EXIT
     trap_signals
     sandbox_make "$dir"
-    for arm in control flea; do
+    for arm in control dlea; do
         mkdir -p "$dir/$arm/data/xdg-desktop-portal/portals" "$dir/$arm/config/xdg-desktop-portal"
     done
     mkdir -p "$dir/run" "$dir/data/dbus-1/services" "$dir/share"
@@ -93,8 +93,8 @@ STUB
         > "$dir/data/dbus-1/services/org.freedesktop.impl.portal.desktop.stub.service"
 
     # The packaged files, with only the Exec line pointed at the tree's backend.
-    cp packaging/flea.portal "$dir/flea/data/xdg-desktop-portal/portals/flea.portal"
-    sed "s|^Exec=.*|Exec=$tree/tools/flea-portal|" packaging/$backend.service > "$dir/data/dbus-1/services/$backend.service"
+    cp packaging/dlea.portal "$dir/dlea/data/xdg-desktop-portal/portals/dlea.portal"
+    sed "s|^Exec=.*|Exec=$tree/tools/dlea-portal|" packaging/$backend.service > "$dir/data/dbus-1/services/$backend.service"
 
     # A frontend the suite did not start must not be activated by a probe, so its service file is shadowed ahead of the system one.
     printf '[D-BUS Service]\nName=%s\nExec=/bin/false\n' "$desktop" > "$dir/data/dbus-1/services/$desktop.service"
@@ -102,8 +102,8 @@ STUB
     # The picker the backend spawns in place of a window: it notes that it ran, records the request and answers 1, the user's own refusal.
     cat > "$dir/picker" <<'PICKER'
 #!/bin/sh
-printf 'picker ran: %s\n' "$*" >> "$FLEA_PORTAL_PICKER_LOG"
-printf '%s' "$FLEA_PICKER" > "$FLEA_PORTAL_CAPTURE"
+printf 'picker ran: %s\n' "$*" >> "$DLEA_PORTAL_PICKER_LOG"
+printf '%s' "$DLEA_PICKER" > "$DLEA_PORTAL_CAPTURE"
 printf '{"response": 1}' > "$2"
 PICKER
     chmod +x "$dir/picker"
@@ -137,7 +137,7 @@ print(result.get("response", "never"))
 CALLER
     chmod +x "$dir/caller"
 
-    export FLEA_PORTAL_STARTUP_BUS=1 FLEA_PORTAL_STARTUP_DIR="$dir" FLEA_BIN="$dir/picker" FLEA_PORTAL_CAPTURE="$dir/request.json" FLEA_PORTAL_PICKER_LOG="$dir/picker.log"
+    export DLEA_PORTAL_STARTUP_BUS=1 DLEA_PORTAL_STARTUP_DIR="$dir" DLEA_BIN="$dir/picker" DLEA_PORTAL_CAPTURE="$dir/request.json" DLEA_PORTAL_PICKER_LOG="$dir/picker.log"
     export XDG_RUNTIME_DIR="$dir/run" XDG_DATA_HOME="$dir/data" XDG_DATA_DIRS="$dir/share" XDG_CURRENT_DESKTOP=Hyprland
     unset XDG_DESKTOP_PORTAL_DIR XDG_CONFIG_HOME DISPLAY WAYLAND_DISPLAY HYPRLAND_INSTANCE_SIGNATURE
     # The bus daemon's and the backends' stderr is kept apart, so the last line of a run is the suite's own and a failure still prints it.
@@ -157,16 +157,16 @@ CALLER
         binary_status=$?
         [ "$status" != 0 ] || status=$binary_status
         if [ "$status" = 0 ]; then
-            FLEA_BIN="$installer_binary" python3 "$tree/tests/portal-startup-installer.py"
+            DLEA_BIN="$installer_binary" python3 "$tree/tests/portal-startup-installer.py"
             status=$?
         fi
     fi
     exit "$status"
 fi
 
-dir=${FLEA_PORTAL_STARTUP_DIR:-}
+dir=${DLEA_PORTAL_STARTUP_DIR:-}
 # A marker file in the sandbox is what says this stage was started by stage one and not by hand on the operator's bus.
-[ -n "$dir" ] && [ -f "$dir/.flea-test-sandbox" ] || { printf 'portal-startup.sh: no sandbox, so this suite will not run on the session bus\n' >&2; exit 1; }
+[ -n "$dir" ] && [ -f "$dir/.dlea-test-sandbox" ] || { printf 'portal-startup.sh: no sandbox, so this suite will not run on the session bus\n' >&2; exit 1; }
 frontend=0
 cleanup() {
     if [ "$frontend" != 0 ] && kill -0 "$frontend" 2>/dev/null; then
@@ -239,7 +239,7 @@ owned $desktop
 check "the private bus starts with no frontend on it" "0" "$has_owner"
 
 # Each arm is its name, its FileChooser= value and the bus name its backend owns.
-for arm in "control stub org.freedesktop.impl.portal.desktop.stub" "flea flea;gtk $backend"; do
+for arm in "control stub org.freedesktop.impl.portal.desktop.stub" "dlea dlea;gtk $backend"; do
     read -r name conf owner <<< "$arm"
     start_arm "$name" "$conf"
     wait_name up $desktop 5
@@ -254,34 +254,34 @@ for arm in "control stub org.freedesktop.impl.portal.desktop.stub" "flea flea;gt
         "$(gdbus introspect --session --dest $desktop --object-path /org/freedesktop/portal/desktop 2>/dev/null | grep -c 'interface org.freedesktop.portal.FileChooser')"
     owned "$owner"
     check "$name arm: the frontend activated the backend at its own start" "1" "$has_owner"
-    if [ "$name" = flea ]; then
+    if [ "$name" = dlea ]; then
         reply=$(busctl --user --auto-start=no --timeout=5s get-property "$desktop" /org/freedesktop/portal/desktop org.freedesktop.portal.FileChooser version 2>&1)
-        check "flea arm: the installer's readiness probe reaches the real frontend" "0" "$?"
-        check "flea arm: the readiness reply is a nonzero unsigned version" "1" "$(grep -Ec '^u [1-9][0-9]*$' <<< "$reply")"
+        check "dlea arm: the installer's readiness probe reaches the real frontend" "0" "$?"
+        check "dlea arm: the readiness reply is a nonzero unsigned version" "1" "$(grep -Ec '^u [1-9][0-9]*$' <<< "$reply")"
         wait_name down "$owner" 60
         released=$elapsed
-        check "flea arm: the backend released its name after its idle exit" "0" "$([ "$released" = never ] && echo 1 || echo 0)"
-        echo "     flea arm: backend name released after $released s"
-        : > "$FLEA_PORTAL_CAPTURE"
+        check "dlea arm: the backend released its name after its idle exit" "0" "$([ "$released" = never ] && echo 1 || echo 0)"
+        echo "     dlea arm: backend name released after $released s"
+        : > "$DLEA_PORTAL_CAPTURE"
         # The backend answers only after the picker has exited, so the Response signal is the event that the picker ran; 30 s is the bound.
         response=$("$dir/caller" 30 2> "$dir/openfile.log")
         printf 'caller answered: %s\n' "$response" >> "$dir/openfile.log"
         wait_name up "$owner" 10
         again=$elapsed
-        check "flea arm: OpenFile through the frontend activated the backend again" "0" "$([ "$again" = never ] && echo 1 || echo 0)"
-        check "flea arm: the caller got the picker's refusal as response 1 within 30 s" "1" "$response"
-        check "flea arm: the stub recorded the request" "1" "$([ -s "$FLEA_PORTAL_CAPTURE" ] && echo 1 || echo 0)"
+        check "dlea arm: OpenFile through the frontend activated the backend again" "0" "$([ "$again" = never ] && echo 1 || echo 0)"
+        check "dlea arm: the caller got the picker's refusal as response 1 within 30 s" "1" "$response"
+        check "dlea arm: the stub recorded the request" "1" "$([ -s "$DLEA_PORTAL_CAPTURE" ] && echo 1 || echo 0)"
         owned $desktop
-        check "flea arm: the frontend still owns $desktop" "1" "$has_owner"
+        check "dlea arm: the frontend still owns $desktop" "1" "$has_owner"
         # The reporter's operation was a restart, which meets a backend still running inside its idle window, so that is read between the stop and the start.
         stop_arm
         owned "$owner"
-        check "flea arm: the backend is still running when the frontend restarts" "1" "$has_owner"
+        check "dlea arm: the backend is still running when the frontend restarts" "1" "$has_owner"
         start_arm "$name" "$conf"
         wait_name up $desktop 5
         took=$elapsed
-        check "flea arm: a restarted frontend owns $desktop within 5 s" "0" "$([ "$took" = never ] && echo 1 || echo 0)"
-        echo "     flea arm: $desktop owned after $took s on restart"
+        check "dlea arm: a restarted frontend owns $desktop within 5 s" "0" "$([ "$took" = never ] && echo 1 || echo 0)"
+        echo "     dlea arm: $desktop owned after $took s on restart"
     fi
     stop_arm
 done
@@ -294,7 +294,7 @@ else
         echo "--- $file ---"
         cat "$dir/$file" 2>/dev/null
     done
-    for arm in control flea; do
+    for arm in control dlea; do
         echo "--- $arm frontend log ---"
         cat "$dir/frontend-$arm.log" 2>/dev/null
     done

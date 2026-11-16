@@ -28,7 +28,7 @@ impl Table {
 }
 
 // A name on a local mount is looked at inline, as iomount::call does; only a remote one pays its guarded hop for every name.
-pub(crate) fn identity_in(dst: &Path, table: &Table) -> Result<ItemIdentity, crate::error::FleaError> {
+pub(crate) fn identity_in(dst: &Path, table: &Table) -> Result<ItemIdentity, crate::error::DleaError> {
     if table.remote(dst) {
         return ItemIdentity::inspect_in(dst, &table.body);
     }

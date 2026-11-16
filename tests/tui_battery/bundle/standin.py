@@ -18,7 +18,7 @@ def seed(root):
 def writable(bundle):
     """Gives a read-only bundle's directories back to its owner so the marked root's own cleanup can remove it."""
     bundle = Path(bundle)
-    if bundle.is_absolute() and not bundle.is_symlink() and (bundle / ".flea-test-sandbox").is_file():
+    if bundle.is_absolute() and not bundle.is_symlink() and (bundle / ".dlea-test-sandbox").is_file():
         for path in [bundle, *bundle.rglob("*")]:
             if path.is_dir() and not path.is_symlink():
                 path.chmod(0o755)

@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/DirSizes.js" as DirSizes
 import "js/DragOut.js" as DragOut
 import "js/Errors.js" as Errors
@@ -31,7 +31,7 @@ Item {
     // row refused, lands in the directory being shown. Declared first in ui/Pane.qml, so it sits below.
     // Columns owns its narrower active floor; a search listing's base is the walk scope.
     // Recent stands on the root, so its floor takes no drop: a row's own folder still does.
-    Flea.DropInto {
+    Dlea.DropInto {
         x: root.pane ? root.pane.listSlot.x : 0
         y: root.pane ? root.pane.listSlot.y : 0
         width: root.pane ? root.pane.listSlot.width : 0
@@ -73,9 +73,9 @@ Item {
     readonly property alias swap: swap
 
     // The listed and rows replies land through the listing swap, see ui/PaneSwap.qml.
-    Flea.PaneSwap { id: swap; pane: root.pane; wire: root }
+    Dlea.PaneSwap { id: swap; pane: root.pane; wire: root }
 
-    Flea.Opener {
+    Dlea.Opener {
         id: opener
         // A dropped request is the app being busy, not a failure, so it takes the plain role.
         onBusy: function (path) { pane.message("Still opening the last file; try again in a moment.", false) }
@@ -89,13 +89,13 @@ Item {
         onAskOpenWith: function (path) { pane.showOpenWith(path) }
     }
 
-    Flea.ShareLink {
+    Dlea.ShareLink {
         id: shareLink
         onCopied: pane.message("Share link copied to the clipboard.", false)
         onFailed: function(reason) { pane.message(reason, true) }
     }
 
-    Flea.Taildrop {
+    Dlea.Taildrop {
         id: taildrop
     }
 
@@ -502,7 +502,7 @@ Item {
                 pane.renameRequest = null
                 pane.renameKeepsPointerRow = false
                 if (terminal) {
-                    text = "Flea stopped responding, so the rename may not have finished. Check the name."
+                    text = "Dlea stopped responding, so the rename may not have finished. Check the name."
                 } else if (where === "rename-kept" || where === "rename-stranded" || (where === "journal" && input === request.destination)) {
                     // A destination-side journal failure happens after the filesystem rename succeeded.
                     pane.renamingIndex = -1
@@ -587,7 +587,7 @@ Item {
         }
     }
 
-    // flea --ui-state is a reply from outside the window too. A refused patch, or a state file it
+    // dlea --ui-state is a reply from outside the window too. A refused patch, or a state file it
     // could not write, means the change is on screen and the file does not have it; nothing else
     // would ever say so, because the window's own read is taken once before the first frame.
     Connections {

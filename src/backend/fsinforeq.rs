@@ -112,7 +112,7 @@ impl FsInfo {
         let (events, reader, key, seq) = (self.events.clone(), Arc::clone(&self.reader), root.clone(), self.seq);
         // Only a share's own file stands in for its folder; a file gone since the listing falls back to the folder.
         let probe = self.probe.clone().filter(|file| gvfs_root(&dir).is_some() && file.parent() == Some(dir.as_path()));
-        let worker = std::thread::Builder::new().name("flea-fsinfo".into()).spawn(move || {
+        let worker = std::thread::Builder::new().name("dlea-fsinfo".into()).spawn(move || {
             let info = probe.and_then(|file| reader(file).0).or_else(|| reader(dir.clone()).0);
             let tagable = super::tags::dir_supports(&dir);
             let _ = events.send(Event::FsInfo(Done { root: key, dir, seq, info, tagable }));

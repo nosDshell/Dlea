@@ -6,8 +6,8 @@ use crate::backend::rowguard::stamped;
 use crate::backend::proto::{error_line, slow_line, Request};
 use crate::backend::state::State;
 use crate::backend::undo::{Entry, Step};
-use crate::error::FleaError;
-use flea::bytename::ExactText as _;
+use crate::error::DleaError;
+use dlea::bytename::ExactText as _;
 use std::collections::HashSet;
 use std::io::Write;
 use std::path::{Path, PathBuf};
@@ -15,7 +15,7 @@ use std::sync::mpsc::Sender;
 use std::time::Duration;
 
 // What one tag change wrote: the number of files changed, one journal step for each, the op it applied, and the skipped rows by name.
-pub(crate) type Written = Result<(usize, Vec<Step>, &'static str, Vec<String>), FleaError>;
+pub(crate) type Written = Result<(usize, Vec<Step>, &'static str, Vec<String>), DleaError>;
 
 // Sample output: {"t":"settagged","ok":2,"op":"remove"}
 pub fn settagged_line(ok: usize, op: &str) -> String {
@@ -61,7 +61,7 @@ pub(super) fn menu(out: &mut impl Write, ops: &mut Ops, st: &State, line: &str) 
                 out.flush().ok();
                 return Vec::new();
             }
-            refuse(out, &FleaError { where_: "settags".into(), path: String::new(), msg });
+            refuse(out, &DleaError { where_: "settags".into(), path: String::new(), msg });
             return Vec::new();
         }
     };
@@ -72,7 +72,7 @@ pub(super) fn menu(out: &mut impl Write, ops: &mut Ops, st: &State, line: &str) 
     let op = crate::json::field_str(line, "change").unwrap_or_default();
     let tag = crate::json::field_str(line, "tag").unwrap_or_default();
     if ops.live.running().is_some() {
-        refuse(out, &FleaError { where_: "settags".into(), path: String::new(), msg: "an operation is already running".into() });
+        refuse(out, &DleaError { where_: "settags".into(), path: String::new(), msg: "an operation is already running".into() });
         return Vec::new();
     }
     if let Err(error) = super::tags::apply(&[], &op, &tag) {
@@ -106,7 +106,7 @@ pub(crate) fn resolved(op: &str, tag: &str, carried: &[Vec<String>]) -> &'static
 pub fn ask_states(st: &State, rows: &[usize], id: usize, tx: Sender<OpMsg>) {
     let paths: Vec<PathBuf> = resolve_rows(Vec::new(), rows, &st.base, &st.listing)
         .into_iter()
-        .map(flea::bytename::exact)
+        .map(dlea::bytename::exact)
         .collect();
     ask_paths(paths, st.generation, id, tx);
 }
@@ -152,7 +152,7 @@ pub(super) fn states_line_for(id: usize, carried: &[Vec<String>]) -> String {
     format!(r#"{{"t":"tagstates","id":{},"applied":[{}],"mixed":[{}]}}"#, id, applied.join(","), mixed.join(","))
 }
 
-fn refuse(out: &mut impl Write, e: &FleaError) {
+fn refuse(out: &mut impl Write, e: &DleaError) {
     writeln!(out, "{}", error_line(e)).ok();
     out.flush().ok();
 }
@@ -160,7 +160,7 @@ fn refuse(out: &mut impl Write, e: &FleaError) {
 // Refused while the transfer slot runs, unlike a local rename; the write itself runs where rename's would.
 pub fn apply_tags(out: &mut impl Write, ops: &mut Ops, st: &State, rows: Vec<usize>, op: &str, tag: &str) -> Vec<PathBuf> {
     if ops.live.running().is_some() {
-        refuse(out, &FleaError { where_: "settags".into(), path: String::new(), msg: "an operation is already running".into() });
+        refuse(out, &DleaError { where_: "settags".into(), path: String::new(), msg: "an operation is already running".into() });
         return Vec::new();
     }
     // Validated before the filesystem is touched, so a bad op refuses with nothing read.
@@ -178,7 +178,7 @@ fn apply_targets(out: &mut impl Write, ops: &mut Ops, base: &Path, targets: Vec<
         out.flush().ok();
         return Vec::new();
     }
-    let paths: Vec<PathBuf> = targets.iter().map(flea::bytename::exact).collect();
+    let paths: Vec<PathBuf> = targets.iter().map(dlea::bytename::exact).collect();
     let (base, work_paths, op, tag) = (base.to_path_buf(), paths.clone(), op.to_string(), tag.to_string());
     apply_tags_with(out, ops, paths, CALL_DEADLINE, move || {
         let targets = targets::capture(work_paths, selected)?;

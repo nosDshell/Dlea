@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-columnsprebuild-test
+//@ pragma ShellId dlea-columnsprebuild-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // columnsprebuild: quiet turns park rows for the next landing (0 built); the first landing holds, peeks never build, keys hold ticks a frame, Back pools, hide drops.
 ShellRoot {
@@ -131,7 +131,7 @@ ShellRoot {
         implicitWidth: 2536
         implicitHeight: 1389
         color: "black"
-        Flea.ColumnsArea {
+        Dlea.ColumnsArea {
             id: area
             width: 2536
             height: 1381
@@ -190,7 +190,7 @@ ShellRoot {
 
     function checkViewport() {
         var v = root.active().viewport
-        var rows = Math.ceil(v.height / Flea.Theme.fileRowHeight)
+        var rows = Math.ceil(v.height / Dlea.Theme.fileRowHeight)
         for (var i = 0; i < rows; i++) {
             var it = v.itemAtIndex(i)
             var want = "f_" + root.pad(i) + ".txt"
@@ -412,5 +412,5 @@ ShellRoot {
         running: true
         onTriggered: { root.failures.push("timeout at stage " + root.stage); root.finish() }
     }
-    Component.onCompleted: Flea.ViewState.setTextSize({ mode: 14 })
+    Component.onCompleted: Dlea.ViewState.setTextSize({ mode: 14 })
 }

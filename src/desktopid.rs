@@ -104,7 +104,7 @@ mod tests {
     // A missing id is None rather than a bare name, so no caller can hand gio one.
     #[test]
     fn a_missing_id_is_none_on_the_real_ladder() {
-        assert_eq!(resolve("flea-definitely-not-installed-9f3c.desktop"), None);
+        assert_eq!(resolve("dlea-definitely-not-installed-9f3c.desktop"), None);
     }
 
     // The spelling rule the resolver tries, verbatim first and every subdir split behind it.
@@ -173,8 +173,8 @@ mod tests {
     #[test]
     fn the_registry_rows_behind_the_default_are_not_part_of_the_id() {
         assert_eq!(
-            handler_of("Default application for \u{201c}application/vnd.appimage\u{201d}: zzflea-appimage.desktop\nNo registered applications\nNo recommended applications\n"),
-            "zzflea-appimage.desktop");
+            handler_of("Default application for \u{201c}application/vnd.appimage\u{201d}: zzdlea-appimage.desktop\nNo registered applications\nNo recommended applications\n"),
+            "zzdlea-appimage.desktop");
         assert_eq!(
             handler_of("Default application for 'text/plain': org.gnome.TextEditor.desktop\n\torg.gnome.TextEditor.desktop\n"),
             "org.gnome.TextEditor.desktop");

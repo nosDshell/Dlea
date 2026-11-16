@@ -7,7 +7,7 @@ use super::undostage::Staged;
 use crate::backend::link::LinkKind;
 use crate::backend::redo::Replay;
 use crate::backend::undo::{Entry, ItemIdentity, Step};
-use crate::error::FleaError;
+use crate::error::DleaError;
 use crate::jsondoc::render;
 use std::path::PathBuf;
 
@@ -75,7 +75,7 @@ pub(super) fn fixture_doc() -> Doc {
         ],
         redo: vec![
             StoredRedo::Ok(replay),
-            StoredRedo::Err(FleaError {
+            StoredRedo::Err(DleaError {
                 where_: "redo".into(),
                 path: "/a".into(),
                 msg: "gone".into(),
@@ -197,7 +197,7 @@ fn one_batched_rebase_equals_one_rebase_per_pair() {
         };
         sequential.redo = doc.redo.iter().map(|r| match r {
             StoredRedo::Ok(replay) => { let (op, steps) = replay.steps_data(); StoredRedo::Ok(Replay::from_steps(op, steps)) }
-            StoredRedo::Err(e) => StoredRedo::Err(FleaError { where_: e.where_.clone(), path: e.path.clone(), msg: e.msg.clone() }),
+            StoredRedo::Err(e) => StoredRedo::Err(DleaError { where_: e.where_.clone(), path: e.path.clone(), msg: e.msg.clone() }),
         }).collect();
         for (old, new) in &pairs {
             for entry in &mut sequential.undo { entry.rebase(old, new); }

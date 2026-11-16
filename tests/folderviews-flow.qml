@@ -1,12 +1,12 @@
-//@ pragma ShellId flea-folderviews-flow-test
+//@ pragma ShellId dlea-folderviews-flow-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/FolderViews.js" as FolderViews
-import "flea/js/RecentMode.js" as RecentMode
-import "flea/js/Search.js" as Search
-import "flea/js/Tabs.js" as Tabs
+import "dlea" as Dlea
+import "dlea/js/FolderViews.js" as FolderViews
+import "dlea/js/RecentMode.js" as RecentMode
+import "dlea/js/Search.js" as Search
+import "dlea/js/Tabs.js" as Tabs
 
 // A real Pane over the real backend: which view each folder draws as the window navigates, switches tabs and enters or leaves Dual, with Remember each folder's view on and off.
 ShellRoot {
@@ -49,17 +49,17 @@ ShellRoot {
         id: win
         implicitWidth: 1000
         implicitHeight: 700
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
     }
-    Flea.Backend { id: realBackend }
+    Dlea.Backend { id: realBackend }
     Component {
         id: paneComponent
-        Flea.Pane {
+        Dlea.Pane {
             width: 1000
             height: 700
             backend: realBackend
             // ui/WindowBody.qml binds the primary pane to the window's layout the same way.
-            dualMode: Flea.ViewState.state.view === "dual"
+            dualMode: Dlea.ViewState.state.view === "dual"
         }
     }
 
@@ -69,17 +69,17 @@ ShellRoot {
             width: 1000
             height: 700
             readonly property alias pane: other
-            Flea.Backend { id: otherBackend; preserveSort: true }
+            Dlea.Backend { id: otherBackend; preserveSort: true }
             // ui/WindowBody.qml builds the secondary pane list-only and in Dual for good.
-            Flea.Pane { id: other; anchors.fill: parent; backend: otherBackend; dualMode: true; listOnly: true }
+            Dlea.Pane { id: other; anchors.fill: parent; backend: otherBackend; dualMode: true; listOnly: true }
             // The window's route for a view the secondary pane is asked for: ChromeBar.viewChosen, which lands on the primary pane (folderviews-flow.sh pins both lines).
             Connections { target: other; function onViewRequested(mode) { root.pane.chooseView(mode) } }
         }
     }
 
     function landed(path) { return !root.pane.listInFlight && root.pane.path === path && root.pane.total > 0 && root.pane.searchMode.length === 0 }
-    function stored() { return Flea.ViewState.folderViews }
-    function standing() { return Flea.ViewState.state.view }
+    function stored() { return Dlea.ViewState.folderViews }
+    function standing() { return Dlea.ViewState.state.view }
     function unchanged() { return JSON.stringify(root.stored()) === root.held }
 
     // One step: run, wait for its landing, let the zero-interval timers fire, then read.
@@ -98,8 +98,8 @@ ShellRoot {
         var on = remember
         root.step(function () {
             root.phase = on ? "remember on" : "remember off"
-            Flea.ViewState.changeKey("view", "columns")
-            Flea.ViewState.changeKey("rememberViewPerFolder", on)
+            Dlea.ViewState.changeKey("view", "columns")
+            Dlea.ViewState.changeKey("rememberViewPerFolder", on)
             root.held = JSON.stringify(root.stored())
             root.pane = paneComponent.createObject(win.contentItem)
         })
@@ -154,7 +154,7 @@ ShellRoot {
         root.seeView("the Grid key draws Grid", "grid")
         root.see(on ? "the keys stored A's view" : "off, the keys wrote nothing to folderViews", function () { return on ? root.stored()[root.a] : root.unchanged() }, on ? "grid" : true)
         // Dual is a window layout: both panes draw the list, and a view choice leaves it and shows on the primary pane.
-        root.step(function () { Flea.ViewState.changeKey("view", "dual") })
+        root.step(function () { Dlea.ViewState.changeKey("view", "dual") })
         root.seeView("Dual draws the list in the primary pane", "list")
         root.see("Dual is on for the pane", function () { return root.pane.dualMode }, true)
         root.key("viewList")
@@ -162,7 +162,7 @@ ShellRoot {
         root.seeView("and the primary pane draws the chosen List", "list")
         root.see("and it is the standing view", root.standing, "list")
         root.see(on ? "and A remembers it" : "off, nothing is written to folderViews", function () { return on ? root.stored()[root.a] : root.unchanged() }, on ? "list" : true)
-        root.step(function () { Flea.ViewState.changeKey("view", "dual") })
+        root.step(function () { Dlea.ViewState.changeKey("view", "dual") })
         root.choose("columns")
         root.see("a view button in Dual leaves Dual as the key does", function () { return root.pane.dualMode }, false)
         root.see("and the button's view is the standing one", root.standing, "columns")
@@ -172,7 +172,7 @@ ShellRoot {
         root.choose("columns")
         root.see(on ? "A starts remembered as Columns" : "off, the standing view starts as Columns", function () { return on ? root.stored()[root.a] : root.standing() }, "columns")
         root.step(function () {
-            Flea.ViewState.changeKey("view", "dual")
+            Dlea.ViewState.changeKey("view", "dual")
             root.secondHost = secondComponent.createObject(win.contentItem)
             root.secondHost.pane.open(root.b)
         }, function () { return !root.secondHost.pane.listInFlight && root.secondHost.pane.path === root.b && root.secondHost.pane.total > 0 })
@@ -184,13 +184,13 @@ ShellRoot {
         root.see(on ? "and A remembers Grid" : "off, nothing is written to folderViews", function () { return on ? root.stored()[root.a] : root.unchanged() }, on ? "grid" : true)
         root.see(on ? "and the secondary pane's folder is unchanged" : "off, the secondary pane's folder stores nothing", function () { return on ? JSON.stringify(root.stored()[root.b]) === root.heldB : root.unchanged() }, true)
         // Entering Dual again, the Columns key on the secondary pane does the same.
-        root.step(function () { Flea.ViewState.changeKey("view", "dual") })
+        root.step(function () { Dlea.ViewState.changeKey("view", "dual") })
         root.step(function () { root.secondHost.pane.act("viewColumns") })
         root.see("the Columns key on the secondary pane leaves Dual", function () { return root.pane.dualMode }, false)
         root.seeView("and the primary pane draws Columns", "columns")
         root.see(on ? "and A remembers Columns, B stays as it was" : "off, nothing is written to folderViews",
                  function () { return on ? [root.stored()[root.a], JSON.stringify(root.stored()[root.b]) === root.heldB] : root.unchanged() }, on ? ["columns", true] : true)
-        root.step(function () { Flea.ViewState.changeKey("view", "columns") })
+        root.step(function () { Dlea.ViewState.changeKey("view", "columns") })
         root.choose("columns")
         root.see("the standing view is Columns again", root.standing, "columns")
         // A search stands over its folder, and a history over the root: neither is a folder to remember a view for.
@@ -212,19 +212,19 @@ ShellRoot {
                  function () { return on ? Object.keys(root.stored()).sort() : JSON.stringify(root.stored()) === root.held }, on ? [root.a, root.b] : true)
         // The setting is read live: the open folder takes the view the new setting gives it, as the sort setting re-applies the open folder's sort.
         if (on) {
-            root.step(function () { Flea.ViewState.changeKey("view", "grid") })
+            root.step(function () { Dlea.ViewState.changeKey("view", "grid") })
             root.seeView("the standing view changing leaves the open folder's own Columns", "columns")
-            root.step(function () { Flea.ViewState.changeKey("rememberViewPerFolder", false) })
+            root.step(function () { Dlea.ViewState.changeKey("rememberViewPerFolder", false) })
             root.seeView("switching the setting off draws the open folder in the standing Grid", "grid")
-            root.step(function () { Flea.ViewState.changeKey("rememberViewPerFolder", true) })
+            root.step(function () { Dlea.ViewState.changeKey("rememberViewPerFolder", true) })
             root.seeView("and switching it on again draws the open folder's own Columns", "columns")
-            root.step(function () { Flea.ViewState.changeKey("view", "columns") })
+            root.step(function () { Dlea.ViewState.changeKey("view", "columns") })
         }
         // A listing that fails leaves the pane on its folder and in that folder's own view, whatever view the folder asked for held.
         root.step(function () {
             var leaf = {}
             leaf[root.gone] = "grid"
-            Flea.ViewState.changeMapEntries("folderViews", leaf, FolderViews.set(root.stored(), root.gone, "grid"))
+            Dlea.ViewState.changeMapEntries("folderViews", leaf, FolderViews.set(root.stored(), root.gone, "grid"))
             root.pane.open(root.gone)
             root.sample()
         }, function () { return !root.pane.listInFlight })

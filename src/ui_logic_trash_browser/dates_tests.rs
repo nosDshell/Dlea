@@ -4,7 +4,7 @@ use super::words::{deleted_text, location_text};
 use crate::i18n::{I18n, Paths};
 
 pub(super) fn english() -> I18n {
-    let none = std::path::PathBuf::from("/nonexistent/flea-pl3");
+    let none = std::path::PathBuf::from("/nonexistent/dlea-pl3");
     I18n::load(Paths { omarchy: none.clone(), language_file: none, catalogs: Vec::new() })
 }
 

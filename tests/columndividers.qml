@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-columndividers-test
+//@ pragma ShellId dlea-columndividers-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // e21 column dividers: the active pane draws its edge only while the third column draws.
 ShellRoot {
@@ -189,7 +189,7 @@ ShellRoot {
     property var stubPane: paneStub.createObject(root, { backend: root.stubBackend })
     property var failures: []
 
-    Flea.ColumnsArea {
+    Dlea.ColumnsArea {
         id: area
         width: 900
         height: 600
@@ -273,7 +273,7 @@ ShellRoot {
                 root.fail("an empty third shows thirdShown true, want false")
             root.checkActive(false, "empty third")
             if (root.failures.length > 0) { root.report(); return }
-            Flea.ViewState.state = {}
+            Dlea.ViewState.state = {}
             area.shownHasRow = true
             area.shownIsDir = true
             area.shownChildPath = "/a/b/c/sub"
@@ -298,7 +298,7 @@ ShellRoot {
             area.shownHasRow = true
             area.shownIsDir = false
             area.shownChildPath = ""
-            Flea.ViewState.state = {}
+            Dlea.ViewState.state = {}
             fileTimer.start()
         } catch (e) {
             root.fail("measureDir threw " + e)
@@ -312,7 +312,7 @@ ShellRoot {
                 root.fail("a file preview with the preview column on leaves thirdShown false, want true")
             root.checkActive(true, "file preview with the preview column on")
             if (root.failures.length > 0) { root.report(); return }
-            Flea.ViewState.state = { preview: { column: false } }
+            Dlea.ViewState.state = { preview: { column: false } }
             offTimer.start()
         } catch (e) {
             root.fail("measureFileOn threw " + e)
@@ -326,7 +326,7 @@ ShellRoot {
                 root.fail("with the preview column off a file keeps thirdShown true, want false")
             root.checkActive(false, "preview column off")
             if (root.failures.length > 0) { root.report(); return }
-            Flea.ViewState.state = { columnsLimit: 5 }
+            Dlea.ViewState.state = { columnsLimit: 5 }
             root.stubPane.path = "/a/b/c/d"
             area.shownHasRow = false
             area.shownIsDir = false

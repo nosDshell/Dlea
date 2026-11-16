@@ -1,6 +1,6 @@
 # Native terminal battery
 
-`tools/flea-tui-battery` captures the approved terminal states in independent alacritty,
+`tools/dlea-tui-battery` captures the approved terminal states in independent alacritty,
 foot, ghostty and kitty windows, and in a private tmux server inside foot. It uses a
 controller-owned Hyprland headless output and compositor-delivered shortcuts. Text
 setup replay is labelled separately in the PTY transcript.
@@ -11,24 +11,24 @@ tools. No package installation or persistent configuration changes are performed
 
 ```bash
 run=$(mktemp -d "$PWD/.superpowers/tui-battery.XXXXXXXX")
-printf '%s\n' 'owned terminal battery' > "$run/.flea-test-sandbox"
-tools/flea-tui-battery --binary /absolute/path/to/flea \
+printf '%s\n' 'owned terminal battery' > "$run/.dlea-test-sandbox"
+tools/dlea-tui-battery --binary /absolute/path/to/dlea \
   --boards /absolute/path/to/design-hig --fixtures /absolute/path/to/fixture-bundle \
   --output "$run/capture" --terminals alacritty,foot,ghostty,kitty,tmux
 ```
 
-The output must be new and beneath an existing, nonempty `.flea-test-sandbox`
+The output must be new and beneath an existing, nonempty `.dlea-test-sandbox`
 marker. Evidence is retained, including failures. Each case's `/fx` tree is built
 in its own marked root on tmpfs (`/dev/shm`), the filesystem the boards' folder totals
-come from: a tmpfs folder reports 40 bytes plus 20 per entry, and Flea's folder sizes
+come from: a tmpfs folder reports 40 bytes plus 20 per entry, and Dlea's folder sizes
 sum those. Once the terminal closes, the tree is copied into the case's `fx` directory,
 where it is retained, and only the tmpfs copy is removed.
 The candidate sees only the private writable `/fx` tree, private temporary files and
 read-only system libraries. `/fx/v/work` is a namespace path, never a host mount.
 The candidate has no host network, clipboard socket or CUPS socket. Two host resources
 a user's terminal provides are bound read-only: the system font cache
-(`/var/cache/fontconfig`), so Flea's 150 ms font probe answers as it does outside the
-sandbox, and under tmux the server socket that `TMUX` names, so Flea can ask its tmux
+(`/var/cache/fontconfig`), so Dlea's 150 ms font probe answers as it does outside the
+sandbox, and under tmux the server socket that `TMUX` names, so Dlea can ask its tmux
 client for RGB.
 
 `--states tui-list-text,tui-empty` and `--terminals foot` select reruns. `--list`
@@ -50,7 +50,7 @@ capability controls. No diagnostic image or fake terminal result counts as nativ
 ## Display ownership, preflight and smoke
 
 `--preflight` (with `--boards`) answers in about three seconds. It refuses a locked
-session, a `FLEA-` output or a `flea.battery.` window left by another run, a mapped
+session, a `DLEA-` output or a `dlea.battery.` window left by another run, a mapped
 screensaver, and any pointer, focus, workspace or window change during its quiet
 window. A native run repeats the same check before it creates its output.
 
@@ -60,7 +60,7 @@ still shows the owned workspace and that the session is not locked. When either 
 fails, the run stops and blocks every remaining state with the same reason. Before
 `grim` runs, each capture parks the pointer on the owned output's bottom-right pixel,
 outside every window, and reads its position back. The
-window class is a valid GTK application ID (`flea.battery.t<hex>`), so ghostty keeps
+window class is a valid GTK application ID (`dlea.battery.t<hex>`), so ghostty keeps
 it. A terminal that opens at another cell size is resized from its own reported cell
 metrics; one that reports no pixel metrics is blocked. Each state quits through the
 keymap's quit key, with an Escape retry, and the relay only signals a candidate that
@@ -80,7 +80,7 @@ Failures, skipped tests, incomplete diagnostics and missing reference inputs fai
 
 The wrapper owns a marked `mktemp` root, starts Python with `env -i`, `setsid -w`
 and stdin from `/dev/null`, and sets only private HOME/XDG/temp/test/reference paths.
-Every regression respects `FLEA_BATTERY_TEST_ROOT`; the wrapper removes only its own
+Every regression respects `DLEA_BATTERY_TEST_ROOT`; the wrapper removes only its own
 marked root on exit. The CI broker supplies the private PID namespace and disabled
 network. No native terminal, display, installed chafa or external design directory
 is needed by this offline suite.
@@ -106,7 +106,7 @@ The read-only bundle's `manifest.json` has schema:
 ]}}}
 ```
 
-`tools/flea-tui-fixture-bundle OUTPUT [--seed BENCH_WORK_DIR]` writes this bundle, read-only, beneath a marked
+`tools/dlea-tui-fixture-bundle OUTPUT [--seed BENCH_WORK_DIR]` writes this bundle, read-only, beneath a marked
 `mktemp` root and prints its `bundle_sha256`. `--seed` copies the bench fixture's Media encoder outputs byte for
 byte; missing ones come from the bench recipe's magick and ffmpeg commands, and `report.pdf` takes the recipe's raw
 pixels in the bundle's own PDF writer, with fixed dates and no `/ID`. In `test_fixture_bundle.py`,
@@ -132,7 +132,7 @@ entries cannot replace existing files or escape the private tree. Family `featur
 declare which fixture integrations they supply; observable behavior still has to pass.
 
 `--seams FILE` accepts a map from state IDs to `features` and `environment` objects.
-Only explicit candidate `FLEA_TUI_` test variables are accepted. This is for forced
+Only explicit candidate `DLEA_TUI_` test variables are accepted. This is for forced
 font states, never evidence that kitty or ghostty lack their builtin glyphs. Graphics
 negative states are implemented by the relay itself: it drops only recognized positive
 graphics replies and logs every dropped response. It never invents a positive reply.
@@ -247,7 +247,7 @@ Both live execution and reconciliation require zero terminal and candidate exit 
 and restored candidate/relay termios. Missing or signal exits fail acceptance.
 
 The Python regressions include native-boundary doubles for the real acceptance paths.
-`settings_reader/Cargo.toml` is a dependency-free probe of Flea's actual Rust settings
+`settings_reader/Cargo.toml` is a dependency-free probe of Dlea's actual Rust settings
 reader: run it through the build broker, passing preset/JSON pairs emitted by those
 regressions. It verifies nondefault root-level `keys` without modifying product code.
 

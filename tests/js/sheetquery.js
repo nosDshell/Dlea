@@ -56,11 +56,11 @@ function run(check) {
     var muteRows = SheetQuery.rank(SheetQuery.actionCandidates(Keymap.sheetFor("default", "gui", false)), captureQueries[3])
     check("the capture mute query finds its shipped row with its where",
           muteRows.map(function (row) { return row.keys + " " + row.label + " in " + row.where }).join("\n"), "m Mute in Preview")
-    // CommandPalette "After typing fl": the favourite flea leads the recent file mix.flac, each with its own where.
-    var flRows = SheetQuery.rank(SheetQuery.placeCandidates([{ label: "flea", group: "favourite", kind: "favourite", path: "/home/probe/flea" }]).concat(
+    // CommandPalette "After typing fl": the favourite dlea leads the recent file mix.flac, each with its own where.
+    var flRows = SheetQuery.rank(SheetQuery.placeCandidates([{ label: "dlea", group: "favourite", kind: "favourite", path: "/home/probe/dlea" }]).concat(
         SheetQuery.recentCandidates(["/home/probe/Documents/claude/mix.flac"], "/home/probe")), captureQueries[1])
     check("fl lists the favourite then the recent file", flRows.map(function (row) { return row.label + " in " + row.where }).join("|"),
-          "Open flea in Favorites|Open mix.flac in ~/Documents/claude")
+          "Open dlea in Favorites|Open mix.flac in ~/Documents/claude")
     // An exact NAME match ranks first, above an exact action label.
     var trashRows = [
         { label: "trash", keys: "dd", section: 0, where: "", action: "trash" },

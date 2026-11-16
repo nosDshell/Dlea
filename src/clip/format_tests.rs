@@ -127,29 +127,29 @@ fn every_refusal_is_a_skip_and_never_a_failed_read() {
 }
 
 #[test]
-fn kde_and_flea_tokens_decide_cut_and_identity() {
+fn kde_and_dlea_tokens_decide_cut_and_identity() {
     assert!(parse_kde_cut(b"1"));
     assert!(parse_kde_cut(b"1\r\n"));
     assert!(!parse_kde_cut(b"0"));
     assert_eq!(
-        parse_flea(b"cut ab12cd34ab12cd34ab12cd34ab12cd34"),
+        parse_dlea(b"cut ab12cd34ab12cd34ab12cd34ab12cd34"),
         Some((
             "cut".into(),
             "ab12cd34ab12cd34ab12cd34ab12cd34".into(),
             None
         ))
     );
-    assert!(parse_flea(b"copy short").is_none());
-    assert!(parse_flea(b"copy ab12cd34ab12cd34ab12cd34ab12cd3!").is_none());
-    assert!(parse_flea(b"move ab12cd34ab12cd34ab12cd34ab12cd34").is_none());
+    assert!(parse_dlea(b"copy short").is_none());
+    assert!(parse_dlea(b"copy ab12cd34ab12cd34ab12cd34ab12cd3!").is_none());
+    assert!(parse_dlea(b"move ab12cd34ab12cd34ab12cd34ab12cd34").is_none());
 }
 
 #[test]
-fn flea_owner_pids_are_optional_and_do_not_change_the_token() {
+fn dlea_owner_pids_are_optional_and_do_not_change_the_token() {
     let token = "ab12cd34ab12cd34ab12cd34ab12cd34";
     let old = format!("cut {}", token);
     assert_eq!(pid_of(old.as_bytes()), None);
-    let bytes = build_flea("cut", token);
+    let bytes = build_dlea("cut", token);
     assert_eq!(parsed_pair(&bytes), parsed_pair(old.as_bytes()));
     assert_eq!(pid_of(&bytes), Some(std::process::id()));
     for pid in ["0", "-1", "2147483648", "no-pid", "23 24"] {
@@ -159,13 +159,13 @@ fn flea_owner_pids_are_optional_and_do_not_change_the_token() {
     }
 }
 
-// The operation and token a Flea payload parses to, without its optional owner pid.
+// The operation and token a Dlea payload parses to, without its optional owner pid.
 fn parsed_pair(bytes: &[u8]) -> Option<(String, String)> {
-    parse_flea(bytes).map(|(op, token, _)| (op, token))
+    parse_dlea(bytes).map(|(op, token, _)| (op, token))
 }
 
 fn pid_of(bytes: &[u8]) -> Option<u32> {
-    parse_flea(bytes).and_then(|(_, _, pid)| pid)
+    parse_dlea(bytes).and_then(|(_, _, pid)| pid)
 }
 
 #[test]
@@ -247,7 +247,7 @@ fn tui17_text_payload_offers_no_file_identity_or_uri_list() {
 
 #[test]
 fn a_raw_name_round_trips_by_its_own_bytes_and_reads_lossy_as_plain_text() {
-    let paths = vec![format!("/tmp/{}", flea::bytename::name_text(b"r\xff.txt"))];
+    let paths = vec![format!("/tmp/{}", dlea::bytename::name_text(b"r\xff.txt"))];
     assert_eq!(build_urilist(&paths), b"file:///tmp/r%FF.txt\r\n");
     assert_eq!(parse_urilist(&build_urilist(&paths)), (paths.clone(), 0));
     assert_eq!(build_plain(&paths), "/tmp/r\u{fffd}.txt".as_bytes());

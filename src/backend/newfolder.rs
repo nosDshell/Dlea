@@ -1,13 +1,13 @@
 use super::opsname::name_refusal;
 use super::undo::{ItemIdentity, Step};
-use crate::error::{from_io, FleaError};
+use crate::error::{from_io, DleaError};
 use std::path::{Path, PathBuf};
 
 const NAME_TRIES: usize = 999;
 const NEW_FOLDER: &str = "New Folder";
 
-fn named(where_: &str, path: &Path, msg: &str) -> FleaError {
-    FleaError {
+fn named(where_: &str, path: &Path, msg: &str) -> DleaError {
+    DleaError {
         where_: where_.into(),
         path: path.to_string_lossy().into_owned(),
         msg: msg.into(),
@@ -15,7 +15,7 @@ fn named(where_: &str, path: &Path, msg: &str) -> FleaError {
 }
 
 // Explicit names remain exact; an empty name takes the first free default across all siblings.
-pub fn mkdir(parent: &Path, name: &str) -> Result<(PathBuf, Vec<Step>), FleaError> {
+pub fn mkdir(parent: &Path, name: &str) -> Result<(PathBuf, Vec<Step>), DleaError> {
     mkdir_with_base(parent, name, None)
 }
 
@@ -24,7 +24,7 @@ pub fn mkdir_with_base(
     parent: &Path,
     name: &str,
     default_base: Option<&str>,
-) -> Result<(PathBuf, Vec<Step>), FleaError> {
+) -> Result<(PathBuf, Vec<Step>), DleaError> {
     // Relative would resolve against the backend's own working directory, which no listing ever names.
     if !parent.is_absolute() {
         return Err(named("mkdir", parent, "a parent must be an absolute path"));

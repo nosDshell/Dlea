@@ -1,6 +1,6 @@
 # Mount-failure board capture, by name only; reuses cap_unlock_lsblk_shim, which lists a loop device as a removable stick.
 
-# The scope polkit trusts: an ssh-started process is an inactive subject, so loop-setup, unmount and loop-delete run in the graphical slice like Flea.
+# The scope polkit trusts: an ssh-started process is an inactive subject, so loop-setup, unmount and loop-delete run in the graphical slice like Dlea.
 cap_mountfail_wrap=(systemd-run --user --scope --quiet --slice=app-graphical.slice)
 
 # The manager is on the real user bus; only its child keeps the fixture's isolated bus and runtime.
@@ -57,7 +57,7 @@ PY
 cap_mountfail_attach() {
     local img="$1" out="" dev=""
     out=$(cap_mountfail_scope udisksctl loop-setup --no-user-interaction -r -f "$img" 2>&1) || { printf 'cap_mountfail_attach: loop-setup refused: %s\n' "$out" >&2; return 1; }
-    # Sample input: "Mapped file /home/flea-sandbox/x/disk.img as /dev/loop3."
+    # Sample input: "Mapped file /home/dlea-sandbox/x/disk.img as /dev/loop3."
     dev=$(sed -n 's/.* as \(\/dev\/loop[0-9][0-9]*\)\.$/\1/p' <<< "$out" | head -n 1)
     [[ "$dev" =~ ^/dev/loop[0-9]+$ ]] || { printf 'cap_mountfail_attach: no loop device in [%s]\n' "$out" >&2; return 1; }
     printf '%s' "$dev"
@@ -101,7 +101,7 @@ cap_mountfail_still() {
 case_cap_mountfail() {
     local dir="$fixture_root/cap-mountfail" box="$fixture_root/cap-mountfail-box" img="" fs="" dev="" shim="" index="" label="DATA #2"
     local headline="" detail="" end="" row=""
-    local -a flea_launch_wrap=("${cap_mountfail_wrap[@]}")
+    local -a dlea_launch_wrap=("${cap_mountfail_wrap[@]}")
     command -v udisksctl >/dev/null || fail "cap_mountfail: udisksctl is not on PATH, so the image cannot be attached"
     sandbox_scratch "$dir"
     sandbox_scratch "$box"
@@ -152,7 +152,7 @@ case_cap_mountfail() {
     # Pinned for the MOUNTFAIL build: gio's own reason is the detail line. Red on stage4, whose message carries no detail, after both shots are kept.
     [[ "$detail" == *"superblock"* ]] || fail "cap_mountfail: the detail line is [$detail], not gio's reason (wrong fs type, bad superblock); expected red before MOUNTFAIL"
     printf 'CAP_MOUNTFAIL fs=%s headline=%q detail=%q shots=880,500\n' "$fs" "$headline" "$detail"
-    kill_flea
+    kill_dlea
     cap_mountfail_cleanup "$dev" "$box"
     trap - EXIT
 }

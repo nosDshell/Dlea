@@ -5,7 +5,7 @@ use crate::backend::run::{forget_rows, write_window};
 use crate::backend::searchreq::finish_search;
 use crate::backend::state::{Held, State, Tables};
 use crate::backend::thumbs::Pool;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
@@ -35,7 +35,7 @@ pub fn listing_of(paths: &[String]) -> (Listing, f64) {
         }
         // The link's own type, the same rule scan() reads off d_type: a symlink to a directory is
         // listed as a file, and a symlink to nothing is still an entry the user put here.
-        let exact = flea::bytename::exact(path);
+        let exact = dlea::bytename::exact(path);
         let owned = exact.clone();
         let meta = match super::iomount::call(&exact, &body, "listpaths", move || {
             fs::symlink_metadata(&owned)

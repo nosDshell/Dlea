@@ -3,7 +3,7 @@
   "id": "example.torrent-preview",
   "name": "Torrent Preview",
   "version": "1.0.0",
-  "author": "Flea",
+  "author": "Dlea",
   "license": "MIT",
   "description": "Shows a torrent file's name, size and files as plain text.",
   "kinds": ["previewer"],

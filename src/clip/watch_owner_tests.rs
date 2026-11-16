@@ -27,7 +27,7 @@ fn no_line(incoming: &Receiver<OpMsg>) {
 }
 
 fn spawn() -> Reaped {
-    Reaped(Some(std::process::Command::new(flea::testpath::tool("/bin/true")).spawn().unwrap()))
+    Reaped(Some(std::process::Command::new(dlea::testpath::tool("/bin/true")).spawn().unwrap()))
 }
 
 fn end(mut child: Reaped, token: &str) {

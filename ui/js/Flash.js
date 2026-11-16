@@ -29,7 +29,7 @@ function isCard(dev) {
 // Refusal hints, each one whole sentence.
 var HINT_SMALL = "It is too small for the image."
 var HINT_LOCK = "Its lock switch is on. Slide the switch off and plug the card in again."
-var HINT_READONLY = "It is read-only, so Flea cannot write to it."
+var HINT_READONLY = "It is read-only, so Dlea cannot write to it."
 var HINT_HOLDS_IMAGE = "The image is on this drive. Copy it elsewhere first."
 var HINT_MEMBER = "It is part of a RAID or volume group."
 var HINT_NOT_IMAGE = "This file is not a disk image."

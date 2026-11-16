@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-picker-grid-test
+//@ pragma ShellId dlea-picker-grid-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Picker.js" as Picker
+import "dlea" as Dlea
+import "dlea/js/Picker.js" as Picker
 
 // Visible tiles only: unknown storage holds every ask, one screen asks after movement stops.
 // Real window chain below proves onListed asks fsinfo and the grid asks thumb after it.
@@ -91,7 +91,7 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 900
         implicitHeight: 500
-        Flea.PickerGrid {
+        Dlea.PickerGrid {
             id: grid
             width: 700
             height: 300
@@ -100,7 +100,7 @@ ShellRoot {
             picker: root.stubPicker
             backend: root.stubBackend
         }
-        Flea.PickerList {
+        Dlea.PickerList {
             id: listProbe
             visible: false
             width: 400
@@ -131,8 +131,8 @@ ShellRoot {
         var cursorTile = grid.itemAtIndex(0), markedTile = grid.itemAtIndex(1)
         if (!cursorTile || !markedTile) { root.fail("tiles 0 and 1 were not built to check their frames"); return }
         var edge = cursorTile.children[0].children[0], wash = markedTile.children[0].children[0]
-        var accent = Flea.Theme.color.accent
-        if (edge.border.width !== Flea.Theme.spacing.hairline) root.fail("the cursor tile's frame is " + edge.border.width + " px, want the hairline")
+        var accent = Dlea.Theme.color.accent
+        if (edge.border.width !== Dlea.Theme.spacing.hairline) root.fail("the cursor tile's frame is " + edge.border.width + " px, want the hairline")
         if (!Qt.colorEqual(edge.border.color, accent)) root.fail("the cursor tile's frame is " + edge.border.color + ", want the accent")
         if (edge.color.a <= 0 || Math.abs(edge.color.r - accent.r) > 0.01 || Math.abs(edge.color.g - accent.g) > 0.01 || Math.abs(edge.color.b - accent.b) > 0.01)
             root.fail("the cursor tile's wash is " + edge.color + ", want the accent at some alpha")
@@ -259,8 +259,8 @@ ShellRoot {
                 root.stubPicker.cursorIndex = 300
                 listProbe.reshow(300)
                 if (root.stubBackend.windowCalls === calls) { root.fail("a reshown list never refetched its window"); return }
-                var rowTop = 300 * Flea.Theme.rowHeight
-                if (!(listProbe.contentY <= rowTop && rowTop + Flea.Theme.rowHeight <= listProbe.contentY + listProbe.height)) { root.fail("a reshown list never showed row 300"); return }
+                var rowTop = 300 * Dlea.Theme.rowHeight
+                if (!(listProbe.contentY <= rowTop && rowTop + Dlea.Theme.rowHeight <= listProbe.contentY + listProbe.height)) { root.fail("a reshown list never showed row 300"); return }
                 listProbe.visible = false
                 return
             }
@@ -327,7 +327,7 @@ ShellRoot {
             }
             root.hiddenShown = listProbe.count
             listProbe.visible = false
-            var winComp = Qt.createComponent("flea/PickerWindow.qml")
+            var winComp = Qt.createComponent("dlea/PickerWindow.qml")
             if (winComp.status !== Component.Ready) {
                 root.fail("PickerWindow does not compile: " + winComp.errorString())
                 return
@@ -352,7 +352,7 @@ ShellRoot {
                 var firstGrid = root.win.viewItem()
                 if (firstGrid && firstGrid.settleRuns > 0) {
                     if (root.winThumbPending()) { root.fail("the first settle asked while storage was unknown"); return }
-                    Quickshell.execDetached(["touch", Quickshell.env("FLEA_PICKER_SETTLED")])
+                    Quickshell.execDetached(["touch", Quickshell.env("DLEA_PICKER_SETTLED")])
                     root.settledWritten = true
                 }
             }
@@ -386,8 +386,8 @@ ShellRoot {
         case 45: {
             if (root.win.viewMode !== "list") { root.fail("setView list never switched view"); return }
             var lview = root.win.viewItem()
-            var ltop = root.win.cursorIndex * Flea.Theme.rowHeight
-            if (!(lview.contentY <= ltop && ltop + Flea.Theme.rowHeight <= lview.contentY + lview.height)) {
+            var ltop = root.win.cursorIndex * Dlea.Theme.rowHeight
+            if (!(lview.contentY <= ltop && ltop + Dlea.Theme.rowHeight <= lview.contentY + lview.height)) {
                 if (Date.now() - root.stageSince > root.askWaitMs) { root.fail("setView list never showed the cursor row"); }
                 return
             }
@@ -414,7 +414,7 @@ ShellRoot {
                 if (Date.now() - root.stageSince > root.askWaitMs) { root.fail("setView grid never refetched its window"); }
                 return
             }
-            root.win.open("flea:recent")
+            root.win.open("dlea:recent")
             root.stage = 43
             root.stageSince = Date.now()
             return
@@ -424,7 +424,7 @@ ShellRoot {
                 root.fail("real window vanished before Recent")
                 return
             }
-            if (root.win.path !== "flea:recent") {
+            if (root.win.path !== "dlea:recent") {
                 if (Date.now() - root.stageSince > root.askWaitMs) { root.fail("Recent never opened, at " + root.win.path); }
                 return
             }
@@ -443,7 +443,7 @@ ShellRoot {
         }
         case 44: {
             if (root.win.storageKnown) { root.fail("Recent asked fsinfo, storage is known"); return }
-            if (root.win.path !== "flea:recent") { root.fail("left Recent before its window answered"); return }
+            if (root.win.path !== "dlea:recent") { root.fail("left Recent before its window answered"); return }
             if (root.win.rows.length > 0) { root.report(); return }
             var again = root.win.viewItem()
             if (again) again.contentY = again.contentHeight

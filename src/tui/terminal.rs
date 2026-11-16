@@ -93,7 +93,7 @@ impl Terminal {
             active: false,
             keyboard_pushed: false,
             resumed: false,
-            trace: std::env::var("FLEA_TUI_CAPABILITIES").as_deref() == Ok("1"),
+            trace: std::env::var("DLEA_TUI_CAPABILITIES").as_deref() == Ok("1"),
             transport: super::tmux::Transport::discover(),
             decoder: super::input::Decoder::default(),
             shm_directory: shm_directory.to_owned(),
@@ -118,8 +118,8 @@ impl Terminal {
     }
     pub fn run_editor(&mut self, editor: &str, path: &Path) -> io::Result<()> {
         // The bulk editor is shell syntax; keep filename bytes in $1, outside the shell program.
-        let mut command = Command::new(flea::testpath::tool("/bin/sh"));
-        command.args(["-c", &format!("exec {} \"$1\"", editor), "flea-bulk-rename"]).arg(path);
+        let mut command = Command::new(dlea::testpath::tool("/bin/sh"));
+        command.args(["-c", &format!("exec {} \"$1\"", editor), "dlea-bulk-rename"]).arg(path);
         // A program sh could not find is named, as E names it.
         self.run(command, |status| {
             super::external_editor::missing(editor, status)
@@ -177,7 +177,7 @@ impl Terminal {
         Ok(())
     }
     fn trace_capabilities(&self) {
-        if self.trace { let _ = writeln!(io::stderr().lock(), "flea: terminal capabilities {:?}", self.decoder.negotiation.detected); }
+        if self.trace { let _ = writeln!(io::stderr().lock(), "dlea: terminal capabilities {:?}", self.decoder.negotiation.detected); }
     }
     pub fn decode(&mut self, bytes: &[u8], idle: bool) -> io::Result<Vec<super::input::Key>> {
         let previous = self.decoder.negotiation.detected;
@@ -262,7 +262,7 @@ impl Drop for Terminal {
     fn drop(&mut self) {
         // A second stop signal can kill this stty too, and nothing restores the terminal after Drop, so it gets one retry.
         let restored = self.restore(RESTORE_FAILED).or_else(|_| self.restore(RESTORE_FAILED));
-        if let Err(error) = restored { eprintln!("flea: {}", error); }
+        if let Err(error) = restored { eprintln!("dlea: {}", error); }
         // kitty unlinks the object once it reads it; a terminal that could not read it leaves it here.
         let _ = std::fs::remove_file(self.shm_directory.join(shm_name()));
         for &(sig, handler) in &self.handlers {
@@ -274,7 +274,7 @@ impl Drop for Terminal {
 }
 const SHM_DIR: &str = "/dev/shm";
 fn shm_name() -> String {
-    format!("flea-tui-shm-{}", std::process::id())
+    format!("dlea-tui-shm-{}", std::process::id())
 }
 // Kitty answers this query with OK only when it can read the private pixel from shared memory.
 fn shm_query(dir: &Path, name: &str, id: u32) -> Option<String> {

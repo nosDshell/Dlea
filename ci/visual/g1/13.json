@@ -420,7 +420,7 @@
       },
       "assertions": [
         "the status bar counts 9 items",
-        "the centre carries This folder is not on a drive Flea can eject. in the error role",
+        "the centre carries This folder is not on a drive Dlea can eject. in the error role",
         "esc dismisses it"
       ],
       "parity_ids": [

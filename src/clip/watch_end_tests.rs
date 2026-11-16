@@ -17,7 +17,7 @@ const LIVE_OWNER_OFFER: u32 = SENTINEL_OFFER + 1;
 const WARMUP_OFFER: u32 = INITIAL_OFFER - 1;
 const NEXT_OWNER_OFFER: u32 = INITIAL_OFFER + 1;
 const SELECTION_COUNT: u32 = 100;
-const FLEA_RECEIVES: usize = 2;
+const DLEA_RECEIVES: usize = 2;
 const ONE_RECEIVE: usize = 1;
 // PF_EXITING marks a task that started do_exit, before join wakes.
 const PF_EXITING: u32 = 0x00000004;
@@ -29,12 +29,12 @@ const WAITER_STOP_HOLD_MS: u64 = 200;
 
 // Re-exec isolates fd and thread counts from concurrently running clipboard tests.
 fn isolated(name: &str) -> bool {
-    if std::env::var_os("FLEA_TEST_CLIP_END_CASE").as_deref() == Some(std::ffi::OsStr::new(name)) {
+    if std::env::var_os("DLEA_TEST_CLIP_END_CASE").as_deref() == Some(std::ffi::OsStr::new(name)) {
         return false;
     }
     let child = Reaped(Some(std::process::Command::new(std::env::current_exe().unwrap())
         .args(["--exact", &format!("clip::watch::tests::end::{}", name), "--nocapture"])
-        .env("FLEA_TEST_CLIP_END_CASE", name).spawn().unwrap()));
+        .env("DLEA_TEST_CLIP_END_CASE", name).spawn().unwrap()));
     let (done, ended) = channel();
     extern "C" {
         fn pidfd_open(pid: i32, flags: u32) -> i32;
@@ -59,7 +59,7 @@ fn isolated(name: &str) -> bool {
 
 #[test]
 fn stand_in_owner() {
-    if std::env::var_os("FLEA_TEST_CLIP_END_OWNER").is_none() {
+    if std::env::var_os("DLEA_TEST_CLIP_END_OWNER").is_none() {
         return;
     }
     use std::io::{Read, Write};
@@ -72,7 +72,7 @@ fn stand_in_owner() {
 fn child() -> Reaped {
     let mut owner = Reaped(Some(std::process::Command::new(std::env::current_exe().unwrap())
         .args(["--exact", CHILD_TEST, "--nocapture"])
-        .env("FLEA_TEST_CLIP_END_OWNER", "1")
+        .env("DLEA_TEST_CLIP_END_OWNER", "1")
         .stdin(std::process::Stdio::piped()).stdout(std::process::Stdio::piped()).spawn().unwrap()));
     let stdout = owner.0.as_mut().unwrap().stdout.take().unwrap();
     let (ready, received) = channel();
@@ -129,12 +129,12 @@ impl Watching {
             bytes.extend_from_slice(format!(" {}", pid).as_bytes());
         }
         let answers = HashMap::from([
-            (format::FLEA.into(), bytes),
+            (format::DLEA.into(), bytes),
             (format::GNOME.into(), format::build_gnome("cut", &["/tmp/a".into()])),
         ]);
         let conn = self.conn.as_mut().unwrap();
-        offer(conn, id, &[format::FLEA, format::GNOME]);
-        serve_n(conn, &answers, FLEA_RECEIVES);
+        offer(conn, id, &[format::DLEA, format::GNOME]);
+        serve_n(conn, &answers, DLEA_RECEIVES);
         assert_eq!(field_str(&changed(&self.incoming), "token").as_deref(), Some(token));
     }
 
@@ -187,13 +187,13 @@ fn t1_a_reserved_selection_never_reports_none() {
     owner.0.as_mut().unwrap().kill().unwrap();
     let mut fresh = watching.fresh();
     let callback = read_start(&mut fresh);
-    offer(&mut fresh, INITIAL_OFFER, &[format::FLEA, format::GNOME]);
+    offer(&mut fresh, INITIAL_OFFER, &[format::DLEA, format::GNOME]);
     fresh.send(callback, CALLBACK_DONE, &[], &[]).unwrap();
     let answers = HashMap::from([
-        (format::FLEA.into(), format!("cut {} {}", TOKEN, owner.0.as_ref().unwrap().id()).into_bytes()),
+        (format::DLEA.into(), format!("cut {} {}", TOKEN, owner.0.as_ref().unwrap().id()).into_bytes()),
         (format::GNOME.into(), format::build_gnome("cut", &["/tmp/a".into()])),
     ]);
-    serve_n(&mut fresh, &answers, FLEA_RECEIVES);
+    serve_n(&mut fresh, &answers, DLEA_RECEIVES);
     assert!(fresh.next_raw(WATCHDOG_MS).unwrap().is_none(), "the reread completes without another request");
     assert!(watching.incoming.try_recv().is_err(), "the completed reread must not guess none");
     watching.sentinel(SENTINEL_OFFER);
@@ -241,14 +241,14 @@ fn t3_a_new_report_wins_in_both_reply_orders() {
 }
 
 fn waiter_tasks() -> Vec<(String, Option<String>)> {
-    // One entry per task named flea-clip-end: its tid and the stat text after the last `)`.
+    // One entry per task named dlea-clip-end: its tid and the stat text after the last `)`.
     let mut out = Vec::new();
     let Ok(tasks) = std::fs::read_dir("/proc/self/task") else { return out; };
     for task in tasks.flatten() {
         let Ok(comm) = std::fs::read_to_string(task.path().join("comm")) else { continue; };
-        if comm.trim() != "flea-clip-end" { continue; }
+        if comm.trim() != "dlea-clip-end" { continue; }
         let tid = task.file_name().to_string_lossy().into_owned();
-        // Sample: "1234 (flea-clip-end) S 1 1234 1234 0 -1 4194624 ...".
+        // Sample: "1234 (dlea-clip-end) S 1 1234 1234 0 -1 4194624 ...".
         let stat = std::fs::read_to_string(task.path().join("stat")).ok()
             .and_then(|text| text.rfind(')').map(|end| text[end + 1..].to_string()));
         out.push((tid, stat));
@@ -257,7 +257,7 @@ fn waiter_tasks() -> Vec<(String, Option<String>)> {
 }
 
 fn waiter_detail() -> String {
-    // One entry per task named flea-clip-end, with the state and wchan as evidence.
+    // One entry per task named dlea-clip-end, with the state and wchan as evidence.
     let mut out = Vec::new();
     for (tid, stat) in waiter_tasks() {
         // Sample: " S 1 1234 1234 0 -1 4194624 ...", the stat text after its last `)`.
@@ -269,7 +269,7 @@ fn waiter_detail() -> String {
             .map(|s| s.trim().to_string()).unwrap_or_else(|_| String::from("nowchan"));
         out.push(format!("tid={} state={} flags={} wchan={}", tid, state, flags, wchan));
     }
-    if out.is_empty() { String::from("no flea-clip-end task") } else { out.join(" ") }
+    if out.is_empty() { String::from("no dlea-clip-end task") } else { out.join(" ") }
 }
 
 fn waiters_joined() -> bool {
@@ -308,7 +308,7 @@ fn t4_old_and_foreign_pids_never_trigger_a_read() {
     }
     watching.sentinel(SENTINEL_OFFER);
     watching.report(LIVE_OWNER_OFFER, TOKEN, Some(owner.0.as_ref().unwrap().id()));
-    assert!(counts().1 > 0, "a live Flea owner arms the positive control");
+    assert!(counts().1 > 0, "a live Dlea owner arms the positive control");
     owner.0.as_mut().unwrap().kill().unwrap();
     let mut fresh = watching.fresh();
     let callback = read_start(&mut fresh);
@@ -368,8 +368,8 @@ fn a_failed_exit_read_reports_nothing_and_never_retries() {
 }
 
 #[test]
-fn an_exit_read_of_a_new_flea_selection_arms_that_owners_exit() {
-    if isolated("an_exit_read_of_a_new_flea_selection_arms_that_owners_exit") { return; }
+fn an_exit_read_of_a_new_dlea_selection_arms_that_owners_exit() {
+    if isolated("an_exit_read_of_a_new_dlea_selection_arms_that_owners_exit") { return; }
     const NEXT: &str = "038b038b038b038b038b038b038b038b";
     let mut old = child();
     let mut next = child();
@@ -378,17 +378,17 @@ fn an_exit_read_of_a_new_flea_selection_arms_that_owners_exit() {
     old.0.as_mut().unwrap().kill().unwrap();
     let mut fresh = watching.fresh();
     let callback = read_start(&mut fresh);
-    offer(&mut fresh, INITIAL_OFFER, &[format::FLEA, format::GNOME]);
+    offer(&mut fresh, INITIAL_OFFER, &[format::DLEA, format::GNOME]);
     fresh.send(callback, CALLBACK_DONE, &[], &[]).unwrap();
     let answers = HashMap::from([
-        (format::FLEA.into(), format!("cut {} {}", NEXT, next.0.as_ref().unwrap().id()).into_bytes()),
+        (format::DLEA.into(), format!("cut {} {}", NEXT, next.0.as_ref().unwrap().id()).into_bytes()),
         (format::GNOME.into(), format::build_gnome("cut", &["/tmp/a".into()])),
     ]);
-    serve_n(&mut fresh, &answers, FLEA_RECEIVES);
+    serve_n(&mut fresh, &answers, DLEA_RECEIVES);
     assert_eq!(field_str(&changed(&watching.incoming), "token").as_deref(), Some(NEXT));
     let conn = watching.conn.as_mut().unwrap();
-    offer(conn, NEXT_OWNER_OFFER, &[format::FLEA, format::GNOME]);
-    serve_n(conn, &answers, FLEA_RECEIVES);
+    offer(conn, NEXT_OWNER_OFFER, &[format::DLEA, format::GNOME]);
+    serve_n(conn, &answers, DLEA_RECEIVES);
     next.0.as_mut().unwrap().kill().unwrap();
     let mut fresh = watching.fresh();
     let callback = read_start(&mut fresh);

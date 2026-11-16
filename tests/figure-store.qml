@@ -1,11 +1,11 @@
-//@ pragma ShellId flea-figure-store-test
+//@ pragma ShellId dlea-figure-store-test
 
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea/js/FigureDate.js" as FigureDate
-import "flea/js/FigureWarm.js" as FigureWarm
-import "flea" as Flea
+import "dlea/js/FigureDate.js" as FigureDate
+import "dlea/js/FigureWarm.js" as FigureWarm
+import "dlea" as Dlea
 
 // The persistent SVG cache through the real helper and store: a figure drawn once answers a repeat from disk with no helper, and no other theme or advance ever does.
 ShellRoot {
@@ -34,11 +34,11 @@ ShellRoot {
     property int placedWant: 2
     // The nested and mixed documents' figures sit inside an item and a quote, two depths down.
     property string nestPath: ""
-    readonly property string document: Quickshell.env("FLEA_FIGURE_STORE_DOC")
-    readonly property string nestedDocument: Quickshell.env("FLEA_FIGURE_NEST_DOC")
-    readonly property string mixedDocument: Quickshell.env("FLEA_FIGURE_MIXED_DOC")
-    readonly property string holdPath: Quickshell.env("FLEA_STORE_HOLD")
-    readonly property string gatePath: Quickshell.env("FLEA_STORE_GATE")
+    readonly property string document: Quickshell.env("DLEA_FIGURE_STORE_DOC")
+    readonly property string nestedDocument: Quickshell.env("DLEA_FIGURE_NEST_DOC")
+    readonly property string mixedDocument: Quickshell.env("DLEA_FIGURE_MIXED_DOC")
+    readonly property string holdPath: Quickshell.env("DLEA_STORE_HOLD")
+    readonly property string gatePath: Quickshell.env("DLEA_STORE_GATE")
     readonly property int idleExitMs: 150
     readonly property int watchdogMs: 90000
     readonly property var theme: ({ bg: "#101315", fg: "#c0caf5", accent: "#7aa2f7", font: "monospace", bodyPx: 14, exPx: 7 })
@@ -50,10 +50,10 @@ ShellRoot {
     // Most of an entry's size limit, so a kill instead of a drain leaves the store with only a pipe's worth of it.
     readonly property int largeSvgChars: 3500000
     readonly property string largeSvg: "<svg>" + "x".repeat(shell.largeSvgChars) + "</svg>"
-    readonly property string largeKey: Flea.FigureService.cacheKeyOf("math", "put then stop", shell.theme, true)
+    readonly property string largeKey: Dlea.FigureService.cacheKeyOf("math", "put then stop", shell.theme, true)
     Component.onCompleted: {
-        Flea.ViewState.setTextSize({ mode: 14 })
-        Flea.FigureService.idleExitMs = shell.idleExitMs
+        Dlea.ViewState.setTextSize({ mode: 14 })
+        Dlea.FigureService.idleExitMs = shell.idleExitMs
     }
 
     function check(passed, why) {
@@ -73,20 +73,20 @@ ShellRoot {
 
     // Forgets the in-memory answers, so only the disk can answer the next ask.
     function forgetMemory() {
-        Flea.FigureService.answerCache = ({})
-        Flea.FigureService.answerOrder = []
+        Dlea.FigureService.answerCache = ({})
+        Dlea.FigureService.answerOrder = []
     }
 
     function mark() {
-        shell.sendsMark = Flea.FigureService.sends
-        shell.exitsMark = Flea.FigureService.helperExits
-        shell.hitsMark = Flea.FigureService.persistent.hits
-        shell.missesMark = Flea.FigureService.persistent.misses
+        shell.sendsMark = Dlea.FigureService.sends
+        shell.exitsMark = Dlea.FigureService.helperExits
+        shell.hitsMark = Dlea.FigureService.persistent.hits
+        shell.missesMark = Dlea.FigureService.persistent.misses
     }
 
     function ask(kind, source, theme) {
         shell.forgetMemory()
-        shell.ticket = Flea.FigureService.ask(kind, source, true, theme)
+        shell.ticket = Dlea.FigureService.ask(kind, source, true, theme)
     }
 
     readonly property var figureBlock: ({ type: "figure", kind: "math", source: shell.source, display: true })
@@ -96,10 +96,10 @@ ShellRoot {
     // The warm query through the production key building, so a Gantt regression in it goes red here.
     function warmBlocks(blocks, themes) {
         function keyOf(kind, source, theme) {
-            return Flea.FigureService.cacheKeyOf(kind, source, theme, true);
+            return Dlea.FigureService.cacheKeyOf(kind, source, theme, true);
         }
         var query = FigureWarm.query(blocks, themes, keyOf);
-        var ok = Flea.FigureService.warm(query.keys, query.kinds);
+        var ok = Dlea.FigureService.warm(query.keys, query.kinds);
         if (!ok)
             shell.check(false, "warm query refused while the helper stood idle");
         return ok;
@@ -167,7 +167,7 @@ ShellRoot {
               shell.check(all === true && !service.helperRunning && !service.starting && service.sends === shell.sendsMark, "a Gantt document warmed from disk starts no helper")
           } },
         // A get starts the store, then a large put and an idle stop land in one turn: stdin closes and the store drains, where a kill would lose the entry.
-        { act: function () { Flea.FigureService.persistent.get(shell.probeId, "math\nnever stored\nfalse\nx") },
+        { act: function () { Dlea.FigureService.persistent.get(shell.probeId, "math\nnever stored\nfalse\nx") },
           answered: function (disk) {
               disk.put(shell.largeKey, shell.largeSvg)
               shell.check(disk.stop() === true, "an idle stop with only a put in flight is accepted")
@@ -266,7 +266,7 @@ ShellRoot {
 
     // The next case starts once the helper and the store have both stopped at their idle exit, so each case begins from nothing running.
     function settle() {
-        var service = Flea.FigureService
+        var service = Dlea.FigureService
         if (shell.waiting && !service.helperRunning && !service.starting && !service.persistent.active)
             shell.runNext()
     }
@@ -277,41 +277,41 @@ ShellRoot {
     }
 
     Connections {
-        target: Flea.FigureService
+        target: Dlea.FigureService
         function onDone(ticket, svg, error) {
             var current = shell.cases[shell.index]
             if (current && current.drawn) {
                 if (svg !== "" && error === "")
-                    current.drawn(Flea.FigureService)
+                    current.drawn(Dlea.FigureService)
                 return
             }
             if (ticket !== shell.ticket || !current || !current.verify)
                 return
-            current.verify(svg, error, Flea.FigureService, Flea.FigureService.persistent)
+            current.verify(svg, error, Dlea.FigureService, Dlea.FigureService.persistent)
             shell.verdictDone()
         }
         function onHelperRunningChanged() { Qt.callLater(shell.settle) }
     }
 
     Connections {
-        target: Flea.FigureService.persistent
+        target: Dlea.FigureService.persistent
         // Deferred, so the next case never starts inside the change that announced the stop.
         function onActiveChanged() { Qt.callLater(shell.settle) }
         // Deferred past onStarted, which writes the queued lines after it clears starting, so the held state has nothing queued.
         function onStartingChanged() {
             var current = shell.cases[shell.index]
-            if (Flea.FigureService.persistent.starting || !current || !current.held || shell.heldRan)
+            if (Dlea.FigureService.persistent.starting || !current || !current.held || shell.heldRan)
                 return
             shell.heldRan = true
             Qt.callLater(function () {
-                current.held(Flea.FigureService.persistent)
+                current.held(Dlea.FigureService.persistent)
                 Quickshell.execDetached(["sh", "-c", "echo > \"$1\"", "sh", shell.gatePath])
             })
         }
         function onAnswered(id, svg) {
             var current = shell.cases[shell.index]
             if (id === shell.probeId && current && current.answered)
-                current.answered(Flea.FigureService.persistent)
+                current.answered(Dlea.FigureService.persistent)
         }
         function onKnown(id, all) {
             var current = shell.cases[shell.index]
@@ -319,7 +319,7 @@ ShellRoot {
                 return
             // The service's own handler has acted by the time this runs, so a helper it started is already starting.
             Qt.callLater(function () {
-                current.known(all, Flea.FigureService)
+                current.known(all, Dlea.FigureService)
                 shell.verdictDone()
             })
         }
@@ -337,7 +337,7 @@ ShellRoot {
         implicitHeight: 600
         color: "#101315"
 
-        Flea.PreviewMarkdown {
+        Dlea.PreviewMarkdown {
             id: drawPane
             width: 560
             height: 600
@@ -346,7 +346,7 @@ ShellRoot {
             path: shell.document
             size: 1
         }
-        Flea.PreviewMarkdown {
+        Dlea.PreviewMarkdown {
             id: probePane
             x: 560
             width: 560
@@ -368,7 +368,7 @@ ShellRoot {
             active: false
             width: 560
             height: 600
-            sourceComponent: Flea.PreviewMarkdown {
+            sourceComponent: Dlea.PreviewMarkdown {
                 active: true
                 view: "rendered"
                 path: shell.nestPath
@@ -381,7 +381,7 @@ ShellRoot {
             x: 560
             width: 560
             height: 600
-            sourceComponent: Flea.PreviewMarkdown {
+            sourceComponent: Dlea.PreviewMarkdown {
                 active: true
                 view: "rendered"
                 path: shell.nestPath

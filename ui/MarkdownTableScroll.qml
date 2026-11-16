@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Scroll.js" as Scroll
 
 // The sideways scroll of a table wider than its block: the position and extent the table's rows slide by, the bar under the table, and the wheel's arithmetic.
@@ -45,14 +45,14 @@ Flickable {
             root.route.remove(root)
     }
 
-    Flea.FastScrollHandler {
+    Dlea.FastScrollHandler {
         id: wheelHandler
         parent: root
         flickable: root
     }
 
     // The bar draws under the table, in the lane the table reserved; the lane shows it only while moving, hovered or dragged.
-    Flea.ViewportScrollBar {
+    Dlea.ViewportScrollBar {
         parent: root.parent
         // Only the last chunk of a table holds the lane, so a joined chunk stays flush under the one above.
         visible: root.table.lane && root.contentWidth - root.width > Scroll.OVERFLOW_PX

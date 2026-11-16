@@ -88,7 +88,7 @@ def pair(root, preset="default", state_id="tui-list-text", exit_code=0, wrong_ki
 
     def build(*args):
         # The fixture lives on tmpfs, as the real one does, so only the driver's retain brings it into the case.
-        root = Path(tempfile.mkdtemp(prefix="flea-battery-fx.", dir=fixtures.TMPFS))
+        root = Path(tempfile.mkdtemp(prefix="dlea-battery-fx.", dir=fixtures.TMPFS))
         (root / MARKER).write_text(f"battery fixture {os.getpid()}\n")
         (root / "fx").mkdir()
         receipt = {"family": "work", "manifest_sha256": "approved-fixture"}
@@ -130,5 +130,5 @@ def pair(root, preset="default", state_id="tui-list-text", exit_code=0, wrong_ki
         result = driver.execute_pair(args, Owned(root), display, "foot", state, variant, {},
                                      {"elf_sha256": "elf"}, {}, {}, {}, seams or {})
     # A state blocked before its fixture was built has no candidate settings.
-    settings = fx / "state/flea/ui.json"
+    settings = fx / "state/dlea/ui.json"
     return result, json.loads(settings.read_text()) if settings.is_file() else None

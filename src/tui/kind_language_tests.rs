@@ -22,16 +22,16 @@ fn run(code: &str, name: &str) {
     );
     root.file("language", code);
     for (language, text) in [
-        ("en", include_str!("../../i18n/en/flea.json")),
-        ("ja", include_str!("../../i18n/ja/flea.json")),
-        ("de", include_str!("../../i18n/de/flea.json")),
-        ("fr", include_str!("../../i18n/fr/flea.json")),
-        ("ar", include_str!("../../i18n/ar/flea.json")),
-        ("el", include_str!("../../i18n/el/flea.json")),
-        ("zh-CN", include_str!("../../i18n/zh-CN/flea.json")),
+        ("en", include_str!("../../i18n/en/dlea.json")),
+        ("ja", include_str!("../../i18n/ja/dlea.json")),
+        ("de", include_str!("../../i18n/de/dlea.json")),
+        ("fr", include_str!("../../i18n/fr/dlea.json")),
+        ("ar", include_str!("../../i18n/ar/dlea.json")),
+        ("el", include_str!("../../i18n/el/dlea.json")),
+        ("zh-CN", include_str!("../../i18n/zh-CN/dlea.json")),
     ] {
         std::fs::create_dir_all(root.join(&format!("catalog/{language}"))).unwrap();
-        root.file(&format!("catalog/{language}/flea.json"), text);
+        root.file(&format!("catalog/{language}/dlea.json"), text);
     }
     let module = module_path!().split_once("::").unwrap().1;
     let output = Command::new(std::env::current_exe().unwrap())
@@ -39,7 +39,7 @@ fn run(code: &str, name: &str) {
         .env("SOL_KIND_LANG_CHILD", code)
         .env("OMARCHY_PATH", root.join("omarchy"))
         .env("OMARCHY_LANGUAGE_FILE", root.join("language"))
-        .env("FLEA_I18N", root.join("catalog"))
+        .env("DLEA_I18N", root.join("catalog"))
         .output()
         .unwrap();
     assert!(
@@ -73,12 +73,12 @@ fn expected(mime: &str, code: &str) -> String {
             }
         }
         if mime == "text/plain" {
-            let paths = flea::i18n::Paths {
+            let paths = dlea::i18n::Paths {
                 omarchy: std::env::var_os("OMARCHY_PATH").unwrap().into(),
                 language_file: std::env::var_os("OMARCHY_LANGUAGE_FILE").unwrap().into(),
-                catalogs: vec![std::env::var_os("FLEA_I18N").unwrap().into()],
+                catalogs: vec![std::env::var_os("DLEA_I18N").unwrap().into()],
             };
-            return flea::i18n::I18n::load(paths).tr("mime.plain");
+            return dlea::i18n::I18n::load(paths).tr("mime.plain");
         }
     }
     xml.split_once("<comment>")
@@ -128,10 +128,10 @@ fn surfaces(code: &str) {
     let reply = jsondoc::parse(&line).unwrap();
     let dictionary = reply.get("kinds").and_then(Json::as_array).unwrap();
     let rows = reply.get("rows").and_then(Json::as_array).unwrap();
-    let catalog = flea::i18n::I18n::load(flea::i18n::Paths {
+    let catalog = dlea::i18n::I18n::load(dlea::i18n::Paths {
         omarchy: std::env::var_os("OMARCHY_PATH").unwrap().into(),
         language_file: std::env::var_os("OMARCHY_LANGUAGE_FILE").unwrap().into(),
-        catalogs: vec![std::env::var_os("FLEA_I18N").unwrap().into()],
+        catalogs: vec![std::env::var_os("DLEA_I18N").unwrap().into()],
     });
     let mut failures = Vec::new();
     for (index, mime) in [
@@ -145,7 +145,7 @@ fn surfaces(code: &str) {
     {
         let expected = expected(mime, code);
         let row = crate::tui::model::Row::parse(&rows[index], dictionary);
-        let gui_row = flea::ui_logic_preview_core::facts::Row {
+        let gui_row = dlea::ui_logic_preview_core::facts::Row {
             name: row.name.clone(),
             is_dir: false,
             size: 48,
@@ -154,9 +154,9 @@ fn surfaces(code: &str) {
             icon: row.icon.clone(),
         };
         let state =
-            flea::ui_logic_preview_core::facts::state(Some(&gui_row), 1, false, "", &row.kind);
-        let extra = flea::ui_logic_preview_core::facts::Extra::default();
-        let facts = flea::ui_logic_preview_core::facts::facts(
+            dlea::ui_logic_preview_core::facts::state(Some(&gui_row), 1, false, "", &row.kind);
+        let extra = dlea::ui_logic_preview_core::facts::Extra::default();
+        let facts = dlea::ui_logic_preview_core::facts::facts(
             state, &gui_row, None, &row.kind, &extra, &catalog,
         );
         if facts[0].value != expected {
@@ -165,7 +165,7 @@ fn surfaces(code: &str) {
                 facts[0].value
             ));
         }
-        let compact = flea::ui_logic_preview_core::facts::compact_line(
+        let compact = dlea::ui_logic_preview_core::facts::compact_line(
             state,
             Some(&gui_row),
             None,

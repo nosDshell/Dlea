@@ -15,11 +15,11 @@ fn active_mounts() -> &'static Mutex<HashSet<PathBuf>> {
 struct MountRead(PathBuf);
 
 impl MountRead {
-    fn take(dir: &Path, body: &str) -> Result<Option<Self>, crate::error::FleaError> {
+    fn take(dir: &Path, body: &str) -> Result<Option<Self>, crate::error::DleaError> {
         if !super::iomount::is_remote(dir, body) { return Ok(None); }
         let mount = super::iomount::mount_key(dir, body);
         if !active_mounts().lock().unwrap_or_else(|poisoned| poisoned.into_inner()).insert(mount.clone()) {
-            return Err(crate::error::FleaError {
+            return Err(crate::error::DleaError {
                 where_: "search".to_string(), path: dir.to_string_lossy().into_owned(),
                 msg: format!("{} is not responding.", mount.display()),
             });
@@ -91,7 +91,7 @@ pub(crate) fn read_interruptible(dir: &Path, follow: bool, stop: impl Fn() -> bo
 }
 
 // An abandoned remote reader stops before its next entry when its blocked syscall returns.
-pub(crate) fn bounded(dir: &Path, body: &str, follow: bool) -> Result<std::io::Result<Directory>, crate::error::FleaError> {
+pub(crate) fn bounded(dir: &Path, body: &str, follow: bool) -> Result<std::io::Result<Directory>, crate::error::DleaError> {
     bounded_observed(dir, body, follow, || false, |_| {})
 }
 
@@ -99,7 +99,7 @@ pub(crate) fn bounded_observed(
     dir: &Path, body: &str, follow: bool,
     stop: impl Fn() -> bool + Send + 'static,
     progress: impl FnMut(usize) + Send + 'static,
-) -> Result<std::io::Result<Directory>, crate::error::FleaError> {
+) -> Result<std::io::Result<Directory>, crate::error::DleaError> {
     use std::sync::{atomic::{AtomicBool, Ordering}, Arc};
     let lease = MountRead::take(dir, body)?;
     let abandoned = Arc::new(AtomicBool::new(false));

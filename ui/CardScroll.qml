@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 
 // A card body taller than the window: this viewport clamps to the card and scrolls the rest by wheel,
 // touchpad, keys and focus moves, with no bar and no lane, since a card never lists files.
@@ -57,7 +57,7 @@ Flickable {
         function onActiveFocusItemChanged() { root.reveal(root.Window.window.activeFocusItem) }
     }
 
-    Flea.FastScrollHandler {
+    Dlea.FastScrollHandler {
         id: wheel
         parent: root
         flickable: root

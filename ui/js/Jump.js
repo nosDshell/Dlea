@@ -23,7 +23,7 @@ var MIN_SCORE_PER_CHARACTER = Fuzzy.BONUS_BASENAME
 // before the jump: Enter resolves it and Tab completes it. The bar opens holding the whole path, and a Tab
 // that completes one name ends the line in a slash, so "Wo", Tab, Enter still opens ./Work. A dotted name
 // such as ".config" is a name like any other.
-// Sample input: "o", "flea" and ".config" are queries; "/usr/share", "Work/", "~", "..", "../x" and "file:///etc" are paths.
+// Sample input: "o", "dlea" and ".config" are queries; "/usr/share", "Work/", "~", "..", "../x" and "file:///etc" are paths.
 function isQuery(text) {
     var line = String(text).trim()
     if (line.length === 0 || line.indexOf("/") >= 0 || line === "." || line === "..") {

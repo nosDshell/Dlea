@@ -2,7 +2,7 @@
 use crate::backend::copyfile::{copy_any, Progress};
 use crate::backend::renamecompat;
 use crate::backend::undo::{self, ItemIdentity, Step};
-use crate::error::FleaError;
+use crate::error::DleaError;
 use std::ffi::OsStr;
 use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
@@ -31,8 +31,8 @@ fn unjournaled_partial(msg: &str, partial: &Path, detail: &str) -> String {
     format!("{msg}; undo cannot remove the partial copy of {}: {detail}", partial.file_name().unwrap_or(partial.as_os_str()).to_string_lossy())
 }
 
-fn named(where_: &str, path: &Path, msg: &str) -> FleaError {
-    FleaError {
+fn named(where_: &str, path: &Path, msg: &str) -> DleaError {
+    DleaError {
         where_: where_.to_string(),
         path: path.to_string_lossy().to_string(),
         msg: msg.to_string(),
@@ -40,7 +40,7 @@ fn named(where_: &str, path: &Path, msg: &str) -> FleaError {
 }
 
 // Answers the new path and the step that puts the old name back; a failure answers no step, a kept copy included, because none of undo.rs's four shapes can say which of the two names is whole.
-pub fn rename(path: &Path, to_name: &str) -> Result<(PathBuf, Vec<Step>), FleaError> {
+pub fn rename(path: &Path, to_name: &str) -> Result<(PathBuf, Vec<Step>), DleaError> {
     if let Some(refusal) = name_refusal(to_name) {
         return Err(named("rename", path, refusal));
     }
@@ -70,7 +70,7 @@ pub fn rename(path: &Path, to_name: &str) -> Result<(PathBuf, Vec<Step>), FleaEr
                 confirm.touch(parent);
             }
             if let Err(error) = confirm.flush_dirs() {
-                eprintln!("flea: rename {} landed but the drive did not confirm the folder: {}", to.display(), error);
+                eprintln!("dlea: rename {} landed but the drive did not confirm the folder: {}", to.display(), error);
             }
         }
     }
@@ -78,7 +78,7 @@ pub fn rename(path: &Path, to_name: &str) -> Result<(PathBuf, Vec<Step>), FleaEr
 }
 
 // A rename whose destination is the source itself under another spelling runs the shared twin path.
-fn case_only_rename(path: &Path, to: &Path, before: ItemIdentity) -> Result<(PathBuf, Vec<Step>), FleaError> {
+fn case_only_rename(path: &Path, to: &Path, before: ItemIdentity) -> Result<(PathBuf, Vec<Step>), DleaError> {
     renamecompat::case_twin_move(path, to)?;
     Ok((to.to_path_buf(), vec![undo::moved(path, to, before)?]))
 }
@@ -127,7 +127,7 @@ pub fn free_copy_path(original: &Path, word: &str) -> Option<PathBuf> {
 
 // A same-directory copy, which for a directory row is the whole tree; cancellation belongs to transfers, so this one runs to its end.
 // Answers the outcome and, either way, the steps it left on disk: the copy, or the partial a failure left for undo to remove.
-pub fn duplicate(path: &Path) -> (Result<PathBuf, FleaError>, Vec<Step>) {
+pub fn duplicate(path: &Path) -> (Result<PathBuf, DleaError>, Vec<Step>) {
     let source = match ItemIdentity::inspect(path) {
         Ok(identity) => identity,
         Err(error) => return (Err(error), Vec::new()),
@@ -333,7 +333,7 @@ mod tests {
         assert_eq!(std::fs::read_to_string(dst.join("inside.txt")).unwrap(), "body");
     }
 
-    // A file with no permission bits answers EACCES to open(2) for every uid but root, and no flea
+    // A file with no permission bits answers EACCES to open(2) for every uid but root, and no dlea
     // suite runs as root, so it forces the failure a real permission error would.
     #[test]
     fn duplicating_a_tree_that_fails_short_of_the_end_still_records_the_partial_copy() {

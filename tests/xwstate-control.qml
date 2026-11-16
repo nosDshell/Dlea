@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "." as Flea
+import "." as Dlea
 import "js/ClipMarks.js" as ClipMarks
 import "js/Tabs.js" as Tabs
 
@@ -31,22 +31,22 @@ Item {
         function undoLast(): bool { root.view.currentPane.act("undo"); return true }
         function newFolder(): bool { root.view.currentPane.act("newFolder"); return true }
         function closeTab(): bool { root.view.currentPane.act("tabClose"); return true }
-        function changeKeys(): bool { Flea.ViewState.changeSetting("keys", "windows"); return true }
+        function changeKeys(): bool { Dlea.ViewState.changeSetting("keys", "windows"); return true }
         function changeFavourites(): bool {
-            Flea.ViewState.changeSetting("places.favourites", [{label: "Shared", path: "/tmp/shared"}])
+            Dlea.ViewState.changeSetting("places.favourites", [{label: "Shared", path: "/tmp/shared"}])
             return true
         }
         function changeFavouritesAgain(): bool {
-            Flea.ViewState.changeSetting("places.favourites", [{label: "Second", path: "/tmp/second"}])
+            Dlea.ViewState.changeSetting("places.favourites", [{label: "Second", path: "/tmp/second"}])
             return true
         }
         function seedCut(): bool {
-            root.view.currentPane.clipboard = {paths: [Quickshell.env("FLEA_HUNT_ROOT") + "/a/alpha.txt"], moving: true}
+            root.view.currentPane.clipboard = {paths: [Quickshell.env("DLEA_HUNT_ROOT") + "/a/alpha.txt"], moving: true}
             return true
         }
-        function openFixture(name: string): bool { root.view.currentPane.open(Quickshell.env("FLEA_HUNT_ROOT") + "/" + name); return true }
+        function openFixture(name: string): bool { root.view.currentPane.open(Quickshell.env("DLEA_HUNT_ROOT") + "/" + name); return true }
         function receiveCursor(): bool {
-            var payload = JSON.stringify(["999999", "cursor-hunt", Quickshell.env("FLEA_HUNT_ROOT") + "/a", "list", "zulu.txt"])
+            var payload = JSON.stringify(["999999", "cursor-hunt", Quickshell.env("DLEA_HUNT_ROOT") + "/a", "list", "zulu.txt"])
             return Tabs.receiveTab(root.view.currentPane, payload, -1)
         }
         function state(): string {
@@ -55,9 +55,9 @@ Item {
                 clipboard: pane.clipboard, cursor: pane.cursorIndex,
                 cursorName: pane.cursorRow ? pane.cursorRow.n : "",
                 mark: ClipMarks.markForRow(pane, "alpha.txt", pane.clipboard),
-                keys: Flea.ViewState.keysPreset,
+                keys: Dlea.ViewState.keysPreset,
                 notices: root.notices,
-                favourites: (Flea.ViewState.state.places || {}).favourites || [],
+                favourites: (Dlea.ViewState.state.places || {}).favourites || [],
                 message: pane.statusBar.transient_, error: pane.statusBar.transientIsError})
         }
     }

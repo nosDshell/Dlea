@@ -2,9 +2,9 @@
 use std::path::{Path, PathBuf};
 
 // The marker this tree's own sandbox guard owns; a root without it is not a bench root.
-const MARKER: &str = ".flea-test-sandbox";
+const MARKER: &str = ".dlea-test-sandbox";
 // The one variable that names the marked root the seam may touch.
-const ROOT_ENV: &str = "FLEA_FLASH_ALLOW_LOOP";
+const ROOT_ENV: &str = "DLEA_FLASH_ALLOW_LOOP";
 
 // The root the bench named in the environment, unchecked: the one place production reads the variable.
 pub(crate) fn named_root() -> Option<PathBuf> {
@@ -54,7 +54,7 @@ mod tests {
     #[test]
     fn the_root_comes_from_its_one_variable_and_an_empty_one_names_none() {
         // The name AGENTS.md documents, spelled out, so a renamed constant fails here rather than reading a variable nobody sets.
-        let named = |value: &'static str| move |name: &str| (name == "FLEA_FLASH_ALLOW_LOOP").then(|| std::ffi::OsString::from(value));
+        let named = |value: &'static str| move |name: &str| (name == "DLEA_FLASH_ALLOW_LOOP").then(|| std::ffi::OsString::from(value));
         assert_eq!(named_root_from(&named("/srv/bench")), Some(PathBuf::from("/srv/bench")));
         assert_eq!(named_root_from(&named("")), None, "a set but empty variable names no root");
         assert_eq!(named_root_from(&|_: &str| None), None, "an unset variable names no root");

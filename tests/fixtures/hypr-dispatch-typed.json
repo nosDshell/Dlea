@@ -83,9 +83,9 @@
   {
     "operation": "session_exec_script",
     "args": [
-      "/home/flea-sandbox/iso/session-mount.ABCD/run.sh"
+      "/home/dlea-sandbox/iso/session-mount.ABCD/run.sh"
     ],
-    "text": "hl.dsp.exec_cmd(\"/bin/bash '/home/flea-sandbox/iso/session-mount.ABCD/run.sh'\")"
+    "text": "hl.dsp.exec_cmd(\"/bin/bash '/home/dlea-sandbox/iso/session-mount.ABCD/run.sh'\")"
   },
   {
     "operation": "window_opacity",
@@ -152,30 +152,30 @@
   {
     "operation": "output_create",
     "args": [
-      "FLEA-fixture"
+      "DLEA-fixture"
     ],
-    "text": "output create headless FLEA-fixture"
+    "text": "output create headless DLEA-fixture"
   },
   {
     "operation": "output_remove",
     "args": [
-      "FLEA-fixture"
+      "DLEA-fixture"
     ],
-    "text": "output remove FLEA-fixture"
+    "text": "output remove DLEA-fixture"
   },
   {
     "operation": "monitor_mode",
     "args": [
-      "FLEA-fixture",
+      "DLEA-fixture",
       "2560x1440@60"
     ],
-    "text": "hl.monitor({ output = \"FLEA-fixture\", mode = \"2560x1440@60\", position = \"auto\", scale = 1 })"
+    "text": "hl.monitor({ output = \"DLEA-fixture\", mode = \"2560x1440@60\", position = \"auto\", scale = 1 })"
   },
   {
     "operation": "query_monitors",
     "args": [],
     "text": "-j monitors all",
-    "reply": "[{\"name\":\"FLEA-fixture\",\"id\":7}]\n"
+    "reply": "[{\"name\":\"DLEA-fixture\",\"id\":7}]\n"
   },
   {
     "operation": "query_clients",
@@ -215,6 +215,6 @@
     "text": "output --help",
     "reply": "usage: hyprctl output create|remove\n"
   },
-{"operation": "session_exec_rules", "args": ["name:flea-fixture", "FLEA-fixture", "/tmp/flea-sandbox/run.sh"], "text": "hl.dsp.exec_cmd(\"/bin/bash '/tmp/flea-sandbox/run.sh'\", { workspace = \"name:flea-fixture\", monitor = \"FLEA-fixture\", float = true })"},
-{"operation": "session_exec_rules", "args": ["99", "FLEA-fixture", "/tmp/flea-sandbox/run.sh"], "text": "hl.dsp.exec_cmd(\"/bin/bash '/tmp/flea-sandbox/run.sh'\", { workspace = \"99\", monitor = \"FLEA-fixture\", float = true })"}
+{"operation": "session_exec_rules", "args": ["name:dlea-fixture", "DLEA-fixture", "/tmp/dlea-sandbox/run.sh"], "text": "hl.dsp.exec_cmd(\"/bin/bash '/tmp/dlea-sandbox/run.sh'\", { workspace = \"name:dlea-fixture\", monitor = \"DLEA-fixture\", float = true })"},
+{"operation": "session_exec_rules", "args": ["99", "DLEA-fixture", "/tmp/dlea-sandbox/run.sh"], "text": "hl.dsp.exec_cmd(\"/bin/bash '/tmp/dlea-sandbox/run.sh'\", { workspace = \"99\", monitor = \"DLEA-fixture\", float = true })"}
 ]

@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-shelf-add-queue-test
+//@ pragma ShellId dlea-shelf-add-queue-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // tests/shelf-add-queue.sh harness: a second shelf add while one runs waits its turn.
 ShellRoot {
@@ -67,7 +67,7 @@ ShellRoot {
         implicitHeight: 480
         color: "#303030"
 
-        Flea.PaneMenuActions {
+        Dlea.PaneMenuActions {
             id: actions
             pane: stubPane
         }

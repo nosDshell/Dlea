@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p "$PWD/.superpowers/g2-op1"
 unit_root=$(mktemp -d "$PWD/.superpowers/g2-op1/ci.XXXXXXXX")
-: > "$unit_root/.flea-test-sandbox"
+: > "$unit_root/.dlea-test-sandbox"
 mkdir -p "$unit_root/home" "$unit_root/config" "$unit_root/cache" "$unit_root/state" "$unit_root/runtime"
 run() {
     local log=$1
@@ -21,9 +21,9 @@ run() {
 # Reads cargo's summary line, for example "test result: ok. 152 passed; 0 failed; 0 ignored; 0 measured; 70 filtered out; finished in 0.13s".
 count() { sed -n 's/^test result: ok\. \([0-9]*\) passed; 0 failed.*/\1/p' "$1" | head -1; }
 set +e
-run "$unit_root/core.log" -p flea --lib ui_logic_file_ops
+run "$unit_root/core.log" -p dlea --lib ui_logic_file_ops
 core_rc=$?
-run "$unit_root/gui.log" -p flea-gui --lib g2::file_ops
+run "$unit_root/gui.log" -p dlea-gui --lib g2::file_ops
 gui_rc=$?
 set -e
 [ "$core_rc" -eq 0 ] || { tail -40 "$unit_root/core.log" >&2; printf 'g2-op1: FAIL core tests exited %s\n' "$core_rc"; exit 1; }
@@ -33,6 +33,6 @@ gui=$(count "$unit_root/gui.log")
 [ "${core:-0}" -ge 157 ] || { printf 'g2-op1: FAIL only %s core checks ran\n' "${core:-0}"; exit 1; }
 [ "${gui:-0}" -ge 64 ] || { printf 'g2-op1: FAIL only %s GPUI checks ran\n' "${gui:-0}"; exit 1; }
 clippy_root=$(mktemp -d "$PWD/.superpowers/g2-op1/clippy.XXXXXXXX")
-: > "$clippy_root/.flea-test-sandbox"
-tools/flea-clippy tools/clippy-baseline.txt "$clippy_root"
+: > "$clippy_root/.dlea-test-sandbox"
+tools/dlea-clippy tools/clippy-baseline.txt "$clippy_root"
 printf 'G2OP1 PASS %s core and %s GPUI checks\n' "$core" "$gui"

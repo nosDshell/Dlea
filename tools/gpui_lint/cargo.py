@@ -27,7 +27,7 @@ def tracked(root):
     for directory, folders, files in os.walk(root, followlinks=False):
         current = Path(directory)
         if current == root:
-            folders[:] = [f for f in folders if f not in (".git", ".superpowers", ".flea-local", "target")]
+            folders[:] = [f for f in folders if f not in (".git", ".superpowers", ".dlea-local", "target")]
         for name in files:
             path = (current / name).relative_to(root)
             if path.suffix in (".rs", ".toml") or name in ("Cargo.lock", "config"):
@@ -122,7 +122,7 @@ def native_sources(root, paths, metadata):
     roots = []
     target_roots = set()
     for package in metadata["packages"]:
-        if package["id"] not in members or package["name"] == "flea":
+        if package["id"] not in members or package["name"] == "dlea":
             continue
         relative = Path(package["manifest_path"]).relative_to(origin).parent
         if relative.parts[:1] != ("crates",):

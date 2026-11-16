@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # A second shelf add while one runs waits its turn; offscreen, no display or lock.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -11,7 +11,7 @@ if ! command -v qs >/dev/null; then
 fi
 
 # A marked sandbox of its own under the fixture root, so cleanup deletes only what this run owns.
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-shelf-add-queue-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-shelf-add-queue-XXXXXX") || exit 1
 # The allocated path must be absolute and non-empty before the sandbox trusts it.
 case $test_root in
   /*/*) ;;
@@ -24,14 +24,14 @@ trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/runtime" "$test_root/bin" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/shelf-add-queue.qml "$test_root/config/shell.qml" || exit 1
 
-# A stub flea that logs each call's start and end around a sleep, so adds overlap, and fails call 3 with one stderr line.
-cat > "$test_root/bin/flea" <<'STUB'
+# A stub dlea that logs each call's start and end around a sleep, so adds overlap, and fails call 3 with one stderr line.
+cat > "$test_root/bin/dlea" <<'STUB'
 #!/bin/bash
 d=$(dirname "$0")
 n=$(cat "$d/calls" 2>/dev/null || echo 0)
@@ -41,16 +41,16 @@ echo "start $n $(date +%s%N) $*" >> "$d/events.log"
 sleep 0.8
 echo "end $n $(date +%s%N)" >> "$d/events.log"
 if [ "$n" -eq 3 ]; then
-  echo "flea: shelf exploded" >&2
+  echo "dlea: shelf exploded" >&2
   exit 1
 fi
 exit 0
 STUB
-chmod +x "$test_root/bin/flea" || exit 1
+chmod +x "$test_root/bin/dlea" || exit 1
 
 output=$(env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_RUNTIME_DIR="$test_root/runtime" \
-    FLEA_BIN="$test_root/bin/flea" \
+    DLEA_BIN="$test_root/bin/dlea" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
     timeout 30 qs -p "$test_root/config" 2>&1)
 qs_status=$?

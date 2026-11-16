@@ -2,14 +2,14 @@
 # With the TUI's input wait set to 5 s, the rows still arrive at once and a lone Escape is still held for the whole wait.
 set -u
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete below.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [[ -x "$bin" ]] || { echo 'FAIL tui-wake needs the candidate binary'; exit 1; }
 
 # The input wait the Escape timing below is judged against; one name, so the wait and its floor cannot drift.
 input_wait_ms=5000
-scratch="$FIXTURE_ROOT/flea-tui-wake-$$"
+scratch="$FIXTURE_ROOT/dlea-tui-wake-$$"
 sandbox_make "$scratch" || exit 1
 cleanup() { sandbox_remove "$scratch"; }
 trap cleanup EXIT
@@ -28,8 +28,8 @@ check() {
 
 # Sample output: "rows_ms=4 sheet_ms=3 escape_ms=5012 closed=yes exit=0"; -1 is a step that never drew, "killed" a TUI that ignored SIGTERM.
 result=$(env -i PATH=/usr/bin:/bin HOME="$scratch/home" XDG_STATE_HOME="$scratch/state" XDG_CONFIG_HOME="$scratch/config" \
-  XDG_CACHE_HOME="$scratch/cache" XDG_RUNTIME_DIR="$scratch/runtime" TERM=xterm-256color FLEA_TUI_INPUT_TIMEOUT_MS=$input_wait_ms \
-  /usr/bin/python3 - "$bin" "$scratch/fixture" "$PWD/i18n/en/flea.json" <<'PY'
+  XDG_CACHE_HOME="$scratch/cache" XDG_RUNTIME_DIR="$scratch/runtime" TERM=xterm-256color DLEA_TUI_INPUT_TIMEOUT_MS=$input_wait_ms \
+  /usr/bin/python3 - "$bin" "$scratch/fixture" "$PWD/i18n/en/dlea.json" <<'PY'
 import json, os, pty, select, signal, struct, sys, time, fcntl, termios
 binary, fixture = sys.argv[1], sys.argv[2]
 # The keys sheet's card title, bold, from the English catalog; the TUI writes whole frames and only when one changes, so a frame without it has no sheet.

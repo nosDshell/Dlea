@@ -1,14 +1,14 @@
 # GPUI overrides for UISH-15; seeded from the unchanged oracle at 2faf8d099.
 case_thumbs() {
-    [[ -d "$FIXTURE_ROOT/flea-media-btrfs" ]] || fail "the media fixture is missing"
+    [[ -d "$FIXTURE_ROOT/dlea-media-btrfs" ]] || fail "the media fixture is missing"
     sandbox_make "$thumb_fixture"
     local i
     for i in $(seq 0 $((thumb_rows - 1))); do
-        ln "$FIXTURE_ROOT/flea-media-btrfs/photo_0.jpg" "$thumb_fixture/p$i.jpg"
+        ln "$FIXTURE_ROOT/dlea-media-btrfs/photo_0.jpg" "$thumb_fixture/p$i.jpg"
     done
-    # kill_flea waits out the previous backend's drain, so the baseline is stable before this one generates.
+    # kill_dlea waits out the previous backend's drain, so the baseline is stable before this one generates.
     local before_large
-    kill_flea
+    kill_dlea
     before_large=$(ls -A "$cache_large" | wc -l)
     seed_ui_state "$fixture_root/thumbs-state" '{"view":"list"}'
     launch "$thumb_fixture"
@@ -71,7 +71,7 @@ case_thumbs() {
     local screen_rows requests added
     screen_rows=$(ipc visibleRows)
     requests=$(ipc thumbRequests)
-    kill_flea
+    kill_dlea
     sandbox_make "$thumb_fixture"
     added=$(( $(ls -A "$cache_large" | wc -l) - before_large ))
     # A window that is not row aligned straddles one more row than it holds, so the bound is the viewport rule plus that row.
@@ -92,17 +92,17 @@ case_thumbs() {
     # A fling that moves nothing fails here instead of passing quietly; "nothing is requested while moving" is carried by the request-count bounds above.
     (( moved >= 1 )) \
         || fail "the fling did not move the viewport at all, so the bounds above prove nothing"
-    [[ "$(ls -A "$cache_large" | grep -c '^\.flea-')" == "0" ]] || fail "a temp file was left in the shared cache"
+    [[ "$(ls -A "$cache_large" | grep -c '^\.dlea-')" == "0" ]] || fail "a temp file was left in the shared cache"
 }
 
 case_hashcache() {
-    [[ -d "$FIXTURE_ROOT/flea-media-btrfs" ]] || fail "the media fixture is missing"
+    [[ -d "$FIXTURE_ROOT/dlea-media-btrfs" ]] || fail "the media fixture is missing"
     local pics="$hash_fixture/pics"
     # The two bytes encodeURI leaves alone, in the half of the path that can legally hold them.
     local cache="$hash_fixture/c#a?che"
     sandbox_make "$hash_fixture"
     mkdir -p "$pics" "$cache/thumbnails/large" "$cache/thumbnails/fail"
-    ln "$FIXTURE_ROOT/flea-media-btrfs/photo_0.jpg" "$pics/one.jpg"
+    ln "$FIXTURE_ROOT/dlea-media-btrfs/photo_0.jpg" "$pics/one.jpg"
     # Exported inside this case's own subshell, so no other case reads or writes the redirected root.
     export XDG_CACHE_HOME="$cache"
     launch "$pics"
@@ -128,7 +128,7 @@ case_hashcache() {
         || fail "the backend did not use the redirected cache root, so no # ever reached the row: $file"
     [[ "$icon" == *%23* && "$icon" == *%3F* ]] || fail "the row URL left # or ? unescaped: $icon"
     [[ "$status" == "$image_ready" ]] || fail "the row URL never opened, Image.status is $status: $icon"
-    kill_flea
+    kill_dlea
     sandbox_make "$hash_fixture"
 }
 
@@ -227,7 +227,7 @@ case_stale() {
     (( red_cols > 0 )) || fail "columns: the regenerated thumbnail drew no red pixel, so the row is showing the old frame"
     (( blue_cols == 0 )) || fail "columns: the row still draws $blue_cols blue pixels of the thumbnail it replaced"
     switch_view list
-    kill_flea
+    kill_dlea
     sandbox_make "$stale_fixture"
 }
 
@@ -236,7 +236,7 @@ case_userthumbnailer() (
     sandbox_require "$fixture_root"
     command -v magick >/dev/null || fail "userthumbnailer: the real fixture tool is unavailable: magick"
     menu_box=$(mktemp -d "$fixture_root/user-thumbnailer.XXXXXXXX") || fail "userthumbnailer: fixture creation failed"
-    printf 'native user thumbnailer fixture\n' > "$menu_box/.flea-test-sandbox"
+    printf 'native user thumbnailer fixture\n' > "$menu_box/.dlea-test-sandbox"
     [[ "$menu_box" == "$(realpath -e "$menu_box")" ]] || fail "userthumbnailer: fixture path is not canonical"
     for path in listing sources state config cache data data/thumbnailers bin; do
         menus_guard "$menu_box/$path"
@@ -266,5 +266,5 @@ case_userthumbnailer() (
     while [[ "$(ipc rowThumbReady 0)" != true ]] && (( SECONDS < deadline )); do sleep 0.05; done
     [[ "$(ipc rowThumbReady 0)" == true ]] || fail "userthumbnailer: the tile never drew the cached thumbnail"
     shot user-thumbnailer-grid
-    kill_flea
+    kill_dlea
 )

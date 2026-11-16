@@ -65,6 +65,6 @@ impl EditorJob {
 }
 impl Drop for EditorJob {
     fn drop(&mut self) {
-        if !self.restored { if let Err(error) = self.close() { eprintln!("flea: editor cleanup: {}", error); } }
+        if !self.restored { if let Err(error) = self.close() { eprintln!("dlea: editor cleanup: {}", error); } }
     }
 }

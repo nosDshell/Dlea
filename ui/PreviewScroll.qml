@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Scroll.js" as Scroll
 
 // The column's scroll route and bounded session memory; no position is written to settings.
@@ -148,7 +148,7 @@ Item {
 
     function scrollPage(direction, viewport) {
         viewport.contentY = Math.max(0, Math.min(viewport.contentHeight - viewport.height,
-            viewport.contentY + direction * Flea.Theme.rowHeight))
+            viewport.contentY + direction * Dlea.Theme.rowHeight))
     }
 
     onSubjectChanged: root.follow()
@@ -176,7 +176,7 @@ Item {
         function onOriginYChanged() { Qt.callLater(root.restore) }
         function onContentYChanged() { root.moved() }
     }
-    Flea.FastScrollHandler {
+    Dlea.FastScrollHandler {
         id: wheel
         flickable: root.html ? root.viewport : root.column.linesItem.viewport
         visible: (root.html !== null || root.column.linesItem.visible) && flickable !== null
@@ -189,6 +189,6 @@ Item {
         anchors.fill: parent
         property var targetView: null
         active: root.viewport !== null && targetView !== null
-        sourceComponent: Flea.ViewportScrollBars { flickable: bars.targetView }
+        sourceComponent: Dlea.ViewportScrollBars { flickable: bars.targetView }
     }
 }

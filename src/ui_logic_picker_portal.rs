@@ -15,12 +15,12 @@ pub use lifetime::{check_line, Check, Child, Effect, Lifetime, CLOSE_LINE};
 pub use request::{request, AcceptLabel, Filter, Mode, Request, Text};
 pub use result::{check_result, CheckResult};
 
-// The portal's own response codes, mirrored from tools/flea-portal: a window that opened only picks or refuses.
+// The portal's own response codes, mirrored from tools/dlea-portal: a window that opened only picks or refuses.
 pub const RESPONSE_OK: i64 = 0;
 pub const RESPONSE_CANCELLED: i64 = 1;
 
 // The rail's Recent location; every listing path is absolute, so a token without a leading slash cannot collide.
-pub const RECENT: &str = "flea:recent";
+pub const RECENT: &str = "dlea:recent";
 
 // How long a footer notice that is not an error stays.
 pub const MESSAGE_LIFE_MS: u64 = 4000;
@@ -38,7 +38,7 @@ pub fn marks_allowed(req: &Request) -> bool {
     req.multiple && !saving(req)
 }
 
-// The caller's own title wins; the fallback says what the window is for rather than naming Flea.
+// The caller's own title wins; the fallback says what the window is for rather than naming Dlea.
 pub fn title(req: &Request) -> Text {
     if !req.title.is_empty() {
         Text::Caller(req.title.clone())
@@ -172,7 +172,7 @@ pub fn file_uri(path: &str) -> String {
     out
 }
 
-// What tools/flea-portal reads out of the reply file; a refusal carries no URI and no filter.
+// What tools/dlea-portal reads out of the reply file; a refusal carries no URI and no filter.
 pub fn reply(response: i64, uris: &[String], filter: Option<i64>) -> String {
     if response != RESPONSE_OK {
         return format!("{{\"response\":{response}}}");

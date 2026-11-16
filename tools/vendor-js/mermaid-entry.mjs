@@ -579,7 +579,7 @@ function mix(a, b, share) {
     return "#" + x.map((v, i) => Math.round(v * share + y[i] * (1 - share)).toString(HEX_RADIX).padStart(2, "0")).join("");
 }
 
-// Every Pele variable as the concrete value of the Flea theme role that draws it.
+// Every Pele variable as the concrete value of the Dlea theme role that draws it.
 function rolesOf(theme) {
     const bg = theme.bg || "#ffffff";
     const fg = theme.fg || "#000000";
@@ -681,7 +681,7 @@ export function mermaidToSvg(source, theme) {
         autoDirection: false,
         links: false,
         images: false,
-        idPrefix: "flea",
+        idPrefix: "dlea",
         // A Gantt today marker moves once a day, so one day's renders match byte for byte.
         now: todayOf(theme)
     });

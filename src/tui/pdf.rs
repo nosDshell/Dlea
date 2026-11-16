@@ -98,7 +98,7 @@ impl Pdf {
                 "pipefail".into(),
                 "-c".into(),
                 script,
-                "flea-pdf".into(),
+                "dlea-pdf".into(),
                 self.page.to_string(),
                 width.max(height).saturating_mul(3).min(4096).to_string(),
                 format!("{}x{}", width, height),
@@ -191,7 +191,7 @@ impl Pdf {
     }
     // A page count in the locale's digits, "30+" for an office preview that reaches its cut.
     pub fn count_words(&self, i18n: &crate::i18n::I18n, count: usize) -> String {
-        let plus = if flea::ui_logic_doc_preview::viewer::cut(count, self.first) { "+" } else { "" };
+        let plus = if dlea::ui_logic_doc_preview::viewer::cut(count, self.first) { "+" } else { "" };
         format!("{}{plus}", i18n.locale().format_count(count as i64))
     }
     // Page 1 of 12 · 100%, the page line over the controls.

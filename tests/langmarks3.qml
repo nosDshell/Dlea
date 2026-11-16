@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-langmarks-count-test
+//@ pragma ShellId dlea-langmarks-count-test
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "langmark-count.js" as LangCost
-import "flea/js/LangMarkPaths.js" as LangMarkPaths
+import "dlea/js/LangMarkPaths.js" as LangMarkPaths
 
 // Real delegates prove demand construction, ink, geometry and teardown across reuse.
 ShellRoot {
@@ -25,15 +25,15 @@ ShellRoot {
     property var plainRow: ({n: "notes.ini", d: false, i: "text-x-generic", p: 420, s: 13, m: 1758835200})
     property var codeRow: ({n: "main.rs", d: false, i: "text-x-generic", p: 420, s: 13, m: 1758835200})
 
-    Flea.Row { id: listRow; width: 800; row: root.plainRow; kindNames: []; hiddenCols: [] }
-    Flea.GridTile { id: tile; width: 160; height: 160; row: root.plainRow }
-    Flea.ColumnRow { id: column; width: 300; row: root.plainRow }
+    Dlea.Row { id: listRow; width: 800; row: root.plainRow; kindNames: []; hiddenCols: [] }
+    Dlea.GridTile { id: tile; width: 160; height: 160; row: root.plainRow }
+    Dlea.ColumnRow { id: column; width: 300; row: root.plainRow }
 
-    Flea.Row { id: bornRow; width: 800; row: root.codeRow; kindNames: []; hiddenCols: [] }
-    Flea.GridTile { id: bornTile; width: 160; height: 160; row: root.codeRow }
-    Flea.ColumnRow { id: bornColumn; width: 300; row: root.codeRow }
+    Dlea.Row { id: bornRow; width: 800; row: root.codeRow; kindNames: []; hiddenCols: [] }
+    Dlea.GridTile { id: bornTile; width: 160; height: 160; row: root.codeRow }
+    Dlea.ColumnRow { id: bornColumn; width: 300; row: root.codeRow }
 
-    Flea.QuickLookBar { id: codeBar; width: 600; name: "notes.ini" }
+    Dlea.QuickLookBar { id: codeBar; width: 600; name: "notes.ini" }
 
     function check(ok, reason) { if (!ok) root.failures.push(reason) }
 
@@ -148,7 +148,7 @@ ShellRoot {
                 && LangCost.census(codeBar, true).total === root.barFullIdle, "the code bar retains language objects after reuse")
             console.log("LANGCOST QuickLookBar noncode-added=0 code-added=5 fullAdded=8 reuse=0")
             root.checkMarks()
-            root.check(String(listRow.langLoader.item.color) === String(Flea.Theme.color.foreground), "list cursor does not lift the mark")
+            root.check(String(listRow.langLoader.item.color) === String(Dlea.Theme.color.foreground), "list cursor does not lift the mark")
             root.each(function(row) {
                 row.clipMark = "scissors"
                 row.row = {n: "app.py", d: false, i: "text-x-generic", p: 420, s: 13}

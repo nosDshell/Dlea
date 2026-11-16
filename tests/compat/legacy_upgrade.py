@@ -16,34 +16,34 @@ binary = Path(sys.argv[1]).resolve()
 root = sandbox.make("upgrade-")
 for name in ("home", "config", "state", "data", "cache", "runtime", "bin", "files"):
     (root / name).mkdir(mode=0o700)
-shutil.copy2(binary, root / "bin/flea")
-binary = root / "bin/flea"
+shutil.copy2(binary, root / "bin/dlea")
+binary = root / "bin/dlea"
 for name in ("qs", "hyprctl"):
     shutil.copy(repo / "tests/compat/legacy_fixture.py", root / "bin" / name)
     (root / "bin" / name).chmod(0o700)
-(root / "bin/flea-gui").write_text('''#!/usr/bin/python3
+(root / "bin/dlea-gui").write_text('''#!/usr/bin/python3
 import json, os
 from pathlib import Path
 import sys
 runtime=Path(os.environ["XDG_RUNTIME_DIR"])
-special=os.environ.get("FLEA_PICKER_REPLY") or os.environ.get("FLEA_UNLOCK") or "--pick" in sys.argv
+special=os.environ.get("DLEA_PICKER_REPLY") or os.environ.get("DLEA_UNLOCK") or "--pick" in sys.argv
 assert special or all((p.parent/"drained").exists() for p in runtime.glob("quickshell/by-id/*/backend.pid")), "GUI started before old backends drained"
 args=sys.argv[1:]
-assert os.environ.get("FLEA_PATH") is None and os.environ.get("FLEA_SELECT") is None, "start or selection leaked through the environment"
-state={"path":args[args.index("--")+1] if "--" in args else None,"select":args[args.index("--select")+1] if "--select" in args else None,"FLEA_UPGRADE_SELECTION":os.environ.get("FLEA_UPGRADE_SELECTION")}
+assert os.environ.get("DLEA_PATH") is None and os.environ.get("DLEA_SELECT") is None, "start or selection leaked through the environment"
+state={"path":args[args.index("--")+1] if "--" in args else None,"select":args[args.index("--select")+1] if "--select" in args else None,"DLEA_UPGRADE_SELECTION":os.environ.get("DLEA_UPGRADE_SELECTION")}
 root=Path(os.environ["UPGRADE_FIXTURE"]).resolve()
-assert root.is_absolute() and (root/".flea-test-sandbox").is_file()
+assert root.is_absolute() and (root/".dlea-test-sandbox").is_file()
 with (root/"gui-records.jsonl").open("a") as log: log.write(json.dumps(state)+"\\n")
-# The GPUI chooser takes its reply file as flea-gui --pick <reply>.
-reply=os.environ.get("FLEA_PICKER_REPLY") or (args[args.index("--pick")+1] if "--pick" in args else None)
+# The GPUI chooser takes its reply file as dlea-gui --pick <reply>.
+reply=os.environ.get("DLEA_PICKER_REPLY") or (args[args.index("--pick")+1] if "--pick" in args else None)
 if reply:
     target=Path(reply).resolve()
     assert target.is_absolute() and target.is_relative_to(root)
     target.write_text(json.dumps({"response":0,"uris":[(root/"files/picked.txt").as_uri()]}))
 print(json.dumps(state))
 ''')
-(root / "bin/flea-gui").chmod(0o700)
-env = {"PATH": str(root / "bin") + ":/usr/bin:/bin", "HOME": str(root / "home"), "XDG_CONFIG_HOME": str(root / "config"), "XDG_STATE_HOME": str(root / "state"), "XDG_DATA_HOME": str(root / "data"), "XDG_CACHE_HOME": str(root / "cache"), "XDG_RUNTIME_DIR": str(root / "runtime"), "FLEA_FRONTEND": "gpui", "FLEA_UI": str(repo / "ui"), "FLEA_BIN": str(binary), "WAYLAND_DISPLAY": "fixture", "QSG_RHI_BACKEND": "vulkan", "VK_LOADER_DRIVERS_DISABLE": "fixture", "UPGRADE_FIXTURE": str(root)}
+(root / "bin/dlea-gui").chmod(0o700)
+env = {"PATH": str(root / "bin") + ":/usr/bin:/bin", "HOME": str(root / "home"), "XDG_CONFIG_HOME": str(root / "config"), "XDG_STATE_HOME": str(root / "state"), "XDG_DATA_HOME": str(root / "data"), "XDG_CACHE_HOME": str(root / "cache"), "XDG_RUNTIME_DIR": str(root / "runtime"), "DLEA_FRONTEND": "gpui", "DLEA_UI": str(repo / "ui"), "DLEA_BIN": str(binary), "WAYLAND_DISPLAY": "fixture", "QSG_RHI_BACKEND": "vulkan", "VK_LOADER_DRIVERS_DISABLE": "fixture", "UPGRADE_FIXTURE": str(root)}
 processes = []
 clients = []
 (root / "clients.json").write_text("[]")
@@ -71,7 +71,7 @@ def launch(*args):
 
 # A chooser or unlock request is a separate window beside any 0.3.12 browser window, so it never hands over.
 def specials_leave(*windows):
-    for name, args, extra in (("pick", ["--pick", str(root / "reply.json")], {"FLEA_PICKER": '{"kind":"open","multiple":false}'}),
+    for name, args, extra in (("pick", ["--pick", str(root / "reply.json")], {"DLEA_PICKER": '{"kind":"open","multiple":false}'}),
                               ("unlock", ["--unlock", "/dev/contract"], {})):
         result = subprocess.run([str(binary), *args], env=env | extra, capture_output=True, timeout=35)
         assert result.returncode == 0, (name, result.returncode, result.stderr)
@@ -95,7 +95,7 @@ def helpers():
     assert select.select([bus.stdout], [], [], 5)[0], "private bus did not start"
     env["DBUS_SESSION_BUS_ADDRESS"] = bus.stdout.readline().decode().strip()
     owned = []
-    for script, name in (("flea-filemanager1", "org.freedesktop.FileManager1"), ("flea-portal", "org.freedesktop.impl.portal.desktop.flea")):
+    for script, name in (("dlea-filemanager1", "org.freedesktop.FileManager1"), ("dlea-portal", "org.freedesktop.impl.portal.desktop.dlea")):
         child = subprocess.Popen(["/usr/bin/python3", str(repo / "tools" / script)], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         processes.append(child)
         owned.append(child)
@@ -112,7 +112,7 @@ def helper_requests():
     picked.write_text("picked through a surviving helper\n")
     bus_call("org.freedesktop.FileManager1", "/org/freedesktop/FileManager1", "org.freedesktop.FileManager1.ShowFolders", str([(root / "files").as_uri()]), "")
     bus_call("org.freedesktop.FileManager1", "/org/freedesktop/FileManager1", "org.freedesktop.FileManager1.ShowItems", str([picked.as_uri()]), "")
-    answer = bus_call("org.freedesktop.impl.portal.desktop.flea", "/org/freedesktop/portal/desktop", "org.freedesktop.impl.portal.FileChooser.OpenFile", "/org/freedesktop/portal/desktop/request/contract/one", "contract", "", "Choose", "{}")
+    answer = bus_call("org.freedesktop.impl.portal.desktop.dlea", "/org/freedesktop/portal/desktop", "org.freedesktop.impl.portal.FileChooser.OpenFile", "/org/freedesktop/portal/desktop/request/contract/one", "contract", "", "Choose", "{}")
     assert b"uint32 0" in answer and picked.as_uri().encode() in answer, answer
     deadline = time.monotonic() + 5
     while time.monotonic() < deadline:
@@ -162,7 +162,7 @@ try:
     assert result.returncode == 0, result.stderr
     carried = json.loads(result.stdout)
     assert carried["path"] == str(root / "files") and carried["select"] == selected
-    assert json.loads(carried["FLEA_UPGRADE_SELECTION"]) == [selected]
+    assert json.loads(carried["DLEA_UPGRADE_SELECTION"]) == [selected]
     old.wait(timeout=2)
     neighbour.wait(timeout=2)
     if "--helpers" in sys.argv:
@@ -176,8 +176,8 @@ try:
     old.wait(timeout=2)
     (root / "classic-compositor").unlink()
     old = start("c-explicit", cursor=selected, selection=[selected])
-    gui_binary = root / "bin/flea-gui"
-    parked_binary = root / "bin/flea-gui.parked"
+    gui_binary = root / "bin/dlea-gui"
+    parked_binary = root / "bin/dlea-gui.parked"
     gui_binary.rename(parked_binary)
     result = launch()
     assert result.returncode == 1 and old.poll() is None, "missing candidate closed the old window"

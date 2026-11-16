@@ -3,7 +3,7 @@ use super::super::transferitem_line;
 
 #[test]
 fn an_item_line_shows_a_raw_name_in_its_display_spelling() {
-    use flea::bytename::ExactText as _;
+    use dlea::bytename::ExactText as _;
     use std::os::unix::ffi::OsStrExt;
     let exact = std::ffi::OsStr::from_bytes(b"clip-\xff.txt")
         .exact_text()

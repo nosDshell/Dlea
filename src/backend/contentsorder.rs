@@ -1,4 +1,4 @@
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::*;
 use std::collections::HashMap;
 
@@ -42,7 +42,7 @@ pub fn sort(
         result => {
             let error = match result {
                 Err(error) => error,
-                Ok(Err(msg)) => FleaError {
+                Ok(Err(msg)) => DleaError {
                     where_: "sort".into(),
                     path: by,
                     msg,
@@ -81,7 +81,7 @@ pub fn sort(
             &listed,
             anchor,
             st.listing
-                .index_of(&st.base, &flea::bytename::view(anchor))
+                .index_of(&st.base, &dlea::bytename::view(anchor))
                 .map_or(-1, |row| row as isize),
         );
     }

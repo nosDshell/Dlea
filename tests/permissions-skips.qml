@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-permissions-skips-test
+//@ pragma ShellId dlea-permissions-skips-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Permissions.js" as Permissions
+import "dlea" as Dlea
+import "dlea/js/Permissions.js" as Permissions
 
 // tests/permissions-skips.sh's harness: the several-items card counts only the files it will change, names the rest in one sentence, and draws its title strip on the board's rows.
 ShellRoot {
@@ -69,7 +69,7 @@ ShellRoot {
     Item {
         width: shell.statusWindowWidth
         height: bar.implicitHeight
-        Flea.StatusBar {
+        Dlea.StatusBar {
             id: bar
             width: shell.statusWindowWidth
             path: "/d"
@@ -145,7 +145,7 @@ ShellRoot {
         implicitWidth: 904
         implicitHeight: 699
         color: "#303030"
-        Flea.PermissionsDialog { id: dialog }
+        Dlea.PermissionsDialog { id: dialog }
     }
 
     Timer {
@@ -196,7 +196,7 @@ ShellRoot {
             shell.check("one-changeable-file-keeps-the-card-editable", dialog.editable && dialog.multiSummary.changeable, String(dialog.editable))
             shell.phase = 4
         } else if (shell.phase === 4) {
-            Flea.ViewState.load(JSON.stringify({ display: { textSize: { mode: shell.boardStop } } }))
+            Dlea.ViewState.load(JSON.stringify({ display: { textSize: { mode: shell.boardStop } } }))
             shell.open(["/d/a.txt", "/d/b.txt", "/d/c.txt"], [["0644", ""], ["0600", ""], ["0755", ""]])
             shell.phase = 5
         } else if (shell.phase === 5) {

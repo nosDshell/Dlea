@@ -208,7 +208,7 @@ EOS
         || fail "sharebrowser: a mount that genuinely failed navigated to $(ipc path)"
 
     printf 'SHAREBROWSER list=ok escape=ok mount-open=ok already-mounted-quirk=ok mount-failure=ok\n'
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"; sandbox_remove "$share1_dir"; sandbox_remove "$share2_dir"
 }
 
@@ -231,8 +231,8 @@ case_taildrop() (
 #!/usr/bin/env bash
 set -eu
 [[ "${1:-}" == open ]] || exec /usr/bin/gio "$@"
-box=${FLEA_PROVIDERS_BOX:?}
-[[ "$box" == /* && -f "$box/.flea-test-sandbox" ]] || exit 90
+box=${DLEA_PROVIDERS_BOX:?}
+[[ "$box" == /* && -f "$box/.dlea-test-sandbox" ]] || exit 90
 log=$(realpath -m -- "$box/calls.jsonl")
 [[ "$log" == "$box/"* && "$log" != "$box" ]] || exit 91
 jq -cn --arg helper gio --args '{helper:$helper,args:$ARGS.positional}' -- "$@" >> "$log"
@@ -242,18 +242,18 @@ EOS
     providers_install omarchy-tailscale-send yes
     export HOME="$menu_box/home" XDG_STATE_HOME="$menu_box/state" XDG_CONFIG_HOME="$menu_box/config"
     export XDG_CACHE_HOME="$menu_box/cache" XDG_DATA_HOME="$menu_box/data"
-    export PATH="$menu_box/open-bin:$menu_box/bin" FLEA_PROVIDERS_BOX="$menu_box"
-    "$flea_bin" --ui-state '{"view":"list","keys":"default","menu":{"hidden":[]}}' >/dev/null \
+    export PATH="$menu_box/open-bin:$menu_box/bin" DLEA_PROVIDERS_BOX="$menu_box"
+    "$dlea_bin" --ui-state '{"view":"list","keys":"default","menu":{"hidden":[]}}' >/dev/null \
         || fail 'taildrop: private settings seed failed'
     launch "$menu_dir"
     wait_listing 3
     providers_open adir pointer
     providers_disabled taildrop 'Taildrop sends files only' 'files only'
-    menus_expect menuState 'any(.entries[]; .action == "plugin-send:flea.tailscale" and .disabled and .submenu == [])' 'directory keeps its installed provider but offers no file targets'
+    menus_expect menuState 'any(.entries[]; .action == "plugin-send:dlea.tailscale" and .disabled and .submenu == [])' 'directory keeps its installed provider but offers no file targets'
     providers_close
 
     providers_open b-cursor.txt pointer
-    menus_expect menuState 'any(.entries[]; .action == "plugin-send:flea.tailscale" and (.disabled | not) and .mark == "tailscale")' 'file menu uses the Tailscale brand mark'
+    menus_expect menuState 'any(.entries[]; .action == "plugin-send:dlea.tailscale" and (.disabled | not) and .mark == "tailscale")' 'file menu uses the Tailscale brand mark'
     menus_shot taildrop-menu
     providers_seek taildrop
     key -k Return >/dev/null || fail 'taildrop: submenu Enter failed'
@@ -274,13 +274,13 @@ EOS
     providers_mode tailscale ready '{"BackendState":"NeedsLogin","Peer":{}}'
     providers_open b-cursor.txt pointer
     providers_disabled taildrop 'signed out' 'signed out'
-    menus_expect menuState 'any(.entries[]; .action == "plugin-send:flea.tailscale" and .disabled and .submenu == [])' 'signed-out installation offers no cached peer'
+    menus_expect menuState 'any(.entries[]; .action == "plugin-send:dlea.tailscale" and .disabled and .submenu == [])' 'signed-out installation offers no cached peer'
     menus_shot taildrop-signed-out
     providers_close
     providers_install tailscale no
     before=$(providers_calls tailscale)
     providers_open b-cursor.txt pointer
-    menus_expect menuState 'all(.entries[]; .action != "plugin-send:flea.tailscale")' 'missing installation removes the provider row'
+    menus_expect menuState 'all(.entries[]; .action != "plugin-send:dlea.tailscale")' 'missing installation removes the provider row'
     providers_expect '.facts.taildrop.installed == false and (.taildrop.checking | not)' 'private PATH proves the provider is absent'
     menus_equal 'absence does not attempt a missing status helper' "$before" "$(providers_calls tailscale)"
     menus_shot taildrop-absent
@@ -297,13 +297,13 @@ case_providers() (
     providers_fixture
     trap 'providers_cleanup || exit 1' EXIT
     export HOME="$menu_box/home" XDG_STATE_HOME="$menu_box/state" XDG_CONFIG_HOME="$menu_box/config"
-    export XDG_CACHE_HOME="$menu_box/cache" XDG_DATA_HOME="$menu_box/data" PATH="$menu_box/bin" FLEA_PROVIDERS_BOX="$menu_box"
-    "$flea_bin" --ui-state '{"view":"list","keys":"default","menu":{"hidden":[]}}' >/dev/null || fail 'providers: private settings seed failed'
+    export XDG_CACHE_HOME="$menu_box/cache" XDG_DATA_HOME="$menu_box/data" PATH="$menu_box/bin" DLEA_PROVIDERS_BOX="$menu_box"
+    "$dlea_bin" --ui-state '{"view":"list","keys":"default","menu":{"hidden":[]}}' >/dev/null || fail 'providers: private settings seed failed'
     launch "$menu_dir"
     wait_listing 2
     menus_expect listInFlight '. == false' 'provider fixture initial listing settles'
     providers_open
-    menus_expect menuState 'all(.entries[]; .action != "plugin-send:flea.tailscale" and .action != "dropbox" and .action != "sharelink" and .action != "localsend")' 'absent providers are not built'
+    menus_expect menuState 'all(.entries[]; .action != "plugin-send:dlea.tailscale" and .action != "dropbox" and .action != "sharelink" and .action != "localsend")' 'absent providers are not built'
     menus_equal 'absent providers spawn no helper' 0 "$(jq -s length "$menu_box/calls.jsonl")"
     providers_close
 
@@ -377,7 +377,7 @@ STATES
 
     providers_install tailscale no
     providers_open
-    menus_expect menuState 'all(.entries[]; .action != "plugin-send:flea.tailscale")' 'fresh menu removes uninstalled Tailscale'
+    menus_expect menuState 'all(.entries[]; .action != "plugin-send:dlea.tailscale")' 'fresh menu removes uninstalled Tailscale'
     providers_close
     providers_install tailscale yes
     providers_mode tailscale gate "$provider_ready"
@@ -387,7 +387,7 @@ STATES
     before=$(ipc listContentY)
     providers_release tailscale
     providers_expect '(.refreshing | not) and .menuFocus' 'late provider insertion finishes with keyboard focus'
-    menus_expect menuState '.entries[.cursor].action == "properties" and any(.entries[]; .action == "plugin-send:flea.tailscale" and (.disabled | not))' 'inserted provider preserves current action'
+    menus_expect menuState '.entries[.cursor].action == "properties" and any(.entries[]; .action == "plugin-send:dlea.tailscale" and (.disabled | not))' 'inserted provider preserves current action'
     providers_geometry
     menus_equal 'provider insertion leaves covered listing scroll unchanged' "$before" "$(ipc listContentY)"
     menus_shot providers-inserted

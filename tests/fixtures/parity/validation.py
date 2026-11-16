@@ -45,26 +45,26 @@ def validate(context):
 
     status = root / 'validation-status.tsv'
     for value in ('Green', 'gren', 'green '):
-        status.write_text(f'id\tstatus\tevidence\nipc:flea.ready\t{value}\t\n')
+        status.write_text(f'id\tstatus\tevidence\nipc:dlea.ready\t{value}\t\n')
         run(tree_options + ['--status', str(status)], code=2,
-            reason=f'unknown status for ipc:flea.ready: {value!r}')
+            reason=f'unknown status for ipc:dlea.ready: {value!r}')
     for value in ('open', 'green', 'ruled out'):
-        status.write_text(f'id\tstatus\tevidence\nipc:flea.ready\t{value}\tevidence.txt\n')
+        status.write_text(f'id\tstatus\tevidence\nipc:dlea.ready\t{value}\tevidence.txt\n')
         marked = parse(run(tree_options + ['--status', str(status)]))
-        check(next(row for row in marked if row['id'] == 'ipc:flea.ready')['status'] == value,
+        check(next(row for row in marked if row['id'] == 'ipc:dlea.ready')['status'] == value,
               f'accepted status remains exact: {value}')
 
     outside = root / 'outside-proof.txt'
     outside.write_text('Evidence outside the input tree.\n')
     (tree / 'escape').symlink_to(outside)
     for evidence in ('../outside-proof.txt', str(outside), 'escape'):
-        status.write_text(f'id\tstatus\tevidence\nipc:flea.ready\tgreen\t{evidence}\n')
+        status.write_text(f'id\tstatus\tevidence\nipc:dlea.ready\tgreen\t{evidence}\n')
         run(tree_options + ['--status', str(status)], code=2,
-            reason=f'evidence path escapes --tree for ipc:flea.ready: {evidence}')
+            reason=f'evidence path escapes --tree for ipc:dlea.ready: {evidence}')
     for evidence in ('evidence.txt', str(tree / 'evidence.txt')):
-        status.write_text(f'id\tstatus\tevidence\nipc:flea.ready\tgreen\t{evidence}\n')
+        status.write_text(f'id\tstatus\tevidence\nipc:dlea.ready\tgreen\t{evidence}\n')
         marked = parse(run(tree_options + ['--status', str(status)]))
-        proof = next(row for row in marked if row['id'] == 'ipc:flea.ready')
+        proof = next(row for row in marked if row['id'] == 'ipc:dlea.ready')
         check(proof['status'] == 'green' and proof['evidence'] == 'evidence.txt',
               'both inside-tree evidence forms retain green and normalized provenance')
 

@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # A resized Grid still draws every tile's row, offscreen with the real backend, after width or height changes.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 command -v qs >/dev/null || { echo 'FAIL gridresize: qs is missing'; exit 1; }
 failed=0
@@ -11,18 +11,18 @@ root=$(mktemp -d "$FIXTURE_ROOT/gridresize-XXXXXXXX") || exit 1
 sandbox_require "$root" || exit 1
 : > "$root/$SANDBOX_MARKER" || exit 1
 trap 'sandbox_remove "$root"' EXIT
-mkdir -p "$root/config" "$root/fixture" "$root/run/home" "$root/run/state/flea" "$root/run/cache" "$root/run/runtime" || exit 1
+mkdir -p "$root/config" "$root/fixture" "$root/run/home" "$root/run/state/dlea" "$root/run/cache" "$root/run/runtime" || exit 1
 chmod 700 "$root/run/runtime" || exit 1
-ln -s "$PWD/ui" "$root/config/flea" || exit 1
+ln -s "$PWD/ui" "$root/config/dlea" || exit 1
 headless_commons "$root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$root/config/Ui" || exit 1
 cp tests/gridresize.qml "$root/config/shell.qml" || exit 1
 # Two thousand files: more than the held window at either width, so a far scroll lands past it.
 for i in $(seq -w 1 2000); do printf 'row %s\n' "$i" > "$root/fixture/file-$i.txt"; done
-printf '{"updates":{"autoCheck":false},"view":"list"}\n' > "$root/run/state/flea/ui.json" || exit 1
+printf '{"updates":{"autoCheck":false},"view":"list"}\n' > "$root/run/state/dlea/ui.json" || exit 1
 env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$root/run/home" XDG_STATE_HOME="$root/run/state" XDG_CACHE_HOME="$root/run/cache" XDG_RUNTIME_DIR="$root/run/runtime" \
-    FLEA_BIN="$PWD/target/debug/flea" FLEA_GV_DIR="$root/fixture" FLEA_GV_ENTRIES=2000 FLEA_GR_CASE="$case_name" \
+    DLEA_BIN="$PWD/target/debug/dlea" DLEA_GV_DIR="$root/fixture" DLEA_GV_ENTRIES=2000 DLEA_GR_CASE="$case_name" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
     timeout 90 qs -p "$root/config" > "$root/probe.log" 2>&1
 status=$?

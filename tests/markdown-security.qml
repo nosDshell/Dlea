@@ -1,14 +1,14 @@
-//@ pragma ShellId flea-markdown-security-test
+//@ pragma ShellId dlea-markdown-security-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/MdRun.js" as Run
-import "flea/js/MdUrl.js" as Url
-import "flea/js/MdResolve.js" as Resolve
-import "flea/js/MdHtml.js" as Html
-import "flea/js/MdBlocks.js" as Blocks
-import "flea/js/MdLink.js" as Link
+import "dlea" as Dlea
+import "dlea/js/MdRun.js" as Run
+import "dlea/js/MdUrl.js" as Url
+import "dlea/js/MdResolve.js" as Resolve
+import "dlea/js/MdHtml.js" as Html
+import "dlea/js/MdBlocks.js" as Blocks
+import "dlea/js/MdLink.js" as Link
 import "mdfence.js" as Fence
 import "mdhtmlsecurity.js" as HtmlSecurity
 
@@ -19,8 +19,8 @@ ShellRoot {
     function log(line) { console.log("MARKDOWN_SECURITY " + line) }
     function quit() { Quickshell.execDetached(["kill", String(Quickshell.processId)]) }
 
-    property string fixture: Quickshell.env("FLEA_MARKDOWN_FIXTURE")
-    property bool delayedCorpus: Quickshell.env("FLEA_MARKDOWN_DELAYED_CORPUS") === "1"
+    property string fixture: Quickshell.env("DLEA_MARKDOWN_FIXTURE")
+    property bool delayedCorpus: Quickshell.env("DLEA_MARKDOWN_DELAYED_CORPUS") === "1"
     property bool done: false
     property bool probesBuilt: false
     property bool draining: false
@@ -34,7 +34,7 @@ ShellRoot {
     readonly property int referenceContextCount: 9
     readonly property int expectedReferences: referenceFormCount * referenceContextCount
     property var validationFailures: []
-    property string counter: Quickshell.env("FLEA_MARKDOWN_COUNTER")
+    property string counter: Quickshell.env("DLEA_MARKDOWN_COUNTER")
 
     // Wait for explicit Images in the preview, echo and resource probes to reach Ready or Error.
     function imagesSettled(item) {
@@ -291,7 +291,7 @@ ShellRoot {
                 asynchronous: true
             }
 
-            Flea.PreviewMarkdown {
+            Dlea.PreviewMarkdown {
                 id: md
                 anchors.top: parent.top
                 anchors.left: parent.left
@@ -306,7 +306,7 @@ ShellRoot {
             }
 
             // Source view draws the raw file, front matter and display math included, as literal text.
-            Flea.PreviewMarkdown {
+            Dlea.PreviewMarkdown {
                 id: sourceView
                 anchors.top: parent.top
                 anchors.left: parent.left

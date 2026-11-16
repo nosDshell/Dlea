@@ -1,7 +1,7 @@
-// EY-496: the snapshot a menu opens on answers, with both kinds, when the selection holds a folder Flea cannot read.
+// EY-496: the snapshot a menu opens on answers, with both kinds, when the selection holds a folder Dlea cannot read.
 use crate::backend::menu_actions::Snapshot;
 use crate::backend::testdir::TestDir;
-use flea::jsondoc::{self, Json};
+use dlea::jsondoc::{self, Json};
 use std::os::unix::fs::PermissionsExt;
 use std::path::PathBuf;
 use std::time::{Duration, Instant};

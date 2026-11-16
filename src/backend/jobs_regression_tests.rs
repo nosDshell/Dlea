@@ -79,7 +79,7 @@ fn failed_target_preparation_releases_unrelated_drive() {
         &mut ops,
         OpMsg::JobReady {
             id: 1,
-            result: Err(crate::error::FleaError {
+            result: Err(crate::error::DleaError {
                 where_: "jobs".into(),
                 path: "/stalled".into(),
                 msg: "target is not responding".into(),
@@ -92,8 +92,8 @@ fn failed_target_preparation_releases_unrelated_drive() {
     assert!(!String::from_utf8_lossy(&out).contains("waiting for the copy to stalled"));
 }
 
-fn stalled() -> crate::error::FleaError {
-    crate::error::FleaError {
+fn stalled() -> crate::error::DleaError {
+    crate::error::DleaError {
         where_: "jobs".into(),
         path: "/stalled".into(),
         msg: "target is not responding".into(),

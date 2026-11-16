@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Match.js" as Match
 import "js/Picker.js" as Picker
 import "js/Keymap.js" as Keymap
@@ -48,8 +48,8 @@ GridView {
     topMargin: Theme.spacing.gap
     cellWidth: GridGeometry.cellWidthFor(root.width, root.columns, Theme.spacing.gap, Theme.spacing.rowPaddingX)
     cellHeight: root.cellHeightPx
-    Flea.FastScrollHandler { flickable: root }
-    Flea.ViewportScrollBar {
+    Dlea.FastScrollHandler { flickable: root }
+    Dlea.ViewportScrollBar {
         parent: root
         anchors { top: parent.top; right: parent.right }
         flickable: root
@@ -73,7 +73,7 @@ GridView {
         width: root.cellWidth
         height: root.cellHeight
 
-        Flea.GridTile {
+        Dlea.GridTile {
             anchors.fill: parent
             row: cell.shownRow
             cursor: cell.listingIndex === root.picker.cursorIndex
@@ -84,7 +84,7 @@ GridView {
 
         // The board's box, one gap in from the tile's top left; the cursor tile's mark is
         // foreground through GridTile itself, like the main grid.
-        Flea.PickerBox {
+        Dlea.PickerBox {
             id: box
             visible: cell.markable
             x: Theme.spacing.gap

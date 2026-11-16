@@ -13,14 +13,14 @@ for tool in qs magick; do
     command -v "$tool" >/dev/null || { echo "pdf-idle.sh: $tool is not installed"; exit 1; }
 done
 
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 sandbox_forbidden /tmp && sandbox_refuse "pdf-idle: /tmp is inside a forbidden test target"
-idle_root=$(mktemp -d /tmp/flea-pdf-idle.XXXXXXXX) || exit 1
+idle_root=$(mktemp -d /tmp/dlea-pdf-idle.XXXXXXXX) || exit 1
 FIXTURE_ROOT=$idle_root
 sandbox_root_ok
 idle_root=$SANDBOX_ROOT
 readonly idle_root
-printf 'Flea PDF idle sandbox\n' > "$idle_root/$SANDBOX_MARKER" || exit 1
+printf 'Dlea PDF idle sandbox\n' > "$idle_root/$SANDBOX_MARKER" || exit 1
 idle_work="$idle_root/work"
 readonly idle_work
 cleanup() {

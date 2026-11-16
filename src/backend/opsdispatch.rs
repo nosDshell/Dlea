@@ -9,8 +9,8 @@ use crate::backend::opsreq::{
 use crate::backend::listing::Listing;
 use crate::backend::proto::error_line;
 use crate::backend::undo::{Entry, ItemIdentity, Journal, Step};
-use crate::error::FleaError;
-use flea::bytename::ExactText as _;
+use crate::error::DleaError;
+use dlea::bytename::ExactText as _;
 use std::io::Write;
 use std::path::{Component, Path, PathBuf};
 use std::sync::atomic::AtomicBool;
@@ -125,7 +125,7 @@ pub(crate) fn resolve_rows(paths: Vec<String>, rows: &[usize], base: &Path, list
     }
     rows.iter()
         .filter(|&&r| r < listing.len())
-        .map(|&r| flea::bytename::path_text(&listing.path(base, r)).into_owned())
+        .map(|&r| dlea::bytename::path_text(&listing.path(base, r)).into_owned())
         .collect()
 }
 
@@ -192,7 +192,7 @@ pub(crate) fn pending_busy_for(out: &mut impl Write, ops: &Ops, where_: &str, so
 }
 // A path whose mount holds a pending slow write waits, so the late journal lands first.
 pub(crate) fn pending_on(ops: &Ops, body: &str, path: &str) -> bool {
-    let key = mount_key(&flea::bytename::view(path), body);
+    let key = mount_key(&dlea::bytename::view(path), body);
     ops.pending.iter().any(|held| held.mount == key)
 }
 
@@ -210,9 +210,9 @@ fn pending_busy(out: &mut impl Write, ops: &Ops, where_: &str) -> bool {
 
 // A delete names its targets by snapshot, so with no paths to check any pending write blocks it.
 fn delete_blocked(ops: &Ops, paths: &[String], cursor: Option<&str>, selection: Option<&[super::menu_actions::Selected]>) -> bool {
-    let mut sources: Vec<PathBuf> = paths.iter().map(flea::bytename::exact).collect();
+    let mut sources: Vec<PathBuf> = paths.iter().map(dlea::bytename::exact).collect();
     if let Some(at) = cursor {
-        sources.push(flea::bytename::exact(at));
+        sources.push(dlea::bytename::exact(at));
     }
     if let Some(items) = selection {
         sources.extend(items.iter().map(|item| item.path.clone()));
@@ -244,7 +244,7 @@ pub(crate) fn start_trash(out: &mut impl Write, ops: &mut Ops, paths: Vec<String
         Err(message) => { writeln!(out, "{}", error_line(&op_err("trash", "", &message))).ok(); out.flush().ok(); return; }
     };
     // A path on a pending mount waits; writes elsewhere run beside the held write.
-    let mut sources: Vec<PathBuf> = paths.iter().map(flea::bytename::exact).collect();
+    let mut sources: Vec<PathBuf> = paths.iter().map(dlea::bytename::exact).collect();
     if let Some(items) = &selection {
         sources.extend(items.iter().map(|item| item.path.clone()));
     }
@@ -268,10 +268,10 @@ pub(crate) mod rename_selected;
 pub(crate) use rename_selected::{do_menu_rename, do_rename};
 
 pub(crate) fn do_rename_with<F>(out: &mut impl Write, ops: &mut Ops, path: &str, deadline: Duration, work: F) -> Vec<PathBuf>
-where F: FnOnce() -> Result<(PathBuf, Vec<Step>), FleaError> + Send + 'static,
+where F: FnOnce() -> Result<(PathBuf, Vec<Step>), DleaError> + Send + 'static,
 {
-    let parent = flea::bytename::view(path).parent().unwrap_or(Path::new("/")).to_path_buf();
-    if pending_busy_for(out, ops, "rename", &[flea::bytename::exact(path)], &[parent]) { return Vec::new(); }
+    let parent = dlea::bytename::view(path).parent().unwrap_or(Path::new("/")).to_path_buf();
+    if pending_busy_for(out, ops, "rename", &[dlea::bytename::exact(path)], &[parent]) { return Vec::new(); }
     super::renamework::start(ops, path.to_string(), deadline, work);
     Vec::new()
 }
@@ -291,8 +291,8 @@ pub(crate) fn do_mkdir_requested(out: &mut impl Write, ops: &mut Ops, parent: &s
     let given = name.to_string();
     let default_base = default_base.map(str::to_owned);
     let work = move || match default_base.as_deref() {
-        Some(default_base) => ops::mkdir_with_base(&flea::bytename::view(&base), &given, Some(default_base)),
-        None => ops::mkdir(&flea::bytename::view(&base), &given),
+        Some(default_base) => ops::mkdir_with_base(&dlea::bytename::view(&base), &given, Some(default_base)),
+        None => ops::mkdir(&dlea::bytename::view(&base), &given),
     };
     if request == 0 { do_mkdir_with(out, ops, parent, CALL_DEADLINE, work) }
     else { created_request::mkdir_with(out, ops, parent, request, CALL_DEADLINE, work) }
@@ -300,12 +300,12 @@ pub(crate) fn do_mkdir_requested(out: &mut impl Write, ops: &mut Ops, parent: &s
 // The work is a parameter so tests hold it on a channel while production runs the real mkdir.
 pub(crate) fn do_mkdir_with<F>(out: &mut impl Write, ops: &mut Ops, parent: &str, deadline: Duration, work: F) -> Vec<PathBuf>
 where
-    F: FnOnce() -> Result<(PathBuf, Vec<Step>), FleaError> + Send + 'static,
+    F: FnOnce() -> Result<(PathBuf, Vec<Step>), DleaError> + Send + 'static,
 {
     created_request::mkdir_with(out, ops, parent, 0, deadline, work)
 }
 // One journal entry per request, so one undo reverses the in-time answer and the late one alike.
-fn land_mkdir(out: &mut impl Write, ops: &mut Ops, result: Result<(PathBuf, Vec<Step>), FleaError>) -> Vec<PathBuf> {
+fn land_mkdir(out: &mut impl Write, ops: &mut Ops, result: Result<(PathBuf, Vec<Step>), DleaError>) -> Vec<PathBuf> {
     let touched = match &result {
         Ok((_, steps)) => Journal::touched_paths(steps),
         Err(_) => Vec::new(),
@@ -362,7 +362,7 @@ fn remove_made_link(to: &Path) -> std::io::Result<()> {
 }
 
 // The identity read beside that cleanup, failing together on a flaky mount.
-fn inspect_made_link(to: &Path) -> Result<ItemIdentity, crate::error::FleaError> {
+fn inspect_made_link(to: &Path) -> Result<ItemIdentity, crate::error::DleaError> {
     if fail_link_verify() {
         let stale = std::io::Error::from_raw_os_error(super::movebatch::ESTALE);
         return Err(crate::error::from_io("journal", &to.to_string_lossy(), &stale));
@@ -419,7 +419,7 @@ pub(crate) fn start_link_held(out: &mut impl Write, ops: &mut Ops, op: &str, pat
         }
     };
     // A source or target on a pending mount waits, before the question is taken.
-    let sources: Vec<PathBuf> = paths.iter().map(flea::bytename::exact).collect();
+    let sources: Vec<PathBuf> = paths.iter().map(dlea::bytename::exact).collect();
     let target = dest_path.clone();
     if pending_busy_for(out, ops, "link", &sources, &[target]) {
         return;
@@ -485,8 +485,8 @@ fn run_link_held(op: &str, paths: Vec<String>, dest: PathBuf, policy: super::col
     // Each stranded replace sentence, and a mixed batch's first failure, reported on the linked line.
     let mut note = String::new();
     for source in &paths {
-        let src = flea::bytename::view(source); let src = &*src;
-        let shown = flea::bytename::display(source);
+        let src = dlea::bytename::view(source); let src = &*src;
+        let shown = dlea::bytename::display(source);
         if !super::linkheld::matches(held, src) || src.symlink_metadata().is_err() {
             failed += 1;
             if first_err.is_empty() { first_err = format!("the link source {shown} changed or no longer exists"); }
@@ -607,7 +607,7 @@ pub(crate) fn do_link_target(out: &mut impl Write, path: &str, id: usize) {
     do_link_target_held(out, path, id, None);
 }
 pub(crate) fn do_link_target_held(out: &mut impl Write, path: &str, id: usize, expected: Option<&str>) {
-    let target = flea::bytename::view(path); let target = &*target;
+    let target = dlea::bytename::view(path); let target = &*target;
     let text = match std::fs::read_link(target) {
         Ok(t) => t,
         Err(e) => {
@@ -663,7 +663,7 @@ pub(crate) fn do_permissions_batch(out: &mut impl Write, ops: &mut Ops, paths: V
         out.flush().ok();
         return;
     }
-    let items: Vec<(PathBuf, String)> = paths.into_iter().zip(modes).map(|(p, m)| (flea::bytename::exact(p), m)).collect();
+    let items: Vec<(PathBuf, String)> = paths.into_iter().zip(modes).map(|(p, m)| (dlea::bytename::exact(p), m)).collect();
     // The reply names the first target mode.
     let shown = items.first().map(|(_, m)| m.clone()).unwrap_or_default();
     // A target on a pending mount waits; writes elsewhere run beside the held write.
@@ -699,13 +699,13 @@ pub(crate) fn do_newfile(out: &mut impl Write, ops: &mut Ops, parent: &str, name
         return Vec::new();
     }
     // A parent on a pending mount waits; writes elsewhere run beside the held write.
-    if pending_on_any(ops, &[flea::bytename::exact(parent)], &[]) {
+    if pending_on_any(ops, &[dlea::bytename::exact(parent)], &[]) {
         let request = format!(r#"{{"op":"newFile","id":{}}}"#, id);
         writeln!(out, "{}", super::menu_actions::response(&request, Err("An operation is already running.".into()))).ok();
         out.flush().ok();
         return Vec::new();
     }
-    let created = super::menu_actions::create_file(&flea::bytename::view(parent), name);
+    let created = super::menu_actions::create_file(&dlea::bytename::view(parent), name);
     let touched = created.as_ref().map(|(path, _)| vec![path.clone()]).unwrap_or_default();
     let result = created.map(|(path, identity)| {
         ops.journal.push(Entry { op: "newfile".into(), steps: vec![super::undo::Step::MadeFile { path: path.clone(), identity }] });
@@ -940,7 +940,7 @@ mod tests {
         super::super::renamework::test_request(out, ops, |out, ops| super::do_menu_rename(out, ops, path, to, id))
     }
     fn do_rename_with<F>(out: &mut Vec<u8>, ops: &mut Ops, path: &str, deadline: Duration, work: F) -> Vec<PathBuf>
-    where F: FnOnce() -> Result<(PathBuf, Vec<Step>), FleaError> + Send + 'static {
+    where F: FnOnce() -> Result<(PathBuf, Vec<Step>), DleaError> + Send + 'static {
         super::super::renamework::test_request(out, ops, |out, ops| super::do_rename_with(out, ops, path, deadline, work))
     }
     fn report_op(out: &mut Vec<u8>, ops: &mut Ops, message: OpMsg) {

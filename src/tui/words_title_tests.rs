@@ -16,7 +16,7 @@ fn language(root: &TestDir, code: &str, english: &str) -> I18n {
     );
     for (lang, body) in [("en", english), ("he", HEBREW), ("fa", PERSIAN)] {
         root.dir(&format!("catalog/{lang}"));
-        root.file(&format!("catalog/{lang}/flea.json"), body);
+        root.file(&format!("catalog/{lang}/dlea.json"), body);
     }
     root.file("language", code);
     I18n::load(Paths {

@@ -174,7 +174,7 @@ fn volumes(roots: &Roots, dev: &str) -> Vec<String> {
     own.into_iter().map(|part| labels.remove(&part).unwrap_or(part)).collect()
 }
 
-// Every disk that is never listed: under the six system paths, under an active swap, under Flea itself.
+// Every disk that is never listed: under the six system paths, under an active swap, under Dlea itself.
 fn excluded_disks(roots: &Roots, mountinfo: &str, swaps: &str) -> std::collections::HashSet<String> {
     let mut out = std::collections::HashSet::new();
     for path in SYSTEM_PATHS {

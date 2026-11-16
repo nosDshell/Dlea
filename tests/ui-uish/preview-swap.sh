@@ -9,13 +9,13 @@ case_watch() {
     wait_listing 3
     [[ "$(ipc rowAt 0)" == alpha.txt\|* ]] || fail "watch: row 0 is $(ipc rowAt 0), not alpha.txt"
 
-    # Issue 159's move-into-new-directory case: create and move from outside Flea while its one window stays open.
+    # Issue 159's move-into-new-directory case: create and move from outside Dlea while its one window stays open.
     local move_bytes='watch-move-payload-159' watch_pid
-    watch_pid=$(flea_pid)
+    watch_pid=$(dlea_pid)
     printf '%s' "$move_bytes" > "$dir/move-source.txt"
     mkdir "$dir/move-target"
     mv "$dir/move-source.txt" "$dir/move-target/move-source.txt"
-    flea_ipc_wait -p "$flea_ui/boot" flea total 4 --timeout 15 >/dev/null \
+    dlea_ipc_wait -p "$dlea_ui/boot" dlea total 4 --timeout 15 >/dev/null \
         || fail "watch: creating a directory and moving a file into it left the listing at $(ipc total) rows"
     [[ "$(ipc rowAt 0)" == move-target\|dir\|* ]] \
         || fail "watch: the moved-into directory is not row 0, got $(ipc rowAt 0)"
@@ -42,14 +42,14 @@ case_watch() {
     key -k Backspace >/dev/null
     wait_path "$dir"
     wait_listing 4
-    [[ "$(flea_pid)" == "$watch_pid" ]] || fail "watch: the move case relaunched Flea"
+    [[ "$(dlea_pid)" == "$watch_pid" ]] || fail "watch: the move case relaunched Dlea"
     printf 'WATCH move=ok parent-row=gone child-bytes=exact no-relaunch=ok\n'
     [[ "$(ipc selectionCount)" == 1 ]] || fail "watch: returning to the parent did not select the folder"
     key -k Escape >/dev/null
     [[ "$(ipc selectionCount)" == 0 ]] || fail "watch: Escape did not release the folder selection"
     rm "$dir/move-target/move-source.txt"
     rmdir "$dir/move-target"
-    flea_ipc_wait -p "$flea_ui/boot" flea total 3 --timeout 15 >/dev/null \
+    dlea_ipc_wait -p "$dlea_ui/boot" dlea total 3 --timeout 15 >/dev/null \
         || fail "watch: move-case cleanup left the parent listing at $(ipc total) rows"
 
     # The reporter's four changes, from another process, while the window sits on the folder.
@@ -58,7 +58,7 @@ case_watch() {
     rm "$dir/beta.txt"
     mkdir "$dir/brand-new-folder"
     # The 400 ms settle plus the re-read; the reporter waited several seconds and saw nothing move.
-    flea_ipc_wait -p "$flea_ui/boot" flea total 4 --timeout 15 >/dev/null \
+    dlea_ipc_wait -p "$dlea_ui/boot" dlea total 4 --timeout 15 >/dev/null \
         || fail "watch: the listing stayed at $(ipc total) rows after four outside changes"
     settle
     printf 'WATCH total=%s row0=%q row1=%q row2=%q\n' \
@@ -81,7 +81,7 @@ case_watch() {
     [[ "$(ipc rowAt "$(ipc cursor)")" == preview-me.txt\|* ]] \
         || fail "watch: the cursor did not start on preview-me.txt"
     printf 'z\n' > "$dir/AAA-above-the-cursor.txt"
-    flea_ipc_wait -p "$flea_ui/boot" flea total 5 --timeout 15 >/dev/null \
+    dlea_ipc_wait -p "$dlea_ui/boot" dlea total 5 --timeout 15 >/dev/null \
         || fail "watch: the second outside create left the listing at $(ipc total) rows"
     settle
     printf 'WATCH cursor=%s row=%q\n' "$(ipc cursor)" "$(ipc rowAt "$(ipc cursor)")"
@@ -94,7 +94,7 @@ case_watch() {
     settle
     [[ "$(ipc selectionCount)" == "1" ]] || fail "watch: v did not select the cursor row"
     printf 'held\n' > "$dir/BBB-while-selected.txt"
-    flea_ipc_wait -p "$flea_ui/boot" flea total 6 --timeout 15 >/dev/null \
+    dlea_ipc_wait -p "$dlea_ui/boot" dlea total 6 --timeout 15 >/dev/null \
         || fail "watch: the listing did not re-read to 6 rows while a selection stood, total is $(ipc total)"
     settle
     [[ "$(ipc selectionCount)" == "1" ]] \
@@ -155,7 +155,7 @@ case_watch() {
     key -k Escape >/dev/null
     settle
     assert_window
-    kill_flea
+    kill_dlea
 }
 
 case_previewswap() {
@@ -166,7 +166,7 @@ case_previewswap() {
     ffmpeg -y -f lavfi -i "testsrc=size=64x64" -frames:v 1 "$dir/a-image.jpg" >/dev/null 2>&1 || fail "previewswap: ffmpeg could not make a-image.jpg"
     ffmpeg -y -f lavfi -i "testsrc=duration=1:size=64x64:rate=10" "$dir/b-video.mp4" >/dev/null 2>&1 || fail "previewswap: ffmpeg could not make b-video.mp4"
     : > "$dir/c-doc.pdf"
-    printf 'hello from flea\n' > "$dir/d-notes.txt"
+    printf 'hello from dlea\n' > "$dir/d-notes.txt"
     printf 'fn main() {}\n' > "$dir/e-main.rs"
     : > "$dir/f-report.odt"
     : > "$dir/g-font.ttf"
@@ -283,5 +283,5 @@ case_previewswap() {
         || fail "previewswap: the 64x64 image draws at $pw x $ph, not its own size"
 
     printf 'PREVIEWSWAP column=ok look=ok %s\n' "$(ipc previewSwapState)"
-    kill_flea
+    kill_dlea
 }

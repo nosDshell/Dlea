@@ -7,7 +7,7 @@ import subprocess
 import sys
 
 root = Path(sys.argv[1])
-assert root.is_absolute() and (root / '.flea-test-sandbox').is_file()
+assert root.is_absolute() and (root / '.dlea-test-sandbox').is_file()
 receipt = [line.split('LOOP_EJECT_COMMAND ', 1)[1] for line in (root / 'command.log').read_text().splitlines()
            if 'LOOP_EJECT_COMMAND ' in line]
 assert len(receipt) == 1, 'the loop command must come from the production JS fixture exactly once'
@@ -20,7 +20,7 @@ gio.write_text('''#!/bin/sh
 [ "$1" = mount ] && [ "$2" = -u ] && [ "$3" = "$TEST_MOUNT" ] || exit 65
 case "$TEST_CHANGE" in
     changed) printf '%s\\n' '/images/other.iso' > "$TEST_BACKING" ;;
-    missing) python3 -c 'import os; p=os.environ["TEST_BACKING"]; r=os.environ["TEST_ROOT"]; assert p and os.path.isabs(p) and p.startswith(r + "/") and os.path.isfile(r + "/.flea-test-sandbox"); os.unlink(p)' ;;
+    missing) python3 -c 'import os; p=os.environ["TEST_BACKING"]; r=os.environ["TEST_ROOT"]; assert p and os.path.isabs(p) and p.startswith(r + "/") and os.path.isfile(r + "/.dlea-test-sandbox"); os.unlink(p)' ;;
     empty) : > "$TEST_BACKING" ;;
     reused) printf '%s\\n' 0 > "$TEST_AUTOCLEAR" ;;
     unreadable-now-readable) printf '%s\\n' 0 > "$TEST_AUTOCLEAR" ;;

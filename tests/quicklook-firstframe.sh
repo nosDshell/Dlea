@@ -2,21 +2,21 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Space on a small Markdown file draws a card that already holds its first block: no empty-card frame, content in frame 1.
 set -uo pipefail
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 . "$(dirname "$0")/qslog-gate.sh"
 cd "$(dirname "$0")/.." || exit 1
 for tool in qs dbus-run-session; do
     command -v "$tool" >/dev/null || { printf 'FAIL quicklook-firstframe: %s is required\n' "$tool"; exit 1; }
 done
-test_root="$FIXTURE_ROOT/flea-quicklook-firstframe-$$"
+test_root="$FIXTURE_ROOT/dlea-quicklook-firstframe-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 mkdir -p "$test_root"/{config,fixture/img} || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -m ui/boot/Ui)" "$test_root/config/Ui" || exit 1
-ln -s "$test_root/config/flea/boot/fleatab.qml" "$test_root/config/fleatab.qml" || exit 1
-cp -a ui "$test_root/config/flea" || exit 1
+ln -s "$test_root/config/dlea/boot/dleatab.qml" "$test_root/config/dleatab.qml" || exit 1
+cp -a ui "$test_root/config/dlea" || exit 1
 cp tests/quicklook-firstframe.qml "$test_root/config/shell.qml" || exit 1
 cp tests/quicklook-firstframe.js "$test_root/config/quicklook-firstframe.js" || exit 1
 # A README-sized document: headings, paragraphs, a list, a fence, a quote and a table, well under the 64 KiB worker threshold.
@@ -86,22 +86,22 @@ legs=0
 run_leg() {
     local leg=$1 steps=$2 class=$3 reduced=$4 sweep=$5 limit=$6
     local leg_root="$test_root/$leg" log="$test_root/$leg/run.log" status
-    mkdir -p "$leg_root"/{home,state/flea,cache,runtime} || exit 1
+    mkdir -p "$leg_root"/{home,state/dlea,cache,runtime} || exit 1
     chmod 700 "$leg_root/runtime" || exit 1
     if [ -n "${QLFF_DUAL:-}" ]; then
-        printf '{"view":"dual","dual":{"paths":["%s","%s"],"focus":1}}\n' "$test_root/fixture" "$test_root/fixture" > "$leg_root/state/flea/ui.json"
+        printf '{"view":"dual","dual":{"paths":["%s","%s"],"focus":1}}\n' "$test_root/fixture" "$test_root/fixture" > "$leg_root/state/dlea/ui.json"
     else
-        printf '{}\n' > "$leg_root/state/flea/ui.json"
+        printf '{}\n' > "$leg_root/state/dlea/ui.json"
     fi
     ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u QML_DISABLE_DISK_CACHE \
         HOME="$leg_root/home" XDG_STATE_HOME="$leg_root/state" XDG_CACHE_HOME="$leg_root/cache" \
-        XDG_RUNTIME_DIR="$leg_root/runtime" FLEA_BIN="$PWD/target/debug/flea" FLEA_PATH="$test_root/fixture" \
-        FLEA_REDUCED_MOTION="$reduced" QLFF_UI="$test_root/config/flea" QLFF_DIR="$test_root/fixture" QLFF_STEPS="$steps" QLFF_CLASS="$class" QLFF_SWEEP="$sweep" QLFF_MODE="${QLFF_MODE:-call}" QLFF_REENTER="${QLFF_REENTER:-}" QLFF_LATEROWS="${QLFF_LATEROWS:-}" QLFF_NOOPEN="${QLFF_NOOPEN:-}" QLFF_DUAL="${QLFF_DUAL:-}" \
+        XDG_RUNTIME_DIR="$leg_root/runtime" DLEA_BIN="$PWD/target/debug/dlea" DLEA_PATH="$test_root/fixture" \
+        DLEA_REDUCED_MOTION="$reduced" QLFF_UI="$test_root/config/dlea" QLFF_DIR="$test_root/fixture" QLFF_STEPS="$steps" QLFF_CLASS="$class" QLFF_SWEEP="$sweep" QLFF_MODE="${QLFF_MODE:-call}" QLFF_REENTER="${QLFF_REENTER:-}" QLFF_LATEROWS="${QLFF_LATEROWS:-}" QLFF_NOOPEN="${QLFF_NOOPEN:-}" QLFF_DUAL="${QLFF_DUAL:-}" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 QT_LOGGING_RULES="$(qslog_rules "qt.qml.diskcache.debug=true")" \
         dbus-run-session -- bash -c 'timeout "$1" qs -p "$2" > "$3" 2>&1' _ "$limit" "$test_root/config" "$log" 2> "$leg_root/bus.log" ) 2>/dev/null
     status=$?
     legs=$((legs + 1))
-    [ -z "${FLEA_CI_SUITE_LOGS:-}" ] || cp "$log" "$FLEA_CI_SUITE_LOGS/quicklook-firstframe-$leg.log" 2>/dev/null
+    [ -z "${DLEA_CI_SUITE_LOGS:-}" ] || cp "$log" "$DLEA_CI_SUITE_LOGS/quicklook-firstframe-$leg.log" 2>/dev/null
     grep -a 'QLFF \(STEP\|FAIL\|DONE\)' "$log" | sed "s/^/$leg: /"
     if ! qslog_nullptr "quicklook-firstframe $leg" < "$log"; then
         failures=$((failures + 1))

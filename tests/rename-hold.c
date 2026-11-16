@@ -17,8 +17,8 @@ static void mark_entered(const char *path) {
 int renameat2(int oldfd, const char *old, int newfd, const char *name, unsigned flags) {
     static int (*real_rename)(int, const char *, int, const char *, unsigned);
     if (!real_rename) real_rename = dlsym(RTLD_NEXT, "renameat2");
-    const char *entered = getenv("FLEA_RENAME_ENTERED");
-    const char *release = getenv("FLEA_RENAME_RELEASE");
+    const char *entered = getenv("DLEA_RENAME_ENTERED");
+    const char *release = getenv("DLEA_RENAME_RELEASE");
     if (entered && release && access(release, F_OK) != 0) {
         mark_entered(entered);
         while (access(release, F_OK) != 0) usleep(1000);
@@ -30,8 +30,8 @@ int flock(int fd, int operation) {
     int (*real_flock)(int, int) = dlsym(RTLD_NEXT, "flock");
     int result = real_flock(fd, operation);
     int saved_errno = errno;
-    const char *expected = getenv("FLEA_JOURNAL_LOCK");
-    const char *entered = getenv("FLEA_JOURNAL_ENTERED");
+    const char *expected = getenv("DLEA_JOURNAL_LOCK");
+    const char *entered = getenv("DLEA_JOURNAL_ENTERED");
     if (result < 0 && saved_errno == EWOULDBLOCK && operation == (LOCK_EX | LOCK_NB) && expected && entered) {
         char link[PATH_MAX], path[PATH_MAX + 1];
         snprintf(link, sizeof(link), "/proc/self/fd/%d", fd);

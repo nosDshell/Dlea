@@ -86,7 +86,7 @@ pub fn activate(section: &str, row: &Row, data: &Json, base: u32) -> Edit {
     match row.id.as_str() {
         "columns" => return Edit::Open("columns"),
         "backView" => return Edit::Open("view"),
-        "startFolder" | "keyboardSheet" | "updateFlea" | "makeDefault" | "language" => return Edit::Host(row.id.clone()),
+        "startFolder" | "keyboardSheet" | "updateDlea" | "makeDefault" | "language" => return Edit::Host(row.id.clone()),
         _ => {}
     }
     if !row.url.is_empty() {

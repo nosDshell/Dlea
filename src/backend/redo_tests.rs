@@ -7,7 +7,7 @@ fn guard(sandbox: &TestDir, paths: &[&Path]) {
     for path in paths {
         assert!(!path.as_os_str().is_empty() && path.is_absolute() && path.starts_with(sandbox.path()));
     }
-    assert!(sandbox.path().join(".flea-test-sandbox").is_file());
+    assert!(sandbox.path().join(".dlea-test-sandbox").is_file());
 }
 // Before Linux 6.13 ctime ticks every few milliseconds, so the rewrite repeats until the filesystem records it.
 fn rewrite_until_recorded(path: &Path, payload: &str) {
@@ -21,7 +21,7 @@ fn rewrite_until_recorded(path: &Path, payload: &str) {
     }
     panic!("{} kept its ctime across {} rewrites", path.display(), TRIES);
 }
-fn redo(journal: &mut Journal) -> Result<String, FleaError> {
+fn redo(journal: &mut Journal) -> Result<String, DleaError> {
     let (tx, _rx) = channel();
     journal.redo(1, &AtomicBool::new(false), &tx)
 }

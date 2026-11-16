@@ -12,8 +12,8 @@ import time
 
 root = Path(sys.argv[1]).resolve()
 binary = str(Path(sys.argv[2]).resolve())
-assert root.is_absolute() and root.name.startswith("flea-properties-races-")
-assert (root / ".flea-test-sandbox").is_file()
+assert root.is_absolute() and root.name.startswith("dlea-properties-races-")
+assert (root / ".dlea-test-sandbox").is_file()
 assert not root.is_relative_to(Path.home().resolve())
 assert os.geteuid() != 0, "unreadable-folder proof must run without root privileges"
 timings = []
@@ -23,7 +23,7 @@ def owned(path):
     path = Path(os.path.abspath(path))
     assert str(path) and path.is_absolute() and path.is_relative_to(root) and path != root
     assert path.parent.resolve().is_relative_to(root)
-    assert (root / ".flea-test-sandbox").is_file()
+    assert (root / ".dlea-test-sandbox").is_file()
     return path
 
 
@@ -51,7 +51,7 @@ probe = owned(root / "statx-probe")
 subprocess.run(["cc", "-o", str(probe),
                 str(Path(__file__).with_name("properties-races-block-test.c"))], check=True)
 subprocess.run([str(probe)], cwd=root, env=dict(os.environ, LD_PRELOAD=str(library),
-               FLEA_REVIEW_STAT=str(root / "unused"), FLEA_REVIEW_ARM=str(root / "unarmed")),
+               DLEA_REVIEW_STAT=str(root / "unused"), DLEA_REVIEW_ARM=str(root / "unarmed")),
                stdin=subprocess.DEVNULL, check=True)
 for name in ("cache", "state", "runtime", "config"):
     folder(name)
@@ -70,16 +70,16 @@ class Backend:
                    XDG_STATE_HOME=str(root / "state"), XDG_CONFIG_HOME=str(root / "config"),
                    XDG_RUNTIME_DIR=str(root / "runtime"))
         if blocked is not None:
-            env.update(LD_PRELOAD=str(library), FLEA_TEST_SIZE_PATH=str(blocked),
-                       FLEA_TEST_SIZE_ENTERED=str(self.entered), FLEA_TEST_SIZE_RELEASE=str(self.release))
+            env.update(LD_PRELOAD=str(library), DLEA_TEST_SIZE_PATH=str(blocked),
+                       DLEA_TEST_SIZE_ENTERED=str(self.entered), DLEA_TEST_SIZE_RELEASE=str(self.release))
         if stat_target is not None or mount_body is not None:
             env["LD_PRELOAD"] = str(library)
         if stat_target is not None:
-            env.update(FLEA_REVIEW_STAT=str(stat_target), FLEA_REVIEW_ARM=str(root / "arm"),
-                       FLEA_REVIEW_ENTERED=str(self.entered), FLEA_REVIEW_RELEASE=str(self.release),
-                       FLEA_REVIEW_STATS=str(self.stats))
+            env.update(DLEA_REVIEW_STAT=str(stat_target), DLEA_REVIEW_ARM=str(root / "arm"),
+                       DLEA_REVIEW_ENTERED=str(self.entered), DLEA_REVIEW_RELEASE=str(self.release),
+                       DLEA_REVIEW_STATS=str(self.stats))
         if mount_body is not None:
-            env["FLEA_REVIEW_MOUNTS"] = str(mount_body)
+            env["DLEA_REVIEW_MOUNTS"] = str(mount_body)
         self.proc = subprocess.Popen([binary, "--backend"], env=env, text=True,
                                      stdin=subprocess.PIPE, stdout=subprocess.PIPE)
         self.reader = threading.Thread(target=self.read, daemon=True)

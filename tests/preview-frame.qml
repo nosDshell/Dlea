@@ -1,14 +1,14 @@
-//@ pragma ShellId flea-preview-frame-test
+//@ pragma ShellId dlea-preview-frame-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // The Columns preview frame (AGENTS.md "The preview swap"); tests/preview-frame.sh drives it.
 ShellRoot {
     id: root
 
-    readonly property string dir: Quickshell.env("FLEA_PREVIEW_FRAME_DIR")
+    readonly property string dir: Quickshell.env("DLEA_PREVIEW_FRAME_DIR")
     property var failures: []
     property int step: 0
     // The frame's hairline on both sides, off which fitted heights are measured.
@@ -36,7 +36,7 @@ ShellRoot {
             }
         }
 
-        Flea.PreviewColumn {
+        Dlea.PreviewColumn {
             id: column
             width: 800
             height: 860

@@ -3,11 +3,11 @@
 # A remote start enumerates the share once: an adopted prefetch costs zero backend gio spawns, a missing or stale one costs exactly one.
 set -u
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete below.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 
 cd "$(dirname "$0")/.." || exit 1
 
-BIN=${BIN:-./target/debug/flea}
+BIN=${BIN:-./target/debug/dlea}
 # A clean git archive export carries no target/, so without this guard every case reports a missing binary as product failures.
 if [ ! -x "$BIN" ]; then
     printf 'remote-start.sh: no binary at %s\n' "$BIN" >&2
@@ -18,7 +18,7 @@ if ! command -v timeout >/dev/null 2>&1; then
     echo 'remote-start.sh: timeout is required so a hung adopt fails instead of hanging the suite' >&2
     exit 1
 fi
-SB="$FIXTURE_ROOT/flea-remote-start-$$"
+SB="$FIXTURE_ROOT/dlea-remote-start-$$"
 # The hermetic runtime dir: adopt_in only trusts a dest inside it.
 export XDG_RUNTIME_DIR="$SB/runtime"
 export XDG_CACHE_HOME="$SB/cache"
@@ -45,7 +45,7 @@ check() {
 
 sandbox_make "$SB"
 SHARE="$XDG_RUNTIME_DIR/gvfs/smb-share:server=t,share=u/dir"
-RUNTIMEDIR="$XDG_RUNTIME_DIR/flea"
+RUNTIMEDIR="$XDG_RUNTIME_DIR/dlea"
 mkdir -p "$RUNTIMEDIR"
 chmod 700 "$RUNTIMEDIR"
 
@@ -96,7 +96,7 @@ touch -d "@$((START1 / 1000 + 1))" "$DEST"
 FAKE1="$SB/fake1-gio"
 CALLS1="$SB/fake1-calls"
 failing_gio "$FAKE1" "$CALLS1"
-out1=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"quit"}\n' "$SHARE" | FLEA_GIO_BIN="$FAKE1" FLEA_GVFS_PREFETCH="$DEST" FLEA_GVFS_PATH="$SHARE" FLEA_GVFS_START="$START1" timeout "$BACK_TIMEOUT" "$BIN" --backend 2>/dev/null)
+out1=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"quit"}\n' "$SHARE" | DLEA_GIO_BIN="$FAKE1" DLEA_GVFS_PREFETCH="$DEST" DLEA_GVFS_PATH="$SHARE" DLEA_GVFS_START="$START1" timeout "$BACK_TIMEOUT" "$BIN" --backend 2>/dev/null)
 got1="$(printf '%s\n' "$out1" | sed -n 2p | rows_names)"
 check "adopted listing answers its rows" '"n":"a.txt" "n":"b.txt" ' "$got1"
 if [ "$got1" != '"n":"a.txt" "n":"b.txt" ' ]; then printf '%s\n' "$out1" | head -3 | cut -c1-200; fi
@@ -106,7 +106,7 @@ check "adopted listing spawns gio zero times" "0" "$(gio_calls "$CALLS1")"
 FAKE2="$SB/fake2-gio"
 CALLS2="$SB/fake2-calls"
 printing_gio "$FAKE2" "$CALLS2"
-out2=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"quit"}\n' "$SHARE" | FLEA_GIO_BIN="$FAKE2" timeout "$BACK_TIMEOUT" "$BIN" --backend 2>/dev/null)
+out2=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"quit"}\n' "$SHARE" | DLEA_GIO_BIN="$FAKE2" timeout "$BACK_TIMEOUT" "$BIN" --backend 2>/dev/null)
 got2="$(printf '%s\n' "$out2" | sed -n 2p | rows_names)"
 check "unadopted listing answers its rows" '"n":"a.txt" "n":"b.txt" ' "$got2"
 if [ "$got2" != '"n":"a.txt" "n":"b.txt" ' ]; then printf '%s\n' "$out2" | head -3 | cut -c1-200; fi
@@ -120,7 +120,7 @@ touch -d "@$((START3A / 1000 - 2))" "$DEST3A"
 FAKE3A="$SB/fake3a-gio"
 CALLS3A="$SB/fake3a-calls"
 printing_gio "$FAKE3A" "$CALLS3A"
-out3a=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"quit"}\n' "$SHARE" | FLEA_GIO_BIN="$FAKE3A" FLEA_GVFS_PREFETCH="$DEST3A" FLEA_GVFS_PATH="$SHARE" FLEA_GVFS_START="$START3A" timeout "$BACK_TIMEOUT" "$BIN" --backend 2>/dev/null)
+out3a=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"quit"}\n' "$SHARE" | DLEA_GIO_BIN="$FAKE3A" DLEA_GVFS_PREFETCH="$DEST3A" DLEA_GVFS_PATH="$SHARE" DLEA_GVFS_START="$START3A" timeout "$BACK_TIMEOUT" "$BIN" --backend 2>/dev/null)
 got3a="$(printf '%s\n' "$out3a" | sed -n 2p | rows_names)"
 check "mtime-stale prefetch answers the live rows" '"n":"a.txt" "n":"b.txt" ' "$got3a"
 if [ "$got3a" != '"n":"a.txt" "n":"b.txt" ' ]; then printf '%s\n' "$out3a" | head -3 | cut -c1-200; fi
@@ -134,7 +134,7 @@ touch -d "@$((START3B / 1000 + 10))" "$DEST3B"
 FAKE3B="$SB/fake3b-gio"
 CALLS3B="$SB/fake3b-calls"
 printing_gio "$FAKE3B" "$CALLS3B"
-out3b=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"quit"}\n' "$SHARE" | FLEA_GIO_BIN="$FAKE3B" FLEA_GVFS_PREFETCH="$DEST3B" FLEA_GVFS_PATH="$SHARE" FLEA_GVFS_START="$START3B" timeout "$BACK_TIMEOUT" "$BIN" --backend 2>/dev/null)
+out3b=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"quit"}\n' "$SHARE" | DLEA_GIO_BIN="$FAKE3B" DLEA_GVFS_PREFETCH="$DEST3B" DLEA_GVFS_PATH="$SHARE" DLEA_GVFS_START="$START3B" timeout "$BACK_TIMEOUT" "$BIN" --backend 2>/dev/null)
 got3b="$(printf '%s\n' "$out3b" | sed -n 2p | rows_names)"
 check "age-stale prefetch answers the live rows" '"n":"a.txt" "n":"b.txt" ' "$got3b"
 if [ "$got3b" != '"n":"a.txt" "n":"b.txt" ' ]; then printf '%s\n' "$out3b" | head -3 | cut -c1-200; fi
@@ -147,7 +147,7 @@ FAKE4="$SB/fake4-gio"
 CALLS4="$SB/fake4-calls"
 printing_gio "$FAKE4" "$CALLS4"
 T4=$(now_ms)
-out4=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"quit"}\n' "$SHARE" | FLEA_GIO_BIN="$FAKE4" FLEA_GVFS_PREFETCH="$DEST4" FLEA_GVFS_PATH="$SHARE" FLEA_GVFS_START="$START4" timeout "$BACK_TIMEOUT" "$BIN" --backend 2>/dev/null)
+out4=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"quit"}\n' "$SHARE" | DLEA_GIO_BIN="$FAKE4" DLEA_GVFS_PREFETCH="$DEST4" DLEA_GVFS_PATH="$SHARE" DLEA_GVFS_START="$START4" timeout "$BACK_TIMEOUT" "$BIN" --backend 2>/dev/null)
 T4=$(( $(now_ms) - T4 ))
 got4="$(printf '%s\n' "$out4" | sed -n 2p | rows_names)"
 check "missing prefetch answers the live rows" '"n":"a.txt" "n":"b.txt" ' "$got4"
@@ -162,7 +162,7 @@ FAKE5="$SB/fake5-gio"
 CALLS5="$SB/fake5-calls"
 printing_gio "$FAKE5" "$CALLS5"
 T5=$(now_ms)
-out5=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"quit"}\n' "$SHARE" | FLEA_GIO_BIN="$FAKE5" FLEA_GVFS_PREFETCH="$DEST5" FLEA_GVFS_PATH="$SHARE" FLEA_GVFS_START="$START5" timeout "$BACK_TIMEOUT" "$BIN" --backend 2>/dev/null)
+out5=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"quit"}\n' "$SHARE" | DLEA_GIO_BIN="$FAKE5" DLEA_GVFS_PREFETCH="$DEST5" DLEA_GVFS_PATH="$SHARE" DLEA_GVFS_START="$START5" timeout "$BACK_TIMEOUT" "$BIN" --backend 2>/dev/null)
 T5=$(( $(now_ms) - T5 ))
 got5="$(printf '%s\n' "$out5" | sed -n 2p | rows_names)"
 check "late prefetch answers the live rows" '"n":"a.txt" "n":"b.txt" ' "$got5"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-. "$(dirname "${BASH_SOURCE[0]}")/../tools/flea-magick-font"
+. "$(dirname "${BASH_SOURCE[0]}")/../tools/dlea-magick-font"
 # Drives the selected frontend's real window and asserts through its read-only IPC seam.
 # Usage: ./tests/ui.sh [case ...]; with no args it runs the default wanted list below; every case_* here or in a sourced tests/ui-*.sh outside it runs only by name (touchpad, networklive and xwdrag among them).
 set -u
@@ -7,12 +7,12 @@ set -o pipefail
 
 fail() {
     printf 'FAIL: %s\n' "$*" >&2
-    if [[ "${test_frontend-}" == gpui && "${ipc_pid-}" =~ ^[0-9]+$ && "$ipc_pid" == "${FLEA_TEST_PID-}" && "${run_root-}" == /* \
-          && -f "$run_root/.flea-test-sandbox" && ( "${evidence_dir-}" == "$run_root/evidence" || "${evidence_dir-}" == "$run_root/evidence/"* ) ]] \
-       && declare -F flea_test_call >/dev/null \
-       && [[ "$(flea_test_call call flea ready 2>/dev/null)" == true ]]; then
+    if [[ "${test_frontend-}" == gpui && "${ipc_pid-}" =~ ^[0-9]+$ && "$ipc_pid" == "${DLEA_TEST_PID-}" && "${run_root-}" == /* \
+          && -f "$run_root/.dlea-test-sandbox" && ( "${evidence_dir-}" == "$run_root/evidence" || "${evidence_dir-}" == "$run_root/evidence/"* ) ]] \
+       && declare -F dlea_test_call >/dev/null \
+       && [[ "$(dlea_test_call call dlea ready 2>/dev/null)" == true ]]; then
         local address png="$evidence_dir/failure-${BASHPID:-$$}.png"
-        address=$(hyprctl clients -j 2>/dev/null | jq -er --arg class "${flea_window_class:-com.thisisgm.flea}" --argjson pid "$ipc_pid" \
+        address=$(hyprctl clients -j 2>/dev/null | jq -er --arg class "${dlea_window_class:-com.nosDshell.dlea}" --argjson pid "$ipc_pid" \
             '[.[] | select(.class == $class and .pid == $pid)] | select(length == 1) | .[0].address') || address=""
         if [[ -n "$address" && ! -e "$png" && ! -L "$png" ]] && mkdir -p "$evidence_dir" \
            && omarchy-drive shot "$png" "$address" >/dev/null 2>&1 && [[ -s "$png" ]]; then
@@ -24,22 +24,22 @@ fail() {
 
 # Select the driver before any compositor, session, fixture or native evidence setup.
 repo="$(cd "$(dirname "$0")/.." && pwd)"
-test_frontend=${FLEA_TEST_FRONTEND:-gpui}
-ui_driver=${FLEA_UI_DRIVER:-native}
+test_frontend=${DLEA_TEST_FRONTEND:-gpui}
+ui_driver=${DLEA_UI_DRIVER:-native}
 case "$test_frontend" in qml|gpui) ;; *) fail "unknown test frontend: $test_frontend" ;; esac
 case "$ui_driver" in
     native) ;;
     headless)
-        exec python3 -B "$repo/tests/lib/flea_uish_inventory.py" --repo "$repo" --headless -- "$@"
+        exec python3 -B "$repo/tests/lib/dlea_uish_inventory.py" --repo "$repo" --headless -- "$@"
         ;;
     *) fail "unknown UI driver: $ui_driver" ;;
 esac
-. "$repo/tools/flea-ipc"
-. "$repo/tests/lib/flea-transport.sh"
+. "$repo/tools/dlea-ipc"
+. "$repo/tests/lib/dlea-transport.sh"
 PATH="${HOME:+$HOME/.local/bin:}$PATH" command -v omarchy-drive >/dev/null 2>&1 \
-    || fail "native UI tests require omarchy-drive (private helper); use FLEA_UI_DRIVER=headless for the supported headless cases"
+    || fail "native UI tests require omarchy-drive (private helper); use DLEA_UI_DRIVER=headless for the supported headless cases"
 # Hard rule 9's guard owns every fixture create and delete in the native suite.
-. "$repo/tools/flea-sandbox-guard"
+. "$repo/tools/dlea-sandbox-guard"
 
 . "$(dirname "$0")/lib/hypr-dispatch.sh"
 hypr_pointer_frame_offset=1
@@ -72,17 +72,17 @@ fi
 [[ -n "$QT_QPA_PLATFORMTHEME" ]] || fail "no session, and no running client, published QT_QPA_PLATFORMTHEME, so every row would draw no icon at all"
 fi
 
-flea_ui="$repo/ui"
+dlea_ui="$repo/ui"
 # QML windows announce WorkerScript starts so the log gate can match Qt's null connect lines.
 . "$repo/tests/qslog-gate.sh"
 if [[ "$test_frontend" == qml ]]; then
 export QT_LOGGING_RULES="$(qslog_rules "${QT_LOGGING_RULES:-}")"
 fi
-flea_bin="${FLEA_BIN:-$repo/target/release/flea}"
-# The build these cases launch while their flea_bin points at a stub that stands in for the backend only.
-flea_launch_bin="$flea_bin"
-flea_backend_stub_cases=" dirsortstale openterminal hanglisting hanginspect cap_heldcolumns noblank searchnoblank "
-flea_ipc_init "$flea_bin"
+dlea_bin="${DLEA_BIN:-$repo/target/release/dlea}"
+# The build these cases launch while their dlea_bin points at a stub that stands in for the backend only.
+dlea_launch_bin="$dlea_bin"
+dlea_backend_stub_cases=" dirsortstale openterminal hanglisting hanginspect cap_heldcolumns noblank searchnoblank "
+dlea_ipc_init "$dlea_bin"
 # Sample input: let finished = Command::new("gio")
 # Every opener stub below is named from the product's own exec target, the same derivation
 # tests/modes.sh makes: a stub named by hand goes stale the day the target is renamed, and the run
@@ -97,22 +97,22 @@ open_handoff=$(handoff_in "$repo/src/open.rs")
 case "$open_handoff" in
     ''|*[!a-z0-9-]*) fail "src/open.rs must name exactly one handoff; got '$open_handoff'" ;;
 esac
-bench_dir="${FLEA_BENCH_DIR:-$FIXTURE_ROOT/flea-bench-btrfs}"
+bench_dir="${DLEA_BENCH_DIR:-$FIXTURE_ROOT/dlea-bench-btrfs}"
 # Every root sits under the fixture root and takes no override, because a root the environment can
 # replace is a root nothing checks: these four are deleted whole on every exit path.
-fixture_root="$FIXTURE_ROOT/flea-ui-fixtures-$$"
+fixture_root="$FIXTURE_ROOT/dlea-ui-fixtures-$$"
 # Hard links need the media fixture's filesystem, and the pid keeps a previous run's cache entries out of this delta.
-thumb_fixture="$FIXTURE_ROOT/flea-ui-thumbs-$$"
+thumb_fixture="$FIXTURE_ROOT/dlea-ui-thumbs-$$"
 # Its own tree because case_hashcache redirects the whole cache root into it.
-hash_fixture="$FIXTURE_ROOT/flea-ui-hash-$$"
+hash_fixture="$FIXTURE_ROOT/dlea-ui-hash-$$"
 # Its own tree again, because case_stale redirects the cache root as well and regenerates an entry inside it.
-stale_fixture="$FIXTURE_ROOT/flea-ui-stale-$$"
+stale_fixture="$FIXTURE_ROOT/dlea-ui-stale-$$"
 thumb_rows=200
 # A settle is 120 ms and a round trip through the pool is tens of ms, so a screen has a second.
 thumb_fill_s=20
 # 1500 detents are 432,000 px at this box's 288 px notch: past the end of the two 200-row cases (thumbs, renamelife) many times over, and about 11,700 of nosweep's 100,000 rows.
 fling_clicks=1500
-# 15 shots 0.2 s apart span one 2800 ms replay of ui/FleaMark.qml's draw, whose mark is lit from about 0.4 s to 2.8 s of it.
+# 15 shots 0.2 s apart span one 2800 ms replay of ui/DleaMark.qml's draw, whose mark is lit from about 0.4 s to 2.8 s of it.
 mark_poll_shots=15
 mark_poll_s=0.2
 # The backend's own DRAIN_LIMIT is 25 s, so anything alive past this is wedged rather than draining.
@@ -122,17 +122,17 @@ drain_wait_s=30
 # environment. Neither override had a caller.
 [[ ! -L "$repo/.superpowers" && ! -L "$repo/.superpowers/m9-uish-01" ]] || fail "native evidence parent is a symlink"
 mkdir -p "$repo/.superpowers/m9-uish-01" || fail "cannot create run parent"
-run_root=$(mktemp -d "$repo/.superpowers/m9-uish-01/flea-ui-run.XXXXXXXX") || fail "cannot create native evidence sandbox"
-printf 'flea native evidence\n' > "$run_root/.flea-test-sandbox"
-export FLEA_TEST_RUN_ROOT="$run_root"
-export FLEA_TEST_WINDOWS_ROOT="$run_root/windows"
-mkdir -m 700 "$FLEA_TEST_WINDOWS_ROOT" || fail "cannot create owned window root"
-: > "$FLEA_TEST_WINDOWS_ROOT/.flea-test-sandbox"
+run_root=$(mktemp -d "$repo/.superpowers/m9-uish-01/dlea-ui-run.XXXXXXXX") || fail "cannot create native evidence sandbox"
+printf 'dlea native evidence\n' > "$run_root/.dlea-test-sandbox"
+export DLEA_TEST_RUN_ROOT="$run_root"
+export DLEA_TEST_WINDOWS_ROOT="$run_root/windows"
+mkdir -m 700 "$DLEA_TEST_WINDOWS_ROOT" || fail "cannot create owned window root"
+: > "$DLEA_TEST_WINDOWS_ROOT/.dlea-test-sandbox"
 # A surviving copied-UI window can prove abandonment only after this runner has gone.
 printf '%s\n' "$$" > "$run_root/runner.pid" || fail "cannot record the native evidence runner"
 evidence_dir="$run_root/evidence"
 # Quickshell truncates nothing, so each case gets a fresh log and every log lands in the run log.
-flea_log="$run_root/flea.log"
+dlea_log="$run_root/dlea.log"
 run_log="$run_root/run.log"
 # One case's own output, re-read for the refusal check rather than piped. Pid-scoped like every
 # fixture root here, because two runs sharing it would read each other's output, and truncated before
@@ -157,10 +157,10 @@ suite_data_base="${XDG_DATA_HOME-}"
 suite_undo="$run_root/undo-journal"
 mkdir -p "$suite_undo" || fail "the suite undo dir could not be created at $suite_undo"
 chmod 0700 "$suite_undo" || fail "the suite undo dir could not be locked down"
-export FLEA_UNDO_DIR="$suite_undo"
-# The tree's MPRIS helper, so a media case never looks for a /usr/lib/flea copy an older install lacks.
-export FLEA_MPRIS="${FLEA_MPRIS:-$repo/tools/flea-mpris}"
-[ -x "$FLEA_MPRIS" ] || fail "the MPRIS helper is not an executable at $FLEA_MPRIS"
+export DLEA_UNDO_DIR="$suite_undo"
+# The tree's MPRIS helper, so a media case never looks for a /usr/lib/dlea copy an older install lacks.
+export DLEA_MPRIS="${DLEA_MPRIS:-$repo/tools/dlea-mpris}"
+[ -x "$DLEA_MPRIS" ] || fail "the MPRIS helper is not an executable at $DLEA_MPRIS"
 
 # Ten bursts of twelve clicks moved the 100k viewport about eleven rows when measured.
 scroll_bursts=10
@@ -249,42 +249,42 @@ ipc() {
         xw_ipc "$ipc_pid" "$@"
         return
     fi
-    flea_ipc_drive -p "$flea_ui/boot" flea "$@"
+    dlea_ipc_drive -p "$dlea_ui/boot" dlea "$@"
 }
 
 # Window class used by every preflight, focus check and injected keystroke.
-flea_window_class=com.thisisgm.flea
+dlea_window_class=com.nosDshell.dlea
 
 settle() {
     sleep "$settle_s"
 }
 
-flea_pids() {
-    if [[ -n ${FLEA_TEST_WINDOWS_ROOT:-} ]]; then
-        python3 -B "$flea_test_helper" pids "$FLEA_TEST_WINDOWS_ROOT"
+dlea_pids() {
+    if [[ -n ${DLEA_TEST_WINDOWS_ROOT:-} ]]; then
+        python3 -B "$dlea_test_helper" pids "$DLEA_TEST_WINDOWS_ROOT"
         return $?
     fi
     local pid pids process result=0
     pids=$(pgrep -x qs) || result=$?
     (( result <= 1 )) || return "$result"
     for pid in $pids; do
-        process=$(flea_process_dir "$pid") || return 3
+        process=$(dlea_process_dir "$pid") || return 3
         [[ -r "$process/cmdline" ]] || continue
         # Redirections apply left to right, so the silencer has to precede the read it is silencing.
         if tr '\0' ' ' 2>/dev/null < "$process/cmdline" \
-            | grep -Fq -e "$flea_ui" -e "$fixture_root/xwsettings/ui-b/boot"; then
+            | grep -Fq -e "$dlea_ui" -e "$fixture_root/xwsettings/ui-b/boot"; then
             printf '%s\n' "$pid"
         fi
     done
 }
 
-flea_process_dir() { printf '/proc/%s\n' "$1"; }
+dlea_process_dir() { printf '/proc/%s\n' "$1"; }
 
 # Return 0 for this run, 1 for foreign, 2 for vanished, and 3 when a live process cannot be inspected.
-flea_process_owned() {
+dlea_process_owned() {
     local process environment
     [[ "$1" =~ ^[0-9]+$ ]] || return 1
-    process=$(flea_process_dir "$1") || return 3
+    process=$(dlea_process_dir "$1") || return 3
     [[ -d "$process" ]] || return 2
     [[ -O "$process" ]] || return 1
     # The environ of a process this run started is unreadable for the moment it spends in exec and
@@ -298,7 +298,7 @@ flea_process_owned() {
         sleep 0.05
     done
     (( read )) || return 3
-    grep -Fx "FLEA_TEST_RUN_ROOT=$run_root" <<< "$environment" >/dev/null && return 0
+    grep -Fx "DLEA_TEST_RUN_ROOT=$run_root" <<< "$environment" >/dev/null && return 0
     # A readable environ can become empty at exit, so missing ownership still needs an exit check.
     [[ -d "$process" ]] || return 2
     # Sample /proc/PID/stat: "347 (gio) Z 1 347 ...", so the state follows the closing parenthesis.
@@ -307,30 +307,30 @@ flea_process_owned() {
     return 1
 }
 
-# Any Flea from this checkout that we did not start, captured once before anything is killed. The
-# operator works at this box, and flea_pids cannot tell their window from ours: both match "$flea_ui".
-foreign_pids=$(flea_pids | tr '\n' ' ') || fail "cannot enumerate native windows before launch"
+# Any Dlea from this checkout that we did not start, captured once before anything is killed. The
+# operator works at this box, and dlea_pids cannot tell their window from ours: both match "$dlea_ui".
+foreign_pids=$(dlea_pids | tr '\n' ' ') || fail "cannot enumerate native windows before launch"
 if [[ -n "${foreign_pids// /}" ]]; then
-    printf 'REFUSED a Flea from %s is already running (pid%s %s)\n' \
-        "$flea_ui" "$( [[ $(wc -w <<< "$foreign_pids") -gt 1 ]] && printf s )" "${foreign_pids% }"
-    printf 'REFUSED this suite kills every Flea it finds, so it will not run beside one it did not start.\n'
+    printf 'REFUSED a Dlea from %s is already running (pid%s %s)\n' \
+        "$dlea_ui" "$( [[ $(wc -w <<< "$foreign_pids") -gt 1 ]] && printf s )" "${foreign_pids% }"
+    printf 'REFUSED this suite kills every Dlea it finds, so it will not run beside one it did not start.\n'
     printf 'REFUSED close it, or run the suite against a git archive export at another path.\n'
     exit 1
 fi
 
-# A packaged Flea uses another UI path, but still makes every title/class-based drive ambiguous.
+# A packaged Dlea uses another UI path, but still makes every title/class-based drive ambiguous.
 windows_status=0
 windows_json=$(omarchy-drive --json windows) || windows_status=$?
 [[ "$windows_status" -eq 0 ]] \
     || fail "omarchy-drive windows failed with status $windows_status, so foreign-window state is unknown"
-foreign_window_count=$(jq -er --arg class "$flea_window_class" \
+foreign_window_count=$(jq -er --arg class "$dlea_window_class" \
     'select(.ok == true and (.windows | type == "array")) | [.windows[] | select(.class == $class)] | length' \
     <<< "$windows_json") \
     || fail "omarchy-drive windows returned an invalid payload, so foreign-window state is unknown"
 if [[ "$foreign_window_count" -ne 0 ]]; then
-    printf 'REFUSED %s Flea window%s already open outside this suite.\n' \
+    printf 'REFUSED %s Dlea window%s already open outside this suite.\n' \
         "$foreign_window_count" "$( [[ "$foreign_window_count" -ne 1 ]] && printf s )"
-    printf 'REFUSED close every Flea window before running pointer-driven tests.\n'
+    printf 'REFUSED close every Dlea window before running pointer-driven tests.\n'
     exit 1
 fi
 unset foreign_window_count windows_json windows_status
@@ -338,25 +338,25 @@ unset foreign_window_count windows_json windows_status
 # The backend outlives the qs that spawned it, and only its own drain may publish or remove its temps.
 backend_pids() {
     local pid pids process result=0
-    pids=$(pgrep -x flea) || result=$?
+    pids=$(pgrep -x dlea) || result=$?
     (( result <= 1 )) || return "$result"
     for pid in $pids; do
-        process=$(flea_process_dir "$pid") || return 3
+        process=$(dlea_process_dir "$pid") || return 3
         [[ -r "$process/cmdline" ]] || continue
-        if tr '\0' ' ' 2>/dev/null < "$process/cmdline" | grep -Fq -- "$flea_bin --backend"; then
-            if flea_process_owned "$pid"; then printf '%s\n' "$pid"
+        if tr '\0' ' ' 2>/dev/null < "$process/cmdline" | grep -Fq -- "$dlea_bin --backend"; then
+            if dlea_process_owned "$pid"; then printf '%s\n' "$pid"
             else result=$?; (( result != 3 )) || return 3; fi
         fi
     done
 }
 
-flea_pid() {
+dlea_pid() {
     local found
     local -a pids
-    found=$(flea_pids) || fail "cannot enumerate native window processes"
+    found=$(dlea_pids) || fail "cannot enumerate native window processes"
     pids=()
     [[ -z "$found" ]] || mapfile -t pids <<< "$found"
-    [[ ${#pids[@]} -eq 1 ]] || fail "expected one exact Flea qs pid, got ${#pids[@]}"
+    [[ ${#pids[@]} -eq 1 ]] || fail "expected one exact Dlea qs pid, got ${#pids[@]}"
     printf '%s\n' "${pids[0]}"
 }
 
@@ -365,14 +365,14 @@ owned_trash_monitors() {
     pids=$(pgrep -x gio) || result=$?
     (( result <= 1 )) || return "$result"
     for pid in $pids; do
-        process=$(flea_process_dir "$pid") || return 3
-        if flea_process_owned "$pid"; then
+        process=$(dlea_process_dir "$pid") || return 3
+        if dlea_process_owned "$pid"; then
             # A monitor reaped after its ownership read is gone; silence the redirect before opening it.
             if ! environment=$(tr '\0' '\n' 2>/dev/null < "$process/environ"); then
                 [[ -d "$process" ]] || continue
                 # Sample stat: "347 (gio) Z 1 347 ..."; a zombie has already exited and cannot survive.
                 [[ "$(sed 's/.*) //' "$process/stat" 2>/dev/null | cut -d' ' -f1)" == Z ]] && continue
-                if flea_process_owned "$pid"; then
+                if dlea_process_owned "$pid"; then
                     return 3
                 else
                     result=$?
@@ -380,8 +380,8 @@ owned_trash_monitors() {
                     continue
                 fi
             fi
-            if grep -Fx "FLEA_BIN=$flea_bin" <<< "$environment" >/dev/null \
-                && grep -F "FLEA_PATH=$fixture_root/" <<< "$environment" >/dev/null; then
+            if grep -Fx "DLEA_BIN=$dlea_bin" <<< "$environment" >/dev/null \
+                && grep -F "DLEA_PATH=$fixture_root/" <<< "$environment" >/dev/null; then
                 printf '%s\n' "$pid"
             fi
         else
@@ -391,20 +391,20 @@ owned_trash_monitors() {
     done
 }
 
-kill_flea() {
+kill_dlea() {
     local pid pids found waited ownership deadline=$((SECONDS + drain_wait_s)) dead_pids=""
-    if [[ -n ${FLEA_TEST_WINDOWS_ROOT:-} ]]; then
-        dead_pids=$(flea_pids) || fail "cannot enumerate owned windows before teardown"
-        flea_test_stop_all || fail "owned process group teardown failed; fixtures kept"
+    if [[ -n ${DLEA_TEST_WINDOWS_ROOT:-} ]]; then
+        dead_pids=$(dlea_pids) || fail "cannot enumerate owned windows before teardown"
+        dlea_test_stop_all || fail "owned process group teardown failed; fixtures kept"
     fi
-    [[ "$run_root" == /* && -f "$run_root/.flea-test-sandbox" ]] || fail "native process ownership root is missing"
-    pids=$(flea_pids) || fail "cannot enumerate native windows for teardown"
+    [[ "$run_root" == /* && -f "$run_root/.dlea-test-sandbox" ]] || fail "native process ownership root is missing"
+    pids=$(dlea_pids) || fail "cannot enumerate native windows for teardown"
     for pid in $pids; do
         [[ " $foreign_pids " == *" $pid "* ]] && continue
-        if flea_process_owned "$pid"; then
+        if dlea_process_owned "$pid"; then
             dead_pids+=" $pid"
             kill "$pid" || {
-                [[ ! -d "$(flea_process_dir "$pid")" ]] || fail "could not stop owned native window $pid"
+                [[ ! -d "$(dlea_process_dir "$pid")" ]] || fail "could not stop owned native window $pid"
             }
         else
             ownership=$?
@@ -413,10 +413,10 @@ kill_flea() {
     done
     while :; do
         found=0
-        pids=$(flea_pids) || fail "cannot enumerate native windows while draining"
+        pids=$(dlea_pids) || fail "cannot enumerate native windows while draining"
         for pid in $pids; do
             [[ " $foreign_pids " == *" $pid "* ]] && continue
-            if flea_process_owned "$pid"; then found=1
+            if dlea_process_owned "$pid"; then found=1
             else
                 ownership=$?
                 (( ownership == 2 )) || fail "refusing to drain unowned or unreadable native window $pid"
@@ -452,7 +452,7 @@ kill_flea() {
             fi
         done
         [[ -z "${still// /}" ]] && return
-        (( SECONDS < deadline )) || fail "Hyprland still lists dead Flea window${still} after $drain_wait_s s; fixtures kept"
+        (( SECONDS < deadline )) || fail "Hyprland still lists dead Dlea window${still} after $drain_wait_s s; fixtures kept"
         sleep 0.05
     done
 }
@@ -466,7 +466,7 @@ sandbox_make "$stale_fixture"
 
 cleanup() {
     # fail is an exit that || true cannot catch, so the reap runs in a subshell and its status is re-raised below.
-    if ! ( kill_flea ); then
+    if ! ( kill_dlea ); then
         printf 'FAIL drain at exit; active fixture roots kept: %s\n' "$fixture_root" >&2
         exit 1
     fi
@@ -504,20 +504,20 @@ focused_class() {
     hyprctl activewindow -j 2>/dev/null | jq -r 'select(.class != null) | .class' 2>/dev/null
 }
 
-# Sample input, hyprctl activewindow -j: {"class":"com.thisisgm.flea","pid":11,...}; the pid is the qs pid the keys and the pointer reach.
+# Sample input, hyprctl activewindow -j: {"class":"com.nosDshell.dlea","pid":11,...}; the pid is the qs pid the keys and the pointer reach.
 focused_pid() {
     hyprctl activewindow -j 2>/dev/null | jq -er '.pid | select(type == "number")' 2>/dev/null || printf unavailable
 }
 
-# The Hyprland address of the one Flea window a qs pid owns, which is what narrows omarchy-drive between two windows.
+# The Hyprland address of the one Dlea window a qs pid owns, which is what narrows omarchy-drive between two windows.
 window_addr_of_pid() {
     [[ "$#" -eq 1 ]] || fail "window_addr_of_pid needs a qs pid, got $#"
-    hyprctl clients -j 2>/dev/null | jq -er --arg class "$flea_window_class" --argjson pid "$1" \
+    hyprctl clients -j 2>/dev/null | jq -er --arg class "$dlea_window_class" --argjson pid "$1" \
         '[.[] | select(.class == $class and .pid == $pid)] | select(length == 1) | .[0].address' \
         || fail "no client address for qs pid $1"
 }
 
-# Positive equality against the expected class: a negated test reads an empty class as a pass; with ipc_pid set the pid is the identity, since two Flea windows share a class.
+# Positive equality against the expected class: a negated test reads an empty class as a pass; with ipc_pid set the pid is the identity, since two Dlea windows share a class.
 assert_focus() {
     local seen
     [[ "${test_frontend:-gpui}" != gpui || -n "$ipc_pid" ]] || fail "native input has no owned PID"
@@ -528,8 +528,8 @@ assert_focus() {
         [[ "${test_frontend:-gpui}" == gpui ]] || return
     fi
     seen=$(focused_class || true)
-    [[ "$seen" == "$flea_window_class" ]] \
-        || fail "focus is on class '$seen', not $flea_window_class, so this case sends no more keys"
+    [[ "$seen" == "$dlea_window_class" ]] \
+        || fail "focus is on class '$seen', not $dlea_window_class, so this case sends no more keys"
 }
 
 # Every keystroke goes through here, because a rule each case has to remember is not a gate; with ipc_pid set the window is named by its address, since the class matches two.
@@ -541,7 +541,7 @@ key() {
         omarchy-drive key --window "$addr" "$@"
         return
     fi
-    omarchy-drive key --window com.thisisgm.flea "$@"
+    omarchy-drive key --window com.nosDshell.dlea "$@"
 }
 
 # omarchy-drive hotkey takes no --window and --global acts on the active window, so assert_focus is its only guard.
@@ -571,9 +571,9 @@ real_accent=$(grep -E '^accent' "$real_state_dir/theme/colors.toml" | grep -oE '
 assert_theme() {
     local loaded seen
     # The seam is built after the first listing, so a window that has just mapped may not answer yet.
-    local -a route=(-p "$flea_ui/boot")
+    local -a route=(-p "$dlea_ui/boot")
     [[ "${test_frontend:-gpui}" != gpui || -z "$ipc_pid" ]] || route=(--pid "$ipc_pid")
-    flea_ipc_wait "${route[@]}" flea ready true --timeout 20 >/dev/null \
+    dlea_ipc_wait "${route[@]}" dlea ready true --timeout 20 >/dev/null \
         || fail "the IPC seam never answered ready, so no reader of this window can be trusted"
     for _attempt in $(seq 1 100); do
         seen=$(ipc themeForeground 2>/dev/null || true)
@@ -603,7 +603,7 @@ fixture_home_make() {
         cp "$real_user_shell_toml" "$home/.config/omarchy/shell.toml"
     fi
     if [[ "${test_frontend:-gpui}" == gpui ]]; then
-        python3 -B "$repo/tests/lib/flea_native_inputs.py" "${real_user_shell_toml%/.config/omarchy/shell.toml}" "$home" \
+        python3 -B "$repo/tests/lib/dlea_native_inputs.py" "${real_user_shell_toml%/.config/omarchy/shell.toml}" "$home" \
             || fail "cannot copy native fixture font inputs"
     fi
 }
@@ -624,33 +624,33 @@ assert_window() {
         done
         [[ "$count" == 1 ]] || fail "expected one native window for owned PID $ipc_pid, got $count"
         class=$(jq -r --argjson pid "$ipc_pid" '.[] | select(.pid == $pid) | .class' <<< "$clients")
-        [[ "$class" == "$flea_window_class" ]] || fail "unexpected native Flea class '$class'"
+        [[ "$class" == "$dlea_window_class" ]] || fail "unexpected native Dlea class '$class'"
         assert_focus
         assert_theme
         return
     fi
     # The window can map before its title is set, and more so behind a heavy writeback: wait for the title, never a sleep.
     while :; do
-        count=$(omarchy-drive windows --json | jq '[.windows[] | select(.title == "Flea")] | length')
+        count=$(omarchy-drive windows --json | jq '[.windows[] | select(.title == "Dlea")] | length')
         [[ "$count" == "0" ]] || break
         (( $(date +%s%3N) < deadline )) || break
         sleep 0.05
     done
-    [[ "$count" == "1" ]] || fail "expected one Flea window, got $count"
-    class=$(omarchy-drive windows --json | jq -r '.windows[] | select(.title == "Flea") | .class')
-    [[ "$class" == "$flea_window_class" ]] || fail "unexpected Flea class '$class'"
+    [[ "$count" == "1" ]] || fail "expected one Dlea window, got $count"
+    class=$(omarchy-drive windows --json | jq -r '.windows[] | select(.title == "Dlea") | .class')
+    [[ "$class" == "$dlea_window_class" ]] || fail "unexpected Dlea class '$class'"
     assert_theme
 }
 
-# The state a case needs the window to start from, written through flea --ui-state so the schema
+# The state a case needs the window to start from, written through dlea --ui-state so the schema
 # sees it too, into a state home inside the fixture root: hard rule 9 covers writes, so no case here
-# reaches the operator's own ~/.local/state/flea/ui.json. Exports it, because launch() below hands
+# reaches the operator's own ~/.local/state/dlea/ui.json. Exports it, because launch() below hands
 # the window whatever environment the case is holding.
 seed_ui_state() {
     local state="$1" patch="$2"
     sandbox_scratch "$state"
-    env XDG_STATE_HOME="$state" "$flea_bin" --ui-state "$patch" >/dev/null \
-        || fail "the seeding write through flea --ui-state failed for $patch"
+    env XDG_STATE_HOME="$state" "$dlea_bin" --ui-state "$patch" >/dev/null \
+        || fail "the seeding write through dlea --ui-state failed for $patch"
     export XDG_STATE_HOME="$state"
 }
 
@@ -685,36 +685,36 @@ case_homes() {
 
 launch_window() {
     local start_path="$1" select_target="${2-}"
-    kill_flea
+    kill_dlea
     case_homes
-    cat "$flea_log" >> "$run_log" 2>/dev/null || true
-    : > "$flea_log"
+    cat "$dlea_log" >> "$run_log" 2>/dev/null || true
+    : > "$dlea_log"
     # Each case starts with an empty session journal, so one case never undoes another's operation.
-    rm -f "$FLEA_UNDO_DIR/undo-journal" "$FLEA_UNDO_DIR/undo-journal.lock"
-    # A case may set flea_launch_wrap, as cap_unlock does to start Flea in the graphical session polkit trusts.
+    rm -f "$DLEA_UNDO_DIR/undo-journal" "$DLEA_UNDO_DIR/undo-journal.lock"
+    # A case may set dlea_launch_wrap, as cap_unlock does to start Dlea in the graphical session polkit trusts.
     local -a wrap_args=()
     local wrap_arg
-    for wrap_arg in ${flea_launch_wrap[@]+"${flea_launch_wrap[@]}"}; do wrap_args+=("--wrap=$wrap_arg"); done
+    for wrap_arg in ${dlea_launch_wrap[@]+"${dlea_launch_wrap[@]}"}; do wrap_args+=("--wrap=$wrap_arg"); done
     local -a select_args=()
     [[ -z "$select_target" ]] || select_args=(--select "$select_target")
     local -a component_args=()
-    [[ -z "${flea_launch_fixture-}" ]] || component_args=(--fixture "$flea_launch_fixture")
-    # A backend stub case's stub under the marked fixture root goes to the transport as FLEA_BIN; the launched flea stays this build.
-    local launch_bin="$flea_bin"
+    [[ -z "${dlea_launch_fixture-}" ]] || component_args=(--fixture "$dlea_launch_fixture")
+    # A backend stub case's stub under the marked fixture root goes to the transport as DLEA_BIN; the launched dlea stays this build.
+    local launch_bin="$dlea_bin"
     local -a backend_args=()
-    if [[ -n "${flea_launch_bin-}" && -n "${fixture_root-}" && "${flea_backend_stub_cases-}" == *" ${running_case-} "* \
-          && "$flea_bin" != "$flea_launch_bin" && "$flea_bin" == "$fixture_root"/* ]]; then
-        launch_bin="$flea_launch_bin"
-        backend_args=(--backend "$flea_bin")
+    if [[ -n "${dlea_launch_bin-}" && -n "${fixture_root-}" && "${dlea_backend_stub_cases-}" == *" ${running_case-} "* \
+          && "$dlea_bin" != "$dlea_launch_bin" && "$dlea_bin" == "$fixture_root"/* ]]; then
+        launch_bin="$dlea_launch_bin"
+        backend_args=(--backend "$dlea_bin")
     fi
     # A case's fixture HOME carries its GTK bookmarks and shell.toml under .config, which GPUI reads through XDG_CONFIG_HOME.
     local launch_config="${XDG_CONFIG_HOME-}"
     [[ "$HOME" != "$fixture_root"/* ]] || export XDG_CONFIG_HOME="$HOME/.config"
-    flea_test_launch "$start_path" "$flea_log" --ui "$flea_ui" --binary "$launch_bin" "${backend_args[@]}" \
+    dlea_test_launch "$start_path" "$dlea_log" --ui "$dlea_ui" --binary "$launch_bin" "${backend_args[@]}" \
         ${select_args[@]+"${select_args[@]}"} "${wrap_args[@]}" "${component_args[@]}" \
         || fail "owned window launch failed"
     if [[ -n "$launch_config" ]]; then export XDG_CONFIG_HOME="$launch_config"; else unset XDG_CONFIG_HOME; fi
-    ipc_pid=$FLEA_TEST_PID
+    ipc_pid=$DLEA_TEST_PID
     if [[ "${test_frontend:-gpui}" == gpui ]]; then
         local addr deadline=$(( $(date +%s%3N) + async_wait_ms ))
         while ! addr=$(window_addr_of_pid "$ipc_pid" 2>/dev/null); do
@@ -725,14 +725,14 @@ launch_window() {
         assert_focus
         return
     fi
-    omarchy-drive wait window flea --timeout 15 >/dev/null
-    omarchy-drive focus flea >/dev/null
+    omarchy-drive wait window dlea --timeout 15 >/dev/null
+    omarchy-drive focus dlea >/dev/null
 }
 
 launch() {
     launch_window "$1" "${2-}"
     assert_window
-    printf 'LAUNCH path=%q pid=%s\n' "$1" "$(flea_pid)"
+    printf 'LAUNCH path=%q pid=%s\n' "$1" "$(dlea_pid)"
 }
 
 wait_listing() {
@@ -768,12 +768,12 @@ wait_listing_wall() {
     local want_total="$1" timeout_s="${2:-20}" total=unavailable row=loading state=unavailable
     local deadline=$(( $(date +%s%3N) + timeout_s * 1000 ))
     while (( $(date +%s%3N) < deadline )); do
-        total=$(timeout 1 "$FLEA_IPC_HELPER" drive -p "$flea_ui/boot" flea total 2>/dev/null || printf unavailable)
+        total=$(timeout 1 "$DLEA_IPC_HELPER" drive -p "$dlea_ui/boot" dlea total 2>/dev/null || printf unavailable)
         if [[ "$want_total" == 0 ]]; then
-            state=$(timeout 1 "$FLEA_IPC_HELPER" drive -p "$flea_ui/boot" flea state 2>/dev/null || printf unavailable)
+            state=$(timeout 1 "$DLEA_IPC_HELPER" drive -p "$dlea_ui/boot" dlea state 2>/dev/null || printf unavailable)
             [[ "$total" == 0 && "$state" == empty ]] && return 0
         else
-            row=$(timeout 1 "$FLEA_IPC_HELPER" drive -p "$flea_ui/boot" flea rowAt 0 2>/dev/null || printf loading)
+            row=$(timeout 1 "$DLEA_IPC_HELPER" drive -p "$dlea_ui/boot" dlea rowAt 0 2>/dev/null || printf loading)
             [[ "$total" == "$want_total" && "$row" != "loading" ]] && return 0
         fi
         sleep 0.05
@@ -785,7 +785,7 @@ wait_path_wall() {
     local want="$1" timeout_s="${2:-20}" seen=unavailable
     local deadline=$(( $(date +%s%3N) + timeout_s * 1000 ))
     while (( $(date +%s%3N) < deadline )); do
-        seen=$(timeout 1 "$FLEA_IPC_HELPER" drive -p "$flea_ui/boot" flea path 2>/dev/null || printf unavailable)
+        seen=$(timeout 1 "$DLEA_IPC_HELPER" drive -p "$dlea_ui/boot" dlea path 2>/dev/null || printf unavailable)
         [[ "$seen" == "$want" ]] && return 0
         sleep 0.05
     done
@@ -796,9 +796,9 @@ find_row_wall() {
     local want="$1" timeout_s="${2:-20}" total=0 seen="" path=unavailable row
     local deadline=$(( $(date +%s%3N) + timeout_s * 1000 ))
     while (( $(date +%s%3N) < deadline )); do
-        total=$(timeout 1 "$FLEA_IPC_HELPER" drive -p "$flea_ui/boot" flea total 2>/dev/null || printf 0)
+        total=$(timeout 1 "$DLEA_IPC_HELPER" drive -p "$dlea_ui/boot" dlea total 2>/dev/null || printf 0)
         for ((row = 0; row < total && $(date +%s%3N) < deadline; row++)); do
-            seen=$(timeout 1 "$FLEA_IPC_HELPER" drive -p "$flea_ui/boot" flea rowAt "$row" 2>/dev/null || true)
+            seen=$(timeout 1 "$DLEA_IPC_HELPER" drive -p "$dlea_ui/boot" dlea rowAt "$row" 2>/dev/null || true)
             if [[ "$seen" == "$want|"* ]]; then
                 printf '%s\n' "$row"
                 return 0
@@ -807,7 +807,7 @@ find_row_wall() {
         sleep 0.05
     done
     [[ "$total" =~ ^[0-9]+$ ]] || total=-1
-    path=$(timeout 1 "$FLEA_IPC_HELPER" drive -p "$flea_ui/boot" flea path 2>/dev/null || printf unavailable)
+    path=$(timeout 1 "$DLEA_IPC_HELPER" drive -p "$dlea_ui/boot" dlea path 2>/dev/null || printf unavailable)
     printf 'NETWORKLIVE traversal expected=%s total=%s path=%s\n' "$want" "$total" "$path" >&2
     return 1
 }
@@ -879,21 +879,21 @@ rail_row_of() {
     printf '%s' "$index"
 }
 
-# The Flea window is tiled here, so a pane coordinate needs its origin added before a click.
+# The Dlea window is tiled here, so a pane coordinate needs its origin added before a click.
 window_box() {
     local clients geometry pid expected wx wy width height
     # The driver's windows summary omits PID; native client IPC ties coordinates to this run.
     clients=$(hyprctl clients -j) || fail "cannot inspect native window ownership"
-    # hyprctl clients -j: [{"class":"com.thisisgm.flea","pid":123,"at":[12,42],"size":[880,620]}]
-    geometry=$(jq -er --arg class "$flea_window_class" '
+    # hyprctl clients -j: [{"class":"com.nosDshell.dlea","pid":123,"at":[12,42],"size":[880,620]}]
+    geometry=$(jq -er --arg class "$dlea_window_class" '
         [.[] | select(.class == $class)] | select(length == 1) | .[0]
         | [.pid, .at[0], .at[1], .size[0], .size[1]]
         | select(all(.[]; type == "number" and . == floor))
         | select(.[0] > 0 and .[3] > 0 and .[4] > 0) | @tsv' <<< "$clients") \
-        || fail "expected exactly one native Flea window with valid geometry"
+        || fail "expected exactly one native Dlea window with valid geometry"
     read -r pid wx wy width height <<< "$geometry"
-    expected=$(flea_pid) || fail "cannot identify the owned native window"
-    [[ "$pid" == "$expected" ]] && flea_process_owned "$pid" \
+    expected=$(dlea_pid) || fail "cannot identify the owned native window"
+    [[ "$pid" == "$expected" ]] && dlea_process_owned "$pid" \
         || fail "refusing coordinates from unowned native window $pid"
     printf '%s %s %s %s\n' "$wx" "$wy" "$width" "$height"
 }
@@ -955,7 +955,7 @@ click_row_beside_name() {
 # The owned window's own HOME: the transport gives a window a sandbox home when the suite's HOME is unmarked.
 window_home() {
     local home
-    home=$(tr '\0' '\n' < "/proc/$(flea_pid)/environ" | sed -n 's/^HOME=//p') || return 1
+    home=$(tr '\0' '\n' < "/proc/$(dlea_pid)/environ" | sed -n 's/^HOME=//p') || return 1
     [[ "$home" == /* ]] || return 1
     printf '%s' "$home"
 }
@@ -1140,7 +1140,7 @@ assert_invalid_network_port() {
     settle
     uri=$(ipc networkUri)
     dialog=$(ipc dialogOpen)
-    visible_text=$(omarchy-drive ocr flea 2>/dev/null || true)
+    visible_text=$(omarchy-drive ocr dlea 2>/dev/null || true)
     error=missing
     # OCR drops the final period
     grep -Fq "Enter a valid host and port" <<< "$visible_text" && error=visible
@@ -1281,7 +1281,7 @@ probe_network_mark_target() {
 # A single IPC call may consume its own two-second timeout, so count wall time and bound each read;
 # a retry count alone turned one nominal 25-second wait into more than eight minutes.
 
-# ui/Opener.qml spawns flea --terminal and returns, so the stub's line lands after the key has
+# ui/Opener.qml spawns dlea --terminal and returns, so the stub's line lands after the key has
 # been answered: waited for, never slept at, and the path it carries is checked here rather than
 # by the caller so a wrong directory reads as a timeout with the log printed.
 wait_terminal() {
@@ -1304,7 +1304,7 @@ wait_message() {
     while (( $(date +%s%3N) < deadline )); do
         # 3 s, not 1: one ipc round trip costs hundreds of ms and grows under load, and a call that
         # times out returns nothing, which spends a sample of a sentence that stands for only 4 s.
-        seen=$(timeout 3 "$FLEA_IPC_HELPER" drive -p "$flea_ui/boot" flea lastMessage 2>/dev/null || true)
+        seen=$(timeout 3 "$DLEA_IPC_HELPER" drive -p "$dlea_ui/boot" dlea lastMessage 2>/dev/null || true)
         if [[ "$seen" == "$want" ]]; then
             return 0
         fi
@@ -1320,7 +1320,7 @@ wait_network_result() {
     local want="$1" timeout_s="${2:-40}" seen=""
     local deadline=$(( $(date +%s%3N) + timeout_s * 1000 ))
     while (( $(date +%s%3N) < deadline )); do
-        seen=$(timeout 1 "$FLEA_IPC_HELPER" drive -p "$flea_ui/boot" flea networkResult 2>/dev/null || true)
+        seen=$(timeout 1 "$DLEA_IPC_HELPER" drive -p "$dlea_ui/boot" dlea networkResult 2>/dev/null || true)
         [[ "$seen" == "$want" ]] && return 0
         sleep 0.1
     done
@@ -1333,7 +1333,7 @@ wait_network_status() {
     local want="$1" timeout_s="${2:-40}" seen=""
     local deadline=$(( $(date +%s%3N) + timeout_s * 1000 ))
     while (( $(date +%s%3N) < deadline )); do
-        seen=$(timeout 2 "$FLEA_IPC_HELPER" drive -p "$flea_ui/boot" flea networkStatus 2>/dev/null || true)
+        seen=$(timeout 2 "$DLEA_IPC_HELPER" drive -p "$dlea_ui/boot" dlea networkStatus 2>/dev/null || true)
         [[ "$seen" == "$want" ]] && return 0
         sleep 0.1
     done
@@ -1344,7 +1344,7 @@ wait_network_entry_state() {
     local want="$1" timeout_s="${2:-20}" seen=""
     local deadline=$(( $(date +%s%3N) + timeout_s * 1000 ))
     while (( $(date +%s%3N) < deadline )); do
-        seen=$(timeout 1 "$FLEA_IPC_HELPER" drive -p "$flea_ui/boot" flea networkEntries 2>/dev/null || true)
+        seen=$(timeout 1 "$DLEA_IPC_HELPER" drive -p "$dlea_ui/boot" dlea networkEntries 2>/dev/null || true)
         [[ "$seen" == *"|network|share|$want" ]] && return 0
         sleep 0.1
     done
@@ -1356,7 +1356,7 @@ wait_network_entry_absent() {
     local row="$1" mount_uri="$2" timeout_s="${3:-20}" seen="" status=0 line present
     local deadline=$(( $(date +%s%3N) + timeout_s * 1000 ))
     while (( $(date +%s%3N) < deadline )); do
-        if seen=$(timeout 1 "$FLEA_IPC_HELPER" drive -p "$flea_ui/boot" flea networkEntries 2>/dev/null); then
+        if seen=$(timeout 1 "$DLEA_IPC_HELPER" drive -p "$dlea_ui/boot" dlea networkEntries 2>/dev/null); then
             status=0
             present=false
             # networkEntries row: SFTP|network|share|true
@@ -1507,7 +1507,7 @@ shot() {
     local name="$1" png="$evidence_dir/$1.png"
     mkdir -p "$evidence_dir"
     [[ ! -e "$png" && ! -L "$png" ]] || fail "shot: refusing existing evidence $png"
-    omarchy-drive shot "$png" flea >/dev/null || fail "shot: omarchy-drive shot failed for $name"
+    omarchy-drive shot "$png" dlea >/dev/null || fail "shot: omarchy-drive shot failed for $name"
     [[ -s "$png" ]] || fail "shot: $png is missing or empty after a capture that reported success"
     printf 'SHOT %s\n' "$png"
 }
@@ -1522,7 +1522,7 @@ touchpad_focus_row() {
     settle
 }
 
-# A real two-finger stroke through tools/flea-touchpad: a flick coasts past its lift on Finder's
+# A real two-finger stroke through tools/dlea-touchpad: a flick coasts past its lift on Finder's
 # tail while the same stroke with a pause before the lift stops dead. A flick past the top
 # rubber-bands past the bound and returns to it. Controller-only: needs /dev/uinput writable
 # beside the display, so anywhere else it refuses rather than failing.
@@ -1549,8 +1549,8 @@ touchpad_run() {
     local name=$1 hold=$2 stroke lift rest cur stable_start now_ms start_ms
     stroke=$(ipc listContentY)
     start_ms=$(date +%s%3N)
-    "$repo/tools/flea-touchpad" swipe --dy-mm "$touchpad_dy_mm" --ms "$touchpad_ms" --hold-ms "$hold" >/dev/null \
-        || fail "touchpad: flea-touchpad refused the $name stroke"
+    "$repo/tools/dlea-touchpad" swipe --dy-mm "$touchpad_dy_mm" --ms "$touchpad_ms" --hold-ms "$hold" >/dev/null \
+        || fail "touchpad: dlea-touchpad refused the $name stroke"
     lift=$(ipc listContentY)
     [[ "$lift" -gt "$stroke" ]] || fail "touchpad: the $name stroke never moved the list, lift $lift"
     rest=$lift
@@ -1585,14 +1585,14 @@ touchpad_edge() {
     stroke=$(ipc listContentY)
     peak=$stroke
     start_ms=$(date +%s%3N)
-    "$repo/tools/flea-touchpad" swipe --dy-mm -40 --ms 120 --hold-ms 0 >/dev/null &
+    "$repo/tools/dlea-touchpad" swipe --dy-mm -40 --ms 120 --hold-ms 0 >/dev/null &
     tool_pid=$!
     while kill -0 "$tool_pid" 2>/dev/null; do
         cur=$(ipc listContentY)
         [[ "$cur" -lt "$peak" ]] && peak=$cur
         sleep 0.05
     done
-    wait "$tool_pid" || fail "touchpad: flea-touchpad refused the edge flick"
+    wait "$tool_pid" || fail "touchpad: dlea-touchpad refused the edge flick"
     rest=$(ipc listContentY)
     [[ "$rest" -lt "$peak" ]] && peak=$rest
     stable_start=$(date +%s%3N)
@@ -1845,7 +1845,7 @@ case_scrolllane() {
         # Sample input: metrics prints "14 12 14 37", field 3 is rowPaddingX.
         pad=$(ipc metrics | cut -d' ' -f3)
         [[ "$pad" =~ ^[0-9]+$ ]] || fail "scrolllane: no row padding from metrics at base $base"
-        [[ -z "$prev_pad" || "$pad" != "$prev_pad" ]] || fail "scrolllane: base $base pad $pad equals the other size, the shell.toml override never reached Flea"
+        [[ -z "$prev_pad" || "$pad" != "$prev_pad" ]] || fail "scrolllane: base $base pad $pad equals the other size, the shell.toml override never reached Dlea"
         prev_pad="$pad"
         [[ "$base" == 12 ]] && pad_12="$pad" || pad_14="$pad"
         scrolllane_list "$base" "$pad"
@@ -1863,7 +1863,7 @@ case_scrolllane() {
         [[ "$(ipc viewMode)" == columns ]] || fail "scrolllane: the chrome button did not switch to the columns at base $base"
         scrolllane_columns "$base" "$pad"
         shot "scrolllane-$base-columns"
-        kill_flea
+        kill_dlea
     done
     sandbox_remove "$fixture_home"
     sandbox_remove "$dir"
@@ -1908,7 +1908,7 @@ case_cursor() {
     (( changed == 0 )) || fail "scrolling changed $changed pixels in the column header"
 }
 
-# The row and menu presentation the boards specify: FleaWindow.html's symlink row, a directory drawn
+# The row and menu presentation the boards specify: DleaWindow.html's symlink row, a directory drawn
 # without the 0.1.4 trailing slash (0.3.3), and Menus.html's right-aligned key beside every bound row.
 # Catches deleting decoratedName, sizeText's link branch or Icons.glyphForRow from ui/Row.qml, and
 # the hint slot from ui/MenuRow.qml.
@@ -2045,10 +2045,10 @@ case_openterminal() {
     sandbox_scratch "$dir"
     mkdir -p "$dir/bin"
     printf 'abc' > "$dir/target.txt"
-    local ran="$dir/ran.log" opened="$dir/opened.log" real_bin="$flea_bin"
+    local ran="$dir/ran.log" opened="$dir/opened.log" real_bin="$dlea_bin"
     : > "$ran"
     : > "$opened"
-    # FLEA_BIN is the backend's binary as well as the opener's, so only --terminal is intercepted
+    # DLEA_BIN is the backend's binary as well as the opener's, so only --terminal is intercepted
     # and every other mode execs the real one: a stub that swallowed --backend would leave the
     # window with no listing to press a key in. The sleep is what makes the single-flight guard and
     # the two-paths-at-once check observable at all.
@@ -2058,13 +2058,13 @@ case_openterminal() {
       printf 'sleep 1\n'
       printf 'printf "TERMINAL %%s\\n" "$2" >> %q\n' "$ran"
       printf 'exit 0\n'
-    } > "$dir/bin/flea"
-    chmod +x "$dir/bin/flea"
+    } > "$dir/bin/dlea"
+    chmod +x "$dir/bin/dlea"
     # The real route, stubbed too: if anything ever reaches src/terminal.rs this records it instead
     # of opening a terminal on the operator's display, which is what used to leak a window per run.
     {
       printf '#!/bin/sh\n'
-      printf '# Sample input: xdg-terminal-exec --dir=/home/flea-sandbox/fixtures/openterminal\n'
+      printf '# Sample input: xdg-terminal-exec --dir=/home/dlea-sandbox/fixtures/openterminal\n'
       printf 'printf "REAL-TERMINAL %%s\\n" "${1#--dir=}" >> %q\n' "$ran"
       printf 'exit 0\n'
     } > "$dir/bin/xdg-terminal-exec"
@@ -2085,10 +2085,10 @@ case_openterminal() {
     seed_ui_state "$fixture_root/openterminal-state" "{\"menu\":{\"hidden\":$terminal_shown}}"
     local saved_path="$PATH"
     export PATH="$dir/bin:$PATH"
-    flea_bin="$dir/bin/flea"
+    dlea_bin="$dir/bin/dlea"
     launch "$dir"
     export PATH="$saved_path"
-    flea_bin="$real_bin"
+    dlea_bin="$real_bin"
     # bin, opened.log, ran.log, target.txt.
     wait_listing 4
 
@@ -2105,7 +2105,7 @@ case_openterminal() {
 
     # The keyboard half, from the list.
     : > "$ran"
-    hotkey --global ctrl t flea >/dev/null
+    hotkey --global ctrl t dlea >/dev/null
     wait_terminal "$ran" "$dir" "ctrl+t in the list"
 
     # And from the rail, which owns its own keys and would otherwise swallow the chord.
@@ -2113,7 +2113,7 @@ case_openterminal() {
     key -k Tab >/dev/null
     settle
     [[ "$(ipc focusView)" == "rail" ]] || fail "openterminal: tab did not reach the rail"
-    hotkey --global ctrl t flea >/dev/null
+    hotkey --global ctrl t dlea >/dev/null
     wait_terminal "$ran" "$dir" "ctrl+t on the rail"
     key -k Escape >/dev/null
     settle
@@ -2123,22 +2123,22 @@ case_openterminal() {
     # has exited, is not: without the second half this check passes for a key that does nothing.
     # The drop is announced, because a swallowed keypress with nothing on screen is the defect.
     : > "$ran"
-    hotkey --global ctrl t flea >/dev/null
+    hotkey --global ctrl t dlea >/dev/null
     settle
-    hotkey --global ctrl t flea >/dev/null
+    hotkey --global ctrl t dlea >/dev/null
     wait_message "Still opening the last terminal; try again in a moment."
     wait_terminal "$ran" "$dir" "the single-flight guard"
     sleep 1
     [[ "$(grep -c . "$ran")" == "1" ]] || fail "openterminal: two terminals were started, log is $(cat "$ran")"
     : > "$ran"
-    hotkey --global ctrl t flea >/dev/null
+    hotkey --global ctrl t dlea >/dev/null
     wait_terminal "$ran" "$dir" "a request after the child exited"
 
     # Both at once: the terminal child is still sleeping when Enter opens a file, so a shared path or
     # a shared Process would show up as one of the two logs carrying the other's argument.
     : > "$ran"
     : > "$opened"
-    hotkey --global ctrl t flea >/dev/null
+    hotkey --global ctrl t dlea >/dev/null
     seek_row_named target.txt
     key -k Return >/dev/null
     local waited
@@ -2158,17 +2158,17 @@ case_openterminal() {
       printf '#!/bin/sh\n'
       printf '[ "$1" = --terminal ] || exec %q "$@"\n' "$real_bin"
       printf 'exit 2\n'
-    } > "$dir/bin/flea"
-    chmod +x "$dir/bin/flea"
+    } > "$dir/bin/dlea"
+    chmod +x "$dir/bin/dlea"
     : > "$ran"
-    hotkey --global ctrl t flea >/dev/null
+    hotkey --global ctrl t dlea >/dev/null
     wait_message "No terminal on this system opened that folder."
     shot openterminal-failed
     [[ ! -s "$ran" ]] || fail "openterminal: the failing stub still logged $(cat "$ran")"
 
     printf 'OPENTERMINAL menu=ok list=ok rail=ok single-flight=ok crossed=ok failure=ok\n'
     if [[ -n "$real_state" ]]; then export XDG_STATE_HOME="$real_state"; else unset XDG_STATE_HOME; fi
-    kill_flea
+    kill_dlea
 }
 
 # The operator's defect of 2026-09-02, in their own words: "when clicking a single click opens the
@@ -2503,13 +2503,13 @@ case_click() {
     [[ -n "$centre" ]] || fail "click: crumb $target has no on-screen centre for the double click"
     read -r cx cy <<< "$centre"
     local qs_pid pid held_pid="" click_status held_path held_bar
-    qs_pid=$(flea_pid)
-    # Sample input: /proc/<pid>/cmdline "/usr/bin/flea\0--backend\0"; ViewState's writer is a flea child too, run as --ui-state.
-    for pid in $(pgrep -P "$qs_pid" -x flea); do
+    qs_pid=$(dlea_pid)
+    # Sample input: /proc/<pid>/cmdline "/usr/bin/dlea\0--backend\0"; ViewState's writer is a dlea child too, run as --ui-state.
+    for pid in $(pgrep -P "$qs_pid" -x dlea); do
         tr '\0' ' ' 2>/dev/null < "/proc/$pid/cmdline" | grep -Fq -- ' --backend ' && held_pid="$held_pid $pid"
     done
     held_pid=${held_pid# }
-    [[ "$held_pid" =~ ^[0-9]+$ ]] || fail "click: expected one flea --backend child of qs $qs_pid to hold, found '$held_pid'"
+    [[ "$held_pid" =~ ^[0-9]+$ ]] || fail "click: expected one dlea --backend child of qs $qs_pid to hold, found '$held_pid'"
     # The path is written only when a listing answers, so a held backend keeps one crumb delegate under both taps.
     kill -STOP "$held_pid" || fail "click: could not stop backend $held_pid, so the double click would run unheld"
     omarchy-drive click "$((cx + wx))" "$((cy + wy))" --double >/dev/null
@@ -2527,7 +2527,7 @@ case_click() {
     settle
     printf 'CLICK crumb-double released path=%q\n' "$(ipc path)"
     [[ "$(ipc path)" == "$(dirname "$up")" ]] || fail "click: a double click on a parent crumb went to $(ipc path), not the one directory it names"
-    kill_flea
+    kill_dlea
 }
 
 # Prints the last whole row index, so the three clickedge scans share one rule.
@@ -2715,8 +2715,8 @@ case_viewrestart() {
     drew=$(ipc viewMode)
     [[ "$drew" == "grid" ]] || fail "viewrestart: after the second tab's own switch the launch opened on '$drew', not the grid the window was left on"
     # PR 97's own edge: a word this build cannot draw is read as the list and put back drawable.
-    kill_flea
-    local stored="$fixture_root/viewrestart-state/flea/ui.json"
+    kill_dlea
+    local stored="$fixture_root/viewrestart-state/dlea/ui.json"
     python3 - "$stored" <<'EDIT'
 import json, sys
 path = sys.argv[1]
@@ -2736,7 +2736,7 @@ EDIT
     stored_view=$(grep -o '"view": *"[^"]*"' "$stored" | cut -d'"' -f4) || stored_view=""
     [[ -n "$stored_view" ]] || fail "viewrestart: $stored names no view key at all"
     [[ "$stored_view" == "list" ]] || fail "viewrestart: the settle left '$stored_view' in the state file, not the list the pane drew"
-    kill_flea
+    kill_dlea
 }
 
 # Issue 70, TyRichards: the sort choice outlives the window, and the next launch lists in it rather
@@ -2769,7 +2769,7 @@ case_sortrestart() {
     [[ "$(ipc rowAt 0)" == "b.txt|"* && "$(ipc rowAt 1)" == "c.txt|"* && "$(ipc rowAt 2)" == "a.txt|"* ]] \
         || fail "sortrestart: the restored listing reads $(ipc rowAt 0) $(ipc rowAt 1) $(ipc rowAt 2)"
     printf 'SORTRESTART mark=%s rows=%s %s %s\n' "$mark" "$(ipc rowAt 0)" "$(ipc rowAt 1)" "$(ipc rowAt 2)"
-    kill_flea
+    kill_dlea
 }
 
 # MenuAdditions rule 3: a Places or Favorites row opens the folder menu for its own path, and with
@@ -2830,7 +2830,7 @@ case_placemenu() {
     printf 'PLACEMENU tabs=%s path=%s labels=%s\n' "$(ipc tabCount)" "$(ipc path)" "$(ipc tabLabels)"
 
     echo "-- with the switch off it is the menu it was --"
-    kill_flea
+    kill_dlea
     seed_ui_state "$fixture_root/placemenu-off" "$(printf '{"places":{"favourites":[{"label":"Work","path":"%s/Work"}]}}' "$dir")"
     launch "$dir"
     wait_listing 2
@@ -2849,10 +2849,10 @@ case_placemenu() {
     [[ "$(ipc contextMenuVisible)" == "false" ]] \
         || fail "placemenu: with the switch off the Home row opened $(ipc contextMenuEntries)"
     printf 'PLACEMENU off=%s\n' "$(ipc contextMenuVisible)"
-    kill_flea
+    kill_dlea
 }
 
-# MenuAdditions rule 2: one row per executable in ~/.config/flea/scripts, read when the menu opens,
+# MenuAdditions rule 2: one row per executable in ~/.config/dlea/scripts, read when the menu opens,
 # run with the selected paths in the first one's folder, and absent when that directory holds none.
 case_runscript() {
     local dir="$fixture_root/runscript"
@@ -2861,13 +2861,13 @@ case_runscript() {
     printf 'two\n' > "$dir/b.txt"
     local config="$fixture_root/runscript-config"
     sandbox_scratch "$config"
-    mkdir -p "$config/flea/scripts"
+    mkdir -p "$config/dlea/scripts"
     export XDG_CONFIG_HOME="$config"
     # Three, one of them not executable and one failing, which is the whole of the rule's own edges.
-    printf '#!/bin/sh\nprintf "%%s\\n" "$@" > %s/ran.log\nprintf "%%s\\n" "$PWD" >> %s/ran.log\n' "$dir" "$dir" > "$config/flea/scripts/stamp.sh"
-    printf '#!/bin/sh\nprintf "no such page\\n" >&2\nexit 2\n' > "$config/flea/scripts/ocr.sh"
-    printf '#!/bin/sh\nexit 0\n' > "$config/flea/scripts/not-executable.sh"
-    chmod +x "$config/flea/scripts/stamp.sh" "$config/flea/scripts/ocr.sh"
+    printf '#!/bin/sh\nprintf "%%s\\n" "$@" > %s/ran.log\nprintf "%%s\\n" "$PWD" >> %s/ran.log\n' "$dir" "$dir" > "$config/dlea/scripts/stamp.sh"
+    printf '#!/bin/sh\nprintf "no such page\\n" >&2\nexit 2\n' > "$config/dlea/scripts/ocr.sh"
+    printf '#!/bin/sh\nexit 0\n' > "$config/dlea/scripts/not-executable.sh"
+    chmod +x "$config/dlea/scripts/stamp.sh" "$config/dlea/scripts/ocr.sh"
     # The switch on: everything else in the shipped set stays as it is.
     seed_ui_state "$fixture_root/runscript-state" '{"menu":{"hidden":["delete","openTerminal","placeMenu","moveto","copyto","properties","permissions","copyAs","pasteAs","invertSelection","extThumbs"]}}'
 
@@ -2909,7 +2909,7 @@ case_runscript() {
     printf 'RUNSCRIPT said=%s\n' "$(ipc lastMessage)"
 
     echo "-- an empty directory offers no row at all --"
-    rm -f "$config/flea/scripts/stamp.sh" "$config/flea/scripts/ocr.sh"
+    rm -f "$config/dlea/scripts/stamp.sh" "$config/dlea/scripts/ocr.sh"
     click_row "$(ipc cursor)" right
     settle
     key -k Escape >/dev/null
@@ -2919,7 +2919,7 @@ case_runscript() {
     [[ "$(ipc contextMenuEntries)" != *"Run script"* ]] \
         || fail "runscript: an empty directory still offers $(ipc contextMenuEntries)"
     printf 'RUNSCRIPT empty=%s\n' "$(ipc contextMenuEntries)"
-    kill_flea
+    kill_dlea
 }
 
 # Menus.html's background column, on a right click that landed on no row. Every row it draws is
@@ -2950,7 +2950,7 @@ case_background() {
         "$(ipc contextMenuGlyphs)" "$(ipc contextMenuHints)"
     shot background-menu
     printf 'BACKGROUND_OCR_BEGIN\n'
-    omarchy-drive ocr flea || true
+    omarchy-drive ocr dlea || true
     printf 'BACKGROUND_OCR_END\n'
     [[ "$(ipc contextMenuVisible)" == "true" ]] \
         || fail "background: a right click on empty space opened no menu"
@@ -3035,7 +3035,7 @@ case_background() {
     rm -f "$png"
     for _attempt in $(seq 1 "$mark_poll_shots"); do
         shots=$_attempt
-        omarchy-drive shot "$png" flea >/dev/null || { captured=0; break; }
+        omarchy-drive shot "$png" dlea >/dev/null || { captured=0; break; }
         lit=$(count_pixels "$png" "${3}x${4}+${1}+${2}" "((r+g+b)/3) > 0.25")
         (( lit > 0 )) && break
         sleep "$mark_poll_s"
@@ -3279,7 +3279,7 @@ case_hidden() {
     [[ "$(ipc rowAt 0)" == "visible.txt|"* ]] || fail "hidden: toggling back off left the dotfile visible, row 0 is $(ipc rowAt 0)"
 
     printf 'HIDDEN default=ok toggle-on=ok menu-label=ok toggle-off=ok\n'
-    kill_flea
+    kill_dlea
 }
 
 # Both UI paths have read-only IPC targets; a cursor step proves addressed keys reach A alone.
@@ -3298,8 +3298,8 @@ xwsettings_pid() {
     pid=$(hyprctl clients -j | jq -er --arg a "$address" \
         '[.[] | select(.address == $a) | .pid] | select(length == 1) | .[0] | select(type == "number" and . > 0)') \
         || fail "xwsettings: window $address has no single client pid"
-    flea_process_owned "$pid" || fail "xwsettings: pid $pid of window $address is not owned by this run"
-    tr '\0' ' ' < "$(flea_process_dir "$pid")/cmdline" | grep -Fq -- "$tree/boot" \
+    dlea_process_owned "$pid" || fail "xwsettings: pid $pid of window $address is not owned by this run"
+    tr '\0' ' ' < "$(dlea_process_dir "$pid")/cmdline" | grep -Fq -- "$tree/boot" \
         || fail "xwsettings: pid $pid of window $address does not run $tree"
     printf '%s\n' "$pid"
 }
@@ -3307,8 +3307,8 @@ xwsettings_pid() {
 # xw4: one window's Settings change applies live in every other open window, the way Finder's
 # Show hidden files reaches every Finder window at once, while per-window state stays put. Two
 # owned windows share one state file: A keeps the shipped ui tree and B runs a byte copy of it, so
-# kill_flea reaps B through the copied boot-path enumeration in flea_pids. Both trees declare
-# ShellId flea, so a qs path route reaches the newest instance whichever tree it names; each window
+# kill_dlea reaps B through the copied boot-path enumeration in dlea_pids. Both trees declare
+# ShellId dlea, so a qs path route reaches the newest instance whichever tree it names; each window
 # is read through its own pid from hyprctl clients instead, and a first-rows stamp that must differ
 # proves the two routes reach two instances. The case then proves the key routing: it waits for A
 # to be the active window before typing, and moves only A's cursor. The toggle is pressed in A,
@@ -3320,7 +3320,7 @@ case_xwsettings() {
     state="$root/state"
     uib="$root/ui-b"
     sandbox_scratch "$root"
-    [[ -f "$fixture_root/.flea-test-sandbox" ]] \
+    [[ -f "$fixture_root/.dlea-test-sandbox" ]] \
         || fail "xwsettings: the sandbox root carries no marker, so nothing here is deletable"
     mkdir -p "$dir/sub" "$config" "$state" || fail "xwsettings: the sandbox could not be made"
     : > "$dir/a.txt"
@@ -3330,44 +3330,44 @@ case_xwsettings() {
     local real_config="${XDG_CONFIG_HOME-}" real_state="${XDG_STATE_HOME-}"
     export XDG_CONFIG_HOME="$config"
     export XDG_STATE_HOME="$state"
-    cp -r "$flea_ui" "$uib" || fail "xwsettings: the second ui tree could not be copied"
-    env XDG_STATE_HOME="$state" "$flea_bin" --ui-state \
+    cp -r "$dlea_ui" "$uib" || fail "xwsettings: the second ui tree could not be copied"
+    env XDG_STATE_HOME="$state" "$dlea_bin" --ui-state \
         '{"hidden":false,"density":"compact","view":"list"}' >/dev/null \
         || fail "xwsettings: the seeding write failed"
     printf 'XWSETTINGS setup=ok\n'
 
     # Window A on the shipped tree.
-    kill_flea
-    cat "$flea_log" >> "$run_log" 2>/dev/null || true
-    : > "$flea_log"
-    FLEA_UI="$flea_ui" FLEA_BIN="$flea_bin" \
-        flea_test_exec "$flea_bin" --gui "$dir" >"$flea_log" 2>&1 </dev/null &
-    omarchy-drive wait window flea --timeout 15 >/dev/null
+    kill_dlea
+    cat "$dlea_log" >> "$run_log" 2>/dev/null || true
+    : > "$dlea_log"
+    DLEA_UI="$dlea_ui" DLEA_BIN="$dlea_bin" \
+        dlea_test_exec "$dlea_bin" --gui "$dir" >"$dlea_log" 2>&1 </dev/null &
+    omarchy-drive wait window dlea --timeout 15 >/dev/null
     local addrA addrB pidA pidB
-    addrA=$(omarchy-drive windows --json | jq -r '[.windows[] | select(.title == "Flea")] | .[0].address // empty')
-    [[ -n "$addrA" ]] || fail "xwsettings: no Flea window after launching A"
+    addrA=$(omarchy-drive windows --json | jq -r '[.windows[] | select(.title == "Dlea")] | .[0].address // empty')
+    [[ -n "$addrA" ]] || fail "xwsettings: no Dlea window after launching A"
     omarchy-drive focus "$addrA" >/dev/null
     assert_window
-    pidA=$(xwsettings_pid "$addrA" "$flea_ui") || fail "xwsettings: A has no owned qs pid"
-    local ipcA=(timeout --kill-after="$ipc_call_kill_after" "$ipc_call_timeout" "$FLEA_IPC_HELPER" --pid "$pidA" call flea)
+    pidA=$(xwsettings_pid "$addrA" "$dlea_ui") || fail "xwsettings: A has no owned qs pid"
+    local ipcA=(timeout --kill-after="$ipc_call_kill_after" "$ipc_call_timeout" "$DLEA_IPC_HELPER" --pid "$pidA" call dlea)
     wait_listing 3
     [[ "$("${ipcA[@]}" path)" == "$dir" ]] || fail "xwsettings: A opened $("${ipcA[@]}" path), not $dir"
 
     # Window B on the copied tree, over the same state file.
-    FLEA_UI="$uib" FLEA_BIN="$flea_bin" \
-        flea_test_exec "$flea_bin" --gui "$dir" >>"$flea_log" 2>&1 </dev/null &
+    DLEA_UI="$uib" DLEA_BIN="$dlea_bin" \
+        dlea_test_exec "$dlea_bin" --gui "$dir" >>"$dlea_log" 2>&1 </dev/null &
     local attempt count
     for (( attempt = 0; attempt < 150; attempt++ )); do
-        count=$(omarchy-drive windows --json | jq '[.windows[] | select(.title == "Flea")] | length')
+        count=$(omarchy-drive windows --json | jq '[.windows[] | select(.title == "Dlea")] | length')
         [[ "$count" == 2 ]] && break
         sleep 0.1
     done
     [[ "$count" == 2 ]] || fail "xwsettings: the second window never arrived, got $count"
     addrB=$(omarchy-drive windows --json \
-        | jq -r --arg a "$addrA" '[.windows[] | select(.title == "Flea" and .address != $a)] | .[0].address // empty')
+        | jq -r --arg a "$addrA" '[.windows[] | select(.title == "Dlea" and .address != $a)] | .[0].address // empty')
     [[ -n "$addrB" ]] || fail "xwsettings: the second window has no address of its own"
     pidB=$(xwsettings_pid "$addrB" "$uib") || fail "xwsettings: B has no owned qs pid"
-    local ipcB=(timeout --kill-after="$ipc_call_kill_after" "$ipc_call_timeout" "$FLEA_IPC_HELPER" --pid "$pidB" call flea)
+    local ipcB=(timeout --kill-after="$ipc_call_kill_after" "$ipc_call_timeout" "$DLEA_IPC_HELPER" --pid "$pidB" call dlea)
     omarchy-drive focus "$addrB" >/dev/null
     for (( attempt = 0; attempt < 150; attempt++ )); do
         [[ "$("${ipcB[@]}" path 2>/dev/null)" == "$dir" ]] && break
@@ -3468,7 +3468,7 @@ case_xwsettings() {
     omarchy-drive key --window "$addrB" l >/dev/null
     for (( attempt = 0; attempt < 30; attempt++ )); do
         if "${ipcB[@]}" uiSettings 2>/dev/null | jq -e '.density == "normal"' >/dev/null \
-            && jq -e '.density == "normal"' "$state/flea/ui.json" >/dev/null; then break; fi
+            && jq -e '.density == "normal"' "$state/dlea/ui.json" >/dev/null; then break; fi
         sleep 0.1
     done
     "${ipcB[@]}" uiSettings | jq -e '.density == "normal"' >/dev/null \
@@ -3497,7 +3497,7 @@ case_xwsettings() {
 
     if [[ -n "$real_config" ]]; then export XDG_CONFIG_HOME="$real_config"; else unset XDG_CONFIG_HOME; fi
     if [[ -n "$real_state" ]]; then export XDG_STATE_HOME="$real_state"; else unset XDG_STATE_HOME; fi
-    kill_flea
+    kill_dlea
 }
 
 # The keyboard dispatcher reaches Reload.begin with the pane's wire for F5 and Ctrl+R.
@@ -3513,10 +3513,10 @@ case_reload() {
         if [[ "$chord" == F5 ]]; then
             key -k F5 >/dev/null
         else
-            hotkey --global ctrl r flea >/dev/null
+            hotkey --global ctrl r dlea >/dev/null
         fi
         settle
-        errors=$(grep -E 'TypeError|ReferenceError' "$flea_log" | grep -E 'Reload\.js|Focus\.js|Pane\.qml' || true)
+        errors=$(grep -E 'TypeError|ReferenceError' "$dlea_log" | grep -E 'Reload\.js|Focus\.js|Pane\.qml' || true)
         [[ -z "$errors" ]] || fail "reload: $chord raised $errors"
         after=$(ipc listRequests)
         [[ "$after" =~ ^[0-9]+$ && "$before" =~ ^[0-9]+$ ]] || fail "reload: $chord returned invalid listRequests ($before to $after)"
@@ -3530,13 +3530,13 @@ case_reload() {
 
     # The watcher re-reads 400 ms after a change and no hold lets a key through, so the owned backend is held: the reload's list is sent before the change is reported.
     local qs_pid pid held_pid="" held_requests held_inflight
-    qs_pid=$(flea_pid)
-    # Sample input: /proc/<pid>/cmdline "/usr/bin/flea\0--backend\0"; ViewState's writer is a flea child too, run as --ui-state.
-    for pid in $(pgrep -P "$qs_pid" -x flea); do
+    qs_pid=$(dlea_pid)
+    # Sample input: /proc/<pid>/cmdline "/usr/bin/dlea\0--backend\0"; ViewState's writer is a dlea child too, run as --ui-state.
+    for pid in $(pgrep -P "$qs_pid" -x dlea); do
         tr '\0' ' ' 2>/dev/null < "/proc/$pid/cmdline" | grep -Fq -- ' --backend ' && held_pid="$held_pid $pid"
     done
     held_pid=${held_pid# }
-    [[ "$held_pid" =~ ^[0-9]+$ ]] || fail "reload: expected one flea --backend child of qs $qs_pid to hold, found '$held_pid'"
+    [[ "$held_pid" =~ ^[0-9]+$ ]] || fail "reload: expected one dlea --backend child of qs $qs_pid to hold, found '$held_pid'"
     before=$(ipc listRequests)
     # The pid is expanded here because the trap runs after this function's locals are gone.
     trap "kill -CONT $held_pid 2>/dev/null || true" EXIT
@@ -3551,7 +3551,7 @@ case_reload() {
     [[ "$held_requests" == "$((before + 1))" && "$held_inflight" == true ]] \
         || fail "reload: with the backend held F5 sent $before to $held_requests list requests, in flight $held_inflight, want one unanswered request"
     settle
-    errors=$(grep -E 'TypeError|ReferenceError' "$flea_log" | grep -E 'Reload\.js|Focus\.js|Pane\.qml' || true)
+    errors=$(grep -E 'TypeError|ReferenceError' "$dlea_log" | grep -E 'Reload\.js|Focus\.js|Pane\.qml' || true)
     [[ -z "$errors" ]] || fail "reload: changed-row F5 raised $errors"
     after=$(ipc listRequests)
     [[ "$after" =~ ^[0-9]+$ ]] || fail "reload: changed-row F5 returned invalid listRequests: $after"
@@ -3562,7 +3562,7 @@ case_reload() {
     [[ "$(ipc path)" == "$dir" ]] || fail "reload: changed-row F5 left the listing path; observed [$(ipc path)], expected [$dir]"
     [[ "$(ipc rowAt 1)" == b.txt\|* ]] || fail "reload: changed-row F5 did not draw b.txt; observed [$(ipc rowAt 1)]"
     printf 'RELOAD changed-row F5=ok notice=%s log=clean\n' "$message"
-    kill_flea
+    kill_dlea
 }
 
 # Toggle, extend, select-all, clear, and the invariant that matters most: an index into a
@@ -3603,7 +3603,7 @@ case_selection() {
     [[ "$(ipc selectedIndices)" == "1,2,3" ]] || fail "selection: extend covered $(ipc selectedIndices), not 1,2,3"
     shot selection-extend
 
-    hotkey --global ctrl a flea >/dev/null
+    hotkey --global ctrl a dlea >/dev/null
     settle
     [[ "$(ipc selectionCount)" == "5" ]] || fail "selection: ctrl+a selected $(ipc selectionCount), not every row"
 
@@ -3637,7 +3637,7 @@ case_selection() {
     [[ "$(ipc selectionCount)" == "0" ]] || fail "selection: Escape did not clear the pending folder selection"
 
     printf 'SELECTION toggle=ok extend=ok all=ok clear=ok stale=ok\n'
-    kill_flea
+    kill_dlea
 }
 
 # xw5: another window's change shows at once with the selection kept on the same files.
@@ -3648,7 +3648,7 @@ case_selection() {
 # windows watch the same directory and B answers only its own inotify.
 #
 # The UI copy identifies A's owned process for launch and cleanup. Both windows share ShellId
-# flea, so config paths cannot distinguish their IPC: every read names the window's qs pid.
+# dlea, so config paths cannot distinguish their IPC: every read names the window's qs pid.
 # Keys reach each window by its Hyprland address, resolved from the same owned pid.
 # A qs pid of this run whose cmdline carries the needle, or nothing; a foreign match never qualifies.
 xw_owned_pid_for_arg() {
@@ -3656,7 +3656,7 @@ xw_owned_pid_for_arg() {
     pids=$(pgrep -x qs) || return 0
     for pid in $pids; do
         if tr '\0' ' ' 2>/dev/null < "/proc/$pid/cmdline" | grep -Fq -- "$needle"; then
-            if flea_process_owned "$pid"; then printf '%s\n' "$pid"; return 0; fi
+            if dlea_process_owned "$pid"; then printf '%s\n' "$pid"; return 0; fi
         fi
     done
     return 0
@@ -3673,7 +3673,7 @@ xw_addr_for_pid() {
     local pid="$1" addr status attempt clients
     local tries=200
     local gap_s=0.05
-    if ! flea_process_owned "$pid"; then
+    if ! dlea_process_owned "$pid"; then
         printf 'xwwatch: pid %s is not a window this run owns\n' "$pid" >&2
         return 1
     fi
@@ -3700,9 +3700,9 @@ xw_addr_for_pid() {
 xw_second_window() {
     local start_path="$1" ui_copy="$2" pid addr status
     mkdir -p "$ui_copy" || fail "xwwatch: could not stage the second window's UI copy"
-    cp -a "$flea_ui/." "$ui_copy/" || fail "xwwatch: could not copy the UI for the second window"
-    FLEA_UI="$ui_copy" FLEA_BIN="$flea_bin" \
-        flea_test_exec "$flea_bin" --gui "$start_path" >>"$run_root/flea.A.log" 2>&1 </dev/null &
+    cp -a "$dlea_ui/." "$ui_copy/" || fail "xwwatch: could not copy the UI for the second window"
+    DLEA_UI="$ui_copy" DLEA_BIN="$dlea_bin" \
+        dlea_test_exec "$dlea_bin" --gui "$start_path" >>"$run_root/dlea.A.log" 2>&1 </dev/null &
     pid=""
     for _attempt in $(seq 1 "$xw_window_poll_tries"); do
         pid=$(xw_owned_pid_for_arg "$ui_copy") && [[ -n "$pid" ]] && break || pid=""
@@ -3735,15 +3735,15 @@ xw_key() {
 xw_ipc() {
     local pid="$1"
     shift
-    timeout --kill-after="$ipc_call_kill_after" "$ipc_call_timeout" "$FLEA_IPC_HELPER" --pid "$pid" call flea "$@"
+    timeout --kill-after="$ipc_call_kill_after" "$ipc_call_timeout" "$DLEA_IPC_HELPER" --pid "$pid" call dlea "$@"
 }
 
 # Aim at this address's own empty listing centre, then raise that window before the right click.
 xw_click_background() {
     local addr="$1" pid="$2" clients geometry window_pid wx wy ww wh cx cy total row centre row_x row_y row_h
     clients=$(hyprctl clients -j) || fail "xwwatch: cannot read A's window geometry"
-    # Sample clients: [{"address":"0xaaa","class":"com.thisisgm.flea","pid":111,"at":[100,200],"size":[880,620]}].
-    geometry=$(jq -er --arg addr "$addr" --arg class "$flea_window_class" '
+    # Sample clients: [{"address":"0xaaa","class":"com.nosDshell.dlea","pid":111,"at":[100,200],"size":[880,620]}].
+    geometry=$(jq -er --arg addr "$addr" --arg class "$dlea_window_class" '
         [.[] | select(.address == $addr and .class == $class)] | select(length == 1) | .[0]
         | [.pid, .at[0], .at[1], .size[0], .size[1]]
         | select(all(.[]; type == "number" and . == floor))
@@ -3751,7 +3751,7 @@ xw_click_background() {
         || fail "xwwatch: A has no single valid window geometry at $addr"
     read -r window_pid wx wy ww wh <<< "$geometry"
     [[ "$window_pid" == "$pid" ]] || fail "xwwatch: A's address $addr belongs to pid $window_pid, not $pid"
-    flea_process_owned "$pid" || fail "xwwatch: refusing background coordinates from unowned window $pid"
+    dlea_process_owned "$pid" || fail "xwwatch: refusing background coordinates from unowned window $pid"
     read -r cx cy <<< "$(xw_ipc "$pid" listingBackgroundCentre)"
     [[ "$cx $cy" =~ ^[0-9]+\ [0-9]+$ ]] \
         && (( cx < ww && cy < wh )) || fail "xwwatch: A's listing centre is outside its window"
@@ -3771,18 +3771,18 @@ xw_click_background() {
     omarchy-drive click "$((cx + wx))" "$((cy + wy))" right >/dev/null
 }
 
-# Stop the copied-UI window before kill_flea waits for all owned backends and Trash monitors.
+# Stop the copied-UI window before kill_dlea waits for all owned backends and Trash monitors.
 xw_kill_second() {
     local copy="$1" pid pids process ownership
     local deadline=$((SECONDS + drain_wait_s)) poll_gap_s=0.05
     pids=$(pgrep -x qs) || return 0
     for pid in $pids; do
-        process=$(flea_process_dir "$pid") || return 3
+        process=$(dlea_process_dir "$pid") || return 3
         if tr '\0' ' ' 2>/dev/null < "$process/cmdline" | grep -Fq -- "$copy"; then
-            if flea_process_owned "$pid"; then
+            if dlea_process_owned "$pid"; then
                 kill "$pid" || [[ ! -d "$process" ]] || fail "xwwatch: could not stop the second window $pid"
                 while [[ -d "$process" ]]; do
-                    if flea_process_owned "$pid"; then
+                    if dlea_process_owned "$pid"; then
                         (( SECONDS < deadline )) || fail "xwwatch: second window survived for $drain_wait_s s"
                         sleep "$poll_gap_s"
                     else
@@ -3808,7 +3808,7 @@ xw_cleanup() {
     ) || result=1
     (
         trap - EXIT
-        kill_flea
+        kill_dlea
     ) || result=1
     return "$result"
 }
@@ -3885,25 +3885,25 @@ xw_menu_seek() {
     fail "xwwatch: could not reach $want, cursor stalled at $(xw_ipc "$pid" contextMenuCursor)"
 }
 
-# Sample environ: FLEA_TEST_RUN_ROOT=/tmp/flea-ui-run.ABCDEFGH, an exact assignment identifying one run.
+# Sample environ: DLEA_TEST_RUN_ROOT=/tmp/dlea-ui-run.ABCDEFGH, an exact assignment identifying one run.
 xw_process_abandoned() {
     local process environment candidate_root="" line runner runner_process
-    process=$(flea_process_dir "$1") || return 1
+    process=$(dlea_process_dir "$1") || return 1
     environment=$(tr '\0' '\n' 2>/dev/null < "$process/environ") || return 1
     while IFS= read -r line; do
-        [[ "$line" == FLEA_TEST_RUN_ROOT=* ]] || continue
+        [[ "$line" == DLEA_TEST_RUN_ROOT=* ]] || continue
         [[ -z "$candidate_root" ]] || return 1
-        candidate_root=${line#FLEA_TEST_RUN_ROOT=}
+        candidate_root=${line#DLEA_TEST_RUN_ROOT=}
     done <<< "$environment"
     [[ "$candidate_root" == /* ]] || return 1
     local run_root="$candidate_root"
-    flea_process_owned "$1" || return 1
+    dlea_process_owned "$1" || return 1
     [[ -e "$run_root" ]] || return 0
-    [[ -d "$run_root" && -O "$run_root" && -f "$run_root/.flea-test-sandbox" ]] || return 1
+    [[ -d "$run_root" && -O "$run_root" && -f "$run_root/.dlea-test-sandbox" ]] || return 1
     runner=$(cat "$run_root/runner.pid" 2>/dev/null) || return 1
     # Sample runner.pid: 12345; a missing or malformed runner record proves no abandonment.
     [[ "$runner" =~ ^[1-9][0-9]*$ ]] || return 1
-    runner_process=$(flea_process_dir "$runner") || return 1
+    runner_process=$(dlea_process_dir "$runner") || return 1
     [[ ! -d "$runner_process" ]]
 }
 
@@ -3912,7 +3912,7 @@ xw_sweep_stale() {
     local pid pids process
     pids=$(pgrep -x qs) || return 0
     for pid in $pids; do
-        process=$(flea_process_dir "$pid") || return 1
+        process=$(dlea_process_dir "$pid") || return 1
         if tr '\0' ' ' 2>/dev/null < "$process/cmdline" | grep -Fq -- "$FIXTURE_ROOT"; then
             xw_process_abandoned "$pid" || continue
             kill "$pid" || [[ ! -d "$process" ]] || fail "xwwatch: could not stop stale test window $pid"
@@ -4005,7 +4005,7 @@ case_xwwatch() {
     printf 'five\n' > "$dir/untouched.txt"
     launch "$dir"
     wait_listing 5
-    pidB=$(flea_pid)
+    pidB=$(dlea_pid)
     addrB=$(xw_addr_for_pid "$pidB") || fail "xwwatch: no B window address"
     [[ -n "$addrB" ]] || fail "xwwatch: no B window address"
 
@@ -4028,7 +4028,7 @@ case_xwwatch() {
         '[.[] | select(.address == $addr)] | select(length == 1) | .[0].pid
          | select(type == "number" and . == floor and . > 0)') \
         || fail "xwwatch: no single A pid at $addrA"
-    flea_process_owned "$pidA" || fail "xwwatch: A pid $pidA is not owned by this run"
+    dlea_process_owned "$pidA" || fail "xwwatch: A pid $pidA is not owned by this run"
     [[ "$pidA" != "$pidB" ]] || fail "xwwatch: A and B share pid $pidA"
     xw_wait_total "$pidA" 5 "second window listing"
     xw_settled "$pidA"
@@ -4116,7 +4116,7 @@ case_optical() {
     local label='MATSHITA DVD+/-RW UJ8FB' payload='optical-payload-143' gio_log="$dir/gio.log"
     sandbox_scratch "$dir"
     sandbox_scratch "$state"
-    mkdir -p "$dir/bin" "$dir/files" "$dir/mnt/DVD" "$state/flea"
+    mkdir -p "$dir/bin" "$dir/files" "$dir/mnt/DVD" "$state/dlea"
     printf 'keep\n' > "$dir/files/keep.txt"
     printf '%s' "$payload" > "$dir/mnt/DVD/disc-bytes.txt"
     : > "$gio_log"
@@ -4237,7 +4237,7 @@ EOS
     rm -f "$dir/malformed"
     printf 'OPTICAL empty-hidden=ok usb-retained=ok inserted=ok refusal=observable mounted=ok bytes=exact malformed=clears\n'
     if [[ -n "$old_state" ]]; then export XDG_STATE_HOME="$old_state"; else unset XDG_STATE_HOME; fi
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
 }
 
@@ -4354,7 +4354,7 @@ case_reclick() {
     wait_path "$dir/bbb"
     [[ "$(ipc listRequests)" -gt "$req" ]] || fail "reclick: a tap on the bbb sibling listed nothing"
     printf 'RECLICK sibling navigates\n'
-    kill_flea
+    kill_dlea
 }
 
 # A GPUI neighbour-file tap reveals and selects without opening (COLUMNS-FINDER item 1).
@@ -4374,9 +4374,9 @@ case_finderneighbour() {
     } > "$bindir/$open_handoff"
     chmod +x "$bindir/$open_handoff"
     seed_ui_state "$fixture_root/finderneighbour-state" '{"display":{"textSize":{"mode":14}}}'
-    [[ -z "${FINDER_TEST_THEME_WRAPPER:-}" ]] || flea_launch_wrap=("$FINDER_TEST_THEME_WRAPPER")
+    [[ -z "${FINDER_TEST_THEME_WRAPPER:-}" ]] || dlea_launch_wrap=("$FINDER_TEST_THEME_WRAPPER")
     PATH="$bindir:$PATH" launch "$dir/inner"
-    xwdrag_place "$(flea_pid)" 80 80 1100 700
+    xwdrag_place "$(dlea_pid)" 80 80 1100 700
     switch_view columns
     wait_path "$dir/inner"
     shot finderneighbour-before
@@ -4402,7 +4402,7 @@ case_finderneighbour() {
     printf 'FINDERNEIGHBOUR path=%s cursor=%s one_tap_open=none enter_open=%s\n' "$(ipc path)" "$row" "$dir/note.txt"
     # The view is saved state, so the List goes back before the next case launches.
     switch_view list
-    kill_flea
+    kill_dlea
 }
 
 # GPUI Columns right-click targets its row while preserving cursor, marks and columns through Escape.
@@ -4412,9 +4412,9 @@ case_finderrightclick() {
     printf 'a\n' > "$dir/a.txt" || fail "finderrightclick: could not seed a.txt"
     printf 'b\n' > "$dir/b.txt" || fail "finderrightclick: could not seed b.txt"
     seed_ui_state "$fixture_root/finderrightclick-state" '{"display":{"textSize":{"mode":14}}}'
-    [[ -z "${FINDER_TEST_THEME_WRAPPER:-}" ]] || flea_launch_wrap=("$FINDER_TEST_THEME_WRAPPER")
+    [[ -z "${FINDER_TEST_THEME_WRAPPER:-}" ]] || dlea_launch_wrap=("$FINDER_TEST_THEME_WRAPPER")
     launch "$dir"
-    xwdrag_place "$(flea_pid)" 80 80 1100 700
+    xwdrag_place "$(dlea_pid)" 80 80 1100 700
     switch_view columns
     wait_path "$dir"
     key j >/dev/null
@@ -4443,14 +4443,14 @@ case_finderrightclick() {
     settle
     menu_seek "Copy"
     key -k Return >/dev/null || fail "finderrightclick: Copy was rejected"
-    pid=$(flea_pid) || fail "finderrightclick: no owned window"
+    pid=$(dlea_pid) || fail "finderrightclick: no owned window"
     id=$(xwdrag_qsid "$pid") || fail "finderrightclick: no instance id"
     clipboard_wait "$id" copy "$dir/a.txt"
     [[ "$(ipc cursor)" == "$cursor" && "$(ipc selectionCount)" == "0" && "$(ipc path)" == "$dir" ]] \
         || fail "finderrightclick: Copy changed the cursor, selection or columns"
     printf 'FINDERRIGHTCLICK cursor=%s path=%s copied=%s\n' "$cursor" "$(ipc path)" "$dir/a.txt"
     switch_view list
-    kill_flea
+    kill_dlea
 }
 
 # Column and sidebar hairlines drag; the docked rail uses its existing width stops.
@@ -4461,9 +4461,9 @@ case_finderhairlines() {
     mkdir -p "$dir/inner" || fail "finderhairlines: could not create fixtures"
     printf 'a\n' > "$dir/inner/a.txt" || fail "finderhairlines: could not seed a.txt"
     seed_ui_state "$fixture_root/finderhairlines-state" '{"view":"columns","places":{"sidebarWidth":192},"display":{"textSize":{"mode":14}}}'
-    [[ -z "${FINDER_TEST_THEME_WRAPPER:-}" ]] || flea_launch_wrap=("$FINDER_TEST_THEME_WRAPPER")
+    [[ -z "${FINDER_TEST_THEME_WRAPPER:-}" ]] || dlea_launch_wrap=("$FINDER_TEST_THEME_WRAPPER")
     launch "$dir/inner"
-    xwdrag_place "$(flea_pid)" 80 80 1400 800
+    xwdrag_place "$(dlea_pid)" 80 80 1400 800
     wait_path "$dir/inner"
     settle
     read -r ax ay aw _ah <<< "$(ipc columnActiveRect)"
@@ -4528,7 +4528,7 @@ case_finderhairlines() {
         || fail "finderhairlines: the sidebar release failed"
     settle
     for _attempt in $(seq 1 100); do
-        stored=$(jq -r '.places.sidebarWidth' "$XDG_STATE_HOME/flea/ui.json" 2>/dev/null)
+        stored=$(jq -r '.places.sidebarWidth' "$XDG_STATE_HOME/dlea/ui.json" 2>/dev/null)
         [[ "$stored" == "224" ]] && break
         sleep 0.05
     done
@@ -4537,7 +4537,7 @@ case_finderhairlines() {
     omarchy-drive click "$((wx + left + 224 - 192 - 1))" "$y" left --double >/dev/null \
         || fail "finderhairlines: the sidebar reset double click failed"
     for _attempt in $(seq 1 100); do
-        stored=$(jq -r '.places.sidebarWidth' "$XDG_STATE_HOME/flea/ui.json" 2>/dev/null)
+        stored=$(jq -r '.places.sidebarWidth' "$XDG_STATE_HOME/dlea/ui.json" 2>/dev/null)
         [[ "$stored" == "192" ]] && break
         sleep 0.05
     done
@@ -4545,7 +4545,7 @@ case_finderhairlines() {
     shot finderhairlines-sidebar-reset
     printf 'FINDERHAIRLINES text_size=14 column=%s preview=%s sidebar_drag=224 sidebar_reset=%s\n' "$parent_shift" "$preview_shift" "$stored"
     switch_view list
-    kill_flea
+    kill_dlea
 }
 
 # At / the climb stops, so every shown ancestor slot stays blank and keeps its width
@@ -4578,7 +4578,7 @@ case_colroot() {
         [[ "$(ipc rowAt 0)" != "loading" || -n "$(ipc visibleRowName 0)" ]] || fail "colroot: limit $n left the active column with no rows"
         printf 'COLROOT limit=%s count=%s parent=blank active=%s\n' "$n" "$count" "$(ipc visibleRowName 0)"
         shot "colroot-$n"
-        kill_flea
+        kill_dlea
     done
     seed_ui_state "$fixture_root/colroot-state-left" '{"view":"columns","columnsLimit":5}'
     launch "/"
@@ -4615,7 +4615,7 @@ case_colroot() {
     [[ -n "$(ipc columnGreatGrandparentRowCentre 0)" ]] \
         || fail "colroot: the great-grandparent column shows no row under /usr/share/doc"
     printf 'COLROOT left=no-op parent-lists-slash depth-controls=ok\n'
-    kill_flea
+    kill_dlea
 }
 
 # Waits for a settled path at / with no fixed total; the hidden list reads loading, so visibleRowName stands in.
@@ -4733,7 +4733,7 @@ case_status() {
     settle
     [[ "$(ipc statusFooterState | jq -r '.path')" == "$dir" ]] \
         || fail "status: Escape did not return the strip to $dir, it says $(ipc statusFooterState | jq -r '.path')"
-    kill_flea
+    kill_dlea
 }
 
 case_operations() {
@@ -4865,7 +4865,7 @@ PY
     for _ in $(seq 1 80); do [[ -f "$dir/bundle/notes.txt" ]] && break; sleep 0.25; done
     [[ -f "$dir/bundle/notes.txt" ]] || fail "operations: extract wrote nothing, bar says $(ipc lastMessage)"
     printf 'OPERATIONS extracted=%s\n' "$(ipc lastMessage)"
-    kill_flea
+    kill_dlea
 }
 
 # Paste onto a name that exists: asked once, and Cancel, Keep both, Skip and Replace with its Undo each do
@@ -4889,7 +4889,7 @@ case_collide() {
     mapfile -t bus < <(dbus-daemon --session --fork --print-address=1 --print-pid=1)
     [[ ${#bus[@]} -eq 2 && "${bus[1]}" =~ ^[0-9]+$ ]] || fail "collide: no private session bus, dbus-daemon printed: ${bus[*]}"
     collide_bus_pid=${bus[1]}
-    trap '( kill_flea ) >/dev/null 2>&1 || true; kill "$collide_bus_pid" 2>/dev/null || true' EXIT
+    trap '( kill_dlea ) >/dev/null 2>&1 || true; kill "$collide_bus_pid" 2>/dev/null || true' EXIT
     export DBUS_SESSION_BUS_ADDRESS="${bus[0]}"
 
     # A finished transfer's own line, polled because it stands only until the bar clears it; the undo hint tells it from the clipboard's.
@@ -5057,7 +5057,7 @@ case_collide() {
     shot collide-largest-text
     key -k Escape >/dev/null
     menus_expect collideState '.opened | not' "Escape cancels at the largest stop"
-    kill_flea
+    kill_dlea
     # A mount-top trash is shared, so only this run's own entry goes, each pair checked in the command.
     if [[ "$collide_trash" != "$XDG_DATA_HOME/Trash/files" ]]; then
         sandbox_trash_remove_own "$collide_trash" "$dir" photo.txt \
@@ -5133,7 +5133,7 @@ case_grid() {
     settle
     lnext=$(ipc cursor)
     (( lnext == lstart + 1 )) || fail "grid: in the list j moved $((lnext - lstart)), not one item"
-    kill_flea
+    kill_dlea
 }
 
 grid_chrome_inventory() {
@@ -5280,7 +5280,7 @@ case_gridnavigation() {
         key -k End -k Down -k Right >/dev/null
         cardsize_expect cursor 60
         caption=$(ipc gridCaptionState 60)
-        # 0d857089: Flea elides the name itself, so the mark is in the text and Qt, handed a fitting caption, truncates nothing.
+        # 0d857089: Dlea elides the name itself, so the mark is in the text and Qt, handed a fitting caption, truncates nothing.
         jq -e '.lines == 2 and (.name | contains("\u2026")) and (.truncated | not) and .textHeight <= .slotHeight and .bottom <= .tileHeight' <<< "$caption" >/dev/null \
             || fail "grid: two-line caption leaves its reserved tile slot: $caption"
         shot "grid-navigation-$preset-two-line-caption"
@@ -5331,7 +5331,7 @@ case_gridnavigation() {
         key -k Escape >/dev/null
         cardsize_expect drawnCount 61
         printf 'GRID_NAVIGATION preset=%s columns=%s reflow=%s item_keys=ok cell_edges=ok identity=ok range=ok\n' "$preset" "$columns" "$next_columns"
-        kill_flea
+        kill_dlea
     done
 }
 
@@ -5359,7 +5359,7 @@ case_header() {
     (( date_x >= size_x + size_w )) || fail "header: date starts at $date_x, before size ends at $((size_x + size_w))"
     (( kind_x >= date_x + date_w )) || fail "header: kind starts at $kind_x, before date ends at $((date_x + date_w))"
 
-    kill_flea
+    kill_dlea
 }
 
 # headerCellRect is polled until two reads agree, so a mid-drag sample never stands in for a settled width.
@@ -5460,7 +5460,7 @@ PYEOF
         || fail "columnresize: the seam reports $(ipc columnWidths), the header draws $grown_w"
     local stored=""
     for _attempt in $(seq 1 60); do
-        stored=$(jq -er '.columnWidths.size // empty' "$XDG_STATE_HOME/flea/ui.json" 2>/dev/null || true)
+        stored=$(jq -er '.columnWidths.size // empty' "$XDG_STATE_HOME/dlea/ui.json" 2>/dev/null || true)
         [[ "$stored" == "$grown_w" ]] && break
         sleep 0.05
     done
@@ -5505,7 +5505,7 @@ if not last > start:
     sys.exit(1)
 PYEOF
 
-    kill_flea
+    kill_dlea
 }
 
 # contentWidth exceeds width only when elide is missing, since elide always caps it to width; this guards elide, not sizing.
@@ -5523,7 +5523,7 @@ case_overflow() {
     printf 'OVERFLOW row0=%s row=%s\n' "$overflow" "$(ipc rowAt 0)"
     shot overflow
     [[ "$overflow" == "0|0|0|0" ]] || fail "overflow: a cell painted past its own column, $overflow"
-    kill_flea
+    kill_dlea
 }
 
 # The OEM modules are reached by symlink, so a broken link is a silent palette regression.
@@ -5533,13 +5533,13 @@ case_oem() {
     fg=$(ipc themeForeground)
     expected_fg=$(theme_key foreground)
     [[ "${fg,,}" == "${expected_fg,,}" ]] \
-        || fail "oem: Flea's foreground is $fg, the theme's is $expected_fg"
+        || fail "oem: Dlea's foreground is $fg, the theme's is $expected_fg"
     local ladder
     ladder=$(ipc selectedFill)
     [[ -n "$ladder" && "$ladder" != "#00000000" ]] \
         || fail "oem: the OEM state ladder did not resolve, selectedFill is $ladder"
     printf 'OEM foreground=%s selectedFill=%s\n' "$fg" "$ladder"
-    kill_flea
+    kill_dlea
 }
 
 # Catches removing the icon slot from ui/Row.qml or its theme fallback.
@@ -5568,7 +5568,7 @@ case_icons() {
         [[ -n "$(ipc rowGlyph "$i")" ]] || fail "row $i has no glyph name at all"
     done
     [[ "$(glyph_of subdir)" == "folder" ]] || fail "the directory row is not the folder glyph: $(glyph_of subdir)"
-    # FleaWindow.html and GridView.html both draw a symlink with the link mark, whatever it points at,
+    # DleaWindow.html and GridView.html both draw a symlink with the link mark, whatever it points at,
     # so the mark follows the mode here while the backend's i still follows the target; the backend
     # side of that split is tests/protocol.sh "and draws as a folder".
     [[ "$(glyph_of linkdir)" == "symlink" ]] || fail "the symlink to a directory is not the link glyph: $(glyph_of linkdir)"
@@ -5585,15 +5585,15 @@ case_icons() {
 
 # Catches turning the settle timer in ui/Pane.qml into a request per scrolled frame.
 case_thumbs() {
-    [[ -d "$FIXTURE_ROOT/flea-media-btrfs" ]] || fail "the media fixture is missing"
+    [[ -d "$FIXTURE_ROOT/dlea-media-btrfs" ]] || fail "the media fixture is missing"
     sandbox_make "$thumb_fixture"
     local i
     for i in $(seq 0 $((thumb_rows - 1))); do
-        ln "$FIXTURE_ROOT/flea-media-btrfs/photo_0.jpg" "$thumb_fixture/p$i.jpg"
+        ln "$FIXTURE_ROOT/dlea-media-btrfs/photo_0.jpg" "$thumb_fixture/p$i.jpg"
     done
-    # kill_flea waits out the previous backend's drain, so the baseline is stable before this one generates.
+    # kill_dlea waits out the previous backend's drain, so the baseline is stable before this one generates.
     local before_large
-    kill_flea
+    kill_dlea
     before_large=$(ls -A "$cache_large" | wc -l)
     seed_ui_state "$fixture_root/thumbs-state" '{"view":"list"}'
     launch "$thumb_fixture"
@@ -5653,7 +5653,7 @@ case_thumbs() {
     local screen_rows requests added
     screen_rows=$(ipc visibleRows)
     requests=$(ipc thumbRequests)
-    kill_flea
+    kill_dlea
     sandbox_make "$thumb_fixture"
     added=$(( $(ls -A "$cache_large" | wc -l) - before_large ))
     # A window that is not row aligned straddles one more row than it holds, so the bound is the viewport rule plus that row.
@@ -5674,7 +5674,7 @@ case_thumbs() {
     # A fling that moves nothing fails here instead of passing quietly; "nothing is requested while moving" is carried by the request-count bounds above.
     (( moved >= 1 )) \
         || fail "the fling did not move the viewport at all, so the bounds above prove nothing"
-    [[ "$(ls -A "$cache_large" | grep -c '^\.flea-')" == "0" ]] || fail "a temp file was left in the shared cache"
+    [[ "$(ls -A "$cache_large" | grep -c '^\.dlea-')" == "0" ]] || fail "a temp file was left in the shared cache"
 }
 
 # Click a tab in the bar. The GUI leaves bare digits unbound, so this is the only pointer or key
@@ -5748,43 +5748,43 @@ xwundo_wait_file() {
 
 # The one scene-graph failure found to be raisable here: Qt's GL backend with no EGL vendor file to load.
 case_renderer() {
-    kill_flea
+    kill_dlea
     local dir="$fixture_root/renderer"
     sandbox_scratch "$dir"
     local log="$dir/shell.log"
     local relaunched="$dir/relaunch.log"
     : > "$relaunched"
-    printf '#!/bin/sh\nprintf "RAN %%s\\n" "$*" >> %q\n' "$relaunched" > "$dir/flea-stub"
-    chmod +x "$dir/flea-stub"
+    printf '#!/bin/sh\nprintf "RAN %%s\\n" "$*" >> %q\n' "$relaunched" > "$dir/dlea-stub"
+    chmod +x "$dir/dlea-stub"
     # The marker is set, so the renderer's own name is the only thing standing between this and a retry.
-    QSG_RHI_BACKEND=opengl FLEA_RENDERER_AUTOMATIC=1 \
+    QSG_RHI_BACKEND=opengl DLEA_RENDERER_AUTOMATIC=1 \
         __EGL_VENDOR_LIBRARY_FILENAMES="$dir/no-such-egl-vendor.json" \
-        FLEA_PATH="$dir" FLEA_BIN="$dir/flea-stub" \
-        flea_test_exec qs -p "$flea_ui/boot" > "$log" 2>&1 </dev/null &
+        DLEA_PATH="$dir" DLEA_BIN="$dir/dlea-stub" \
+        dlea_test_exec qs -p "$dlea_ui/boot" > "$log" 2>&1 </dev/null &
     local waited
     for waited in $(seq 1 200); do
         grep -aq 'graphics backend opengl failed' "$log" && break
         sleep 0.1
     done
-    kill_flea
+    kill_dlea
     printf 'RENDERER ran=%q\n' "$(tr '\n' ' ' < "$relaunched")"
     grep -aq 'graphics backend opengl failed' "$log" \
         || fail "no scene-graph error reached ui/boot/shell.qml, so its Connections never held the window"
-    # A scene-graph failure now starts no backend at all, so counting FLEA_BIN is a zero denominator.
+    # A scene-graph failure now starts no backend at all, so counting DLEA_BIN is a zero denominator.
     local retried
     retried=$(grep -c -- '--gui' "$relaunched" || true)
     [[ "$retried" == "0" ]] || fail "the retry fired for a renderer the operator named: $(cat "$relaunched")"
     # The argv side of that arm, from a root carrying ui/boot's own two symlinks: the helper implicitly imports ui/, whose qmldir singletons import qs.Commons, and qs: resolves against the root.
     local proberoot="$dir/retry-cfg" probe="$dir/retry-probe.log"
     mkdir -p "$proberoot"
-    cp -a "$flea_ui/boot/Commons" "$flea_ui/boot/Ui" "$proberoot/" \
+    cp -a "$dlea_ui/boot/Commons" "$dlea_ui/boot/Ui" "$proberoot/" \
         || fail "the boot root has no Commons or Ui to copy, so this probe would test its own fake root"
     cp "$repo/tests/renderer-retry.qml" "$proberoot/probe.qml"
     : > "$probe"
-    env RETRY_HELPER="$flea_ui/RendererRetry.qml" RETRY_BACKEND=vulkan \
-        FLEA_RENDERER_AUTOMATIC=1 FLEA_BIN="$dir/flea-stub" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
+    env RETRY_HELPER="$dlea_ui/RendererRetry.qml" RETRY_BACKEND=vulkan \
+        DLEA_RENDERER_AUTOMATIC=1 DLEA_BIN="$dir/dlea-stub" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
         timeout 20 qs -p "$proberoot/probe.qml" > "$probe" 2>&1
-    local want='RETRY argv ["/usr/bin/env","QSG_RHI_BACKEND=opengl","'"$dir/flea-stub"'","--gui"]'
+    local want='RETRY argv ["/usr/bin/env","QSG_RHI_BACKEND=opengl","'"$dir/dlea-stub"'","--gui"]'
     grep -aqF "$want" "$probe" \
         || fail "the retry helper did not answer with the argv Renderer.js names: $(grep -a RETRY "$probe" | head -2)"
 }
@@ -5798,9 +5798,9 @@ case_renderer() {
 # launch() so omarchy-drive itself is unaffected. Two rows, not one, in the fixture directory:
 # setCursor clamps cursorDown to the single valid index on a one-row listing, which reads exactly
 # like dead keyboard input and cost real time to tell apart from it while this case was written.
-# gio's own mount table is per-user, not per-HOME, but Flea reads it only through "gio mount -li",
+# gio's own mount table is per-user, not per-HOME, but Dlea reads it only through "gio mount -li",
 # and the case's gio double answers that with nothing, so the operator's gio mounts never reach the
-# rail. The double does not cover /proc/self/mountinfo, which Flea also lists kernel NFS and CIFS
+# rail. The double does not cover /proc/self/mountinfo, which Dlea also lists kernel NFS and CIFS
 # mounts from: such a mount outside home still shows, and case_network then fails naming it rather
 # than refusing. It waits for the rail to build from a listing and asserts the group is empty.
 # Issue 21, TomFaulkner: a saved network place can be edited from the rail, and the address that
@@ -5893,7 +5893,7 @@ file:///missing/legacy Local legacy' ]] \
     done
     [[ "$rail_uri" == "smb://legacy2.test/data" ]] \
         || fail "editplace: the rail's network rows are $rail_uri, not the one corrected place"
-    # The edit rewrites the place it came from, so Flea's own favourites gain nothing.
+    # The edit rewrites the place it came from, so Dlea's own favourites gain nothing.
     [[ "$(ipc railEntries | jq -r '[.[] | select(.group == "favorite")] | length')" == "0" ]] \
         || fail "editplace: the edit added a favourite as well as rewriting the place"
     printf 'EDITPLACE edit=%s rail=%s\n' "$(head -1 "$bookmarks")" "$rail_uri"
@@ -5933,7 +5933,7 @@ file:///missing/legacy Local legacy' ]] \
     printf 'EDITPLACE abandoned=unchanged marks=%s\n' "$(head -1 "$bookmarks")"
 
     export PATH="$saved_path"
-    kill_flea
+    kill_dlea
 }
 
 case_network() {
@@ -5957,7 +5957,7 @@ case_network() {
     local real_state="${XDG_STATE_HOME-}" real_config="${XDG_CONFIG_HOME-}"
     export XDG_CONFIG_HOME="$fixture_home/.config"
     seed_ui_state "$state" '{"view":"list","keys":"default","places":{"favourites":[]}}'
-    stored="$state/flea/ui.json"
+    stored="$state/dlea/ui.json"
     : > "$mount_log"
     : > "$mount_calls"
     mkfifo "$fake_root/mount-release"
@@ -5989,7 +5989,7 @@ case_network() {
             release_fds+=("$fd")
             printf 'release\n' >&"$fd" || fail "network: could not release cleanup barrier: $fifo"
         done
-        ( kill_flea ) || result=1
+        ( kill_dlea ) || result=1
         for fd in "${release_fds[@]}"; do exec {fd}>&-; done
         return "$result"
     }
@@ -6093,7 +6093,7 @@ case_network() {
         settings_wait_value '.display.textSize.mode == "system"'
         font_before=$(token_of baseSize)
         # Sample source: var STOPS = [9, 10, 11, 12, 14, 16, 20]
-        stops=$(grep '^var STOPS = ' "$flea_ui/js/TextSize.js" | cut -d= -f2-) || fail 'network: text-size stops are unavailable'
+        stops=$(grep '^var STOPS = ' "$dlea_ui/js/TextSize.js" | cut -d= -f2-) || fail 'network: text-size stops are unavailable'
         font_after=$(jq -r --argjson size "$font_before" 'map(select(. > $size)) | first' <<< "$stops") \
             || fail 'network: text-size stops could not be read'
         direction=equal
@@ -6148,7 +6148,7 @@ case_network() {
         local what="$1"
         network_ipc networkEntries
         [[ -z "$network_ipc_out" ]] \
-            || fail "network: $what: the Network group shows [$network_ipc_out], not empty (the gio double isolates the gio mount table only; a kernel network mount Flea lists from /proc/self/mountinfo shows as its own row)"
+            || fail "network: $what: the Network group shows [$network_ipc_out], not empty (the gio double isolates the gio mount table only; a kernel network mount Dlea lists from /proc/self/mountinfo shows as its own row)"
     }
 
     # This case proves form/bookmark behavior, not a network route; a bounded local gio double keeps
@@ -6590,12 +6590,12 @@ EOS
     settle
     [[ "$(ipc dialogOpen)" == "false" ]] || fail "network: escape did not close the dialog after the TLS pass"
 
-    # Legacy GTK rows stay readable and byte-for-byte intact alongside persisted Flea favourites.
+    # Legacy GTK rows stay readable and byte-for-byte intact alongside persisted Dlea favourites.
     mkdir -p "$fixture_home/.config/gtk-3.0"
     printf 'smb://legacy.test/data Legacy share\nfile:///missing/legacy Local legacy\n' > "$bookmarks"
     local legacy_before
     legacy_before=$(cat "$bookmarks")
-    kill_flea
+    kill_dlea
     export HOME="$fixture_home"
     launch "$dir"
     export HOME="$real_home"
@@ -6688,7 +6688,7 @@ EOS
     printf 'NETWORK empty=ok a-scoped=ok dialog=ok submit-path=ok keyboard-after=ok guest-smb=anonymous nfs=plain caches=isolated\n'
 
     # Separate persisted fixtures keep the mount-origin races independent of the save inventory above.
-    kill_flea
+    kill_dlea
     seed_ui_state "$race_state" "$(jq -n --arg left "$races/left" --arg right "$races/right" \
         '{view:"list",keys:"default",dual:{paths:[$left,$right],focus:0},places:{favourites:[
             {label:"Late retry",path:"nfs://late-retry.test/export"},
@@ -6816,7 +6816,7 @@ EOS
     retained_shares=$(ipc shareBrowserState | jq -c '{active,owner,baseUri,cursor}')
     retained_entries=$(ipc shareBrowserEntries)
     retained_rect="$network_geometry_rect"
-    exit_log_start=$(wc -l < "$flea_log")
+    exit_log_start=$(wc -l < "$dlea_log")
     click_chrome list
     network_wait_panes "(.active | not) and .focused == 0 and (.panes[1].focused | not) and ((.panes[1] | del(.focused)) == $retained_secondary)"
     menus_expect shareBrowserState "{active,owner,baseUri,cursor} == $retained_shares" 'leaving dual retains the secondary share listing session'
@@ -6852,7 +6852,7 @@ EOS
     shot network-shares-owner-dismissed
     click_chrome list
     network_wait_panes '(.active | not) and .focused == 0 and (.panes[1].focused | not)'
-    tail -n "+$((exit_log_start + 1))" "$flea_log" > "$fake_root/second-pane-exit.log"
+    tail -n "+$((exit_log_start + 1))" "$dlea_log" > "$fake_root/second-pane-exit.log"
     # Qt 6.12's Wayland text input warns when focus leaves with no surface focused; the log check below skips it too.
     if grep -F -v 'QWaylandTextInputv3::disableSurface(wl_surface*) Trying to disable ' "$fake_root/second-pane-exit.log" \
         | grep -E 'WARN|ERROR|TypeError|ReferenceError|Cannot'; then
@@ -6892,8 +6892,8 @@ case_networkauth() {
     assert_runtime_canary_absent() {
         local surface method value
         for surface in "$fixture_root" "$thumb_fixture" "$hash_fixture" "$stale_fixture" \
-            "$evidence_dir" "$flea_log" "$run_log" "$case_log" \
-            "$repo/.superpowers/flea/release-014-20260904/reports/baseline-authenticated-ui.md"; do
+            "$evidence_dir" "$dlea_log" "$run_log" "$case_log" \
+            "$repo/.superpowers/dlea/release-014-20260904/reports/baseline-authenticated-ui.md"; do
             [[ -e "$surface" ]] || continue
             # -D skip and -r, not -R: case_network leaves FIFOs in its fixture, and a recursive read
             # of one blocks in the kernel forever waiting for a writer that never comes.
@@ -6947,7 +6947,7 @@ case "\$1 \${2:-}" in
 *) exit 1 ;;
 esac
 EOS
-    cat > "$dir/bin/flea-gio-auth" <<'EOS'
+    cat > "$dir/bin/dlea-gio-auth" <<'EOS'
 #!/bin/sh
 [ "$#" -eq 1 ] || exit 2
 IFS= read -r secret || exit 3
@@ -6963,12 +6963,12 @@ printf 'argc=1 uri=%s stdin-lines=1\n' "$1" >> "$state/helper.log"
 printf '%s\n' "$1" > "$state/mounted"
 secret=
 EOS
-    chmod +x "$dir/bin/gio" "$dir/bin/flea-gio-auth"
+    chmod +x "$dir/bin/gio" "$dir/bin/dlea-gio-auth"
 
     local real_home="$HOME" saved_path="$PATH"
     export HOME="$fixture_home"
     export PATH="$dir/bin:$PATH"
-    export FLEA_GIO_AUTH="$dir/bin/flea-gio-auth"
+    export DLEA_GIO_AUTH="$dir/bin/dlea-gio-auth"
     launch "$dir"
     export HOME="$real_home"
     wait_listing_wall 3
@@ -6978,7 +6978,7 @@ EOS
     local want_entries='Own slot|network|share|true' seen_entries="" entries_deadline
     entries_deadline=$(( $(date +%s%3N) + 12000 ))
     while (( $(date +%s%3N) < entries_deadline )); do
-        seen_entries=$(timeout 1 "$FLEA_IPC_HELPER" drive -p "$flea_ui/boot" flea networkEntries 2>/dev/null || true)
+        seen_entries=$(timeout 1 "$DLEA_IPC_HELPER" drive -p "$dlea_ui/boot" dlea networkEntries 2>/dev/null || true)
         [[ "$seen_entries" == "$want_entries" ]] && break
         sleep 0.1
     done
@@ -7004,7 +7004,7 @@ EOS
     [[ "$(cat "$state/unmount-uri")" == 'sftp://tester@slot.test/' ]] \
         || fail "networkauth: projected row unmounted its saved descendant URI"
     printf 'NETWORKAUTH descendant-dedup=ok saved-uri=ok mount-uri=ok\n'
-    kill_flea
+    kill_dlea
     : > "$state/mounted"
     printf '%s\n' \
         'dav://tester@plain-default.test/ Plain 80' \
@@ -7028,7 +7028,7 @@ EOS
     [[ "$(ipc networkPort)" == 443 && "$(ipc networkUri)" == 'dav://tester@plain-secure-port.test:443/' ]] \
         || fail "networkauth: dav :443 reparsed as port $(ipc networkPort), URI $(ipc networkUri)"
     printf 'NETWORKAUTH dav-default=80 dav-explicit=443\n'
-    kill_flea
+    kill_dlea
     : > "$bookmarks"
     : > "$state/info-uri"
     export HOME="$fixture_home"
@@ -7086,7 +7086,7 @@ EOS
     key "tester" >/dev/null
     key -k Tab >/dev/null
     [[ "$(ipc networkFocus)" == "Password" ]] || fail "networkauth: Password did not follow Username"
-    printf '%s' "$runtime_canary" | omarchy-drive key --window com.thisisgm.flea - >/dev/null
+    printf '%s' "$runtime_canary" | omarchy-drive key --window com.nosDshell.dlea - >/dev/null
     [[ "$(ipc networkPasswordState)" == "masked|set" ]] \
         || fail "networkauth: typed password is not masked"
     shot networkauth-password-masked
@@ -7110,7 +7110,7 @@ EOS
     [[ "$(ipc dialogOpen)" == "false" ]] || fail "networkauth: successful save left dialog open"
     [[ "$(cat "$helper_log")" == "argc=1 uri=smb://tester@slot.test/data stdin-lines=1" ]] \
         || fail "networkauth: SMB helper route is $(cat "$helper_log")"
-    # A save lands in Flea Favorites, never the shared GTK file, and it carries no secret.
+    # A save lands in Dlea Favorites, never the shared GTK file, and it carries no secret.
     local saved_favourite
     saved_favourite=$(ipc uiSettings | jq -c '.places.favourites[-1]')
     [[ "$saved_favourite" == '{"label":"data","path":"smb://tester@slot.test/data"}' ]] \
@@ -7164,21 +7164,21 @@ EOS
     for _field in Port Share Domain Username Password; do key -k Tab >/dev/null; done
     [[ "$(ipc networkFocus)" == "Password" ]] \
         || fail "networkauth: missing-helper setup did not reach Password"
-    printf '%s' "$runtime_canary" | omarchy-drive key --window com.thisisgm.flea - >/dev/null
-    mv "$dir/bin/flea-gio-auth" "$dir/bin/flea-gio-auth.real"
+    printf '%s' "$runtime_canary" | omarchy-drive key --window com.nosDshell.dlea - >/dev/null
+    mv "$dir/bin/dlea-gio-auth" "$dir/bin/dlea-gio-auth.real"
     key -k Return >/dev/null
-    wait_network_status "Could not connect: Flea could not ask for the password." 10
+    wait_network_status "Could not connect: Dlea could not ask for the password." 10
     [[ "$(ipc dialogOpen)" == "true" \
         && "$(ipc networkPasswordState)" == "masked|set" ]] \
         || fail "networkauth: missing helper did not fail closed and retain fields"
     [[ "$(wc -l < "$helper_log")" -eq "$helper_calls" ]] \
         || fail "networkauth: missing helper wrote helper output"
 
-    cp "$dir/bin/flea-gio-auth.real" "$dir/bin/flea-gio-auth"
-    chmod 0644 "$dir/bin/flea-gio-auth"
+    cp "$dir/bin/dlea-gio-auth.real" "$dir/bin/dlea-gio-auth"
+    chmod 0644 "$dir/bin/dlea-gio-auth"
     key -k Escape >/dev/null
     key -k Return >/dev/null
-    wait_network_status "Could not connect: Flea could not ask for the password." 10
+    wait_network_status "Could not connect: Dlea could not ask for the password." 10
     [[ "$(ipc dialogOpen)" == "true" \
         && "$(ipc networkPasswordState)" == "masked|set" ]] \
         || fail "networkauth: permission-denied helper did not fail closed and retain fields"
@@ -7186,12 +7186,12 @@ EOS
         || fail "networkauth: permission-denied helper wrote helper output"
 
     # A helper that never exits must be stopped by the product deadline, not by this driver's wait.
-    cat > "$dir/bin/flea-gio-auth" <<'EOS'
+    cat > "$dir/bin/dlea-gio-auth" <<'EOS'
 #!/bin/sh
 IFS= read -r _password || exit 3
 sleep 120
 EOS
-    chmod +x "$dir/bin/flea-gio-auth"
+    chmod +x "$dir/bin/dlea-gio-auth"
     key -k Escape >/dev/null
     key -k Return >/dev/null
     wait_network_result mounting 5
@@ -7203,8 +7203,8 @@ EOS
 
     # After another restart the same saved row has no map entry. Submitting its populated form with
     # an empty password keeps it open and does not launch any helper.
-    cp "$dir/bin/flea-gio-auth.real" "$dir/bin/flea-gio-auth"
-    chmod +x "$dir/bin/flea-gio-auth"
+    cp "$dir/bin/dlea-gio-auth.real" "$dir/bin/dlea-gio-auth"
+    chmod +x "$dir/bin/dlea-gio-auth"
     key -k Escape >/dev/null
     export HOME="$fixture_home"
     launch "$dir"
@@ -7228,7 +7228,7 @@ EOS
     for _field in Port Share Domain Username Password; do key -k Tab >/dev/null; done
     [[ "$(ipc networkFocus)" == "Password" ]] \
         || fail "networkauth: corrected-retry setup did not reach Password"
-    printf '%s' "$runtime_canary" | omarchy-drive key --window com.thisisgm.flea - >/dev/null
+    printf '%s' "$runtime_canary" | omarchy-drive key --window com.nosDshell.dlea - >/dev/null
     key -k Return >/dev/null
     wait_network_result mounted
     [[ "$(cat "$state/info-uri")" == "smb://tester@slot.test/data" ]] \
@@ -7253,7 +7253,7 @@ EOS
     key -k Tab >/dev/null
     key "tester" >/dev/null
     key -k Tab >/dev/null
-    printf '%s' "$runtime_canary" | omarchy-drive key --window com.thisisgm.flea - >/dev/null
+    printf '%s' "$runtime_canary" | omarchy-drive key --window com.nosDshell.dlea - >/dev/null
     : > "$state/fail"
     key -k Return >/dev/null
     wait_network_result failed
@@ -7309,9 +7309,9 @@ EOS
         || fail "networkauth: corrected Retry retained stale error text"
 
     printf 'NETWORKAUTH artifact=ok stdin=one persistence=none retry=corrected refused=named eye=held missing-session=no-launch\n'
-    unset FLEA_GIO_AUTH
+    unset DLEA_GIO_AUTH
     export PATH="$saved_path"
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
 }
 
@@ -7340,7 +7340,7 @@ esac
 EOS
     chmod +x "$dir/bin/gio"
     # The credentialed leg exits with the status file's code, so one stub drives both connect failure sentences.
-    cat > "$dir/bin/flea-gio-auth" <<EOS
+    cat > "$dir/bin/dlea-gio-auth" <<EOS
 #!/bin/sh
 [ "\$#" -eq 1 ] || exit 2
 IFS= read -r secret || exit 3
@@ -7349,7 +7349,7 @@ printf 'uri=%s stdin-lines=1\n' "\$1" >> "$dir/auth-calls"
 code=\$(cat "$dir/auth-status")
 exit "\$code"
 EOS
-    chmod +x "$dir/bin/flea-gio-auth"
+    chmod +x "$dir/bin/dlea-gio-auth"
     : > "$dir/auth-calls"
     printf '124\n' > "$dir/auth-status"
 
@@ -7359,7 +7359,7 @@ EOS
     local saved_path="$PATH"
     export PATH="$dir/bin:$PATH"
     export HOME="$fixture_home"
-    export FLEA_GIO_AUTH="$dir/bin/flea-gio-auth"
+    export DLEA_GIO_AUTH="$dir/bin/dlea-gio-auth"
     launch "$dir"
     export HOME="$real_home"
 
@@ -7399,7 +7399,7 @@ EOS
     settle
     [[ "$(ipc networkFocus)" == "Password" ]] \
         || fail "networktimeout: Password did not follow Username, focus is $(ipc networkFocus)"
-    printf '%s' "fixture-password" | omarchy-drive key --window com.thisisgm.flea - >/dev/null
+    printf '%s' "fixture-password" | omarchy-drive key --window com.nosDshell.dlea - >/dev/null
     [[ "$(ipc networkPasswordState)" == "masked|set" ]] \
         || fail "networktimeout: typed password is not masked"
     key -k Return >/dev/null
@@ -7421,23 +7421,23 @@ EOS
     settle
     [[ "$(ipc dialogOpen)" == "false" ]] || fail "networktimeout: Escape did not close the failed dialog"
     printf 'NETWORKTIMEOUT connect-failure=124-then-open\n'
-    unset FLEA_GIO_AUTH
+    unset DLEA_GIO_AUTH
     export PATH="$saved_path"
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
 }
 
 case_networklive() {
-    local uri=${FLEA_NETWORK_LIVE_URI:-}
-    local mount_uri=${FLEA_NETWORK_LIVE_MOUNT_URI:-$uri}
-    local product_root=${FLEA_NETWORK_LIVE_ROOT:-}
-    local relative=${FLEA_NETWORK_LIVE_RELATIVE:-}
-    local mount_relative=${FLEA_NETWORK_LIVE_MOUNT_RELATIVE:-}
-    local protocol=${FLEA_NETWORK_LIVE_PROTOCOL:-}
-    local host=${FLEA_NETWORK_LIVE_HOST:-}
-    local remote_path=${FLEA_NETWORK_LIVE_PATH:-}
-    local remote_user=${FLEA_NETWORK_LIVE_USER:-}
-    local auth=${FLEA_NETWORK_LIVE_AUTH:-none}
+    local uri=${DLEA_NETWORK_LIVE_URI:-}
+    local mount_uri=${DLEA_NETWORK_LIVE_MOUNT_URI:-$uri}
+    local product_root=${DLEA_NETWORK_LIVE_ROOT:-}
+    local relative=${DLEA_NETWORK_LIVE_RELATIVE:-}
+    local mount_relative=${DLEA_NETWORK_LIVE_MOUNT_RELATIVE:-}
+    local protocol=${DLEA_NETWORK_LIVE_PROTOCOL:-}
+    local host=${DLEA_NETWORK_LIVE_HOST:-}
+    local remote_path=${DLEA_NETWORK_LIVE_PATH:-}
+    local remote_user=${DLEA_NETWORK_LIVE_USER:-}
+    local auth=${DLEA_NETWORK_LIVE_AUTH:-none}
     local mount_root
     [[ "$uri" == *://* && "$mount_uri" == *://* \
         && "$product_root" == "/run/user/$(id -u)/gvfs/"* ]] \
@@ -7480,7 +7480,7 @@ case_networklive() {
             || fail "networklive: password field did not receive focus"
         [[ "$(ipc networkPasswordState)" == "masked|empty" ]] \
             || fail "networklive: password was populated before stdin delivery"
-        omarchy-drive key --window com.thisisgm.flea - >/dev/null
+        omarchy-drive key --window com.nosDshell.dlea - >/dev/null
         [[ "$(ipc networkPasswordState)" == "masked|set" ]] \
             || fail "networklive: password stdin was empty"
         key -k Return >/dev/null
@@ -7564,17 +7564,17 @@ case_networklive() {
     ! gio mount -l 2>/dev/null | grep -Fq -- "-> $mount_uri" || fail "networklive: GIO mount survived"
 
     printf 'NETWORKLIVE protocol=%s cold-mount=ok rail=ok browse=ok preview=ok unmount=ok saved=false\n' "$protocol"
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
 }
 
 case_gvfs_cleanup() {
-    ( kill_flea ) >/dev/null 2>&1 || true
-    if [[ -n "${FLEA_GVFS_CASE_DIR:-}" ]]; then
-        DIR="$FLEA_GVFS_CASE_DIR" ./tools/flea-gvfs-fixture clean >/dev/null 2>&1 || true
+    ( kill_dlea ) >/dev/null 2>&1 || true
+    if [[ -n "${DLEA_GVFS_CASE_DIR:-}" ]]; then
+        DIR="$DLEA_GVFS_CASE_DIR" ./tools/dlea-gvfs-fixture clean >/dev/null 2>&1 || true
     fi
-    if [[ -n "${FLEA_GVFS_CASE_HOME:-}" ]]; then
-        sandbox_remove "$FLEA_GVFS_CASE_HOME"
+    if [[ -n "${DLEA_GVFS_CASE_HOME:-}" ]]; then
+        sandbox_remove "$DLEA_GVFS_CASE_HOME"
     fi
 }
 
@@ -7586,14 +7586,14 @@ case_gvfs() {
     local share_dir="$fixture_root/gvfs-share"
     local fixture_home="$fixture_root/gvfs-home"
     fixture_home_make "$fixture_home"
-    FLEA_GVFS_CASE_DIR="$share_dir"
-    FLEA_GVFS_CASE_HOME="$fixture_home"
+    DLEA_GVFS_CASE_DIR="$share_dir"
+    DLEA_GVFS_CASE_HOME="$fixture_home"
     trap case_gvfs_cleanup EXIT HUP INT TERM
     local real_home="$HOME"
     local uri local_path
 
-    uri=$(DIR="$share_dir" ./tools/flea-gvfs-fixture make)
-    DIR="$share_dir" ./tools/flea-gvfs-fixture mount
+    uri=$(DIR="$share_dir" ./tools/dlea-gvfs-fixture make)
+    DIR="$share_dir" ./tools/dlea-gvfs-fixture mount
     local_path=$(gio info "$uri" | sed -n 's/^local path: //p')
     [[ "$local_path" == "/run/user/$(id -u)/gvfs/"* ]] \
         || fail "gvfs: fixture has no FUSE path, got $local_path"
@@ -7621,7 +7621,7 @@ case_gvfs() {
     wait_path "$local_path"
     wait_listing 2
     [[ "$(ipc rowAt 0)" == "alpha.txt|"* || "$(ipc rowAt 1)" == "alpha.txt|"* ]] \
-        || fail "gvfs: alpha.txt absent from Flea listing"
+        || fail "gvfs: alpha.txt absent from Dlea listing"
 
     key -k Escape >/dev/null
     open_row alpha.txt
@@ -7646,7 +7646,7 @@ case_gvfs() {
     done
     [[ "$(ipc networkEntries)" != *"share.zip"* ]] \
         || fail "gvfs: the row survived unmount, the rail carries $(ipc networkEntries)"
-    ! gio mount -l | grep -Fq -- "-> ${uri%/}" || fail "gvfs: GIO mount survived Flea unmount"
+    ! gio mount -l | grep -Fq -- "-> ${uri%/}" || fail "gvfs: GIO mount survived Dlea unmount"
 
     printf 'GVFS rail=ok browse=ok preview=ok unmount=ok\n'
     case_gvfs_cleanup
@@ -7873,7 +7873,7 @@ EOS
         || fail "sharebrowser: a mount that genuinely failed navigated to $(ipc path)"
 
     printf 'SHAREBROWSER list=ok escape=ok mount-open=ok already-mounted-quirk=ok mount-failure=ok\n'
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"; sandbox_remove "$share1_dir"; sandbox_remove "$share2_dir"
 }
 
@@ -7990,7 +7990,7 @@ EOS
     # against a product that never ended the listing at all. A bare server root ends in gio list,
     # which hangs here exactly as gio info did, and nothing else in the chain is left to end it.
     # The stub and the fixture home are exported around this launch exactly as they were around the
-    # first: a relaunch that inherits the restored HOME starts Flea on the operator's own rail.
+    # first: a relaunch that inherits the restored HOME starts Dlea on the operator's own rail.
     export PATH="$dir/bin:$PATH"
     export HOME="$fixture_home"
     launch "$dir"
@@ -8021,7 +8021,7 @@ EOS
     [[ "$(ipc path)" == "$dir" ]] || fail "hangshare: the timed-out listing navigated to $(ipc path)"
 
     printf 'HANGSHARE busy-refusal=ok deadline=ok next-share-opens=ok list-deadline=ok\n'
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"; sandbox_remove "$good_dir"
 }
 
@@ -8030,14 +8030,14 @@ hanglisting_write_proxy() {
     local dest="$1"
     cat > "$dest" <<'EOS'
 #!/usr/bin/env python3
-# Forwards a backend session to the real binary, holding the first list (or the first list of FLEA_HANGLISTING_PATH) past the deadline.
+# Forwards a backend session to the real binary, holding the first list (or the first list of DLEA_HANGLISTING_PATH) past the deadline.
 import json, os, subprocess, sys, threading
-real = os.environ["FLEA_HANGLISTING_REAL"]
+real = os.environ["DLEA_HANGLISTING_REAL"]
 if sys.argv[1:] != ["--backend"]:
     os.execv(real, [real] + sys.argv[1:])
-delay = float(os.environ.get("FLEA_HANGLISTING_DELAY", "15"))
-marker = os.environ.get("FLEA_HANGLISTING_MARKER", "")
-want = os.environ.get("FLEA_HANGLISTING_PATH", "")
+delay = float(os.environ.get("DLEA_HANGLISTING_DELAY", "15"))
+marker = os.environ.get("DLEA_HANGLISTING_MARKER", "")
+want = os.environ.get("DLEA_HANGLISTING_PATH", "")
 child = subprocess.Popen([real, "--backend"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=sys.stderr, text=True, bufsize=1)
 def pump():
     for line in child.stdout:
@@ -8075,7 +8075,7 @@ def replaces_held(line):
         if same:
             held.clear()
     return same
-# Names the list to hold, or None: the first list, or the first one for FLEA_HANGLISTING_PATH when it is set.
+# Names the list to hold, or None: the first list, or the first one for DLEA_HANGLISTING_PATH when it is set.
 def held_name(line):
     if '"c":"list"' not in line:
         return None
@@ -8130,7 +8130,7 @@ case_hanginspect() {
         favs="$favs$(printf '{"label":"F%02d","path":"%s/f%02d"},' "$n" "$dir" "$n")"
         answers="$answers$(printf '{"index":%d,"record":{"label":"F%02d","path":"%s/f%02d"},"error":""},' "$n" "$n" "$dir" "$n")"
     done
-    cat > "$dir/bin-flea" <<EOS
+    cat > "$dir/bin-dlea" <<EOS
 #!/bin/sh
 # The first inspect hangs past the guard; every later one answers every seeded favourite at once.
 if [ "\$1" = --favourites ] && [ "\${2#*inspect}" != "\$2" ]; then
@@ -8139,15 +8139,15 @@ if [ "\$1" = --favourites ] && [ "\${2#*inspect}" != "\$2" ]; then
     printf '{"statuses":[${answers%,}]}'
     exit 0
 fi
-exec "$flea_bin" "\$@"
+exec "$dlea_bin" "\$@"
 EOS
-    chmod +x "$dir/bin-flea"
-    local real_bin="$flea_bin" real_state="${XDG_STATE_HOME-}"
+    chmod +x "$dir/bin-dlea"
+    local real_bin="$dlea_bin" real_state="${XDG_STATE_HOME-}"
     # The state sits beside the listing so the guard sees a marked parent.
     seed_ui_state "$fixture_root/hanginspect-state" "{\"places\":{\"favourites\":[${favs%,}]}}"
-    flea_bin="$dir/bin-flea"
+    dlea_bin="$dir/bin-dlea"
     launch "$dir"
-    # bin-flea is the stub entry beside the one file under test.
+    # bin-dlea is the stub entry beside the one file under test.
     wait_listing 2
     wait_rail 40
     # Warp onto a rail row, then one uinput pixel so Qt sees the pointer rest there, as case_scroll does.
@@ -8178,11 +8178,11 @@ EOS
     done
     [[ "$calls" -ge 2 ]] \
         || fail "hanginspect: no second inspect after the deadline, calls is $calls"
-    flea_bin="$real_bin"
+    dlea_bin="$real_bin"
     if [[ -n "$real_state" ]]; then export XDG_STATE_HOME="$real_state"; else unset XDG_STATE_HOME; fi
 
     printf 'HANGINSPECT guard-clears=ok later-inspect-runs=ok\n'
-    kill_flea
+    kill_dlea
 }
 
 # The rail's own context menu, which is the whole affordance: a release nobody can see is a release
@@ -8315,7 +8315,7 @@ EOS
         || fail "unmount: Remove took a live mount off the rail, got $(ipc networkEntries)"
 
     printf 'UNMOUNT menu=ok escape=ok fire=ok no-menu-on-favourite=ok keyboard=ok unsaved=ok\n'
-    kill_flea
+    kill_dlea
 
     # The next two need a saved place, so the file goes in before the launch that reads it: one line
     # for the share the stub reports live, one for a place nothing mounts.
@@ -8394,7 +8394,7 @@ EOS
         || fail "unmount: the refused press rewrote the file, mtime moved from $before_press4"
 
     printf 'UNMOUNT remove saved-mounted=ok saved-only=ok pressed-again=ok\n'
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
 }
 
@@ -8498,7 +8498,7 @@ case_phones() {
     local dir="$fixture_root/phones" state="$fixture_root/phones-state"
     sandbox_scratch "$dir"
     sandbox_scratch "$state"
-    mkdir -p "$state/flea"
+    mkdir -p "$state/dlea"
     phones_gio_stub "$dir"
     local fuse="$phones_fuse" mtp_uri="$phones_mtp_uri" afc_fuse="$phones_afc_fuse" unmount_log="$phones_unmount_log"
 
@@ -8506,7 +8506,7 @@ case_phones() {
     fixture_home_make "$fixture_home"
     # Drive size on is what makes a phone row's detail reachable: a device row draws one when its
     # size is not null, and a row carrying no size at all wrote a type error into this run's log.
-    printf '{"view":"list","places":{"driveSize":true,"trashCount":true}}\n' > "$state/flea/ui.json"
+    printf '{"view":"list","places":{"driveSize":true,"trashCount":true}}\n' > "$state/dlea/ui.json"
     local real_home="$HOME" saved_path="$PATH" old_state="${XDG_STATE_HOME:-}"
     export PATH="$dir/bin:$PATH"
     export XDG_STATE_HOME="$state"
@@ -8709,7 +8709,7 @@ case_phones() {
     printf 'PHONES rows=ok marks=ok mount=ok trash-guard=ok unmount=ok iphone=ok\n'
     export PATH="$saved_path"
     if [[ -n "$old_state" ]]; then export XDG_STATE_HOME="$old_state"; else unset XDG_STATE_HOME; fi
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
 }
 
@@ -8720,7 +8720,7 @@ case_phones() {
 case_eject() {
     local dir="$fixture_root/eject"
     sandbox_scratch "$dir"
-    mkdir -p "$dir/bin" "$dir/mnt/FLEASTICK"
+    mkdir -p "$dir/bin" "$dir/mnt/DLEASTICK"
     : > "$dir/0-one.txt"
     : > "$dir/0-two.txt"
 
@@ -8734,14 +8734,14 @@ case_eject() {
 if [ -f "$dir/ejected" ]; then
   mp=null
 else
-  mp='"$dir/mnt/FLEASTICK"'
+  mp='"$dir/mnt/DLEASTICK"'
 fi
 cat <<JSON
 {"blockdevices":[
 {"name":"nvme0n1","path":"/dev/nvme0n1","label":null,"mountpoints":[null],"rm":false,"size":"238.5G","type":"disk","model":"KBG40ZNS256G",
 "children":[{"name":"nvme0n1p1","path":"/dev/nvme0n1p1","label":null,"mountpoints":["/"],"rm":false,"size":"238.5G","type":"part","model":null}]},
 {"name":"sda","path":"/dev/sda","label":null,"mountpoints":[null],"rm":true,"size":"116.1G","type":"disk","model":"USB Flash Disk",
-"children":[{"name":"sda1","path":"/dev/sda1","label":"FLEASTICK","mountpoints":[\$mp],"rm":true,"size":"116.1G","type":"part","model":null,"fstype":"vfat"}]}]}
+"children":[{"name":"sda1","path":"/dev/sda1","label":"DLEASTICK","mountpoints":[\$mp],"rm":true,"size":"116.1G","type":"part","model":null,"fstype":"vfat"}]}]}
 JSON
 EOS
     chmod +x "$dir/bin/lsblk"
@@ -8771,10 +8771,10 @@ EOS
     # bin/, mnt/ and gio.log are the stubs' own fixture entries beside the two files under test.
     wait_listing 5
     for _attempt in $(seq 1 100); do
-        [[ "$(ipc deviceEntries)" == *"FLEASTICK|device|volume|true" ]] && break
+        [[ "$(ipc deviceEntries)" == *"DLEASTICK|device|volume|true" ]] && break
         sleep 0.05
     done
-    [[ "$(ipc deviceEntries)" == *"FLEASTICK|device|volume|true" ]] \
+    [[ "$(ipc deviceEntries)" == *"DLEASTICK|device|volume|true" ]] \
         || fail "eject: the stub volume never appeared live, got $(ipc deviceEntries)"
     # The hostname prefix makes the disk row's label the box's own, so the shape is asserted, not the text.
     [[ "$(ipc deviceEntries | grep -c '|device|disk|true')" == "1" ]] \
@@ -8815,9 +8815,9 @@ EOS
     # mounted, so the sentence must refuse. A verdict read off the exit code would say safe here.
     key -k Return >/dev/null
     settle
-    grep -q "^mount -e $dir/mnt/FLEASTICK\$" "$gio_log" \
+    grep -q "^mount -e $dir/mnt/DLEASTICK\$" "$gio_log" \
         || fail "eject: the menu row did not run gio mount -e on the mount point, log is: $(cat "$gio_log")"
-    local refusal="FLEASTICK is still mounted; close what is using it."
+    local refusal="DLEASTICK is still mounted; close what is using it."
     local seen=""
     for _attempt in $(seq 1 250); do
         seen=$(ipc lastMessage)
@@ -8839,7 +8839,7 @@ EOS
     settle
     menu_seek Eject
     key -k Return >/dev/null
-    wait_message "Ejected FLEASTICK. It is safe to unplug."
+    wait_message "Ejected DLEASTICK. It is safe to unplug."
     printf 'EJECT really entries=%q\n' "$(ipc deviceEntries)"
     shot eject-safe
 
@@ -8866,7 +8866,7 @@ EOS
         || fail "eject: expected exactly two ejects, log is: $(cat "$gio_log")"
 
     printf 'EJECT menu=ok internal-disk-offers-nothing=ok exit-code-is-not-the-verdict=ok listing-is=ok no-force=ok\n'
-    kill_flea
+    kill_dlea
     if [[ -n "$real_state" ]]; then export XDG_STATE_HOME="$real_state"; else unset XDG_STATE_HOME; fi
     sandbox_remove "$fixture_home"
 }
@@ -8908,8 +8908,8 @@ fsdevice_switch_off() {
 }
 
 # The native filesystem round (ROOTCAUSE.md section 5, piece 3), driven on minipc against the real
-# stick the maintainer prepared from tests/fs-stick-images.sh. Given FLEA_FS_LAYOUT (one of vfat,
-# exfat, ntfs3, espdata, espmsrswap, isohybrid) and FLEA_FS_EXPECTED (that layout's expected-rows
+# stick the maintainer prepared from tests/fs-stick-images.sh. Given DLEA_FS_LAYOUT (one of vfat,
+# exfat, ntfs3, espdata, espmsrswap, isohybrid) and DLEA_FS_EXPECTED (that layout's expected-rows
 # JSON array), it checks rail rows with the switch off and on, mount on activation, open and list
 # against ls, one copy in, trash and restore, thumbnails, an outside change, eject and the 15 s
 # stay-gone check. It never formats anything: writing the image to the stick is the maintainer's
@@ -8917,14 +8917,14 @@ fsdevice_switch_off() {
 # case's own fixture dir. Reads go through the existing Ipc readers and real ls and gio; every
 # action is a key or a click.
 case_fsdevice() {
-    local layout="${FLEA_FS_LAYOUT:-}" expected_json="${FLEA_FS_EXPECTED:-}" trash_checks=0
+    local layout="${DLEA_FS_LAYOUT:-}" expected_json="${DLEA_FS_EXPECTED:-}" trash_checks=0
     case "$layout" in vfat|exfat|ntfs3|espdata|espmsrswap|isohybrid) ;;
-        *) fail "fsdevice: set FLEA_FS_LAYOUT to a stick layout, got '$layout'" ;;
+        *) fail "fsdevice: set DLEA_FS_LAYOUT to a stick layout, got '$layout'" ;;
     esac
-    [[ -n "$expected_json" ]] || fail "fsdevice: set FLEA_FS_EXPECTED to the layout's expected-rows JSON array"
+    [[ -n "$expected_json" ]] || fail "fsdevice: set DLEA_FS_EXPECTED to the layout's expected-rows JSON array"
     local expected
-    expected=$(jq -r '.[]' <<< "$expected_json" 2>/dev/null) || fail "fsdevice: FLEA_FS_EXPECTED is not a JSON array"
-    [[ -n "$expected" ]] || fail "fsdevice: FLEA_FS_EXPECTED names no rows"
+    expected=$(jq -r '.[]' <<< "$expected_json" 2>/dev/null) || fail "fsdevice: DLEA_FS_EXPECTED is not a JSON array"
+    [[ -n "$expected" ]] || fail "fsdevice: DLEA_FS_EXPECTED names no rows"
     local want1
     want1=$(head -1 <<< "$expected")
 
@@ -8935,9 +8935,9 @@ case_fsdevice() {
     fixture_home_make "$fixture_home"
     local real_home="$HOME" real_state="${XDG_STATE_HOME-}"
 
-    # Sample deviceEntries line: FLEA-VFAT|device|volume|false
+    # Sample deviceEntries line: DLEA-VFAT|device|volume|false
     fs_rail_labels() { ipc deviceEntries | awk -F'|' '$2 == "device" { print $1 }'; }
-    # Sample railEntries device object: {"group":"device","label":"FLEA-VFAT","device":"/dev/sda1","path":"/run/media/gm/x","mounted":true}
+    # Sample railEntries device object: {"group":"device","label":"DLEA-VFAT","device":"/dev/sda1","path":"/run/media/gm/x","mounted":true}
     fs_row_device() { ipc railEntries | jq -r --arg l "$1" '.[] | select(.group == "device" and .label == $l) | .device'; }
     fs_row_path() { ipc railEntries | jq -r --arg l "$1" '.[] | select(.group == "device" and .label == $l) | .path'; }
     fs_row_mounted() { ipc railEntries | jq -r --arg l "$1" '.[] | select(.group == "device" and .label == $l) | .mounted'; }
@@ -8974,7 +8974,7 @@ case_fsdevice() {
         [[ "$(fs_row_mounted "$label")" != "true" ]] || fail "fsdevice: $label is still mounted after the unmount"
     done
     fsdevice_switch_off "$layout" "$expected"
-    kill_flea
+    kill_dlea
 
     # Switch on: expected rows only, same-disk scope keeps the host ESP and swap out.
     seed_ui_state "$fixture_root/fsdevice-state-on" '{"hidden":true,"places":{"showUnmounted":true}}'
@@ -9137,7 +9137,7 @@ case_fsdevice() {
     sleep 15
     fs_rail_labels | grep -Fxq "$want1" && fail "fsdevice: $want1 came back inside 15 s, something remounted it"
     printf 'FSDEVICE %s eject stay-gone=ok\n' "$layout"
-    kill_flea
+    kill_dlea
     if [[ -n "$real_state" ]]; then export XDG_STATE_HOME="$real_state"; else unset XDG_STATE_HOME; fi
     sandbox_remove "$fixture_home"
 }
@@ -9160,7 +9160,7 @@ case_poweroff() {
     local dir="$fixture_root/poweroff"
     sandbox_scratch "$dir"
     # The fixture disk name must not exist on the host, or the eject chain watches a real disk.
-    [[ ! -e /sys/block/sdflea ]] || fail "poweroff: fixture disk sdflea exists on this host"
+    [[ ! -e /sys/block/sddlea ]] || fail "poweroff: fixture disk sddlea exists on this host"
     mkdir -p "$dir/bin" "$dir/mnt/DATA1" "$dir/mnt/DATA2"
     : > "$dir/0-one.txt"
 
@@ -9170,17 +9170,17 @@ case_poweroff() {
 #!/bin/sh
 mp1="$dir/mnt/DATA1"
 mp2="$dir/mnt/DATA2"
-[ -f "$dir/un-sdflea1" ] && mp1=""
-[ -f "$dir/un-sdflea2" ] && mp2=""
+[ -f "$dir/un-sddlea1" ] && mp1=""
+[ -f "$dir/un-sddlea2" ] && mp2=""
 if [ -n "\$mp1" ]; then j1="\"\$mp1\""; else j1=null; fi
 if [ -n "\$mp2" ]; then j2="\"\$mp2\""; else j2=null; fi
 cat <<JSON
 {"blockdevices":[
 {"name":"nvme0n1","path":"/dev/nvme0n1","label":null,"mountpoints":[null],"rm":false,"size":"238.5G","type":"disk","model":"KBG40ZNS256G",
 "children":[{"name":"nvme0n1p1","path":"/dev/nvme0n1p1","label":null,"mountpoints":["/"],"rm":false,"size":"238.5G","type":"part","model":null}]},
-{"name":"sdflea","path":"/dev/sdflea","label":null,"mountpoints":[null],"rm":false,"tran":"usb","size":"1000.2G","type":"disk","model":"USB HDD",
-"children":[{"name":"sdflea1","path":"/dev/sdflea1","label":"DATA1","mountpoints":[\$j1],"rm":false,"size":"500.1G","type":"part","model":null,"fstype":"ext4"},
-{"name":"sdflea2","path":"/dev/sdflea2","label":"DATA2","mountpoints":[\$j2],"rm":false,"size":"500.1G","type":"part","model":null,"fstype":"ext4"}]}]}
+{"name":"sddlea","path":"/dev/sddlea","label":null,"mountpoints":[null],"rm":false,"tran":"usb","size":"1000.2G","type":"disk","model":"USB HDD",
+"children":[{"name":"sddlea1","path":"/dev/sddlea1","label":"DATA1","mountpoints":[\$j1],"rm":false,"size":"500.1G","type":"part","model":null,"fstype":"ext4"},
+{"name":"sddlea2","path":"/dev/sddlea2","label":"DATA2","mountpoints":[\$j2],"rm":false,"size":"500.1G","type":"part","model":null,"fstype":"ext4"}]}]}
 JSON
 EOS
     chmod +x "$dir/bin/lsblk"
@@ -9193,14 +9193,14 @@ case "\$1 \$2" in
   if [ -f "$dir/hang-unmount" ] && [ "\$3" = "$dir/mnt/DATA1" ]; then sleep 30; fi
   if [ -f "$dir/slowlegs" ]; then sleep 8; fi
   case "\$3" in
-  "$dir/mnt/DATA1") : > "$dir/un-sdflea1" ;;
-  "$dir/mnt/DATA2") : > "$dir/un-sdflea2" ;;
+  "$dir/mnt/DATA1") : > "$dir/un-sddlea1" ;;
+  "$dir/mnt/DATA2") : > "$dir/un-sddlea2" ;;
   esac
   exit 0 ;;
 "mount -d")
   case "\$3" in
-  /dev/sdflea1) rm -f "$dir/un-sdflea1" ;;
-  /dev/sdflea2) rm -f "$dir/un-sdflea2" ;;
+  /dev/sddlea1) rm -f "$dir/un-sddlea1" ;;
+  /dev/sddlea2) rm -f "$dir/un-sddlea2" ;;
   esac
   exit 0 ;;
 *) exit 0 ;;
@@ -9291,7 +9291,7 @@ EOS
     fi
 
     printf 'POWEROFF deadline=ok still-ejecting-refused=ok slow-legs-safe=ok later-mount=ok later-unmount=ok no-force=ok\n'
-    kill_flea
+    kill_dlea
     if [[ -n "$real_state" ]]; then export XDG_STATE_HOME="$real_state"; else unset XDG_STATE_HOME; fi
     sandbox_remove "$fixture_home"
 }
@@ -9437,7 +9437,7 @@ EOS
     printf 'Mount(0): isos on 192.168.1.10 -> smb://192.168.1.10/isos/\n' > "$dir/bin/gio-out"
     printf 'RENAME poll-survives=ok swap-closes=ok\n'
 
-    kill_flea
+    kill_dlea
 
     # Persistence across a real relaunch: the whole point of writing to the bookmarks file at all.
     export HOME="$fixture_home"
@@ -9455,7 +9455,7 @@ EOS
         || fail "rename: the label did not survive a relaunch, got $(ipc networkEntries)"
 
     printf 'RENAME relabel=ok escape=ok empty=ok create-bookmark=ok persists=ok\n'
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
 }
 
@@ -9479,8 +9479,8 @@ case_taildrop() (
 #!/usr/bin/env bash
 set -eu
 [[ "${1:-}" == open ]] || exec /usr/bin/gio "$@"
-box=${FLEA_PROVIDERS_BOX:?}
-[[ "$box" == /* && -f "$box/.flea-test-sandbox" ]] || exit 90
+box=${DLEA_PROVIDERS_BOX:?}
+[[ "$box" == /* && -f "$box/.dlea-test-sandbox" ]] || exit 90
 log=$(realpath -m -- "$box/calls.jsonl")
 [[ "$log" == "$box/"* && "$log" != "$box" ]] || exit 91
 jq -cn --arg helper gio --args '{helper:$helper,args:$ARGS.positional}' -- "$@" >> "$log"
@@ -9490,8 +9490,8 @@ EOS
     providers_install omarchy-tailscale-send yes
     export HOME="$menu_box/home" XDG_STATE_HOME="$menu_box/state" XDG_CONFIG_HOME="$menu_box/config"
     export XDG_CACHE_HOME="$menu_box/cache" XDG_DATA_HOME="$menu_box/data"
-    export PATH="$menu_box/open-bin:$menu_box/bin" FLEA_PROVIDERS_BOX="$menu_box"
-    "$flea_bin" --ui-state '{"view":"list","keys":"default","menu":{"hidden":[]}}' >/dev/null \
+    export PATH="$menu_box/open-bin:$menu_box/bin" DLEA_PROVIDERS_BOX="$menu_box"
+    "$dlea_bin" --ui-state '{"view":"list","keys":"default","menu":{"hidden":[]}}' >/dev/null \
         || fail 'taildrop: private settings seed failed'
     launch "$menu_dir"
     wait_listing 3
@@ -9541,7 +9541,7 @@ EOS
 # The settings panel: its doors, its seven sections, and the one thing a settings window
 # has to do that a menu does not, which is outlive the process that wrote it. XDG_STATE_HOME and
 # XDG_CONFIG_HOME both point inside the fixture root for the whole case, so nothing here can write
-# the operator's own ~/.local/state/flea/ui.json; hard rule 9 covers writes and not only deletes.
+# the operator's own ~/.local/state/dlea/ui.json; hard rule 9 covers writes and not only deletes.
 case_places() {
     local dir="$fixture_root/places"
     local config="$fixture_root/places-config"
@@ -9552,7 +9552,7 @@ case_places() {
     : > "$dir/a.txt"
     mkdir -p "$dir/sub" || fail "places: the second favourite's folder could not be made"
     export XDG_CONFIG_HOME="$config" XDG_STATE_HOME="$state"
-    settings_seed "$state" "$config" "$state/flea/ui.json"
+    settings_seed "$state" "$config" "$state/dlea/ui.json"
     launch "$dir"
     wait_listing 2
     settings_places "$dir" places-favourites
@@ -9583,14 +9583,14 @@ case_places() {
     key -k Escape >/dev/null; settle
     key h >/dev/null
     wait_path "$dir"
-    kill_flea
+    kill_dlea
 }
 
 case_dual() {
     local dir="$fixture_root/dual" state="$fixture_root/dual-state" before status_disk_x
     sandbox_scratch "$dir"
     sandbox_scratch "$state"
-    mkdir -p "$dir/left/nested" "$dir/right" "$state/flea"
+    mkdir -p "$dir/left/nested" "$dir/right" "$state/dlea"
     printf 'left\n' > "$dir/left/a.txt"
     printf 'left\n' > "$dir/left/b.txt"
     printf 'nested\n' > "$dir/left/nested/one.txt"
@@ -9598,7 +9598,7 @@ case_dual() {
     printf 'right\n' > "$dir/right/d.txt"
     export XDG_STATE_HOME="$state"
     jq -n --arg left "$dir/left" --arg right "$dir/right" \
-        '{view:"list",keys:"default",dual:{paths:[$left,$right],focus:0}}' > "$state/flea/ui.json"
+        '{view:"list",keys:"default",dual:{paths:[$left,$right],focus:0}}' > "$state/dlea/ui.json"
     launch "$dir/left"
     wait_listing 3
     # The baseline the disk facts hold to for the rest of this case, taken before any transient exists.
@@ -9650,7 +9650,7 @@ case_dual() {
         || fail "dual: independent watch refresh did not preserve right cursor"
     shot dual-right-focused
     before=$(ipc dualState)
-    kill_flea
+    kill_dlea
     # A named folder goes to the focused side since 0.3.3 (case_duallaunch); the restored pair is what dualState proves below.
     launch "$dir/right"
     wait_listing 2
@@ -9745,7 +9745,7 @@ case_dual() {
     click_chrome list
     settle
     ipc dualState | jq -e '(.active | not) and .focused == 0' >/dev/null || fail "dual: leaving dual did not restore primary focus"
-    kill_flea
+    kill_dlea
     printf 'DUAL navigation=ok focus=ok watch=ok restart=ok crumb=ok before=%s\n' "$before"
 }
 
@@ -9813,7 +9813,7 @@ case_foldersort() {
     m=$(foldersort_settled_mark); printf 'FOLDERSORT b-restart %s (want %s)\n' "$m" "$by_name"; [[ "$m" == "$by_name" ]] || bad=$((bad + 1))
     launch "$root/a"; wait_listing 3
     m=$(foldersort_settled_mark); printf 'FOLDERSORT a-restart %s (want %s)\n' "$m" "$by_size"; [[ "$m" == "$by_size" ]] || bad=$((bad + 1))
-    kill_flea
+    kill_dlea
     [[ $bad == 0 ]] || fail "foldersort: $bad of 4 remembered-sort expectations broke"
     printf 'FOLDERSORT ok\n'
 }
@@ -9871,7 +9871,7 @@ case_dualfoldersort() {
     key -M shift -k Tab -m shift >/dev/null
     dualfoldersort_check 'left b after restart' "$by_date_desc"
     shot dualfoldersort-restart
-    kill_flea
+    kill_dlea
     [[ $dualfoldersort_bad == 0 ]] || fail "dualfoldersort: $dualfoldersort_bad of 10 remembered-sort expectations broke"
     printf 'DUALFOLDERSORT ok\n'
 }
@@ -9997,13 +9997,13 @@ case_dualsort() {
         # A Settings relist keeps the cursor file by name and scrolls to it, so the focused pane holds only rows around that file's new index.
         dual_sort_wait kind:asc "$kept_name" "$kept_at"
     done
-    kill_flea
+    kill_dlea
     launch "$dir/left"
     menus_expect dualState '.active and .focused == 1 and all(.panes[]; .total == 80 and (.loading | not))' 'restart restores paths and focus with the saved default sort'
     dual_sort_wait kind:asc file-00.txt
     key -M shift -k Tab -m shift >/dev/null
     dual_sort_wait kind:asc file-00.txt
-    kill_flea
+    kill_dlea
     printf 'DUAL_SORT native-key=independent header-pointer=independent hidden-session=retained settings=live search-settings=deferred single-persistence=ok restart=defaults checks=%s\n' "$menus_checks"
 }
 
@@ -10021,10 +10021,10 @@ case_settings() {
     local real_state="${XDG_STATE_HOME-}"
     export XDG_CONFIG_HOME="$config"
     export XDG_STATE_HOME="$state"
-    local stored="$state/flea/ui.json"
+    local stored="$state/dlea/ui.json"
 
     # Seeded through the same CLI the window writes through: a column set the header menu owns, two
-    # keys the backend owns and no control in this panel writes, and one key only a newer Flea knows.
+    # keys the backend owns and no control in this panel writes, and one key only a newer Dlea knows.
     # What keeps them below is src/uistate.rs's merge, not a copy the window happened to be holding.
     settings_seed "$state" "$config" "$stored"
 
@@ -10063,12 +10063,12 @@ case_settings() {
     # stored vocabulary rather than two that would have to be kept in step.
     ! grep -q 'uiScale' "$stored" || fail "settings: the state file still carries an interface-scale multiplier"
     ! grep -q '"px"' "$stored" || fail "settings: the state file still carries 0.1.3's override shape"
-    [[ ! -e "$config/flea/view.json" ]] \
-        || fail "settings: a second settings file was written at $config/flea/view.json"
+    [[ ! -e "$config/dlea/view.json" ]] \
+        || fail "settings: a second settings file was written at $config/dlea/view.json"
 
     settings_assert_backend "$state" "$config" "$pinned_base"
 
-    kill_flea
+    kill_dlea
     launch "$dir"
     wait_listing 3
     [[ "$(token_of baseSize)" == "$pinned_base" ]] \
@@ -10114,7 +10114,7 @@ case_settings() {
     printf 'SETTINGS doors=ok view=ok places=ok preview=ok about=ok display=ok menus=ok keys=ok restart=ok backend=ok refused=ok unread=ok\n'
     if [[ -n "$real_config" ]]; then export XDG_CONFIG_HOME="$real_config"; else unset XDG_CONFIG_HOME; fi
     if [[ -n "$real_state" ]]; then export XDG_STATE_HOME="$real_state"; else unset XDG_STATE_HOME; fi
-    kill_flea
+    kill_dlea
 }
 
 # Preset-specific native delivery, with no mutation through the IPC seam.
@@ -10144,7 +10144,7 @@ settings_wait_value() {
     local filter="$1" attempt
     for attempt in $(seq 1 30); do
         if ipc uiSettings | jq -e "$filter" >/dev/null \
-            && jq -e "$filter" "$XDG_STATE_HOME/flea/ui.json" >/dev/null; then return; fi
+            && jq -e "$filter" "$XDG_STATE_HOME/dlea/ui.json" >/dev/null; then return; fi
         sleep 0.1
     done
     fail "settings: session and persisted state never agreed on $filter"
@@ -10341,24 +10341,24 @@ settings_about() {
     key -k Escape >/dev/null; settle
 }
 
-# The state this case starts from, laid down through flea --ui-state so the schema sees it too. The
+# The state this case starts from, laid down through dlea --ui-state so the schema sees it too. The
 # unknown key goes in by hand afterwards, because the CLI refuses a key this build does not know.
 settings_seed() {
     local state="$1" config="$2" stored="$3"
-    env XDG_STATE_HOME="$state" XDG_CONFIG_HOME="$config" "$flea_bin" --ui-state \
+    env XDG_STATE_HOME="$state" XDG_CONFIG_HOME="$config" "$dlea_bin" --ui-state \
         '{"columns":["name","size"],"places":{"sidebarWidth":224},"sort":{"key":"size"}}' >/dev/null \
-        || fail "settings: the seeding write through flea --ui-state failed"
-    jq '. + {fromANewerFlea: {aKeyThisBuildHasNeverHeardOf: true}}' "$stored" > "$stored.seed" \
-        || fail "settings: the newer-Flea key could not be added to the seed"
+        || fail "settings: the seeding write through dlea --ui-state failed"
+    jq '. + {fromANewerDlea: {aKeyThisBuildHasNeverHeardOf: true}}' "$stored" > "$stored.seed" \
+        || fail "settings: the newer-Dlea key could not be added to the seed"
     mv "$stored.seed" "$stored"
 }
 
-# flea --ui-state with no patch is the read half of the one shared path, so this reads the panel's
+# dlea --ui-state with no patch is the read half of the one shared path, so this reads the panel's
 # own three settings back out of the backend, and every key beside them that nobody here writes.
 settings_assert_backend() {
     local state="$1" config="$2" pinned_base="$3" doc
-    doc=$(env XDG_STATE_HOME="$state" XDG_CONFIG_HOME="$config" "$flea_bin" --ui-state) \
-        || fail "settings: flea --ui-state could not read the state file back"
+    doc=$(env XDG_STATE_HOME="$state" XDG_CONFIG_HOME="$config" "$dlea_bin" --ui-state) \
+        || fail "settings: dlea --ui-state could not read the state file back"
     settings_backend_holds "$doc" ".display.textSize.mode == $pinned_base" "the ${pinned_base}px stop"
     settings_backend_holds "$doc" '.keys == "windows"' "the Windows preset"
     settings_backend_holds "$doc" '.menu.hidden | index("paste")' "the hidden Paste action"
@@ -10366,12 +10366,12 @@ settings_assert_backend() {
     # value beside it here would be a value that could disagree with the set the menus actually read.
     settings_backend_holds "$doc" '.menu | has("basic") | not' "menu.hidden alone, with no stored master"
     # The preservation half, and the whole point of one store: four settings writes are four merges,
-    # so the retained view state, the backend's own keys and a newer Flea's key are all still here.
+    # so the retained view state, the backend's own keys and a newer Dlea's key are all still here.
     settings_backend_holds "$doc" '.columns == ["name","size"]' "the stored column set"
     settings_backend_holds "$doc" '.places.sidebarWidth == 224' "places.sidebarWidth"
     settings_backend_holds "$doc" '.sort.key == "size"' "sort.key"
-    settings_backend_holds "$doc" '.fromANewerFlea.aKeyThisBuildHasNeverHeardOf == true' \
-        "the key only a newer Flea knows"
+    settings_backend_holds "$doc" '.fromANewerDlea.aKeyThisBuildHasNeverHeardOf == true' \
+        "the key only a newer Dlea knows"
 }
 
 settings_backend_holds() {
@@ -10387,12 +10387,12 @@ settings_read_refused() {
     local stored="$1" dir="$2" before_sha before_ino
     # Before the reading, because the window this case has been driving still owns a writer, and a
     # patch that landed between the sha below and the chmod would read as this block's own damage.
-    kill_flea
+    kill_dlea
     before_sha=$(sha256sum "$stored" | cut -d' ' -f1)
     before_ino=$(stat -c '%i' "$stored")
     chmod 000 "$stored" || fail "settings: the state file could not be made unreadable"
     if [[ "$test_frontend" == gpui ]]; then
-        printf '%s\n' 'flea-gui: The folder setting could not be saved.' >> "$expected_warnings"
+        printf '%s\n' 'dlea-gui: The folder setting could not be saved.' >> "$expected_warnings"
     fi
     launch "$dir"
     wait_listing 3
@@ -10415,7 +10415,7 @@ settings_read_refused() {
     done
     [[ "$(ipc lastMessage)" == "That setting could not be saved." ]] \
         || fail "settings: a save onto an unreadable state file was not reported, the status bar says $(ipc lastMessage)"
-    kill_flea
+    kill_dlea
     chmod 600 "$stored" || fail "settings: the state file could not be made readable again"
     [[ "$(sha256sum "$stored" | cut -d' ' -f1)" == "$before_sha" ]] \
         || fail "settings: a save onto an unreadable state file spent the operator's bytes"
@@ -10427,8 +10427,8 @@ case_settingsrefused() {
     local dir="$fixture_root/settingsrefused" state="$fixture_root/settingsrefused-state"
     sandbox_scratch "$dir"
     sandbox_scratch "$state"
-    local old_state="${XDG_STATE_HOME:-}" stored="$state/flea/ui.json"
-    mkdir -p "$state/flea"
+    local old_state="${XDG_STATE_HOME:-}" stored="$state/dlea/ui.json"
+    mkdir -p "$state/dlea"
     printf '{"view":"list"}\n' > "$stored"
     printf 'a\n' > "$dir/a.txt"
     printf 'b\n' > "$dir/b.txt"
@@ -10440,11 +10440,11 @@ case_settingsrefused() {
 
 # A failed write is reported, never swallowed. The state directory is made unwritable, so the temp
 # file src/uistore.rs renames into place cannot be created at all, and the panel's next change is a
-# change the file does not have. The user is told that in the one place Flea says things.
+# change the file does not have. The user is told that in the one place Dlea says things.
 settings_write_refused() {
     local state="$1" pinned_base="$2" before refused_base retried_base
-    before=$(cat "$state/flea/ui.json")
-    chmod 500 "$state/flea" || fail "settings: the state directory could not be made read-only"
+    before=$(cat "$state/dlea/ui.json")
+    chmod 500 "$state/dlea" || fail "settings: the state directory could not be made read-only"
     settings_open_key
     settle
     # The stop row is Display's, and the panel reopens on whatever section the last block left it on.
@@ -10458,10 +10458,10 @@ settings_write_refused() {
         || fail "settings: the refused step did not move the size on screen, still $refused_base"
     [[ "$(ipc lastMessage)" == "That setting could not be saved." ]] \
         || fail "settings: a refused write was not reported, the status bar says $(ipc lastMessage)"
-    chmod 700 "$state/flea" || fail "settings: the state directory could not be made writable again"
-    [[ "$(cat "$state/flea/ui.json")" == "$before" ]] \
+    chmod 700 "$state/dlea" || fail "settings: the state directory could not be made writable again"
+    [[ "$(cat "$state/dlea/ui.json")" == "$before" ]] \
         || fail "settings: a refused write changed the state file anyway"
-    grep -q "\"mode\": $pinned_base" "$state/flea/ui.json" \
+    grep -q "\"mode\": $pinned_base" "$state/dlea/ui.json" \
         || fail "settings: the state file did not keep the stop the refusal could not replace"
     # The book must not have believed the refusal: the next step still writes, and lands.
     key h >/dev/null
@@ -10469,7 +10469,7 @@ settings_write_refused() {
     retried_base=$(token_of baseSize)
     (( retried_base < refused_base )) \
         || fail "settings: the step after a refusal did not move the size, still $retried_base"
-    grep -q "\"mode\": $retried_base" "$state/flea/ui.json" \
+    grep -q "\"mode\": $retried_base" "$state/dlea/ui.json" \
         || fail "settings: the step after a refusal never reached the state file"
     key -k Escape >/dev/null
     settle
@@ -10524,7 +10524,7 @@ settings_doors() {
 }
 
 # The Display section, whose consumer is ui/Theme.qml. The board rules that Omarchy owns the size
-# until Flea is told otherwise, that an override takes one of seven stops and not a free number, and
+# until Dlea is told otherwise, that an override takes one of seven stops and not a free number, and
 # that the monitor scale is read-only. Every stop is walked and its whole token row is read back off
 # the live seam against the board's own layout table, because the table is the contract.
 # The title's centre with the Display section up: the rule is that the card keeps one place and
@@ -10547,7 +10547,7 @@ settings_display() {
     [[ "$(ipc settingsRows)" == *"fact|Scale|"* ]] \
         || fail "settings: the Display section draws no monitor scale, got $(ipc settingsRows)"
     [[ "$(ipc settingsRows)" != *"choice|Scale|"* ]] \
-        || fail "settings: the monitor scale is a control, and the board says Flea never steps it"
+        || fail "settings: the monitor scale is a control, and the board says Dlea never steps it"
     assert_monitor_scale_row
     shot settings-text-follow
 
@@ -10656,7 +10656,7 @@ settings_walk_to_stop() {
         || fail "settings: seven steps did not reach the ${want}px stop, stopped at $(token_of baseSize)"
 }
 
-# One key of Theme.tokens(), which is the live seam tools/flea-metrics-gate diffs.
+# One key of Theme.tokens(), which is the live seam tools/dlea-metrics-gate diffs.
 token_of() {
     ipc tokens | grep "^$1=" | cut -d= -f2-
 }
@@ -10906,7 +10906,7 @@ case_duallaunch() {
             || fail "duallaunch: focus $side opened $(jq -c '[.panes[].path]' <<< "$dual"), wanted $want_left and $want_right"
         [[ "$(jq -r '.focused' <<< "$dual")" == "$side" ]] || fail "duallaunch: focus moved from side $side: $dual"
         printf 'DUALLAUNCH focus=%s left=%s right=%s\n' "$side" "$(jq -r '.panes[0].path' <<< "$dual")" "$(jq -r '.panes[1].path' <<< "$dual")"
-        kill_flea
+        kill_dlea
     done
 }
 
@@ -10915,18 +10915,18 @@ xwdrag_cleanup() {
     ydotool click 0x80 >/dev/null 2>&1 || true
     ydotool key 29:0 >/dev/null 2>&1 || true
     ydotool key 42:0 >/dev/null 2>&1 || true
-    ( kill_flea ) >/dev/null 2>&1 || true
-    if [[ -n "${xdev:-}" && "$xdev" == /* && -f "$xdev/.flea-test-sandbox" ]]; then
+    ( kill_dlea ) >/dev/null 2>&1 || true
+    if [[ -n "${xdev:-}" && "$xdev" == /* && -f "$xdev/.dlea-test-sandbox" ]]; then
         rm -rf "$xdev" || true
     fi
 }
 
 # A fail before the tail exits this subshell, so the trap owns the second window and the root.
 case_xwdrag_cleanup() {
-    if [[ -n "${XW_SECOND_PID:-}" ]] && flea_process_owned "$XW_SECOND_PID" >/dev/null 2>&1; then
+    if [[ -n "${XW_SECOND_PID:-}" ]] && dlea_process_owned "$XW_SECOND_PID" >/dev/null 2>&1; then
         kill "$XW_SECOND_PID" >/dev/null 2>&1 || true
     fi
-    if [[ -n "${xdev:-}" && "$xdev" == "$XDG_RUNTIME_DIR"/flea-xwdrag-* && -f "$xdev/.flea-test-sandbox" ]]; then
+    if [[ -n "${xdev:-}" && "$xdev" == "$XDG_RUNTIME_DIR"/dlea-xwdrag-* && -f "$xdev/.dlea-test-sandbox" ]]; then
         rm -rf "$xdev" >/dev/null 2>&1 || true
     fi
 }
@@ -10935,7 +10935,7 @@ xwdrag_signal_cleanup() {
     case_xwdrag_cleanup
     exit 1
 }
-# Two Flea windows are two qs processes with two backends: a drop from one into the other moves
+# Two Dlea windows are two qs processes with two backends: a drop from one into the other moves
 # within one device and copies across, with Shift forcing a move, Ctrl a copy and Ctrl with Shift
 # a link. The maintainer runs this on minipc; it needs the display, a real pointer and two owned
 # windows, so the headless battery never invokes it. Teardown kills only processes proven owned by
@@ -10952,15 +10952,15 @@ case_xwdrag() {
     printf 'xdev payload\n' > "$adir/xdev.txt" || fail "xwdrag: could not seed xdev.txt"
     printf 'shift payload\n' > "$adir/shift.txt" || fail "xwdrag: could not seed shift.txt"
     printf 'link payload\n' > "$adir/link.txt" || fail "xwdrag: could not seed link.txt"
-    xdev=$(mktemp -d "$XDG_RUNTIME_DIR/flea-xwdrag-XXXXXX") || fail "xwdrag: could not create tmpfs root"
-    [[ -n "$xdev" && "$xdev" == "$XDG_RUNTIME_DIR"/flea-xwdrag-* ]] || fail "xwdrag: tmpfs root escaped: $xdev"
-    : > "$xdev/.flea-test-sandbox" || fail "xwdrag: could not mark tmpfs root"
+    xdev=$(mktemp -d "$XDG_RUNTIME_DIR/dlea-xwdrag-XXXXXX") || fail "xwdrag: could not create tmpfs root"
+    [[ -n "$xdev" && "$xdev" == "$XDG_RUNTIME_DIR"/dlea-xwdrag-* ]] || fail "xwdrag: tmpfs root escaped: $xdev"
+    : > "$xdev/.dlea-test-sandbox" || fail "xwdrag: could not mark tmpfs root"
     trap 'xwdrag_cleanup; case_xwdrag_cleanup' EXIT
     trap xwdrag_signal_cleanup HUP INT TERM
     [ "$(stat -c %d "$xdev")" != "$(stat -c %d "$adir")" ] || fail "xwdrag: $xdev is not another filesystem"
     launch "$adir"
     local apid aid
-    apid=$(flea_pid) || fail "xwdrag: no owned first window"
+    apid=$(dlea_pid) || fail "xwdrag: no owned first window"
     aid=$(xwdrag_qsid "$apid") || fail "xwdrag: no qs instance for $apid"
     xwdrag_launch_second "$bdir"
     local bpid bid
@@ -11010,13 +11010,13 @@ case_xwdrag() {
     [[ ! -L "$bdir/link.txt" ]] || fail "xwdrag: undo left the link in place"
     printf 'XWDRAG undo ok\n'
     xwdrag_kill_second "$bpid"
-    if [[ -n "$xdev" && -f "$xdev/.flea-test-sandbox" ]]; then
+    if [[ -n "$xdev" && -f "$xdev/.dlea-test-sandbox" ]]; then
         rm -rf "$xdev" || fail "xwdrag: could not remove tmpfs root"
     else
         fail "xwdrag: refusing cleanup of unmarked tmpfs root"
     fi
     trap - EXIT HUP INT TERM
-    kill_flea
+    kill_dlea
     trap - EXIT
 }
 
@@ -11097,7 +11097,7 @@ case_xwpeekdrag() {
     trap 'xwdrag_cleanup; case_xwdrag_cleanup' EXIT
     trap xwdrag_signal_cleanup HUP INT TERM
     launch "$root/a"; wait_listing 2
-    apid=$(flea_pid) || fail "xwpeekdrag: no owned first window"
+    apid=$(dlea_pid) || fail "xwpeekdrag: no owned first window"
     aid=$(xwdrag_qsid "$apid") || fail "xwpeekdrag: no qs instance for $apid"
     xwdrag_launch_second "$root/b"; bpid=$XW_SECOND_PID; bid=$XW_SECOND_ID
     xwdrag_place "$apid" 40 80 1000 720
@@ -11143,7 +11143,7 @@ case_xwpeekdrag() {
 
     xwdrag_kill_second "$bpid"
     trap - EXIT HUP INT TERM
-    kill_flea
+    kill_dlea
     trap - EXIT
     [[ $bad == 0 ]] || fail "xwpeekdrag: $bad checks failed"
     printf 'XWPEEKDRAG ok\n'
@@ -11153,11 +11153,11 @@ case_xwpeekdrag() {
 xwdrag_qsid() {
     local pid="$1" i pair
     for i in $(seq 1 60); do
-        pair=$(flea_ipc_list --all --json 2>/dev/null | python3 -c '
+        pair=$(dlea_ipc_list --all --json 2>/dev/null | python3 -c '
 import json, sys
 hits = [x for x in json.load(sys.stdin) if x["config_path"] == sys.argv[1] and x["pid"] == int(sys.argv[2])]
 print(("%s %s" % (hits[0]["id"], hits[0]["pid"])) if len(hits) == 1 else "")
-' "$flea_ui/boot/shell.qml" "$pid") || true
+' "$dlea_ui/boot/shell.qml" "$pid") || true
         [[ -n "$pair" ]] && { printf '%s\n' "$pair" | cut -d' ' -f1; return 0; }
         sleep 0.5
     done
@@ -11165,7 +11165,7 @@ print(("%s %s" % (hits[0]["id"], hits[0]["pid"])) if len(hits) == 1 else "")
 }
 
 xwdrag_qs() {
-    flea_ipc_call -i "$1" call flea "${@:2}"
+    dlea_ipc_call -i "$1" call dlea "${@:2}"
 }
 
 # Dry guard: raw=$(xwdrag_qs "$id" total); case "$raw" in ''|*[!0-9]*) raw="SENTINEL";; esac
@@ -11182,15 +11182,15 @@ xwdrag_count() {
 # A second owned window over launch()'s own: same binary, UI and run marker, pid new and owned.
 xwdrag_launch_second() {
     local start_path="$1" before after pid
-    before=$(flea_pids | tr '\n' ' ')
+    before=$(dlea_pids | tr '\n' ' ')
     # The second window shares the first one's runtime, as two windows of one session do, so the tab ack reaches it.
-    flea_test_launch "$start_path" "$run_root/flea-second.log" --ui "$flea_ui" --binary "$flea_bin" ${FLEA_TEST_WINDOW:+--share-runtime "$FLEA_TEST_WINDOW"} \
+    dlea_test_launch "$start_path" "$run_root/dlea-second.log" --ui "$dlea_ui" --binary "$dlea_bin" ${DLEA_TEST_WINDOW:+--share-runtime "$DLEA_TEST_WINDOW"} \
         || fail "xwdrag: owned second window launch failed"
     for i in $(seq 1 60); do
-        after=$(flea_pids | tr '\n' ' ')
+        after=$(dlea_pids | tr '\n' ' ')
         for pid in $after; do
             [[ " $before " == *" $pid "* ]] && continue
-            if flea_process_owned "$pid"; then
+            if dlea_process_owned "$pid"; then
                 XW_SECOND_PID=$pid
                 XW_SECOND_ID=$(xwdrag_qsid "$pid") || continue
                 [[ -n "$XW_SECOND_ID" ]] || continue
@@ -11359,21 +11359,21 @@ xwdrag_wait_row_gone() {
     return 1
 }
 
-# Typed keys land in the active window, and two Flea windows share one class, so this pins focus first.
+# Typed keys land in the active window, and two Dlea windows share one class, so this pins focus first.
 xwdrag_assert_focus() {
     local want="$1" got
     got=$(hyprctl activewindow -j | python3 -c 'import json,sys; print(json.load(sys.stdin).get("pid",""))') || fail "xwdrag: no active window to check against $want"
     [[ -n "$got" ]] || fail "xwdrag: active window has no pid, wanted $want"
     [[ "$got" == "$want" ]] || fail "xwdrag: active window is $got, wanted $want"
 }
-# Targeted keystrokes carry a window address, since --window com.thisisgm.flea matches both windows at once.
+# Targeted keystrokes carry a window address, since --window com.nosDshell.dlea matches both windows at once.
 xwdrag_key() {
     local addr="$1"
     shift
     omarchy-drive key --window "$addr" "$@"
 }
 
-# Sample input: {"pid":101,"address":"0xa","class":"com.thisisgm.flea","title":"Flea"} with the key pid answers 101, and a non-JSON reply answers nothing.
+# Sample input: {"pid":101,"address":"0xa","class":"com.nosDshell.dlea","title":"Dlea"} with the key pid answers 101, and a non-JSON reply answers nothing.
 xwdrag_active_field() {
     printf '%s' "$1" | python3 -c 'import json,sys; print(json.load(sys.stdin).get(sys.argv[1],""))' "$2" 2>/dev/null || true
 }
@@ -11440,16 +11440,16 @@ xwdrag_navigate_second() {
 
 xwdrag_kill_second() {
     local pid="$1"
-    flea_process_owned "$pid" || fail "xwdrag: refusing to kill unowned window $pid"
+    dlea_process_owned "$pid" || fail "xwdrag: refusing to kill unowned window $pid"
     kill "$pid" || fail "xwdrag: could not stop second window $pid"
     for _attempt in $(seq 1 200); do
-        flea_process_owned "$pid" && sleep 0.05 || return 0
+        dlea_process_owned "$pid" && sleep 0.05 || return 0
     done
     fail "xwdrag: second window $pid survived"
 }
 
-# Each launcher preserves stdout and stderr across exec_qs; run.log only archives flea.log.
-xwtab_logs=("$flea_log" "$run_root/flea-second.log")
+# Each launcher preserves stdout and stderr across exec_qs; run.log only archives dlea.log.
+xwtab_logs=("$dlea_log" "$run_root/dlea-second.log")
 xwtab_outside_x=200
 xwtab_outside_y=60
 xwtab_target_nudge=6
@@ -11530,7 +11530,7 @@ xwtab_refused_poll=0.1 # Poll the source trace between refusal checks.
 xwtab_wait_refused() {
     local bpid="$1" phase="$2" rect addr wx wy ww wh floating cursor cx cy attempt lines finished
     if [[ "$phase" == held ]]; then
-        flea_process_owned "$bpid" || fail "xwtab: refused target $bpid is not owned"
+        dlea_process_owned "$bpid" || fail "xwtab: refused target $bpid is not owned"
         rect=$(xwtab_rect_of "$bpid") || fail "xwtab: no owned rectangle for refused target $bpid"
         # Sample input: 0xb 1100 80 1000 720 True.
         read -r addr wx wy ww wh floating <<< "$rect"
@@ -11581,7 +11581,7 @@ xwtab_wait_unmapped() {
     local pid="$1" attempt layers verdict
     for attempt in $(seq 1 "$xwtab_unmap_attempts"); do
         layers=$(hyprctl layers -j 2>&1) || fail "xwtab: hyprctl layers failed: $layers"
-        # Sample input: {"DP-2":{"levels":{"1":[{"namespace":"flea-tab-tearoff","pid":101}]}}} while the catcher is mapped.
+        # Sample input: {"DP-2":{"levels":{"1":[{"namespace":"dlea-tab-tearoff","pid":101}]}}} while the catcher is mapped.
         verdict=$(printf '%s' "$layers" | python3 -c '
 import json, sys
 def contains(node):
@@ -11632,7 +11632,7 @@ xwtab_own_trace_tail=10 # Keep the last source receipts in a timeout diagnostic.
 xwtab_gpui_own_hit() {
     local id ax ay bx by cursor cx cy step left right tolerance=3
     [[ ${test_frontend:-gpui} == gpui && ${xwtab_button_down:-false} == true ]] || return 1
-    flea_process_owned "$xwtab_source" && xwdrag_assert_focus "$xwtab_source" || return 1
+    dlea_process_owned "$xwtab_source" && xwdrag_assert_focus "$xwtab_source" || return 1
     id=$(xwdrag_qsid "$xwtab_source") || return 1
     [[ $(xwdrag_qs "$id" tabBarVisible) == true && $(xwdrag_qs "$id" tabCount) == 2 ]] || return 1
     read -r ax ay < <(xwtab_tab_point "$id" "$xwtab_source" 0) || return 1
@@ -11754,7 +11754,7 @@ xwtab_restore_place() {
     local pid addr x y w h floating cur caddr cx cy cw ch cfloating action failed remaining="" status=0
     while read -r pid addr x y w h floating; do
         [[ -n "${pid:-}" ]] || continue
-        if ! flea_process_owned "$pid"; then printf 'XWTAB restore skipped unowned pid=%s\n' "$pid" >&2; continue; fi
+        if ! dlea_process_owned "$pid"; then printf 'XWTAB restore skipped unowned pid=%s\n' "$pid" >&2; continue; fi
         cur=$(xwtab_rect_of "$pid" || true)
         read -r caddr cx cy cw ch cfloating <<< "$cur"
         if [[ -z "$cur" || "$caddr" != "$addr" ]]; then
@@ -11799,8 +11799,8 @@ xwtab_wait_place() {
 xwtab_point=""
 xwtab_make_room() {
     local apid="$1" bpid="$2" aaddr ax ay aw ah afloating baddr bx by bw bh bfloating
-    flea_process_owned "$apid" || fail "xwtab: refusing to move unowned window $apid"
-    flea_process_owned "$bpid" || fail "xwtab: refusing to move unowned window $bpid"
+    dlea_process_owned "$apid" || fail "xwtab: refusing to move unowned window $apid"
+    dlea_process_owned "$bpid" || fail "xwtab: refusing to move unowned window $bpid"
     local arect brect
     arect=$(xwtab_rect_of "$apid" 2>&1) || fail "xwtab: no geometry for $apid: $arect"
     brect=$(xwtab_rect_of "$bpid" 2>&1) || fail "xwtab: no geometry for $bpid: $brect"
@@ -11841,7 +11841,7 @@ $bpid $baddr $bx $by $bw $bh $bfloating"
     xwtab_point="$point"
 }
 
-# xw6: a tab dragged onto another Flea window moves there; torn off onto empty space it
+# xw6: a tab dragged onto another Dlea window moves there; torn off onto empty space it
 # opens a window of its own. Reuses the xwdrag two-window rig: launch() kills first, so the
 # second window is launched the same way, and every drop point is an absolute screen point.
 # Normalised pid sets compare without empty members, see tests/xwtab-norm.sh.
@@ -11871,7 +11871,7 @@ print(" ".join(sorted({str(c.get("pid")) for c in clients if str(c.get("pid")) i
 # One pid's cmdline, parent, age and window state, so the next native run names the extra process.
 xwtab_describe_pid() {
     local pid="$1" process cmd ppid age win
-    process=$(flea_process_dir "$pid")
+    process=$(dlea_process_dir "$pid")
     cmd=$(tr '\0' ' ' 2>/dev/null < "$process/cmdline" || true)
     [[ -n "$cmd" ]] || cmd="(unreadable cmdline)"
     ppid=$(ps -o ppid= -p "$pid" 2>/dev/null | tr -d ' ' || true)
@@ -11889,10 +11889,10 @@ xwtab_third_poll=0.5 # Poll the owned pids between checks.
 xwtab_wait_third() {
     local before="$1" after pid
     for _attempt in $(seq 1 "$xwtab_third_attempts"); do
-        after=$(flea_pids | tr '\n' ' ')
+        after=$(dlea_pids | tr '\n' ' ')
         for pid in $after; do
             [[ " $before " == *" $pid "* ]] && continue
-            if flea_process_owned "$pid"; then
+            if dlea_process_owned "$pid"; then
                 printf '%s\n' "$pid"
                 return 0
             else
@@ -11927,7 +11927,7 @@ xwtab_receiver_poll=0.25 # Poll the clients between checks.
 case_xwtab() {
     local dir adir bdir
     # The tab handoff trace, on for both windows; every fail below dumps it first.
-    export FLEA_TRACE_TABDRAG=1
+    export DLEA_TRACE_TABDRAG=1
     eval "$(declare -f fail | sed '1s/fail/xwtab_saved_fail/')"
     fail() { xwtab_release || true; xwtab_dump_trace; xwtab_saved_fail "$@"; }
     trap 'xwtab_cleanup' EXIT
@@ -11939,7 +11939,7 @@ case_xwtab() {
     launch "$adir"
     wait_listing 2
     local apid aid
-    apid=$(flea_pid) || fail "xwtab: no owned first window"
+    apid=$(dlea_pid) || fail "xwtab: no owned first window"
     aid=$(xwdrag_qsid "$apid") || fail "xwtab: no qs instance for $apid"
     # A opens a second tab and puts it on sub1, before the second window exists.
     key t >/dev/null
@@ -11958,7 +11958,7 @@ case_xwtab() {
     xwdrag_focus "$apid"
     local sx sy dx dy i
     local move_before
-    move_before=$(flea_pids | tr '\n' ' ')
+    move_before=$(dlea_pids | tr '\n' ' ')
     read -r sx sy < <(xwtab_tab_point "$aid" "$apid" 1) || fail "xwtab: A's second tab has no centre"
     read -r dx dy < <(xwdrag_floor_point "$bid" "$bpid") || fail "xwtab: B has no floor"
     xwtab_drag_to_window "$sx" "$sy" "$dx" "$dy" "$apid" "$bpid" require
@@ -11976,12 +11976,12 @@ case_xwtab() {
     [[ "$(xwdrag_qs "$aid" tabCount 2>/dev/null)" == "1" ]] || fail "xwtab: A kept its moved tab"
     [[ "$(xwdrag_qs "$aid" path 2>/dev/null)" == "$adir" ]] \
         || fail "xwtab: A shows $(xwdrag_qs "$aid" path 2>/dev/null), not $adir"
-    [[ "$(flea_pids | tr '\n' ' ')" == "$move_before" ]] \
+    [[ "$(dlea_pids | tr '\n' ' ')" == "$move_before" ]] \
         || fail "xwtab: the move opened a window of its own"
     printf 'XWTAB move ok\n'
     # B's new tab torn off onto empty desktop space opens a third owned window on it.
     local ex ey before before_wins cpid cid
-    before=$(flea_pids | tr '\n' ' ')
+    before=$(dlea_pids | tr '\n' ' ')
     # The parked windows' Hyprland pids, retried while the compositor catches up with the move.
     before_wins=""
     for i in $(seq 1 "$xwtab_parked_attempts"); do
@@ -11989,7 +11989,7 @@ case_xwtab() {
         [[ -n "$before_wins" ]] && break
         sleep "$xwtab_parked_poll"
     done
-    [[ -n "$before_wins" ]] || fail "xwtab: no Hyprland windows for the parked Flea pids $before"
+    [[ -n "$before_wins" ]] || fail "xwtab: no Hyprland windows for the parked Dlea pids $before"
     xwtab_make_room "$apid" "$bpid" || fail "xwtab: no empty desktop to tear off onto"
     read -r ex ey <<< "$xwtab_point"
     xwdrag_focus "$bpid"
@@ -12017,7 +12017,7 @@ case_xwtab() {
     want_wins=$(xwtab_norm_set "$before_wins $cpid")
     after=""; after_wins=""
     for i in $(seq 1 "$xwtab_settle_attempts"); do
-        after=$(xwtab_norm_set "$(flea_pids | tr '\n' ' ')")
+        after=$(xwtab_norm_set "$(dlea_pids | tr '\n' ' ')")
         after_wins=$(xwtab_norm_set "$(xwtab_window_pids "$after" || true)")
         [[ "$after" == "$want_after" && "$after_wins" == "$want_wins" ]] && break
         sleep "$xwtab_settle_poll"
@@ -12043,7 +12043,7 @@ case_xwtab() {
     settle
     [[ "$(xwdrag_qs "$aid" tabCount 2>/dev/null)" == "2" ]] || fail "xwtab: t did not reopen a second tab on A"
     local esc_before
-    esc_before=$(flea_pids | tr '\n' ' ')
+    esc_before=$(dlea_pids | tr '\n' ' ')
     # Escape mid-drag over A cancels with no move, no tear-off and no new window.
     read -r sx sy < <(xwtab_tab_point "$aid" "$apid" 1) || fail "xwtab: A's second tab has no centre"
     local addr
@@ -12073,7 +12073,7 @@ print(hits[0]["address"] if len(hits) == 1 else "")
     xwtab_release || fail "xwtab: pointer release failed"
     xwtab_wait_unmapped "$apid"
     [[ "$(xwdrag_qs "$aid" tabCount 2>/dev/null)" == "2" ]] || fail "xwtab: Escape moved the tab"
-    [[ "$(flea_pids | tr '\n' ' ')" == "$esc_before" ]] || fail "xwtab: Escape opened a window"
+    [[ "$(dlea_pids | tr '\n' ' ')" == "$esc_before" ]] || fail "xwtab: Escape opened a window"
     printf 'XWTAB escape ok\n'
     # Out and back onto the own strip reorders with no new window.
     local ox oy
@@ -12090,7 +12090,7 @@ print(hits[0]["address"] if len(hits) == 1 else "")
     [[ "$(xwdrag_qs "$aid" tabIndex 2>/dev/null)" == 0 ]] || fail "xwtab: own-strip drop did not reorder the active tab"
     sleep 0.5
     [[ "$(xwdrag_qs "$aid" tabCount 2>/dev/null)" == "2" ]] || fail "xwtab: own-strip drop changed the tab count"
-    [[ "$(flea_pids | tr '\n' ' ')" == "$esc_before" ]] || fail "xwtab: own-strip drop opened a window"
+    [[ "$(dlea_pids | tr '\n' ' ')" == "$esc_before" ]] || fail "xwtab: own-strip drop opened a window"
     printf 'XWTAB own-strip ok\n'
     # A drop on B's listing is refused without an enter: B's window DropArea is off with two tabs; keys go by address.
     xwtab_key "$bpid" t
@@ -12104,10 +12104,10 @@ print(hits[0]["address"] if len(hits) == 1 else "")
     [[ "$(xwdrag_qs "$bid" tabCount 2>/dev/null)" == "2" ]] || fail "xwtab: B took a listing drop"
     [[ "$(xwdrag_qs "$bid" path 2>/dev/null)" == "$bdir" ]] || fail "xwtab: B left $bdir"
     [[ "$(xwdrag_qs "$aid" tabCount 2>/dev/null)" == "2" ]] || fail "xwtab: A lost its tab to a refused drop"
-    [[ "$(flea_pids | tr '\n' ' ')" == "$esc_before" ]] || fail "xwtab: a refused drop opened a window"
+    [[ "$(dlea_pids | tr '\n' ' ')" == "$esc_before" ]] || fail "xwtab: a refused drop opened a window"
     printf 'XWTAB listing-refused ok\n'
     # A drop onto a foreign receiver is refused: it takes uri-list and plain text only; its enter receipt is still required.
-    : > "$dir/.flea-test-sandbox"
+    : > "$dir/.dlea-test-sandbox"
     local recv_log="$dir/receiver.log" recv_pid="" recv_addr="" rcx rcy
     : > "$recv_log"
     setsid python3 "$repo/tests/drag-receiver.py" "$recv_log" >"$dir/receiver-err.log" 2>&1 &
@@ -12117,8 +12117,8 @@ print(hits[0]["address"] if len(hits) == 1 else "")
     for i in $(seq 1 "$xwtab_receiver_attempts"); do
         recv_addr=$(hyprctl clients -j | python3 -c '
 import json, sys
-# Sample input: [{"title":"flea-drag-receiver","address":"0xc"}], one hit once the receiver is mapped.
-hits = [w for w in json.load(sys.stdin) if w.get("title") == "flea-drag-receiver"]
+# Sample input: [{"title":"dlea-drag-receiver","address":"0xc"}], one hit once the receiver is mapped.
+hits = [w for w in json.load(sys.stdin) if w.get("title") == "dlea-drag-receiver"]
 print(hits[0]["address"] if len(hits) == 1 else "")
 ') || true
         [[ -n "$recv_addr" ]] && break
@@ -12133,8 +12133,8 @@ print(hits[0]["address"] if len(hits) == 1 else "")
     sleep 0.4
     read -r rcx rcy < <(hyprctl clients -j | python3 -c '
 import json, sys
-# Sample input: [{"title":"flea-drag-receiver","at":[1100,500],"size":[400,300]}], read once it is placed.
-hits = [w for w in json.load(sys.stdin) if w.get("title") == "flea-drag-receiver"]
+# Sample input: [{"title":"dlea-drag-receiver","at":[1100,500],"size":[400,300]}], read once it is placed.
+hits = [w for w in json.load(sys.stdin) if w.get("title") == "dlea-drag-receiver"]
 c = hits[0]
 print(c["at"][0] + c["size"][0] // 2, c["at"][1] + c["size"][1] // 2)
 ') || fail "xwtab: no geometry for the foreign receiver"
@@ -12144,17 +12144,17 @@ print(c["at"][0] + c["size"][0] // 2, c["at"][1] + c["size"][1] // 2)
     sleep 1
     [[ "$(xwdrag_qs "$aid" tabCount 2>/dev/null)" == "2" ]] || fail "xwtab: A lost its tab to a foreign receiver"
     grep -q '^actions=' "$recv_log" && fail "xwtab: the foreign receiver took the tab drop"
-    [[ "$(flea_pids | tr '\n' ' ')" == "$esc_before" ]] || fail "xwtab: a foreign drop opened a window"
+    [[ "$(dlea_pids | tr '\n' ' ')" == "$esc_before" ]] || fail "xwtab: a foreign drop opened a window"
     kill "$recv_pid" 2>/dev/null || true
     wait "$recv_pid" 2>/dev/null || true
     recv_pid=""
     printf 'XWTAB foreign-refused ok\n'
     xwdrag_kill_second "$bpid"
-    kill_flea
+    kill_dlea
     # Restore the suite fail and stop the trace past this case.
     eval "$(declare -f xwtab_saved_fail | sed '1s/xwtab_saved_fail/fail/')"
     unset -f xwtab_saved_fail
-    unset FLEA_TRACE_TABDRAG
+    unset DLEA_TRACE_TABDRAG
     trap - EXIT
 }
 
@@ -12218,7 +12218,7 @@ case_clickthrough() {
     clickthrough_permissions "$dir" "$parked"
     clickthrough_delete "$dir" "$parked"
     printf 'CLICKTHROUGH chips=ok rail=ok favourite=ok permissions=ok close=ok delete=ok cursor=%s\n' "$parked"
-    kill_flea
+    kill_dlea
     export XDG_STATE_HOME="$suite_state_home"
 }
 
@@ -12353,7 +12353,7 @@ lit_in_rect() {
 
 # The media fixture's rows and a shared fresh layout for the two per-view cases below.
 views_fixture() {
-    local dir="$1" media="$FIXTURE_ROOT/flea-media-btrfs" i
+    local dir="$1" media="$FIXTURE_ROOT/dlea-media-btrfs" i
     [[ -d "$media" ]] || fail "the media fixture is missing at $media"
     sandbox_scratch "$dir"
     mkdir -p "$dir/empty" "$dir/sub"
@@ -12436,7 +12436,7 @@ case_overlays() {
         [[ "$(ipc settingsOpen)" == "false" && "$(ipc cursor)" == "0" ]] || fail "$mode: a left click on the ground left settings $(ipc settingsOpen) and the cursor on $(ipc cursor)"
         printf 'OVERLAYS %s menu=ok settings=ok\n' "$mode"
     done
-    kill_flea
+    kill_dlea
 }
 
 # The x and width a Columns hero takes: the whole pane at 2-3 columns, else the free area right of activeX = (count - 2) * floor(width / count), ColumnsArea.qml:67,77.
@@ -12633,13 +12633,13 @@ case_views() {
         || fail "columns: with 5 columns the hero's box is $(ipc emptyStateRect), not the free area $ex $sy $ew $sh"
     printf 'VIEWS columns5 hero=free area %s %s\n' "$ex" "$ew"
     export XDG_STATE_HOME="$suite_state"
-    kill_flea
+    kill_dlea
 }
 
 # One row per format family the preview classifies, all in the columns view's own frame, judged on
 # what the frame draws: decoded pixels, lines, member names, pages, an advancing position, the sentence.
 formats_fixture() {
-    local dir="$1" media="$FIXTURE_ROOT/flea-media-btrfs"
+    local dir="$1" media="$FIXTURE_ROOT/dlea-media-btrfs"
     [[ -d "$media" ]] || fail "the media fixture is missing at $media"
     sandbox_scratch "$dir"
     cp "$(ls "$media"/*.jpg | head -1)" "$dir/p.jpg"
@@ -12663,7 +12663,7 @@ PYEOF
     magick \( -size 400x560 xc:white -fill black -draw "rectangle 40,40 120,80" \) \
            \( -size 400x560 xc:white -fill black -draw "rectangle 40,40 360,520" \) "$dir/manual.pdf"
     head -c 200 "$dir/manual.pdf" > "$dir/broken.pdf"
-    printf 'hello from flea\nsecond line\n' > "$dir/sample.txt"
+    printf 'hello from dlea\nsecond line\n' > "$dir/sample.txt"
     printf '# Notes\n\nSome *text*.\n' > "$dir/notes.md"
     : > "$dir/empty.txt"
     head -c 1100000 /dev/zero | tr '\0' 'x' > "$dir/big.txt"
@@ -12804,7 +12804,7 @@ case_previewviews() {
             switch_view "$mode"
             key -k space >/dev/null
             for _attempt in $(seq 1 40); do [[ "$(ipc previewState)" == "text" ]] && break; sleep 0.1; done
-            [[ "$(ipc previewKind)" == "text" && "$(ipc previewText)" == *"$([[ $name == sample.txt ]] && echo 'hello from flea' || echo 'fn main')"* ]] \
+            [[ "$(ipc previewKind)" == "text" && "$(ipc previewText)" == *"$([[ $name == sample.txt ]] && echo 'hello from dlea' || echo 'fn main')"* ]] \
                 || fail "$mode: Space on $name: kind $(ipc previewKind), state $(ipc previewState), text '$(ipc previewText | cut -c1-40)'"
             preview_surface_lit "$mode-$name" 50 "$name's text"
             key -k Escape >/dev/null
@@ -12884,7 +12884,7 @@ case_previewviews() {
     settle
     [[ "$(ipc previewOpen)" == "false" && "$(ipc columnPlayerLoaded)" == "false" ]] || fail "previewviews: after Escape, preview $(ipc previewOpen), column player $(ipc columnPlayerLoaded)"
     printf 'PREVIEWVIEWS lifetimes=ok\n'
-    kill_flea
+    kill_dlea
 }
 
 . "$repo/tests/ui-pdf.sh"
@@ -12917,7 +12917,7 @@ case_clipboard() {
     trap xwdrag_signal_cleanup HUP INT TERM
     launch "$adir"
     wait_listing 3
-    apid=$(flea_pid) || fail "clipboard: no owned first window"
+    apid=$(dlea_pid) || fail "clipboard: no owned first window"
     aid=$(xwdrag_qsid "$apid") || fail "clipboard: no first instance id"
     xwdrag_launch_second "$bdir"
     bpid=$XW_SECOND_PID
@@ -13048,7 +13048,7 @@ case_clipboard() {
 }
 
 clipboard_ipc() {
-    timeout -k "$ipc_call_kill_after" "$ipc_call_timeout" "$FLEA_IPC_HELPER" -i "$1" call flea "${@:2}"
+    timeout -k "$ipc_call_kill_after" "$ipc_call_timeout" "$DLEA_IPC_HELPER" -i "$1" call dlea "${@:2}"
 }
 clipboard_press() {
     local pid="$1" addr
@@ -13146,15 +13146,15 @@ readme_park_y=1439
 readme_thumb_wait_s=240
 readme_grab_tries=5
 readme_textsize() {
-    local size="${FLEA_README_TEXTSIZE:-16}"
-    [[ "$size" =~ ^[0-9]+$ ]] || fail "readme: FLEA_README_TEXTSIZE is '$size', not a number"
+    local size="${DLEA_README_TEXTSIZE:-16}"
+    [[ "$size" =~ ^[0-9]+$ ]] || fail "readme: DLEA_README_TEXTSIZE is '$size', not a number"
     printf '%s' "$size"
 }
 
 # Floats the owned window and resizes it exact, then proves the size through window_box.
 readme_float_size() {
     local w="$1" h="$2" pid addr wx wy ww wh floating
-    pid=$(flea_pid)
+    pid=$(dlea_pid)
     addr=$(xw_addr_for_pid "$pid") || fail "readme: no window address for pid $pid"
     floating=$(hyprctl clients -j | jq -r --arg a "$addr" '.[] | select(.address == $a) | .floating') \
         || fail "readme: cannot read window state"
@@ -13174,7 +13174,7 @@ readme_grab() {
     local first="$run_root/readme-a.png" second="$run_root/readme-b.png"
     local tries=0 iw ih moved
     [[ ! -e "$png" && ! -L "$png" ]] || fail "shot: refusing existing evidence $png"
-    [[ "$first" == "$run_root/"* && "$second" == "$run_root/"* && -f "$run_root/.flea-test-sandbox" ]] \
+    [[ "$first" == "$run_root/"* && "$second" == "$run_root/"* && -f "$run_root/.dlea-test-sandbox" ]] \
         || fail "readme $name: scratch outside the marked run root"
     mkdir -p "$evidence_dir" || fail "readme $name: the evidence directory $evidence_dir could not be created"
     omarchy-drive move "$readme_park_x" "$readme_park_y" >/dev/null || fail "readme $name: the cursor would not park"
@@ -13271,11 +13271,11 @@ readme_unphone() {
 readme_shelf_revert() {
     local f
     [[ "${readme_shelf_armed:-0}" == 1 ]] || return 0
-    [[ "${readme_shelf_opened:-0}" == 1 ]] && env -u XDG_STATE_HOME "$flea_bin" shelf toggle >/dev/null 2>&1 || true
+    [[ "${readme_shelf_opened:-0}" == 1 ]] && env -u XDG_STATE_HOME "$dlea_bin" shelf toggle >/dev/null 2>&1 || true
     for f in "${readme_shelf_f1:-}" "${readme_shelf_f2:-}" "${readme_shelf_f3:-}"; do
         [[ -n "$f" ]] || continue
         jq -e --arg p "$f" 'index($p) != null' <<< "${readme_shelf_pre:-[]}" >/dev/null 2>&1 && continue
-        env -u XDG_STATE_HOME "$flea_bin" shelf forget "$f" >/dev/null 2>&1 || true
+        env -u XDG_STATE_HOME "$dlea_bin" shelf forget "$f" >/dev/null 2>&1 || true
     done
 }
 
@@ -13291,8 +13291,8 @@ readme_frame_grid() {
     [[ "$(ipc viewMode)" == "grid" ]] || fail "readme grid: the chrome button did not switch the view"
     readme_float_size 2536 1386
     readme_wait_thumbs "$total"
-    readme_grab grid.png flea
-    kill_flea
+    readme_grab grid.png dlea
+    kill_dlea
 }
 
 # list.png 2536x1381: columns with the preview column on a photo, and the stub iPhone on the rail.
@@ -13326,9 +13326,9 @@ readme_frame_list() {
     [[ "$facts" == *"Pixels="* ]] || fail "readme list: the photo states $facts, with no pixel facts"
     readme_float_size 2536 1381
     readme_wait_thumbs "$total"
-    readme_grab list.png flea
+    readme_grab list.png dlea
     readme_unphone
-    kill_flea
+    kill_dlea
 }
 
 # pdf.png 2536x1386: Quick Look on the fixture contact sheet with its page navigation showing.
@@ -13349,8 +13349,8 @@ readme_frame_pdf() {
     done
     [[ "$(ipc previewPdfPage)" == "1" ]] || fail "readme pdf: l left the sheet on page $(ipc previewPdfPage), not page 1"
     readme_float_size 2536 1386
-    readme_grab pdf.png flea
-    kill_flea
+    readme_grab pdf.png dlea
+    kill_dlea
 }
 
 # iphone.png 2536x1381: the stub camera roll over AFC, cursor on its HEIC with a preview.
@@ -13359,7 +13359,7 @@ readme_frame_iphone() {
     local -a heics
     readme_afc_stub "$readme_root/iphone-phones"
     # The stub leaves an empty HEIC, which never decodes, so the frame copies a real one over it.
-    media="$FIXTURE_ROOT/flea-media-btrfs"
+    media="$FIXTURE_ROOT/dlea-media-btrfs"
     [[ -d "$media" ]] || fail "the media fixture is missing at $media"
     # The glob sorts, so the frame takes the same HEIC on every run; with no match it stays the pattern and fails the test.
     heics=("$media"/*.heic)
@@ -13398,9 +13398,9 @@ readme_frame_iphone() {
     facts=$(ipc previewFacts)
     [[ "$facts" == *"Size="* ]] || fail "readme iphone: the HEIC states $facts, with no file details"
     readme_float_size 2536 1381
-    readme_grab iphone.png flea
+    readme_grab iphone.png dlea
     readme_unphone
-    kill_flea
+    kill_dlea
 }
 
 # shelf.png 2560x1440: three fixture files on the pile, the card rung open, fullscreen grab.
@@ -13412,8 +13412,8 @@ readme_frame_shelf() {
     wait_listing "$total"
     readme_float_size 2536 1381
     # The running bar reads the real shelf state, so the frame writes there and its EXIT trap undoes the pile.
-    local pile="$HOME/.local/state/omarchy/flea-shelf/shelf.json"
-    local summon="$HOME/.local/state/omarchy/flea-shelf/summon.json"
+    local pile="$HOME/.local/state/omarchy/dlea-shelf/shelf.json"
+    local summon="$HOME/.local/state/omarchy/dlea-shelf/summon.json"
     local f1="$readme_fixture/Selects/coastline-at-dawn.jpg" f2="$readme_fixture/Selects/harbour-lights.jpg"
     local f3="$readme_fixture/contact-sheet.pdf" f
     [[ -s "$f1" && -s "$f2" && -s "$f3" ]] || fail "readme shelf: fixture files missing"
@@ -13426,27 +13426,27 @@ readme_frame_shelf() {
     readme_shelf_f1="$f1"; readme_shelf_f2="$f2"; readme_shelf_f3="$f3"; readme_shelf_opened=0
     trap 'readme_shelf_revert' EXIT
     rings_before=$(readme_summon_rings "$summon")
-    env -u XDG_STATE_HOME "$flea_bin" shelf add "$f1" "$f2" "$f3" >/dev/null \
-        || fail "readme shelf: flea shelf add failed"
+    env -u XDG_STATE_HOME "$dlea_bin" shelf add "$f1" "$f2" "$f3" >/dev/null \
+        || fail "readme shelf: dlea shelf add failed"
     post=$(readme_shelf_items "$pile") || fail "readme shelf: $pile is not JSON"
     for f in "$f1" "$f2" "$f3"; do
         jq -e --arg p "$f" 'index($p) != null' <<< "$post" >/dev/null 2>&1 \
             || fail "readme shelf: $f is not on the pile after add"
     done
-    env -u XDG_STATE_HOME "$flea_bin" shelf toggle >/dev/null \
-        || fail "readme shelf: flea shelf toggle failed"
+    env -u XDG_STATE_HOME "$dlea_bin" shelf toggle >/dev/null \
+        || fail "readme shelf: dlea shelf toggle failed"
     readme_shelf_opened=1
     rings_after=$(readme_summon_rings "$summon")
     (( rings_after == rings_before + 1 )) || fail "readme shelf: toggle left the ring at $rings_after, not $((rings_before + 1))"
     settle
     settle
     readme_grab shelf.png ""
-    env -u XDG_STATE_HOME "$flea_bin" shelf toggle >/dev/null \
+    env -u XDG_STATE_HOME "$dlea_bin" shelf toggle >/dev/null \
         || fail "readme shelf: the closing toggle failed"
     readme_shelf_opened=0
     for f in "$f1" "$f2" "$f3"; do
         if jq -e --arg p "$f" 'index($p) != null' <<< "$pre" >/dev/null 2>&1; then continue; fi
-        env -u XDG_STATE_HOME "$flea_bin" shelf forget "$f" >/dev/null \
+        env -u XDG_STATE_HOME "$dlea_bin" shelf forget "$f" >/dev/null \
             || fail "readme shelf: could not forget $f"
     done
     post=$(readme_shelf_items "$pile") || fail "readme shelf: $pile is not JSON"
@@ -13457,7 +13457,7 @@ readme_frame_shelf() {
     done
     readme_shelf_armed=0
     trap - EXIT
-    kill_flea
+    kill_dlea
 }
 
 case_readme() {
@@ -13470,7 +13470,7 @@ case_readme() {
     readme_old_state="${XDG_STATE_HOME:-}"
     sandbox_make "$readme_root"
     readme_fixture="$readme_root/fixture"
-    DIR="$readme_fixture" "$repo/tools/flea-readme-shots" fixture \
+    DIR="$readme_fixture" "$repo/tools/dlea-readme-shots" fixture \
         || fail "readme: the fixture build failed"
     [[ -s "$readme_fixture/Selects/coastline-at-dawn.jpg" ]] \
         || fail "readme: the fixture build left no Selects"
@@ -13482,7 +13482,7 @@ case_readme() {
     readme_frame_iphone
     readme_frame_shelf
     readme_unphone
-    kill_flea
+    kill_dlea
     printf 'README done\n'
 }
 
@@ -13497,7 +13497,7 @@ case_readme() {
 # ui:cap_gm_rail and ui:cap_gm_nethold run only by name: native display, uinput holds and screenshots cannot run headless.
 # GPUI modules load after every original oracle source; QML never loads overrides.
 . "$repo/tests/ui-uish/manifest.sh"
-flea_uish_load || fail "invalid GPUI override inventory"
+dlea_uish_load || fail "invalid GPUI override inventory"
 declare -a wanted=("$@")
 default_run=0
 [[ ${#wanted[@]} -ne 0 ]] || default_run=1
@@ -13508,10 +13508,10 @@ for name in "${wanted[@]}"; do
 done
 
 : > "$run_log"
-: > "$flea_log"
+: > "$dlea_log"
 native_started_ms=$(date +%s%3N)
 if [[ "$test_frontend" == gpui && "$default_run" == 1 ]]; then
-    python3 -B "$repo/tests/lib/flea_native_wallpaper.py" > "$run_root/wallpaper-before.json" \
+    python3 -B "$repo/tests/lib/dlea_native_wallpaper.py" > "$run_root/wallpaper-before.json" \
         || fail "full native run requires a verified still wallpaper"
 fi
 if [[ "$test_frontend" == gpui ]]; then
@@ -13552,22 +13552,22 @@ for name in "${wanted[@]}"; do
 done
 
 # launch() rolled every earlier case into the run log, so this adds the last case's share.
-cat "$flea_log" >> "$run_log" 2>/dev/null || true
+cat "$dlea_log" >> "$run_log" 2>/dev/null || true
 
 # The last case's backend is reaped here and not only by the trap, so a wedge lands in the tally like any other check.
-if ! ( kill_flea ); then
+if ! ( kill_dlea ); then
     printf 'FAIL drain\n'
     failures=$((failures + 1))
 fi
 
 printf '\nLOG_CHECK_BEGIN %s\n' "$run_log"
-# case_network makes its own Flea store unreadable on purpose, and Quickshell correctly reports
+# case_network makes its own Dlea store unreadable on purpose, and Quickshell correctly reports
 # that it cannot watch a file it cannot read. This drops that one line and nothing else: the path
 # carries this run's own pid and names one fixture home, so no product warning can ever match it.
 # The reader has no -q, so it drains the pipe and takes no SIGPIPE; pipefail then reports its own
 # status, which is what says whether anything but that one line matched.
-expected_warning="inotify_add_watch($fixture_root/network-state/flea/ui.json) failed: (Permission denied)"
-# Qt Multimedia's ffmpeg backend saying zero-copy needs an OpenGL RHI; Flea runs Vulkan, the backend falls back, and case_views proves the frames still change.
+expected_warning="inotify_add_watch($fixture_root/network-state/dlea/ui.json) failed: (Permission denied)"
+# Qt Multimedia's ffmpeg backend saying zero-copy needs an OpenGL RHI; Dlea runs Vulkan, the backend falls back, and case_views proves the frames still change.
 vaapi_warning="VAAPITextureConverter: No rhi or non openGL based RHI"
 # Qt Multimedia 6.12 says the same through DmaBufEglContext: no zero-copy video frames under the Vulkan RHI, so frames take the copy path.
 dmabuf_warning="DmaBufEglContext: No rhi or non openGL based RHI"
@@ -13579,7 +13579,7 @@ unreadable_warning3="$fixture_root/capsweep-current/previews/shut.jpg"
 unreadable_warning4="$fixture_root/capsweep-cool-dawn/previews/shut.jpg"
 # case_settings and case_networkauth chmod 000 a fixture ui.json on purpose, so Quickshell reports
 # that it cannot watch it. How many times it says so is the watch's business, not this suite's.
-unreadable_state_warning="/flea/ui.json) failed: (Permission denied)"
+unreadable_state_warning="/dlea/ui.json) failed: (Permission denied)"
 # Qt 6.12's Wayland text-input-v3 warns when focus leaves a text field while no surface holds text focus; typing still works.
 textinput_warning="virtual void QtWaylandClient::QWaylandTextInputv3::disableSurface(wl_surface*) Trying to disable "
 # A case registers a warning once for each time it causes it. Sample input, one uniq -c line: "      2 Process failed to start, ..."
@@ -13600,7 +13600,7 @@ elif ! qslog_filter "native run" < "$run_log" 2>&1 > "$checked_log"; then
     failures=$((failures + 1))
 fi
 if [[ "$test_frontend" == gpui ]]; then
-    if ! python3 -B "$repo/tests/lib/flea_native_log.py" "$expected_warnings" "$checked_log"; then
+    if ! python3 -B "$repo/tests/lib/dlea_native_log.py" "$expected_warnings" "$checked_log"; then
         printf 'FAIL log\n'
         failures=$((failures + 1))
     fi
@@ -13612,7 +13612,7 @@ elif grep -F -v -e "$expected_warning" -e "$vaapi_warning" -e "$dmabuf_warning" 
 fi
 printf 'LOG_CHECK_END\n'
 if [[ "$test_frontend" == gpui && "$default_run" == 1 ]]; then
-    python3 -B "$repo/tests/lib/flea_native_wallpaper.py" > "$run_root/wallpaper-after.json" \
+    python3 -B "$repo/tests/lib/dlea_native_wallpaper.py" > "$run_root/wallpaper-after.json" \
         || fail "full native run ended without a verified still wallpaper"
 fi
 cache_restore

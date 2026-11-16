@@ -12,7 +12,7 @@ fn mountinfo(root: &Path, fstype: &str) -> String {
 }
 
 // One rename as a kernel without the flag answers it, and the inode it left behind, so a copy cannot pass for a rename.
-fn renamed_on_einval(from: &Path, to: &Path) -> (Result<(), crate::error::FleaError>, Option<u64>) {
+fn renamed_on_einval(from: &Path, to: &Path) -> (Result<(), crate::error::DleaError>, Option<u64>) {
     let inode = from.symlink_metadata().ok().map(|m| m.ino());
     test_force_fallback(true);
     let outcome = rename_path(from, to);

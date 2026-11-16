@@ -22,7 +22,7 @@ fn sol_gap64_shared_clock_matches_date_in_four_isolated_timezones() {
         "Asia/Kathmandu",
         "Europe/Berlin",
     ];
-    if let Ok(zone) = std::env::var("FLEA_GAP64_CLOCK_CHILD") {
+    if let Ok(zone) = std::env::var("DLEA_GAP64_CLOCK_CHILD") {
         assert!(ZONES.contains(&zone.as_str()));
         let locale = Locale {
             glibc_locale: "C".into(),
@@ -55,7 +55,7 @@ fn sol_gap64_shared_clock_matches_date_in_four_isolated_timezones() {
         let output = Command::new(std::env::current_exe().unwrap())
             .args(["--exact", TEST, "--nocapture"])
             .env("TZ", zone)
-            .env("FLEA_GAP64_CLOCK_CHILD", zone)
+            .env("DLEA_GAP64_CLOCK_CHILD", zone)
             .output()
             .unwrap();
         assert!(output.status.success(), "{zone}: {output:?}");

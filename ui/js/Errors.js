@@ -15,7 +15,7 @@ var WORDS = {
     connectMountedAs: "Could not connect: that share is already mounted as %1.",
     connectNoAnswer: "Could not connect: the server did not respond.",
     connectNoPassword: "Could not connect: the server did not accept the password.",
-    connectNoPrompt: "Could not connect: Flea could not ask for the password.",
+    connectNoPrompt: "Could not connect: Dlea could not ask for the password.",
     connectUnopened: "Could not connect: the network location could not be opened."
 }
 
@@ -38,7 +38,7 @@ function sentence(where, message, named) {
         return "Sorting by that column is not available."
     }
     if (where === "read") {
-        return "Flea stopped responding. Reopen Flea and try again."
+        return "Dlea stopped responding. Reopen Dlea and try again."
     }
     // The write operations say what they were doing, because the operator is about to try it again.
     if (where === "undo" || where === "redo") {
@@ -90,10 +90,10 @@ function sentence(where, message, named) {
     if (where === "window") {
         return capitalised(message)
     }
-    // A password request refused before the child started names its archive, like the read sentence names Flea.
+    // A password request refused before the child started names its archive, like the read sentence names Dlea.
     if (where === "archive" && String(message) === "the backend is not running") {
-        return named ? Format.fill("%1 could not be opened because the Flea backend stopped; reopen Flea and try again.", named)
-                     : "This archive could not be opened because the Flea backend stopped; reopen Flea and try again."
+        return named ? Format.fill("%1 could not be opened because the Dlea backend stopped; reopen Dlea and try again.", named)
+                     : "This archive could not be opened because the Dlea backend stopped; reopen Dlea and try again."
     }
     if (where === "transfer" || where === "archive" || where === "convert"
             || where === "link" || where === "linktarget" || where === "rename-stranded" || where === "pasteimage") {
@@ -178,7 +178,7 @@ function notYours(mode) {
     return (mode & OWNER_CAN_LIST) === OWNER_CAN_LIST ? " · not yours" : ""
 }
 
-// 124 and 126/127 name a cause and 77 is tools/flea-gio-auth's proof of a refusal; gio's text is suppressed, so no other status names one.
+// 124 and 126/127 name a cause and 77 is tools/dlea-gio-auth's proof of a refusal; gio's text is suppressed, so no other status names one.
 function connectFailure(exitCode) {
     if (exitCode === 124) return WORDS.connectNoAnswer
     if (exitCode === 126 || exitCode === 127)

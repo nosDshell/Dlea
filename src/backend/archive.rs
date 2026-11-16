@@ -1,7 +1,7 @@
 // Which archive formats this box can actually write and read, probed once at startup, and the argv
 // each tool needs. The jobs themselves are archiveops.rs and reading an index is archivelist.rs.
 use crate::backend::archivespec::{seven_spec, tar_spec, ListSpec};
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::path::Path;
 
 const BSDTAR: &str = "bsdtar";
@@ -63,7 +63,7 @@ fn on_path(prog: &str) -> bool {
     let path = std::env::var("PATH").unwrap_or_default();
     path.split(':')
         .filter(|d| !d.is_empty())
-        .any(|d| flea::bytename::view(d).join(prog).is_file())
+        .any(|d| dlea::bytename::view(d).join(prog).is_file())
 }
 
 impl Formats {

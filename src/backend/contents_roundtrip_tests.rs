@@ -15,7 +15,7 @@ fn root() -> PathBuf {
     assert!(made.status.success());
     let root = PathBuf::from(String::from_utf8(made.stdout).unwrap().trim_end());
     assert!(root.is_absolute() && root.starts_with(parent));
-    std::fs::write(root.join(".flea-test-sandbox"), "contents roundtrip\n").unwrap();
+    std::fs::write(root.join(".dlea-test-sandbox"), "contents roundtrip\n").unwrap();
     root
 }
 
@@ -30,7 +30,7 @@ impl Drop for Backend {
 #[test]
 #[ignore = "subprocess backend entry point"]
 fn m9_g2rows_01_protocol_child() {
-    if std::env::var_os("FLEA_CONTENTS_BACKEND_CHILD").is_some() {
+    if std::env::var_os("DLEA_CONTENTS_BACKEND_CHILD").is_some() {
         std::process::exit(run());
     }
 }
@@ -57,7 +57,7 @@ fn m9_g2rows_01_real_backend_stdin_stdout_and_remainder() {
                 "--nocapture",
                 "--ignored",
             ])
-            .env("FLEA_CONTENTS_BACKEND_CHILD", "1")
+            .env("DLEA_CONTENTS_BACKEND_CHILD", "1")
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::inherit())
@@ -141,13 +141,13 @@ fn m9_g2rows_01_cancellation_in_clean_no_tty_pid_namespace() {
         return;
     }
     let root = root();
-    let out = Command::new(flea::testpath::tool("/usr/bin/bwrap"))
+    let out = Command::new(dlea::testpath::tool("/usr/bin/bwrap"))
         .args(["--unshare-all", "--dev-bind", "/", "/", "--proc", "/proc", "--die-with-parent", "/usr/bin/env", "-i", "PATH=/usr/bin:/bin"])
-        .arg(format!("HOME={}", root.display())).arg(format!("TMPDIR={}", root.display())).arg("FLEA_CONTENTS_CI_ENV=1")
+        .arg(format!("HOME={}", root.display())).arg(format!("TMPDIR={}", root.display())).arg("DLEA_CONTENTS_CI_ENV=1")
         .args(["/usr/bin/setsid", "-w"])
         .arg(std::env::current_exe().unwrap())
         .args(["--exact", "backend::run::contents_tests::m9_g2rows_01_cancel_reaps_and_stale_generation_is_ignored", "--nocapture"])
-        .env_clear().env("PATH", "/usr/bin:/bin").env("HOME", &root).env("TMPDIR", &root).env("FLEA_CONTENTS_CI_ENV", "1")
+        .env_clear().env("PATH", "/usr/bin:/bin").env("HOME", &root).env("TMPDIR", &root).env("DLEA_CONTENTS_CI_ENV", "1")
         .current_dir(std::env::current_dir().unwrap()).stdin(Stdio::null()).output().unwrap();
     assert!(
         out.status.success(),

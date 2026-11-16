@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Eject.js" as Eject
 import "js/Mounts.js" as Mounts
 import "js/Places.js" as Places
@@ -708,7 +708,7 @@ Item {
         }
     }
     // The rail edge, one Divider shared with the column edges.
-    Flea.Divider {
+    Dlea.Divider {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: parent.bottom

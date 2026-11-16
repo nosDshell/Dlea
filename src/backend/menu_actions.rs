@@ -1,6 +1,6 @@
 // Menu snapshots own selected identities; registry work runs only after an explicit menu action.
 use crate::backend::opsreq::OpMsg;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::menu_registry::{self, Registry};
 use super::menu_slot::{CloseOnExit, MenuSlot, Sent};
 use super::trashmanifest::Cancellation;
@@ -39,7 +39,7 @@ impl MenuActions {
         let restoration = self.restoration.lock().map_err(|_| MENU_STOPPED)?;
         if id == 0 || restoration.0 != id { return Err("The items changed; select them again.".into()); }
         let originals: HashMap<_, _> = restoration.1.iter().map(|item| (item.path.as_path(), item)).collect();
-        matches.retain(|(path, _)| originals.get(&*flea::bytename::view(path)).is_some_and(|item| item.current().is_ok()));
+        matches.retain(|(path, _)| originals.get(&*dlea::bytename::view(path)).is_some_and(|item| item.current().is_ok()));
         Ok(())
     }
     pub(crate) fn provider_destination(&self, id: usize, dest: &Path) -> Result<Option<Selected>, String> {
@@ -101,7 +101,7 @@ impl Drop for MenuActions {
         self.slot.close();
         self.catalogue.close();
         for registry in [&self.registry, &self.catalogue_registry] {
-            if let Err(error) = registry.cancel() { eprintln!("flea: {}", error); }
+            if let Err(error) = registry.cancel() { eprintln!("dlea: {}", error); }
         }
     }
 }
@@ -131,7 +131,7 @@ pub(crate) struct Selected {
 }
 impl Selected {
     pub(crate) fn inspect(path: &str) -> Result<Self, String> {
-        let path = flea::bytename::exact(path);
+        let path = dlea::bytename::exact(path);
         if !path.is_absolute() || path.file_name().is_none() {
             return Err("Menu selection requires an absolute item path.".into());
         }
@@ -243,7 +243,7 @@ impl Snapshot {
         if op == "validate" || op == "activate" {
             let action = field_str(line, "action").unwrap_or_default();
             if action == "dropbox" || action == "sharelink" {
-                self.check_provider_destination(&flea::bytename::view(&field_str(line, "dest").unwrap_or_default()))?;
+                self.check_provider_destination(&dlea::bytename::view(&field_str(line, "dest").unwrap_or_default()))?;
             }
             if op == "activate" { self.provider_transfer = action == "dropbox"; }
             // Issue 397: a selection of several archives names each one, and each runs its own extract.
@@ -487,7 +487,7 @@ mod tests {
         d.file("folder/new", "new child");
         let check = format!(r#"{{"op":"checkDelete","id":5,"token":{}}}"#, old_token);
         assert!(snapshot.handle(&check, vec![]).contains(r#""valid":false"#));
-        assert!(path.is_absolute() && path.starts_with(d.path()) && d.path().join(".flea-test-sandbox").is_file());
+        assert!(path.is_absolute() && path.starts_with(d.path()) && d.path().join(".dlea-test-sandbox").is_file());
         std::fs::rename(&path, d.join("original-moved")).unwrap();
         d.file("item", "replacement");
         d.file("unrelated", "preserved");
@@ -509,7 +509,7 @@ mod tests {
         let (tx, _rx) = std::sync::mpsc::channel();
         let menu = MenuActions::new(tx);
         *menu.restoration.lock().unwrap() = (8, vec![Selected::inspect(path.to_str().unwrap()).unwrap(), Selected::inspect(kept.to_str().unwrap()).unwrap()]);
-        assert!(path.is_absolute() && path.starts_with(d.path()) && d.path().join(".flea-test-sandbox").is_file());
+        assert!(path.is_absolute() && path.starts_with(d.path()) && d.path().join(".dlea-test-sandbox").is_file());
         std::fs::rename(&path, d.join("moved")).unwrap();
         d.file("item", "replacement");
         menu.request(r#"{"op":"close","id":8}"#.into(), vec![], None);

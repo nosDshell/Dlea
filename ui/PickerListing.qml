@@ -115,7 +115,7 @@ Item {
             property bool obsolete: false
             property bool started: false
             property var pathRequests: []
-            command: [Quickshell.env("FLEA_BIN") || "flea", "--backend"]
+            command: [Quickshell.env("DLEA_BIN") || "dlea", "--backend"]
             stdinEnabled: true
             onStarted: {
                 started = true
@@ -139,10 +139,10 @@ Item {
             onExited: function(code, status) {
                 // The signal(9) above ends an obsolete or quitting worker on purpose, so only an unasked exit is worth a warning.
                 if (!process.obsolete && !root.quitting) console.warn("PickerListing worker exited with code " + code)
-                root.ended(process, "Flea stopped responding, so this folder could not be listed.")
+                root.ended(process, "Dlea stopped responding, so this folder could not be listed.")
             }
             // A failed QProcess spawn emits runningChanged, but never exited.
-            onRunningChanged: if (!running && !started) root.ended(process, "This folder could not be listed. Restart Flea.")
+            onRunningChanged: if (!running && !started) root.ended(process, "This folder could not be listed. Restart Dlea.")
         }
     }
 }

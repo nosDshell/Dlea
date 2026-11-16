@@ -2,7 +2,7 @@ use super::*;
 
 #[test]
 fn review_constructor_handle_open_failure_cleans_its_created_root() {
-    const CHILD_ROOT: &str = "FLEA_TEST_HANDLE_OPEN_FAILURE_ROOT";
+    const CHILD_ROOT: &str = "DLEA_TEST_HANDLE_OPEN_FAILURE_ROOT";
     if let Some(root) = std::env::var_os(CHILD_ROOT) {
         let root = PathBuf::from(root);
         assert!(root.is_absolute() && !root.as_os_str().is_empty());
@@ -33,10 +33,10 @@ fn review_constructor_handle_open_failure_cleans_its_created_root() {
 #[test]
 fn review_rollback_keeps_a_different_directory_at_its_old_name() {
     let outer = TestDir::new("rollback-replaced");
-    let path = outer.join("flea-test-constructing");
+    let path = outer.join("dlea-test-constructing");
     outer.assert_contains(&path);
     std::fs::create_dir(&path).unwrap();
-    outer.file("flea-test-constructing/.flea-test-sandbox", "original marker");
+    outer.file("dlea-test-constructing/.dlea-test-sandbox", "original marker");
     let rollback = UnmarkedDir::new(&path).unwrap();
     let held = outer.join("held-original");
     std::fs::rename(&path, &held).unwrap();
@@ -53,12 +53,12 @@ fn review_rollback_keeps_a_different_directory_at_its_old_name() {
 fn review_rollback_keeps_a_marker_through_a_replacement_symlink() {
     let outer = TestDir::new("rollback-symlink");
     let victim = outer.dir("other-root");
-    let marker = outer.file("other-root/.flea-test-sandbox", "other root marker");
+    let marker = outer.file("other-root/.dlea-test-sandbox", "other root marker");
     let sentinel = outer.file("other-root/keep.txt", "must survive");
-    let path = outer.join("flea-test-constructing");
+    let path = outer.join("dlea-test-constructing");
     outer.assert_contains(&path);
     std::fs::create_dir(&path).unwrap();
-    outer.file("flea-test-constructing/.flea-test-sandbox", "original marker");
+    outer.file("dlea-test-constructing/.dlea-test-sandbox", "original marker");
     let rollback = UnmarkedDir::new(&path).unwrap();
     let held = outer.join("held-original");
     std::fs::rename(&path, &held).unwrap();
@@ -73,7 +73,7 @@ fn review_rollback_keeps_a_marker_through_a_replacement_symlink() {
 
 #[test]
 fn review_constructor_failure_cannot_unlink_another_root_marker() {
-    const CHILD_ROOT: &str = "FLEA_TEST_CONSTRUCTOR_SWAP_ROOT";
+    const CHILD_ROOT: &str = "DLEA_TEST_CONSTRUCTOR_SWAP_ROOT";
     if let Some(root) = std::env::var_os(CHILD_ROOT) {
         let root = PathBuf::from(root);
         assert!(root.is_absolute() && !root.as_os_str().is_empty());
@@ -100,7 +100,7 @@ fn review_constructor_failure_cannot_unlink_another_root_marker() {
     }
     let outer = TestDir::new("real-constructor-swap");
     outer.dir("other-root");
-    let marker = outer.file("other-root/.flea-test-sandbox", "other root marker");
+    let marker = outer.file("other-root/.dlea-test-sandbox", "other root marker");
     let sentinel = outer.file("other-root/keep.txt", "must survive");
     let result = std::process::Command::new(std::env::current_exe().unwrap())
         .args(["--exact", "backend::testdir::tests::review_constructor_failure_cannot_unlink_another_root_marker", "--nocapture"])
@@ -115,7 +115,7 @@ fn review_constructor_failure_cannot_unlink_another_root_marker() {
 
 #[test]
 fn freed_inode_marker_write_failure_cleans_created_root() {
-    const CHILD_ROOT: &str = "FLEA_TEST_MARKER_FAILURE_ROOT";
+    const CHILD_ROOT: &str = "DLEA_TEST_MARKER_FAILURE_ROOT";
     if let Some(root) = std::env::var_os(CHILD_ROOT) {
         const RLIMIT_FSIZE: i32 = 1;
         const SIGXFSZ: i32 = 25;
@@ -235,7 +235,7 @@ fn the_guard_refuses_every_path_that_is_not_one_of_ours() {
     assert!(!removable(Path::new("/")));
     assert!(!removable(Path::new("")));
     // A relative path can be anything the caller's cwd makes it, so it never qualifies.
-    assert!(!removable(Path::new("flea-test-relative")));
+    assert!(!removable(Path::new("dlea-test-relative")));
     // Right shape, right place, no marker.
     let bare = outside.dir(&format!("{}bare", PREFIX));
     assert!(!removable(&bare));

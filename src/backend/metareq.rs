@@ -13,7 +13,7 @@ use crate::backend::rawtiff;
 use crate::backend::regfile::open_regular;
 use crate::backend::sandbox;
 use crate::json::escape;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::io::Read;
 use std::path::Path;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -271,7 +271,7 @@ pub fn meta_line(row: usize, m: &Meta) -> String {
     )
 }
 
-// Sample output: {"file":"/home/gm/.cache/flea/raw/b98fa4.jpg","w":1620,"h":1080,"orient":1}, or null.
+// Sample output: {"file":"/home/gm/.cache/dlea/raw/b98fa4.jpg","w":1620,"h":1080,"orient":1}, or null.
 fn raw_json(raw: &Option<Extracted>) -> String {
     match raw {
         Some(e) => format!(r#"{{"file":"{}","w":{},"h":{},"orient":{}}}"#, escape(&e.file.exact_text()), e.width, e.height, e.orientation),

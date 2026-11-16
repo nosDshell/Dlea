@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Format.js" as Format
 import "js/Kinds.js" as Kinds
 import "js/PreviewKeys.js" as PreviewKeys
@@ -146,7 +146,7 @@ Item {
     }
 
     // Past fit the fit picture is drawn scaled until this layer has a frame.
-    Flea.PreviewImageSharp {
+    Dlea.PreviewImageSharp {
         id: sharp
         base: picture
         active: root.zoomed
@@ -183,7 +183,7 @@ Item {
             parent: flick
             anchors.fill: parent
             active: root.zoomed
-            sourceComponent: Flea.PreviewImagePan {}
+            sourceComponent: Dlea.PreviewImagePan {}
         }
     }
 
@@ -217,7 +217,7 @@ Item {
         spacing: Theme.spacing.gap
         visible: root.failed
 
-        Flea.Glyph {
+        Dlea.Glyph {
             anchors.horizontalCenter: parent.horizontalCenter
             // A failure mark stands alone, so it takes the pane-state ceiling States.dc.html draws at 40.
             maxSize: Theme.stateMarkSize

@@ -1,6 +1,6 @@
 use crate::backend::manifestdir::current_uid;
 use crate::backend::sandbox;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::os::unix::fs::MetadataExt;
 use std::path::{Component, Path, PathBuf};
 
@@ -206,7 +206,7 @@ mod tests {
         if meta.uid() != 0 {
             assert!(!trusted(&meta, meta.uid().wrapping_add(1)), "another user's file");
         }
-        // Root's half needs a file root owns: in a user namespace (cargo-west's PID namespace) root's files read as the overflow uid, and flea-ci's unwrapped run judges it.
+        // Root's half needs a file root owns: in a user namespace (cargo-west's PID namespace) root's files read as the overflow uid, and dlea-ci's unwrapped run judges it.
         let sh = std::fs::metadata("/usr/bin/sh").unwrap();
         if sh.uid() == 0 {
             assert!(trusted(&sh, 4_000_000), "root's file is trusted whoever asks");
@@ -251,16 +251,16 @@ mod tests {
 
     impl RelativeDir {
         fn new() -> RelativeDir {
-            let path = std::env::current_dir().unwrap().join(".superpowers/tmp").join(format!("flea-test-thumbbind-relative-{}", std::process::id()));
+            let path = std::env::current_dir().unwrap().join(".superpowers/tmp").join(format!("dlea-test-thumbbind-relative-{}", std::process::id()));
             std::fs::create_dir_all(&path).unwrap();
-            std::fs::write(path.join(".flea-test-sandbox"), b"flea test sandbox\n").unwrap();
+            std::fs::write(path.join(".dlea-test-sandbox"), b"dlea test sandbox\n").unwrap();
             RelativeDir(path)
         }
     }
 
     impl Drop for RelativeDir {
         fn drop(&mut self) {
-            if self.0.is_absolute() && self.0.join(".flea-test-sandbox").is_file() && self.0.file_name().is_some_and(|n| n.to_string_lossy().starts_with("flea-test-")) {
+            if self.0.is_absolute() && self.0.join(".dlea-test-sandbox").is_file() && self.0.file_name().is_some_and(|n| n.to_string_lossy().starts_with("dlea-test-")) {
                 let _ = std::fs::remove_dir_all(&self.0);
             }
         }

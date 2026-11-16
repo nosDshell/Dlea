@@ -7,7 +7,7 @@ use crate::ui_logic_send_share::airdrop::Readiness;
 use std::path::PathBuf;
 
 fn english() -> I18n {
-    let none = PathBuf::from("/nonexistent/flea-st2-airdrop");
+    let none = PathBuf::from("/nonexistent/dlea-st2-airdrop");
     I18n::load(Paths {
         omarchy: none.clone(),
         language_file: none,
@@ -162,7 +162,7 @@ fn without_the_windows_facts_or_on_another_plugin_the_generic_page_stands() {
         .any(|l| l.contains("Receiving") || l.contains("Credits")));
     let (shelf, _) = builtin::manifests()
         .into_iter()
-        .find(|(m, _)| m.id == "flea.localsend")
+        .find(|(m, _)| m.id == "dlea.localsend")
         .unwrap();
     let other = Plugin {
         manifest: shelf,

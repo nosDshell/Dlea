@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-search-warm-test
+//@ pragma ShellId dlea-search-warm-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Swap.js" as Swap
-import "flea/js/DirSizes.js" as DirSizes
+import "dlea" as Dlea
+import "dlea/js/Swap.js" as Swap
+import "dlea/js/DirSizes.js" as DirSizes
 
 // The first answer of a search over a folder shorter than the view builds nothing in any view: the strip's warm turn already built it, unseen.
 ShellRoot {
@@ -125,7 +125,7 @@ ShellRoot {
     function answered() { return root.pane.searchGen === root.gen && !root.pane.searchRunning && root.pane.searchSettledAt >= root.pane.searchKeyAt }
     // Every drawn directory row a view sizes shows its answer, which lands after the folder's rows.
     function sizesLanded() {
-        if (!DirSizes.wantsSizes(root.pane.viewMode, Flea.ViewState.hiddenCols, root.pane.storageClass, root.pane.storageKnown)) return true
+        if (!DirSizes.wantsSizes(root.pane.viewMode, Dlea.ViewState.hiddenCols, root.pane.storageClass, root.pane.storageKnown)) return true
         return root.delegates().every(function (d) {
             var row = d.visible && d.index < root.lv.count && d.listingIndex >= 0 ? root.pane.rowFor(d.listingIndex) : null
             return row === null || !row.d || DirSizes.sizeFor(root.pane.dirSizeState, d.listingIndex) !== null
@@ -136,13 +136,13 @@ ShellRoot {
         id: win
         implicitWidth: 1400
         implicitHeight: 800
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
         Item { id: probe; readonly property var qwin: Window.window }
     }
-    Flea.Backend { id: realBackend }
+    Dlea.Backend { id: realBackend }
     Component {
         id: paneComponent
-        Flea.Pane {
+        Dlea.Pane {
             width: 1400
             height: 800
             backend: realBackend
@@ -227,7 +227,7 @@ ShellRoot {
             root.awaiting = function () { return root.pane === null }
         } else if (op.view !== undefined) {
             root.seen = {}
-            Flea.ViewState.changeKey("view", op.view)
+            Dlea.ViewState.changeKey("view", op.view)
             root.pane = paneComponent.createObject(win.contentItem)
             root.keys = Qt.createQmlObject("import QtTest; TestEvent {}", root.pane.listArea)
             root.pane.open(root.fixture)

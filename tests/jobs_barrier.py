@@ -17,7 +17,7 @@ class CopyBarrier:
 
     @classmethod
     def build(cls, root):
-        assert root.is_absolute() and (root / '.flea-test-sandbox').is_file()
+        assert root.is_absolute() and (root / '.dlea-test-sandbox').is_file()
         barrier = cls(root)
         barrier.directory.mkdir()
         subprocess.run(['cc', '-shared', '-fPIC', '-Wall', '-Werror', '-o',
@@ -27,7 +27,7 @@ class CopyBarrier:
     def environment(self, env):
         if self.library.is_file():
             env['LD_PRELOAD'] = str(self.library)
-            env['FLEA_JOBS_BARRIER'] = str(self.root)
+            env['DLEA_JOBS_BARRIER'] = str(self.root)
 
     def ready(self):
         return set(self.directory.glob('*.ready'))
@@ -44,9 +44,9 @@ class CopyBarrier:
 
     def release(self, ready):
         assert ready.is_absolute() and ready.parent == self.directory
-        assert (self.root / '.flea-test-sandbox').is_file()
+        assert (self.root / '.dlea-test-sandbox').is_file()
         ready.with_suffix('.release').touch()
 
     def close(self):
-        assert self.root.is_absolute() and (self.root / '.flea-test-sandbox').is_file()
+        assert self.root.is_absolute() and (self.root / '.dlea-test-sandbox').is_file()
         (self.directory / 'release-all').touch()

@@ -24,7 +24,7 @@ pub fn open_terminal(path: &str) -> i32 {
     let Some(target) = target.filter(|p| p.is_dir()) else {
         // The reason is elided, never shown raw, and the path is the user's own input.
         eprintln!(
-            "flea: that folder could not be opened in a terminal; check that it still exists"
+            "dlea: that folder could not be opened in a terminal; check that it still exists"
         );
         return FAILED;
     };
@@ -49,13 +49,13 @@ pub fn open_terminal(path: &str) -> i32 {
     match terminal.spawn() {
         Ok(_) => 0,
         Err(_) => {
-            eprintln!("flea: nothing on this system could be asked to open a terminal there");
+            eprintln!("dlea: nothing on this system could be asked to open a terminal there");
             FAILED
         }
     }
 }
 
-// A bare file name is listed in the folder flea was started in.
+// A bare file name is listed in the folder dlea was started in.
 fn listing_folder(path: &str) -> Option<PathBuf> {
     match Path::new(path).parent() {
         Some(parent) if !parent.as_os_str().is_empty() => parent.canonicalize().ok(),
@@ -102,18 +102,18 @@ pub(crate) fn open_argv(directory: &std::path::Path, argv: &[String]) -> std::io
     terminal
         .arg(dir)
         .arg("--")
-        .args(flea::bytename::args(argv))
+        .args(dlea::bytename::args(argv))
         .spawn()
         .map(|_| ())
 }
 
-// The guards every program Flea starts and does not wait for carries; src/update.rs hands its updater the same.
+// The guards every program Dlea starts and does not wait for carries; src/update.rs hands its updater the same.
 pub fn detach(child: &mut Command) {
     // One helper owns the environment, so a new guard reaches every launcher at once; see src/open.rs.
     crate::open::prepare(child);
     // The child outlives us, so an inherited pipe would kill it on its first write; see AGENTS.md "Opening a file".
     child.stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null());
-    // Its own process group, so nothing that later kills Flea's group reaches the child.
+    // Its own process group, so nothing that later kills Dlea's group reaches the child.
     child.process_group(0);
 }
 

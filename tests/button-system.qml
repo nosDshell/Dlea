@@ -1,14 +1,14 @@
-//@ pragma ShellId flea-button-system-test
+//@ pragma ShellId dlea-button-system-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/Recent.js" as Recent
-import "flea/js/TextSize.js" as TextSize
+import "dlea" as Dlea
+import "dlea/js/Recent.js" as Recent
+import "dlea/js/TextSize.js" as TextSize
 import "qml-probe.js" as QmlProbe
 
-// tests/button-system.sh's harness: the real TrashView strip's Empty Trash and a destructive Flea.DialogButton draw one ladder in five states.
+// tests/button-system.sh's harness: the real TrashView strip's Empty Trash and a destructive Dlea.DialogButton draw one ladder in five states.
 ShellRoot {
     id: shell
 
@@ -104,7 +104,7 @@ ShellRoot {
             id: stripHost
             width: 800
             height: 300
-            Flea.TrashView {
+            Dlea.TrashView {
                 id: view
                 opened: true
                 total: shell.trashRows
@@ -116,7 +116,7 @@ ShellRoot {
             y: 320
             width: 800
             height: 100
-            Flea.DialogButton {
+            Dlea.DialogButton {
                 id: dialog
                 x: 40
                 y: 20
@@ -216,14 +216,14 @@ ShellRoot {
 
     // The ruling itself, so two controls drifting together still fail.
     function ruling() {
-        var muted = shell.rgba(Flea.Theme.color.muted)
-        var mutedFrame = shell.rgba(Flea.Theme.color.mutedFrame)
-        var error = shell.rgba(Flea.Theme.color.error)
-        var foreground = shell.rgba(Flea.Theme.color.foreground)
+        var muted = shell.rgba(Dlea.Theme.color.muted)
+        var mutedFrame = shell.rgba(Dlea.Theme.color.mutedFrame)
+        var error = shell.rgba(Dlea.Theme.color.error)
+        var foreground = shell.rgba(Dlea.Theme.color.foreground)
         var s = shell.readings.strip
         for (var i = 0; i < shell.states.length; i++) {
             var state = shell.states[i]
-            shell.check(state + ": the frame is one hairline", s[state].frameWidth, Flea.Theme.spacing.hairline)
+            shell.check(state + ": the frame is one hairline", s[state].frameWidth, Dlea.Theme.spacing.hairline)
             shell.check(state + ": a destructive label inks error (muted when disabled)", s[state].ink, state === "disabled" ? muted : error)
             if (state === "focus") shell.check(state + ": the frame is the foreground frame", s[state].frameColor, foreground)
             else shell.check(state + ": the frame is the muted frame", s[state].frameColor, mutedFrame)
@@ -233,10 +233,10 @@ ShellRoot {
         shell.check("hover: the wash is the label's ink", s.hover.wash, error.split(",").slice(0, 3).concat([s.hover.washAlpha]).join(","))
         shell.check("focus: no wash and the foreground hairline frame",
                     [s.focus.washAlpha, s.focus.frameColor, s.focus.frameWidth],
-                    [0, foreground, Flea.Theme.spacing.hairline])
+                    [0, foreground, Dlea.Theme.spacing.hairline])
         shell.check("no state holds a ring item", shell.states.map(function (state) { return s[state].ringItem }), shell.states.map(function () { return false }))
         shell.check("every state lays the wash one hairline inside the frame", shell.states.map(function (state) { return s[state].washInset }),
-                    shell.states.map(function () { return Flea.Theme.spacing.hairline }))
+                    shell.states.map(function () { return Dlea.Theme.spacing.hairline }))
         shell.check("pressed: the wash is 14% of the ink and the native label stays unscaled", [Math.abs(s.pressed.washAlpha - shell.rulingPress) < shell.alphaEpsilon, s.pressed.scale], [true, 1])
         shell.check("rest: the label stays unscaled", s.rest.scale, 1)
         shell.check("disabled: 0.55 opacity and no wash", [s.disabled.opacity, s.disabled.washAlpha], [shell.rulingDisabled, 0])
@@ -247,15 +247,15 @@ ShellRoot {
     function geometry() {
         var s = shell.readings.strip.rest
         var d = shell.readings.dialog.rest
-        shell.check("dialog: a 30 px frame at body size", [d.frameHeight, d.labelSize], [Flea.Theme.rowHeight - Flea.Theme.spacing.rowPaddingY, Flea.Theme.font.body])
-        shell.check("strip: the control height at caption size", [s.frameHeight, s.labelSize], [Flea.Theme.chromeControlHeight, Flea.Theme.font.caption])
+        shell.check("dialog: a 30 px frame at body size", [d.frameHeight, d.labelSize], [Dlea.Theme.rowHeight - Dlea.Theme.spacing.rowPaddingY, Dlea.Theme.font.body])
+        shell.check("strip: the control height at caption size", [s.frameHeight, s.labelSize], [Dlea.Theme.chromeControlHeight, Dlea.Theme.font.caption])
         var frame = shell.find(shell.strip, "buttonFrame")
         var top = frame.mapToItem(shell.strip, 0, 0).y
-        shell.check("strip: the press area fills the strip and clears the 24 px floor", [shell.strip.height, shell.strip.height >= Flea.Theme.hitMin], [Flea.Theme.chromeHeight, true])
-        shell.check("strip: the frame is centred in the strip less its rule", top, Math.round((shell.strip.height - Flea.Theme.spacing.hairline - frame.height) / 2))
+        shell.check("strip: the press area fills the strip and clears the 24 px floor", [shell.strip.height, shell.strip.height >= Dlea.Theme.hitMin], [Dlea.Theme.chromeHeight, true])
+        shell.check("strip: the frame is centred in the strip less its rule", top, Math.round((shell.strip.height - Dlea.Theme.spacing.hairline - frame.height) / 2))
         var focused = shell.readings.strip.focusFrame
         shell.check("strip: the focused frame lies inside the strip, above its rule",
-                    focused !== null && focused.x >= 0 && focused.y >= 0 && focused.x + focused.w <= focused.hostW && focused.y + focused.h <= focused.hostH - Flea.Theme.spacing.hairline, true)
+                    focused !== null && focused.x >= 0 && focused.y >= 0 && focused.x + focused.w <= focused.hostW && focused.y + focused.h <= focused.hostH - Dlea.Theme.spacing.hairline, true)
         shell.check("both: one accessible name and the button role",
                     [shell.strip.Accessible.name, shell.strip.Accessible.role === Accessible.Button, shell.dlg.Accessible.name, shell.dlg.Accessible.role === Accessible.Button],
                     ["Empty Trash", true, "Empty Trash", true])
@@ -328,8 +328,8 @@ ShellRoot {
             ["XDG_CACHE_HOME", Quickshell.env("XDG_CACHE_HOME") || home + "/.cache"],
             ["the Trash directory under the product's data home", shell.productDataHome() + "/Trash"],
             ["the view's home", view.home],
-            ["the scripts directory", Flea.Scripts.directory],
-            ["the state file ViewState reads", Flea.ViewState.store.path]
+            ["the scripts directory", Dlea.Scripts.directory],
+            ["the state file ViewState reads", Dlea.ViewState.store.path]
         ]
         var ok = true
         for (var i = 0; i < paths.length; i++) {
@@ -346,8 +346,8 @@ ShellRoot {
         steps = steps.concat(shell.seriesFor("strip"), shell.seriesFor("dialog"))
         steps.push({ name: "compare", act: function () {}, record: function () {
             shell.check("strip: the harness drove an available control", view.emptyItem.available, true)
-            shell.check("the harness draws at the reference text size", Flea.Theme.baseSize, shell.pinnedSize)
-            shell.check("the harness runs with motion on, so the frame shrink is drawn", Flea.Theme.reducedMotion, false)
+            shell.check("the harness draws at the reference text size", Dlea.Theme.baseSize, shell.pinnedSize)
+            shell.check("the harness runs with motion on, so the frame shrink is drawn", Dlea.Theme.reducedMotion, false)
             for (var i = 0; i < shell.states.length; i++) shell.compare(shell.states[i])
             shell.ruling()
             shell.geometry()
@@ -369,7 +369,7 @@ ShellRoot {
         if (shell.script.length === 0) {
             if (!shell.pinned()) { shell.finish(); return }
             // Assigned only once every path is proved under the root, because the store may write on assignment.
-            Flea.ViewState.state = { display: { textSize: { mode: TextSize.nearest(shell.pinnedSize) } } }
+            Dlea.ViewState.state = { display: { textSize: { mode: TextSize.nearest(shell.pinnedSize) } } }
             shell.buildScript()
             return
         }

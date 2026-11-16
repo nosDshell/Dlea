@@ -1,9 +1,9 @@
 // The plugins request: list, enable, disable, set, add, update, remove and validate; see docs/protocol.md "plugins".
 use super::{pluginfs, plugingit, pluginops};
-use flea::jsondoc::{self, Json};
-use flea::ui_logic_plugin_settings::manifest::{self, Invalid, Manifest};
-use flea::ui_logic_plugin_settings::wire::{self, Listing, Outcome, Plugin, Source};
-use flea::ui_logic_plugin_settings::{builtin, schema, shelf, store};
+use dlea::jsondoc::{self, Json};
+use dlea::ui_logic_plugin_settings::manifest::{self, Invalid, Manifest};
+use dlea::ui_logic_plugin_settings::wire::{self, Listing, Outcome, Plugin, Source};
+use dlea::ui_logic_plugin_settings::{builtin, schema, shelf, store};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -28,7 +28,7 @@ pub struct Env {
 impl Env {
     pub fn user() -> Result<Env, String> {
         Ok(Env {
-            dir: crate::userfile::config_home()?.join("flea/plugins"),
+            dir: crate::userfile::config_home()?.join("dlea/plugins"),
             store: crate::uistore::Store::user()?,
             pile: crate::shelf::Shelf::user()?.pile_file().to_path_buf(),
             shelf_sync: crate::shelfplugin::sync,
@@ -234,15 +234,15 @@ pub fn installed(env: &Env) -> Vec<Installed> {
 }
 
 pub(super) fn hello(env: &Env, m: &Manifest) -> String {
-    let i18n = flea::i18n::I18n::default();
+    let i18n = dlea::i18n::I18n::default();
     let settings = schema::settings(&m.schema, store::stored_settings(&state(env), &m.id));
     wire::compact(&Json::Obj(vec![
         ("op".into(), Json::Str("hello".into())),
         (
             "protocolVersion".into(),
-            Json::Num(flea::plugin_runtime::protocol::VERSION.to_string()),
+            Json::Num(dlea::plugin_runtime::protocol::VERSION.to_string()),
         ),
-        ("flea".into(), Json::Str(env!("CARGO_PKG_VERSION").into())),
+        ("dlea".into(), Json::Str(env!("CARGO_PKG_VERSION").into())),
         ("language".into(), Json::Str(i18n.language().into())),
         ("decimal".into(), Json::Str(i18n.locale().decimal.clone())),
         (
@@ -261,7 +261,7 @@ pub(super) fn hello(env: &Env, m: &Manifest) -> String {
     ]))
 }
 
-// Built-ins run inside Flea, so only a plugin with a folder is asked to start.
+// Built-ins run inside Dlea, so only a plugin with a folder is asked to start.
 pub fn check_start(env: &Env, found: &Installed) {
     if found.folder.is_some() {
         let m = &found.plugin.manifest;
@@ -339,7 +339,7 @@ pub(super) fn handle_stream(
         "add" => super::pluginadd::add(env, &text("source")).map(|m| (m.id, m.version)),
         "update" => super::pluginadd::update(env, &plugin),
         "remove" => pluginops::remove(env, &plugin),
-        _ => pluginops::validate(&flea::bytename::view(&text("source"))),
+        _ => pluginops::validate(&dlea::bytename::view(&text("source"))),
     };
     let (named, error, version) = match result {
         Ok((named, version)) => (named, None, version),

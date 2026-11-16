@@ -128,8 +128,8 @@ fn an_entry_the_previous_bundle_drew_is_a_miss() {
     put(&store, &k, SVG, MAX_ENTRIES, MAX_BYTES).expect("put");
     let target = store.join(entry_name(&k).expect("name"));
     // The same key and lengths under the format the beautiful-mermaid figures were stored in.
-    let previous = String::from_utf8(encode(&k, SVG)).expect("text").replacen(FORMAT, "flea-figure-svg 1", 1);
-    assert!(previous.starts_with("flea-figure-svg 1\n"), "the entry reads as the previous format");
+    let previous = String::from_utf8(encode(&k, SVG)).expect("text").replacen(FORMAT, "dlea-figure-svg 1", 1);
+    assert!(previous.starts_with("dlea-figure-svg 1\n"), "the entry reads as the previous format");
     fs::write(&target, previous).expect("an entry from the previous bundle");
     assert_eq!(get(&store, &k), None, "a figure the previous bundle drew is never served");
     put(&store, &k, SVG, MAX_ENTRIES, MAX_BYTES).expect("redraw");
@@ -213,17 +213,17 @@ fn known_asks_whether_this_exact_key_was_drawn() {
     put(&store, &previous, SVG, MAX_ENTRIES, MAX_BYTES).expect("put");
     let target = store.join(entry_name(&previous).expect("name"));
     assert!(known(&store, std::slice::from_ref(&previous)), "an entry of this format is known");
-    fs::write(&target, String::from_utf8(encode(&previous, SVG)).expect("text").replacen(FORMAT, "flea-figure-svg 1", 1)).expect("format 1");
+    fs::write(&target, String::from_utf8(encode(&previous, SVG)).expect("text").replacen(FORMAT, "dlea-figure-svg 1", 1)).expect("format 1");
     assert!(!known(&store, &[previous]), "an entry of the previous format is not known");
     let short = key("math", THEME_A, true, "w^2");
-    fs::write(store.join(entry_name(&short).expect("name")), "flea-figure-svg").expect("short");
+    fs::write(store.join(entry_name(&short).expect("name")), "dlea-figure-svg").expect("short");
     assert!(!known(&store, &[short]), "a file shorter than the format line is not known");
 }
 
 #[test]
 fn an_entry_drawn_before_the_v0312_geometry_is_a_miss() {
     // Format 2 holds Pele's solid lifelines and 64 px participants (SW-19); format 3 its round boxes at least 48 wide and late first message (PELE-GEOM).
-    for earlier in ["flea-figure-svg 2", "flea-figure-svg 3"] {
+    for earlier in ["dlea-figure-svg 2", "dlea-figure-svg 3"] {
         let dir = TestDir::new("figure-store-earlier-format");
         let store = dir.join("svg");
         let k = key("mermaid", THEME_A, false, "sequenceDiagram\n    A->>B: hi");

@@ -14,7 +14,7 @@ use crate::tui::{
 pub(crate) fn english() -> I18n {
     let root = TestDir::new("card-words-english");
     root.dir("catalog/en");
-    root.file("catalog/en/flea.json", r#"{
+    root.file("catalog/en/dlea.json", r#"{
   "tui.batch.not_unique": "Rename selection is not a unique absolute selection",
   "tui.batch.invalid_text": "Bulk rename cannot handle a name that is not valid text",
   "tui.batch.line_break": "Bulk rename cannot represent a filename containing a line break",
@@ -62,11 +62,11 @@ fn locale(root: &TestDir, japanese: bool) -> I18n {
         include_str!("../i18n/fixtures/locales.json"),
     );
     root.file(
-        "catalog/en/flea.json",
-        include_str!("../../i18n/en/flea.json"),
+        "catalog/en/dlea.json",
+        include_str!("../../i18n/en/dlea.json"),
     );
     root.file(
-        "catalog/ja/flea.json",
+        "catalog/ja/dlea.json",
         r#"{
       "dialogs.output.converting":"変換中です",
       "dialogs.output.error.pages":"ページ範囲を入力してください",
@@ -167,18 +167,18 @@ fn tui_card_words_keep_geometry_and_hit_targets_aligned() {
                     assert_eq!(
                         form.settings.layout,
                         [
-                            flea::ui_logic_print_convert::composition::Layout::Row,
-                            flea::ui_logic_print_convert::composition::Layout::Column,
-                            flea::ui_logic_print_convert::composition::Layout::Grid,
+                            dlea::ui_logic_print_convert::composition::Layout::Row,
+                            dlea::ui_logic_print_convert::composition::Layout::Column,
+                            dlea::ui_logic_print_convert::composition::Layout::Grid,
                         ][field.choice]
                     );
                 } else {
                     assert_eq!(
                         form.settings.spacing,
                         [
-                            flea::ui_logic_print_convert::composition::Spacing::None,
-                            flea::ui_logic_print_convert::composition::Spacing::Small,
-                            flea::ui_logic_print_convert::composition::Spacing::Large,
+                            dlea::ui_logic_print_convert::composition::Spacing::None,
+                            dlea::ui_logic_print_convert::composition::Spacing::Small,
+                            dlea::ui_logic_print_convert::composition::Spacing::Large,
                         ][field.choice]
                     );
                 }
@@ -234,7 +234,7 @@ fn tui_card_words_preserve_default_and_disabled_state() {
     let (mut w, reader) = wire::echo_wire();
     let mut m = opened(&mut w, "combine");
     let f = m.combining.card.as_mut().unwrap();
-    f.settings.spacing = flea::ui_logic_print_convert::composition::Spacing::None;
+    f.settings.spacing = dlea::ui_logic_print_convert::composition::Spacing::None;
     f.focus = 7;
     let before = combine::geometry(&m);
     m.i18n = locale(&root, true);
@@ -306,7 +306,7 @@ fn tui_card_words_switch_open_cards_atomically() {
             }
             "combine" => {
                 let f = m.combining.card.as_mut().unwrap();
-                f.settings.layout = flea::ui_logic_print_convert::composition::Layout::Grid;
+                f.settings.layout = dlea::ui_logic_print_convert::composition::Layout::Grid;
                 f.columns = "0".into();
                 combine::submit(&mut m, &mut w).unwrap();
                 "列数を入力してください"
@@ -378,7 +378,7 @@ fn tui_card_words_rtl_reflects_paint_and_pointer_together() {
     combine::key(&mut m, &key, &mut w).unwrap();
     assert_eq!(
         m.combining.card.as_ref().unwrap().settings.layout,
-        flea::ui_logic_print_convert::composition::Layout::Grid
+        dlea::ui_logic_print_convert::composition::Layout::Grid
     );
     let name = "تقرير 2025\u{202e}.png";
     m.combining.card.as_mut().unwrap().name = name.into();

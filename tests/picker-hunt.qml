@@ -1,9 +1,9 @@
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/Keymap.js" as Keymap
-import "flea/js/Picker.js" as Picker
+import "dlea" as Dlea
+import "dlea/js/Keymap.js" as Keymap
+import "dlea/js/Picker.js" as Picker
 
 // Drive the real picker with native Qt key events and controlled submission refusals.
 ShellRoot {
@@ -11,7 +11,7 @@ ShellRoot {
     property var pickerShell: null
     property var win: null
     property var keys: null
-    property string scenario: Quickshell.env("FLEA_PICKER_HUNT_CASE")
+    property string scenario: Quickshell.env("DLEA_PICKER_HUNT_CASE")
     property int stage: 0
     property double stamp: Date.now()
     property int failures: 0
@@ -24,9 +24,9 @@ ShellRoot {
     // The picker board's unavailable control, as a number of its own so a changed product token turns the check red.
     readonly property real dimmedOpacity: 0.55
     readonly property string missingFolder: "no-such-folder"
-    // Sample input: FLEA_PICKER_HUNT_BASE_FILES=12, FLEA_PICKER_HUNT_EXTRA_FILES=200.
-    readonly property int baseFixtureFiles: Number(Quickshell.env("FLEA_PICKER_HUNT_BASE_FILES"))
-    readonly property int wideExtraFiles: Number(Quickshell.env("FLEA_PICKER_HUNT_EXTRA_FILES"))
+    // Sample input: DLEA_PICKER_HUNT_BASE_FILES=12, DLEA_PICKER_HUNT_EXTRA_FILES=200.
+    readonly property int baseFixtureFiles: Number(Quickshell.env("DLEA_PICKER_HUNT_BASE_FILES"))
+    readonly property int wideExtraFiles: Number(Quickshell.env("DLEA_PICKER_HUNT_EXTRA_FILES"))
     readonly property int pickerWidthPx: 800
     readonly property int pickerHeightPx: 410
     readonly property real chromeCenterTolerancePx: 1
@@ -125,7 +125,7 @@ ShellRoot {
             listing.current.signal(root.killSignal)
             stage = 1
         } else if (win.listingFailed) {
-            check("a lost listing worker is reported", win.message.indexOf("Flea stopped responding, so this folder could not be listed.") === 0 && win.messageError, true)
+            check("a lost listing worker is reported", win.message.indexOf("Dlea stopped responding, so this folder could not be listed.") === 0 && win.messageError, true)
             check("a lost listing worker keeps its rows", win.rows.length > 0 && win.total === win.rows.length, true)
             check("a lost listing worker draws no empty hero", heroItem().visible, false)
             finish()
@@ -256,7 +256,7 @@ ShellRoot {
     }
 
     Component.onCompleted: {
-        var comp = Qt.createComponent("flea/PickerWindow.qml")
+        var comp = Qt.createComponent("dlea/PickerWindow.qml")
         if (comp.status !== Component.Ready) {
             console.log("PICKER_HUNT FAIL compile " + comp.errorString())
             Qt.exit(1)
@@ -304,7 +304,7 @@ ShellRoot {
             if (!win || win.listingState !== "ready" || !win.rows.length) return
             if (stage === 0) {
                 if (win.saving && !win.saveReady) return
-                root.check("requested key preset loaded", Flea.ViewState.keysPreset, Quickshell.env("FLEA_PICKER_HUNT_PRESET"))
+                root.check("requested key preset loaded", Dlea.ViewState.keysPreset, Quickshell.env("DLEA_PICKER_HUNT_PRESET"))
                 if (scenario === "folder") {
                     win.cursorIndex = 0
                     win.focusView()
@@ -397,7 +397,7 @@ ShellRoot {
                     root.check("box probe sees real delegates", cells.length > 0, true)
                     root.check("save or single-file rows have no boxes", cells.every(function(cell) { return cell.markable === false }), true)
                 } else if (scenario === "remember") {
-                    root.check("view switch updates remembered state", Flea.ViewState.pickerView, win.viewMode)
+                    root.check("view switch updates remembered state", Dlea.ViewState.pickerView, win.viewMode)
                 } else if (scenario === "double-mark") {
                     root.check("Space retains first mark", win.marks.map(function(mark) { return mark.path }), [win.path + "/a.txt"])
                     root.press(win.viewMode === "grid" ? Qt.Key_Right : Qt.Key_Down)
@@ -413,7 +413,7 @@ ShellRoot {
                             root.check("marked file is b.txt", win.marks[0].path.split("/").pop(), "b.txt")
                         root.press(win.viewMode === "grid" ? Qt.Key_Right : Qt.Key_Down)
                         root.check("cursor moves off marked file", win.rowFor(win.cursorIndex).n, "c.txt")
-                        var preset = Flea.ViewState.keysPreset
+                        var preset = Dlea.ViewState.keysPreset
                         root.check("Return follows current preset", Keymap.lookup(Qt.Key_Return, "", Qt.NoModifier, "listing"), preset === "mac" ? "rename" : "open")
                         root.press(scenario === "marked-enter" ? Qt.Key_Enter : Qt.Key_Return, scenario === "marked-enter" ? Qt.KeypadModifier : Qt.NoModifier)
                         root.stage = 2

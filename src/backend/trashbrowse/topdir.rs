@@ -127,7 +127,7 @@ mod tests {
         .unwrap()
         .unwrap();
         let home = Item {
-            uri: "trash:///.flea-topdir-notes.txt".into(),
+            uri: "trash:///.dlea-topdir-notes.txt".into(),
             original: d.join("home/same.txt").exact_text().into_owned(),
         };
         assert!(

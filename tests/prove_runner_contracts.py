@@ -24,7 +24,7 @@ class PreparedPayloadTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         ROOT.mkdir()
-        (ROOT / '.flea-test-sandbox').touch()
+        (ROOT / '.dlea-test-sandbox').touch()
         cls.preimage = HERE / 'data/prove-ci-preimage'
         for line in (cls.preimage / 'SHA256SUMS').read_text().splitlines():
             digest, name = line.split('  ', 1)
@@ -35,10 +35,10 @@ class PreparedPayloadTests(unittest.TestCase):
         cls.candidate = cls.output / 'candidate'
         cls.fixture = ROOT / 'payload-fixtures'
         cls.fixture.mkdir()
-        (cls.fixture / '.flea-test-sandbox').touch()
+        (cls.fixture / '.dlea-test-sandbox').touch()
         # Run fixtures against function bodies read from the produced candidate, including the staged helper.
-        for table, name in [(payload.LANE_FUNCTIONS, 'bin/flea-ci-lane'),
-                            (payload.HOST_FUNCTIONS, 'bin/flea-ci')]:
+        for table, name in [(payload.LANE_FUNCTIONS, 'bin/dlea-ci-lane'),
+                            (payload.HOST_FUNCTIONS, 'bin/dlea-ci')]:
             text = (cls.candidate / name).read_text()
             for function in table:
                 # Sample function body: step() {\n  local name=$1\n}
@@ -46,7 +46,7 @@ class PreparedPayloadTests(unittest.TestCase):
                 if not match:
                     raise AssertionError(f'prepared candidate is missing {function}')
                 table[function] = match[0]
-        payload.HELPER = (cls.candidate / 'bin/flea-ci-workspace.py').read_text()
+        payload.HELPER = (cls.candidate / 'bin/dlea-ci-workspace.py').read_text()
         with contextlib.redirect_stdout(io.StringIO()):
             cls.fixture_rc = payload.fixtures(cls.fixture)
 
@@ -57,10 +57,10 @@ class PreparedPayloadTests(unittest.TestCase):
                         '-i', str(self.output / 'ops.patch')], check=True, capture_output=True)
         for name in json.loads((self.output / 'patch-hashes.json').read_text()):
             self.assertEqual((applied / name).read_bytes(), (self.candidate / name).read_bytes())
-        for name in ['flea-ci', 'flea-ci-lane', 'flea-ci-unit']:
+        for name in ['dlea-ci', 'dlea-ci-lane', 'dlea-ci-unit']:
             subprocess.run(['bash', '-n', str(applied / 'bin' / name)], check=True)
-        host = (applied / 'bin/flea-ci').read_text()
-        self.assertLess(host.index('cp "$ci_home/bin/flea-ci-workspace.py"'), host.index('  stage_receipt\n'))
+        host = (applied / 'bin/dlea-ci').read_text()
+        self.assertLess(host.index('cp "$ci_home/bin/dlea-ci-workspace.py"'), host.index('  stage_receipt\n'))
 
     def test_the_produced_payload_passes_its_behavior_fixtures(self):
         self.assertEqual(self.fixture_rc, 0)
@@ -86,17 +86,17 @@ class PreparedPayloadTests(unittest.TestCase):
             cargo.write_text(original)
 
     def test_dispatch_anchor_drift_is_refused(self):
-        names = ['bin/flea-ci', 'bin/flea-ci-lane', 'bin/flea-ci-unit', 'layouts/default.layout']
+        names = ['bin/dlea-ci', 'bin/dlea-ci-lane', 'bin/dlea-ci-unit', 'layouts/default.layout']
         files = {name: (self.preimage / name).read_text() for name in names}
-        self.assertIn('qmllint-gate|file-budget', files['bin/flea-ci-lane'])
-        files['bin/flea-ci-lane'] = files['bin/flea-ci-lane'].replace('qmllint-gate|file-budget', 'qmllint-gate  |  file-budget')
+        self.assertIn('qmllint-gate|file-budget', files['bin/dlea-ci-lane'])
+        files['bin/dlea-ci-lane'] = files['bin/dlea-ci-lane'].replace('qmllint-gate|file-budget', 'qmllint-gate  |  file-budget')
         with self.assertRaisesRegex(ValueError, 'anchor'):
             payload.transform(files)
 
     def run_mutated_fixtures(self, name, table, function, changed):
         root = ROOT / name
         root.mkdir()
-        (root / '.flea-test-sandbox').touch()
+        (root / '.dlea-test-sandbox').touch()
         with patch.dict(table, {function: changed}), contextlib.redirect_stdout(io.StringIO()):
             rc = payload.fixtures(root)
         self.assertEqual(rc, 1)
@@ -128,7 +128,7 @@ class PreparedPayloadTests(unittest.TestCase):
     def test_patch_applies_without_final_preimage_newlines(self):
         preimage = ROOT / 'no-newlines'
         shutil.copytree(self.preimage, preimage)
-        for name in ['bin/flea-ci', 'bin/flea-ci-lane', 'bin/flea-ci-unit', 'layouts/default.layout']:
+        for name in ['bin/dlea-ci', 'bin/dlea-ci-lane', 'bin/dlea-ci-unit', 'layouts/default.layout']:
             path = preimage / name
             path.write_bytes(path.read_bytes().rstrip(b'\n'))
         (preimage / 'layouts/default.layout').write_bytes(b'west qml qmllint-gate')
@@ -141,17 +141,17 @@ class PreparedPayloadTests(unittest.TestCase):
 
     def test_drm_inventory_operand_is_path_independent_and_unique(self):
         files = {name: (self.preimage / name).read_text() for name in
-                 ['bin/flea-ci', 'bin/flea-ci-lane', 'bin/flea-ci-unit', 'layouts/default.layout']}
+                 ['bin/dlea-ci', 'bin/dlea-ci-lane', 'bin/dlea-ci-unit', 'layouts/default.layout']}
         # Sample inventory operand: /srv/ci/dri-suites.txt 2>/dev/null
-        files['bin/flea-ci-unit'] = re.sub(r'\S*/dri-suites\.txt(?= 2>/dev/null)',
-                                         '/srv/alternate-ci/dri-suites.txt', files['bin/flea-ci-unit'])
-        self.assertIn('"$run_dir/in/dri-suites.txt"', payload.transform(files)['bin/flea-ci-unit'])
-        files['bin/flea-ci-unit'] += '\n/usr/bin/grep -qx -- "$s" /srv/duplicate/dri-suites.txt 2>/dev/null\n'
+        files['bin/dlea-ci-unit'] = re.sub(r'\S*/dri-suites\.txt(?= 2>/dev/null)',
+                                         '/srv/alternate-ci/dri-suites.txt', files['bin/dlea-ci-unit'])
+        self.assertIn('"$run_dir/in/dri-suites.txt"', payload.transform(files)['bin/dlea-ci-unit'])
+        files['bin/dlea-ci-unit'] += '\n/usr/bin/grep -qx -- "$s" /srv/duplicate/dri-suites.txt 2>/dev/null\n'
         with self.assertRaisesRegex(ValueError, 'DRM inventory'):
             payload.transform(files)
 
     def test_public_preimage_is_small_and_neutral(self):
-        names = ['bin/flea-ci', 'bin/flea-ci-lane', 'bin/flea-ci-unit', 'layouts/default.layout']
+        names = ['bin/dlea-ci', 'bin/dlea-ci-lane', 'bin/dlea-ci-unit', 'layouts/default.layout']
         text = '\n'.join((self.preimage / name).read_text() for name in names)
         self.assertLess(len(text.splitlines()), 300)
         self.assertNotRegex(text, r'/home/|ultra-[0-9]+|RULING|GM 20[0-9]{2}|192\.168\.')

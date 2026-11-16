@@ -2,27 +2,27 @@ use std::process::exit;
 
 // Every invocation, as a usage error prints it to stderr and --help prints it to stdout.
 const LINES: &[&str] = &[
-    "usage: flea [--tui|--gui] [--select <uri|path>] [path]",
-    "       flea --tui [--cwd-file PATH] [--chooser-file PATH] [--tui-keymap PRESET] [path]",
-    "       flea --default [off]",
-    "       flea --picker [off]",
-    "       flea --ui-state [<json patch>]",
-    "       flea --update [check]",
-    "       flea --run <path> <dev> <ino> <size> <mtime_s> <mtime_ns>",
-    "       flea --run-terminal <path> <dev> <ino> <size> <mtime_s> <mtime_ns>",
-    "       flea --open-text <path>",
-    "       flea --open-handler <path> <desktop id> <dev> <ino> <size> <mtime_s> <mtime_ns>",
-    "       flea --clip get|set copy|cut|clear TOKEN",
-    "       flea flash choose [start]",
-    "       flea plugin list [--json] | add <git url|folder> | enable|disable|update|remove <id> | validate <folder>",
-    "       flea --action <id> [--window <pid>] | --actions [--window <pid>]",
-    "       flea ipc [--pid N|--any] call <target> <function> [args...] | show",
-    "       flea --version | -V",
-    "       flea --help | -h",
+    "usage: dlea [--tui|--gui] [--select <uri|path>] [path]",
+    "       dlea --tui [--cwd-file PATH] [--chooser-file PATH] [--tui-keymap PRESET] [path]",
+    "       dlea --default [off]",
+    "       dlea --picker [off]",
+    "       dlea --ui-state [<json patch>]",
+    "       dlea --update [check]",
+    "       dlea --run <path> <dev> <ino> <size> <mtime_s> <mtime_ns>",
+    "       dlea --run-terminal <path> <dev> <ino> <size> <mtime_s> <mtime_ns>",
+    "       dlea --open-text <path>",
+    "       dlea --open-handler <path> <desktop id> <dev> <ino> <size> <mtime_s> <mtime_ns>",
+    "       dlea --clip get|set copy|cut|clear TOKEN",
+    "       dlea flash choose [start]",
+    "       dlea plugin list [--json] | add <git url|folder> | enable|disable|update|remove <id> | validate <folder>",
+    "       dlea --action <id> [--window <pid>] | --actions [--window <pid>]",
+    "       dlea ipc [--pid N|--any] call <target> <function> [args...] | show",
+    "       dlea --version | -V",
+    "       dlea --help | -h",
 ];
 
 pub(crate) fn usage(message: &str) -> ! {
-    eprintln!("flea: {}", message);
+    eprintln!("dlea: {}", message);
     for line in LINES {
         eprintln!("{line}");
     }

@@ -1,5 +1,5 @@
 name: Feature request
-description: Something you want Flea to do.
+description: Something you want Dlea to do.
 labels: [enhancement]
 body:
   - type: checkboxes
@@ -7,7 +7,7 @@ body:
     attributes:
       label: Before you file
       options:
-        - label: The [latest release](https://github.com/thisisgm/flea/releases/latest) does not already do this.
+        - label: The [latest release](https://github.com/nosDshell/Dlea/releases/latest) does not already do this.
           required: true
         - label: I searched the open issues and this is not already requested.
           required: true
@@ -36,7 +36,7 @@ body:
   - type: dropdown
     id: where
     attributes:
-      label: Where in Flea
+      label: Where in Dlea
       multiple: true
       options:
         - List view

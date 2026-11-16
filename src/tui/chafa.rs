@@ -93,7 +93,7 @@ impl Job {
         let stopped = cancel.clone();
         let (tx, result) = mpsc::channel();
         let worker = std::thread::Builder::new()
-            .name("flea-chafa".into())
+            .name("dlea-chafa".into())
             .spawn(move || {
                 let _ = tx.send(process::run(
                     input,
@@ -124,7 +124,7 @@ impl Drop for Job {
         self.cancel.store(true, Ordering::Relaxed);
         if let Some(worker) = self.worker.take() {
             let _ = std::thread::Builder::new()
-                .name("flea-chafa-reap".into())
+                .name("dlea-chafa-reap".into())
                 .spawn(move || {
                     let _ = worker.join();
                 });

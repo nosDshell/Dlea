@@ -63,8 +63,8 @@ fn publication_never_overwrites_a_source_or_a_new_collision() {
 #[test]
 fn a_missing_print_tool_is_named_as_not_installed() {
     let cancel = AtomicBool::new(false);
-    let missing = run(&["/nonexistent/flea-lpstat".into(), "-e".into()], &cancel, Duration::from_secs(1)).unwrap_err();
-    assert_eq!(missing.message, "/nonexistent/flea-lpstat is not installed");
+    let missing = run(&["/nonexistent/dlea-lpstat".into(), "-e".into()], &cancel, Duration::from_secs(1)).unwrap_err();
+    assert_eq!(missing.message, "/nonexistent/dlea-lpstat is not installed");
     let gone = std::io::Error::from(std::io::ErrorKind::NotFound);
     assert_eq!(spawn_message(&["lpstat".into()], &gone), "lpstat is not installed");
     assert_eq!(spawn_message(&["bwrap".into()], &gone), "bwrap: item not found");

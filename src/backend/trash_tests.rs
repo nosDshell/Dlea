@@ -26,7 +26,7 @@ impl Drop for StandIn {
 // failure, so it never becomes a journal step that undo cannot reverse. tests/ops.sh drives the pair.
 #[test]
 fn paths_that_are_already_gone_are_failures_rather_than_trashed() {
-    let gone = vec![PathBuf::from("/nonexistent/flea-88-a.txt"), PathBuf::from("/nonexistent/flea-88-b.txt")];
+    let gone = vec![PathBuf::from("/nonexistent/dlea-88-a.txt"), PathBuf::from("/nonexistent/dlea-88-b.txt")];
     let (entries, failed, reason) = trash_checked(&gone, None).expect("a batch of missing paths is not an error");
     assert!(entries.is_empty(), "nothing was trashed, so nothing is journaled");
     assert_eq!(failed, 2, "both are counted as failures rather than as trashed");
@@ -35,7 +35,7 @@ fn paths_that_are_already_gone_are_failures_rather_than_trashed() {
 
 #[test]
 fn a_drag_release_does_not_fail_when_the_receiver_already_moved_the_file() {
-    let gone = vec![PathBuf::new(), PathBuf::from("/nonexistent/flea-drag-release.txt")];
+    let gone = vec![PathBuf::new(), PathBuf::from("/nonexistent/dlea-drag-release.txt")];
     let (entries, failed, reason) = trash_checked(&gone, None).expect("quiet");
     assert!(entries.is_empty());
     assert_eq!(failed, 0);

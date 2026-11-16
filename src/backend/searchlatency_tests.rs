@@ -128,7 +128,7 @@ fn l_search_tail_probe() {
 }
 
 fn l_search_source_index() -> Index {
-    let manifest = crate::jsondoc::parse(include_str!("../../tools/flea-searchbench/source-manifest.json")).unwrap();
+    let manifest = crate::jsondoc::parse(include_str!("../../tools/dlea-searchbench/source-manifest.json")).unwrap();
     let mut index = Index::new();
     let entries = manifest.as_array().unwrap();
     assert_eq!(entries.len(), 4902, "the certified source inventory must stay fixed");
@@ -143,7 +143,7 @@ fn l_search_source_index() -> Index {
 
 // Linux process CPU ticks include every scoring thread; PSS is the whole test process, not a product field claim.
 fn l_search_resources() -> (u64, u64) {
-    // Sample input: "123 (flea-test) R 1 123 123 0 -1 0 0 0 0 0 17 5" gives 22 CPU ticks.
+    // Sample input: "123 (dlea-test) R 1 123 123 0 -1 0 0 0 0 0 17 5" gives 22 CPU ticks.
     let stat = std::fs::read_to_string("/proc/self/stat").unwrap();
     let fields: Vec<_> = stat.rsplit_once(')').unwrap().1.split_whitespace().collect();
     let ticks = fields[11].parse::<u64>().unwrap() + fields[12].parse::<u64>().unwrap();

@@ -202,7 +202,7 @@ function lineTexts(svg) {
     });
 }
 
-// Sample input: <g class="pele-edges" stroke="#565f89"><g class="pele-edge"><path class="pele-marker" fill="#565f89" stroke="none"/></g></g> fills the mark with the accent, as Flea drew a link's marks before; a mark inheriting the stroke gets an accent stroke, and an edge a user style colours keeps its marks.
+// Sample input: <g class="pele-edges" stroke="#565f89"><g class="pele-edge"><path class="pele-marker" fill="#565f89" stroke="none"/></g></g> fills the mark with the accent, as Dlea drew a link's marks before; a mark inheriting the stroke gets an accent stroke, and an edge a user style colours keeps its marks.
 function accentMarks(svg, t) {
     var edges = svg.match(/<g class="pele-edges"[^<>]*\sstroke="([^"]*)"/);
     if (!edges)

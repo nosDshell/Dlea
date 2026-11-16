@@ -4,8 +4,8 @@ const PRINT_CANCEL_WAIT: Duration = Duration::from_secs(5);
 const PRINT_CANCEL_POLL: Duration = Duration::from_millis(5);
 const THREE_FRAME_MAGICK: &str = r#"#!/bin/sh
 set -eu
-root=${FLEA_PRINT_TEST_ROOT:?}
-case "$root" in /*) test -f "$root/.flea-test-sandbox" ;; *) exit 98 ;; esac
+root=${DLEA_PRINT_TEST_ROOT:?}
+case "$root" in /*) test -f "$root/.dlea-test-sandbox" ;; *) exit 98 ;; esac
 printf '%s\0' magick-stub "$@" >> "$root/calls"
 printf '\n' >> "$root/calls"
 last=

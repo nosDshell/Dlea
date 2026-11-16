@@ -79,11 +79,11 @@ fn pss_bytes() -> usize {
 #[test]
 #[ignore]
 fn search_compact_scale_probe() {
-    let Ok(count) = std::env::var("FLEA_SCALE_COUNT") else {
+    let Ok(count) = std::env::var("DLEA_SCALE_COUNT") else {
         for count in [100_000, 1_000_000] {
             let status = std::process::Command::new(std::env::current_exe().unwrap())
                 .args(["search_compact_scale_probe", "--ignored", "--nocapture", "--test-threads=1"])
-                .env("FLEA_SCALE_COUNT", count.to_string()).status().unwrap();
+                .env("DLEA_SCALE_COUNT", count.to_string()).status().unwrap();
             assert!(status.success());
         }
         return;

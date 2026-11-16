@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-quicklook-followrest-test
+//@ pragma ShellId dlea-quicklook-followrest-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea/js/PreviewKeys.js" as PreviewKeys
+import "dlea/js/PreviewKeys.js" as PreviewKeys
 
 // quicklook-followrest: a held j in Quick Look loads only its first repeat, a repeat a starved loop serves late trails, and the release settles once.
 ShellRoot {

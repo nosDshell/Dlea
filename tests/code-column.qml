@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-code-column-test
+//@ pragma ShellId dlea-code-column-test
 
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 
 // tests/code-column.sh's harness: the Columns preview over the real backend draws code in the theme's inks, never plain first.
 ShellRoot {
@@ -161,7 +161,7 @@ ShellRoot {
     function run(op) {
         root.awaiting = null
         if (op.open) {
-            Flea.ViewState.changeKey("view", "list")
+            Dlea.ViewState.changeKey("view", "list")
             root.pane = paneComponent.createObject(win.contentItem)
             root.keys = Qt.createQmlObject("import QtTest; TestEvent {}", root.pane.listArea)
             root.pane.open(root.fixture)
@@ -335,14 +335,14 @@ ShellRoot {
         id: win
         implicitWidth: 1400
         implicitHeight: 800
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
         Item { id: frameProbe }
     }
     Connections {
         target: frameProbe.Window.window
         function onAfterAnimating() { root.sample() }
     }
-    Flea.Backend { id: realBackend }
+    Dlea.Backend { id: realBackend }
     FileView {
         id: grownFile
         path: root.fixture + "/06-img.xml"
@@ -369,13 +369,13 @@ ShellRoot {
     }
     Component {
         id: wideComponent
-        Flea.CodeLines { width: 600 }
+        Dlea.CodeLines { width: 600 }
     }
     Timer { id: quitter; interval: 100; onTriggered: Qt.exit(root.failures > 0 ? 1 : 0) }
 
     Component {
         id: paneComponent
-        Flea.Pane {
+        Dlea.Pane {
             width: 1400
             height: 800
             backend: realBackend

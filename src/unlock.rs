@@ -1,8 +1,8 @@
 use crate::gui;
 use crate::paths;
 
-// flea --unlock <device>: opens the unlock dialog a locked rail row opens; the passphrase is never argv.
-pub const ENV: &str = "FLEA_UNLOCK";
+// dlea --unlock <device>: opens the unlock dialog a locked rail row opens; the passphrase is never argv.
+pub const ENV: &str = "DLEA_UNLOCK";
 
 // The exit code when argv names --unlock, or None to keep dispatching; one line in main() reaches it.
 pub fn dispatch(args: &[String]) -> Option<i32> {
@@ -23,7 +23,7 @@ pub fn validate(device: &str) -> Result<String, String> {
         && !device.split('/').any(|part| part == "..") {
         return Ok(device.to_string());
     }
-    Err("flea: --unlock takes one device path under /dev".to_string())
+    Err("dlea: --unlock takes one device path under /dev".to_string())
 }
 
 pub fn run(device: &str) -> i32 {
@@ -38,7 +38,7 @@ pub fn run(device: &str) -> i32 {
         return 2;
     }
     if !paths::has_display() {
-        eprintln!("flea: there is no graphical session to open a window in");
+        eprintln!("dlea: there is no graphical session to open a window in");
         return 2;
     }
     gui::exec_gpui_unlock(&target)

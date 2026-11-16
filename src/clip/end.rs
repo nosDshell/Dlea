@@ -92,7 +92,7 @@ impl OwnerEnd {
             if raw < 0 {
                 if !self.eventfd_failed {
                     eprintln!(
-                        "flea: clipboard owner-end eventfd failed: {}",
+                        "dlea: clipboard owner-end eventfd failed: {}",
                         std::io::Error::last_os_error()
                     );
                     self.eventfd_failed = true;
@@ -109,13 +109,13 @@ impl OwnerEnd {
                 self.socket.clone(),
             );
             let worker = std::thread::Builder::new()
-                .name("flea-clip-end".into())
+                .name("dlea-clip-end".into())
                 .spawn(move || wait(mail, signal, replies, state, socket));
             let worker = match worker {
                 Ok(worker) => worker,
                 Err(error) => {
                     if !self.spawn_failed {
-                        eprintln!("flea: clipboard owner-end thread spawn failed: {}", error);
+                        eprintln!("dlea: clipboard owner-end thread spawn failed: {}", error);
                         self.spawn_failed = true;
                     }
                     return;
@@ -224,7 +224,7 @@ fn wait(
             if error.kind() == std::io::ErrorKind::Interrupted {
                 continue;
             }
-            eprintln!("flea: clipboard owner-end poll failed: {}", error);
+            eprintln!("dlea: clipboard owner-end poll failed: {}", error);
             return;
         }
         if fds[0].revents != 0 {
@@ -326,7 +326,7 @@ fn is_owner(pid: u32) -> bool {
     let Ok(command) = std::fs::read(format!("/proc/{}/cmdline", pid)) else {
         return false;
     };
-    // Sample input: /usr/bin/flea\0--clip-own\0.
+    // Sample input: /usr/bin/dlea\0--clip-own\0.
     let Some(command) = command.strip_suffix(&[0]) else {
         return false;
     };

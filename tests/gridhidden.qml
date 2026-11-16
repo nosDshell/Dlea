@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-gridhidden-test
+//@ pragma ShellId dlea-gridhidden-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // A real hidden Grid has no delegates or work; return preserves cursor, selection and pending rename.
 ShellRoot {
@@ -114,9 +114,9 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 900
         implicitHeight: 500
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
-        Flea.GridArea {
+        Dlea.GridArea {
             id: grid
             width: 700
             height: 300

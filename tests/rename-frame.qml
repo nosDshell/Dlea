@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-rename-frame-test
+//@ pragma ShellId dlea-rename-frame-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/TextSize.js" as TextSize
+import "dlea" as Dlea
+import "dlea/js/TextSize.js" as TextSize
 import "rename-frame-checks.js" as Checks
 
 // Decided 2026-10-03: the rename editor is one field in every view, pinned in six hosts at every text stop and density.
@@ -11,20 +11,20 @@ ShellRoot {
     id: root
     readonly property string fixture: Quickshell.env("HOME") + "/fixture"
     readonly property var pane: body.currentPane
-    readonly property int hairline: Flea.Theme.spacing.hairline
+    readonly property int hairline: Dlea.Theme.spacing.hairline
     // The column cut to its rows while the last row's error is measured, null otherwise.
     property var squeezed: null
-    readonly property int gap: Flea.Theme.spacing.gap
-    readonly property int rowInset: Flea.Theme.spacing.rowPaddingX
+    readonly property int gap: Dlea.Theme.spacing.gap
+    readonly property int rowInset: Dlea.Theme.spacing.rowPaddingX
     // What the checks in rename-frame-checks.js read: the window's body, the caption line and the list's body size.
     readonly property Item windowBody: body
-    readonly property real captionLineHeight: Flea.Theme.grid.captionLineHeight
-    readonly property int bodyPx: Flea.Theme.font.body
+    readonly property real captionLineHeight: Dlea.Theme.grid.captionLineHeight
+    readonly property int bodyPx: Dlea.Theme.font.body
     readonly property alias metrics: metricsProbe
     // A step that waits gives up after this many ticks of the stepper, so a stuck probe fails instead of hanging.
     readonly property int stallTicks: 200
     // The row's text line box, which every host's frame is unless the typed line plus its two hairlines is taller.
-    readonly property int lineBox: Flea.Theme.rowHeight - 2 * Flea.Theme.spacing.rowPaddingY
+    readonly property int lineBox: Dlea.Theme.rowHeight - 2 * Dlea.Theme.spacing.rowPaddingY
     // The first frame height this stop and density measured, which every other host must draw too.
     property real comboHeight: -1
     readonly property var allStops: TextSize.STOPS
@@ -73,7 +73,7 @@ ShellRoot {
         for (var i = 0; i < kids.length; i++) root.ofType(kids[i], type, out)
         return out
     }
-    // Sample input: a QtQuick Text prints as "QQuickText(0x55d0)", which no Flea type name does.
+    // Sample input: a QtQuick Text prints as "QQuickText(0x55d0)", which no Dlea type name does.
     function texts(item, out) {
         if (String(item).indexOf("QQuickText") === 0) out.push(item)
         var kids = item && item.children ? item.children : []
@@ -197,7 +197,7 @@ ShellRoot {
         var frame = editor.frame
         var box = frame.mapToItem(found.cell, 0, 0, frame.width, frame.height)
         root.check(frame.height === root.comboHeight, tag + " error frame is " + frame.height + " tall, not the one line box " + root.comboHeight)
-        root.check(Qt.colorEqual(frame.border.color, Flea.Theme.color.error), tag + " error frame is not the error role")
+        root.check(Qt.colorEqual(frame.border.color, Dlea.Theme.color.error), tag + " error frame is not the error role")
         var labels = root.texts(editor, []).filter(function (t) { return t.text === root.errorSample && t.visible })
         root.check(labels.length === 1, tag + " draws " + labels.length + " error lines, not one")
         if (labels.length === 1) {
@@ -250,8 +250,8 @@ ShellRoot {
         var tag = "stop " + combo.stop + " " + combo.density + " " + host.name
         if (root.stage === 0) {
             if (!root.ready()) return false
-            Flea.ViewState.setTextSize({ mode: combo.stop })
-            Flea.ViewState.changeKey("density", combo.density)
+            Dlea.ViewState.setTextSize({ mode: combo.stop })
+            Dlea.ViewState.changeKey("density", combo.density)
             root.hostIndex = 0
             root.comboHeight = -1
             root.overhungAtStart = root.overhung
@@ -259,7 +259,7 @@ ShellRoot {
             return true
         }
         if (root.stage === 1) {
-            if (Flea.ViewState.state.view !== host.view) { pane.chooseView(host.view); return false }
+            if (Dlea.ViewState.state.view !== host.view) { pane.chooseView(host.view); return false }
             if (!root.ready()) return false
             if (host.name === "rail") {
                 if (pane.sidebar.networkEntries.length === 0) return false
@@ -291,7 +291,7 @@ ShellRoot {
             var found = root.hostOf(host)
             if (!found || !found.column) return false
             var column = found.column
-            column.height = pane.shownTotal * Flea.Theme.fileRowHeight + Flea.Theme.spacing.rowPaddingY
+            column.height = pane.shownTotal * Dlea.Theme.fileRowHeight + Dlea.Theme.spacing.rowPaddingY
             root.squeezed = column
             root.stage = 4
             return true
@@ -337,7 +337,7 @@ ShellRoot {
         id: window
         implicitWidth: 1000
         implicitHeight: 650
-        Flea.WindowBody { id: body; host: window }
+        Dlea.WindowBody { id: body; host: window }
         Item { anchors.fill: parent; TestEvent { id: driver } }
     }
 
@@ -363,7 +363,7 @@ ShellRoot {
             root.stageTicks++
             if (root.stageTicks > root.stallTicks) {
                 root.failures.push("stage " + before + " of combo " + beforeCombo + " host " + beforeHost + " never completed")
-                console.log("RENAMEFRAME FAIL stalled at stage " + before + " combo " + beforeCombo + " host " + root.hosts[Math.min(beforeHost, root.hosts.length - 1)].name + " index=" + pane.renamingIndex + " cursor=" + pane.cursorIndex + " view=" + Flea.ViewState.state.view)
+                console.log("RENAMEFRAME FAIL stalled at stage " + before + " combo " + beforeCombo + " host " + root.hosts[Math.min(beforeHost, root.hosts.length - 1)].name + " index=" + pane.renamingIndex + " cursor=" + pane.cursorIndex + " view=" + Dlea.ViewState.state.view)
                 root.report()
             }
         }

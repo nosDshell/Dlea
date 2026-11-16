@@ -174,7 +174,7 @@ fn real_bsdtar(tag: &str, names: &str, damage: &str) -> (String, String) {
     root.dir("out");
     let archive = root.join("bad.tar");
     let script = format!("import io,sys,tarfile\nwith tarfile.open(sys.argv[1], 'w', format=tarfile.USTAR_FORMAT) as t:\n x=tarfile.TarInfo('pax');x.type=tarfile.XHDTYPE;x.size=8;t.addfile(x,io.BytesIO(b'garbage\\n'))\n for name in {names}:\n  m=tarfile.TarInfo(name);m.size=1;t.addfile(m,io.BytesIO(b'x'))\nd=bytearray(open(sys.argv[1],'rb').read())\n{damage}\nopen(sys.argv[1],'wb').write(d)");
-    assert!(std::process::Command::new(flea::testpath::tool("/usr/bin/python3"))
+    assert!(std::process::Command::new(dlea::testpath::tool("/usr/bin/python3"))
         .args(["-c", &script])
         .arg(&archive)
         .status()

@@ -17,13 +17,13 @@ impl Fixture {
         );
         let output = Command::new("mktemp")
             .arg("-d")
-            .arg(parent.join("flea-git-test.XXXXXXXX"))
+            .arg(parent.join("dlea-git-test.XXXXXXXX"))
             .output()
             .unwrap();
         assert!(output.status.success());
         let path = PathBuf::from(String::from_utf8(output.stdout).unwrap().trim_end());
         assert!(path.is_absolute() && path.parent() == Some(parent.as_path()));
-        std::fs::write(path.join(".flea-test-sandbox"), "git fixture\n").unwrap();
+        std::fs::write(path.join(".dlea-test-sandbox"), "git fixture\n").unwrap();
         Self(path)
     }
 
@@ -34,7 +34,7 @@ impl Fixture {
     }
 
     pub fn check(&self, path: &Path) {
-        assert!(self.0.is_absolute() && self.0.join(".flea-test-sandbox").is_file());
+        assert!(self.0.is_absolute() && self.0.join(".dlea-test-sandbox").is_file());
         assert!(path.is_absolute() && !path.as_os_str().is_empty() && path.starts_with(&self.0));
         assert!(!path.components().any(|part| part == Component::ParentDir));
     }
@@ -47,7 +47,7 @@ impl Fixture {
 
     pub fn git(&self, args: &[&str]) {
         self.check(&self.0);
-        let mut command = Command::new(flea::testpath::tool("/usr/bin/git"));
+        let mut command = Command::new(dlea::testpath::tool("/usr/bin/git"));
         command
             .current_dir(&self.0)
             .env("HOME", &self.0)
@@ -76,11 +76,11 @@ impl Fixture {
 
     pub fn repo(&self) {
         self.git(&["init", "--initial-branch=main", "--quiet"]);
-        self.write(".gitignore", b".flea-test-sandbox\n");
+        self.write(".gitignore", b".dlea-test-sandbox\n");
     }
 
     pub fn available() -> bool {
-        if Command::new(flea::testpath::tool("/usr/bin/git"))
+        if Command::new(dlea::testpath::tool("/usr/bin/git"))
             .arg("--version")
             .output()
             .is_ok_and(|out| out.status.success())
@@ -102,7 +102,7 @@ impl Drop for Fixture {
             .file_name()
             .unwrap()
             .to_string_lossy()
-            .starts_with("flea-git-test."));
+            .starts_with("dlea-git-test."));
         std::fs::remove_dir_all(&self.0).unwrap();
     }
 }

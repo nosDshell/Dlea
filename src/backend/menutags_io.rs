@@ -1,6 +1,6 @@
 //! A menu's xattrs stay attached to an identity-checked Linux O_PATH descriptor.
 use super::{menu_actions::Selected, tags};
-use crate::{error::FleaError, oflags::O_NOFOLLOW};
+use crate::{error::DleaError, oflags::O_NOFOLLOW};
 use std::ffi::{c_char, c_int, c_void, CString};
 use std::fs::{File, Metadata, OpenOptions};
 use std::os::fd::AsRawFd;
@@ -66,7 +66,7 @@ impl Pinned {
         super::filegen::of_fd(&self.file)
     }
 
-    fn error(&self, component: &str) -> FleaError {
+    fn error(&self, component: &str) -> DleaError {
         crate::error::from_io(
             component,
             &self.path.to_string_lossy(),
@@ -74,7 +74,7 @@ impl Pinned {
         )
     }
 
-    pub(super) fn read_raw(&self) -> Result<Option<Vec<u8>>, FleaError> {
+    pub(super) fn read_raw(&self) -> Result<Option<Vec<u8>>, DleaError> {
         let name = CString::new(tags::ATTR_NAME).unwrap();
         let size = unsafe {
             getxattr(
@@ -92,7 +92,7 @@ impl Pinned {
             };
         }
         if size as usize > tags::MAX_VALUE {
-            return Err(FleaError {
+            return Err(DleaError {
                 where_: "tags".into(),
                 path: self.path.to_string_lossy().into_owned(),
                 msg: "the stored tags are too large to read".into(),
@@ -127,7 +127,7 @@ impl Pinned {
             .unwrap_or_default()
     }
 
-    pub(super) fn restore(&self, raw: &Option<Vec<u8>>) -> Result<(), FleaError> {
+    pub(super) fn restore(&self, raw: &Option<Vec<u8>>) -> Result<(), DleaError> {
         let name = CString::new(tags::ATTR_NAME).unwrap();
         let result = match raw {
             Some(bytes) => unsafe {
@@ -150,7 +150,7 @@ impl Pinned {
         }
     }
 
-    pub(super) fn write_names(&self, names: &[String]) -> Result<(), FleaError> {
+    pub(super) fn write_names(&self, names: &[String]) -> Result<(), DleaError> {
         self.restore(&(!names.is_empty()).then(|| tags::join(names)))
     }
 }

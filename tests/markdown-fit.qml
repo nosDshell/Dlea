@@ -1,13 +1,13 @@
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "qml-probe.js" as QmlProbe
 
 // How the rendered document fits its host, read through the shipped column, pane and ipc: a narrow picture sits on the text's left edge, and the preview column sets the document one step under Quick Look.
 ShellRoot {
     id: root
-    property string scenario: Quickshell.env("FLEA_PREVIEW_HUNT_CASE")
-    property string fixture: Quickshell.env("FLEA_PREVIEW_HUNT_DIR") + "/" + scenario + ".md"
+    property string scenario: Quickshell.env("DLEA_PREVIEW_HUNT_CASE")
+    property string fixture: Quickshell.env("DLEA_PREVIEW_HUNT_DIR") + "/" + scenario + ".md"
     property double stamp: Date.now()
     readonly property bool columnScenario: scenario.indexOf("column-") === 0
     property int failures: 0
@@ -45,8 +45,8 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 760
         implicitHeight: 700
-        color: Flea.Theme.color.background
-        Flea.PreviewMarkdown {
+        color: Dlea.Theme.color.background
+        Dlea.PreviewMarkdown {
             id: md
             width: 600
             height: 580
@@ -54,7 +54,7 @@ ShellRoot {
             path: root.fixture
             size: 2000
         }
-        Flea.PreviewColumn {
+        Dlea.PreviewColumn {
             id: column
             width: 300
             height: 600
@@ -65,7 +65,7 @@ ShellRoot {
             path: root.fixture
             kindName: "Markdown document"
         }
-        Flea.MarkdownPane {
+        Dlea.MarkdownPane {
             id: pane
             width: 600
             height: 580
@@ -74,7 +74,7 @@ ShellRoot {
             size: 2000
         }
     }
-    Flea.IpcPreviewState {
+    Dlea.IpcPreviewState {
         id: ipc
         pane: ({ previewColumnItem: column })
     }
@@ -132,8 +132,8 @@ ShellRoot {
             }
             var doc = column.markdown
             if (!doc || !doc.contentReady) return
-            var want = Flea.Theme.font.bodySmall
-            root.check("the column's text token is smaller than Quick Look's", want < Flea.Theme.font.body, true)
+            var want = Dlea.Theme.font.bodySmall
+            root.check("the column's text token is smaller than Quick Look's", want < Dlea.Theme.font.body, true)
             var sizes = []
             for (var b = 0; b < doc.blockList.length; b++) {
                 var live = doc.blockItem(b)
@@ -141,11 +141,11 @@ ShellRoot {
                 if (node) sizes.push([doc.blockList[b].type + (doc.blockList[b].level || ""), node.font.pixelSize])
             }
             // The headings keep the board's 20 and 15 over Quick Look's body, whatever the column sets its text at.
-            var expected = [["heading1", Math.round(Flea.Theme.font.body * root.h1Ratio)], ["heading2", Math.round(Flea.Theme.font.body * root.h2Ratio)],
+            var expected = [["heading1", Math.round(Dlea.Theme.font.body * root.h1Ratio)], ["heading2", Math.round(Dlea.Theme.font.body * root.h2Ratio)],
                 ["run", want], ["list", want], ["table", want], ["fence", want]]
             root.check("the column document sets its text at its own scale and its headings at the board's", sizes, expected)
             root.check("Quick Look's document keeps the body token under its heading", liveText(md.blockItem(0))[0].font.pixelSize,
-                Math.round(Flea.Theme.font.body * root.h1Ratio))
+                Math.round(Dlea.Theme.font.body * root.h1Ratio))
             root.finish()
         }
     }

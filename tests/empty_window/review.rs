@@ -48,7 +48,7 @@ fn a_real_first_listing_records_prefetch_after_empty_windows() {
         std::thread::sleep(std::time::Duration::from_millis(10));
     };
     let mut lines = body.lines();
-    assert_eq!(lines.next(), Some("flea-prefetch 2"));
+    assert_eq!(lines.next(), Some("dlea-prefetch 2"));
     let parent = std::process::id();
     let stat = std::fs::read_to_string(format!("/proc/{parent}/stat")).unwrap();
     // Sample input: "4242 (qs (x) y) S 1 4242 ... 0 5561234 ..."; the final ')' ends comm.

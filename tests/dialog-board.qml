@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-dialog-board-test
+//@ pragma ShellId dlea-dialog-board-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/TextSize.js" as TextSize
+import "dlea" as Dlea
+import "dlea/js/TextSize.js" as TextSize
 import "qml-probe.js" as QmlProbe
 
 // tests/dialog-board.sh's harness, DialogButtons040's and Archives040's critic findings on the shipped files: the check boxes draw no stray ground, the Trash strip's Back and Up are ChromeButtons, and OpenWith's search field sits where the board puts it.
@@ -109,8 +109,8 @@ ShellRoot {
     // The colours a surface may paint: every role the theme owns, so a ground the product chose is never mistaken for Qt's default.
     function themedColours() {
         var roles = {}
-        for (var key in Flea.Theme.color) {
-            var value = Flea.Theme.color[key]
+        for (var key in Dlea.Theme.color) {
+            var value = Dlea.Theme.color[key]
             if (value !== null && typeof value === "object" && value.r !== undefined) roles[shell.rgba(value)] = key
         }
         return roles
@@ -183,7 +183,7 @@ ShellRoot {
                 // The busy word sits in the status slot in muted ink, found by its text so a slot that stays blank finds nothing, and the primary keeps its rest label.
                 var busy = line(d.busyText)
                 shell.check(d.name + " slot busy: the status reads " + d.busyText + " in muted ink and the primary keeps " + d.restLabel,
-                            [busy ? [busy.text, shell.rgba(busy.color)] : null, d.primary.label], [[d.busyText, shell.rgba(Flea.Theme.color.muted)], d.restLabel])
+                            [busy ? [busy.text, shell.rgba(busy.color)] : null, d.primary.label], [[d.busyText, shell.rgba(Dlea.Theme.color.muted)], d.restLabel])
             } },
             { name: "slot-" + d.name + "-error", act: function () { d.busy(false); d.error(d.oneLine) }, record: function () {
                 check("error", false)
@@ -235,7 +235,7 @@ ShellRoot {
             id: stripHost
             width: 800
             height: 300
-            Flea.TrashView {
+            Dlea.TrashView {
                 id: view
                 opened: true
                 total: shell.trashRows
@@ -248,30 +248,30 @@ ShellRoot {
             y: 0
             width: shell.hostWidth
             height: shell.hostHeight
-            Flea.OpenWithDialog { id: openWith }
-            Flea.ConvertDialog { id: convert }
-            Flea.ArchiveCompressDialog { id: compress }
-            Flea.ArchivePasswordDialog { id: password }
-            Flea.FatNamesConfirm { id: fatNames }
-            Flea.TrashConfirm { id: trash }
-            Flea.CollideConfirm { id: collide }
-            Flea.BulkRenameDialog { id: bulk }
-            Flea.MenuActionDialog { id: menuAction }
-            Flea.UnlockDialog { id: unlock }
-            Flea.NetworkDialog { id: network }
-            Flea.RunCard { id: runCard }
-            Flea.KeymapSheet { id: sheet; anchors.fill: parent }
-            Flea.PermissionsDialog { id: permissions; onRequested: function (message) { shell.permissionsSent.push(message) } }
+            Dlea.OpenWithDialog { id: openWith }
+            Dlea.ConvertDialog { id: convert }
+            Dlea.ArchiveCompressDialog { id: compress }
+            Dlea.ArchivePasswordDialog { id: password }
+            Dlea.FatNamesConfirm { id: fatNames }
+            Dlea.TrashConfirm { id: trash }
+            Dlea.CollideConfirm { id: collide }
+            Dlea.BulkRenameDialog { id: bulk }
+            Dlea.MenuActionDialog { id: menuAction }
+            Dlea.UnlockDialog { id: unlock }
+            Dlea.NetworkDialog { id: network }
+            Dlea.RunCard { id: runCard }
+            Dlea.KeymapSheet { id: sheet; anchors.fill: parent }
+            Dlea.PermissionsDialog { id: permissions; onRequested: function (message) { shell.permissionsSent.push(message) } }
         }
         // The flasher's running step, off screen in the card-free corner, with a transfer half done.
-        Flea.FlashStepRow { id: flashRow; y: 640; width: 600; running: true; transfer: ({ share: 0.5, headText: "Writing to Stick", byteText: [], running: true }) }
+        Dlea.FlashStepRow { id: flashRow; y: 640; width: 600; running: true; transfer: ({ share: 0.5, headText: "Writing to Stick", byteText: [], running: true }) }
 
         // Qt's own default fill, read off a bare rectangle so no ancestor may wear it.
         Rectangle { id: defaultFill; visible: false; width: 1; height: 1 }
         TextMetrics {
             id: capInk
-            font.family: Flea.Theme.font.family
-            font.pixelSize: Flea.Theme.font.caption
+            font.family: Dlea.Theme.font.family
+            font.pixelSize: Dlea.Theme.font.caption
             font.bold: true
             text: "R"
         }
@@ -367,7 +367,7 @@ ShellRoot {
         var steps = []
         shell.subjects().forEach(function (subject) {
             steps.push({ name: "geometry-" + subject.name, act: function () {
-                Flea.Theme.reducedMotion = true
+                Dlea.Theme.reducedMotion = true
                 shell.hostWidth = shell.roomyWidth; shell.hostHeight = shell.roomyHeight
                 shell.subject = subject.item
                 subject.open()
@@ -380,7 +380,7 @@ ShellRoot {
                 var wanted = pins === null ? 0 : pins.frame.scrollItem.wanted
                 shell.hostWidth = shell.shortWidth
                 // The card clamps to its window less two gaps, so the window is the card less the body's cut, plus those two gaps.
-                shell.hostHeight = Math.round(subject.item.cardItem.height - wanted * shell.bodyCut + 2 * Flea.Theme.spacing.gap)
+                shell.hostHeight = Math.round(subject.item.cardItem.height - wanted * shell.bodyCut + 2 * Dlea.Theme.spacing.gap)
             }, record: function () {
                 var card = subject.item.cardItem
                 var pins = shell.pinnedParts(card)
@@ -476,16 +476,16 @@ ShellRoot {
                                    applications: [{ id: "a.desktop", label: "Alpha", icon: "a", default: true }],
                                    installed: [{ id: "a.desktop", label: "Alpha", icon: "a" }, { id: "b.desktop", label: "Beta", icon: "b" }] })
             }, record: function () {
-                shell.check("the harness draws at the reference text size", Flea.Theme.baseSize, shell.pinnedSize)
+                shell.check("the harness draws at the reference text size", Dlea.Theme.baseSize, shell.pinnedSize)
                 shell.measureCheckBoxes("openwith", openWith.cardItem, 1)
                 var geometry = shell.searchGeometry()
                 shell.check("openwith: the search field sits 18 px under the title rule (board)", geometry.ruleToField, shell.boardRuleToField)
                 shell.check("openwith: the first eyebrow's ink sits 31 px under the field (board)", geometry.fieldToInk, shell.boardFieldToEyebrowInk)
                 shell.check("openwith: the card opens on the search field, cursor on the first app", [openWith.focusPart, openWith.fieldItem.focus, openWith.cursor].join(), "0,true,0")
-                shell.check("openwith: the title rule starts at the content edge", Math.round(openWith.titleRuleItem.mapToItem(openWith.cardItem, 0, 0).x), Flea.Theme.spacing.rowPaddingX)
+                shell.check("openwith: the title rule starts at the content edge", Math.round(openWith.titleRuleItem.mapToItem(openWith.cardItem, 0, 0).x), Dlea.Theme.spacing.rowPaddingX)
                 shell.check("openwith: the header draws the esc hint", shell.findAll(openWith.cardItem, function (o) { return shell.isType(o, "EscapeHint") && o.visible }).length, 1)
                 var fades = shell.findAll(openWith.cardItem, function (o) { return shell.isType(o, "Rectangle") && o.gradient })
-                shell.check("openwith: every fade stays inside the card frame", fades.filter(function (o) { var x = o.mapToItem(openWith.cardItem, 0, 0).x; return x < Flea.Theme.spacing.hairline || x + o.width > openWith.cardItem.width - Flea.Theme.spacing.hairline }).length + "/" + (fades.length > 0), "0/true")
+                shell.check("openwith: every fade stays inside the card frame", fades.filter(function (o) { var x = o.mapToItem(openWith.cardItem, 0, 0).x; return x < Dlea.Theme.spacing.hairline || x + o.width > openWith.cardItem.width - Dlea.Theme.spacing.hairline }).length + "/" + (fades.length > 0), "0/true")
                 // One frame reads as focused: the cursor row draws only while the search or the list holds focus.
                 var drawnCursor = function () {
                     return shell.findAll(openWith.cardItem, function (o) { return shell.isType(o, "MenuRow") && o.visible })
@@ -520,18 +520,18 @@ ShellRoot {
                 bulk.close()
             } },
             // FIELDS-24: the fill is the track's sibling, so the track's quarter opacity never reaches it.
-            { name: "flasher-run", act: function () { shell.accentFrameWas = Flea.Theme.color.accentFrame; Flea.Theme.color.accentFrame = shell.sentinel }, record: function () {
+            { name: "flasher-run", act: function () { shell.accentFrameWas = Dlea.Theme.color.accentFrame; Dlea.Theme.color.accentFrame = shell.sentinel }, record: function () {
                 try {
                     var bars = shell.findAll(flashRow, function (o) { return shell.isType(o, "Rectangle") && o.height === flashRow.barHeight })
-                    var track = bars.filter(function (o) { return shell.rgba(o.color) === shell.rgba(Flea.Theme.color.muted) })[0]
+                    var track = bars.filter(function (o) { return shell.rgba(o.color) === shell.rgba(Dlea.Theme.color.muted) })[0]
                     var fill = bars.filter(function (o) { return o !== track })[0]
                     var effective = 1
                     for (var up = fill; up; up = up.parent) effective *= up.opacity
                     shell.check("flasher: the fill is not a descendant of the track", shell.findAll(track, function (o) { return o === fill }).length, 0)
                     shell.check("flasher: the fill's effective opacity is 1", shell.round3(effective), 1)
-                    shell.check("flasher: the fill takes accentFrame and not accent", [shell.rgba(fill.color), shell.rgba(Flea.Theme.color.accent) !== shell.rgba(fill.color)], [shell.rgba(shell.sentinel), true])
+                    shell.check("flasher: the fill takes accentFrame and not accent", [shell.rgba(fill.color), shell.rgba(Dlea.Theme.color.accent) !== shell.rgba(fill.color)], [shell.rgba(shell.sentinel), true])
                     shell.check("flasher: a half-done transfer fills half the track", shell.round3(fill.width / track.width), 0.5)
-                } finally { Flea.Theme.color.accentFrame = shell.accentFrameWas }
+                } finally { Dlea.Theme.color.accentFrame = shell.accentFrameWas }
             } },
             // Each dialog's ground and card report the pointer, so one that crosses them onto a row takes the cursor on its first move.
             { name: "pointer-openwith", act: function () {
@@ -552,22 +552,22 @@ ShellRoot {
                 shell.check("convert: a pointer from the ground takes the row it reaches on its first move", convert.cursor, target)
                 convert.opened = false
             } },
-            { name: "strip-rest", act: function () { Flea.Theme.reducedMotion = false; parking.forceActiveFocus(); shell.park() }, record: function () {
+            { name: "strip-rest", act: function () { Dlea.Theme.reducedMotion = false; parking.forceActiveFocus(); shell.park() }, record: function () {
                 var back = view.backItem
                 var up = view.upItem
-                var hit = Flea.Theme.hitMin
-                var size = shell.round3(Math.min(Flea.Theme.chromeMarkSize, hit, view.stripItem.height))
+                var hit = Dlea.Theme.hitMin
+                var size = shell.round3(Math.min(Dlea.Theme.chromeMarkSize, hit, view.stripItem.height))
                 // ChromeButton centres its mark on whole pixels in the rows above the strip's rule, as the bar's own Back and Up do, so the hand-built mark's half pixel rounds.
-                var middle = shell.round3(Math.round((view.stripItem.height - Flea.Theme.spacing.hairline - size) / 2) + size / 2)
-                var left = Flea.Theme.spacing.rowPaddingX
-                var onePlusGap = hit + Flea.Theme.spacing.gap
+                var middle = shell.round3(Math.round((view.stripItem.height - Dlea.Theme.spacing.hairline - size) / 2) + size / 2)
+                var left = Dlea.Theme.spacing.rowPaddingX
+                var onePlusGap = hit + Dlea.Theme.spacing.gap
                 shell.check("strip: Back is the one chrome control", shell.isType(back, "ChromeButton"), true)
                 shell.check("strip: Up is the one chrome control", shell.isType(up, "ChromeButton"), true)
                 shell.check("strip: Back's mark is where the hand-built one drew it, foreground and opaque",
-                            shell.mark(back), { size: size, x: shell.round3(left + hit / 2), y: middle, ink: shell.rgba(Flea.Theme.color.foreground), opacity: 1 })
+                            shell.mark(back), { size: size, x: shell.round3(left + hit / 2), y: middle, ink: shell.rgba(Dlea.Theme.color.foreground), opacity: 1 })
                 shell.check("strip: Up's mark is where the hand-built one drew it, muted and at the disabled opacity",
-                            shell.mark(up), { size: size, x: shell.round3(left + onePlusGap + hit / 2), y: middle, ink: shell.rgba(Flea.Theme.color.mutedFrame),
-                                              opacity: Flea.Theme.disabledOpacity })
+                            shell.mark(up), { size: size, x: shell.round3(left + onePlusGap + hit / 2), y: middle, ink: shell.rgba(Dlea.Theme.color.mutedFrame),
+                                              opacity: Dlea.Theme.disabledOpacity })
                 shell.check("strip: Back is the pointing hand over its hit box", shell.hasHand(back), true)
                 shell.check("strip: Back is live and Up is dead by design", [back.enabled, up.enabled], [true, false])
                 shell.check("strip: the keyboard reaches neither mark, so no ring is ever drawn", [!!back.activeFocusOnTab, !!up.activeFocusOnTab], [false, false])
@@ -610,7 +610,7 @@ ShellRoot {
     // The sandbox proof first: every path the product resolves lies under the marked root before anything is assigned.
     function pinned() {
         var home = Quickshell.env("HOME") || ""
-        var paths = [["HOME", home], ["the state file ViewState reads", Flea.ViewState.store.path], ["the view's home", view.home]]
+        var paths = [["HOME", home], ["the state file ViewState reads", Dlea.ViewState.store.path], ["the view's home", view.home]]
         var ok = true
         for (var i = 0; i < paths.length; i++) {
             var inside = shell.underRoot(paths[i][1])
@@ -638,9 +638,9 @@ ShellRoot {
         if (shell.script.length === 0) {
             if (!shell.pinned()) { shell.finish(); return }
             // Assigned only once every path is proved under the root, because the store may write on assignment.
-            Flea.ViewState.state = { display: { textSize: { mode: TextSize.nearest(shell.pinnedSize) } } }
+            Dlea.ViewState.state = { display: { textSize: { mode: TextSize.nearest(shell.pinnedSize) } } }
             // The board reads each card at rest, and a card fading out under the next one would swallow its pointer, so the fades snap; tests/reveal.sh measures the fade.
-            Flea.Theme.reducedMotion = true
+            Dlea.Theme.reducedMotion = true
             shell.buildScript()
             return
         }

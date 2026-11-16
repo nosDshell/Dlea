@@ -19,7 +19,7 @@ from .evidence import Blocked, MARKER, Owned, digest
 
 class CandidateIntegrityTests(unittest.TestCase):
     def setUp(self):
-        self.root = Path(tempfile.mkdtemp(prefix="m9-integrity.", dir=os.environ["FLEA_BATTERY_TEST_ROOT"]))
+        self.root = Path(tempfile.mkdtemp(prefix="m9-integrity.", dir=os.environ["DLEA_BATTERY_TEST_ROOT"]))
         (self.root / MARKER).write_text("owned retained identity and cleanup controls\n")
 
     def catalog(self, identity):
@@ -43,7 +43,7 @@ class CandidateIntegrityTests(unittest.TestCase):
             self.catalog({"elf_sha256": "candidate"})
 
     def test_retained_catalog_bytes_are_sealed_and_tampering_blocks_reconcile(self):
-        identity = {"candidate_inputs": {"files": {"keys.toml": "bound", "i18n/ja/flea.json": "bound"}}}
+        identity = {"candidate_inputs": {"files": {"keys.toml": "bound", "i18n/ja/dlea.json": "bound"}}}
         path, receipt = self.catalog(identity)
         (self.root / "catalog-case.json").write_text(json.dumps(receipt))
         (self.root / "candidate-identity.json").write_text(json.dumps(identity))
@@ -118,7 +118,7 @@ class CandidateIntegrityTests(unittest.TestCase):
         self.assertFalse(created[0].thread.is_alive())
         case = self.root / "foot/tui-list-text/primary"
         self.assertTrue(json.loads((case / "cups-traffic.json").read_text())["thread_joined"])
-        self.assertTrue((case / "fx/state/flea/ui.json").is_file())
+        self.assertTrue((case / "fx/state/dlea/ui.json").is_file())
         self.assertEqual(json.loads((case / "verdict.json").read_text())["status"], "FAIL")
 
     def test_real_process_sigint_waits_until_the_inflight_receiver_is_joined(self):
@@ -168,7 +168,7 @@ print(json.dumps({"joined_before_interrupt": True}))
         try:
             wait("socket-ready")
             client.connect(str(root / "fx/runtime/cups.sock"))
-            client.sendall(b"POST /printers/flea-private HTTP/1.1\r\nContent-Type: application/ipp\r\nContent-Length: 128\r\n\r\npartial")
+            client.sendall(b"POST /printers/dlea-private HTTP/1.1\r\nContent-Type: application/ipp\r\nContent-Length: 128\r\n\r\npartial")
             wait("main-blocked")
             signal.pidfd_send_signal(descriptor, signal.SIGINT)
             stdout, stderr = child.communicate(timeout=10)

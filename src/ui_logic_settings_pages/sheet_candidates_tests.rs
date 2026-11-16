@@ -45,10 +45,10 @@ fn rail() -> Vec<RailEntry> {
         identity: identity.into(),
     };
     vec![
-        rail("flea", "favourite", "favourite", "favourite:/home/gm/flea"),
+        rail("dlea", "favourite", "favourite", "favourite:/home/gm/dlea"),
         rail("Trash", "trash", "trash", "trash:///"),
         rail("NAS", "network", "share", "smb://host/data"),
-        rail("Recent", "recent", "recent", "flea:recent"),
+        rail("Recent", "recent", "recent", "dlea:recent"),
     ]
 }
 
@@ -90,7 +90,7 @@ fn flyout_without_leaves_keeps_its_own_row() {
 #[test]
 fn place_candidates_name_each_group_and_skip_recent() {
     let places = place_candidates(&rail());
-    assert_eq!(say(&find(&places, "Open flea").where_), "Favorites");
+    assert_eq!(say(&find(&places, "Open dlea").where_), "Favorites");
     assert_eq!(say(&find(&places, "Open Trash").where_), "Places");
     assert_eq!(say(&find(&places, "Open NAS").where_), "Network");
     assert_eq!(places.len(), 3);

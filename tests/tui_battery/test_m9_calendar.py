@@ -36,9 +36,9 @@ DATE = "2025-06-15 10:00"
 
 
 def boards():
-    value = os.environ.get("FLEA_BATTERY_BOARDS")
+    value = os.environ.get("DLEA_BATTERY_BOARDS")
     if not value:
-        raise Blocked("FLEA_BATTERY_BOARDS is unset: set it to the design-hig directory that holds boards/")
+        raise Blocked("DLEA_BATTERY_BOARDS is unset: set it to the design-hig directory that holds boards/")
     return Path(value)
 
 
@@ -82,7 +82,7 @@ def blank(snapshot, y, text):
 
 class CalendarTests(unittest.TestCase):
     def setUp(self):
-        parent = Path(os.environ.get("FLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/m9-tui-02"))
+        parent = Path(os.environ.get("DLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/m9-tui-02"))
         parent.mkdir(parents=True, exist_ok=True)
         self.root = Path(tempfile.mkdtemp(prefix="calendar.", dir=parent)).absolute()
         (self.root / MARKER).write_text("owned calendar regression evidence\n")
@@ -394,7 +394,7 @@ class CalendarTests(unittest.TestCase):
                 return {"at": self.at, "size": [client[2], client[3]]}
 
         class Terminal:
-            adapter = type("Adapter", (), {"identity": "flea.battery.tcalendar"})
+            adapter = type("Adapter", (), {"identity": "dlea.battery.tcalendar"})
             def snapshot(self):
                 return {"pty": list(pty), "rows": pty[0], "columns": pty[1], "grid": grid, "frames": 1,
                         "pending": False, "unsupported": []}

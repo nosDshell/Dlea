@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-markdown-headink-test
+//@ pragma ShellId dlea-markdown-headink-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // ui/Theme.qml's own heading ink, applied over palettes where bright_foreground wins, where color15 wins and where neither beats the foreground.
 ShellRoot {
@@ -14,8 +14,8 @@ ShellRoot {
     function log(line) { console.log("MARKDOWN_HEADINK " + line) }
     function quit() { Quickshell.execDetached(["kill", String(Quickshell.processId)]) }
     function inkOf(palette) {
-        Flea.Theme.applyColors(palette)
-        return String(Flea.Theme.color.foregroundBright)
+        Dlea.Theme.applyColors(palette)
+        return String(Dlea.Theme.color.foregroundBright)
     }
     function check(palette, want, name) {
         var got = shell.inkOf(palette)

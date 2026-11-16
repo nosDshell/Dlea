@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Convert.js" as Convert
 import "js/Format.js" as Format
 
@@ -65,7 +65,7 @@ Item {
     opacity: 0
     z: 2
 
-    Flea.Reveal { target: root; shown: root.opened; lift: card }
+    Dlea.Reveal { target: root; shown: root.opened; lift: card }
 
     // A codec this box converts to but the canvas does not name still needs a cap, so upper-casing
     // the extension is the fallback rather than an empty row.
@@ -179,8 +179,8 @@ Item {
             root.focusPart = 2
             cancelButton.forceActiveFocus()
             root.errorText = pending
-                ? "Flea stopped responding, so the conversion may not have finished. Check the converted file."
-                : "Flea stopped responding. Reopen Flea, then convert again."
+                ? "Dlea stopped responding, so the conversion may not have finished. Check the converted file."
+                : "Dlea stopped responding. Reopen Dlea, then convert again."
         }
     }
 
@@ -227,7 +227,7 @@ Item {
             onWheel: function (wheel) { wheel.accepted = true }
         }
 
-        Flea.CardFrame {
+        Dlea.CardFrame {
             id: body
             bleedY: Theme.focusClearance
             anchors.fill: parent
@@ -240,7 +240,7 @@ Item {
                 width: parent.width
                 height: header.implicitHeight + Theme.spacing.gap
 
-                Flea.DialogTitle {
+                Dlea.DialogTitle {
                     id: header
                     anchors.left: parent.left
                     anchors.right: parent.right
@@ -267,7 +267,7 @@ Item {
                     anchors.rightMargin: Theme.spacing.rowPaddingX
                     spacing: Theme.spacing.gap
 
-                    Flea.DialogButton {
+                    Dlea.DialogButton {
                         id: cancelButton
                         label: "Cancel"
                         focused: root.focusPart === 2
@@ -277,7 +277,7 @@ Item {
                         onActivated: root.close()
                     }
 
-                    Flea.DialogButton {
+                    Dlea.DialogButton {
                         id: convertButton
                         label: "Convert"
                         primary: true
@@ -297,7 +297,7 @@ Item {
                 Repeater {
                     id: formatRows
                     model: root.formats
-                    delegate: Flea.MenuRow {
+                    delegate: Dlea.MenuRow {
                         required property string modelData
                         required property int index
                         width: body.holderWidth
@@ -347,7 +347,7 @@ Item {
                         width: ruleBox.implicitWidth
                         height: ruleBox.implicitHeight
 
-                        Flea.CheckBox {
+                        Dlea.CheckBox {
                             id: ruleBox
                             value: root.strip ? "on" : "off"
                             focused: root.focusPart === 1

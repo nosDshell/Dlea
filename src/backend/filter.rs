@@ -1,6 +1,6 @@
 use super::listing::Listing;
 use crate::json::escape;
-use flea::ui_logic_listing_filter::narrow;
+use dlea::ui_logic_listing_filter::narrow;
 use std::fmt::Write;
 use std::time::Instant;
 
@@ -83,7 +83,7 @@ mod tests {
 
     #[test]
     fn the_answer_bytes_match_the_window_consumer_fixture() {
-        // crates/flea-gui/src/window/filter_tests.rs replays these bytes, stamped, through the window's transport.
+        // crates/dlea-gui/src/window/filter_tests.rs replays these bytes, stamped, through the window's transport.
         let mut listing = Listing::new();
         for name in ["docs", "notes.txt", "nuts.txt", "zeta.md"] { listing.push(name, false); }
         let typo = filtered_line(&listing, "ntoes", 2);

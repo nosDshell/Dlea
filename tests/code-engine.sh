@@ -3,11 +3,11 @@
 set -u
 set -o pipefail
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete below.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
-BIN=./target/debug/flea
-SB="$FIXTURE_ROOT/flea-code-test-$$"
+BIN=./target/debug/dlea
+SB="$FIXTURE_ROOT/dlea-code-test-$$"
 D="$SB/tree"
 # The backend ends on its own past this, so a request that never answers cannot hold the run open.
 BACKEND_BOUND=120
@@ -41,7 +41,7 @@ check() {
 
 [ -x "$BIN" ] || { echo "code-engine.sh: no binary at $BIN, build it first; refusing to report on nothing" >&2; exit 1; }
 for tool in bat jq bwrap prlimit; do
-  command -v "$tool" >/dev/null || { echo "code-engine.sh: $tool is not on PATH; this suite runs in the flea-ci image" >&2; exit 1; }
+  command -v "$tool" >/dev/null || { echo "code-engine.sh: $tool is not on PATH; this suite runs in the dlea-ci image" >&2; exit 1; }
 done
 
 # GNU timeout runs the backend in its own process group, so the negative pid reaches both.

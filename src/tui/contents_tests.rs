@@ -9,7 +9,7 @@ use super::{
     wire::{self, count, text},
 };
 use crate::jsondoc::{self, Json};
-use flea::ui_logic_file_search::{ContentsMatch, ContentsMatches};
+use dlea::ui_logic_file_search::{ContentsMatch, ContentsMatches};
 use std::time::Duration;
 
 pub(super) fn press(m: &mut Model, w: &mut wire::Wire, key: Key) {
@@ -227,11 +227,11 @@ fn tui_contents_cancel_and_missing_producer_are_truthful() {
 }
 
 // Test-only catalog mirrors the unit's i18n-delta.json entries without changing shared catalogs.
-pub(super) fn catalog(root: &super::contents_process_tests::Root) -> flea::i18n::I18n {
+pub(super) fn catalog(root: &super::contents_process_tests::Root) -> dlea::i18n::I18n {
     let base = root.0.join("catalog");
     std::fs::create_dir_all(base.join("en")).unwrap();
-    std::fs::write(base.join("en/flea.json"), r#"{"tui.find.scope_hint":"%1 · tab changes scope","tui.find.status":"Find “%1” %2","tui.find.invalid_response":"The search response could not be used safely. Try Find again."}"#).unwrap();
-    flea::i18n::I18n::load(flea::i18n::Paths {
+    std::fs::write(base.join("en/dlea.json"), r#"{"tui.find.scope_hint":"%1 · tab changes scope","tui.find.status":"Find “%1” %2","tui.find.invalid_response":"The search response could not be used safely. Try Find again."}"#).unwrap();
+    dlea::i18n::I18n::load(dlea::i18n::Paths {
         omarchy: root.0.join("omarchy"),
         language_file: root.0.join("language"),
         catalogs: vec![base, crate::i18n::test_catalogs::english_only()],

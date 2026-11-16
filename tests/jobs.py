@@ -12,14 +12,14 @@ import time
 from jobs_barrier import CopyBarrier
 
 BINARY = str(Path(sys.argv[1]).resolve())
-MARKER = '.flea-test-sandbox'
+MARKER = '.dlea-test-sandbox'
 # Request ids for barrier round trips start above every fixed id the suite sends.
 BARRIER_SYNC_FIRST_ID = 10000
 
 
 class Root:
     def __init__(self, parent):
-        self.path = Path(tempfile.mkdtemp(prefix='flea-jobs-', dir=parent)).resolve()
+        self.path = Path(tempfile.mkdtemp(prefix='dlea-jobs-', dir=parent)).resolve()
         (self.path / MARKER).write_text('jobs integration sandbox\n')
 
     def close(self):
@@ -43,7 +43,7 @@ class Backend:
             folder = root / name
             folder.mkdir(exist_ok=True)
             env[key] = str(folder)
-        self.actions = root / 'config/flea/actions'
+        self.actions = root / 'config/dlea/actions'
         self.actions.mkdir(parents=True, exist_ok=True)
         env['PATH'] = str(root / 'bin') + ':' + env.get('PATH', '')
         self.barrier.environment(env)
@@ -251,7 +251,7 @@ def manifests(backend, root, a, b):
     result = backend.list([a])
     assert len(result['errors']) == len(malformed) + 2, result
     assert {single, many}.issubset({r['id'] for r in result['actions']})
-    script = root / 'config/flea/scripts/old-script.sh'
+    script = root / 'config/dlea/scripts/old-script.sh'
     script.parent.mkdir(parents=True)
     script.write_text('#!/bin/sh\nexit 0\n')
     script.chmod(0o700)

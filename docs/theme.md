@@ -1,10 +1,10 @@
 # Theme contract
 
-Flea's visible theme is resolved from a small set of files and re-resolved live
+Dlea's visible theme is resolved from a small set of files and re-resolved live
 when any of them changes. This document is the contract a shell or theme
-pipeline (for example nosDshell's `Assets/Templates/flea-*.toml`) writes
+pipeline (for example nosDshell's `Assets/Templates/dlea-*.toml`) writes
 against. Everything here is additive to the packaged theme: an empty
-`~/.config/flea` means Flea behaves exactly as it does on a stock Omarchy
+`~/.config/dlea` means Dlea behaves exactly as it does on a stock Omarchy
 install.
 
 ## Input files and precedence
@@ -12,18 +12,18 @@ install.
 | File | Role |
 |---|---|
 | `~/.local/state/omarchy/current/theme/colors.toml` | Packaged palette (optional on non-Omarchy systems) |
-| `~/.config/flea/colors.toml` | Palette override — appended key by key, so keys it sets win and keys it omits keep the packaged value |
+| `~/.config/dlea/colors.toml` | Palette override — appended key by key, so keys it sets win and keys it omits keep the packaged value |
 | `~/.local/state/omarchy/current/theme/shell.toml` | Packaged style values |
-| `~/.config/flea/shell.toml` | Style override — same key-by-key overlay |
+| `~/.config/dlea/shell.toml` | Style override — same key-by-key overlay |
 | `~/.config/omarchy/shell.toml` | User style layer, applied last |
 
-Both `~/.config/flea` files are watched, including the directory itself:
+Both `~/.config/dlea` files are watched, including the directory itself:
 creating, replacing or deleting them repaints the window without a restart. On
-a system with no Omarchy state directory, `~/.config/flea/colors.toml` alone is
+a system with no Omarchy state directory, `~/.config/dlea/colors.toml` alone is
 sufficient — it can supply the whole palette.
 
 The GPUI window reads the same contract through
-`crates/flea-gui/src/presentation/source.rs`; the TUI and shared theme code read
+`crates/dlea-gui/src/presentation/source.rs`; the TUI and shared theme code read
 it through `src/theme/watch.rs` (`ThemePaths::load`). Both apply the overlay
 identically.
 
@@ -58,7 +58,7 @@ table; the keys below are written as `controls.*` values.
 `[font]`: `base-size` (default 12), `body`, `body-small`, `caption` — pixel
 sizes the GPUI window's font ladder reads.
 
-`[flea]`: `background-alpha` (0.0–1.0) — pins the glass background alpha when a
+`[dlea]`: `background-alpha` (0.0–1.0) — pins the glass background alpha when a
 compositor toggle asks for it.
 
 `[spacing]`: `scale`, `scale-with-font`, and per-name pixel overrides
@@ -86,7 +86,7 @@ Wash roles (single colors, not per-state):
 
 ## The DDE/GXDE recipe
 
-nosDshell's template (`Assets/Templates/flea-*.toml`) ships the gxde-file-manager
+nosDshell's template (`Assets/Templates/dlea-*.toml`) ships the gxde-file-manager
 dark-theme recipe on top of the wallpaper-derived palette:
 
 - resting controls tonal `foreground @ 0.15`, no outline;
@@ -100,11 +100,11 @@ The toolbar follows `gxde-file-manager`'s `DFileManagerWindow.theme` on top of
 that recipe: a joined back/forward/up group, a 4 px crumb well, and a view
 tray. Dark plates use foreground at 15% / 30% / 10% (rest / hover / press).
 Row and menu washes stay on the bookmark recipe above. With no Omarchy palette
-and no `~/.config/flea/colors.toml`, the window ground is the GXDE dark
+and no `~/.config/dlea/colors.toml`, the window ground is the GXDE dark
 `#202020` / accent `#2ca7f8`. What matches, and what does not, is listed in
 [gxde-fidelity.md](gxde-fidelity.md).
 
-Set only the keys a template owns; the rest fall through to Flea's defaults or
+Set only the keys a template owns; the rest fall through to Dlea's defaults or
 the packaged theme.
 
 ## Scope

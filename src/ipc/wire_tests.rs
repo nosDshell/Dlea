@@ -4,7 +4,7 @@ use std::io::Cursor;
 #[test]
 fn every_argument_is_data_on_one_line() {
     let request = Request::Call {
-        target: "flea".into(),
+        target: "dlea".into(),
         function: "path".into(),
         arguments: vec![
             " spaces \"quotes\"\nnewline\t\\backslash\0é".into(),
@@ -25,7 +25,7 @@ fn returns_printed_bytes_and_exit_code_without_losing_empty_or_multiline_values(
     for reply in [
         Reply::value(""),
         Reply::value("a\nb\0é"),
-        Reply::error(3, "FLEA_IPC_NOT_PORTED flea.palette"),
+        Reply::error(3, "DLEA_IPC_NOT_PORTED dlea.palette"),
         Reply {
             code: 0,
             stdout: String::new(),

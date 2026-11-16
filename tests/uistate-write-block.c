@@ -19,7 +19,7 @@ static atomic_int held = 0;
 static atomic_int rename_held = 0;
 static atomic_int in_rename_hook = 0;
 
-// Sample input: /proc/self/fd/7 reads /run/.../flea/ui.json.12345.tmp for the owned child.
+// Sample input: /proc/self/fd/7 reads /run/.../dlea/ui.json.12345.tmp for the owned child.
 static int target_matches(const char *target, pid_t self) {
     char expect[64];
     snprintf(expect, sizeof expect, "ui.json.%d.tmp", (int)self);
@@ -28,7 +28,7 @@ static int target_matches(const char *target, pid_t self) {
     if (tl >= el && strcmp(target + tl - el, expect) == 0)
         return 1;
     // Explicit mutation mode only: the truncated ui.json itself, never a backup.
-    const char *allow = getenv("FLEA_TEST_UIS_ALLOW_DIRECT");
+    const char *allow = getenv("DLEA_TEST_UIS_ALLOW_DIRECT");
     if (allow && strcmp(allow, "1") == 0) {
         if (tl >= 8 && strcmp(target + tl - 8, "/ui.json") == 0)
             return 1;
@@ -37,7 +37,7 @@ static int target_matches(const char *target, pid_t self) {
 }
 
 static void publish_entered(int fd, const char *target) {
-    const char *path = getenv("FLEA_TEST_UIS_ENTERED");
+    const char *path = getenv("DLEA_TEST_UIS_ENTERED");
     if (!path || !path[0])
         return;
     // Atomic publish: existence means ready, so complete bytes must land via rename.
@@ -63,7 +63,7 @@ static void publish_entered(int fd, const char *target) {
             unlink(sib);
             // The driver fails closed on the missing receipt; this names the publication failure.
             char msg[PATH_MAX + 128];
-            int ml = snprintf(msg, sizeof msg, "flea-test: receipt publish %s failed (%s)\n", path, strerror(e));
+            int ml = snprintf(msg, sizeof msg, "dlea-test: receipt publish %s failed (%s)\n", path, strerror(e));
             if (ml > 0 && real_write) {
                 if (ml >= (int)sizeof msg)
                     ml = (int)sizeof msg - 1;
@@ -85,7 +85,7 @@ static void wait_for_path(const char *path) {
 }
 
 static void wait_for_release(void) {
-    const char *path = getenv("FLEA_TEST_UIS_RELEASE");
+    const char *path = getenv("DLEA_TEST_UIS_RELEASE");
     if (!path || !path[0])
         return;
     wait_for_path(path);
@@ -93,8 +93,8 @@ static void wait_for_release(void) {
 
 ssize_t write(int fd, const void *buf, size_t count) {
     ssize_t (*real_write)(int, const void *, size_t) = dlsym(RTLD_NEXT, "write");
-    const char *entered = getenv("FLEA_TEST_UIS_ENTERED");
-    const char *release = getenv("FLEA_TEST_UIS_RELEASE");
+    const char *entered = getenv("DLEA_TEST_UIS_ENTERED");
+    const char *release = getenv("DLEA_TEST_UIS_RELEASE");
     if (real_write && entered && entered[0] && release && release[0] && atomic_load(&held) == 0) {
         char link[64];
         char target[PATH_MAX + 1];
@@ -129,9 +129,9 @@ static int rename_target_matches(const char *oldpath, const char *newpath) {
     return strcmp(leaf, "ui.json") == 0;
 }
 
-// Sample input: /run/.../flea/ui.json for the owned child after its own publication rename.
+// Sample input: /run/.../dlea/ui.json for the owned child after its own publication rename.
 static void publish_renamed(const char *newpath) {
-    const char *path = getenv("FLEA_TEST_UIS_RENAME_ENTERED");
+    const char *path = getenv("DLEA_TEST_UIS_RENAME_ENTERED");
     if (!path || !path[0])
         return;
     // Atomic publish: existence means the rename landed, so bytes arrive via rename.
@@ -162,8 +162,8 @@ static void publish_renamed(const char *newpath) {
 
 // The rename runs first and the hold after it, so a kill in the hold lands past the rename.
 static int maybe_hold_after_rename(const char *oldpath, const char *newpath) {
-    const char *entered = getenv("FLEA_TEST_UIS_RENAME_ENTERED");
-    const char *release = getenv("FLEA_TEST_UIS_RENAME_RELEASE");
+    const char *entered = getenv("DLEA_TEST_UIS_RENAME_ENTERED");
+    const char *release = getenv("DLEA_TEST_UIS_RENAME_RELEASE");
     if (!entered || !entered[0] || !release || !release[0])
         return 0;
     if (atomic_load(&in_rename_hook))
@@ -177,7 +177,7 @@ static int maybe_hold_after_rename(const char *oldpath, const char *newpath) {
 
 static void hold_after_rename(const char *newpath) {
     publish_renamed(newpath);
-    const char *release = getenv("FLEA_TEST_UIS_RENAME_RELEASE");
+    const char *release = getenv("DLEA_TEST_UIS_RENAME_RELEASE");
     if (release && release[0])
         wait_for_path(release);
 }

@@ -7,7 +7,7 @@
 .import "sourcefixture.js" as Source
 
 function run(check) {
-    var rows = [{ n: "omarchy", d: true }, { n: "flea", d: true }, { n: "a.txt", d: false }, { n: "b.txt", d: false }]
+    var rows = [{ n: "omarchy", d: true }, { n: "dlea", d: true }, { n: "a.txt", d: false }, { n: "b.txt", d: false }]
 
     check("a drag from a selected row carries the whole selection",
           String(Drag.carried(Fixture.pane([], [1, 2, 3], rows), 2)), "1,2,3")
@@ -48,7 +48,7 @@ function run(check) {
     check("and the clipboard was never part of it", mover.clipboard, "untouched")
     var copied = []
     Drag.dropByIndex(Fixture.pane(copied, [], rows), [2], 1, "copy")
-    check("a copy verb drops as a copy", copied.length === 1 ? copied[0].op + " " + copied[0].dest : "nothing sent", "copy /d/flea")
+    check("a copy verb drops as a copy", copied.length === 1 ? copied[0].op + " " + copied[0].dest : "nothing sent", "copy /d/dlea")
 
     // The marker carries where the rows were lifted from, so a drop after the listing changed can
     // resolve by path, and the wire carries the same paths as plain text for a terminal.
@@ -68,7 +68,7 @@ function run(check) {
     check("a marker from before this shape reads as no source", Drag.markerSource("x\n1\nmove"), "")
     check("and as an unknown filesystem", Drag.markerDev("x\n1\nmove"), 0)
     check("the same listing is the by-index case", Drag.sameListing(wire[Drag.ROWS_MIME], "/d"), true)
-    check("another directory is not", Drag.sameListing(wire[Drag.ROWS_MIME], "/d/flea"), false)
+    check("another directory is not", Drag.sameListing(wire[Drag.ROWS_MIME], "/d/dlea"), false)
     check("nor is a foreign drag, whatever its source", Drag.sameListing("other\n1\nmove\n/d\n42", "/d"), false)
     check("plain text is the absolute paths, one a line", wire["text/plain"], "/d/a.txt\n/d/b.txt")
     check("a wide selection offers no plain text either", Drag.mimeFor(lifted, [2, 9], false)["text/plain"], undefined)
@@ -152,7 +152,7 @@ function run(check) {
           Drag.dropInto(Fixture.pane(extRefused, [], rows), "", ["https://example.com/a.txt"], "/d/omarchy", 0), false)
     check("and nothing went out from any of them", extRefused.length, 0)
 
-    // What the drag puts on the wire, and the marker that tells Flea's own drag from a foreign one.
+    // What the drag puts on the wire, and the marker that tells Dlea's own drag from a foreign one.
     check("a path becomes a file URI", Drag.uriFor("/d/a.txt"), "file:///d/a.txt")
     check("a space is percent encoded", Drag.uriFor("/d/a b.txt"), "file:///d/a%20b.txt")
     check("and so is a hash, which encodeURI would leave alone", Drag.uriFor("/d/a#b.txt"), "file:///d/a%23b.txt")
@@ -177,12 +177,12 @@ function run(check) {
     check("a fully resolvable selection still offers both",
           Drag.mimeFor(Fixture.pane([], [], rows), [0, 2], false).hasOwnProperty("text/uri-list"), true)
 
-    // The marker names the application; the instance mime names this process. Another Flea window is
+    // The marker names the application; the instance mime names this process. Another Dlea window is
     // a different process whose row indices mean nothing here, so it must not take the internal path.
     check("a drag from this window is recognised as its own",
           Drag.isOwnDrag(Drag.markerPayload([0, 2], false)), true)
-    check("a drag from another Flea window is not",
-          Drag.isOwnDrag("some-other-flea\n0,2"), false)
+    check("a drag from another Dlea window is not",
+          Drag.isOwnDrag("some-other-dlea\n0,2"), false)
     check("and neither is something carrying no marker at all",
           Drag.isOwnDrag(""), false)
     check("the marker names the sender before the rows",
@@ -221,7 +221,7 @@ function run(check) {
     check("a marked copy reads back as one", Drag.markerCopying(Drag.markerPayload([2], true)), true)
     check("a marked move reads back as one", Drag.markerCopying(Drag.markerPayload([2], false)), false)
     check("a marker carrying no modifier field is not a copy",
-          Drag.markerCopying("some-other-flea\n0,2"), false)
+          Drag.markerCopying("some-other-dlea\n0,2"), false)
     check("and neither is a drag carrying no marker at all", Drag.markerCopying(""), false)
 
     // The round trip the DropArea makes: what mimeFor put on the wire is what verbFor reads back.
@@ -235,14 +235,14 @@ function run(check) {
           Drag.verbFor(Drag.isOwnDrag(heldWire), Drag.markerCopying(heldWire), Drag.markerShift(heldWire), 56, 56, Drag.markerDeletable(heldWire)), "copy")
     check("and across two volumes the marker cannot make it a move",
           Drag.verbFor(Drag.isOwnDrag(plainWire), Drag.markerCopying(plainWire), Drag.markerShift(plainWire), 56, 32, true), "copy")
-    var other = "some-other-flea\n0,2\nmove\n/x\n56"
+    var other = "some-other-dlea\n0,2\nmove\n/x\n56"
     check("another process's marker moves when the devices match",
           Drag.verbFor(Drag.isOwnDrag(other), Drag.markerCopying(other), Drag.markerShift(other), 56, 56, Drag.markerDeletable(other)), "move")
 
-    var fromOtherFlea = []
-    Drag.dropInto(Fixture.pane(fromOtherFlea, [], rows), "some-other-flea\n0\nmove\n/x\n56", ["file:///x/a.txt"], "/d/omarchy", 56)
-    check("a drop from another Flea window moves when the devices match",
-          fromOtherFlea.length === 1 ? fromOtherFlea[0].op : "nothing sent", "move")
+    var fromOtherDlea = []
+    Drag.dropInto(Fixture.pane(fromOtherDlea, [], rows), "some-other-dlea\n0\nmove\n/x\n56", ["file:///x/a.txt"], "/d/omarchy", 56)
+    check("a drop from another Dlea window moves when the devices match",
+          fromOtherDlea.length === 1 ? fromOtherDlea[0].op : "nothing sent", "move")
 
     var feedback = Drag.feedbackFor(Drag.markerPayload([1, 3], false, "/source", 56),
         ["file:///source/a.txt", "file:///source/link"])
@@ -284,7 +284,7 @@ function run(check) {
           "9f2c|false|true")
     check("and a payload that carries nothing names no token", Drag.shelfToken(""), "")
 
-    // Cross-window table: another Flea window follows the device rule, modifiers win.
+    // Cross-window table: another Dlea window follows the device rule, modifiers win.
     check("ctrl with shift is a link lift", Drag.linking(Qt.ControlModifier | Qt.ShiftModifier), true)
     check("ctrl alone is not a link", Drag.linking(Qt.ControlModifier), false)
     check("shift alone is not a link", Drag.linking(Qt.ShiftModifier), false)
@@ -295,7 +295,7 @@ function run(check) {
     check("the row says link here", Drag.label(false, true), "link here")
     check("and the bar names the link", Drag.line(2, "omarchy", false, true), "Link 2 items to omarchy")
     var linkSent = []
-    Drag.dropInto(Fixture.pane(linkSent, [], rows), "some-other-flea\n0\ncopy\n/x\n56\n1\n1", ["file:///x/a.txt"], "/d/omarchy", 56)
+    Drag.dropInto(Fixture.pane(linkSent, [], rows), "some-other-dlea\n0\ncopy\n/x\n56\n1\n1", ["file:///x/a.txt"], "/d/omarchy", 56)
     check("ctrl with shift from another window links",
           linkSent.length === 1 ? linkSent[0].c + " " + linkSent[0].op : "nothing sent", "link relative")
     check("and a link carries the uri-list paths",
@@ -305,13 +305,13 @@ function run(check) {
     check("a link by index asks the link card with those rows",
           linkRow.length === 1 ? linkRow[0].c + " " + linkRow[0].op : "nothing sent", "link relative")
     var otherAcross = []
-    Drag.dropInto(Fixture.pane(otherAcross, [], rows), "some-other-flea\n0\nmove\n/x\n56", ["file:///x/a.txt"], "/d/omarchy", 7)
+    Drag.dropInto(Fixture.pane(otherAcross, [], rows), "some-other-dlea\n0\nmove\n/x\n56", ["file:///x/a.txt"], "/d/omarchy", 7)
     check("another window across devices copies", otherAcross.length === 1 ? otherAcross[0].op : "nothing sent", "copy")
     var otherCtrl = []
-    Drag.dropInto(Fixture.pane(otherCtrl, [], rows), "some-other-flea\n0\ncopy\n/x\n56", ["file:///x/a.txt"], "/d/omarchy", 56)
+    Drag.dropInto(Fixture.pane(otherCtrl, [], rows), "some-other-dlea\n0\ncopy\n/x\n56", ["file:///x/a.txt"], "/d/omarchy", 56)
     check("another window with ctrl copies on one device", otherCtrl.length === 1 ? otherCtrl[0].op : "nothing sent", "copy")
     var otherShift = []
-    Drag.dropInto(Fixture.pane(otherShift, [], rows), "some-other-flea\n0\nmove\n/x\n56\n1\n1", ["file:///x/a.txt"], "/d/omarchy", 7)
+    Drag.dropInto(Fixture.pane(otherShift, [], rows), "some-other-dlea\n0\nmove\n/x\n56\n1\n1", ["file:///x/a.txt"], "/d/omarchy", 7)
     check("another window with shift moves across devices", otherShift.length === 1 ? otherShift[0].op : "nothing sent", "move")
 
     // A foreign drag follows its own action.
@@ -334,15 +334,15 @@ function run(check) {
     // Trust: only the uri-list paths are acted on, never a path the marker alone names.
     var markerOnly = []
     check("a marker path missing from the uri-list is ignored",
-          Drag.dropInto(Fixture.pane(markerOnly, [], rows), "some-other-flea\n0\nmove\n/secret\n56", ["file:///x/a.txt"], "/d/omarchy", 56), true)
+          Drag.dropInto(Fixture.pane(markerOnly, [], rows), "some-other-dlea\n0\nmove\n/secret\n56", ["file:///x/a.txt"], "/d/omarchy", 56), true)
     check("and the transfer names the uri-list path only",
           markerOnly.length === 1 ? String(markerOnly[0].paths) : "nothing sent", "/x/a.txt")
     check("a folder into its own subtree is refused cross-window",
-          Drag.canDropInto("some-other-flea\n0\nmove\n/x\n56", ["file:///d/omarchy"], "/d/omarchy/deep", ""), false)
+          Drag.canDropInto("some-other-dlea\n0\nmove\n/x\n56", ["file:///d/omarchy"], "/d/omarchy/deep", ""), false)
     check("an item into its own folder is refused cross-window",
-          Drag.canDropInto("some-other-flea\n0\nmove\n/x\n56", ["file:///d/a.txt"], "/d", ""), false)
+          Drag.canDropInto("some-other-dlea\n0\nmove\n/x\n56", ["file:///d/a.txt"], "/d", ""), false)
 
-    // The single helper ignores the platform action for any Flea marker.
+    // The single helper ignores the platform action for any Dlea marker.
     var helperMarker = Drag.markerPayload([0], false, "/d", 56)
     check("dropVerb reads the marker under a move offer", Drag.dropVerb(helperMarker, Qt.MoveAction, 56), "move")
     check("and under a copy offer", Drag.dropVerb(helperMarker, Qt.CopyAction, 56), "move")
@@ -375,14 +375,14 @@ function run(check) {
 
     // The two sentences ui:cap_dropmods waits on in the second window, from a plain and a ctrl lift made in the first (one device).
     check("cap_dropmods b1 reads a move over sub2 before ctrl",
-          Drag.feedbackLine(Drag.feedbackFor("another-flea\n0\nmove\n/cap-dropmods\n56\n1\n0", ["file:///cap-dropmods/b1.txt"], "", Qt.MoveAction), "sub2", 56),
+          Drag.feedbackLine(Drag.feedbackFor("another-dlea\n0\nmove\n/cap-dropmods\n56\n1\n0", ["file:///cap-dropmods/b1.txt"], "", Qt.MoveAction), "sub2", 56),
           "Move 1 item to sub2 · Ctrl copies, Shift moves")
     check("cap_dropmods b2 reads a copy over sub2 before shift",
-          Drag.feedbackLine(Drag.feedbackFor("another-flea\n0\ncopy\n/cap-dropmods\n56\n1\n0", ["file:///cap-dropmods/b2.txt"], "", Qt.CopyAction), "sub2", 56),
+          Drag.feedbackLine(Drag.feedbackFor("another-dlea\n0\ncopy\n/cap-dropmods\n56\n1\n0", ["file:///cap-dropmods/b2.txt"], "", Qt.CopyAction), "sub2", 56),
           "Copy 1 item to sub2")
 
     // Drops.html specimens e and f specify this exact move hint, including when Ctrl is read.
-    var boardHover = Drag.feedbackFor("another-flea\n0\nmove\n/source\n56\n1\n0", ["file:///source/a.txt"], "", Qt.CopyAction)
+    var boardHover = Drag.feedbackFor("another-dlea\n0\nmove\n/source\n56\n1\n0", ["file:///source/a.txt"], "", Qt.CopyAction)
     check("Drops040 cross-window move status matches the approved board",
           Drag.feedbackLine(boardHover, "claude", 56), "Move 1 item to claude · Ctrl copies, Shift moves")
     check("Drops040 specimen b folder badge matches the board", Drag.label(Drag.copyingFor(boardHover, 32)), "copy here")
@@ -435,10 +435,10 @@ function run(check) {
     var newlineLink = Drag.mimeFor(newlineSource, [2], true, true)
     var newlineCopy = Drag.mimeFor(newlineSource, [2], true, false)
     var newlinePlain = Drag.mimeFor(newlineSource, [2], false, false)
-    var moveMarker = "other-flea" + newlineMove[Drag.ROWS_MIME].substring(newlineMove[Drag.ROWS_MIME].indexOf("\n"))
-    var linkMarker = "other-flea" + newlineLink[Drag.ROWS_MIME].substring(newlineLink[Drag.ROWS_MIME].indexOf("\n"))
-    var copyMarker = "other-flea" + newlineCopy[Drag.ROWS_MIME].substring(newlineCopy[Drag.ROWS_MIME].indexOf("\n"))
-    var plainMarker = "other-flea" + newlinePlain[Drag.ROWS_MIME].substring(newlinePlain[Drag.ROWS_MIME].indexOf("\n"))
+    var moveMarker = "other-dlea" + newlineMove[Drag.ROWS_MIME].substring(newlineMove[Drag.ROWS_MIME].indexOf("\n"))
+    var linkMarker = "other-dlea" + newlineLink[Drag.ROWS_MIME].substring(newlineLink[Drag.ROWS_MIME].indexOf("\n"))
+    var copyMarker = "other-dlea" + newlineCopy[Drag.ROWS_MIME].substring(newlineCopy[Drag.ROWS_MIME].indexOf("\n"))
+    var plainMarker = "other-dlea" + newlinePlain[Drag.ROWS_MIME].substring(newlinePlain[Drag.ROWS_MIME].indexOf("\n"))
     var movedNewline = []
     var linkedNewline = []
     var copiedNewline = []
@@ -473,7 +473,7 @@ function run(check) {
         check(pathBytes[b][0] + " source round-trips through marker", Drag.markerSource(specialWire), special.path)
         check(pathBytes[b][0] + " source keeps eight marker fields", specialWire.split("\n").length, 8)
         check(pathBytes[b][0] + " source encodes its path field", specialWire.split("\n")[3], encodeURIComponent(special.path))
-        var foreignSpecial = "other-flea" + specialWire.substring(specialWire.indexOf("\n"))
+        var foreignSpecial = "other-dlea" + specialWire.substring(specialWire.indexOf("\n"))
         var specialRequests = []
         Drag.dropInto(Fixture.pane(specialRequests, [], rows), foreignSpecial,
             [Drag.uriFor(special.path + "/a.txt")], "/target", 56, "", "", Qt.MoveAction)

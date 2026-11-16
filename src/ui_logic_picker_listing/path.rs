@@ -1,5 +1,5 @@
 //! Picker path arithmetic and list/grid geometry (Picker.js port).
-pub const RECENT: &str = "flea:recent";
+pub const RECENT: &str = "dlea:recent";
 
 pub fn is_recent(location: &str) -> bool {
     location == RECENT

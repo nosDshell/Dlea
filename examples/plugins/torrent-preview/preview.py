@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""A Flea previewer: answers each preview request with a torrent's name, size and files as plain text."""
+"""A Dlea previewer: answers each preview request with a torrent's name, size and files as plain text."""
 import json
 import sys
 

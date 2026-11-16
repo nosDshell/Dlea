@@ -1,5 +1,5 @@
 // Path syscalls leave the loop for mount-keyed workers; see AGENTS.md "Mount workers".
-use crate::error::FleaError;
+use crate::error::DleaError;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::{LazyLock, Mutex};
@@ -65,8 +65,8 @@ pub fn is_remote(path: &Path, body: &str) -> bool {
     super::mountinfo::mount_entry_in(path, body).is_some_and(|e| super::netfs::can_wedge(&e.fstype))
 }
 // One plain sentence naming the mount: "<mount> is not responding."
-fn not_responding(where_: &str, path: &Path, mount: &Path) -> FleaError {
-    FleaError {
+fn not_responding(where_: &str, path: &Path, mount: &Path) -> DleaError {
+    DleaError {
         where_: where_.to_string(),
         path: path.to_string_lossy().to_string(),
         msg: format!("{} is not responding.", mount.display()),
@@ -78,12 +78,12 @@ pub fn call<T: Send + 'static>(
     body: &str,
     where_: &str,
     f: impl FnOnce() -> T + Send + 'static,
-) -> Result<T, FleaError> {
+) -> Result<T, DleaError> {
     call_with(path, body, where_, CALL_DEADLINE, STUCK_TTL, f)
 }
 // A worker that died before answering is this machine's fault, never the mount's.
-pub(crate) fn internal_failure(where_: &str, path: &Path) -> FleaError {
-    FleaError {
+pub(crate) fn internal_failure(where_: &str, path: &Path) -> DleaError {
+    DleaError {
         where_: where_.to_string(),
         path: path.to_string_lossy().to_string(),
         msg: "the operation stopped without answering.".to_string(),
@@ -97,7 +97,7 @@ pub(super) fn call_with<T: Send + 'static>(
     deadline: Duration,
     ttl: Duration,
     f: impl FnOnce() -> T + Send + 'static,
-) -> Result<T, FleaError> {
+) -> Result<T, DleaError> {
     call_with_flag(path, body, where_, deadline, ttl, |_: T| {}, f)
 }
 // One delivery decided once: the worker claims DELIVERED before its send, the loop claims ABANDONED on its timeout.
@@ -146,7 +146,7 @@ fn call_with_flag<T: Send + 'static>(
     ttl: Duration,
     late: impl FnOnce(T) + Send + 'static,
     f: impl FnOnce() -> T + Send + 'static,
-) -> Result<T, FleaError> {
+) -> Result<T, DleaError> {
     #[cfg(test)]
     CALLS.with(|calls| calls.set(calls.get() + 1));
     let mount = mount_key(path, body);
@@ -197,10 +197,10 @@ pub fn mount_body() -> String {
 }
 // A remote write either answers in time or stays running past the deadline; the loop moves on and the worker reports late.
 pub enum SlowWrite<T> {
-    Ready(Result<T, FleaError>),
+    Ready(Result<T, DleaError>),
     Slow {
         mount: PathBuf,
-        rx: std::sync::mpsc::Receiver<Result<T, FleaError>>,
+        rx: std::sync::mpsc::Receiver<Result<T, DleaError>>,
     },
 }
 // One whole sentence per operation, each with {mount} for the slow mount.
@@ -218,7 +218,7 @@ pub fn slow_write_with<T: Send + 'static>(
     body: &str,
     where_: &str,
     deadline: Duration,
-    f: impl FnOnce() -> Result<T, FleaError> + Send + 'static,
+    f: impl FnOnce() -> Result<T, DleaError> + Send + 'static,
 ) -> SlowWrite<T> {
     #[cfg(test)]
     CALLS.with(|calls| calls.set(calls.get() + 1));
@@ -295,7 +295,7 @@ pub fn call_bulk<T: Send + 'static>(
     body: &str,
     where_: &str,
     f: impl FnOnce() -> T + Send + 'static,
-) -> Result<T, FleaError> {
+) -> Result<T, DleaError> {
     call_with(path, body, where_, BULK_DEADLINE, STUCK_TTL, f)
 }
 // Resets this thread's call count; the stuck table is shared by parallel tests, each keying its marks by its own mount, so a clear would land inside another test.

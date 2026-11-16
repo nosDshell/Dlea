@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-slowsource-nas-test
+//@ pragma ShellId dlea-slowsource-nas-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea/js/ExtThumbs.js" as ExtThumbs
-import "flea/js/MarkdownPrepared.js" as Prepared
+import "dlea/js/ExtThumbs.js" as ExtThumbs
+import "dlea/js/MarkdownPrepared.js" as Prepared
 
 // The real WindowBody under a network storage class, behind the request-holding proxy tests/slowsource-nas.sh writes: leg "enter" presses Return on a folder whose listing is held, a "look-*" leg Space on a file.
 // Sample output: "NASPROBE ENTER cap=1 capFrame=4 markFrame=5 markDelta=1 timer=swap-cap keyToCapMs=70 keyToMarkMs=82 landMs=401 shownMs=332" is one held listing judged.

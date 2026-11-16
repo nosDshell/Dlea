@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
-# tools/flea-mpris on a private session bus: fed state lines it owns an MPRIS name, and a media key's calls reach stdout as command lines.
+# tools/dlea-mpris on a private session bus: fed state lines it owns an MPRIS name, and a media key's calls reach stdout as command lines.
 set -u
 set -o pipefail
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete this suite makes.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 
 root=$(cd "$(dirname "$0")/.." && pwd)
-helper="$root/tools/flea-mpris"
-fixture="$FIXTURE_ROOT/flea-mpris-$$"
+helper="$root/tools/dlea-mpris"
+fixture="$FIXTURE_ROOT/dlea-mpris-$$"
 object=/org/mpris/MediaPlayer2
 bus_pid=0
 helper_pid=0
@@ -62,7 +62,7 @@ dbus-daemon --config-file="$fixture/bus.conf" --fork --print-pid=3 3>"$fixture/b
 bus_pid=$(cat "$fixture/bus.pid")
 export DBUS_SESSION_BUS_ADDRESS="unix:path=$fixture/bus"
 
-name() { printf 'org.mpris.MediaPlayer2.flea.instance%s' "$helper_pid"; }
+name() { printf 'org.mpris.MediaPlayer2.dlea.instance%s' "$helper_pid"; }
 
 # Every name on the bus that belongs to an MPRIS player.
 players() { gdbus call --session --dest org.freedesktop.DBus --object-path /org/freedesktop/DBus --method org.freedesktop.DBus.ListNames | grep -o "org.mpris.MediaPlayer2[A-Za-z0-9_.]*"; }
@@ -81,7 +81,7 @@ unnamed() { ! players | grep -qxF "$(name)"; }
 helper_gone() { ! kill -0 "$helper_pid" 2>/dev/null; }
 logged() { [[ "$(wc -l < "$1" | tr -d ' ')" -ge "$2" ]]; }
 
-# Prints the bare value of one property, e.g. "'Flea'" or "int64 2500000".
+# Prints the bare value of one property, e.g. "'Dlea'" or "int64 2500000".
 get() {
     gdbus call --session --dest "$(name)" --object-path "$object" --method org.freedesktop.DBus.Properties.Get "$1" "$2" \
         | sed -e 's/^(<//' -e 's/>,)$//'
@@ -102,7 +102,7 @@ start_helper() {
 
 start_helper
 sleep 0.5
-if players | grep -q 'flea'; then
+if players | grep -q 'dlea'; then
     fail "silent: a helper that was fed nothing owns a name"
 else
     pass "silent: a helper that was fed nothing owns no name"
@@ -110,7 +110,7 @@ fi
 
 feed '{"status":"Playing","title":"clip.mp4","url":"file:///tmp/clip.mp4","length":6000,"position":1000}'
 if wait_until named; then
-    pass "name: org.mpris.MediaPlayer2.flea.instance<pid> appeared on the first line"
+    pass "name: org.mpris.MediaPlayer2.dlea.instance<pid> appeared on the first line"
 else
     fail "name: nothing appeared after the first state line"
     cat "$fixture/err"
@@ -118,12 +118,12 @@ else
 fi
 
 root_ok=1
-[[ "$(get org.mpris.MediaPlayer2 Identity)" == "'Flea'" ]] || root_ok=0
-[[ "$(get org.mpris.MediaPlayer2 DesktopEntry)" == "'com.thisisgm.flea'" ]] || root_ok=0
+[[ "$(get org.mpris.MediaPlayer2 Identity)" == "'Dlea'" ]] || root_ok=0
+[[ "$(get org.mpris.MediaPlayer2 DesktopEntry)" == "'com.nosDshell.dlea'" ]] || root_ok=0
 [[ "$(get org.mpris.MediaPlayer2 CanQuit)" == false ]] || root_ok=0
 [[ "$(get org.mpris.MediaPlayer2 CanRaise)" == false ]] || root_ok=0
 if [[ "$root_ok" == 1 ]]; then
-    pass "root: Identity Flea, DesktopEntry com.thisisgm.flea, CanQuit and CanRaise false"
+    pass "root: Identity Dlea, DesktopEntry com.nosDshell.dlea, CanQuit and CanRaise false"
 else
     fail "root: the org.mpris.MediaPlayer2 properties differ from the contract"
 fi
@@ -146,7 +146,7 @@ fi
 
 meta=$(get org.mpris.MediaPlayer2.Player Metadata)
 meta_ok=1
-for part in "'xesam:title': <'clip.mp4'>" "'xesam:url': <'file:///tmp/clip.mp4'>" "'mpris:length': <int64 6000000>" "'mpris:trackid': <objectpath '/com/thisisgm/flea/track/"; do
+for part in "'xesam:title': <'clip.mp4'>" "'xesam:url': <'file:///tmp/clip.mp4'>" "'mpris:length': <int64 6000000>" "'mpris:trackid': <objectpath '/com/nosDshell/Dlea/track/"; do
     [[ "$meta" == *"$part"* ]] || { meta_ok=0; printf '  metadata lacks %s in %s\n' "$part" "$meta"; }
 done
 [[ "$meta_ok" == 1 ]] && pass "metadata: trackid, length, title and url read as fed" || fail "metadata: a key differs from the line fed"
@@ -187,11 +187,11 @@ fi
 kill "$monitor_pid" 2>/dev/null
 monitor_pid=0
 
-trackid=$(printf '%s' "$meta" | grep -o "/com/thisisgm/flea/track/[0-9]*")
+trackid=$(printf '%s' "$meta" | grep -o "/com/nosDshell/Dlea/track/[0-9]*")
 call PlayPause
 call Seek 2500000
 call SetPosition "$trackid" 3000000
-call SetPosition /com/thisisgm/flea/track/0 9000000
+call SetPosition /com/nosDshell/Dlea/track/0 9000000
 call Pause
 wait_until logged "$fixture/out" 4
 if [[ "$(cat "$fixture/out")" == $'PlayPause\nSeek 2500\nSetPosition 3000\nPause' ]]; then

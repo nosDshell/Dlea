@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-columnsmoves-test
+//@ pragma ShellId dlea-columnsmoves-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/Nav.js" as Nav
-import "flea/js/Swap.js" as Swap
+import "dlea" as Dlea
+import "dlea/js/Nav.js" as Nav
+import "dlea/js/Swap.js" as Swap
 import "columnsframes.js" as Frames
 
 // Every move runs through a real Pane and ColumnsArea; replies and assertions advance by rendered frames.
@@ -62,7 +62,7 @@ ShellRoot {
         implicitWidth: 2100
         width: implicitWidth
         implicitHeight: 600
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
         Item {
             id: host
             anchors.fill: parent
@@ -78,7 +78,7 @@ ShellRoot {
         }
         TestEvent { id: driver }
     }
-    Flea.ChromeBar {
+    Dlea.ChromeBar {
         id: chrome
         parent: host
         anchors { top: parent.top; left: parent.left; right: parent.right }
@@ -89,7 +89,7 @@ ShellRoot {
         onBackRequested: root.pane.goBack()
         onUpRequested: root.pane.openParent()
     }
-    Flea.Backend {
+    Dlea.Backend {
         id: probeBackend
         function send(one) {
             if (one.c === "list" || one.c === "peek" || one.c === "fsinfo" || one.c === "meta")
@@ -98,7 +98,7 @@ ShellRoot {
     }
     Component {
         id: paneComponent
-        Flea.Pane { anchors.fill: parent; anchors.topMargin: chrome.height; backend: probeBackend }
+        Dlea.Pane { anchors.fill: parent; anchors.topMargin: chrome.height; backend: probeBackend }
     }
 
     function pump() {
@@ -146,7 +146,7 @@ ShellRoot {
     function issue() {
         var name = cases[caseIndex]
         before = census(); samples = []; phase = 3; waited = 0
-        Flea.ViewState.changeKey("keys", name === "right" || name === "left" ? "mac" : "default")
+        Dlea.ViewState.changeKey("keys", name === "right" || name === "left" ? "mac" : "default")
         pane.focusView = "list"
         area.forceActiveFocus()
         if (name === "parent-click") click(area.parentItemAt(1))
@@ -329,12 +329,12 @@ ShellRoot {
         if (phase >= 6) return
         if (waited > 300) { console.log("COLUMNMOVES FAIL stalled " + cases[caseIndex] + " phase=" + phase); Qt.quit(); return }
         if (phase === 0) {
-            Flea.ViewState.state = { view: "columns", keys: "default", columnsLimit: 3 }
+            Dlea.ViewState.state = { view: "columns", keys: "default", columnsLimit: 3 }
             pane = paneComponent.createObject(host)
             phase = 1
         }
         if (phase === 1) {
-            Flea.ViewState.changeKey("columnsLimit", cases[caseIndex] === "grandparent-click" ? 4 : 3)
+            Dlea.ViewState.changeKey("columnsLimit", cases[caseIndex] === "grandparent-click" ? 4 : 3)
             pane.open(base)
             phase = 2; waited = 0
         } else if (phase === 2 && settled() && waited >= 4) {

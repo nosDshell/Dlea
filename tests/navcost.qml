@@ -1,14 +1,14 @@
-//@ pragma ShellId flea-navcost-test
+//@ pragma ShellId dlea-navcost-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // Navcost: cursor steps and a rows landing serialize no held row, and the menu identity and the retry line keep their content rule.
 ShellRoot {
     id: root
-    readonly property string fixture: Quickshell.env("FLEA_NAVCOST_DIR") || ""
-    readonly property int files: Number(Quickshell.env("FLEA_NAVCOST_FILES") || "0")
+    readonly property string fixture: Quickshell.env("DLEA_NAVCOST_DIR") || ""
+    readonly property int files: Number(Quickshell.env("DLEA_NAVCOST_FILES") || "0")
     readonly property int steps: 8
     property int checks: 0
     property int failures: 0
@@ -52,10 +52,10 @@ ShellRoot {
         id: win
         implicitWidth: 900
         implicitHeight: 700
-        Flea.Backend { id: probeBackend }
+        Dlea.Backend { id: probeBackend }
         Component {
             id: paneComponent
-            Flea.Pane {
+            Dlea.Pane {
                 width: 900
                 height: 700
                 backend: probeBackend

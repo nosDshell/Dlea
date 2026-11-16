@@ -1,7 +1,7 @@
 // Image conversion, delegated to ImageMagick, which converts by the destination's own extension and
 // strips every profile and comment in the same pass. One tool does both halves, so there is no
 // second one here: that is hard rule 1's first question answered.
-use flea::ui_logic_print_convert::output;
+use dlea::ui_logic_print_convert::output;
 use std::path::Path;
 
 const MAGICK: &str = "magick";
@@ -9,7 +9,7 @@ pub fn available() -> bool {
     let path = std::env::var("PATH").unwrap_or_default();
     path.split(':')
         .filter(|d| !d.is_empty())
-        .any(|d| flea::bytename::view(d).join(MAGICK).is_file())
+        .any(|d| dlea::bytename::view(d).join(MAGICK).is_file())
 }
 
 // No format argument: magick reads the codec off dest's extension, so a second source of truth for

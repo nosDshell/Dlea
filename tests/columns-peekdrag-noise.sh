@@ -2,7 +2,7 @@
 # columns-peekdrag.sh prints the QML warning that failed it: a Binding loop line beside a passing DONE line reaches the FAIL output, capped at 20 lines.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
-MARKER=.flea-test-sandbox
+MARKER=.dlea-test-sandbox
 box=$(mktemp -d) || exit 1
 : > "$box/$MARKER"
 # Removes only an absolute, non-empty root that still carries its marker.
@@ -14,7 +14,7 @@ cleanup() {
 trap cleanup EXIT
 checks=0
 bad=0
-# The verdict word is reworded in every line this suite prints, so only a real failure reads as one to flea-ci.
+# The verdict word is reworded in every line this suite prints, so only a real failure reads as one to dlea-ci.
 say() { local s=$*; printf '%s\n' "${s//FAIL/failed}"; }
 check() {
     checks=$((checks + 1))
@@ -30,7 +30,7 @@ while [ -n "${STUB_NOISE:-}" ] && [ "$i" -lt "${STUB_COUNT:-1}" ]; do printf '%s
 echo "  INFO qml: COLUMNSPEEKDRAG DONE checks=39 failed=0"
 STUB
 chmod +x "$box/bin/qs"
-peekdrag() { env PATH="$box/bin:$PATH" FLEA_FIXTURE_ROOT="$box/fixtures" "$@" bash tests/columns-peekdrag.sh 2>&1; }
+peekdrag() { env PATH="$box/bin:$PATH" DLEA_FIXTURE_ROOT="$box/fixtures" "$@" bash tests/columns-peekdrag.sh 2>&1; }
 
 loop='QML ListView: Binding loop detected for property "x"'
 out=$(peekdrag STUB_NOISE="$loop"); rc=$?

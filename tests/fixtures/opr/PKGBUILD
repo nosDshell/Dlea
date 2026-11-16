@@ -1,21 +1,21 @@
 # Maintainer: GM <gianmarcomorales@icloud.com>
 
-pkgname=flea
+pkgname=dlea
 pkgver=0.4.1
 pkgrel=1
 pkgdesc='Fast, keyboard-first file manager for Omarchy'
 arch=('x86_64' 'aarch64')
-url='https://github.com/thisisgm/flea'
+url='https://github.com/nosDshell/Dlea'
 license=('Apache-2.0' 'BSD-2-Clause' 'BSD-3-Clause' 'CC0-1.0' 'ISC' 'MIT' 'MPL-2.0' 'Unicode-3.0' 'Zlib')
 
 depends=(
   'bat'                # colours code previews
   'bubblewrap'         # sandboxes thumbnailers, archive tools and previews
-  'expect'             # runs tools/flea-gio-auth, which answers one GIO mount password prompt
-  'fontconfig'         # libfontconfig, linked by flea-gui
+  'expect'             # runs tools/dlea-gio-auth, which answers one GIO mount password prompt
+  'fontconfig'         # libfontconfig, linked by dlea-gui
   'gcc-libs'           # libgcc_s, linked by both binaries
-  'gdk-pixbuf2'        # libgdk_pixbuf, linked by flea-gui for photo previews
-  'glib2'              # gio, and the libglib and libgobject flea-gui links
+  'gdk-pixbuf2'        # libgdk_pixbuf, linked by dlea-gui for photo previews
+  'glib2'              # gio, and the libglib and libgobject dlea-gui links
   'glibc'              # libc and libm, linked by both binaries
   'gvfs'               # trash://, network and device locations through gio
   'gvfs-afc'           # iPhone files, through usbmuxd
@@ -26,30 +26,30 @@ depends=(
   'gvfs-smb'           # SMB shares
   'hicolor-icon-theme' # owns the directory the desktop icon is installed into
   'jq'                 # formats JSON previews
-  'libglvnd'           # libEGL, which flea-gui loads for its OpenGL renderer fallback
+  'libglvnd'           # libEGL, which dlea-gui loads for its OpenGL renderer fallback
   'libheif'            # GPUI HEIC and AVIF photo decoding
-  'libxcb'             # linked by flea-gui for X11 windows
-  'libxkbcommon'       # keyboard maps, linked by flea-gui
-  'libxkbcommon-x11'   # X11 keyboard maps, linked by flea-gui
+  'libxcb'             # linked by dlea-gui for X11 windows
+  'libxkbcommon'       # keyboard maps, linked by dlea-gui
+  'libxkbcommon-x11'   # X11 keyboard maps, linked by dlea-gui
   'mpv'                # libmpv.so.2 for the jailed GPUI audio/video decoder
   'omarchy'            # desktop integration and the optional Omarchy bar shelf plugin
-  'poppler-glib'       # PDF previews, which flea-gui loads at runtime
-  'python'             # runs tools/flea-portal and tools/flea-filemanager1, which D-Bus activates
+  'poppler-glib'       # PDF previews, which dlea-gui loads at runtime
+  'python'             # runs tools/dlea-portal and tools/dlea-filemanager1, which D-Bus activates
   'python-gobject'     # the D-Bus binding those two services answer with
-  'quickjs-ng'         # qjs, which flea --figure-helper runs for Markdown maths and diagrams
-  'qt6-declarative'    # HTML preview helper (src/backend/htmlreq.rs) until flea-html lands
-  'qt6-webengine'      # HTML preview helper (src/backend/htmlreq.rs) until flea-html lands
+  'quickjs-ng'         # qjs, which dlea --figure-helper runs for Markdown maths and diagrams
+  'qt6-declarative'    # HTML preview helper (src/backend/htmlreq.rs) until dlea-html lands
+  'qt6-webengine'      # HTML preview helper (src/backend/htmlreq.rs) until dlea-html lands
   'ripgrep'            # searches file contents through the jailed rg worker
-  'shared-mime-info'   # the MIME database Flea reads file types from
+  'shared-mime-info'   # the MIME database Dlea reads file types from
   'udisks2'            # udisksctl, for unlocking and the relock after unmount
   'usbmuxd'            # the iPhone connection gvfs-afc talks to
   'util-linux'         # prlimit, which the sandboxes need beside bubblewrap
   'vulkan-driver'      # a usable Vulkan ICD for the renderer
   'vulkan-icd-loader'  # libvulkan, which the renderer loads at runtime
-  'wayland'            # libwayland-client and libwayland-egl, which flea-gui loads at runtime
+  'wayland'            # libwayland-client and libwayland-egl, which dlea-gui loads at runtime
   'wl-clipboard'       # wl-copy, for Copy Path
-  'xdg-terminal-exec'  # what flea --terminal runs
-  'xdg-utils'          # xdg-mime, which flea --default sets the folder handler with
+  'xdg-terminal-exec'  # what dlea --terminal runs
+  'xdg-utils'          # xdg-mime, which dlea --default sets the folder handler with
 )
 # git fetches the pinned GPUI fork in prepare(), and pkgconf locates its system libraries.
 makedepends=('cargo' 'git' 'pkgconf')
@@ -68,9 +68,9 @@ optdepends=(
   'vulkan-swrast: software rendering on a GPU without a Vulkan driver'
   'zoxide: frecent folders in the folder jump of the path bar'
 )
-conflicts=('flea-bin' 'flea-git' 'mutt') # mutt also owns /usr/bin/flea.
-# Flea is published only here now, so omarchy update moves an AUR flea-bin or flea-git onto this package.
-replaces=('flea-bin' 'flea-git')
+conflicts=('dlea-bin' 'dlea-git' 'mutt') # mutt also owns /usr/bin/dlea.
+# Dlea is published only here now, so omarchy update moves an AUR dlea-bin or dlea-git onto this package.
+replaces=('dlea-bin' 'dlea-git')
 options=('!debug' '!lto')
 
 source=(
@@ -168,7 +168,7 @@ check() {
     shelfundo::tests::
   )
   # redo_refuses_changed_sources_and_destination_collisions writes a file and
-  # then immediately asks redo to notice the edit. flea decides "changed" from
+  # then immediately asks redo to notice the edit. dlea decides "changed" from
   # ctime alone -- src/backend/undo.rs records (ctime, ctime_nsec) as the whole
   # identity -- and this kernel stamps ctime from the coarse clock, so two
   # writes microseconds apart share a timestamp and the guard sees no change.
@@ -228,23 +228,23 @@ if actual == fake_remote_device:
     raise SystemExit("GH368 local fixture collides with its fake remote device")
 PYDEVICE
   local test_tmp test_status=0 suite
-  test_tmp=$(mktemp -d /dev/shm/flea-tests.XXXXXXXX) || return 1
-  TMPDIR="$test_tmp" cargo test --frozen --release -p flea -- \
+  test_tmp=$(mktemp -d /dev/shm/dlea-tests.XXXXXXXX) || return 1
+  TMPDIR="$test_tmp" cargo test --frozen --release -p dlea -- \
     --test-threads=1 "${filesystem_tests[@]}" "${racy_ctime_tests[@]}" || test_status=$?
   rm -rf -- "$test_tmp"
   (( test_status == 0 )) || return "$test_status"
   for suite in "${filesystem_tests[@]}"; do
     test_args+=(--skip "$suite")
   done
-  cargo test --frozen --release -p flea -- --test-threads=1 "${test_args[@]}"
+  cargo test --frozen --release -p dlea -- --test-threads=1 "${test_args[@]}"
   # Keep GPUI test selectors and line tables without full debug or incremental caches.
   export CARGO_PROFILE_DEV_DEBUG=line-tables-only
   export CARGO_PROFILE_TEST_DEBUG=line-tables-only
   export CARGO_INCREMENTAL=0
-  export XDG_DATA_HOME="$srcdir/flea-check-data"
-  ./packaging/flea-ci-tools fonts "$XDG_DATA_HOME/fonts"
-  cargo build --frozen -p flea --bin flea
-  cargo test --frozen -p flea-gui --no-run
+  export XDG_DATA_HOME="$srcdir/dlea-check-data"
+  ./packaging/dlea-ci-tools fonts "$XDG_DATA_HOME/fonts"
+  cargo build --frozen -p dlea --bin dlea
+  cargo test --frozen -p dlea-gui --no-run
   local -a gui_test_args=("${test_args[@]}")
   local proof_floor_bytes=$((40 * 1024 * 1024 * 1024)) available_bytes
   available_bytes=$(python -c 'import os; s = os.statvfs("/"); print(s.f_bavail * s.f_frsize)') || return 1
@@ -278,15 +278,15 @@ PYDEVICE
   )
   for suite in "${svg_watchdog_tests[@]}"; do
     printf 'Running isolated SVG watchdog test: %s\n' "$suite"
-    cargo test --frozen -p flea-gui --test g2_pv1 -- --exact "$suite" \
+    cargo test --frozen -p dlea-gui --test g2_pv1 -- --exact "$suite" \
       --test-threads=1 "${gui_test_args[@]}" 2>&1 | tee "$srcdir/svg-watchdog.log"
     (( PIPESTATUS[0] == 0 )) || return 1
     # Sample: test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 41 filtered out; finished in 0.21s
     grep -q '^test result: ok\. 1 passed;' "$srcdir/svg-watchdog.log" || { printf 'SVG watchdog selector matched no test: %s\n' "$suite"; return 1; }
     gui_test_args+=(--skip "$suite")
   done
-  cargo test --frozen -p flea-gui --no-fail-fast -- --test-threads=1 "${gui_test_args[@]}"
-  # Stock-theme inventories stay in flea-ci; the package tests Flea on every OPR mirror.
+  cargo test --frozen -p dlea-gui --no-fail-fast -- --test-threads=1 "${gui_test_args[@]}"
+  # Stock-theme inventories stay in dlea-ci; the package tests Dlea on every OPR mirror.
   # Sample registry in tests/js/harness.qml: "var suites = [", rows of ["clipboard", ClipboardSuite], then a lone "]".
   local js_suites
   js_suites=$(python -c '

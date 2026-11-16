@@ -1,13 +1,13 @@
 #!/bin/bash
 # Issue 144: a slow list scan no longer holds transfer progress or a transfercancel; a fake gio blocks until released, so the scan is provably out before any line is judged.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 
 cd "$(dirname "$0")/.." || exit 1
-BIN=./target/debug/flea
+BIN=./target/debug/dlea
 # Without this every case below drives a missing binary and reports the result as a product failure.
 [ -x "$BIN" ] || { echo "mtp-scan.sh: $BIN is missing, run cargo build" >&2; exit 1; }
-D="$FIXTURE_ROOT/flea-mtp-scan-$$"
+D="$FIXTURE_ROOT/dlea-mtp-scan-$$"
 fail=0
 
 cleanup() {
@@ -63,7 +63,7 @@ sandbox_make "$D"
 mkdir -p "$D/dest" "$D/undo"
 # A transfer journals into the session runtime dir unless told otherwise, so the suite gives the backend its own undo dir.
 chmod 0700 "$D/undo" || { echo "mtp-scan.sh: the suite undo dir could not be locked down" >&2; exit 1; }
-export FLEA_UNDO_DIR="$D/undo"
+export DLEA_UNDO_DIR="$D/undo"
 # /run/user/*/gvfs/* is what src/backend/gvfslist.rs routes through one gio child, so the path names a phone mount without one attached.
 PHONE="/run/user/$(id -u)/gvfs/mtp:host=Pixel_7a/Internal shared storage/DCIM/OPENCAMERA"
 GIO_STARTED="$D/gio-started"
@@ -106,7 +106,7 @@ static void mark(const char *root, const char *name) {
 }
 
 ssize_t read(int fd, void *buffer, size_t count) {
-    const char *root = getenv("FLEA_MTP_COPY_ROOT");
+    const char *root = getenv("DLEA_MTP_COPY_ROOT");
     if (root && fd == STDIN_FILENO && atomic_load(&cancel_read)) mark(root, "cancel-processed");
     struct stat source, current;
     char path[PATH_MAX];
@@ -139,7 +139,7 @@ cc -shared -fPIC -Wall -Werror -o "$D/copy-block.so" "$D/copy-block.c" || { echo
 
 rm -f "$D/out"; : > "$D/out"
 mkfifo "$D/in"
-LD_PRELOAD="$D/copy-block.so" FLEA_MTP_COPY_ROOT="$D" FLEA_GIO_BIN="$D/gio" FLEA_PREFETCH= $BIN --backend < "$D/in" > "$D/out" 2>/dev/null &
+LD_PRELOAD="$D/copy-block.so" DLEA_MTP_COPY_ROOT="$D" DLEA_GIO_BIN="$D/gio" DLEA_PREFETCH= $BIN --backend < "$D/in" > "$D/out" 2>/dev/null &
 BACKEND_PID=$!
 exec 3> "$D/in"
 
@@ -206,7 +206,7 @@ check "and against the listing the scan produced" "1" "$(seen "\"paths\":\[\"$PH
 send '{"c":"quit"}'
 # The backend is gone before its journal is read, so a late write cannot hide.
 for ((i = 0; i < 200; i++)); do kill -0 "$BACKEND_PID" 2>/dev/null || break; sleep 0.05; done
-journal="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/flea/undo-journal"
+journal="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dlea/undo-journal"
 leaked=0
 [ -f "$journal" ] && grep -qF -- "$D" "$journal" && leaked=1
 check "the run kept its sandbox paths out of the operator's undo journal" "0" "$leaked"

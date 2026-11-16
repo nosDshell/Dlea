@@ -41,7 +41,7 @@ function favouritesAfter(records, operation) {
     return next
 }
 
-// Per-window keys name where a window is rather than how Flea behaves, so no window ever takes them from the file.
+// Per-window keys name where a window is rather than how Dlea behaves, so no window ever takes them from the file.
 var WINDOW_KEYS = ["view", "pickerView", "columnWidths", "dual", "lastPath", "lastTabs",
                    "trashSweptOn", "stateVersion", "sort", "previewFacts"]
 

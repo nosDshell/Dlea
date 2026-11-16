@@ -206,7 +206,7 @@ impl Progress {
             } else {
                 0
             },
-            file: flea::bytename::view(&file)
+            file: dlea::bytename::view(&file)
                 .file_name()
                 .map(|name| name.to_string_lossy().into_owned())
                 .unwrap_or_default(),

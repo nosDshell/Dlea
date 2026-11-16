@@ -186,7 +186,7 @@ def scenario(backend, root, temporary, archives):
     nine = extract(backend, later, root / 'later')
     success(backend, nine, later, root / 'later')
     contents(root / 'later', later.stem)
-    assert not list(root.rglob('.flea-work-*')) and not list(temporary.rglob('.flea-work-*'))
+    assert not list(root.rglob('.dlea-work-*')) and not list(temporary.rglob('.dlea-work-*'))
     print(f'PASS running Cancel ({elapsed:.4f}s), no destination or work directory, later extraction succeeds')
 
 

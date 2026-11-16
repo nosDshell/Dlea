@@ -109,8 +109,8 @@ Item {
 
     Process {
         id: helper
-        // FLEA_BIN is the dev seam, see AGENTS.md "Where the backend binary comes from".
-        command: [Quickshell.env("FLEA_BIN") || "flea", "--figure-helper"].concat(root.warmKinds.length > 0 ? ["--warm=" + root.warmKinds.join(",")] : [])
+        // DLEA_BIN is the dev seam, see AGENTS.md "Where the backend binary comes from".
+        command: [Quickshell.env("DLEA_BIN") || "dlea", "--figure-helper"].concat(root.warmKinds.length > 0 ? ["--warm=" + root.warmKinds.join(",")] : [])
         running: false
         stdinEnabled: true
 

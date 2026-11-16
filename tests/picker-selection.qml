@@ -213,7 +213,7 @@ Item {
         selection.all()
         check("F23 unavailable listing clears pending", selection.pending, null)
         check("F23 unavailable listing clears mark request", picker.markRequest, 0)
-        check("F23 unavailable listing names failure", picker.message, "Flea stopped responding. Reopen this folder.")
+        check("F23 unavailable listing names failure", picker.message, "Dlea stopped responding. Reopen this folder.")
         check("F23 unavailable listing sends no selection check", requests.length, 0)
         listing.running = true
 
@@ -332,7 +332,7 @@ Item {
             root.check("F33 stalled paths resets sentinel", picker.markRequest, 0)
             root.check("F33 stalled paths clears pending", selection.pending, null)
             root.check("F33 stalled paths clears queue", selection.queued, [])
-            var refusal = "Flea did not confirm the selection. Try again."
+            var refusal = "Dlea did not confirm the selection. Try again."
             root.check("F33 stalled paths names visible refusal", picker.message, refusal)
             root.check("F33 stalled paths keeps error visible", picker.messageError, true)
             root.deliverPaths(["/b/late"], root.expiredPathsRequest)

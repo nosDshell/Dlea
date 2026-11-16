@@ -21,7 +21,7 @@ python3 tests/fixtures/appimage-icon/generate.py --check
 ```
 
 To rebuild, create a fresh scratch directory with `mktemp -d` under the current
-worktree's authorized scratch root, add `.flea-test-sandbox`, then run
+worktree's authorized scratch root, add `.dlea-test-sandbox`, then run
 `python3 tests/fixtures/appimage-icon/generate.py --output /absolute/scratch/root`.
 The generator requires that marker and refuses to overwrite an existing output.
 Compare its images and checksums with this directory before replacing them.

@@ -151,7 +151,7 @@ if mode != 'error-only':
         if token != 3:
             check('script marker never set', reply.get('title'), 'Static HTML')
         image = pathlib.Path(reply['file'])
-        evidence = os.environ.get('FLEA_CI_SUITE_LOGS')
+        evidence = os.environ.get('DLEA_CI_SUITE_LOGS')
         if evidence:
             shutil.copyfile(image, pathlib.Path(evidence) / ('html-engine-%d.png' % width))
         # Sample input: magick identify -format '%w %h' answers "984 2134".

@@ -94,7 +94,7 @@ def output_proof(case, record):
         argv = command.get("argv", [])
         wanted = "/" + str(path.relative_to(case))
         tool = "/usr/bin/pdftoppm" if row["format"] == "PDF" else "/usr/bin/magick"
-        mount = ["--ro-bind", tool, "/opt/flea"]
+        mount = ["--ro-bind", tool, "/opt/dlea"]
         at = max((i for i, word in enumerate(argv) if word == "--chdir"), default=-1)
         arguments = argv[at + 2:] if at >= 0 else []
         if (not argv or Path(argv[0]).name != "bwrap" or "--unshare-all" not in argv or wanted not in argv
@@ -106,7 +106,7 @@ def output_proof(case, record):
             raise Blocked("converted output lacks an actual sandboxed decoder receipt")
         if row["format"] == "PDF":
             prefix = "/fx/runtime/decoded/" + str(index) + "/page"
-            if arguments != ["/opt/flea", "-r", "12", "-scale-to", "64", "-png", "-progress", wanted, prefix] or not decode.get("pages"):
+            if arguments != ["/opt/dlea", "-r", "12", "-scale-to", "64", "-png", "-progress", wanted, prefix] or not decode.get("pages"):
                 raise Blocked("converted PDF lacks independently rendered pages")
             directory = case / "fx/runtime/decoded" / str(index)
             if {str(page.relative_to(case)) for page in directory.iterdir()} != set(decode["pages"]):
@@ -133,7 +133,7 @@ def output_proof(case, record):
                     raise Blocked("PDF decoder page is empty or exceeds its render bound")
             if sorted(numbers) != list(range(1, len(numbers) + 1)):
                 raise Blocked("PDF decoder page inventory is not contiguous")
-        elif (arguments != ["/opt/flea", "-regard-warnings", wanted, "-format", "%m\n", "info:"]
+        elif (arguments != ["/opt/dlea", "-regard-warnings", wanted, "-format", "%m\n", "info:"]
               or {name.upper() for name in command.get("stdout", "").split()} != {row["format"].upper()}):
             raise Blocked("converted image lacks an independently decoded format")
     return True

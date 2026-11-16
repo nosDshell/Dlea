@@ -1,4 +1,4 @@
-//@ pragma ShellId flea-watch-views-test
+//@ pragma ShellId dlea-watch-views-test
 import QtQuick
 import Quickshell
 import Quickshell.Io

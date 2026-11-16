@@ -18,7 +18,7 @@ from gpui_lint.cargo import native_sources, source_checks, tracked
 from gpui_lint.checks import source_checks as rust_checks
 from gpui_lint.lex import tokens
 
-POLICY_CHECKS = runpy.run_path(str(REPO / "tools/flea-gpui-lint"))["policy_checks"]
+POLICY_CHECKS = runpy.run_path(str(REPO / "tools/dlea-gpui-lint"))["policy_checks"]
 FORK = {"url": "https://github.com/thisisgm/gpui-omarchy", "rev": "a" * 40}
 SOURCE = f"git+{FORK['url']}?rev={FORK['rev']}#{FORK['rev']}"
 LIST = """const ROW_HEIGHT: f32 = 31.;
@@ -33,17 +33,17 @@ impl Element for ListElement {
 
 class LintTests(unittest.TestCase):
     def setUp(self):
-        parent = Path(os.environ["FLEA_LINT_TEST_ROOT"])
-        assert parent.is_absolute() and (parent / ".flea-test-sandbox").is_file()
+        parent = Path(os.environ["DLEA_LINT_TEST_ROOT"])
+        assert parent.is_absolute() and (parent / ".dlea-test-sandbox").is_file()
         self.root = Path(tempfile.mkdtemp(prefix="case-", dir=parent))
-        (self.root / ".flea-test-sandbox").touch()
+        (self.root / ".dlea-test-sandbox").touch()
         self.policy = {"fork": FORK, "ui_callbacks": [], "blocking_helpers": [],
                        "blocking_exceptions": [], "color_modules": [], "hot_surfaces": [
-                           {"name": "list", "path": "crates/flea-gui/src/list.rs", "element": "ListElement", "row_height": "ROW_HEIGHT"},
-                           *({"name": name, "path": f"crates/flea-gui/src/{name}.rs", "pending": True}
+                           {"name": "list", "path": "crates/dlea-gui/src/list.rs", "element": "ListElement", "row_height": "ROW_HEIGHT"},
+                           *({"name": name, "path": f"crates/dlea-gui/src/{name}.rs", "pending": True}
                              for name in ("columns", "grid", "long_menus"))]}
         self.write("Cargo.toml", f'''[workspace]
-members = ["crates/flea-gui"]
+members = ["crates/dlea-gui"]
 [workspace.dependencies]
 gpui = {{ package = "gpui-pre", git = "{FORK['url']}", rev = "{FORK['rev']}" }}
 ''')
@@ -53,13 +53,13 @@ name = "gpui-pre"
 version = "0.3.9"
 source = "{SOURCE}"
 ''')
-        self.write("crates/flea-gui/Cargo.toml", '[package]\nname = "flea-gui"\nversion = "0.4.0"\n[dependencies]\ngpui.workspace = true\n')
-        self.write("crates/flea-gui/src/list.rs", LIST)
+        self.write("crates/dlea-gui/Cargo.toml", '[package]\nname = "dlea-gui"\nversion = "0.4.0"\n[dependencies]\ngpui.workspace = true\n')
+        self.write("crates/dlea-gui/src/list.rs", LIST)
         self.metadata = {"workspace_root": str(self.root), "workspace_members": ["native"],
                          "resolve": {"nodes": [{"id": "native"}]}, "packages": [
-                             {"id": "native", "name": "flea-gui", "version": "0.4.0", "source": None,
-                              "manifest_path": str(self.root / "crates/flea-gui/Cargo.toml"),
-                              "targets": [{"kind": ["lib"], "src_path": str(self.root / "crates/flea-gui/src/lib.rs")}]},
+                             {"id": "native", "name": "dlea-gui", "version": "0.4.0", "source": None,
+                              "manifest_path": str(self.root / "crates/dlea-gui/Cargo.toml"),
+                              "targets": [{"kind": ["lib"], "src_path": str(self.root / "crates/dlea-gui/src/lib.rs")}]},
                              {"id": "gpui", "name": "gpui-pre", "version": "0.3.9", "source": SOURCE}]}
 
     def write(self, path, text):
@@ -76,11 +76,11 @@ source = "{SOURCE}"
         return rust_checks(units, self.policy)
 
     def check_body(self, code):
-        self.write("crates/flea-gui/src/list.rs", LIST.replace("theme.background;", code))
+        self.write("crates/dlea-gui/src/list.rs", LIST.replace("theme.background;", code))
         return self.errors()
 
     def test_ci_green4_port_methods_do_not_reach_unrelated_free_functions(self):
-        self.write("crates/flea-gui/src/worker.rs", '''
+        self.write("crates/dlea-gui/src/worker.rs", '''
 fn collect() { std::thread::sleep(delay); }
 fn read() { std::fs::read("x"); }
 fn store() { std::fs::write("x", bytes); }
@@ -91,12 +91,12 @@ fn store() { std::fs::write("x", bytes); }
         self.assertTrue(self.check_body('crate::worker::store();'))
 
     def test_ci_green4_port_receiver_methods_and_local_helpers_still_block(self):
-        self.write("crates/flea-gui/src/worker.rs", '''
+        self.write("crates/dlea-gui/src/worker.rs", '''
 struct Reader;
 impl Reader { fn read(&self) { std::fs::read("x"); } }
 ''')
         self.assertTrue(self.check_body('reader.read(cx);'))
-        self.write("crates/flea-gui/src/list.rs", LIST.replace("theme.background;", 'read();')
+        self.write("crates/dlea-gui/src/list.rs", LIST.replace("theme.background;", 'read();')
                    + '\nfn read() { std::fs::read("x"); }\n')
         self.assertTrue(self.errors())
 
@@ -106,12 +106,12 @@ impl Reader { fn read(&self) { std::fs::read("x"); } }
         self.assertTrue(self.check_body('if background { gpui::rgb(1); }'))
 
     def test_ci_green4_port_exact_method_exception_survives_resolution(self):
-        self.write("crates/flea-gui/src/worker.rs", 'impl Owner { fn output(&self) {} }')
+        self.write("crates/dlea-gui/src/worker.rs", 'impl Owner { fn output(&self) {} }')
         self.assertTrue(self.check_body('owner.output();'))
-        self.policy["blocking_exceptions"] = [{"caller": "flea_gui::list::ListElement::paint",
+        self.policy["blocking_exceptions"] = [{"caller": "dlea_gui::list::ListElement::paint",
                                                "symbol": "output", "reason": "Fixture's non-I/O method."}]
         self.assertEqual(self.check_body('owner.output();'), [])
-        self.policy["blocking_exceptions"][0]["caller"] = "flea_gui::other::paint"
+        self.policy["blocking_exceptions"][0]["caller"] = "dlea_gui::other::paint"
         self.assertTrue(self.check_body('owner.output();'))
 
     def test_comments_strings_chars_and_raw_identifiers(self):
@@ -152,11 +152,11 @@ impl Reader { fn read(&self) { std::fs::read("x"); } }
             ('extern crate std as native;', 'native::fs::read("x");'),
             ('use std::fs::File as Handle;', 'Handle::open("x");')):
             with self.subTest(use=use):
-                self.write("crates/flea-gui/src/list.rs", use + LIST.replace("theme.background;", code))
+                self.write("crates/dlea-gui/src/list.rs", use + LIST.replace("theme.background;", code))
                 self.assertTrue(any("blocking" in e for e in self.errors()))
-        self.write("crates/flea-gui/src/list.rs", LIST + 'fn helper() { std::fs::read("x"); }')
+        self.write("crates/dlea-gui/src/list.rs", LIST + 'fn helper() { std::fs::read("x"); }')
         self.assertEqual([], self.errors())
-        self.write("crates/flea-gui/src/list.rs", LIST.replace("theme.background;", "helper();") + 'fn helper() { std::fs::read("x"); }')
+        self.write("crates/dlea-gui/src/list.rs", LIST.replace("theme.background;", "helper();") + 'fn helper() { std::fs::read("x"); }')
         self.assertTrue(any("blocking" in e for e in self.errors()))
         self.assertTrue(any("blocking" in e for e in self.check_body('let load = std::fs::read; load("x");')))
 
@@ -165,32 +165,32 @@ impl Reader { fn read(&self) { std::fs::read("x"); } }
         for code in ('std::process::Command::new("helper").spawn();',
                      'let mut command = std::process::Command::new("helper"); command.spawn();'):
             self.assertTrue(any("blocking" in e for e in self.check_body(code)), code)
-        self.write("crates/flea-gui/src/list.rs", 'use std::process::Command as Process;' + LIST + 'fn callback(command: &mut Process) { command.spawn(); }')
-        self.policy["ui_callbacks"] = ["flea_gui::list::callback"]
+        self.write("crates/dlea-gui/src/list.rs", 'use std::process::Command as Process;' + LIST + 'fn callback(command: &mut Process) { command.spawn(); }')
+        self.policy["ui_callbacks"] = ["dlea_gui::list::callback"]
         self.assertTrue(any("blocking" in e for e in self.errors()))
         self.policy["ui_callbacks"] = []
-        self.write("crates/flea-gui/src/list.rs", LIST.replace("theme.background;", "command().spawn();") + 'fn command() -> std::process::Command { std::process::Command::new("helper") }')
+        self.write("crates/dlea-gui/src/list.rs", LIST.replace("theme.background;", "command().spawn();") + 'fn command() -> std::process::Command { std::process::Command::new("helper") }')
         self.assertTrue(any("blocking" in e for e in self.errors()))
 
     def test_registered_callbacks_helpers_and_exact_exceptions(self):
-        self.write("crates/flea-gui/src/callback.rs", 'fn update() { crate::slow::probe(); }')
+        self.write("crates/dlea-gui/src/callback.rs", 'fn update() { crate::slow::probe(); }')
         self.assertEqual([], self.errors())
-        self.policy["ui_callbacks"] = ["flea_gui::callback::update"]
-        self.policy["blocking_helpers"] = ["flea_gui::slow::probe"]
+        self.policy["ui_callbacks"] = ["dlea_gui::callback::update"]
+        self.policy["blocking_helpers"] = ["dlea_gui::slow::probe"]
         self.assertTrue(any("blocking" in e for e in self.errors()))
-        self.policy["blocking_exceptions"] = [{"caller": "flea_gui::callback::update", "symbol": "flea_gui::slow::probe", "reason": "Fixture-only probe of the exception contract."}]
+        self.policy["blocking_exceptions"] = [{"caller": "dlea_gui::callback::update", "symbol": "dlea_gui::slow::probe", "reason": "Fixture-only probe of the exception contract."}]
         POLICY_CHECKS(self.policy)
         self.assertEqual([], self.errors())
-        self.policy["blocking_exceptions"][0]["symbol"] = "flea_gui::slow::*"
+        self.policy["blocking_exceptions"][0]["symbol"] = "dlea_gui::slow::*"
         with self.assertRaises(ValueError):
             POLICY_CHECKS(self.policy)
-        self.policy["blocking_exceptions"][0]["symbol"] = "flea_gui::slow::probe"
+        self.policy["blocking_exceptions"][0]["symbol"] = "dlea_gui::slow::probe"
         self.policy["blocking_exceptions"][0]["reason"] = ""
         with self.assertRaises(ValueError):
             POLICY_CHECKS(self.policy)
 
     def test_a_method_on_a_field_reaches_its_declared_type_when_many_types_share_its_name(self):
-        self.write("crates/flea-gui/src/air.rs", '''
+        self.write("crates/dlea-gui/src/air.rs", '''
 pub struct Shared;
 impl Shared { pub fn claim(&mut self) { std::fs::remove_file("x"); } }
 pub struct Pids;
@@ -205,28 +205,28 @@ impl AirDrop {
 }
 fn update(shell: &mut Shell) { let air = &mut shell.menu.providers.airdrop; air.turn_on(); }
 ''')
-        self.policy["ui_callbacks"] = ["flea_gui::air::AirDrop::turn_on"]
+        self.policy["ui_callbacks"] = ["dlea_gui::air::AirDrop::turn_on"]
         self.assertTrue(any("Shared::claim" in e for e in self.errors()))
-        self.policy["ui_callbacks"] = ["flea_gui::air::update"]
+        self.policy["ui_callbacks"] = ["dlea_gui::air::update"]
         self.assertTrue(any("Shared::claim" in e for e in self.errors()), "a local bound to a field chain keeps its type")
-        self.policy["ui_callbacks"] = ["flea_gui::air::AirDrop::quiet"]
+        self.policy["ui_callbacks"] = ["dlea_gui::air::AirDrop::quiet"]
         self.assertEqual([], self.errors(), "a wrapped field type is not guessed")
 
     def test_a_method_exception_names_the_method_as_written_on_a_typed_field(self):
-        self.write("crates/flea-gui/src/pane.rs", '''
+        self.write("crates/dlea-gui/src/pane.rs", '''
 pub struct Outside;
 impl Outside { fn status(&self) {} }
 pub struct Pane { outside: Outside }
 impl Pane { fn pump(&mut self) { self.outside.status(); } }
 ''')
-        self.policy["ui_callbacks"] = ["flea_gui::pane::Pane::pump"]
+        self.policy["ui_callbacks"] = ["dlea_gui::pane::Pane::pump"]
         self.assertTrue(any("blocking" in e for e in self.errors()))
-        self.policy["blocking_exceptions"] = [{"caller": "flea_gui::pane::Pane::pump", "symbol": "status",
+        self.policy["blocking_exceptions"] = [{"caller": "dlea_gui::pane::Pane::pump", "symbol": "status",
                                                "reason": "Fixture's queued status message."}]
         self.assertEqual([], self.errors())
 
     def test_a_field_type_that_declares_no_such_method_keeps_the_name_as_written(self):
-        self.write("crates/flea-gui/src/nav.rs", '''
+        self.write("crates/dlea-gui/src/nav.rs", '''
 pub struct Store;
 impl Store { pub fn load(&self) { std::fs::read("x"); } }
 pub struct Navigator;
@@ -237,9 +237,9 @@ impl Host {
     fn settle(&mut self) { self.nav.resort(); }
 }
 ''')
-        self.policy["ui_callbacks"] = ["flea_gui::nav::Host::open"]
+        self.policy["ui_callbacks"] = ["dlea_gui::nav::Host::open"]
         self.assertTrue(any("Store::load" in e for e in self.errors()), "a wrapper's method is reached by its name")
-        self.policy["ui_callbacks"] = ["flea_gui::nav::Host::settle"]
+        self.policy["ui_callbacks"] = ["dlea_gui::nav::Host::settle"]
         self.assertTrue(any("resort" in e for e in self.errors()), "a method declared under a path is reached by its name")
 
     def test_background_boundaries_and_async_ui_mutant(self):
@@ -269,14 +269,14 @@ impl Host {
                      'gpui::white();', 'Color::RED;', 'div.bg("rebeccapurple");', 'div.text_color("#fff");'):
             with self.subTest(code=code):
                 self.assertTrue(any("literal colour" in e for e in self.check_body(code)), code)
-        self.write("crates/flea-gui/src/palette.rs", "fn parse() { rgb(0xff1122); }")
+        self.write("crates/dlea-gui/src/palette.rs", "fn parse() { rgb(0xff1122); }")
         self.check_body("theme.background;")
         self.assertTrue(any("literal colour" in e for e in self.errors()))
-        self.policy["color_modules"] = [{"module": "flea_gui::palette", "kind": "palette", "reason": "Parses external palette values into typed theme roles."}]
+        self.policy["color_modules"] = [{"module": "dlea_gui::palette", "kind": "palette", "reason": "Parses external palette values into typed theme roles."}]
         POLICY_CHECKS(self.policy)
         self.assertEqual([], self.errors())
         self.assertTrue(any("literal colour" in e for e in self.check_body("rgb(0xff1122);")))
-        self.write("crates/flea-gui/src/list.rs", 'const BASE: u32 = 0xff1122; const INK: u32 = BASE;' + LIST.replace("theme.background;", "rgb(INK);"))
+        self.write("crates/dlea-gui/src/list.rs", 'const BASE: u32 = 0xff1122; const INK: u32 = BASE;' + LIST.replace("theme.background;", "rgb(INK);"))
         self.assertTrue(any("literal colour" in e for e in self.errors()))
 
     def test_hot_surface_child_tree_and_empty_scan(self):
@@ -284,10 +284,10 @@ impl Host {
         for code in ("for row in rows { div().child(row); }", "rows.map(|row| div().children(row));"):
             with self.subTest(code=code):
                 self.assertTrue(any("child tree" in e for e in self.check_body(code)))
-        self.write("crates/flea-gui/src/row.rs", "fn build() { div(); }")
+        self.write("crates/dlea-gui/src/row.rs", "fn build() { div(); }")
         self.assertTrue(any("child tree" in e for e in self.check_body("crate::row::build();")))
         self.check_body("theme.background;")
-        self.write("crates/flea-gui/src/columns.rs", "fn new() {}")
+        self.write("crates/dlea-gui/src/columns.rs", "fn new() {}")
         self.assertTrue(any("pending surface exists" in e for e in self.errors()))
         self.policy["hot_surfaces"] = []
         self.assertTrue(any("empty" in e for e in self.errors()))
@@ -295,18 +295,18 @@ impl Host {
 
     def test_ui_reach_stays_in_its_compilation_target(self):
         # A test crate's method named like an iterator method is not the paint path's .next().
-        self.write("crates/flea-gui/tests/probe.rs", "mod transport;")
-        self.write("crates/flea-gui/tests/probe/transport.rs", "impl IteratorProbe { fn next(&mut self) { replies.recv_blocking(); } }")
+        self.write("crates/dlea-gui/tests/probe.rs", "mod transport;")
+        self.write("crates/dlea-gui/tests/probe/transport.rs", "impl IteratorProbe { fn next(&mut self) { replies.recv_blocking(); } }")
         self.assertEqual([], self.check_body("rows.iter().next();"))
         self.assertTrue(any("blocking call recv_blocking" in e for e in self.check_body("replies.recv_blocking();")))
         # The same receiver method inside the product crate is still reached and flagged.
-        (self.root / "crates/flea-gui/tests/probe/transport.rs").unlink()
-        (self.root / "crates/flea-gui/tests/probe.rs").unlink()
-        self.write("crates/flea-gui/src/row.rs", "impl IteratorProbe { fn next(&mut self) { replies.recv_blocking(); } }")
+        (self.root / "crates/dlea-gui/tests/probe/transport.rs").unlink()
+        (self.root / "crates/dlea-gui/tests/probe.rs").unlink()
+        self.write("crates/dlea-gui/src/row.rs", "impl IteratorProbe { fn next(&mut self) { replies.recv_blocking(); } }")
         self.assertTrue(any("blocking call recv_blocking" in e for e in self.check_body("rows.iter().next();")))
-        self.write("crates/flea-gui/src/window.rs", "fn open() { replies.recv_blocking(); }")
-        self.policy["ui_callbacks"] = ["flea_gui::window::open"]
-        self.assertTrue(any("blocking call recv_blocking in flea_gui::window::open" in e for e in self.errors()))
+        self.write("crates/dlea-gui/src/window.rs", "fn open() { replies.recv_blocking(); }")
+        self.policy["ui_callbacks"] = ["dlea_gui::window::open"]
+        self.assertTrue(any("blocking call recv_blocking in dlea_gui::window::open" in e for e in self.errors()))
 
     def test_ui_reach_follows_another_workspace_package(self):
         # A helper in another native package's library is reached through the paint path and flagged.
@@ -325,165 +325,165 @@ impl Host {
             self.assertEqual([], self.check_body("rows.iter().next();"), path)
             (self.root / path).unlink()
         # The lint treats one package's src/ files as one target (a path cannot tell a binary's module from the library's), so this reach is followed.
-        self.write("crates/flea-gui/src/main.rs", "impl IteratorProbe { fn next(&mut self) { replies.recv_blocking(); } }")
+        self.write("crates/dlea-gui/src/main.rs", "impl IteratorProbe { fn next(&mut self) { replies.recv_blocking(); } }")
         self.assertTrue(any("blocking call recv_blocking" in e for e in self.check_body("rows.iter().next();")))
 
     def test_test_only_items_join_no_ui_reach(self):
         # A #[cfg(test)] fn, impl, file module or #[path] module is never compiled into the paint path.
-        self.write("crates/flea-gui/src/lib.rs", "mod list; mod probe;")
+        self.write("crates/dlea-gui/src/lib.rs", "mod list; mod probe;")
         blocking = "replies.recv_blocking();"
-        self.write("crates/flea-gui/src/probe.rs", f"#[cfg(test)]\npub(super) impl ShapeProbe {{ fn shape(&self) {{ {blocking} }} }}")
+        self.write("crates/dlea-gui/src/probe.rs", f"#[cfg(test)]\npub(super) impl ShapeProbe {{ fn shape(&self) {{ {blocking} }} }}")
         self.assertEqual([], self.check_body("text.shape();"))
-        self.write("crates/flea-gui/src/probe.rs", f"#[cfg(test)]\nimpl Recorder {{ fn shape(&self) {{ {blocking} }} }}")
+        self.write("crates/dlea-gui/src/probe.rs", f"#[cfg(test)]\nimpl Recorder {{ fn shape(&self) {{ {blocking} }} }}")
         self.assertEqual([], self.check_body("text.shape();"))
-        self.write("crates/flea-gui/src/probe.rs", f"impl Recorder {{ fn shape(&self) {{ {blocking} }} }}")
+        self.write("crates/dlea-gui/src/probe.rs", f"impl Recorder {{ fn shape(&self) {{ {blocking} }} }}")
         self.assertTrue(any("blocking call recv_blocking" in e for e in self.check_body("text.shape();")))
-        self.write("crates/flea-gui/src/probe.rs", "mod support { mod fake; }")
-        self.write("crates/flea-gui/src/probe/support/fake.rs", f"impl ShapeProbe {{ fn shape(&self) {{ {blocking} }} }}")
+        self.write("crates/dlea-gui/src/probe.rs", "mod support { mod fake; }")
+        self.write("crates/dlea-gui/src/probe/support/fake.rs", f"impl ShapeProbe {{ fn shape(&self) {{ {blocking} }} }}")
         self.assertTrue(any("blocking call recv_blocking" in e for e in self.check_body("text.shape();")))
-        self.write("crates/flea-gui/src/probe.rs", "#[cfg(test)]\nmod support { mod fake; }")
+        self.write("crates/dlea-gui/src/probe.rs", "#[cfg(test)]\nmod support { mod fake; }")
         self.assertEqual([], self.check_body("text.shape();"))
-        (self.root / "crates/flea-gui/src/probe/support/fake.rs").unlink()
-        self.write("crates/flea-gui/src/lib.rs", "#[cfg(test)]\nmod gate;\nmod probe;")
-        self.write("crates/flea-gui/src/gate.rs", "mod receipt;")
-        self.write("crates/flea-gui/src/probe.rs", "#[cfg(test)]\n#[path = \"other/bridge.rs\"]\nmod bridge;")
-        self.write("crates/flea-gui/src/gate/receipt.rs", f"impl ShapeProbe {{ fn shape(&self) {{ {blocking} }} }}")
+        (self.root / "crates/dlea-gui/src/probe/support/fake.rs").unlink()
+        self.write("crates/dlea-gui/src/lib.rs", "#[cfg(test)]\nmod gate;\nmod probe;")
+        self.write("crates/dlea-gui/src/gate.rs", "mod receipt;")
+        self.write("crates/dlea-gui/src/probe.rs", "#[cfg(test)]\n#[path = \"other/bridge.rs\"]\nmod bridge;")
+        self.write("crates/dlea-gui/src/gate/receipt.rs", f"impl ShapeProbe {{ fn shape(&self) {{ {blocking} }} }}")
         self.assertEqual([], self.check_body("text.shape();"))
-        (self.root / "crates/flea-gui/src/gate/receipt.rs").unlink()
-        self.write("crates/flea-gui/src/other/bridge.rs", f"impl ShapeProbe {{ fn shape(&self) {{ {blocking} }} }}")
+        (self.root / "crates/dlea-gui/src/gate/receipt.rs").unlink()
+        self.write("crates/dlea-gui/src/other/bridge.rs", f"impl ShapeProbe {{ fn shape(&self) {{ {blocking} }} }}")
         self.assertEqual([], self.check_body("text.shape();"))
         # Without the attribute the same file is product code and is reached.
-        self.write("crates/flea-gui/src/probe.rs", "#[path = \"other/bridge.rs\"]\nmod bridge;")
+        self.write("crates/dlea-gui/src/probe.rs", "#[path = \"other/bridge.rs\"]\nmod bridge;")
         self.assertTrue(any("blocking call recv_blocking" in e for e in self.check_body("text.shape();")))
         # The attribute ends with its item, and a test-only twin never hides the product function.
-        (self.root / "crates/flea-gui/src/other/bridge.rs").unlink()
+        (self.root / "crates/dlea-gui/src/other/bridge.rs").unlink()
         for item in ("use std::fs;", "fn helper() {}", "struct Fake {}"):
-            self.write("crates/flea-gui/src/probe.rs", f"#[cfg(test)]\n{item}\nimpl ShapeProbe {{ fn shape(&self) {{ {blocking} }} }}")
+            self.write("crates/dlea-gui/src/probe.rs", f"#[cfg(test)]\n{item}\nimpl ShapeProbe {{ fn shape(&self) {{ {blocking} }} }}")
             self.assertTrue(any("blocking call recv_blocking" in e for e in self.check_body("text.shape();")), item)
-        self.write("crates/flea-gui/src/probe.rs", f"#[cfg(not(test))]\npub fn hold() {{ {blocking} }}\n#[cfg(test)]\npub fn hold() {{}}")
+        self.write("crates/dlea-gui/src/probe.rs", f"#[cfg(not(test))]\npub fn hold() {{ {blocking} }}\n#[cfg(test)]\npub fn hold() {{}}")
         self.assertTrue(any("blocking call recv_blocking" in e for e in self.check_body("crate::probe::hold();")))
 
     def test_product_and_test_declarations_keep_shared_code_visible(self):
-        self.write("crates/flea-gui/src/lib.rs", "#[cfg(not(test))]\nmod probe;\n#[cfg(test)]\nmod probe;")
-        self.write("crates/flea-gui/src/probe.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
+        self.write("crates/dlea-gui/src/lib.rs", "#[cfg(not(test))]\nmod probe;\n#[cfg(test)]\nmod probe;")
+        self.write("crates/dlea-gui/src/probe.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
         self.assertTrue(any("blocking call recv_blocking" in e for e in self.check_body("text.shape();")))
 
     def test_product_and_test_path_alias_keep_shared_code_visible(self):
-        self.write("crates/flea-gui/src/lib.rs", 'mod probe;\n#[cfg(test)]\n#[path = "probe.rs"]\nmod probe_tests;')
-        self.write("crates/flea-gui/src/probe.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
+        self.write("crates/dlea-gui/src/lib.rs", 'mod probe;\n#[cfg(test)]\n#[path = "probe.rs"]\nmod probe_tests;')
+        self.write("crates/dlea-gui/src/probe.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
         self.assertTrue(any("blocking call recv_blocking" in e for e in self.check_body("text.shape();")))
 
     def test_conditional_product_path_keeps_shared_code_visible(self):
-        self.write("crates/flea-gui/src/shared.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
+        self.write("crates/dlea-gui/src/shared.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
         for attribute in ('#[cfg_attr(unix, path="shared.rs")]',
                           '#[cfg_attr(unix, allow(dead_code), path="shared.rs")]',
                           '#[cfg_attr(unix, cfg_attr(feature="live", path="shared.rs"))]'):
             with self.subTest(attribute=attribute):
-                self.write("crates/flea-gui/src/lib.rs", attribute + ' mod live; #[cfg(test)] #[path="shared.rs"] mod fixture;')
+                self.write("crates/dlea-gui/src/lib.rs", attribute + ' mod live; #[cfg(test)] #[path="shared.rs"] mod fixture;')
                 self.assertTrue(any("blocking call recv_blocking" in e for e in self.check_body("text.shape();")))
 
     def test_conditional_test_path_stays_test_only(self):
-        self.write("crates/flea-gui/src/lib.rs", '#[cfg_attr(test, path="fixture.rs")] mod live;')
-        self.write("crates/flea-gui/src/live.rs", "fn harmless() {}")
-        self.write("crates/flea-gui/src/fixture.rs", "fn paint() { std::thread::park(); }")
+        self.write("crates/dlea-gui/src/lib.rs", '#[cfg_attr(test, path="fixture.rs")] mod live;')
+        self.write("crates/dlea-gui/src/live.rs", "fn harmless() {}")
+        self.write("crates/dlea-gui/src/fixture.rs", "fn paint() { std::thread::park(); }")
         self.assertEqual([], self.errors())
 
     def test_conditional_product_path_keeps_its_fallback_test_only(self):
-        self.write("crates/flea-gui/src/lib.rs", '#[cfg_attr(not(test), path="live.rs")] mod fixture;')
-        self.write("crates/flea-gui/src/live.rs", "fn harmless() {}")
-        self.write("crates/flea-gui/src/fixture.rs", "fn paint() { std::thread::park(); }")
+        self.write("crates/dlea-gui/src/lib.rs", '#[cfg_attr(not(test), path="live.rs")] mod fixture;')
+        self.write("crates/dlea-gui/src/live.rs", "fn harmless() {}")
+        self.write("crates/dlea-gui/src/fixture.rs", "fn paint() { std::thread::park(); }")
         self.assertEqual([], self.errors())
 
     def test_conditional_inline_path_keeps_product_child_visible(self):
-        self.write("crates/flea-gui/src/lib.rs", '#[cfg_attr(unix, path="live")] mod owner { mod shared; } #[cfg(test)] #[path="live/shared.rs"] mod fixture;')
-        self.write("crates/flea-gui/src/live/shared.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
+        self.write("crates/dlea-gui/src/lib.rs", '#[cfg_attr(unix, path="live")] mod owner { mod shared; } #[cfg(test)] #[path="live/shared.rs"] mod fixture;')
+        self.write("crates/dlea-gui/src/live/shared.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
         self.assertTrue(any("blocking call recv_blocking" in e for e in self.check_body("text.shape();")))
 
     def test_inline_test_path_cannot_hide_a_sibling_product_file(self):
-        self.write("crates/flea-gui/src/lib.rs", 'mod probe;\n#[cfg(test)]\nmod support { #[path = "probe.rs"] mod fake; }')
-        self.write("crates/flea-gui/src/probe.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
-        self.write("crates/flea-gui/src/support/probe.rs", "fn harmless() {}")
+        self.write("crates/dlea-gui/src/lib.rs", 'mod probe;\n#[cfg(test)]\nmod support { #[path = "probe.rs"] mod fake; }')
+        self.write("crates/dlea-gui/src/probe.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
+        self.write("crates/dlea-gui/src/support/probe.rs", "fn harmless() {}")
         self.assertTrue(any("blocking call recv_blocking" in e for e in self.check_body("text.shape();")))
 
     def test_inline_test_path_excludes_the_actual_nested_file(self):
-        self.write("crates/flea-gui/src/lib.rs", 'mod support { #[cfg(test)] #[path = "fake.rs"] mod fake; }')
-        self.write("crates/flea-gui/src/support/fake.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
+        self.write("crates/dlea-gui/src/lib.rs", 'mod support { #[cfg(test)] #[path = "fake.rs"] mod fake; }')
+        self.write("crates/dlea-gui/src/support/fake.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
         self.assertEqual([], self.check_body("text.shape();"))
 
     def test_non_mod_rs_inline_test_path_uses_its_module_directory(self):
-        self.write("crates/flea-gui/src/lib.rs", "mod probe;")
-        self.write("crates/flea-gui/src/probe.rs", 'mod support { #[cfg(test)] #[path = "fake.rs"] mod fake; }')
-        self.write("crates/flea-gui/src/probe/support/fake.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
+        self.write("crates/dlea-gui/src/lib.rs", "mod probe;")
+        self.write("crates/dlea-gui/src/probe.rs", 'mod support { #[cfg(test)] #[path = "fake.rs"] mod fake; }')
+        self.write("crates/dlea-gui/src/probe/support/fake.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
         self.assertEqual([], self.check_body("text.shape();"))
 
     def test_external_test_module_propagates_to_its_path_child(self):
-        self.write("crates/flea-gui/src/lib.rs", "#[cfg(test)]\nmod gate;")
-        self.write("crates/flea-gui/src/gate.rs", '#[path = "helper.rs"]\nmod helper;')
-        self.write("crates/flea-gui/src/helper.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
+        self.write("crates/dlea-gui/src/lib.rs", "#[cfg(test)]\nmod gate;")
+        self.write("crates/dlea-gui/src/gate.rs", '#[path = "helper.rs"]\nmod helper;')
+        self.write("crates/dlea-gui/src/helper.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
         self.assertEqual([], self.check_body("text.shape();"))
 
     def test_shared_external_module_keeps_its_path_child_in_product(self):
-        self.write("crates/flea-gui/src/lib.rs", "#[cfg(not(test))]\nmod gate;\n#[cfg(test)]\nmod gate;")
-        self.write("crates/flea-gui/src/gate.rs", '#[path = "helper.rs"]\nmod helper;')
-        self.write("crates/flea-gui/src/helper.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
+        self.write("crates/dlea-gui/src/lib.rs", "#[cfg(not(test))]\nmod gate;\n#[cfg(test)]\nmod gate;")
+        self.write("crates/dlea-gui/src/gate.rs", '#[path = "helper.rs"]\nmod helper;')
+        self.write("crates/dlea-gui/src/helper.rs", "impl ShapeProbe { fn shape(&self) { replies.recv_blocking(); } }")
         self.assertTrue(any("blocking call recv_blocking" in e for e in self.check_body("text.shape();")))
 
     def test_path_owned_module_uses_containing_directory_for_child(self):
-        self.write("crates/flea-gui/src/lib.rs", '#[cfg(test)] #[path="support/entry.rs"] mod fixture;')
-        self.write("crates/flea-gui/src/support/entry.rs", "mod helper;")
-        self.write("crates/flea-gui/src/support/helper.rs", "fn paint() { std::thread::park(); }")
+        self.write("crates/dlea-gui/src/lib.rs", '#[cfg(test)] #[path="support/entry.rs"] mod fixture;')
+        self.write("crates/dlea-gui/src/support/entry.rs", "mod helper;")
+        self.write("crates/dlea-gui/src/support/helper.rs", "fn paint() { std::thread::park(); }")
         self.assertEqual([], self.errors())
 
     def test_path_owned_module_uses_containing_directory_for_inline_child(self):
-        self.write("crates/flea-gui/src/lib.rs", '#[cfg(test)] #[path="fixtures/gate.rs"] mod gate;')
-        self.write("crates/flea-gui/src/fixtures/gate.rs", 'mod support { #[path="helper.rs"] mod helper; }')
-        self.write("crates/flea-gui/src/fixtures/support/helper.rs", "fn paint() { std::thread::park(); }")
+        self.write("crates/dlea-gui/src/lib.rs", '#[cfg(test)] #[path="fixtures/gate.rs"] mod gate;')
+        self.write("crates/dlea-gui/src/fixtures/gate.rs", 'mod support { #[path="helper.rs"] mod helper; }')
+        self.write("crates/dlea-gui/src/fixtures/support/helper.rs", "fn paint() { std::thread::park(); }")
         self.assertEqual([], self.errors())
 
     def test_shared_file_keeps_product_normal_and_test_owned_children_separate(self):
-        self.write("crates/flea-gui/src/lib.rs", 'mod entry; #[cfg(test)] #[path="entry.rs"] mod fixture;')
-        self.write("crates/flea-gui/src/entry.rs", "mod helper;")
-        self.write("crates/flea-gui/src/entry/helper.rs", "fn product() {}")
-        self.write("crates/flea-gui/src/helper.rs", "fn paint() { std::thread::park(); }")
+        self.write("crates/dlea-gui/src/lib.rs", 'mod entry; #[cfg(test)] #[path="entry.rs"] mod fixture;')
+        self.write("crates/dlea-gui/src/entry.rs", "mod helper;")
+        self.write("crates/dlea-gui/src/entry/helper.rs", "fn product() {}")
+        self.write("crates/dlea-gui/src/helper.rs", "fn paint() { std::thread::park(); }")
         self.assertEqual([], self.errors())
 
     def test_shared_file_keeps_product_owned_and_test_normal_children_separate(self):
-        self.write("crates/flea-gui/src/lib.rs", '#[path="entry.rs"] mod live; #[cfg(test)] mod entry;')
-        self.write("crates/flea-gui/src/entry.rs", "mod helper;")
-        self.write("crates/flea-gui/src/entry/helper.rs", "fn paint() { std::thread::park(); }")
-        self.write("crates/flea-gui/src/helper.rs", "fn product() {}")
+        self.write("crates/dlea-gui/src/lib.rs", '#[path="entry.rs"] mod live; #[cfg(test)] mod entry;')
+        self.write("crates/dlea-gui/src/entry.rs", "mod helper;")
+        self.write("crates/dlea-gui/src/entry/helper.rs", "fn paint() { std::thread::park(); }")
+        self.write("crates/dlea-gui/src/helper.rs", "fn product() {}")
         self.assertEqual([], self.errors())
 
     def test_custom_cargo_target_owns_its_containing_directory(self):
-        target = self.root / "crates/flea-gui/src/app.rs"
+        target = self.root / "crates/dlea-gui/src/app.rs"
         self.metadata["packages"][0]["targets"][0]["src_path"] = str(target)
-        manifest = self.root / "crates/flea-gui/Cargo.toml"
-        self.write("crates/flea-gui/Cargo.toml", manifest.read_text() + '\n[lib]\npath="src/app.rs"\n')
-        self.write("crates/flea-gui/src/app.rs", "#[cfg(test)] mod helper;")
-        self.write("crates/flea-gui/src/helper.rs", "fn paint() { std::thread::park(); }")
+        manifest = self.root / "crates/dlea-gui/Cargo.toml"
+        self.write("crates/dlea-gui/Cargo.toml", manifest.read_text() + '\n[lib]\npath="src/app.rs"\n')
+        self.write("crates/dlea-gui/src/app.rs", "#[cfg(test)] mod helper;")
+        self.write("crates/dlea-gui/src/helper.rs", "fn paint() { std::thread::park(); }")
         self.assertEqual([], self.errors())
 
     def test_test_descendant_named_lib_is_no_cargo_root(self):
-        self.write("crates/flea-gui/src/lib.rs", "#[cfg(test)] mod gate;")
-        self.write("crates/flea-gui/src/gate.rs", '#[path="fixtures/lib.rs"] mod helper;')
-        self.write("crates/flea-gui/src/fixtures/lib.rs", "fn paint() { std::thread::park(); }")
+        self.write("crates/dlea-gui/src/lib.rs", "#[cfg(test)] mod gate;")
+        self.write("crates/dlea-gui/src/gate.rs", '#[path="fixtures/lib.rs"] mod helper;')
+        self.write("crates/dlea-gui/src/fixtures/lib.rs", "fn paint() { std::thread::park(); }")
         self.assertEqual([], self.errors())
 
     def test_test_descendant_named_main_is_no_cargo_root(self):
-        self.write("crates/flea-gui/src/lib.rs", '#[cfg(test)] #[path="support/main.rs"] mod fixture;')
-        self.write("crates/flea-gui/src/support/main.rs", 'fn paint() { std::fs::read("x"); }')
+        self.write("crates/dlea-gui/src/lib.rs", '#[cfg(test)] #[path="support/main.rs"] mod fixture;')
+        self.write("crates/dlea-gui/src/support/main.rs", 'fn paint() { std::fs::read("x"); }')
         self.assertEqual([], self.errors())
 
     def test_normal_module_named_lib_keeps_its_stem_directory(self):
-        self.write("crates/flea-gui/src/lib.rs", "#[cfg(test)] mod outer;")
-        self.write("crates/flea-gui/src/outer/mod.rs", "mod lib;")
-        self.write("crates/flea-gui/src/outer/lib.rs", "mod helper;")
-        self.write("crates/flea-gui/src/outer/lib/helper.rs", "fn paint() { std::thread::park(); }")
+        self.write("crates/dlea-gui/src/lib.rs", "#[cfg(test)] mod outer;")
+        self.write("crates/dlea-gui/src/outer/mod.rs", "mod lib;")
+        self.write("crates/dlea-gui/src/outer/lib.rs", "mod helper;")
+        self.write("crates/dlea-gui/src/outer/lib/helper.rs", "fn paint() { std::thread::park(); }")
         self.assertEqual([], self.errors())
 
     def test_test_only_element_cannot_satisfy_product_registration(self):
         body = LIST.replace("const ROW_HEIGHT: f32 = 31.;", "")
-        self.write("crates/flea-gui/src/list.rs", "const ROW_HEIGHT: f32 = 31.;\n#[cfg(test)] mod tests {\n" + body + "\n}")
+        self.write("crates/dlea-gui/src/list.rs", "const ROW_HEIGHT: f32 = 31.;\n#[cfg(test)] mod tests {\n" + body + "\n}")
         self.assertTrue(any("registered hot surface has no custom Element" in e for e in self.errors()))
 
     def test_inner_test_attributes_cannot_supply_product_elements(self):
@@ -491,66 +491,66 @@ impl Host {
         for source in ("const ROW_HEIGHT: f32 = 31.;\nmod tests { #![cfg(test)]\n" + body + "\n}",
                        "#![cfg(test)]\n" + LIST):
             with self.subTest(source=source):
-                self.write("crates/flea-gui/src/list.rs", source)
+                self.write("crates/dlea-gui/src/list.rs", source)
                 self.assertTrue(any("registered hot surface has no custom Element" in e for e in self.errors()))
 
     def test_inner_test_scope_excludes_its_blocking_callback(self):
-        self.write("crates/flea-gui/src/list.rs", LIST + "\nmod tests { #![allow(dead_code)] #![cfg(test)] fn paint() { std::thread::park(); } }")
+        self.write("crates/dlea-gui/src/list.rs", LIST + "\nmod tests { #![allow(dead_code)] #![cfg(test)] fn paint() { std::thread::park(); } }")
         self.assertEqual([], self.errors())
 
     def test_inner_test_function_is_not_a_product_callback_or_method(self):
-        self.write("crates/flea-gui/src/list.rs", LIST + "\nmod tests { fn paint() { #![allow(dead_code)] #![cfg(test)] std::thread::park(); } }")
+        self.write("crates/dlea-gui/src/list.rs", LIST + "\nmod tests { fn paint() { #![allow(dead_code)] #![cfg(test)] std::thread::park(); } }")
         self.assertEqual([], self.errors())
-        self.write("crates/flea-gui/src/list.rs", LIST.replace("fn paint() {", "fn paint() { #![cfg(test)]"))
+        self.write("crates/dlea-gui/src/list.rs", LIST.replace("fn paint() {", "fn paint() { #![cfg(test)]"))
         self.assertTrue(any("custom Element must implement layout, prepaint and paint" in e for e in self.errors()))
 
     def test_test_attribute_function_is_not_a_product_callback(self):
-        self.write("crates/flea-gui/src/list.rs", LIST + "\nmod tests { #[test] fn paint() { std::thread::park(); } }")
+        self.write("crates/dlea-gui/src/list.rs", LIST + "\nmod tests { #[test] fn paint() { std::thread::park(); } }")
         self.assertEqual([], self.errors())
 
     def test_test_only_method_cannot_satisfy_product_registration(self):
-        self.write("crates/flea-gui/src/list.rs", LIST.replace("fn paint()", "#[cfg(test)] fn paint()"))
+        self.write("crates/dlea-gui/src/list.rs", LIST.replace("fn paint()", "#[cfg(test)] fn paint()"))
         self.assertTrue(any("custom Element must implement layout, prepaint and paint" in e for e in self.errors()))
 
     def test_test_only_file_cannot_satisfy_product_registration(self):
-        self.write("crates/flea-gui/src/lib.rs", "#[cfg(test)] mod list;")
+        self.write("crates/dlea-gui/src/lib.rs", "#[cfg(test)] mod list;")
         self.assertTrue(any("registered hot surface has no custom Element" in e for e in self.errors()))
 
     def test_test_element_twin_keeps_product_registration(self):
         body = LIST.replace("const ROW_HEIGHT: f32 = 31.;", "")
-        self.write("crates/flea-gui/src/list.rs", LIST + "\n#[cfg(test)] mod tests {\n" + body + "\n}")
+        self.write("crates/dlea-gui/src/list.rs", LIST + "\n#[cfg(test)] mod tests {\n" + body + "\n}")
         self.assertEqual([], self.errors())
 
     def test_cargo_test_targets_cannot_supply_product_elements(self):
-        self.write("crates/flea-gui/src/lib.rs", "#[cfg(test)] mod list;")
+        self.write("crates/dlea-gui/src/lib.rs", "#[cfg(test)] mod list;")
         targets = self.metadata["packages"][0]["targets"]
         for kind in ("test", "bench"):
             with self.subTest(kind=kind):
-                targets[1:] = [{"kind": [kind], "src_path": str(self.root / "crates/flea-gui/src/list.rs")}]
+                targets[1:] = [{"kind": [kind], "src_path": str(self.root / "crates/dlea-gui/src/list.rs")}]
                 self.assertTrue(any("registered hot surface has no custom Element" in e for e in self.errors()))
 
     def test_cargo_test_target_descendants_stay_test_only(self):
-        self.write("crates/flea-gui/src/probe.rs", '#[path="fixtures/helper.rs"] mod helper;')
-        self.write("crates/flea-gui/src/fixtures/helper.rs", "fn paint() { std::thread::park(); }")
+        self.write("crates/dlea-gui/src/probe.rs", '#[path="fixtures/helper.rs"] mod helper;')
+        self.write("crates/dlea-gui/src/fixtures/helper.rs", "fn paint() { std::thread::park(); }")
         targets = self.metadata["packages"][0]["targets"]
         for kind in ("test", "bench"):
             with self.subTest(kind=kind):
-                targets[1:] = [{"kind": [kind], "src_path": str(self.root / "crates/flea-gui/src/probe.rs")}]
+                targets[1:] = [{"kind": [kind], "src_path": str(self.root / "crates/dlea-gui/src/probe.rs")}]
                 self.assertEqual([], self.errors())
 
     def test_cargo_test_target_keeps_its_product_module_alias(self):
-        self.write("crates/flea-gui/src/lib.rs", "mod list;")
+        self.write("crates/dlea-gui/src/lib.rs", "mod list;")
         targets = self.metadata["packages"][0]["targets"]
         for kind in ("test", "bench"):
             with self.subTest(kind=kind):
-                targets[1:] = [{"kind": [kind], "src_path": str(self.root / "crates/flea-gui/src/list.rs")}]
+                targets[1:] = [{"kind": [kind], "src_path": str(self.root / "crates/dlea-gui/src/list.rs")}]
                 self.assertEqual([], self.errors())
                 self.assertTrue(any("blocking call recv_blocking" in e for e in self.check_body("replies.recv_blocking();")))
                 self.check_body("theme.background;")
 
     def test_cargo_test_target_keeps_its_product_target_alias(self):
         targets = self.metadata["packages"][0]["targets"]
-        targets[0]["src_path"] = str(self.root / "crates/flea-gui/src/list.rs")
+        targets[0]["src_path"] = str(self.root / "crates/dlea-gui/src/list.rs")
         targets[0]["test"] = True
         for kind in ("test", "bench"):
             with self.subTest(kind=kind):
@@ -561,7 +561,7 @@ impl Host {
 
     def test_cargo_product_target_with_test_enabled_stays_product(self):
         target = self.metadata["packages"][0]["targets"][0]
-        target["src_path"] = str(self.root / "crates/flea-gui/src/list.rs")
+        target["src_path"] = str(self.root / "crates/dlea-gui/src/list.rs")
         target["test"] = True
         for kind in ("lib", "bin", "example", "proc-macro"):
             with self.subTest(kind=kind):
@@ -571,18 +571,18 @@ impl Host {
                 self.check_body("theme.background;")
 
     def test_row_height_may_live_in_a_sibling_the_element_uses(self):
-        self.policy["hot_surfaces"][0]["row_height_path"] = "crates/flea-gui/src/list/pane.rs"
+        self.policy["hot_surfaces"][0]["row_height_path"] = "crates/dlea-gui/src/list/pane.rs"
         moved = LIST.replace("const ROW_HEIGHT: f32 = 31.;", "use pane::ROW_HEIGHT;")
-        self.write("crates/flea-gui/src/list.rs", moved)
-        self.write("crates/flea-gui/src/list/pane.rs", "pub const ROW_HEIGHT: f32 = 31.;")
+        self.write("crates/dlea-gui/src/list.rs", moved)
+        self.write("crates/dlea-gui/src/list/pane.rs", "pub const ROW_HEIGHT: f32 = 31.;")
         self.assertEqual([], self.errors())
-        self.write("crates/flea-gui/src/list/pane.rs", "pub const OTHER: f32 = 31.;")
+        self.write("crates/dlea-gui/src/list/pane.rs", "pub const OTHER: f32 = 31.;")
         self.assertTrue(any("missing fixed row height ROW_HEIGHT" in e for e in self.errors()))
-        self.write("crates/flea-gui/src/list/pane.rs", "pub const ROW_HEIGHT: f32 = 31.;")
-        self.write("crates/flea-gui/src/list.rs", LIST.replace("const ROW_HEIGHT: f32 = 31.;", ""))
+        self.write("crates/dlea-gui/src/list/pane.rs", "pub const ROW_HEIGHT: f32 = 31.;")
+        self.write("crates/dlea-gui/src/list.rs", LIST.replace("const ROW_HEIGHT: f32 = 31.;", ""))
         self.assertTrue(any("does not use its fixed row height" in e for e in self.errors()))
         del self.policy["hot_surfaces"][0]["row_height_path"]
-        self.write("crates/flea-gui/src/list.rs", moved)
+        self.write("crates/dlea-gui/src/list.rs", moved)
         self.assertTrue(any("missing fixed row height ROW_HEIGHT" in e for e in self.errors()))
 
     def test_manifest_metadata_and_lock_sources(self):
@@ -594,9 +594,9 @@ impl Host {
             metadata = copy.deepcopy(self.metadata)
             metadata["packages"][1]["source"] = bad
             self.assertTrue(check(metadata), bad)
-        self.write("crates/flea-gui/Cargo.toml", '[dependencies]\ngpui = { path = "../vendor/gpui" }\n')
+        self.write("crates/dlea-gui/Cargo.toml", '[dependencies]\ngpui = { path = "../vendor/gpui" }\n')
         self.assertTrue(check())
-        self.write("crates/flea-gui/Cargo.toml", '[dependencies]\ngpui.workspace = true\n')
+        self.write("crates/dlea-gui/Cargo.toml", '[dependencies]\ngpui.workspace = true\n')
         self.assertEqual([], check())
         self.write("Cargo.lock", '[ [package] ]\n')
         with self.assertRaises(ValueError):
@@ -635,8 +635,8 @@ impl Host {
         reference.symlink_to(self.root.parent)
         paths = self.paths() + [reference.relative_to(self.root)]
         self.assertEqual([], source_checks(self.root, paths, self.metadata, self.policy))
-        link = self.root / "crates/flea-gui/src/link.rs"
-        link.symlink_to(self.root / "crates/flea-gui/src/list.rs")
+        link = self.root / "crates/dlea-gui/src/link.rs"
+        link.symlink_to(self.root / "crates/dlea-gui/src/list.rs")
         self.assertTrue(any("symlink" in e for e in source_checks(self.root, self.paths(), self.metadata, self.policy)))
         with self.assertRaises(ValueError):
             native_sources(self.root, self.paths(), self.metadata)
@@ -645,7 +645,7 @@ impl Host {
         subprocess.run(["git", "init", "-q", str(self.root)], check=True)
         subprocess.run(["git", "-C", str(self.root), "add", "."], check=True)
         self.assertEqual(1, len(native_sources(self.root, tracked(self.root), self.metadata)))
-        self.write("crates/flea-gui/src/new.rs", "fn paint() { std::fs::read(\"x\"); }")
+        self.write("crates/dlea-gui/src/new.rs", "fn paint() { std::fs::read(\"x\"); }")
         subprocess.run(["git", "-C", str(self.root), "add", "."], check=True)
         units = native_sources(self.root, tracked(self.root), self.metadata)
         self.assertEqual(2, len(units))
@@ -672,7 +672,7 @@ print(Path("metadata.json").read_text())
         (self.root / "bin/cargo").chmod(0o755)
         env = dict(os.environ, PATH=str(self.root / "bin") + os.pathsep + os.environ["PATH"],
                    GIT_CEILING_DIRECTORIES=str(self.root.parent))
-        command = [str(REPO / "tools/flea-gpui-lint")]
+        command = [str(REPO / "tools/dlea-gpui-lint")]
         control = subprocess.run(command, cwd=self.root, env=env, capture_output=True, text=True)
         self.assertEqual(0, control.returncode, control.stdout + control.stderr)
         self.assertIn("PASS files=1 findings=0", control.stdout)
@@ -698,28 +698,28 @@ assert args[0] == "clippy" and "--locked" in args and "--all-targets" in args
 with pathlib.Path(os.environ["CALLS"]).open("a") as log:
     log.write(json.dumps(args) + "\\n")
 if "--workspace" not in args:
-    assert args[args.index("-p") + 1] == "flea-gui" and args[-2:] == ["-D", "warnings"]
+    assert args[args.index("-p") + 1] == "dlea-gui" and args[-2:] == ["-D", "warnings"]
     sys.exit(int(os.environ["STRICT_RC"]))
 span = [{"is_primary": True, "file_name": "src/lib.rs", "line_start": 1, "column_start": 1}]
-for name in ("flea", "flea-gui"):
+for name in ("dlea", "dlea-gui"):
     package_id = "path+file:///fixture/" + name + "#0.4.0" if os.environ.get("SHORT_ID") else "path+file:///fixture#" + name + "@0.4.0"
     print(json.dumps({"reason": "compiler-message", "package_id": package_id, "message": {"level": "warning", "code": {"code": "clippy::seed_style"}, "spans": span, "message": "seed"}}))
-print(json.dumps({"reason": "compiler-artifact", "target": {"name": "flea"}}))
+print(json.dumps({"reason": "compiler-artifact", "target": {"name": "dlea"}}))
 print(json.dumps({"reason": "build-finished", "success": True}))
 ''')
         for name in ("cargo", "clippy-driver"):
             (bindir / name).chmod(0o755)
         env = dict(os.environ, PATH=str(bindir) + os.pathsep + os.environ["PATH"],
                    CALLS=str(self.root / "calls.jsonl"), STRICT_RC="0")
-        args = [str(REPO / "tools/flea-clippy"), str(self.root / "baseline.txt"), str(self.root / "clippy")]
+        args = [str(REPO / "tools/dlea-clippy"), str(self.root / "baseline.txt"), str(self.root / "clippy")]
         control = subprocess.run(args, cwd=self.root, env=env, capture_output=True, text=True)
         self.assertEqual(0, control.returncode, control.stdout)
         self.assertIn("findings=1", control.stdout)
-        self.assertIn("flea-gui: PASS", control.stdout)
+        self.assertIn("dlea-gui: PASS", control.stdout)
         env["STRICT_RC"] = "1"
         mutant = subprocess.run(args, cwd=self.root, env=env, capture_output=True, text=True)
         self.assertEqual(1, mutant.returncode, mutant.stdout)
-        self.assertIn("flea-gui: FAIL cargo_rc=1", mutant.stdout)
+        self.assertIn("dlea-gui: FAIL cargo_rc=1", mutant.stdout)
         calls = [json.loads(line) for line in (self.root / "calls.jsonl").read_text().splitlines()]
         self.assertEqual(4, len(calls))
         self.assertTrue(all("--workspace" in args for args in calls[::2]))
@@ -731,10 +731,10 @@ print(json.dumps({"reason": "build-finished", "success": True}))
     def test_hook_guard_covers_native_sources_and_license_policy(self):
         subprocess.run(["git", "init", "-q", str(self.root)], check=True)
         subprocess.run(["git", "-C", str(self.root), "add", "."], check=True)
-        command = [str(REPO / "tools/flea-hook-check"), "guard"]
+        command = [str(REPO / "tools/dlea-hook-check"), "guard"]
         control = subprocess.run(command, cwd=self.root, capture_output=True, text=True)
         self.assertEqual(0, control.returncode, control.stderr)
-        for name in ("crates/flea-gui/src/list.rs", "deny.toml"):
+        for name in ("crates/dlea-gui/src/list.rs", "deny.toml"):
             self.write(name, "changed\n")
             mutant = subprocess.run(command, cwd=self.root, capture_output=True, text=True)
             self.assertEqual(1, mutant.returncode, mutant.stderr)
@@ -744,7 +744,7 @@ print(json.dumps({"reason": "build-finished", "success": True}))
             self.assertEqual(0, control.returncode, control.stderr)
 
     def use_check(self, prefix, code):
-        self.write("crates/flea-gui/src/list.rs", prefix + LIST.replace("theme.background;", code))
+        self.write("crates/dlea-gui/src/list.rs", prefix + LIST.replace("theme.background;", code))
         return self.errors()
 
     def test_digit_separators_and_integer_suffixes_are_colour_literals(self):
@@ -766,7 +766,7 @@ print(json.dumps({"reason": "build-finished", "success": True}))
         self.assertEqual([], self.use_check("use palette::*;\n", "white();"))
 
     def scoped_check(self, source):
-        self.write("crates/flea-gui/src/list.rs", source + LIST)
+        self.write("crates/dlea-gui/src/list.rs", source + LIST)
         return self.errors()
 
     def test_glob_shadowing_follows_rust_scopes(self):
@@ -846,7 +846,7 @@ print(json.dumps({"reason": "build-finished", "success": True}))
                 tracked(self.root)
 
     def test_malformed_policy_sections_fail_before_field_access(self):
-        for section, value in (("blocking_exceptions", ["flea_gui::slow::probe"]),
+        for section, value in (("blocking_exceptions", ["dlea_gui::slow::probe"]),
                                ("color_modules", "palette"),
                                ("non_color_hex_constants", [1])):
             with self.subTest(section=section):
@@ -854,11 +854,11 @@ print(json.dumps({"reason": "build-finished", "success": True}))
                     POLICY_CHECKS(dict(self.policy, **{section: value}))
 
     def test_malformed_policy_exits_two_without_traceback(self):
-        self.write("tools/gpui-lint.json", json.dumps(dict(self.policy, blocking_exceptions=["flea_gui::slow::probe"])))
+        self.write("tools/gpui-lint.json", json.dumps(dict(self.policy, blocking_exceptions=["dlea_gui::slow::probe"])))
         env = dict(os.environ, GIT_CEILING_DIRECTORIES=str(self.root.parent))
-        result = subprocess.run([str(REPO / "tools/flea-gpui-lint")], cwd=self.root, env=env, capture_output=True, text=True)
+        result = subprocess.run([str(REPO / "tools/dlea-gpui-lint")], cwd=self.root, env=env, capture_output=True, text=True)
         self.assertEqual(2, result.returncode, result.stdout + result.stderr)
-        self.assertIn("flea-gpui-lint: ERROR", result.stdout)
+        self.assertIn("dlea-gpui-lint: ERROR", result.stdout)
         self.assertNotIn("Traceback", result.stdout + result.stderr)
 
 

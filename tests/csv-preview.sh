@@ -1,29 +1,29 @@
 #!/usr/bin/env bash
 . "$(dirname "$0")/headless-commons.sh"
-# CSV and TSV as a table in the preview column and in Quick Look over the real backend: the header, the numbers, the frozen widths across a 49,999-row scroll, the quoted newline, the binary, large and empty frames. Offscreen, in the flea-ci image.
+# CSV and TSV as a table in the preview column and in Quick Look over the real backend: the header, the numbers, the frozen widths across a 49,999-row scroll, the quoted newline, the binary, large and empty frames. Offscreen, in the dlea-ci image.
 set -uo pipefail
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 . "$(dirname "$0")/qslog-gate.sh"
 cd "$(dirname "$0")/.." || exit 1
 for tool in qs dbus-run-session; do
-    command -v "$tool" >/dev/null || { printf 'FAIL csv-preview: %s is required; this suite runs in the flea-ci image\n' "$tool"; exit 1; }
+    command -v "$tool" >/dev/null || { printf 'FAIL csv-preview: %s is required; this suite runs in the dlea-ci image\n' "$tool"; exit 1; }
 done
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [ -x "$bin" ] || { printf 'FAIL csv-preview: build the backend first: %s\n' "$bin"; exit 1; }
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-csv-preview.XXXXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-csv-preview.XXXXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
-mkdir -p "$test_root"/{config,fixture,home,state/flea,cache,runtime} || exit 1
+mkdir -p "$test_root"/{config,fixture,home,state/dlea,cache,runtime} || exit 1
 chmod 700 "$test_root/runtime" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -m ui/boot/Ui)" "$test_root/config/Ui" || exit 1
-cp -a ui "$test_root/config/flea" || exit 1
+cp -a ui "$test_root/config/dlea" || exit 1
 cp tests/csv-preview.qml "$test_root/config/shell.qml" || exit 1
 cp tests/csv-records.js "$test_root/config/CsvRecords.js" || exit 1
-printf '{}\n' > "$test_root/state/flea/ui.json"
+printf '{}\n' > "$test_root/state/dlea/ui.json"
 
 # Fixtures preserve the board's 24 rows and put later long names beyond big.csv's first screen.
 fixture="$test_root/fixture"
@@ -135,12 +135,12 @@ failures=0
 log="$test_root/csv-preview.log"
 ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_BIN="$bin" FLEA_REDUCED_MOTION=1 \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_BIN="$bin" DLEA_REDUCED_MOTION=1 \
     CSVPREV_DIR="$fixture" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
     dbus-run-session -- bash -c 'timeout 240 qs -p "$1" > "$2" 2>&1' _ "$test_root/config" "$log" 2> "$test_root/bus.log" ) 2>/dev/null
 status=$?
-[ -z "${FLEA_CI_SUITE_LOGS:-}" ] || cp "$log" "$FLEA_CI_SUITE_LOGS/csv-preview.log" 2>/dev/null
+[ -z "${DLEA_CI_SUITE_LOGS:-}" ] || cp "$log" "$DLEA_CI_SUITE_LOGS/csv-preview.log" 2>/dev/null
 grep -a 'CSVPREV \(PASS\|FAIL\|DONE\|MEASURE\)' "$log" | sed 's/^/csv-preview: /'
 loops=$(grep -ac 'Binding loop detected' "$log")
 if [ "$loops" -ne 0 ]; then

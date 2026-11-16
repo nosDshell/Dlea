@@ -170,7 +170,7 @@ fn open(shared: &Arc<Mutex<Inner>>) -> c_int {
     let owned = unsafe { OwnedFd::from_raw_fd(fd) };
     let weak = Arc::downgrade(shared);
     match std::thread::Builder::new()
-        .name("flea-sizewatch".into())
+        .name("dlea-sizewatch".into())
         .spawn(move || pump(owned, weak))
     {
         Ok(_) => fd,

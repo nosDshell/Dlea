@@ -11,7 +11,7 @@ fn ids(scripts: &[super::scripts::Script]) -> Vec<&str> {
 fn mn2_the_rows_are_sorted_by_name_whatever_order_find_printed() {
     let parsed = scripts::parse(
         "ocr.sh\nconvert-to-webp\nupload-to-s3.py\n",
-        "/home/x/.config/flea/scripts",
+        "/home/x/.config/dlea/scripts",
     );
     assert_eq!(
         ids(&parsed),
@@ -23,7 +23,7 @@ fn mn2_the_rows_are_sorted_by_name_whatever_order_find_printed() {
 fn mn2_the_label_is_the_name_without_its_extension() {
     let parsed = scripts::parse(
         "ocr.sh\nconvert-to-webp\nupload-to-s3.py\n",
-        "/home/x/.config/flea/scripts",
+        "/home/x/.config/dlea/scripts",
     );
     let labels: Vec<&str> = parsed.iter().map(|s| s.label.as_str()).collect();
     assert_eq!(labels, ["convert-to-webp", "ocr", "upload-to-s3"]);
@@ -33,9 +33,9 @@ fn mn2_the_label_is_the_name_without_its_extension() {
 fn mn2_each_row_carries_the_path_it_will_run() {
     let parsed = scripts::parse(
         "ocr.sh\nconvert-to-webp\nupload-to-s3.py\n",
-        "/home/x/.config/flea/scripts",
+        "/home/x/.config/dlea/scripts",
     );
-    assert_eq!(parsed[1].path, "/home/x/.config/flea/scripts/ocr.sh");
+    assert_eq!(parsed[1].path, "/home/x/.config/dlea/scripts/ocr.sh");
 }
 
 #[test]

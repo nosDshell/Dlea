@@ -277,7 +277,7 @@ fn a_raw_named_folder_opens_from_the_menu_by_its_own_bytes() {
     use std::os::unix::ffi::OsStrExt;
     let (mut w, reader) = wire::echo_wire();
     let mut m = model();
-    m.rows.get_mut(&0).unwrap().name = flea::bytename::name_text(b"r\xff").into_owned();
+    m.rows.get_mut(&0).unwrap().name = dlea::bytename::name_text(b"r\xff").into_owned();
     m.cursor = 0;
     m.menu_view.hidden.push("openwith".into());
     press(&mut m, Key::character('m', ""), &mut w);

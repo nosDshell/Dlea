@@ -20,11 +20,11 @@ assert binary.is_file(), f"required current backend executable is missing: {bina
 parent = Path(sys.argv[3]).resolve(strict=True)
 root = Path(tempfile.mkdtemp(prefix="model3d-protocol.", dir=parent))
 assert root.is_absolute() and root.is_relative_to(parent)
-marker = root / ".flea-test-sandbox"
+marker = root / ".dlea-test-sandbox"
 marker.write_text("3D protocol integration sandbox\n")
 REPLY_TIMEOUT_S = 30
 STDERR_LINES_KEPT = 200
-THUMB_TABLE = "flea-3d-v2"
+THUMB_TABLE = "dlea-3d-v2"
 
 
 # Every exit path removes the sandbox, checked absolute, marked and inside the parent it was made in.
@@ -42,7 +42,7 @@ def owned(name):
     return path
 
 
-# The thumbnail cache names an entry by the MD5 of the file's URI, under fail/flea or large.
+# The thumbnail cache names an entry by the MD5 of the file's URI, under fail/dlea or large.
 def cache_entry(kind, path):
     return owned("cache/thumbnails") / kind / (hashlib.md5(path.as_uri().encode()).hexdigest() + ".png")
 
@@ -122,7 +122,7 @@ if sys.argv[2] == "missing-sandbox":
         result = session.ask({"c": "model3d", "slot": "look", "token": 1, "path": str(path)}, "model3d")
         assert result["state"] == "failed", result
         assert "bwrap and prlimit" in result["reason"], result
-        assert not list(owned("cache/thumbnails/flea-3d").glob("*.3d"))
+        assert not list(owned("cache/thumbnails/dlea-3d").glob("*.3d"))
     finally:
         session.close()
 else:
@@ -185,8 +185,8 @@ else:
         bare_row = next(i for i, item in enumerate(rows) if item["n"] == bare.name)
         assert rows[bare_row]["t"] is True
         assert session.ask({"c": "thumb", "rows": [bare_row]}, "thumbed")["file"] == ""
-        record = cache_entry("fail/flea", bare).read_bytes()
-        assert f"X-Flea-Table\0{THUMB_TABLE}".encode() in record, record
+        record = cache_entry("fail/dlea", bare).read_bytes()
+        assert f"X-Dlea-Table\0{THUMB_TABLE}".encode() in record, record
         assert f"Thumb::MTime\0{bare.stat().st_mtime_ns // 10**9}".encode() in record, record
         assert session.ask({"c": "thumb", "rows": [bare_row], "cacheOnly": True}, "thumbed")["file"] == ""
         # An embedded PNG whose pixel stream does not decode is refused by the sandboxed decoder and publishes nothing.

@@ -18,14 +18,14 @@ for tool in qs; do
     command -v "$tool" >/dev/null || { echo "preview-swap.sh: $tool is not installed"; exit 1; }
 done
 
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 sandbox_forbidden /tmp && sandbox_refuse "preview-swap: /tmp is inside a forbidden test target"
-swap_root=$(mktemp -d /tmp/flea-preview-swap.XXXXXXXX) || exit 1
+swap_root=$(mktemp -d /tmp/dlea-preview-swap.XXXXXXXX) || exit 1
 FIXTURE_ROOT=$swap_root
 sandbox_root_ok
 swap_root=$SANDBOX_ROOT
 readonly swap_root
-printf 'Flea preview swap sandbox\n' > "$swap_root/$SANDBOX_MARKER" || exit 1
+printf 'Dlea preview swap sandbox\n' > "$swap_root/$SANDBOX_MARKER" || exit 1
 swap_work="$swap_root/work"
 readonly swap_work
 cleanup() {

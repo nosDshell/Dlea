@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/PreviewKeys.js" as PreviewKeys
+import "dlea" as Dlea
+import "dlea/js/PreviewKeys.js" as PreviewKeys
 
 // Native r, follow and close paths pin transient Quick Look state and column independence for both kinds.
 ShellRoot {
@@ -82,9 +82,9 @@ ShellRoot {
             var state = JSON.parse(observer.htmlState(true))
             root.check("the column HTML observer reads the active pane", [state.visible, state.ready, state.view, state.lines, state.facts], [true, true, "rendered", 61, "HTML document · 1.6 kB · 61 lines"])
             root.check("the HTML corner observer names the real frame", [state.window.width, state.window.height, state.column, state.hairline > 0], [1100, 700, true, true])
-            root.check("fresh UI state has no stored document views", [Flea.ViewState.preview.markdownView, Flea.ViewState.preview.htmlView], [undefined, undefined])
+            root.check("fresh UI state has no stored document views", [Dlea.ViewState.preview.markdownView, Dlea.ViewState.preview.htmlView], [undefined, undefined])
             root.capturing = true
-            var output = Quickshell.env("FLEA_CI_SUITE_LOGS") || Quickshell.env("HTML_ROOT")
+            var output = Quickshell.env("DLEA_CI_SUITE_LOGS") || Quickshell.env("HTML_ROOT")
             body.item.grabToImage(function (grab) {
                 root.check("the 1100x700 column capture saves", grab.saveToFile(output + "/html-column-1100x700.png"), true)
                 root.open(root.files[root.kindIndex][0])
@@ -102,7 +102,7 @@ ShellRoot {
             var g = m.barGeometry()
             root.check(kind + " bar has no segment or view controls", [!!g.segment, !!g.rendered, !!g.source], [false, false, false])
             root.capturing = true
-            var destination = Quickshell.env("FLEA_CI_SUITE_LOGS") || Quickshell.env("HTML_ROOT")
+            var destination = Quickshell.env("DLEA_CI_SUITE_LOGS") || Quickshell.env("HTML_ROOT")
             m.grabToImage(function (grab) {
                 root.check(kind + " rendered Quick Look capture saves", grab.saveToFile(destination + "/auto-" + kind.toLowerCase() + "-quicklook.png"), true)
                 root.key("r")
@@ -114,7 +114,7 @@ ShellRoot {
             if (!root.calm(ready && columnReady)) return
             root.check(kind + " native r flips Quick Look to source", m.shownView, "source")
             root.check(kind + " column stays rendered after r", c.markdown.shownView, "rendered")
-            root.check(kind + " r stores no document view", [Flea.ViewState.preview.markdownView, Flea.ViewState.preview.htmlView], [undefined, undefined])
+            root.check(kind + " r stores no document view", [Dlea.ViewState.preview.markdownView, Dlea.ViewState.preview.htmlView], [undefined, undefined])
             root.select(root.files[root.kindIndex][1])
             PreviewKeys.follow(p)
             root.next()
@@ -175,7 +175,7 @@ ShellRoot {
             return [Math.round(point.x), Math.round(point.y), Math.round(item.width), Math.round(item.height)].join(" ")
         }
     }
-    Flea.IpcPreviewState { id: observer; pane: root.pane(); fleaWindow: observedWindow }
+    Dlea.IpcPreviewState { id: observer; pane: root.pane(); dleaWindow: observedWindow }
     Timer { id: quit; interval: 100; onTriggered: Qt.exit(root.failures > 0 ? 1 : 0) }
     Timer {
         interval: 20

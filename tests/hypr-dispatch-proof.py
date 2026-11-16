@@ -44,7 +44,7 @@ case "$1" in
     -j)
         printf '%s\n' "$*" >> "$HYPR_FAKE_LOG"
         case "$2" in
-            monitors) printf '%s\n' '[{"name":"FLEA-fixture","id":7}]' ;;
+            monitors) printf '%s\n' '[{"name":"DLEA-fixture","id":7}]' ;;
             clients) printf '%s\n' '[{"pid":111,"address":"0xabc"}]' ;;
             cursorpos) printf '%s\n' '{"x":1280,"y":720}' ;;
             getoption) printf '%s\n' '{"option":"decoration:rounding","int":8}' ;;
@@ -272,7 +272,7 @@ def main():
             invalid = [arguments[:-1], arguments + ["extra"]] if arguments else [["extra"]]
             if operation not in ("cursor_move", "session_exec_script", "session_exec_rules"):
                 invalid.extend([bad, *arguments[1:]] for bad in
-                               ("flea", "abc", '0xab"c', "0xab}c", "address:0xabc", "", "0Xabc", "0x"))
+                               ("dlea", "abc", '0xab"c', "0xab}c", "address:0xabc", "", "0Xabc", "0x"))
             if operation == "session_exec_script":
                 invalid.extend([bad] for bad in ("", "run.sh", "./run.sh", "/tmp/a b.sh", "/tmp/a'bad.sh",
                                '/tmp/a"bad.sh', "/tmp/a;exit.sh", "/tmp/$(id).sh", "/tmp/`id`.sh", "/tmp/a\nb.sh"))
@@ -280,7 +280,7 @@ def main():
                 invalid.extend([bad, arguments[1], arguments[2]] for bad in
                                ("", "a b", "a;exit", 'a"b', "a'b", "a\\b", "$(id)", "a`id`", "a\nb"))
                 invalid.extend([arguments[0], bad, arguments[2]] for bad in
-                               ("DP-2", "FLEA-", "FLEA-a b", 'FLEA-"x', "FLEA-a;exit", "", "HDMI-A-1"))
+                               ("DP-2", "DLEA-", "DLEA-a b", 'DLEA-"x', "DLEA-a;exit", "", "HDMI-A-1"))
                 invalid.extend([arguments[0], arguments[1], bad] for bad in
                                ("", "run.sh", "./run.sh", "/tmp/a b.sh", "/tmp/a'bad.sh", "/tmp/a;exit.sh", "/tmp/$(id).sh"))
             integer_start = 0 if operation in ("workspace_focus", "cursor_move") else 1
@@ -321,7 +321,7 @@ def main():
         glass_helpers += r'''
 fail() { printf '%s\n' "$*"; exit 1; }
 glasspick_address() { printf '0xabc\n'; }
-flea_process_owned() {
+dlea_process_owned() {
     [[ "$1" == 111 && "$(wc -l < "$HYPR_FAKE_LOG")" -lt "${HYPR_FAKE_OWNER_LIMIT:-4}" ]]
 }
 '''
@@ -377,7 +377,7 @@ flea_process_owned() {
         for name in ("xwdrag_focus", "xwdrag_place"):
             invocation = f"xwdrag_focus {TEST_PID}" if name == "xwdrag_focus" else placement
             rc, output, calls = run(invocation, code=helpers,
-                                    HYPR_FAKE_CLIENTS=json.dumps([{"pid": TEST_PID, "address": "flea"}]))
+                                    HYPR_FAKE_CLIENTS=json.dumps([{"pid": TEST_PID, "address": "dlea"}]))
             check(name + " refuses a non-address before calling the compositor",
                   rc == 1 and "hypr_window_focus: refused argument " in output and f"could not focus {TEST_PID}" in output and not calls, output)
 

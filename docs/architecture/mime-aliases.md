@@ -4,7 +4,7 @@
 second, separated by a single space. On this box it holds 357 lines with no comment line,
 no blank line, no tab and no line carrying a third field, so `split_once(' ')` reads all of
 it. `Aliases::from_str` still skips a blank line, a `#` line and a line with no space,
-because the file is shipped by `shared-mime-info` and its shape is not Flea's to promise.
+because the file is shipped by `shared-mime-info` and its shape is not Dlea's to promise.
 
 A thumbnailer may declare either side of a pair, and the two pairs that matter here fall on
 opposite sides:

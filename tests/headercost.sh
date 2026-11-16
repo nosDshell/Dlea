@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # A list header builds its resize accents and fit metrics only while used, counted offscreen with no display or display lock. The fit loader stays empty until a double click or F4, persists one widths-map update per fit, and releases after; refusals persist nothing.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -15,7 +15,7 @@ if ! command -v sha256sum >/dev/null; then
 fi
 
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-headercost.XXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-headercost.XXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER" || exit 1
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
@@ -36,7 +36,7 @@ for src in "$PWD"/ui/*; do
     ln -s "$src" "$stage/ui/$base" || exit 1
 done
 cp tests/headercost-viewstate.qml "$stage/ui/ViewState.qml" || exit 1
-ln -s "$stage/ui" "$test_root/config/flea" || exit 1
+ln -s "$stage/ui" "$test_root/config/dlea" || exit 1
 # readlink -m, not -f: identical where the OEM shell exists, and a dangling link where it does not, so a box without it still reaches qs and fails with qs's own error in the log.
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -m ui/boot/Ui)" "$test_root/config/Ui" || exit 1

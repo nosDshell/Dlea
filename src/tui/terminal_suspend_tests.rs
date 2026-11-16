@@ -1,19 +1,19 @@
 #[test]
 fn review_suspend_child() {
-    let Some(root) = std::env::var_os("FLEA_T1_REVIEW_SUSPEND_ROOT") else { return; };
+    let Some(root) = std::env::var_os("DLEA_T1_REVIEW_SUSPEND_ROOT") else { return; };
     let root = std::path::PathBuf::from(root);
-    assert!(root.is_absolute() && root.join(".flea-test-sandbox").is_file());
+    assert!(root.is_absolute() && root.join(".dlea-test-sandbox").is_file());
     unsafe { signal(SIGTSTP, 0); }
     let mut terminal = Terminal::enter_at(&root).unwrap();
     terminal.decode(b"\x1b[?0u", false).unwrap();
     println!("REVIEW_READY");
-    if std::env::var("FLEA_T1_REVIEW_SUSPEND_MODE").as_deref() == Ok("editor") {
+    if std::env::var("DLEA_T1_REVIEW_SUSPEND_MODE").as_deref() == Ok("editor") {
         let result = terminal.run_editor("true", &root.join("names"));
         assert!(terminal.stopped(), "the editor handoff ended without a stop: {result:?}");
         assert_eq!(result.unwrap_err().to_string(), crate::tui::words::error(EDITOR_INTERRUPTED).to_string());
         return;
     }
-    if std::env::var("FLEA_T1_REVIEW_SUSPEND_MODE").as_deref() == Ok("key") {
+    if std::env::var("DLEA_T1_REVIEW_SUSPEND_MODE").as_deref() == Ok("key") {
         let (mut wire, reader) = crate::tui::wire::echo_wire();
         let mut model = crate::tui::action_key_tests::listing(&mut wire, "yazi");
         crate::tui::actions::key(&mut model, &crate::tui::input::Key::named("Z", "ctrl"), &crate::tui::keymap::Map::load(), &mut wire).unwrap();
@@ -68,14 +68,14 @@ fn interrupted_transition(case: &str, whole_job: bool) {
     assert!(Command::new("mkfifo").arg(&gate).status().unwrap().success());
     // Hold the selected stty call at a FIFO open until SIGTERM ends it.
     dir.script("stty", r#"#!/bin/sh
-root=$FLEA_T1_REVIEW_SUSPEND_ROOT
+root=$DLEA_T1_REVIEW_SUSPEND_ROOT
 call=
 if [ "$1" = raw ]; then
     if [ -f "$root/prepared" ]; then call=raw; else : > "$root/prepared"; fi
 elif [ "$1" != -g ]; then
     call=restore
 fi
-if [ "$call" = "$FLEA_T1_INTERRUPT_CALL" ] && [ ! -f "$root/interrupted" ]; then
+if [ "$call" = "$DLEA_T1_INTERRUPT_CALL" ] && [ ! -f "$root/interrupted" ]; then
     : > "$root/interrupted"
     echo $$ > "$root/stty-pid"
     printf 'REVIEW_INTERRUPTING\n'

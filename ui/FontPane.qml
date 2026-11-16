@@ -1,6 +1,6 @@
 pragma ComponentBehavior: Bound
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Kinds.js" as Kinds
 import "js/Ops.js" as Ops
 
@@ -94,7 +94,7 @@ Item {
             opacity: 0.12
         }
 
-        Flea.Glyph {
+        Dlea.Glyph {
             id: barMark
             anchors.left: parent.left
             anchors.leftMargin: Theme.spacing.rowPaddingX
@@ -120,7 +120,7 @@ Item {
             elide: Text.ElideMiddle
         }
 
-        Flea.ChromeButton {
+        Dlea.ChromeButton {
             id: barClose
             gesturePolicy: TapHandler.ReleaseWithinBounds
             ruleRows: Theme.spacing.hairline

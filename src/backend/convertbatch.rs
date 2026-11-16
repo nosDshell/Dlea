@@ -7,7 +7,7 @@ use super::{
     printtool,
     undo::{ItemIdentity, Step},
 };
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::path::{Path, PathBuf};
 use std::sync::{
     atomic::{AtomicBool, Ordering},

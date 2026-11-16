@@ -287,7 +287,7 @@ pub(crate) fn rename_to_home(original: &Path, unsynced: &mut std::collections::B
         let _ = std::fs::remove_file(original);
     }
     let (files, info) = trash_dirs(&root).ok()?;
-    // A drive Flea confirms syncs each record before its item moves; a fixed disk writes it as gio does, unsynced.
+    // A drive Dlea confirms syncs each record before its item moves; a fixed disk writes it as gio does, unsynced.
     let confirm = *durable.get_or_insert_with(|| original.parent().is_some_and(crate::backend::durable::dest_is_durable));
     let (candidate, info_path) = reserve(&files, &info, original, name, confirm).ok()?;
     if let Err(e) = crate::backend::renamecompat::rename_noreplace(original, &files.join(&candidate)) {

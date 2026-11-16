@@ -4,7 +4,7 @@ import "mdspec-blocks.js" as Blocks
 import "mdspec-canon.js" as Canon
 import "mdspec-rules.js" as Rules
 
-// Feeds every CommonMark 0.31.2 and GFM example through Flea's parser and Qt's drawing, comparing structure with the spec's HTML.
+// Feeds every CommonMark 0.31.2 and GFM example through Dlea's parser and Qt's drawing, comparing structure with the spec's HTML.
 Item {
     id: gate
 

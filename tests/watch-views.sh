@@ -2,24 +2,24 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Another program creates, renames and deletes inside the open folder, and the real window must follow in every view; offscreen, no display.
 set -uo pipefail
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 command -v qs >/dev/null || { printf 'FAIL watch-views: qs is required\n'; exit 1; }
 command -v dbus-run-session >/dev/null || { printf 'FAIL watch-views: dbus-run-session is required\n'; exit 1; }
-test_root="$FIXTURE_ROOT/flea-watch-views-$$"
+test_root="$FIXTURE_ROOT/dlea-watch-views-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
-mkdir -p "$test_root"/{config,home,state/flea,cache,runtime,bin} || exit 1
+mkdir -p "$test_root"/{config,home,state/dlea,cache,runtime,bin} || exit 1
 chmod 700 "$test_root/runtime" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -m ui/boot/Ui)" "$test_root/config/Ui" || exit 1
-ln -s "$PWD/ui/boot/fleatab.qml" "$test_root/config/fleatab.qml" || exit 1
+ln -s "$PWD/ui/boot/dleatab.qml" "$test_root/config/dleatab.qml" || exit 1
 cp tests/watch-views.qml "$test_root/config/shell.qml" || exit 1
-# The one process that changes the fixture from outside Flea, and it touches only paths under the fixture root.
+# The one process that changes the fixture from outside Dlea, and it touches only paths under the fixture root.
 cat > "$test_root/bin/outside" <<'SH'
 #!/usr/bin/env bash
-# Sample input: outside rename /home/flea-sandbox/flea-watch-views-1/fixture/parent/open/a.txt /home/flea-sandbox/flea-watch-views-1/fixture/parent/open/b.txt
+# Sample input: outside rename /home/dlea-sandbox/dlea-watch-views-1/fixture/parent/open/a.txt /home/dlea-sandbox/dlea-watch-views-1/fixture/parent/open/b.txt
 set -u
 root=${WATCHVIEWS_ROOT:?no fixture root}
 inside() { case "$1" in "$root"/?*) return 0 ;; *) printf 'outside: %s is not under %s\n' "$1" "$root" >&2; exit 1 ;; esac; }
@@ -45,16 +45,16 @@ for mode in ${WATCHVIEWS_MODES:-list columns grid dual}; do
     for name in a b c; do : > "$fixture/parent/open/$name.txt"; done
     for name in o1 o2 o3; do : > "$fixture/other/$name.txt"; done
     if [ "$mode" = dual ]; then
-        printf '{"view":"dual","dual":{"paths":["%s","%s"],"focus":0}}\n' "$fixture/parent/open" "$fixture/other" > "$test_root/state/flea/ui.json"
+        printf '{"view":"dual","dual":{"paths":["%s","%s"],"focus":0}}\n' "$fixture/parent/open" "$fixture/other" > "$test_root/state/dlea/ui.json"
         named=""
     else
-        printf '{"view":"%s"}\n' "$mode" > "$test_root/state/flea/ui.json"
+        printf '{"view":"%s"}\n' "$mode" > "$test_root/state/dlea/ui.json"
         named="$fixture/parent/open"
     fi
     log="$test_root/$mode.log"
     ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
         HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-        XDG_RUNTIME_DIR="$test_root/runtime" FLEA_BIN="$PWD/target/debug/flea" FLEA_PATH="$named" \
+        XDG_RUNTIME_DIR="$test_root/runtime" DLEA_BIN="$PWD/target/debug/dlea" DLEA_PATH="$named" \
         WATCHVIEWS_UI="$PWD/ui" WATCHVIEWS_ROOT="$fixture" WATCHVIEWS_MODE="$mode" WATCHVIEWS_OUTSIDE="$test_root/bin/outside" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
         dbus-run-session -- bash -c 'timeout "$1" qs -p "$2" > "$3" 2>&1' _ "$timeout_seconds" "$test_root/config" "$log" 2> "$test_root/bus.log" ) 2>/dev/null

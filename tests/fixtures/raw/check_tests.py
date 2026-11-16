@@ -58,14 +58,14 @@ def dng_control():
 
 def main():
     root = Path(sys.argv[1]).resolve(strict=True)
-    check.require((root / ".flea-test-sandbox").is_file(), "selftest root has no marker")
+    check.require((root / ".dlea-test-sandbox").is_file(), "selftest root has no marker")
     dng_control()
     seed = base64.b64decode(Path(__file__).with_name("preview.jpg.b64").read_bytes())
     failed = 0
     for name in ("seed", "corrupt", "one"):
         case = root / ("check-" + name)
         case.mkdir()
-        (case / ".flea-test-sandbox").touch()
+        (case / ".dlea-test-sandbox").touch()
         (case / "cache").mkdir()
         path = case / "L1000921.DNG"
         path.write_bytes(b"owned test selection")

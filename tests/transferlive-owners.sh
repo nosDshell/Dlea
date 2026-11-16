@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Proves transferlive_teardown stops the run's detached flea --clip-own, spares the operator's, and reports an owner that survives SIGTERM, with stub owners that are scripts named flea and the real flea_process_owned.
+# Proves transferlive_teardown stops the run's detached dlea --clip-own, spares the operator's, and reports an owner that survives SIGTERM, with stub owners that are scripts named dlea and the real dlea_process_owned.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
-MARKER=.flea-test-sandbox
+MARKER=.dlea-test-sandbox
 box=$(mktemp -d) || exit 1
 : > "$box/$MARKER"
 spawned=()
@@ -17,41 +17,41 @@ cleanup() {
 trap cleanup EXIT
 checks=0
 bad=0
-# The verdict word is reworded in every line this suite prints, so only a real failure reads as one to flea-ci.
+# The verdict word is reworded in every line this suite prints, so only a real failure reads as one to dlea-ci.
 say() { local s=$*; printf '%s\n' "${s//FAIL/failed}"; }
 check() {
     checks=$((checks + 1))
     if [ "$1" = ok ]; then say "ok   $2"; else bad=$((bad + 1)); say "BAD  $2"; fi
 }
 # A pid that is running: a zombie has already exited.
-# Sample input: /proc/PID/stat "347 (flea) Z 1 347 347 0 -1 4194308 ...", so the state is the field after the ")".
+# Sample input: /proc/PID/stat "347 (dlea) Z 1 347 347 0 -1 4194308 ...", so the state is the field after the ")".
 alive() { [ -d "/proc/$1" ] && [ "$(sed 's/.*) //' "/proc/$1/stat" 2>/dev/null | cut -d' ' -f1)" != Z ]; }
 
-# The real predicate from tests/ui.sh, with the two things it reads: flea_process_dir and the run root it matches in the environment.
+# The real predicate from tests/ui.sh, with the two things it reads: dlea_process_dir and the run root it matches in the environment.
 run_root="$box/run"
 drain_wait_s=5
 fail() { say "stub fail: $*"; exit 99; }
-flea_process_dir() { printf '/proc/%s\n' "$1"; }
-eval "$(sed -n '/^flea_process_owned()/,/^}/p' tests/ui.sh)"
-kill_flea() { :; }
+dlea_process_dir() { printf '/proc/%s\n' "$1"; }
+eval "$(sed -n '/^dlea_process_owned()/,/^}/p' tests/ui.sh)"
+kill_dlea() { :; }
 sandbox_remove() { :; }
 # shellcheck source=tests/ui-transfer-live.sh
 . tests/ui-transfer-live.sh
 transferlive_root="" transferlive_bus_pid="" transferlive_writer_pids=()
 
-# A script named flea has comm flea, and its cmdline ends in the argument given, as the real owner's does.
+# A script named dlea has comm dlea, and its cmdline ends in the argument given, as the real owner's does.
 stub="$box/stub"
 mkdir "$stub" || exit 1
-printf '#!/bin/bash\ntrap '"'"'kill "$s" 2>/dev/null; exit 0'"'"' TERM\nsleep 300 &\ns=$!\nwait "$s"\n' > "$stub/flea"
-chmod +x "$stub/flea"
-unset FLEA_TEST_RUN_ROOT
-FLEA_TEST_RUN_ROOT="$run_root" "$stub/flea" --clip-own & mine=$!
-FLEA_TEST_RUN_ROOT="$run_root" "$stub/flea" --backend & backend=$!
-"$stub/flea" --clip-own & foreign=$!
+printf '#!/bin/bash\ntrap '"'"'kill "$s" 2>/dev/null; exit 0'"'"' TERM\nsleep 300 &\ns=$!\nwait "$s"\n' > "$stub/dlea"
+chmod +x "$stub/dlea"
+unset DLEA_TEST_RUN_ROOT
+DLEA_TEST_RUN_ROOT="$run_root" "$stub/dlea" --clip-own & mine=$!
+DLEA_TEST_RUN_ROOT="$run_root" "$stub/dlea" --backend & backend=$!
+"$stub/dlea" --clip-own & foreign=$!
 spawned=("$mine" "$backend" "$foreign")
 # The kernel names the process after the script once the exec lands, so wait for all three.
 for _ in $(seq 1 100); do
-    [ "$(pgrep -x flea | grep -cxF -e "$mine" -e "$backend" -e "$foreign")" -eq 3 ] && break
+    [ "$(pgrep -x dlea | grep -cxF -e "$mine" -e "$backend" -e "$foreign")" -eq 3 ] && break
     sleep 0.05
 done
 alive "$mine" && alive "$backend" && alive "$foreign" && check ok "the three stub processes run" || check bad "the three stub processes run"
@@ -64,12 +64,12 @@ alive "$foreign" && check ok "teardown leaves an owner this run did not start" |
 # An owner that traps TERM and keeps running, so the deadline branch is the one under test.
 stubhard="$box/stubhard"
 mkdir "$stubhard" || exit 1
-printf '#!/bin/bash\ntrap : TERM\nwhile :; do sleep 0.2; done\n' > "$stubhard/flea"
-chmod +x "$stubhard/flea"
-FLEA_TEST_RUN_ROOT="$run_root" "$stubhard/flea" --clip-own & stubborn=$!
+printf '#!/bin/bash\ntrap : TERM\nwhile :; do sleep 0.2; done\n' > "$stubhard/dlea"
+chmod +x "$stubhard/dlea"
+DLEA_TEST_RUN_ROOT="$run_root" "$stubhard/dlea" --clip-own & stubborn=$!
 spawned+=("$stubborn")
 for _ in $(seq 1 100); do
-    pgrep -x flea | grep -qxF -e "$stubborn" && break
+    pgrep -x dlea | grep -qxF -e "$stubborn" && break
     sleep 0.05
 done
 alive "$stubborn" && check ok "the TERM-trapping stub runs" || check bad "the TERM-trapping stub runs"

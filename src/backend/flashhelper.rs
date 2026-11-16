@@ -1,11 +1,11 @@
-// The flea-udisks helper client: one process per flash, the descriptor back over a socket pair.
+// The dlea-udisks helper client: one process per flash, the descriptor back over a socket pair.
 use crate::backend::flashop::FlashReq;
 use std::os::fd::{AsRawFd, OwnedFd};
 use std::os::raw::c_int;
 use std::time::{Duration, Instant};
 
-// The packaged helper beside flea-gio-auth; FLEA_UDISKS overrides it, which is also the test seam.
-const HELPER_PATH: &str = "/usr/lib/flea/flea-udisks";
+// The packaged helper beside dlea-gio-auth; DLEA_UDISKS overrides it, which is also the test seam.
+const HELPER_PATH: &str = "/usr/lib/dlea/dlea-udisks";
 // A drives or eject answer waits this long.
 const HELPER_TIMEOUT: Duration = Duration::from_secs(30);
 // The open leg waits on the user's own prompt, so it waits longer, and then ends the helper.
@@ -44,7 +44,7 @@ const STATUS_BUSY: u8 = b'B';
 const STATUS_CHANGED: u8 = b'C';
 
 pub fn helper_path() -> String {
-    let over = std::env::var("FLEA_UDISKS").unwrap_or_default();
+    let over = std::env::var("DLEA_UDISKS").unwrap_or_default();
     if over.is_empty() {
         return HELPER_PATH.to_string();
     }
@@ -117,7 +117,7 @@ pub(crate) fn open_target(path: &str, req: &FlashReq, spawned: &mut dyn FnMut())
         Err(OpenFail::Busy) => Err("busy"),
         Err(OpenFail::Changed) => Err("changed"),
         Err(OpenFail::Helper(e)) => {
-            eprintln!("flea: the udisks helper failed ({e})");
+            eprintln!("dlea: the udisks helper failed ({e})");
             Err("helper")
         }
     }
@@ -162,17 +162,17 @@ pub(crate) fn open_device_at(path: &str, dev: &str, serial: &str, bytes: u64, sp
     match answer {
         Some((STATUS_OK, mut fds)) if !fds.is_empty() => Ok(fds.remove(0)),
         Some((STATUS_DENIED, _)) => {
-            eprintln!("flea: the password prompt for /dev/{dev} was dismissed ({})", elide(&logged));
+            eprintln!("dlea: the password prompt for /dev/{dev} was dismissed ({})", elide(&logged));
             Err(OpenFail::Denied)
         }
         Some((STATUS_BUSY, _)) => {
-            eprintln!("flea: /dev/{dev} would not unmount ({})", elide(&logged));
+            eprintln!("dlea: /dev/{dev} would not unmount ({})", elide(&logged));
             Err(OpenFail::Busy)
         }
         Some((STATUS_CHANGED, _)) => Err(OpenFail::Changed),
         _ => {
             let why = if timed_out { "timed out".to_string() } else { elide(&logged) };
-            eprintln!("flea: the udisks helper {path} failed to open /dev/{dev} ({why})");
+            eprintln!("dlea: the udisks helper {path} failed to open /dev/{dev} ({why})");
             Err(OpenFail::Helper(elide(&logged)))
         }
     }
@@ -191,13 +191,13 @@ pub(crate) fn eject_at(path: &str, dev: &str, limit: Duration) -> Result<(), Str
     cmd.stdin(std::process::Stdio::null()).stdout(std::process::Stdio::piped()).stderr(std::process::Stdio::null());
     // Every unanswered path answers the protocol word, so the caller never forwards a free sentence.
     let mut child = cmd.spawn().map_err(|e| {
-        eprintln!("flea: the eject helper {path} did not start ({e})");
+        eprintln!("dlea: the eject helper {path} did not start ({e})");
         "error".to_string()
     })?;
     match wait_output(&mut child, limit) {
         Ok(text) => parse_eject(&text),
         Err(why) => {
-            eprintln!("flea: the eject helper {path} failed ({why})");
+            eprintln!("dlea: the eject helper {path} failed ({why})");
             Err("error".to_string())
         }
     }

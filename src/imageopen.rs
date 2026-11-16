@@ -153,7 +153,7 @@ pub fn launcher(target: &Path, paths: &[String]) -> Option<Command> {
         let path = if index == 0 {
             target.to_path_buf()
         } else {
-            flea::bytename::exact(path)
+            dlea::bytename::exact(path)
         };
         if !path.is_absolute() || path.as_os_str().as_bytes().contains(&0) {
             return None;

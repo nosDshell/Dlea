@@ -9,7 +9,7 @@ import unittest
 
 
 REPO = Path(__file__).resolve().parents[2]
-TOOL = Path(sys.argv.pop(1)) if len(sys.argv) > 1 else REPO / "tools/flea-acceptance"
+TOOL = Path(sys.argv.pop(1)) if len(sys.argv) > 1 else REPO / "tools/dlea-acceptance"
 STUB = r'''
 OMARCHY_CLIPBOARD_LUA=$REPO/clipboard.lua
 derive_bindings() { printf 'row|default|gui|listing|none|Down|cursorDown\n'; }
@@ -37,28 +37,28 @@ drive_all() {
 
 class References(unittest.TestCase):
     def setUp(self):
-        self.temp = tempfile.TemporaryDirectory(prefix="flea-acceptance-refs.", dir="/tmp")
+        self.temp = tempfile.TemporaryDirectory(prefix="dlea-acceptance-refs.", dir="/tmp")
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
-        (self.root / ".flea-test-sandbox").touch()
+        (self.root / ".dlea-test-sandbox").touch()
         self.repo = self.root / "repo"
         for directory in ("tools", "ui/js", "docs", "tests"):
             (self.repo / directory).mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(TOOL, self.repo / "tools/flea-acceptance")
-        shutil.copyfile(REPO / "tools/flea-sandbox-guard", self.repo / "tools/flea-sandbox-guard")
-        (self.repo / "tools/flea-acceptance-drive").write_text(STUB)
-        (self.repo / "tools/flea-keymap-gen").write_text("import pathlib, sys\npathlib.Path(sys.argv[1]).write_text('matrix')\n")
+        shutil.copyfile(TOOL, self.repo / "tools/dlea-acceptance")
+        shutil.copyfile(REPO / "tools/dlea-sandbox-guard", self.repo / "tools/dlea-sandbox-guard")
+        (self.repo / "tools/dlea-acceptance-drive").write_text(STUB)
+        (self.repo / "tools/dlea-keymap-gen").write_text("import pathlib, sys\npathlib.Path(sys.argv[1]).write_text('matrix')\n")
         (self.repo / "ui/js/Keymap.js").write_text("matrix")
         (self.repo / "ui/js/Menu.js").write_text('var columns = [["mode", "Mode"], ["size", "Size"], ["date", "Date"], ["kind", "Kind"]]\n')
         (self.repo / "ui/Sidebar.qml").write_text('group: "network", kind: "share"\n')
         (self.repo / "docs/protocol.md").write_text("## Requests\n## Responses\n")
         (self.repo / "clipboard.lua").touch()
         (self.repo / "tests/example.sh").touch()
-        self.manifest = self.repo / ".superpowers/flea/design-completion-20260908/references/SHA256SUMS"
+        self.manifest = self.repo / ".superpowers/dlea/design-completion-20260908/references/SHA256SUMS"
 
     def run_tool(self, *args):
-        return subprocess.run(["bash", str(self.repo / "tools/flea-acceptance"), *args],
-                              env=dict(os.environ, FLEA_FIXTURE_ROOT=str(self.root), FLEA_BIN="/usr/bin/true", FLEA_BOARD_DIR=""),
+        return subprocess.run(["bash", str(self.repo / "tools/dlea-acceptance"), *args],
+                              env=dict(os.environ, DLEA_FIXTURE_ROOT=str(self.root), DLEA_BIN="/usr/bin/true", DLEA_BOARD_DIR=""),
                               capture_output=True, text=True, timeout=10)
 
     def test_missing_references_do_not_block_independent_groups(self):

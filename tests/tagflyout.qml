@@ -1,16 +1,16 @@
-//@ pragma ShellId flea-tagflyout-test
+//@ pragma ShellId dlea-tagflyout-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/Tags.js" as Tags
+import "dlea" as Dlea
+import "dlea/js/Tags.js" as Tags
 
 // tests/tagflyout.sh: the real pane over the real backend toggles tags from an open flyout, which stays open with its cursor and redraws each box in place, over rows inside the held window and past it.
 ShellRoot {
     id: root
     readonly property var pane: body.currentPane
     readonly property var menu: pane ? pane.contextMenu() : null
-    readonly property string fixture: Quickshell.env("FLEA_PATH")
+    readonly property string fixture: Quickshell.env("DLEA_PATH")
     readonly property int fixtureRows: 2
     readonly property int pollMs: 20
     readonly property int stepLimitMs: 8000
@@ -366,7 +366,7 @@ ShellRoot {
         id: window
         implicitWidth: 1000
         implicitHeight: 800
-        Flea.WindowBody { id: body; host: window }
+        Dlea.WindowBody { id: body; host: window }
         Item { anchors.fill: parent; TestEvent { id: driver } }
     }
     Timer { interval: root.pollMs; repeat: true; running: !root.finished; onTriggered: root.advance() }

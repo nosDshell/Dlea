@@ -1,11 +1,11 @@
-//@ pragma ShellId flea-quicklook-code-test
+//@ pragma ShellId dlea-quicklook-code-test
 
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 import "langmark-count.js" as LangCost
-import "flea/js/Icons.js" as Icons
+import "dlea/js/Icons.js" as Icons
 
 // The full backend/bat sequence starts schema-seeded; quicklook-code-defaults.qml separately tests empty and explicit-OFF states with wrap absent.
 ShellRoot {
@@ -158,7 +158,7 @@ ShellRoot {
         var p = root.pv(), t = root.textPane(), c = root.code()
         return "preview=" + (p ? p.active + "/" + p.kind + "/" + p.status + "/" + p.lookReady : "none") + " pane=" + (t ? t.path.split("/").pop() + "/" + t.status : "none")
             + " code=" + (c ? c.answer + "/" + c.total + "/" + c.firstScreen : "none") + " cursor=" + (root.pane() ? root.pane().cursorIndex : -1)
-            + (t ? " top=" + root.topLine() + " longest=" + root.bodies().reduce(function (m, b) { return Math.max(m, b.text.length) }, 0) + " wrap=" + t.wrap + "/" + Flea.ViewState.previewWrap : "")
+            + (t ? " top=" + root.topLine() + " longest=" + root.bodies().reduce(function (m, b) { return Math.max(m, b.text.length) }, 0) + " wrap=" + t.wrap + "/" + Dlea.ViewState.previewWrap : "")
     }
 
     function run(op) {
@@ -170,9 +170,9 @@ ShellRoot {
                 root.keys = Qt.createQmlObject("import QtTest; TestEvent {}", p.listArea)
                 p.listArea.forceActiveFocus()
                 if (root.again) {
-                    root.check("a ui.json that holds wrap on starts wrapped", Flea.ViewState.previewWrap, true)
+                    root.check("a ui.json that holds wrap on starts wrapped", Dlea.ViewState.previewWrap, true)
                 } else {
-                    root.check("a schema-seeded ui.json starts unwrapped", [Flea.ViewState.previewWrap, root.savedWrap()], [false, "false"])
+                    root.check("a schema-seeded ui.json starts unwrapped", [Dlea.ViewState.previewWrap, root.savedWrap()], [false, "false"])
                     root.check("no Quick Look is built before the first Space", root.pv(), null)
                 }
                 return true
@@ -196,7 +196,7 @@ ShellRoot {
             root.key("w")
             root.awaiting = function () {
                 if (!root.calm(true)) return false
-                root.check("w on a Markdown Quick Look flips nothing", [Flea.ViewState.previewWrap, root.pv().isCodeText, root.savedWrap() !== "true"], [false, false, true])
+                root.check("w on a Markdown Quick Look flips nothing", [Dlea.ViewState.previewWrap, root.pv().isCodeText, root.savedWrap() !== "true"], [false, false, true])
                 root.check("and the Markdown bar has no view control", !root.pv().markdownShown.barGeometry().segment, true)
                 return true
             }
@@ -264,7 +264,7 @@ ShellRoot {
         } else if (op.unwrap) {
             root.key("w")
             root.awaiting = function () {
-                if (!root.calm(Flea.ViewState.previewWrap === false && root.savedWrap() === "false")) return false
+                if (!root.calm(Dlea.ViewState.previewWrap === false && root.savedWrap() === "false")) return false
                 root.check("w unwraps and the unwrapped choice is written", [root.textPane().wrap, root.savedWrap()], [false, "false"])
                 root.checkTextState("Quick Look IPC reports w unwrapped and ready code", false, root.iconLines)
                 return true
@@ -366,10 +366,10 @@ ShellRoot {
               act: function () {
                   var lb = root.longBody()
                   root.topBefore = root.topLine()
-                  root.check("before w the long line is one row ending in an ellipsis", [lb.lineCount, lb.truncated, Flea.ViewState.previewWrap], [1, true, false])
+                  root.check("before w the long line is one row ending in an ellipsis", [lb.lineCount, lb.truncated, Dlea.ViewState.previewWrap], [1, true, false])
                   root.checkTextState("Quick Look IPC reports unwrapped long code before w", false, 60)
                   root.key("w") } },
-            { state: "on", test: function () { return Flea.ViewState.previewWrap && t.wrap && root.longBody() !== null && root.longBody().lineCount > 3 && root.savedWrap() === "true" },
+            { state: "on", test: function () { return Dlea.ViewState.previewWrap && t.wrap && root.longBody() !== null && root.longBody().lineCount > 3 && root.savedWrap() === "true" },
               act: function () {
                   var lb = root.longBody(), number = root.gutters().filter(function (g) { return g.text === String(root.longAt) })
                   root.check("w wraps the long line into several rows under its own gutter number", [lb.lineCount > 3, number.length], [true, 1])
@@ -377,12 +377,12 @@ ShellRoot {
                   root.check("the choice is written to ui.json", root.savedWrap(), "true")
                   root.checkTextState("Quick Look IPC reports w wrapped and ready code", true, 60)
                   root.key("w") } },
-            { state: "off again", test: function () { return !Flea.ViewState.previewWrap && !t.wrap && root.longBody() !== null && root.longBody().lineCount === 1 && root.savedWrap() === "false" },
+            { state: "off again", test: function () { return !Dlea.ViewState.previewWrap && !t.wrap && root.longBody() !== null && root.longBody().lineCount === 1 && root.savedWrap() === "false" },
               act: function () {
                   root.check("w again unwraps: one row, the first visible line kept, the choice written", [root.longBody().lineCount, root.topLine(), root.savedWrap()], [1, root.topBefore, "false"])
                   root.checkTextState("Quick Look IPC reports second w unwrapped and ready code", false, 60)
                   root.key("w") } },
-            { state: "on last", test: function () { return Flea.ViewState.previewWrap && root.longBody() !== null && root.longBody().lineCount > 3 && root.savedWrap() === "true" },
+            { state: "on last", test: function () { return Dlea.ViewState.previewWrap && root.longBody() !== null && root.longBody().lineCount > 3 && root.savedWrap() === "true" },
               act: function () { root.check("a third w wraps again", root.topLine(), root.topBefore) } }
         ]
         var n = 0
@@ -395,7 +395,7 @@ ShellRoot {
         }
     }
 
-    Flea.IpcPreviewState { id: previewReader; pane: root.pane() }
+    Dlea.IpcPreviewState { id: previewReader; pane: root.pane() }
 
     FloatingWindow {
         id: window
@@ -422,7 +422,7 @@ ShellRoot {
     }
     FileView {
         id: uiFile
-        path: Quickshell.env("QLCODE_STATE") + "/flea/ui.json"
+        path: Quickshell.env("QLCODE_STATE") + "/dlea/ui.json"
         printErrors: false
         blockLoading: true
     }

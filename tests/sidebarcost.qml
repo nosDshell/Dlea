@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-sidebarcost-count-test
+//@ pragma ShellId dlea-sidebarcost-count-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/Picker.js" as Picker
-import "flea/js/Ops.js" as Ops
+import "dlea" as Dlea
+import "dlea/js/Picker.js" as Picker
+import "dlea/js/Ops.js" as Ops
 
 // Count real objects and method calls, including hidden objects; no timing threshold.
 ShellRoot {
@@ -47,8 +47,8 @@ ShellRoot {
     function lines() {
         return objects(sidebar, []).filter(function(o) {
             return String(o).indexOf("QQuickRectangle") >= 0 && o.width === sidebar.width
-                && o.height === Flea.Theme.accentEdge * Flea.Theme.spacing.hairline
-                && String(o.color) === String(Flea.Theme.color.accent)
+                && o.height === Dlea.Theme.accentEdge * Dlea.Theme.spacing.hairline
+                && String(o.color) === String(Dlea.Theme.color.accent)
         })
     }
     function dragHandler(item) {
@@ -85,15 +85,15 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 900
         implicitHeight: 700
-        Flea.Sidebar {
+        Dlea.Sidebar {
             id: sidebar
             width: 220
             height: 700
             onRecentRequested: function(paths, requester, visits) { shell.replies.push({paths: paths, requester: requester, visits: visits}) }
         }
         TestEvent { id: pointer }
-        Flea.Backend { id: probeBackend }
-        Flea.Pane {
+        Dlea.Backend { id: probeBackend }
+        Dlea.Pane {
             id: pane
             x: 220
             width: 680
@@ -114,8 +114,8 @@ ShellRoot {
     }
     function advance() {
         if (phase === 0) {
-            if (sidebar.entries.length < 4 || Flea.Favourites.inspection.running
-                || Object.keys(Flea.Favourites.statuses).length !== 3) return
+            if (sidebar.entries.length < 4 || Dlea.Favourites.inspection.running
+                || Object.keys(Dlea.Favourites.statuses).length !== 3) return
             var favourites = 0
             for (var i = 0; i < sidebar.entries.length; i++) {
                 var favourite = sidebar.entries[i].kind === "favourite"
@@ -136,7 +136,7 @@ ShellRoot {
             var row = sidebar.railItemFor(base + Math.min(slot, 2))
             var boundary = row.mapToItem(sidebar, 0, slot === 3 ? row.height : 0).y
             checkBar("slot " + slot, boundary)
-            check("line accent thickness", line.length ? line[0].height : -1, Flea.Theme.accentEdge * Flea.Theme.spacing.hairline)
+            check("line accent thickness", line.length ? line[0].height : -1, Dlea.Theme.accentEdge * Dlea.Theme.spacing.hairline)
             sidebar.reorderLine = phase === 1 ? 1 : phase === 2 ? 3 : -1
             phase += 1
         } else if (phase === 4) {
@@ -154,10 +154,10 @@ ShellRoot {
             check("closed menu stays unevaluated after cursor move", calls.modes + calls.selection, before)
             check("no Recent parse at settle", sidebar.recentReads, 0)
             check("Recent rail row ships off", sidebar.recentEntries.length, 0)
-            check("hidden rail query also keeps Recent off", Flea.RailPlaces.recentEntries.length, 0)
-            var next = Object.assign({}, Flea.ViewState.state)
+            check("hidden rail query also keeps Recent off", Dlea.RailPlaces.recentEntries.length, 0)
+            var next = Object.assign({}, Dlea.ViewState.state)
             next.places = Object.assign({}, next.places, {showRecent:true})
-            Flea.ViewState.state = next
+            Dlea.ViewState.state = next
             phase = 6
         } else if (phase === 6) {
             check("Recent location token unchanged", sidebar.recentEntries[0].path, Picker.RECENT)
@@ -196,19 +196,19 @@ ShellRoot {
             if (!dragHandler(favouriteRow(0)).active) return
             var held = opacities()
             var firstFavourite = sidebar.entries.length - 3
-            check("the held favourite draws at the ghost value", held[firstFavourite], Flea.Theme.disabledOpacity)
+            check("the held favourite draws at the ghost value", held[firstFavourite], Dlea.Theme.disabledOpacity)
             check("every other rail row stays at 1", held.filter(function(o, i) { return i !== firstFavourite && o !== 1 }).length, 0)
-            dragTo(dragTwoRows * Flea.Theme.railRowHeight)
+            dragTo(dragTwoRows * Dlea.Theme.railRowHeight)
             phase = 10
         } else if (phase === 10) {
             if (sidebar.reorderLine !== 3) return
             checkBar("drag under the last favourite", boundaryOf(3))
-            dragTo(dragOneRow * Flea.Theme.railRowHeight)
+            dragTo(dragOneRow * Dlea.Theme.railRowHeight)
             phase = 11
         } else if (phase === 11) {
             if (sidebar.reorderLine !== 2) return
             checkBar("drag between two favourites", boundaryOf(2))
-            check("the held row is still the ghost", favouriteRow(0).opacity, Flea.Theme.disabledOpacity)
+            check("the held row is still the ghost", favouriteRow(0).opacity, Dlea.Theme.disabledOpacity)
             dragTo(dragUpNudge)
             phase = 12
         } else if (phase === 12) {

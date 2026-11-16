@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-menu-card-sink-test
+//@ pragma ShellId dlea-menu-card-sink-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "qml-probe.js" as QmlProbe
 
 // tests/menu-card-sink.sh's harness: real pointer events on the real ui/ContextMenu.qml, on the main frame and the flyout.
@@ -44,7 +44,7 @@ ShellRoot {
 
     // One press and release on a dead point leaves the menu, the cursors and the chosen log as they were.
     function sink(card, which, button) {
-        var pad = Flea.Theme.spacing.rowPaddingY / 2
+        var pad = Dlea.Theme.spacing.rowPaddingY / 2
         var points = card === "main" ? shell.dead("main", 5, 2, menu.frameItem, pad)
                                      : shell.dead("flyout", 1, 2, menu.submenuFrameItem, pad)
         var point = points.filter(function (p) { return p.name === which })[0]
@@ -75,19 +75,19 @@ ShellRoot {
         Column {
             enabled: false
             width: 200
-            Flea.MenuRow { id: deadKeyRow; width: parent.width; entry: ({ label: "Paste", glyph: "clipboard", action: "paste", disabled: true, hint: "p" }) }
-            Flea.MenuRow { id: liveKeyRow; width: parent.width; entry: ({ label: "Copy", glyph: "copy", action: "copy", hint: "y" }) }
-            Flea.MenuRow { id: dangerKeyRow; width: parent.width; entry: ({ label: "Move to Trash", glyph: "trash", action: "trash", danger: true, hint: "d" }) }
-            Flea.MenuRow { id: litKeyRow; width: parent.width; current: true; entry: ({ label: "Open", glyph: "folder-open", action: "open", hint: "enter" }) }
-            Flea.MenuRow { id: squareKeyRow; width: parent.width; entry: ({ label: "Update Flea", glyph: "download", action: "updateFlea", hint: "0.3.8", hintSquare: true }) }
-            Flea.MenuRow { id: reasonRow; width: parent.width; entry: ({ label: "Extract", glyph: "archive-out", action: "extract", disabled: true, hint: "bsdtar is not installed", hintWrap: true }) }
+            Dlea.MenuRow { id: deadKeyRow; width: parent.width; entry: ({ label: "Paste", glyph: "clipboard", action: "paste", disabled: true, hint: "p" }) }
+            Dlea.MenuRow { id: liveKeyRow; width: parent.width; entry: ({ label: "Copy", glyph: "copy", action: "copy", hint: "y" }) }
+            Dlea.MenuRow { id: dangerKeyRow; width: parent.width; entry: ({ label: "Move to Trash", glyph: "trash", action: "trash", danger: true, hint: "d" }) }
+            Dlea.MenuRow { id: litKeyRow; width: parent.width; current: true; entry: ({ label: "Open", glyph: "folder-open", action: "open", hint: "enter" }) }
+            Dlea.MenuRow { id: squareKeyRow; width: parent.width; entry: ({ label: "Update Dlea", glyph: "download", action: "updateDlea", hint: "0.3.8", hintSquare: true }) }
+            Dlea.MenuRow { id: reasonRow; width: parent.width; entry: ({ label: "Extract", glyph: "archive-out", action: "extract", disabled: true, hint: "bsdtar is not installed", hintWrap: true }) }
             // A disabled sheet row dims exactly like a dead menu row, cap text and label both.
-            Flea.KeymapSheetResult { id: deadSheetRow; width: parent.width; modelData: ({ keys: "x", label: "Sheet Disabled", disabled: true, where: "Demo" }); index: 0; resultCursor: -1; query: ""; capWidth: 60; capSize: 20; capGap: 8; rowPitch: 30; textInset: 4; whereShare: 0.3 }
-            Flea.KeymapSheetResult { id: liveSheetRow; width: parent.width; modelData: ({ keys: "x", label: "Sheet Live", disabled: false, where: "Demo" }); index: 0; resultCursor: -1; query: ""; capWidth: 60; capSize: 20; capGap: 8; rowPitch: 30; textInset: 4; whereShare: 0.3 }
+            Dlea.KeymapSheetResult { id: deadSheetRow; width: parent.width; modelData: ({ keys: "x", label: "Sheet Disabled", disabled: true, where: "Demo" }); index: 0; resultCursor: -1; query: ""; capWidth: 60; capSize: 20; capGap: 8; rowPitch: 30; textInset: 4; whereShare: 0.3 }
+            Dlea.KeymapSheetResult { id: liveSheetRow; width: parent.width; modelData: ({ keys: "x", label: "Sheet Live", disabled: false, where: "Demo" }); index: 0; resultCursor: -1; query: ""; capWidth: 60; capSize: 20; capGap: 8; rowPitch: 30; textInset: 4; whereShare: 0.3 }
         }
-        Flea.Glyph { id: invertGlyph; width: 19; height: 19; name: "contrast"; color: "#ff0000" }
-        Flea.Glyph { id: plainGlyph; width: 19; height: 19; name: "copy"; color: "#ff0000" }
-        Flea.ContextMenu { id: menu; anchors.fill: parent }
+        Dlea.Glyph { id: invertGlyph; width: 19; height: 19; name: "contrast"; color: "#ff0000" }
+        Dlea.Glyph { id: plainGlyph; width: 19; height: 19; name: "copy"; color: "#ff0000" }
+        Dlea.ContextMenu { id: menu; anchors.fill: parent }
         Item { anchors.fill: parent; TestEvent { id: driver } }
     }
     // The rest scene's own window, so the pointer history it starts from is only what that scene gives it.
@@ -95,7 +95,7 @@ ShellRoot {
         implicitWidth: 640
         implicitHeight: 480
         color: "#303030"
-        Flea.ContextMenu { id: restMenu; anchors.fill: parent }
+        Dlea.ContextMenu { id: restMenu; anchors.fill: parent }
     }
 
     Connections {
@@ -272,21 +272,21 @@ ShellRoot {
     // A disabled sheet row dims its cap text, cap frame and label in the muted ink, a live row stays whole.
     function sheetDim() {
         var deadCap = shell.findText(deadSheetRow, "x"), deadLabel = shell.findText(deadSheetRow, "Sheet Disabled")
-        shell.check("sheet:disabled-cap-dims", deadCap ? deadCap.opacity : -1, Flea.Theme.disabledOpacity)
-        shell.check("sheet:disabled-cap-keeps-muted-ink", deadCap ? String(deadCap.color) : "none", String(Flea.Theme.color.muted))
-        shell.check("sheet:disabled-label-dims", deadLabel ? deadLabel.opacity : -1, Flea.Theme.disabledOpacity)
-        shell.check("sheet:disabled-label-keeps-muted-ink", deadLabel ? String(deadLabel.color) : "none", String(Flea.Theme.color.muted))
+        shell.check("sheet:disabled-cap-dims", deadCap ? deadCap.opacity : -1, Dlea.Theme.disabledOpacity)
+        shell.check("sheet:disabled-cap-keeps-muted-ink", deadCap ? String(deadCap.color) : "none", String(Dlea.Theme.color.muted))
+        shell.check("sheet:disabled-label-dims", deadLabel ? deadLabel.opacity : -1, Dlea.Theme.disabledOpacity)
+        shell.check("sheet:disabled-label-keeps-muted-ink", deadLabel ? String(deadLabel.color) : "none", String(Dlea.Theme.color.muted))
         // The cap's frame is the text's parent, and it dims with the row as the text does.
-        shell.check("sheet:disabled-cap-frame-dims", deadCap ? String(deadCap.parent.border.color) : "none", String(Qt.alpha(Flea.Theme.color.mutedFrame, Flea.Theme.disabledOpacity)))
+        shell.check("sheet:disabled-cap-frame-dims", deadCap ? String(deadCap.parent.border.color) : "none", String(Qt.alpha(Dlea.Theme.color.mutedFrame, Dlea.Theme.disabledOpacity)))
         var liveCap = shell.findText(liveSheetRow, "x"), liveLabel = shell.findText(liveSheetRow, "Sheet Live")
         // Every opacity from the frame up to the window: a dim on the row or any container would stack on the alpha.
         var chain = function (item) { var o = 1; for (var p = item; p; p = p.parent) o *= p.opacity; return o }
         shell.check("sheet:disabled-cap-frame-dims-once", deadCap ? chain(deadCap.parent) : -1, liveCap ? chain(liveCap.parent) : -2)
         shell.check("sheet:live-cap-is-full-opacity", liveCap ? liveCap.opacity : -1, 1)
         shell.check("sheet:live-label-is-full-opacity", liveLabel ? liveLabel.opacity : -1, 1)
-        shell.check("sheet:live-cap-frame-is-whole", liveCap ? String(liveCap.parent.border.color) : "none", String(Flea.Theme.color.mutedFrame))
+        shell.check("sheet:live-cap-frame-is-whole", liveCap ? String(liveCap.parent.border.color) : "none", String(Dlea.Theme.color.mutedFrame))
         var deadWhere = shell.findText(deadSheetRow, " in Demo"), liveWhere = shell.findText(liveSheetRow, " in Demo")
-        shell.check("sheet:disabled-where-dims", deadWhere ? deadWhere.opacity : -1, Flea.Theme.disabledOpacity)
+        shell.check("sheet:disabled-where-dims", deadWhere ? deadWhere.opacity : -1, Dlea.Theme.disabledOpacity)
         shell.check("sheet:live-where-is-full-opacity", liveWhere ? liveWhere.opacity : -1, 1)
     }
     // A dead row dims as a whole, so its key hint takes the label's ink and opacity; a reason sentence stays readable.
@@ -297,22 +297,22 @@ ShellRoot {
         shell.check("hint:dead-key-hint-opacity-is-the-label-opacity", deadHint.opacity, deadLabel.opacity)
         var liveLabel = shell.textDrawn(liveKeyRow, "Copy"), liveHint = shell.textDrawn(liveKeyRow, "y")
         // MenuAdditions040 draws every key hint in the muted role, the glyph's own ink, whatever ink the label takes.
-        shell.check("hint:live-label-is-foreground-so-the-test-can-tell", String(liveLabel.color), String(Flea.Theme.color.foreground))
-        shell.check("hint:live-key-hint-is-muted", String(liveHint.color), String(Flea.Theme.color.muted))
+        shell.check("hint:live-label-is-foreground-so-the-test-can-tell", String(liveLabel.color), String(Dlea.Theme.color.foreground))
+        shell.check("hint:live-key-hint-is-muted", String(liveHint.color), String(Dlea.Theme.color.muted))
         var dangerLabel = shell.textDrawn(dangerKeyRow, "Move to Trash"), dangerHint = shell.textDrawn(dangerKeyRow, "d")
-        shell.check("hint:danger-label-is-the-error-ink", String(dangerLabel.color), String(Flea.Theme.color.error))
-        shell.check("hint:danger-key-hint-is-muted", String(dangerHint.color), String(Flea.Theme.color.muted))
+        shell.check("hint:danger-label-is-the-error-ink", String(dangerLabel.color), String(Dlea.Theme.color.error))
+        shell.check("hint:danger-key-hint-is-muted", String(dangerHint.color), String(Dlea.Theme.color.muted))
         var litLabel = shell.textDrawn(litKeyRow, "Open"), litHint = shell.textDrawn(litKeyRow, "enter")
         shell.check("hint:lit-row-is-lit", litKeyRow.current, true)
-        shell.check("hint:lit-label-is-not-muted-so-the-test-can-tell", String(litLabel.color) !== String(Flea.Theme.color.muted), true)
-        shell.check("hint:lit-key-hint-is-muted", String(litHint.color), String(Flea.Theme.color.muted))
-        var squareLabel = shell.textDrawn(squareKeyRow, "Update Flea"), squareHint = shell.textDrawn(squareKeyRow, "0.3.8")
-        shell.check("hint:update-label-is-foreground-so-the-test-can-tell", String(squareLabel.color), String(Flea.Theme.color.foreground))
+        shell.check("hint:lit-label-is-not-muted-so-the-test-can-tell", String(litLabel.color) !== String(Dlea.Theme.color.muted), true)
+        shell.check("hint:lit-key-hint-is-muted", String(litHint.color), String(Dlea.Theme.color.muted))
+        var squareLabel = shell.textDrawn(squareKeyRow, "Update Dlea"), squareHint = shell.textDrawn(squareKeyRow, "0.3.8")
+        shell.check("hint:update-label-is-foreground-so-the-test-can-tell", String(squareLabel.color), String(Dlea.Theme.color.foreground))
         shell.check("hint:update-version-keeps-the-row-ink", String(squareHint.color), String(squareLabel.color))
-        shell.check("hint:key-hint-is-caption-size", liveHint.font.pixelSize, Flea.Theme.font.caption)
+        shell.check("hint:key-hint-is-caption-size", liveHint.font.pixelSize, Dlea.Theme.font.caption)
         shell.check("hint:live-key-hint-is-full-opacity", liveHint.opacity, 1)
         var reason = shell.textDrawn(reasonRow, "bsdtar is not installed")
-        shell.check("hint:dead-reason-stays-foreground", String(reason.color), String(Flea.Theme.color.foreground))
+        shell.check("hint:dead-reason-stays-foreground", String(reason.color), String(Dlea.Theme.color.foreground))
         shell.check("hint:dead-reason-is-full-opacity", reason.opacity, 1)
     }
     // Every ShapePath fill a glyph draws, across each Shape it holds: only a mark that names a solid part may have a fill.

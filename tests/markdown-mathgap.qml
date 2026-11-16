@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-markdown-mathgap-test
+//@ pragma ShellId dlea-markdown-mathgap-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "markdown-figures-render.js" as Checks
 
 // Real display formula images determine block bounds, after decoding and layout settle.
@@ -15,7 +15,7 @@ ShellRoot {
     property int failures: 0
     property var capturedRects: []
     property string shotPath: Quickshell.env("XDG_RUNTIME_DIR") + "/markdown-mathgap.png"
-    Component.onCompleted: Flea.ViewState.setTextSize({ mode: 14 })
+    Component.onCompleted: Dlea.ViewState.setTextSize({ mode: 14 })
 
     function log(line) { console.log("MARKDOWN_MATHGAP " + line) }
     function quit() { Quickshell.execDetached(["kill", String(Quickshell.processId)]) }
@@ -32,11 +32,11 @@ ShellRoot {
         Item {
             id: grabRoot
             anchors.fill: parent
-            Flea.PreviewMarkdown {
+            Dlea.PreviewMarkdown {
                 id: md
                 anchors.fill: parent
                 active: true
-                path: Quickshell.env("FLEA_MARKDOWN_FIGURE_FIXTURE")
+                path: Quickshell.env("DLEA_MARKDOWN_FIGURE_FIXTURE")
                 size: 1
                 view: "rendered"
             }
@@ -85,8 +85,8 @@ ShellRoot {
 
     function geometry() {
         if (!shell.ready()) { shell.settling = false; return }
-        var body = Flea.Theme.font.body
-        var inset = Flea.Theme.spacing.gap
+        var body = Dlea.Theme.font.body
+        var inset = Dlea.Theme.spacing.gap
         shell.check(body === (shell.larger ? 16 : 14) ? "" : "unexpected text size " + body, "text size")
         shell.check(md.blockList.map(function (b) { return b.type }).join(",") === "run,figure,figure,fence,run,figure,run,figure,figure"
             ? "" : "fixture block types changed", "display block structure")
@@ -151,7 +151,7 @@ ShellRoot {
         shell.check(Checks.inkGapError(data, 560, 600, imageRect(7), imageRect(8), md.blockGap), "consecutive mermaids stand one block gap apart")
         shell.larger = true
         md.view = "source"
-        Flea.ViewState.setTextSize({ mode: 16 })
+        Dlea.ViewState.setTextSize({ mode: 16 })
         flip.start()
     }
 

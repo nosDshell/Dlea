@@ -2,7 +2,7 @@ use super::Fixture;
 
 // Each process test gets a private PATH and no controlling terminal, without changing the test harness environment.
 pub(super) fn chafa_child(name: &str, body: &str) -> bool {
-    if std::env::var_os("FLEA_TUI04_FIX1_CHAFA").is_some() {
+    if std::env::var_os("DLEA_TUI04_FIX1_CHAFA").is_some() {
         return false;
     }
     let root = Fixture::new();
@@ -13,7 +13,7 @@ pub(super) fn chafa_child(name: &str, body: &str) -> bool {
     use std::os::unix::fs::PermissionsExt;
     std::fs::set_permissions(root.path("runtime"), std::fs::Permissions::from_mode(0o700)).unwrap();
     let script = root.path("bin/chafa");
-    let mut writer = std::process::Command::new(flea::testpath::tool("/bin/sh"))
+    let mut writer = std::process::Command::new(dlea::testpath::tool("/bin/sh"))
         .args(["-c", "cat > \"$1\" && chmod 755 \"$1\"", "sh"])
         .arg(&script)
         .stdin(std::process::Stdio::piped())
@@ -26,7 +26,7 @@ pub(super) fn chafa_child(name: &str, body: &str) -> bool {
         .write_all(format!("#!/bin/sh\nset -eu\n{body}\n").as_bytes())
         .unwrap();
     assert!(writer.wait().unwrap().success());
-    let output = std::process::Command::new(flea::testpath::tool("/usr/bin/setsid"))
+    let output = std::process::Command::new(dlea::testpath::tool("/usr/bin/setsid"))
         .arg("-w")
         .arg(std::env::current_exe().unwrap())
         .args([
@@ -41,7 +41,7 @@ pub(super) fn chafa_child(name: &str, body: &str) -> bool {
         )
         .env("HOME", root.path("home"))
         .env("LANG", "C.UTF-8")
-        .env("FLEA_TUI04_FIX1_CHAFA", script)
+        .env("DLEA_TUI04_FIX1_CHAFA", script)
         .env("XDG_RUNTIME_DIR", root.path("runtime"))
         .env("XDG_CACHE_HOME", root.path("cache"))
         .env("XDG_CONFIG_HOME", root.path("config"))
@@ -64,7 +64,7 @@ import errno, fcntl, os, pty, re, select, signal, struct, subprocess, sys, termi
 from pathlib import Path
 from tui_battery.bundle import models
 binary, root = Path(sys.argv[1]), Path(sys.argv[2])
-assert root.is_absolute() and (root / '.flea-test-sandbox').is_file()
+assert root.is_absolute() and (root / '.dlea-test-sandbox').is_file()
 for name in ('home', 'config', 'cache', 'state', 'data', 'runtime', 'Prints'):
     (root / name).mkdir()
 os.chmod(root / 'runtime', 0o700)

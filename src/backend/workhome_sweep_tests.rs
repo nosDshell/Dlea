@@ -1,9 +1,9 @@
-// RC-1: a stage a killed Flea left in the cache's work folder is cleared at the next backend start.
+// RC-1: a stage a killed Dlea left in the cache's work folder is cleared at the next backend start.
 use super::*;
 use crate::backend::testdir::TestDir;
 use std::time::Duration;
 
-const CASE: &str = "FLEA_WORKHOME_SWEEP_CASE";
+const CASE: &str = "DLEA_WORKHOME_SWEEP_CASE";
 
 // pid_max is one past the largest pid the kernel hands out, so no process ever runs under it.
 fn never_running() -> u32 {
@@ -28,7 +28,7 @@ fn stage(root: &Path, tag: &str, pid: u32, seq: usize, age: Duration) -> PathBuf
 const OLD: Duration = Duration::from_secs(2 * 24 * 60 * 60);
 
 #[test]
-fn a_dead_flea_s_day_old_stage_goes_and_nothing_else_does() {
+fn a_dead_dlea_s_day_old_stage_goes_and_nothing_else_does() {
     let d = TestDir::new("worksweep");
     let root = d.dir("work");
     let dead = never_running();
@@ -52,7 +52,7 @@ fn a_dead_flea_s_day_old_stage_goes_and_nothing_else_does() {
     std::os::unix::fs::symlink(&outside, &link).unwrap();
 
     assert_eq!(sweep(&root, SystemTime::now()), 1);
-    assert!(!gone.exists(), "the killed Flea's day-old stage is cleared");
+    assert!(!gone.exists(), "the killed Dlea's day-old stage is cleared");
     for kept in [&live, &young, &foreign, &unnamed, &file] {
         assert!(kept.exists(), "{} stays", kept.display());
     }
@@ -66,14 +66,14 @@ fn a_dead_flea_s_day_old_stage_goes_and_nothing_else_does() {
 
 #[test]
 fn stage_names_read_back_their_pid() {
-    assert_eq!(stage_pid(".flea-work-ext-4123-7"), Some(4123));
-    assert_eq!(stage_pid(".flea-work-convert-1-0"), Some(1));
+    assert_eq!(stage_pid(".dlea-work-ext-4123-7"), Some(4123));
+    assert_eq!(stage_pid(".dlea-work-convert-1-0"), Some(1));
     for name in [
-        ".flea-work-4123-7",
-        ".flea-work-ext-x-7",
-        ".flea-work-ext-4123-",
-        "flea-work-ext-4123-7",
-        ".flea-work-",
+        ".dlea-work-4123-7",
+        ".dlea-work-ext-x-7",
+        ".dlea-work-ext-4123-",
+        "dlea-work-ext-4123-7",
+        ".dlea-work-",
     ] {
         assert_eq!(stage_pid(name), None, "{name}");
     }
@@ -85,7 +85,7 @@ fn the_backend_start_clears_the_cache_s_stale_stages() {
     if let Some(cache) = std::env::var_os(CASE) {
         let cache = PathBuf::from(cache);
         assert!(
-            cache.is_absolute() && cache.parent().unwrap().join(".flea-test-sandbox").is_file()
+            cache.is_absolute() && cache.parent().unwrap().join(".dlea-test-sandbox").is_file()
         );
         assert_eq!(
             std::env::var_os("XDG_CACHE_HOME").as_deref(),
@@ -97,7 +97,7 @@ fn the_backend_start_clears_the_cache_s_stale_stages() {
     }
     let d = TestDir::new("worksweep-start");
     let cache = d.dir("cache");
-    let root = cache.join("flea").join("work");
+    let root = cache.join("dlea").join("work");
     std::fs::create_dir_all(&root).unwrap();
     let gone = stage(&root, "arc", never_running(), 1, OLD);
     let live = stage(&root, "arc", std::process::id(), 2, OLD);

@@ -7,8 +7,8 @@ wording_about_package() {
     mkdir -p "$bin" || return 1
     export VISUAL_WORDING_SIGNATURE=$signed
     printf '%s\n' '#!/bin/sh' 'case "$1" in' \
-        '-Qqo) echo flea ;;' \
-        '-Qi) printf "Name : flea\\nVersion : 0.4.2-2\\nValidated By : %s\\n" "$VISUAL_WORDING_SIGNATURE" ;;' \
+        '-Qqo) echo dlea ;;' \
+        '-Qi) printf "Name : dlea\\nVersion : 0.4.2-2\\nValidated By : %s\\n" "$VISUAL_WORDING_SIGNATURE" ;;' \
         '*) exit 1 ;;' 'esac' > "$bin/pacman" || return 1
     printf '%s\n' '#!/bin/sh' 'exit 2' > "$bin/checkupdates" || return 1
     chmod +x "$bin/pacman" "$bin/checkupdates" || return 1
@@ -16,12 +16,12 @@ wording_about_package() {
     settings_section about || return 1
     for attempt in $(seq 1 "$poll_limit"); do
         rows=$(ipc settingsModel) || { state_failure "settingsModel did not answer"; return 1; }
-        # Sample input: [{"id":"updateFlea","value":"Release build"}]
-        jq -e --arg expected "$expected" 'any(.[]; .id == "updateFlea" and .value == $expected)' <<< "$rows" > /dev/null && break
+        # Sample input: [{"id":"updateDlea","value":"Release build"}]
+        jq -e --arg expected "$expected" 'any(.[]; .id == "updateDlea" and .value == $expected)' <<< "$rows" > /dev/null && break
         sleep "$poll_seconds"
     done
-    jq -e --arg expected "$expected" 'any(.[]; .id == "updateFlea" and .value == $expected)' <<< "$rows" > /dev/null \
-        || { state_failure "Update Flea never read '$expected'; last rows: $rows"; return 1; }
+    jq -e --arg expected "$expected" 'any(.[]; .id == "updateDlea" and .value == $expected)' <<< "$rows" > /dev/null \
+        || { state_failure "Update Dlea never read '$expected'; last rows: $rows"; return 1; }
     if [ "$signed" = None ]; then
         jq -e 'any(.[]; .kind == "hint" and .label == "Omarchy update installs newer releases.")' <<< "$rows" > /dev/null \
             || { state_failure "the packaged update note is missing; last rows: $rows"; return 1; }

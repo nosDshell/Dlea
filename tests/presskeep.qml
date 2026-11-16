@@ -1,14 +1,14 @@
-//@ pragma ShellId flea-presskeep-test
+//@ pragma ShellId dlea-presskeep-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // A press held across a watched re-read of an unchanged listing, or past the press-and-hold interval, must still tap on release, in every view.
 ShellRoot {
     id: root
     readonly property var pane: body.currentPane
-    readonly property string fixture: Quickshell.env("FLEA_PATH")
+    readonly property string fixture: Quickshell.env("DLEA_PATH")
     readonly property int fixtureRows: 4
     readonly property int pressedRow: 2
     readonly property int pollMs: 20
@@ -89,7 +89,7 @@ ShellRoot {
             return
         }
         if (stage === "view") {
-            Flea.ViewState.changeKey("view", current.view)
+            Dlea.ViewState.changeKey("view", current.view)
             next("settle")
         } else if (stage === "settle") {
             body.focusPane(0)
@@ -164,7 +164,7 @@ ShellRoot {
         id: window
         implicitWidth: 1000
         implicitHeight: 800
-        Flea.WindowBody { id: body; host: window }
+        Dlea.WindowBody { id: body; host: window }
         Item { anchors.fill: parent; TestEvent { id: driver } }
     }
     Timer { interval: root.pollMs; repeat: true; running: !root.finished; onTriggered: root.advance() }

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-. "$(dirname "${BASH_SOURCE[0]}")/../tools/flea-ipc"
+. "$(dirname "${BASH_SOURCE[0]}")/../tools/dlea-ipc"
 # Native drag regression checks through the identified product launcher and owned fixtures.
 #
 # Motion goes through uinput and never through hl.dsp.cursor.move. That warp emits wl_pointer.motion
@@ -10,10 +10,10 @@ set -u
 set -o pipefail
 
 repo="$(cd "$(dirname "$0")/.." && pwd)"
-# Without this the UI resolves "flea" from PATH, which is the installed package and not this tree.
-export FLEA_BIN="${FLEA_BIN:-$repo/target/release/flea}"
-flea_ipc_init "$FLEA_BIN"
-export FLEA_UI="$repo/ui"
+# Without this the UI resolves "dlea" from PATH, which is the installed package and not this tree.
+export DLEA_BIN="${DLEA_BIN:-$repo/target/release/dlea}"
+dlea_ipc_init "$DLEA_BIN"
+export DLEA_UI="$repo/ui"
 
 drag_case=${1:-all}
 if [[ "$drag_case" == headless ]]; then
@@ -27,14 +27,14 @@ case "$drag_case" in
     }
     ;;
 esac
-. "$repo/tools/flea-sandbox-guard"
-. "$repo/tests/lib/flea-transport.sh"
+. "$repo/tools/dlea-sandbox-guard"
+. "$repo/tests/lib/dlea-transport.sh"
 capture_root=""
 case "$drag_case" in
   all)
     sandbox_root_ok
     mkdir -p "$SANDBOX_ROOT" || exit 1
-    SB=$(mktemp -d "$SANDBOX_ROOT/flea-drag-char-XXXXXXXX") || exit 1
+    SB=$(mktemp -d "$SANDBOX_ROOT/dlea-drag-char-XXXXXXXX") || exit 1
     : > "$SB/$SANDBOX_MARKER" || exit 1
     ;;
   raildrop)
@@ -90,7 +90,7 @@ outbound_evidence() {
   grep -q 'body<<' "$RECV_LOG" && return 0
   note "receiver log: $(tr '\n' '|' < "$RECV_LOG")"
   note "receiver stderr: $(tail -n "$receiver_stderr_lines" "$1" 2>/dev/null | tr '\n' '|')"
-  grep -E 'wl_data_(source|offer|device)' "$SB/flea.log" | tail -n "$outbound_data_device_lines" | while IFS= read -r line; do
+  grep -E 'wl_data_(source|offer|device)' "$SB/dlea.log" | tail -n "$outbound_data_device_lines" | while IFS= read -r line; do
     note "$line"
   done
 }
@@ -152,7 +152,7 @@ import os
 from pathlib import Path
 
 dialog_name = "hyprland-dialog"
-application_id = b"com.thisisgm.FleaDragReceiver"
+application_id = b"com.thisisgm.DleaDragReceiver"
 for process in Path("/proc").iterdir():
     if not process.name.isdigit():
         continue
@@ -204,15 +204,15 @@ assert_receivers_gone() {
 }
 
 stop_owned_processes() {
-  [[ -n "${FLEA_PID:-}" ]] || return 0
-  python3 - "$SB" "$FLEA_PID" <<'PY'
+  [[ -n "${DLEA_PID:-}" ]] || return 0
+  python3 - "$SB" "$DLEA_PID" <<'PY'
 import os, signal, sys, time
 from pathlib import Path
 
 root, session = Path(sys.argv[1]), int(sys.argv[2])
-if not root.is_absolute() or not (root / ".flea-test-sandbox").is_file():
+if not root.is_absolute() or not (root / ".dlea-test-sandbox").is_file():
     raise RuntimeError("drag cleanup: ownership root is missing; processes and fixtures kept")
-marker = b"FLEA_TEST_RUN_ROOT=" + os.fsencode(root)
+marker = b"DLEA_TEST_RUN_ROOT=" + os.fsencode(root)
 drain_seconds, kill_wait_seconds, poll_seconds = 30, 5, 0.05
 
 def owned_processes(pid=None):
@@ -286,7 +286,7 @@ cleanup() {
   stop_receivers || { status=1; drained=false; }
   assert_receivers_gone || { status=1; drained=false; }
   if [[ -n "${drag_windows_root:-}" ]]; then
-    flea_test_stop_all || { status=1; drained=false; }
+    dlea_test_stop_all || { status=1; drained=false; }
   fi
   stop_owned_processes || { status=1; drained=false; }
   # Teardown is bounded even when the owned application cannot drain; failed teardown retains its fixtures.
@@ -299,20 +299,20 @@ cleanup() {
   if [ "$shift_held" = true ]; then
     ydotool key 42:0 >/dev/null 2>&1 || { bad "cleanup could not release Shift"; status=1; }
   fi
-  if [ -f "$SB/flea.log" ]; then
-    note "native stderr from $SB/flea.log"
+  if [ -f "$SB/dlea.log" ]; then
+    note "native stderr from $SB/dlea.log"
     # WAYLAND_DEBUG traces every request. Keep the drag facts and the application's own lines.
-    if grep -q '^\[' "$SB/flea.log"; then
-      grep -E 'origin window|start_drag' "$SB/flea.log" || true
-      grep -E "$cleanup_drop_events" "$SB/flea.log" | tail -n "$cleanup_drop_event_lines" || true
-      grep -v -E '^\[' "$SB/flea.log" | tail -n "$cleanup_stderr_lines"
+    if grep -q '^\[' "$SB/dlea.log"; then
+      grep -E 'origin window|start_drag' "$SB/dlea.log" || true
+      grep -E "$cleanup_drop_events" "$SB/dlea.log" | tail -n "$cleanup_drop_event_lines" || true
+      grep -v -E '^\[' "$SB/dlea.log" | tail -n "$cleanup_stderr_lines"
     else
-      cat -- "$SB/flea.log"
+      cat -- "$SB/dlea.log"
     fi
   fi
   if [ "$drained" = true ]; then
     # The operator's own journal entries are allowed; paths from this run are not.
-    journal="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/flea/undo-journal"
+    journal="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/dlea/undo-journal"
     if [ -f "$journal" ]; then
       found=0
       grep -qF -- "$SB" "$journal" 2>/dev/null || found=$?
@@ -326,7 +326,7 @@ cleanup() {
     # The shared rail/R7 tmpfs root names this run in its marker; the runtime parent is never a target.
     if [[ -n "${XDEV:-}" ]]; then
       if [[ "${XDG_RUNTIME_DIR:-}" == "/run/user/$(id -u)" && "$XDEV" == /* \
-          && "$XDEV" == "$XDG_RUNTIME_DIR"/flea-drag-xdev-???????? \
+          && "$XDEV" == "$XDG_RUNTIME_DIR"/dlea-drag-xdev-???????? \
           && -f "$XDEV/$SANDBOX_MARKER" && "$(< "$XDEV/$SANDBOX_MARKER")" == "$SB" ]]; then
         FIXTURE_ROOT="$XDG_RUNTIME_DIR" sandbox_remove "$XDEV" || status=1
       else
@@ -343,10 +343,10 @@ trap cleanup EXIT
 # ---------------------------------------------------------------- fixture
 sandbox_make "$SB"
 # The session runtime dir stays real for the compositor, so the journal needs its own knob.
-UNDO_DIR=$SB/flea-undo
+UNDO_DIR=$SB/dlea-undo
 mkdir -p "$UNDO_DIR" || die "the suite undo dir could not be created at $UNDO_DIR"
 chmod 0700 "$UNDO_DIR" || die "the suite undo dir could not be locked down"
-export FLEA_UNDO_DIR="$UNDO_DIR"
+export DLEA_UNDO_DIR="$UNDO_DIR"
 export XDG_CONFIG_HOME="$HOMEDIR/.config" XDG_STATE_HOME="$HOMEDIR/.local/state"
 export XDG_DATA_HOME="$HOMEDIR/.local/share" XDG_CACHE_HOME="$HOMEDIR/.cache"
 mkdir -p "$XDG_CONFIG_HOME" "$XDG_STATE_HOME/omarchy" "$XDG_DATA_HOME" "$XDG_CACHE_HOME" "$HOMEDIR/aaa" "$HOMEDIR/bbb"
@@ -359,11 +359,11 @@ if [[ "$drag_case" == look235 ]]; then
   seed=$(jq -nc --arg path "$HOMEDIR/omarchy" '{view:"list",keys:"default",updates:{autoCheck:false},
     places:{rail:"shown",autoHide:false,showHome:true,showTrash:true,showNetwork:false,showDevices:false,
       favourites:[{label:"omarchy",path:$path}]}}') || exit 1
-  HOME="$HOMEDIR" "$FLEA_BIN" --ui-state "$seed" >/dev/null || exit 1
+  HOME="$HOMEDIR" "$DLEA_BIN" --ui-state "$seed" >/dev/null || exit 1
 else
   [[ -d "$XDG_RUNTIME_DIR" && -O "$XDG_RUNTIME_DIR" && ! -L "$XDG_RUNTIME_DIR" ]] \
     || die "the real runtime directory is unavailable or not owned"
-  XDEV=$(mktemp -d "$XDG_RUNTIME_DIR/flea-drag-xdev-XXXXXXXX") || exit 1
+  XDEV=$(mktemp -d "$XDG_RUNTIME_DIR/dlea-drag-xdev-XXXXXXXX") || exit 1
   printf '%s\n' "$SB" > "$XDEV/$SANDBOX_MARKER" || exit 1
   xdev_source_dev=$(stat -c %d -- "$HOMEDIR") || die "cannot stat the source fixture"
   xdev_dest_dev=$(stat -c %d -- "$XDEV") || die "cannot stat the tmpfs fixture"
@@ -375,12 +375,12 @@ else
   jq -nc --arg path "$XDEV/big" '{blockdevices:[{name:"sdz1",path:"/dev/sdz1",label:"USB",mountpoints:[$path],rm:true,ro:false,tran:"usb",size:128000000000,type:"part",fstype:"tmpfs"}]}' > "$SB/lsblk.json" || exit 1
   cat > "$SB/bin/lsblk" <<'SH'
 #!/usr/bin/env bash
-cat -- "$FLEA_DRAG_LSBLK"
+cat -- "$DLEA_DRAG_LSBLK"
 SH
   chmod +x "$SB/bin/lsblk" || exit 1
-  export PATH="$SB/bin:$PATH" FLEA_DRAG_LSBLK="$SB/lsblk.json"
+  export PATH="$SB/bin:$PATH" DLEA_DRAG_LSBLK="$SB/lsblk.json"
   seed=$(jq -nc --arg path "$HOMEDIR/aaa" '{view:"list",keys:"default",updates:{autoCheck:false},places:{rail:"shown",autoHide:false,showHome:true,showTrash:true,showNetwork:false,showDevices:true,favourites:[{label:"Favorite",path:$path}]}}') || exit 1
-  HOME="$HOMEDIR" "$FLEA_BIN" --ui-state "$seed" >/dev/null || exit 1
+  HOME="$HOMEDIR" "$DLEA_BIN" --ui-state "$seed" >/dev/null || exit 1
 fi
 
 # ---------------------------------------------------------------- pointer
@@ -413,21 +413,21 @@ glide_to() {
 
 # ---------------------------------------------------------------- the app
 # The instance id and the process id together: the id addresses IPC, the pid finds this suite's own
-# window. Matching the window by class alone aborted three runs beside another lane's Flea, which is
+# window. Matching the window by class alone aborted three runs beside another lane's Dlea, which is
 # right to refuse but needlessly blind, because the pid is already in hand.
 myid() {
-  flea_ipc_list --all --json 2>/dev/null | python3 -c '
+  dlea_ipc_list --all --json 2>/dev/null | python3 -c '
 import json, sys
 hits = [i for i in json.load(sys.stdin) if i["config_path"] == sys.argv[1] and i["pid"] == int(sys.argv[2])]
 if len(hits) != 1:
     sys.exit(1)
 print("%s %s" % (hits[0]["id"], hits[0]["pid"]))
-' "$repo/ui/boot/shell.qml" "$FLEA_PID"
+' "$repo/ui/boot/shell.qml" "$DLEA_PID"
 }
-ipc() { flea_ipc_call -i "$MYID" call flea "$@" 2>&1; }
+ipc() { dlea_ipc_call -i "$MYID" call dlea "$@" 2>&1; }
 native_key() {
   local result=0
-  omarchy-drive key --window com.thisisgm.flea "$@" || result=$?
+  omarchy-drive key --window com.nosDshell.dlea "$@" || result=$?
   (( result == 0 )) || die "native key delivery failed with status $result: $*"
 }
 # Sample input: '{"notice":""}' stays JSON; '/home/x' or an observer error becomes one JSON string.
@@ -475,7 +475,7 @@ expect_ipc() {
   die "$reader expected [$expected], observed [$observed]"
 }
 
-# Sample output: DRAG_R7 phase=before-Return reader=pathBarText value=/run/user/1000/flea-drag-xdev-AbCdEf12/big
+# Sample output: DRAG_R7 phase=before-Return reader=pathBarText value=/run/user/1000/dlea-drag-xdev-AbCdEf12/big
 walk_state() {
   local leg="$1" phase="$2" reader value
   for reader in listInFlight listRequests tabCount tabIndex tabLabels path keyDeliveryState pathBarOpen pathBarText lastMessage statusError; do
@@ -494,7 +494,7 @@ r5_evidence() {
   note "R5 floor point used: [${r5_floor_point:-unmeasured}]"
   note "R5 window geometry used (x y width height): [$WX $WY $WW $WH]"
   note "R5 last $r5_data_device_lines data-device lines:"
-  grep -E 'wl_data_(source|offer|device)' "$SB/flea.log" | tail -n "$r5_data_device_lines" | while IFS= read -r line; do note "$line"; done
+  grep -E 'wl_data_(source|offer|device)' "$SB/dlea.log" | tail -n "$r5_data_device_lines" | while IFS= read -r line; do note "$line"; done
 }
 
 r5_wait_listing() {
@@ -533,21 +533,21 @@ r5_wait_feedback() {
 }
 
 # The owned transport keeps GPUI's endpoint separate from any parent ui.sh window.
-if [[ "$FLEA_IPC_KIND" == gpui ]]; then
+if [[ "$DLEA_IPC_KIND" == gpui ]]; then
   drag_windows_root="$SB/windows"
   mkdir -m 700 "$drag_windows_root" || die "owned-window directory creation failed"
   : > "$drag_windows_root/$SANDBOX_MARKER"
-  export FLEA_TEST_WINDOWS_ROOT="$drag_windows_root" FLEA_TEST_FRONTEND=gpui
-  unset FLEA_TEST_WINDOW
+  export DLEA_TEST_WINDOWS_ROOT="$drag_windows_root" DLEA_TEST_FRONTEND=gpui
+  unset DLEA_TEST_WINDOW
   # Only the launched window takes the fixture HOME and the trace, as the qml branch scopes them.
-  HOME="$HOMEDIR" FLEA_TEST_RUN_ROOT="$SB" WAYLAND_DEBUG=1 \
-    flea_test_launch "$HOMEDIR" "$SB/flea.log" --binary "$FLEA_BIN" || die "owned GPUI launch failed"
-  FLEA_PID=$FLEA_TEST_PID
+  HOME="$HOMEDIR" DLEA_TEST_RUN_ROOT="$SB" WAYLAND_DEBUG=1 \
+    dlea_test_launch "$HOMEDIR" "$SB/dlea.log" --binary "$DLEA_BIN" || die "owned GPUI launch failed"
+  DLEA_PID=$DLEA_TEST_PID
 else
-  QSG_RHI_BACKEND="${QSG_RHI_BACKEND:-vulkan}" HOME="$HOMEDIR" FLEA_TEST_RUN_ROOT="$SB" \
+  QSG_RHI_BACKEND="${QSG_RHI_BACKEND:-vulkan}" HOME="$HOMEDIR" DLEA_TEST_RUN_ROOT="$SB" \
     WAYLAND_DEBUG=1 \
-    setsid "$FLEA_BIN" --gui "$HOMEDIR" >"$SB/flea.log" 2>&1 &
-  FLEA_PID=$!
+    setsid "$DLEA_BIN" --gui "$HOMEDIR" >"$SB/dlea.log" 2>&1 &
+  DLEA_PID=$!
 fi
 MYID=""
 MYPID=""
@@ -562,14 +562,14 @@ done
 [ "$(ipc themeLoaded)" = "true" ] || { echo "theme did not load in the fixture home"; exit 1; }
 
 # Two guards, and both are needed. The pid finds this suite's own window, because matching on class
-# alone is ambiguous beside another lane's Flea. The refusal is separate and stands anyway: this
-# suite drives a real pointer across the screen, so a second Flea window changes the tiling under it
-# and can take the drop. One run beside a foreign Flea reported the window 30px high and failed R2
+# alone is ambiguous beside another lane's Dlea. The refusal is separate and stands anyway: this
+# suite drives a real pointer across the screen, so a second Dlea window changes the tiling under it
+# and can take the drop. One run beside a foreign Dlea reported the window 30px high and failed R2
 # for no reason but that, which is a wrong answer, not a flaky one.
-FLEACOUNT=$(hyprctl clients -j | python3 -c '
+DLEACOUNT=$(hyprctl clients -j | python3 -c '
 import json, sys
-print(sum(1 for w in json.load(sys.stdin) if w["class"] == "com.thisisgm.flea"))')
-[ "$FLEACOUNT" = "1" ] || { echo "refusing: $FLEACOUNT Flea windows are open, and this suite needs the screen to itself"; exit 1; }
+print(sum(1 for w in json.load(sys.stdin) if w["class"] == "com.nosDshell.dlea"))')
+[ "$DLEACOUNT" = "1" ] || { echo "refusing: $DLEACOUNT Dlea windows are open, and this suite needs the screen to itself"; exit 1; }
 WIN=$(hyprctl clients -j | python3 -c '
 import json, sys
 hits = [w for w in json.load(sys.stdin) if str(w["pid"]) == sys.argv[1]]
@@ -732,7 +732,7 @@ raildrop_case() {
       group=device; name=rail-copy.txt; destination="$XDEV/big"; verb=Copy
     fi
     state=$(ipc railEntries) || die "raildrop: rail entries unavailable"
-    # Sample input: [{"label":"USB","group":"device","path":"/run/user/1000/flea-drag-xdev-AbCdEf12/big"}] selects the unique row's index.
+    # Sample input: [{"label":"USB","group":"device","path":"/run/user/1000/dlea-drag-xdev-AbCdEf12/big"}] selects the unique row's index.
     index=$(jq -er --arg label "$label" --arg group "$group" 'to_entries | map(select(.value.label == $label and .value.group == $group)) | if length == 1 then .[0].key else error("rail target missing or ambiguous") end' <<< "$state") || die "raildrop: no unique $label row"
     point=$(ipc railRowCentre "$index")
     [[ "$point" =~ ^[0-9]+\ [0-9]+$ ]] || die "raildrop: $label has no geometry"
@@ -1090,7 +1090,7 @@ r7_pointer_settle_seconds=0.4
 r7_press_settle_seconds=0.3
 r7_release_settle_seconds=0.5
 r7_stopped_state=T
-# Sample input, /proc/<pid>/stat: '123 (flea) T 1 123 ...'; the owned backend's state is field 3.
+# Sample input, /proc/<pid>/stat: '123 (dlea) T 1 123 ...'; the owned backend's state is field 3.
 backend_state() { cut -d' ' -f3 "/proc/$BACKEND_PID/stat"; }
 check "the tmpfs root is another filesystem than the fixture" \
       "$([ "$(stat -c %d "$XDEV")" != "$(stat -c %d "$HOMEDIR")" ] && echo other || echo same)" "other"
@@ -1127,10 +1127,10 @@ check "the third tab lists the tmpfs directory" "$(ipc path)" "$XDEV/big"
 native_tab "$r7_home_tab"
 check "the home tab is current again" "$(ipc path)" "$HOMEDIR"
 for i in $(seq 1 "$r7_poll_attempts"); do rowidx r7.txt >/dev/null 2>&1 && break; sleep "$r7_row_poll_seconds"; done
-# The one backend this suite owns: the instance's child running FLEA_BIN --backend, ui/Backend.qml's command.
+# The one backend this suite owns: the instance's child running DLEA_BIN --backend, ui/Backend.qml's command.
 BACKEND_PID=""
 for p in $(pgrep -P "$MYPID"); do
-  [ "$(tr '\0' ' ' < "/proc/$p/cmdline" 2>/dev/null)" = "$FLEA_BIN --backend " ] && BACKEND_PID=$p
+  [ "$(tr '\0' ' ' < "/proc/$p/cmdline" 2>/dev/null)" = "$DLEA_BIN --backend " ] && BACKEND_PID=$p
 done
 check "the suite found the one backend it owns" "$([ -n "$BACKEND_PID" ] && echo found || echo none)" "found"
 [[ -n "$BACKEND_PID" ]] || die "R7 cannot hold the listing without its owned backend"
@@ -1363,9 +1363,9 @@ PY
 dual_drag_diagnostic() {
   local evidence window address pointer current
   [[ "$(myid)" == "$MYID $MYPID" ]] || { bad "dual drag diagnostic lost its owned instance"; return 1; }
-  evidence=$(mktemp -d /tmp/flea-drag-failure.XXXXXX) || return 1
-  [[ "$evidence" == /tmp/flea-drag-failure.* && -d "$evidence" && ! -L "$evidence" ]] || return 1
-  printf 'dual drag failure evidence\n' > "$evidence/.flea-test-sandbox"
+  evidence=$(mktemp -d /tmp/dlea-drag-failure.XXXXXX) || return 1
+  [[ "$evidence" == /tmp/dlea-drag-failure.* && -d "$evidence" && ! -L "$evidence" ]] || return 1
+  printf 'dual drag failure evidence\n' > "$evidence/.dlea-test-sandbox"
   printf '%s\n' "${dual_before:-}" > "$evidence/saved-before.json"
   printf '%s\n' "${dual_after:-}" > "$evidence/fresh-after.json"
   pointer=$(hyprctl cursorpos -j) || { bad "dual drag diagnostic cursor read failed"; return 1; }
@@ -1376,7 +1376,7 @@ dual_drag_diagnostic() {
   printf '%s\n' "$current" > "$evidence/current.json"
   printf '%s\n' "$window" > "$evidence/window.json"
   printf 'DRAG_DUAL_MISMATCH evidence=%s pointer=%s current=%s\n' "$evidence" "$pointer" "$current"
-  [[ -f "$evidence/.flea-test-sandbox" && ! -e "$evidence/window.png" && ! -L "$evidence/window.png" ]] || return 1
+  [[ -f "$evidence/.dlea-test-sandbox" && ! -e "$evidence/window.png" && ! -L "$evidence/window.png" ]] || return 1
   omarchy-drive shot "$evidence/window.png" "$address" || { bad "dual drag failure screenshot failed"; return 1; }
   [[ -s "$evidence/window.png" ]] || { bad "dual drag failure screenshot is missing"; return 1; }
 }
@@ -1623,22 +1623,22 @@ check "the outbound case is looking at the fixture" "$(ipc path)" "$HOMEDIR"
 
 RECV_LOG=$SB/receiver.log
 : > "$RECV_LOG"
-# Outbound geometry, named once (receiver size rides FLEA_RECV_W/H), and the expected offer mask (1 is Gdk COPY for the plain lift).
+# Outbound geometry, named once (receiver size rides DLEA_RECV_W/H), and the expected offer mask (1 is Gdk COPY for the plain lift).
 recv_w=420; recv_h=320
 recv_x=1100; recv_y=80
-flea_x=40; flea_y=80; flea_w=1000; flea_h=720
+dlea_x=40; dlea_y=80; dlea_w=1000; dlea_h=720
 want_actions=1
-FLEA_RECV_W=$recv_w FLEA_RECV_H=$recv_h setsid python3 -B "$repo/tests/drag-receiver.py" "$RECV_LOG" >"$SB/receiver-err.log" 2>&1 &
+DLEA_RECV_W=$recv_w DLEA_RECV_H=$recv_h setsid python3 -B "$repo/tests/drag-receiver.py" "$RECV_LOG" >"$SB/receiver-err.log" 2>&1 &
 RECV_PID=$!
 RECV_PIDS+=("$RECV_PID")
 RECV_ADDR=""
-# Sample input, hyprctl clients -j: '[{"pid": 123, "address": "0xabc", "title": "flea-drag-receiver"}]'.
+# Sample input, hyprctl clients -j: '[{"pid": 123, "address": "0xabc", "title": "dlea-drag-receiver"}]'.
 for i in $(seq 1 40); do
   RECV_ADDR=$(hyprctl clients -j | python3 -c '
 import json, sys
 # Sample input: the plain receiver PID argument is "123".
 pid = int(sys.argv[1])
-# Sample input: plain receiver clients are [{"pid":123,"address":"0xabc","title":"flea-drag-receiver"}].
+# Sample input: plain receiver clients are [{"pid":123,"address":"0xabc","title":"dlea-drag-receiver"}].
 hits = [w for w in json.load(sys.stdin) if w.get("pid") == pid]
 print(hits[0]["address"] if len(hits) == 1 else "")
 ' "$RECV_PID") || true
@@ -1660,7 +1660,7 @@ else
   hypr_window_move "$RECV_ADDR" "$recv_x" "$recv_y" || die "outbound could not move the receiver"
   sleep 0.4
   # Sample input, hyprctl clients -j: '[{"pid": 456, "address": "0xdef"}]'.
-  FLEA_ADDR=$(hyprctl clients -j | python3 -c '
+  DLEA_ADDR=$(hyprctl clients -j | python3 -c '
 import json, sys
 # Sample input: the outbound source PID argument is "456".
 pid = int(sys.argv[1])
@@ -1668,20 +1668,20 @@ pid = int(sys.argv[1])
 hits = [w for w in json.load(sys.stdin) if w.get("pid") == pid]
 print(hits[0]["address"] if len(hits) == 1 else "")
 ' "$MYPID")
-  [[ "$FLEA_ADDR" =~ ^0x[0-9a-fA-F]+$ ]] || die "outbound Flea window address is invalid"
-  hypr_window_focus "$FLEA_ADDR" || die "outbound could not focus Flea"
+  [[ "$DLEA_ADDR" =~ ^0x[0-9a-fA-F]+$ ]] || die "outbound Dlea window address is invalid"
+  hypr_window_focus "$DLEA_ADDR" || die "outbound could not focus Dlea"
   sleep 0.4
-  hypr_window_float "$FLEA_ADDR" "on" || die "outbound could not float Flea"
+  hypr_window_float "$DLEA_ADDR" "on" || die "outbound could not float Dlea"
   sleep 0.4
-  hypr_window_resize "$FLEA_ADDR" "$flea_w" "$flea_h" || die "outbound could not resize Flea"
+  hypr_window_resize "$DLEA_ADDR" "$dlea_w" "$dlea_h" || die "outbound could not resize Dlea"
   sleep 0.4
-  hypr_window_move "$FLEA_ADDR" "$flea_x" "$flea_y" || die "outbound could not move Flea"
+  hypr_window_move "$DLEA_ADDR" "$dlea_x" "$dlea_y" || die "outbound could not move Dlea"
   sleep 0.6
   geometry=$(r11_geometry) || die "outbound window geometry unavailable"
   # Sample input: the outbound window geometry is "40 80 1000 720 true".
   read -r WX WY WW WH _ <<< "$geometry"
 
-  # Edge: a release that stays inside Flea must not be a drop on the receiver, and it still moves.
+  # Edge: a release that stays inside Dlea must not be a drop on the receiver, and it still moves.
   centre_into sx sy inner.txt
   centre_into ax ay aaa
   warp "$sx" "$sy"; sleep 0.4
@@ -1689,7 +1689,7 @@ print(hits[0]["address"] if len(hits) == 1 else "")
   glide_to "$ax" "$ay"; sleep 0.5
   release; sleep 0.5
   wait_for "$HOMEDIR/aaa/inner.txt" present
-  check "a release inside Flea still moves the file" \
+  check "a release inside Dlea still moves the file" \
         "$([ -e "$HOMEDIR/aaa/inner.txt" ] && echo moved || echo missing)" "moved"
   check "and the other process logged nothing" \
         "$(grep -c 'body<<' "$RECV_LOG" || true)" "0"
@@ -1735,7 +1735,7 @@ print("received" if needle in body and name in body else "missing")
         "$(grep '^actions=' "$RECV_LOG" | cut -d= -f2)" "$want_actions"
   check "and the original is still in the folder" \
         "$([ -e "$HOMEDIR/outbound.txt" ] && echo kept || echo GONE)" "kept"
-  # A Shift lift offers move alone (2 is Gdk MOVE); the receiver finishes MOVE and Flea still keeps the original.
+  # A Shift lift offers move alone (2 is Gdk MOVE); the receiver finishes MOVE and Dlea still keeps the original.
   printf 'shift payload\n' > "$HOMEDIR/outbound-shift.txt"
   for i in $(seq 1 40); do
     rowidx outbound-shift.txt >/dev/null 2>&1 && break
@@ -1745,17 +1745,17 @@ print("received" if needle in body and name in body else "missing")
   want_actions=2
   # End the first receiver so the Shift lookup can match only its own.
   stop_receiver "$RECV_PID" || die "plain receiver teardown failed"
-  FLEA_RECV_W=$recv_w FLEA_RECV_H=$recv_h setsid python3 -B "$repo/tests/drag-receiver.py" "$RECV_LOG" >"$SB/receiver-shift-err.log" 2>&1 &
+  DLEA_RECV_W=$recv_w DLEA_RECV_H=$recv_h setsid python3 -B "$repo/tests/drag-receiver.py" "$RECV_LOG" >"$SB/receiver-shift-err.log" 2>&1 &
   RECV_PID=$!
   RECV_PIDS+=("$RECV_PID")
   RECV_ADDR=""
-  # Sample input, hyprctl clients -j: '[{"pid": 123, "address": "0xabc", "title": "flea-drag-receiver"}]'.
+  # Sample input, hyprctl clients -j: '[{"pid": 123, "address": "0xabc", "title": "dlea-drag-receiver"}]'.
   for i in $(seq 1 40); do
     RECV_ADDR=$(hyprctl clients -j | python3 -c '
 import json, sys
 # Sample input: the Shift receiver PID argument is "789".
 pid = int(sys.argv[1])
-# Sample input: Shift receiver clients are [{"pid":789,"address":"0xghi","title":"flea-drag-receiver"}].
+# Sample input: Shift receiver clients are [{"pid":789,"address":"0xghi","title":"dlea-drag-receiver"}].
 hits = [w for w in json.load(sys.stdin) if w.get("pid") == pid]
 print(hits[0]["address"] if len(hits) == 1 else "")
 ' "$RECV_PID") || true
@@ -1773,7 +1773,7 @@ print(hits[0]["address"] if len(hits) == 1 else "")
     sleep 0.3
     hypr_window_move "$RECV_ADDR" "$recv_x" "$recv_y" || die "outbound could not move the Shift receiver"
     sleep 0.4
-    hypr_window_focus "$FLEA_ADDR" || die "outbound could not focus Flea after placing the Shift receiver"
+    hypr_window_focus "$DLEA_ADDR" || die "outbound could not focus Dlea after placing the Shift receiver"
     sleep 0.4
     centre_into sx sy outbound-shift.txt
     # Sample input, hyprctl clients -j: '{"address": "0xabc", "at": [1100, 80], "size": [420, 320]}'.
@@ -1826,9 +1826,9 @@ print("received" if needle in body and name in body else "missing")
     check "and the original is still in the folder after a MOVE finish" \
           "$([ -e "$HOMEDIR/outbound-shift.txt" ] && echo kept || echo GONE)" "kept"
   fi
-  if grep -q "Couldn't start a drag because the origin window could not be found." "$SB/flea.log"; then
+  if grep -q "Couldn't start a drag because the origin window could not be found." "$SB/dlea.log"; then
     printf 'DRAG_OUTBOUND record=missing-origin\n'
-  elif grep -q 'start_drag' "$SB/flea.log"; then
+  elif grep -q 'start_drag' "$SB/dlea.log"; then
     printf 'DRAG_OUTBOUND record=start_drag\n'
   else
     printf 'DRAG_OUTBOUND record=no-start-line\n'

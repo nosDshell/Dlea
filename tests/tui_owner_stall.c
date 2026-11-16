@@ -19,7 +19,7 @@ int open64(const char *path, int flags, ...) {
         mode = (mode_t)va_arg(args, int);
         va_end(args);
     }
-    const char *mounts = getenv("FLEA_OWNER_TEST_MOUNTS");
+    const char *mounts = getenv("DLEA_OWNER_TEST_MOUNTS");
     if (mounts && strcmp(path, "/proc/self/mountinfo") == 0) path = mounts;
     return real_open(path, flags, mode);
 }
@@ -32,16 +32,16 @@ static void marker(const char *path) {
 int statx(int fd, const char *path, int flags, unsigned int mask, struct statx *out) {
     int (*real_statx)(int, const char *, int, unsigned int, struct statx *) = dlsym(RTLD_NEXT, "statx");
     static atomic_int held;
-    const char *target = getenv("FLEA_OWNER_TEST_STAT");
-    const char *arm = getenv("FLEA_OWNER_TEST_ARM");
+    const char *target = getenv("DLEA_OWNER_TEST_STAT");
+    const char *arm = getenv("DLEA_OWNER_TEST_ARM");
     if (path && target && arm && strcmp(path, target) == 0 && access(arm, F_OK) == 0
         && atomic_exchange(&held, 1) == 0) {
-        marker(getenv("FLEA_OWNER_TEST_ENTERED"));
+        marker(getenv("DLEA_OWNER_TEST_ENTERED"));
         char release[4096];
-        snprintf(release, sizeof(release), "%s.stat", getenv("FLEA_OWNER_TEST_RELEASE"));
+        snprintf(release, sizeof(release), "%s.stat", getenv("DLEA_OWNER_TEST_RELEASE"));
         while (access(release, F_OK) != 0) usleep(1000);
         int result = real_statx(fd, path, flags, mask, out);
-        snprintf(release, sizeof(release), "%s.returned", getenv("FLEA_OWNER_TEST_RELEASE"));
+        snprintf(release, sizeof(release), "%s.returned", getenv("DLEA_OWNER_TEST_RELEASE"));
         marker(release);
         return result;
     }

@@ -339,7 +339,7 @@ fn tui_model3d_chafa_quit_waits_for_reap() {
     )
     .unwrap();
 
-    flea::executable_file::write(&script, &std::fs::read(&script).unwrap(), 0o755).unwrap();
+    dlea::executable_file::write(&script, &std::fs::read(&script).unwrap(), 0o755).unwrap();
     let image = root.path("input");
     std::fs::write(&image, b"held\n").unwrap();
     let mut still = Still::default();

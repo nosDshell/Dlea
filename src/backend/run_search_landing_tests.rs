@@ -168,7 +168,7 @@ fn check_answer(lines: &[String], n: usize) {
 fn external_file(d: &TestDir, name: &str, body: &str) -> std::path::PathBuf {
     let path = d.join(name);
     d.assert_contains(&path);
-    let status = std::process::Command::new(flea::testpath::tool("/bin/sh"))
+    let status = std::process::Command::new(dlea::testpath::tool("/bin/sh"))
         .args(["-c", "printf '%s' \"$2\" > \"$1\"", "sh"])
         .arg(&path)
         .arg(body)

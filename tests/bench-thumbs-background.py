@@ -11,15 +11,15 @@ import tempfile
 import unittest
 
 REPO = Path(__file__).resolve().parent.parent
-spec = importlib.util.spec_from_file_location("background_preflight", REPO / "tools/flea-bench-thumbs-lib/background_preflight.py")
+spec = importlib.util.spec_from_file_location("background_preflight", REPO / "tools/dlea-bench-thumbs-lib/background_preflight.py")
 guard = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(guard)
-ROOT = Path(os.environ["FLEA_B7_TEST_ROOT"])
+ROOT = Path(os.environ["DLEA_B7_TEST_ROOT"])
 
 class Background(unittest.TestCase):
     def setUp(self):
         self.root = Path(tempfile.mkdtemp(prefix="background-offline-", dir=ROOT))
-        (self.root / ".flea-test-sandbox").touch()
+        (self.root / ".dlea-test-sandbox").touch()
         self.home = self.root / "home"
         self.current = self.home / ".local/state/omarchy/current"
         self.current.mkdir(parents=True)

@@ -128,7 +128,7 @@ fn every_label_comes_from_the_reserved_catalog_prefix() {
     // Every picker.browser key resolves and is read here.
     let i18n = english();
     assert_eq!(recent_label(&i18n), "Recent");
-    let catalog = crate::jsondoc::parse(include_str!("../../i18n/en/flea.json")).expect("the English catalog parses");
+    let catalog = crate::jsondoc::parse(include_str!("../../i18n/en/dlea.json")).expect("the English catalog parses");
     let pairs = catalog.as_object().expect("the catalog is an object");
     let picker: Vec<&(String, crate::jsondoc::Json)> = pairs.iter().filter(|(key, _)| key.starts_with("picker.browser.")).collect();
     assert_eq!(picker.len(), 38, "the reserved prefix holds exactly the chooser keys");
@@ -142,7 +142,7 @@ fn every_label_comes_from_the_reserved_catalog_prefix() {
 
 #[test]
 fn a_portal_request_keeps_its_non_ascii_text_through_the_json_escapes() {
-    // tools/flea-portal writes json.dumps, which escapes every non-ASCII character as a u escape.
+    // tools/dlea-portal writes json.dumps, which escapes every non-ASCII character as a u escape.
     let line = r#"{"mode": "save", "title": "Datei \u00f6ffnen", "folder": "/home/u/T\u00e9l\u00e9chargements", "name": "R\u00e9sum\u00e9.pdf", "files": [], "filters": []}"#;
     let r = req(line);
     assert_eq!(r.title, "Datei \u{f6}ffnen");

@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-menu-fit-test
+//@ pragma ShellId dlea-menu-fit-test
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Menu.js" as Menu
+import "dlea" as Dlea
+import "dlea/js/Menu.js" as Menu
 import "qml-probe.js" as QmlProbe
 
 // tests/menu-fit.sh's harness: the real ui/ContextMenu.qml with every row shown and key hints on is as wide as its widest row, so no label elides.
@@ -50,7 +50,7 @@ ShellRoot {
         implicitWidth: shell.windowWidth
         implicitHeight: shell.windowHeight
         color: "#303030"
-        Flea.ContextMenu { id: menu; anchors.fill: parent }
+        Dlea.ContextMenu { id: menu; anchors.fill: parent }
     }
 
     // The IPC probe reads the same live menu, so its wanted width is assertable headless.
@@ -67,7 +67,7 @@ ShellRoot {
         function contextMenu() { return menu }
     }
     QtObject { id: windowStub; function rectOf(item) { return "" } }
-    Flea.IpcMenuState { id: probe; pane: stubPane; fleaWindow: windowStub }
+    Dlea.IpcMenuState { id: probe; pane: stubPane; dleaWindow: windowStub }
 
     // One scene: {tag, stop, density, hints, all, kind: "file" | "background", flyout: action or "", edge, narrow}.
     function sceneList() {
@@ -119,9 +119,9 @@ ShellRoot {
         // Every row shown: no hidden id, and the shelf on, which is a stored boolean of its own.
         if (s.all) { stateDoc.menu = { hidden: [] }; stateDoc.shelf = { enabled: true } }
         if (s.errored) stateDoc.menu = { hidden: [] }
-        Flea.ViewState.state = stateDoc
-        Flea.Scripts.entries = s.all ? [{ id: "backup", label: "Backup", path: "/x/backup.sh" }] : []
-        menu.workArea = s.narrow ? Qt.rect(0, 0, Math.round(Flea.Theme.menuWidth * shell.narrowWorkShare), shell.windowHeight) : Qt.rect(0, 0, shell.windowWidth, shell.windowHeight)
+        Dlea.ViewState.state = stateDoc
+        Dlea.Scripts.entries = s.all ? [{ id: "backup", label: "Backup", path: "/x/backup.sh" }] : []
+        menu.workArea = s.narrow ? Qt.rect(0, 0, Math.round(Dlea.Theme.menuWidth * shell.narrowWorkShare), shell.windowHeight) : Qt.rect(0, 0, shell.windowWidth, shell.windowHeight)
         menu.rowMode = 0o100644
         menu.selectionCount = 1
         menu.rowIsFile = true
@@ -175,11 +175,11 @@ ShellRoot {
             if (!row) { missing.push(action); continue }
             var drawn = words[action] ? shell.textDrawn(row, words[action]) : null
             var hintOk = words[action] ? drawn && drawn.visible && !drawn.truncated : row.parts().hint === 0
-            if (!(row.errored && Qt.colorEqual(row.labelColor, Flea.Theme.color.error) && row.hint === words[action] && hintOk)) bad.push(action + ":" + row.hint)
+            if (!(row.errored && Qt.colorEqual(row.labelColor, Dlea.Theme.color.error) && row.hint === words[action] && hintOk)) bad.push(action + ":" + row.hint)
             var lab = shell.textDrawn(row, row.entry.label)
-            if (lab && drawn && row.wantedWidth < lab.implicitWidth + Flea.Theme.spacing.gap + drawn.implicitWidth) uncounted.push(action + " wants only " + row.wantedWidth)
-            if (!words[action] && row.wantedWidth > Flea.Theme.menuWidth) wide.push(action + ":" + row.wantedWidth)
-            shell.log("MEASURE " + s.tag + " " + action + " wanted=" + row.wantedWidth + " menuWidth=" + Flea.Theme.menuWidth + " label=" + (lab ? lab.implicitWidth : -1) + " word=" + (drawn ? drawn.implicitWidth : -1) + " frame=" + menu.frameItem.width + " chevron=" + (row.isSubmenu ? 1 : 0))
+            if (lab && drawn && row.wantedWidth < lab.implicitWidth + Dlea.Theme.spacing.gap + drawn.implicitWidth) uncounted.push(action + " wants only " + row.wantedWidth)
+            if (!words[action] && row.wantedWidth > Dlea.Theme.menuWidth) wide.push(action + ":" + row.wantedWidth)
+            shell.log("MEASURE " + s.tag + " " + action + " wanted=" + row.wantedWidth + " menuWidth=" + Dlea.Theme.menuWidth + " label=" + (lab ? lab.implicitWidth : -1) + " word=" + (drawn ? drawn.implicitWidth : -1) + " frame=" + menu.frameItem.width + " chevron=" + (row.isSubmenu ? 1 : 0))
         }
         shell.check(s.tag + ": the errored rows are all there", missing, [])
         shell.check(s.tag + ": each errored row uses error ink and only permissions draw a state word", bad, [])
@@ -269,14 +269,14 @@ ShellRoot {
         var rowAt = s.edges === "frame" ? menu.itemFor : menu.submenuItemFor
         var count = s.edges === "frame" ? menu.entries.length : menu.submenuEntries.length
         var card = shell.cardUnder(frameItem), fades = shell.fadesOf(frameItem)
-        var pad = Flea.Theme.spacing.rowPaddingY, tag = s.tag
+        var pad = Dlea.Theme.spacing.rowPaddingY, tag = s.tag
         shell.check(tag + ": the card scrolls", card.contentHeight > card.height, true)
         shell.check(tag + ": both fades exist", !!fades.top && !!fades.bottom, true)
         if (!fades.top || !fades.bottom) return
         var depth = fades.top.height - pad
-        shell.check(tag + ": the top fade reaches into the first cut row", depth >= Math.round(Flea.Theme.rowHeight * shell.minFadeRows), true)
-        shell.check(tag + ": the bottom fade reaches into the first cut row", fades.bottom.height - pad >= Math.round(Flea.Theme.rowHeight * shell.minFadeRows), true)
-        shell.check(tag + ": the fade does not wash a whole row", depth < Flea.Theme.rowHeight, true)
+        shell.check(tag + ": the top fade reaches into the first cut row", depth >= Math.round(Dlea.Theme.rowHeight * shell.minFadeRows), true)
+        shell.check(tag + ": the bottom fade reaches into the first cut row", fades.bottom.height - pad >= Math.round(Dlea.Theme.rowHeight * shell.minFadeRows), true)
+        shell.check(tag + ": the fade does not wash a whole row", depth < Dlea.Theme.rowHeight, true)
         var maxY = card.contentHeight - card.height
         card.contentY = 0
         shell.check(tag + ": at the top no top fade, a bottom fade", [fades.top.visible, fades.bottom.visible], [false, true])
@@ -391,18 +391,18 @@ ShellRoot {
         // The probe carries each row's own parts; the frame is min(area, max(token, their sum)), not widestRow's answer.
         var st = JSON.parse(probe.state()), need = shell.neededWidth(st.rows)
         shell.check(tag + ": the probe states every row's parts", need > 0, true)
-        shell.check(tag + ": the frame is the parts' sum between the token and the work area", Math.abs(menu.frameItem.width - Math.min(menu.workArea.width, Math.max(Flea.Theme.menuWidth, need))) <= shell.roundingSlack, true)
+        shell.check(tag + ": the frame is the parts' sum between the token and the work area", Math.abs(menu.frameItem.width - Math.min(menu.workArea.width, Math.max(Dlea.Theme.menuWidth, need))) <= shell.roundingSlack, true)
         if (menu.frameItem.width < menu.workArea.width)
             shell.check(tag + ": the probe reports no elided frame label", st.rows.filter(function (r) { return r && !r.separator && r.labelTruncated }).length, 0)
         if (!s.all && !s.errored)
-            shell.check(tag + ": the parts of rows that all fit stay under Theme.menuWidth", need <= Flea.Theme.menuWidth, true)
+            shell.check(tag + ": the parts of rows that all fit stay under Theme.menuWidth", need <= Dlea.Theme.menuWidth, true)
         var cards = [{ name: "frame", frame: menu.frameItem, read: main }]
         if (s.flyout)
             cards.push({ name: "flyout", frame: menu.submenuFrameItem,
                          read: shell.readCard(menu.submenuFrameItem, menu.submenuEntries.length, menu.submenuItemFor) })
         for (var c = 0; c < cards.length; c++) {
             var card = cards[c]
-            var want = Math.min(menu.workArea.width, Math.max(Flea.Theme.menuWidth, card.read.wanted, card.name === "flyout" ? menu.frameItem.width : 0))
+            var want = Math.min(menu.workArea.width, Math.max(Dlea.Theme.menuWidth, card.read.wanted, card.name === "flyout" ? menu.frameItem.width : 0))
             shell.check(tag + ": " + card.name + " is as wide as its widest row and its parent frame, capped by the work area", card.frame.width, want)
             shell.check(tag + ": " + card.name + " stays inside the work area", shell.inside(card.frame, menu.workArea), true)
             shell.check(tag + ": " + card.name + " rows each state a wanted width", card.read.unmeasured, [])
@@ -412,12 +412,12 @@ ShellRoot {
             }
             // Errored scenes hold each app row to the token in runErrored, since a permissions word may still widen them.
             if (!s.all && !s.errored)
-                shell.check(tag + ": " + card.name + " of rows that all fit keeps Theme.menuWidth", card.frame.width, Flea.Theme.menuWidth)
+                shell.check(tag + ": " + card.name + " of rows that all fit keeps Theme.menuWidth", card.frame.width, Dlea.Theme.menuWidth)
             // The widest row of a widened card is flush: its hint sits one gap from its label, no wider than needed.
             var widest = card.read.widest
-            if (!s.narrow && widest && card.frame.width > Flea.Theme.menuWidth && card.frame.width <= widest.wantedWidth + shell.roundingSlack && widest.hint.length > 0 && widest.entry.hintSquare !== true) {
+            if (!s.narrow && widest && card.frame.width > Dlea.Theme.menuWidth && card.frame.width <= widest.wantedWidth + shell.roundingSlack && widest.hint.length > 0 && widest.entry.hintSquare !== true) {
                 var label = shell.textDrawn(widest, widest.entry.label), hint = shell.textDrawn(widest, widest.hint)
-                var slack = hint.x - (label.x + label.implicitWidth) - Flea.Theme.spacing.gap
+                var slack = hint.x - (label.x + label.implicitWidth) - Dlea.Theme.spacing.gap
                 shell.check(tag + ": " + card.name + " is no wider than its widest row needs", Math.abs(slack) <= shell.roundingSlack, true)
             }
         }

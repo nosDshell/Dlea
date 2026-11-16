@@ -65,7 +65,7 @@ case_griddrop() {
     shot "griddrop-ctrl-released-result"
     if [[ -n "$griddrop_saved_exit" ]]; then trap -- "$griddrop_saved_exit" EXIT; else trap - EXIT; fi
     printf 'GRIDDROP move=box follow=side empty=refused copy=ctrl released-ctrl=move\n'
-    kill_flea
+    kill_dlea
 
     echo "-- hover: a resting pointer lights its tile, the wheel moves the light, leaving the tiles puts it out --"
     launch "$hov"
@@ -96,7 +96,7 @@ case_griddrop() {
     lit=$(griddrop_hovered)
     [[ -z "$lit" ]] || fail "griddrop: with the pointer off the tiles [$lit] stay lit"
     printf 'GRIDDROP hover=rest,wheel,off\n'
-    kill_flea
+    kill_dlea
 }
 
 case_railpointer() {
@@ -258,7 +258,7 @@ case_railpointer() {
     [[ "$(ipc focusView)" == "list" ]] || fail "railpointer: a row click on the other pane left the keyboard on $(ipc focusView)"
     printf 'RAILPOINTER dual=ok\n'
     export XDG_STATE_HOME="$suite_home"
-    kill_flea
+    kill_dlea
 }
 
 case_dualautohidereveal() {
@@ -311,7 +311,7 @@ case_dualautohidereveal() {
     (( d <= 1 )) || fail "dualautohidereveal: the reveal moved the left listing ($hidden0 to $shown0)"
     printf 'DUALAUTOHIDEREVEAL hidden=%s/%s revealed=%s/%s\n' "$hidden0" "$hidden1" "$shown0" "$shown1"
     export XDG_STATE_HOME="$suite_home"
-    kill_flea
+    kill_dlea
 }
 
 case_dualdivider() {
@@ -323,8 +323,8 @@ case_dualdivider() {
     command -v ydotool >/dev/null || fail "dualdivider: no ydotool on PATH"
     [[ -S "${XDG_RUNTIME_DIR:-}/.ydotool_socket" ]] || fail "dualdivider: no ydotool socket at ${XDG_RUNTIME_DIR:-}/.ydotool_socket"
     local drag=120
-    # No IPC read names the divider's begin, move, end and cancel counts, so the handle logs each event it hears to the flea log when this is set (ui/ResizeHandle.qml trace).
-    export FLEA_TRACE_RESIZE=1
+    # No IPC read names the divider's begin, move, end and cancel counts, so the handle logs each event it hears to the dlea log when this is set (ui/ResizeHandle.qml trace).
+    export DLEA_TRACE_RESIZE=1
     for rail in shown hidden; do
         seed_ui_state "$fixture_root/dualdivider-state-$rail" "$(jq -cn --arg l "$dir/left" --arg r "$dir/right" --arg rail "$rail" '{view:"dual",places:{rail:$rail},dual:{paths:[$l,$r],focus:0}}')"
         dualdivider_launch "$dir/left"
@@ -340,7 +340,7 @@ case_dualdivider() {
         column_drag_absolute "$(( wx + div + 4 ))" "$y" "$drag" 4
         # Nothing re-lays while the pointer is down; the handle log says whether a press, move, release or cancel reached the divider.
         local trace="" event
-        for event in press move release cancel; do trace+=" $event=$(grep -acw "RESIZE divider $event" "$flea_log" || true)"; done
+        for event in press move release cancel; do trace+=" $event=$(grep -acw "RESIZE divider $event" "$dlea_log" || true)"; done
         printf 'DUALDIVIDER %s events%s\n' "$rail" "$trace"
         read -r moved0 moved1 <<< "$(dual_list_width 0) $(dual_list_width 1)"
         (( moved0 == w0 && moved1 == w1 )) || fail "dualdivider: $rail: the listings moved during the drag ($w0/$w1 to $moved0/$moved1), divider events:$trace"
@@ -349,7 +349,7 @@ case_dualdivider() {
         read -r moved0 moved1 <<< "$(dual_list_width 0) $(dual_list_width 1)"
         (( moved0 - w0 >= drag - 3 && moved0 - w0 <= drag + 3 && w1 - moved1 >= drag - 3 && w1 - moved1 <= drag + 3 )) \
             || fail "dualdivider: $rail: a $drag px drag moved the listings $w0/$w1 to $moved0/$moved1"
-        stored=$(jq -er '.dual.split' "$XDG_STATE_HOME/flea/ui.json") || fail "dualdivider: $rail: ui.json holds no dual.split"
+        stored=$(jq -er '.dual.split' "$XDG_STATE_HOME/dlea/ui.json") || fail "dualdivider: $rail: ui.json holds no dual.split"
         (( stored > 5000 )) || fail "dualdivider: $rail: ui.json remembers split $stored"
         printf 'DUALDIVIDER %s drag=%s/%s split=%s\n' "$rail" "$moved0" "$moved1" "$stored"
         dualdivider_launch "$dir/left"
@@ -364,10 +364,10 @@ case_dualdivider() {
         read -r r0 r1 <<< "$(dualdivider_equal "$rail double click")"
         d=$(( r0 > w0 ? r0 - w0 : w0 - r0 ))
         (( d <= 1 )) || fail "dualdivider: $rail: the double click lays the listings at $r0/$r1, the default was $w0/$w1"
-        [[ "$(jq -er '.dual.split' "$XDG_STATE_HOME/flea/ui.json")" == 5000 ]] || fail "dualdivider: $rail: the double click left split $(jq -r '.dual.split' "$XDG_STATE_HOME/flea/ui.json")"
+        [[ "$(jq -er '.dual.split' "$XDG_STATE_HOME/dlea/ui.json")" == 5000 ]] || fail "dualdivider: $rail: the double click left split $(jq -r '.dual.split' "$XDG_STATE_HOME/dlea/ui.json")"
         printf 'DUALDIVIDER %s double=%s/%s\n' "$rail" "$r0" "$r1"
     done
-    unset FLEA_TRACE_RESIZE
+    unset DLEA_TRACE_RESIZE
     export XDG_STATE_HOME="$suite_home"
-    kill_flea
+    kill_dlea
 }

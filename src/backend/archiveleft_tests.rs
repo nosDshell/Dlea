@@ -51,7 +51,7 @@ fn a_copied_stage_that_will_not_go_publishes_whole_and_its_folder_is_named() {
             .file_name()
             .unwrap()
             .to_string_lossy()
-            .starts_with(".flea-work-ext-"),
+            .starts_with(".dlea-work-ext-"),
         "{left}"
     );
     unstick(&Path::new(&left).join("out"));

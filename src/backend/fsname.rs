@@ -71,9 +71,9 @@ mod tests {
         for (fstype, windows_names) in [("vfat", false), ("msdos", false), ("exfat", false), ("ntfs3", true)] {
             for name in &names {
                 let refusal = refuse_name(name, fstype, windows_names).unwrap_or_else(|| panic!("{name} is refused on {fstype}"));
-                let read = flea::ui_logic_status_feedback::errors::drive_refusal(&refusal).unwrap_or_else(|| panic!("{refusal} reads back"));
+                let read = dlea::ui_logic_status_feedback::errors::drive_refusal(&refusal).unwrap_or_else(|| panic!("{refusal} reads back"));
                 assert!(read.key.starts_with("feedback.drive."), "{refusal}");
-                assert_eq!(read.render(&english), flea::ui_logic_status_feedback::errors::capitalised(&refusal));
+                assert_eq!(read.render(&english), dlea::ui_logic_status_feedback::errors::capitalised(&refusal));
             }
         }
     }

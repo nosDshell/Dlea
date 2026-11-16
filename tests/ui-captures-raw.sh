@@ -9,7 +9,7 @@ readonly cap_raw_caption_height=27
 readonly cap_raw_wait_s=30
 
 cap_raw_cleanup() {
-    kill_flea || return 1
+    kill_dlea || return 1
     [[ -n "$cap_raw_root" && "$cap_raw_root" == /* && -f "$cap_raw_root/$SANDBOX_MARKER" ]] \
         || fail "raw: the fixture cleanup lost its marked absolute root"
     sandbox_remove "$cap_raw_root"

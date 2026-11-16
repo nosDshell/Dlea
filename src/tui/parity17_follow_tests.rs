@@ -15,7 +15,7 @@ fn parse(s: &str) -> crate::jsondoc::Json {
 fn follow_opens_root_and_names_a_broken_target() {
     for (directory, name, opened) in [
         ("/", "", Some("/")),
-        ("/nonexistent-flea-follow", "gone", None),
+        ("/nonexistent-dlea-follow", "gone", None),
     ] {
         let (mut w, reader) = wire::echo_wire();
         let mut m = listing(&mut w, "yazi");

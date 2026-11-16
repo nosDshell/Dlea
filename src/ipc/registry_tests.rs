@@ -3,7 +3,7 @@ use std::collections::BTreeSet;
 
 #[test]
 fn s5_native_animation_reader_is_registered_outside_the_frozen_oracle() {
-    let function = validate("flea", "columnAnimationState", &[]).unwrap();
+    let function = validate("dlea", "columnAnimationState", &[]).unwrap();
     assert_eq!(function.result, "string");
     assert!(function.parameters.is_empty());
     assert!(!ORACLE
@@ -16,9 +16,9 @@ fn s5_native_animation_reader_is_registered_outside_the_frozen_oracle() {
 fn registry_matches_every_target_signature_in_the_frozen_oracle() {
     let mut expected = BTreeSet::new();
     for (target, text) in [
-        ("flea", include_str!("../../ui/Ipc.qml")),
-        ("fleapicker", include_str!("../../ui/PickerWindow.qml")),
-        ("fleatab", include_str!("../../ui/boot/fleatab.qml")),
+        ("dlea", include_str!("../../ui/Ipc.qml")),
+        ("dleapicker", include_str!("../../ui/PickerWindow.qml")),
+        ("dleatab", include_str!("../../ui/boot/dleatab.qml")),
     ] {
         let text = text.split_once(&format!("target: \"{target}\"")).unwrap().1;
         for line in text
@@ -79,17 +79,17 @@ fn lookup_arity_and_argument_errors_match_quickshell() {
         Err(Reply::value("Target not found."))
     );
     assert_eq!(
-        validate("flea", "missing", &[]),
+        validate("dlea", "missing", &[]),
         Err(Reply::value("Function not found."))
     );
-    assert_eq!(validate("flea", "rowAt", &[]), Err(Reply::value(
+    assert_eq!(validate("dlea", "rowAt", &[]), Err(Reply::value(
         "Too few arguments provided (1 required but 0 were provided.)\nFunction definition: function rowAt(i: int): string")));
-    assert_eq!(validate("flea", "rowAt", &["x".into()]), Err(Reply::value(
+    assert_eq!(validate("dlea", "rowAt", &["x".into()]), Err(Reply::value(
         "Unable to parse argument 1 as \"int\". Provided argument: \"x\"\nFunction definition: function rowAt(i: int): string")));
-    assert_eq!(validate("flea", "rowAt", &["1".into(), "2".into()]), Err(Reply::value(
+    assert_eq!(validate("dlea", "rowAt", &["1".into(), "2".into()]), Err(Reply::value(
         "Too many arguments provided (1 required but 2 were provided.)\nFunction definition: function rowAt(i: int): string")));
     for value in ["true", "false", "1", "0"] {
-        assert!(validate("flea", "htmlState", &[value.into()]).is_ok());
+        assert!(validate("dlea", "htmlState", &[value.into()]).is_ok());
     }
-    assert!(validate("flea", "rowAt", &["  +12  ".into()]).is_ok());
+    assert!(validate("dlea", "rowAt", &["  +12  ".into()]).is_ok());
 }

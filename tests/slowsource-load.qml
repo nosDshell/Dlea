@@ -1,4 +1,4 @@
-//@ pragma ShellId flea-slowsource-load-test
+//@ pragma ShellId dlea-slowsource-load-test
 
 import QtQuick
 import Quickshell

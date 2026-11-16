@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-unlock-poller-test
+//@ pragma ShellId dlea-unlock-poller-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "unlock-stdin-find.js" as Find
 
 // tests/unlock-poller.sh's harness: the real UnlockHost against a held lsblk, proving the one-shot poller ends with its first listing, never starts on a touched card, latches the touch past an erase, retries a timed-out listing, and reads the LUKS version off the remembered rail for a null call rail.
@@ -67,7 +67,7 @@ ShellRoot {
         implicitHeight: 480
         color: "#303030"
 
-        Flea.UnlockHost {
+        Dlea.UnlockHost {
             id: host
             anchors.fill: parent
         }

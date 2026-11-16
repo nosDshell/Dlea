@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # The shared fade of every dialog and menu: OutCubic, the shared open and close times, snapped under reduced motion, the card still while it fades out; offscreen, no display or lock.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 . "$(dirname "$0")/headless-commons.sh"
 cd "$(dirname "$0")/.." || exit 1
 
@@ -11,7 +11,7 @@ if ! command -v qs >/dev/null; then
 fi
 
 # A marked sandbox of its own under the fixture root, so cleanup deletes only what this run owns.
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-reveal-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-reveal-XXXXXX") || exit 1
 # GNU mktemp -d keeps a relative TMPDIR verbatim, so the path is checked absolute and two components deep.
 case $test_root in
   /*/*) ;;
@@ -25,8 +25,8 @@ trap cleanup EXIT
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
 headless_commons "$test_root" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/reveal.qml "$test_root/config/shell.qml" || exit 1
 cp tests/qml-probe.js "$test_root/config/qml-probe.js" || exit 1

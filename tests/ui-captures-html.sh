@@ -76,7 +76,7 @@ cap_html_shot() {
     python3 "$repo/tests/html-corners.py" "$evidence_dir/$name.png" "$state" || fail "HTML: $name corner pixels failed"
 }
 cap_html_close() {
-    kill_flea
+    kill_dlea
     if [[ -n "$cap_html_dir" ]]; then sandbox_remove "$cap_html_dir"; fi
     cap_html_dir=""
     trap - EXIT
@@ -177,17 +177,17 @@ cap_html_clip_shot() {
 cap_html_clip() {
     [[ "$test_frontend" != gpui ]] || { cap_html_clip_gpui "$1"; return; }
     local refusal="$1" menus_checks=0 dir before
-    kill_flea
+    kill_dlea
     dir=$(mktemp -d "$fixture_root/html-clip.XXXXXXXX") || fail "HTML clip: cannot create sandbox"
     sandbox_require "$dir"
     cap_html_dir=$dir
     : > "$dir/$SANDBOX_MARKER"
     trap cap_html_close EXIT
-    local flea_ui="$dir" HTML_ROOT="$dir"
+    local dlea_ui="$dir" HTML_ROOT="$dir"
     export HTML_ROOT
     mkdir -p "$dir/boot"
     cp "$repo/tests/html-clip.qml" "$dir/boot/shell.qml"
-    ln -s "$repo/ui" "$dir/boot/flea"
+    ln -s "$repo/ui" "$dir/boot/dlea"
     ln -s "$(readlink -m "$repo/ui/boot/Commons")" "$dir/boot/Commons"
     ln -s "$(readlink -m "$repo/ui/boot/Ui")" "$dir/boot/Ui"
     printf '<body style="margin:0;background:#2345bc;min-height:400px"></body>\n' > "$dir/page.html"
@@ -208,8 +208,8 @@ cap_html_clip() {
 # The production GPUI component and backend observe genuine changes to their owned HTML input.
 cap_html_clip_gpui() {
     local refusal="$1" menus_checks=0 dir before
-    local flea_launch_fixture=html-lifecycle
-    kill_flea
+    local dlea_launch_fixture=html-lifecycle
+    kill_dlea
     dir=$(mktemp -d "$fixture_root/html-clip.XXXXXXXX") || fail "HTML clip: cannot create sandbox"
     sandbox_require "$dir"
     cap_html_dir="$dir"

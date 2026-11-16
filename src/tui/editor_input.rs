@@ -1,4 +1,4 @@
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::{
     input::Key,
     model::Model,

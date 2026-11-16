@@ -15,7 +15,7 @@ import time
 
 binary = str(Path(sys.argv[1]).resolve())
 root = Path(sys.argv[2]).resolve()
-assert root.is_absolute() and (root / '.flea-test-sandbox').is_file()
+assert root.is_absolute() and (root / '.dlea-test-sandbox').is_file()
 sessions = []
 
 
@@ -40,7 +40,7 @@ def environment(name):
     env = dict(PATH=str(case / 'bin') + ':/usr/local/bin:/usr/bin:/bin', HOME=str(case / 'home'),
                XDG_STATE_HOME=str(case / 'state'), XDG_CONFIG_HOME=str(case / 'config'),
                XDG_CACHE_HOME=str(case / 'cache'), XDG_RUNTIME_DIR=str(case / 'runtime'),
-               TERM='xterm-256color', LANG='C.UTF-8', FLEA_TUI_INPUT_TIMEOUT_MS='50', T2_ROOT=str(case))
+               TERM='xterm-256color', LANG='C.UTF-8', DLEA_TUI_INPUT_TIMEOUT_MS='50', T2_ROOT=str(case))
     return case, fixture, env
 
 
@@ -192,7 +192,7 @@ assert b'\x1b[?1049h' in s.output, 'the launch check passed and the terminal int
 gone.rmdir()
 s.send(b'q')
 s.finish(2)
-assert b'flea: terminal interface:' in s.output
+assert b'dlea: terminal interface:' in s.output
 print('ok a missing output folder is refused at launch, and one gone by quit exits 2 after terminal restoration')
 
 def check_editor_guard(tool, fixture, env):
@@ -218,7 +218,7 @@ set -eu
 [ "$1" = --wait ] || exit 4
 [ "$2" = -- ] || exit 4
 case "$T2_ROOT" in /*) ;; *) exit 9 ;; esac
-[ -f "$T2_ROOT/../.flea-test-sandbox" ] || exit 9
+[ -f "$T2_ROOT/../.dlea-test-sandbox" ] || exit 9
 case "$3" in "$T2_ROOT"/fixture/*) ;; *) exit 9 ;; esac
 stty -g > "$T2_ROOT/editor-termios"
 printf '%s\\n' "$3" > "$T2_ROOT/editor-path"

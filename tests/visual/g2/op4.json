@@ -1,7 +1,7 @@
 {
   "version": 1,
   "unit": "op4",
-  "design_root": "${FLEA_VISUAL_DESIGN}",
+  "design_root": "${DLEA_VISUAL_DESIGN}",
   "scenes": [
     {
       "scene": "g2.op4.convert.primary",

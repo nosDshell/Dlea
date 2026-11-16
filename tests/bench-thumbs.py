@@ -12,12 +12,12 @@ import tempfile
 import unittest
 
 REPO = Path(__file__).resolve().parent.parent
-loader = importlib.machinery.SourceFileLoader("bench_thumbs", str(REPO / "tools/flea-bench-thumbs"))
+loader = importlib.machinery.SourceFileLoader("bench_thumbs", str(REPO / "tools/dlea-bench-thumbs"))
 spec = importlib.util.spec_from_loader(loader.name, loader)
 bench = importlib.util.module_from_spec(spec)
 loader.exec_module(bench)
 measure = bench.measure
-ROOT = Path(os.environ["FLEA_B7_TEST_ROOT"])
+ROOT = Path(os.environ["DLEA_B7_TEST_ROOT"])
 
 
 class Contracts(unittest.TestCase):
@@ -78,13 +78,13 @@ class Contracts(unittest.TestCase):
         rows = self.rows()
         rows = [r for r in rows if not (r["id"] == "strata-nightly" and r["round"] == 6)]
         for row in rows:
-            if row["id"] == "flea":
+            if row["id"] == "dlea":
                 row["all_thumbnails_ms"] = 0.5
                 row["user_cpu_s"] = 0
-        flea = bench.summary(rows)[0]["metrics"]
-        self.assertFalse(flea["all_thumbnails_ms"]["first"])
-        self.assertTrue(flea["all_thumbnails_ms"]["beats_after"])
-        self.assertFalse(flea["user_cpu_s"]["measured"])
+        dlea = bench.summary(rows)[0]["metrics"]
+        self.assertFalse(dlea["all_thumbnails_ms"]["first"])
+        self.assertTrue(dlea["all_thumbnails_ms"]["beats_after"])
+        self.assertFalse(dlea["user_cpu_s"]["measured"])
 
     def test_duplicate_rounds_booleans_and_infinity_cannot_rank(self):
         for value in (True, float("inf")):
@@ -100,10 +100,10 @@ class Contracts(unittest.TestCase):
 
     def test_bench_thumbs_reader_delay_mutants_cannot_rank(self):
         rows = self.rows()
-        self.assertEqual(bench.summary(rows)[0]["id"], "flea")
+        self.assertEqual(bench.summary(rows)[0]["id"], "dlea")
         self.assertTrue(all(metric["measured"] for metric in bench.summary(rows)[0]["metrics"].values()))
         for row in rows:
-            if row["id"] == "flea":
+            if row["id"] == "dlea":
                 row["mutant"] = True
         self.assertTrue(all(not metric["measured"] for metric in bench.summary(rows)[0]["metrics"].values()))
 
@@ -111,7 +111,7 @@ class Contracts(unittest.TestCase):
         path = Path(tempfile.mkdtemp(dir=ROOT))
         with self.assertRaises(ValueError):
             bench.marked_root(str(path))
-        (path / ".flea-test-sandbox").touch()
+        (path / ".dlea-test-sandbox").touch()
         self.assertEqual(bench.marked_root(str(path)), path)
         alias = ROOT / "alias"
         alias.symlink_to(path, target_is_directory=True)
@@ -168,7 +168,7 @@ class Contracts(unittest.TestCase):
 
     def test_installed_roster_cannot_select_the_candidate(self):
         path = ROOT / "installed-roster.json"
-        path.write_text(json.dumps([dict(id="flea", binary="/never-run-this")]))
+        path.write_text(json.dumps([dict(id="dlea", binary="/never-run-this")]))
         with self.assertRaises(ValueError):
             bench.roster(path, installed=True)
 
@@ -176,10 +176,10 @@ class Contracts(unittest.TestCase):
         from unittest import mock
         from inventory import digest
         path = Path(tempfile.mkdtemp(dir=ROOT))
-        binary = path / "flea"
+        binary = path / "dlea"
         binary.write_text("stub binary")
-        (path / "flea-gui").write_text("stub gui")
-        entrant = dict(id="flea", binary=str(binary), sha256=digest(binary), gui_sha256=digest(binary), version="0.4.0")
+        (path / "dlea-gui").write_text("stub gui")
+        entrant = dict(id="dlea", binary=str(binary), sha256=digest(binary), gui_sha256=digest(binary), version="0.4.0")
         with mock.patch.object(measure.subprocess, "Popen") as launch, mock.patch.object(measure.version_probe, "probe") as probe:
             with self.assertRaisesRegex(ValueError, "GPUI sibling checksum"):
                 measure.run_one(REPO, ROOT, None, ROOT, entrant, 1, 15)
@@ -187,13 +187,13 @@ class Contracts(unittest.TestCase):
         launch.assert_not_called()
 
     def test_existing_field_entry_dispatches_before_shared_cache_setup(self):
-        result = subprocess.run([str(REPO / "tools/flea-field-bench"), "--thumbs", "roster"], env={"PATH": os.environ["PATH"]}, capture_output=True, text=True)
+        result = subprocess.run([str(REPO / "tools/dlea-field-bench"), "--thumbs", "roster"], env={"PATH": os.environ["PATH"]}, capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(len(json.loads(result.stdout)), len(bench.IDS))
 
     def test_real_fixture_sizes_decodes_and_tamper_refusal(self):
         root = Path(tempfile.mkdtemp(dir=ROOT))
-        (root / ".flea-test-sandbox").touch()
+        (root / ".dlea-test-sandbox").touch()
         made = bench.fixtures(root)
         checked = bench.verify_fixtures(root)
         self.assertEqual(checked, made)
@@ -253,7 +253,7 @@ class Contracts(unittest.TestCase):
     def test_l_b7_fixture_writes_cannot_escape_through_an_existing_link(self):
         root = Path(tempfile.mkdtemp(prefix="guard-", dir=ROOT))
         outside = Path(tempfile.mkdtemp(prefix="guard-target-", dir=ROOT))
-        (root / ".flea-test-sandbox").touch()
+        (root / ".dlea-test-sandbox").touch()
         sentinel = outside / "sentinel"
         sentinel.write_text("unchanged")
         (root / "fixtures").symlink_to(outside, target_is_directory=True)
@@ -277,9 +277,9 @@ if __name__ == "__main__":
     if len(sys.argv) == 3 and sys.argv[1] == "--cleanup-root":
         import shutil
         target = Path(sys.argv[2])
-        marker = target / ".flea-test-sandbox"
+        marker = target / ".dlea-test-sandbox"
         if (target != ROOT or not target.is_absolute() or target.resolve() != target or target.is_symlink()
-                or target.parent != Path("/tmp") or not target.name.startswith("flea-b7-contracts.")
+                or target.parent != Path("/tmp") or not target.name.startswith("dlea-b7-contracts.")
                 or marker.is_symlink() or not marker.is_file()):
             raise SystemExit("refusing cleanup outside the marked private contracts root")
         shutil.rmtree(target)

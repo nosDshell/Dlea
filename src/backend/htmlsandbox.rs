@@ -1,4 +1,4 @@
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::path::Path;
 use super::sandbox::{BWRAP, BWRAP_FLAGS, CPU_SECONDS, PRLIMIT};
 

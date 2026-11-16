@@ -1,6 +1,6 @@
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::{graphics::{Graphics, Task}, model::Model, pane_state::Unshown, wire::Wire};
-use flea::ui_logic_model_preview::{self as pv4, color::Palette, scene::Scene, wire::{Data, State as ReplyState}};
+use dlea::ui_logic_model_preview::{self as pv4, color::Palette, scene::Scene, wire::{Data, State as ReplyState}};
 use std::{fs::File, io, os::unix::fs::MetadataExt, path::PathBuf, sync::{atomic::{AtomicBool, Ordering}, Arc}};
 
 const SLOT: &str = "tui-model3d";
@@ -344,7 +344,7 @@ pub fn pixels(room: (usize, usize), cell: (usize, usize)) -> Option<(usize, usiz
 // The cache is decoded by the same shared reader the GUI preview uses, never by a terminal format parser.
 pub fn scene(path: &std::path::Path, cancel: &AtomicBool) -> Result<Scene, String> {
     if cancel.load(Ordering::Relaxed) { return Err("model render cancelled".into()); }
-    let mut scene = flea::preview_model::read_cancellable(path, cancel)?;
+    let mut scene = dlea::preview_model::read_cancellable(path, cancel)?;
     scene.recentre();
     Ok(scene)
 }

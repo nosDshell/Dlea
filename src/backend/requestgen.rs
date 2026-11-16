@@ -141,7 +141,7 @@ mod tests {
             job: job(missing.clone(), 18),
             done: Done {
                 result: Err(ListErr {
-                    error: crate::error::FleaError {
+                    error: crate::error::DleaError {
                         where_: "scan".into(),
                         path: missing,
                         msg: "denied".into(),

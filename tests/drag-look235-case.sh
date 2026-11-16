@@ -88,7 +88,7 @@ look235_shot() {
   printf '%s\n' "$rail" > "$look235_evidence/$name.railDetails.json" || die "look235: rail evidence write failed"
   printf '%s\n' "$window" > "$look235_evidence/$name.window.json" || die "look235: window evidence write failed"
   [[ ! -e "$png" && ! -L "$png" ]] || die "look235: refusing existing evidence $png"
-  omarchy-drive shot "$png" flea >/dev/null || die "look235: whole-window capture failed for $name"
+  omarchy-drive shot "$png" dlea >/dev/null || die "look235: whole-window capture failed for $name"
   [[ -s "$png" ]] || die "look235: whole-window capture is missing or empty"
   printf 'SHOT %s\n' "$png"
 }
@@ -155,6 +155,6 @@ for name in "${look235_files[@]}"; do
   rowidx "$name" >/dev/null || die "look235: restored $name is absent from the IPC listing"
 done
 look235_shot 04-undone 8 0 "Put it back from Trash." "" "Put it back from Trash." false
-cp -- "$SB/flea.log" "$look235_evidence/native.log" || die "look235: native log was not preserved"
+cp -- "$SB/dlea.log" "$look235_evidence/native.log" || die "look235: native log was not preserved"
 printf 'LOOK235 duration_s=%s captures=4 same_drag=true\n' "$((SECONDS - look235_started))"
 echo "$((pass + fail)) checks, $fail failed"

@@ -8,7 +8,7 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 
 WAIT_SECONDS = 5
 folder = Path(sys.argv[1])
-assert folder.is_absolute() and (folder / '.flea-test-sandbox').is_file()
+assert folder.is_absolute() and (folder / '.dlea-test-sandbox').is_file()
 folder = folder.resolve(strict=True)
 target = folder / 'reload.png'
 blue = folder / 'reload-blue.png'

@@ -1,4 +1,4 @@
-// `flea --figure-compile`: builds the figure bytecode cache in a jail that can write only its own scratch directory (AGENTS.md "Markdown figures").
+// `dlea --figure-compile`: builds the figure bytecode cache in a jail that can write only its own scratch directory (AGENTS.md "Markdown figures").
 use crate::backend::sandbox;
 use crate::figurecache;
 use crate::figurehelper;
@@ -55,10 +55,10 @@ pub fn make_root(root: &Path) -> Option<()> {
     root.is_dir().then_some(())
 }
 
-// A detached `flea --figure-compile` through a shell that exits at once, so the launcher keeps no zombie child and the build outlives it.
+// A detached `dlea --figure-compile` through a shell that exits at once, so the launcher keeps no zombie child and the build outlives it.
 pub fn spawn_background() {
     let Ok(exe) = std::env::current_exe() else { return };
-    let started = Command::new(flea::testpath::tool("/bin/sh"))
+    let started = Command::new(dlea::testpath::tool("/bin/sh"))
         .args(["-c", "\"$0\" --figure-compile < /dev/null > /dev/null 2>&1 &"])
         .arg(exe)
         .stdin(Stdio::null())
@@ -316,7 +316,7 @@ pub fn run() -> i32 {
     match build(&root, &figurehelper::qjs_path(), &ui, &run_jailed) {
         Ok(()) => 0,
         Err(message) => {
-            eprintln!("flea: the figure bytecode cache was not built: {message}");
+            eprintln!("dlea: the figure bytecode cache was not built: {message}");
             1
         }
     }

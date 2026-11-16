@@ -1,4 +1,4 @@
-// Flea deletes its own dead Quickshell registry entries, which Quickshell keeps forever.
+// Dlea deletes its own dead Quickshell registry entries, which Quickshell keeps forever.
 use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 
@@ -93,7 +93,7 @@ fn prune_shell(base: &Path, id: &str, by_pid: &[(PathBuf, PathBuf)], uid: u32) {
         if resolved != want {
             continue;
         }
-        // Owned by someone else is not Flea's to delete.
+        // Owned by someone else is not Dlea's to delete.
         if resolved.metadata().is_ok_and(|meta| !meta.is_dir() || meta.uid() != uid) {
             continue;
         }
@@ -140,10 +140,10 @@ mod tests {
         let dir = crate::backend::testdir::TestDir::new("qsregistry");
         let root = dir.path();
         std::fs::create_dir_all(root.join("by-id")).unwrap();
-        std::fs::create_dir_all(root.join("by-shell").join("flea")).unwrap();
+        std::fs::create_dir_all(root.join("by-shell").join("dlea")).unwrap();
         std::fs::create_dir_all(root.join("by-shell").join("omarchy")).unwrap();
         std::fs::create_dir_all(root.join("by-pid")).unwrap();
-        // Sample fixture: by-id/spoof exists dead, but by-shell/flea/spoof points at by-id/target instead.
+        // Sample fixture: by-id/spoof exists dead, but by-shell/dlea/spoof points at by-id/target instead.
         let spoof_dir = root.join("by-id").join("spoof");
         std::fs::create_dir_all(&spoof_dir).unwrap();
         std::fs::write(spoof_dir.join("instance.lock"), b"pid 103\n").unwrap();
@@ -152,43 +152,43 @@ mod tests {
         std::fs::create_dir_all(&target_dir).unwrap();
         std::fs::write(target_dir.join("instance.lock"), b"pid 104\n").unwrap();
         std::fs::write(target_dir.join("log.qslog"), "log").unwrap();
-        std::os::unix::fs::symlink(&target_dir, root.join("by-shell").join("flea").join("spoof")).unwrap();
+        std::os::unix::fs::symlink(&target_dir, root.join("by-shell").join("dlea").join("spoof")).unwrap();
         // Oldest first with a sleep between, so the log mtimes stagger newest-last.
         for name in ["dead0", "dead1", "dead2", "dead3", "dead4", "dead5"] {
-            make_entry(root, "flea", name, b"pid 100\n");
+            make_entry(root, "dlea", name, b"pid 100\n");
             std::thread::sleep(std::time::Duration::from_millis(25));
         }
-        let live_dir = make_entry(root, "flea", "live", b"pid 101\n");
+        let live_dir = make_entry(root, "dlea", "live", b"pid 101\n");
         let live_file = std::fs::OpenOptions::new().read(true).write(true).open(live_dir.join("instance.lock")).unwrap();
         let mut live_lock = Flock { l_type: F_WRLCK as i16, l_whence: 0, l_start: 0, l_len: 0, l_pid: 0 };
         use std::os::fd::AsRawFd;
         assert_eq!(unsafe { fcntl(live_file.as_raw_fd(), F_OFD_SETLK, &mut live_lock as *mut Flock) }, 0);
-        make_entry(root, "flea", "starting", b"");
+        make_entry(root, "dlea", "starting", b"");
         let other_dir = make_entry(root, "omarchy", "other", b"pid 102\n");
         let outside = root.join("outside");
         std::fs::create_dir_all(&outside).unwrap();
-        std::os::unix::fs::symlink(&outside, root.join("by-shell").join("flea").join("evil")).unwrap();
-        prune_dead_in(root, &["flea"]);
+        std::os::unix::fs::symlink(&outside, root.join("by-shell").join("dlea").join("evil")).unwrap();
+        prune_dead_in(root, &["dlea"]);
         for gone in ["dead0", "dead1", "dead2"] {
             assert!(!root.join("by-id").join(gone).exists(), "{gone} was pruned");
-            assert!(!root.join("by-shell").join("flea").join(gone).exists(), "{gone}'s shell link was pruned");
+            assert!(!root.join("by-shell").join("dlea").join(gone).exists(), "{gone}'s shell link was pruned");
             assert!(!root.join("by-pid").join(format!("9{gone}")).exists(), "{gone}'s pid link was pruned");
         }
         for kept in ["dead3", "dead4", "dead5", "live", "starting"] {
             assert!(root.join("by-id").join(kept).is_dir(), "{kept} remains");
-            assert!(root.join("by-shell").join("flea").join(kept).is_symlink(), "{kept}'s shell link remains");
+            assert!(root.join("by-shell").join("dlea").join(kept).is_symlink(), "{kept}'s shell link remains");
             assert!(root.join("by-pid").join(format!("9{kept}")).is_symlink(), "{kept}'s pid link remains");
         }
         assert!(other_dir.is_dir(), "another shell's dead entry is untouched");
         assert!(root.join("by-shell").join("omarchy").join("other").is_symlink(), "another shell's link is untouched");
-        assert!(root.join("by-shell").join("flea").join("evil").is_symlink(), "the outside link is untouched");
+        assert!(root.join("by-shell").join("dlea").join("evil").is_symlink(), "the outside link is untouched");
         assert!(outside.is_dir(), "the outside target is untouched");
         assert!(spoof_dir.is_dir(), "the divergent by-id dir is untouched");
         assert!(target_dir.is_dir(), "the divergent link target is untouched");
-        assert_eq!(std::fs::read_link(root.join("by-shell").join("flea").join("spoof")).unwrap(), target_dir, "the divergent link is untouched");
-        prune_dead_in(root, &["flea"]);
-        assert_eq!(std::fs::read_dir(root.join("by-shell").join("flea")).unwrap().count(), 7, "a second call changes nothing");
-        prune_dead_in(&root.join("no-such-base"), &["flea"]);
+        assert_eq!(std::fs::read_link(root.join("by-shell").join("dlea").join("spoof")).unwrap(), target_dir, "the divergent link is untouched");
+        prune_dead_in(root, &["dlea"]);
+        assert_eq!(std::fs::read_dir(root.join("by-shell").join("dlea")).unwrap().count(), 7, "a second call changes nothing");
+        prune_dead_in(&root.join("no-such-base"), &["dlea"]);
     }
 
     #[test]
@@ -196,15 +196,15 @@ mod tests {
         let dir = crate::backend::testdir::TestDir::new("qsregistry-stale");
         let root = dir.path();
         std::fs::create_dir_all(root.join("by-id")).unwrap();
-        std::fs::create_dir_all(root.join("by-shell").join("flea")).unwrap();
+        std::fs::create_dir_all(root.join("by-shell").join("dlea")).unwrap();
         // Sample fixture: the link names its own missing by-id dir exactly.
         let missing = root.join("by-id").join("w73gone");
-        std::os::unix::fs::symlink(&missing, root.join("by-shell").join("flea").join("w73gone")).unwrap();
-        prune_dead_in(root, &["flea"]);
-        assert!(std::fs::symlink_metadata(root.join("by-shell").join("flea").join("w73gone")).is_err(), "the stale link is gone");
+        std::os::unix::fs::symlink(&missing, root.join("by-shell").join("dlea").join("w73gone")).unwrap();
+        prune_dead_in(root, &["dlea"]);
+        assert!(std::fs::symlink_metadata(root.join("by-shell").join("dlea").join("w73gone")).is_err(), "the stale link is gone");
         assert!(std::fs::symlink_metadata(&missing).is_err(), "nothing is created to remove it");
-        prune_dead_in(root, &["flea"]);
-        assert_eq!(std::fs::read_dir(root.join("by-shell").join("flea")).unwrap().count(), 0, "a second call changes nothing");
+        prune_dead_in(root, &["dlea"]);
+        assert_eq!(std::fs::read_dir(root.join("by-shell").join("dlea")).unwrap().count(), 0, "a second call changes nothing");
     }
 
     #[test]
@@ -212,28 +212,28 @@ mod tests {
         let dir = crate::backend::testdir::TestDir::new("qsregistry-stale-kept");
         let root = dir.path();
         std::fs::create_dir_all(root.join("by-id")).unwrap();
-        std::fs::create_dir_all(root.join("by-shell").join("flea")).unwrap();
+        std::fs::create_dir_all(root.join("by-shell").join("dlea")).unwrap();
         std::fs::create_dir_all(root.join("by-shell").join("omarchy")).unwrap();
         // Sample fixture: an absolute target that is not its own by-id path, also missing.
-        std::os::unix::fs::symlink(root.join("elsewhere-missing"), root.join("by-shell").join("flea").join("w73divergent")).unwrap();
+        std::os::unix::fs::symlink(root.join("elsewhere-missing"), root.join("by-shell").join("dlea").join("w73divergent")).unwrap();
         // Sample fixture: a relative raw target never equals the absolute by-id path.
-        std::os::unix::fs::symlink(std::path::Path::new("w73relative"), root.join("by-shell").join("flea").join("w73relative")).unwrap();
+        std::os::unix::fs::symlink(std::path::Path::new("w73relative"), root.join("by-shell").join("dlea").join("w73relative")).unwrap();
         // Sample fixture: another shell's own-path dangling link is not this prune's to delete.
         std::os::unix::fs::symlink(root.join("by-id").join("w73foreign"), root.join("by-shell").join("omarchy").join("w73foreign")).unwrap();
         // Sample fixture: the by-id path itself exists as a dangling symlink, so it is not missing.
         std::os::unix::fs::symlink(root.join("no-such-target"), root.join("by-id").join("w73phantom")).unwrap();
-        std::os::unix::fs::symlink(root.join("by-id").join("w73phantom"), root.join("by-shell").join("flea").join("w73phantom")).unwrap();
+        std::os::unix::fs::symlink(root.join("by-id").join("w73phantom"), root.join("by-shell").join("dlea").join("w73phantom")).unwrap();
         // Sample fixture: a directory wearing a shell entry name is never a link to remove.
-        std::fs::create_dir_all(root.join("by-shell").join("flea").join("w73direntry")).unwrap();
-        prune_dead_in(root, &["flea"]);
+        std::fs::create_dir_all(root.join("by-shell").join("dlea").join("w73direntry")).unwrap();
+        prune_dead_in(root, &["dlea"]);
         for kept in ["w73divergent", "w73relative", "w73phantom"] {
-            assert!(root.join("by-shell").join("flea").join(kept).is_symlink(), "{kept} is kept");
+            assert!(root.join("by-shell").join("dlea").join(kept).is_symlink(), "{kept} is kept");
         }
         assert!(root.join("by-shell").join("omarchy").join("w73foreign").is_symlink(), "another shell is untouched");
         assert!(std::fs::symlink_metadata(root.join("by-id").join("w73phantom")).is_ok(), "the phantom by-id link is untouched");
-        assert!(root.join("by-shell").join("flea").join("w73direntry").is_dir(), "the directory entry is untouched");
-        let count = std::fs::read_dir(root.join("by-shell").join("flea")).unwrap().count();
-        prune_dead_in(root, &["flea"]);
-        assert_eq!(std::fs::read_dir(root.join("by-shell").join("flea")).unwrap().count(), count, "a second call changes nothing");
+        assert!(root.join("by-shell").join("dlea").join("w73direntry").is_dir(), "the directory entry is untouched");
+        let count = std::fs::read_dir(root.join("by-shell").join("dlea")).unwrap().count();
+        prune_dead_in(root, &["dlea"]);
+        assert_eq!(std::fs::read_dir(root.join("by-shell").join("dlea")).unwrap().count(), count, "a second call changes nothing");
     }
 }

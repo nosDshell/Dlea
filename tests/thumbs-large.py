@@ -32,11 +32,11 @@ def make_png(path):
 
 def main():
     binary, parent = Path(sys.argv[1]).resolve(strict=True), Path(sys.argv[2])
-    assert parent.is_absolute() and (parent / ".flea-test-sandbox").is_file()
+    assert parent.is_absolute() and (parent / ".dlea-test-sandbox").is_file()
     assert parent == parent.resolve(strict=True), "the test parent must be canonical"
     assert not parent.is_relative_to(Path.home().resolve(strict=True)), "tests must not write inside HOME"
     root = Path(tempfile.mkdtemp(prefix="glycin-limit.", dir=parent))
-    (root / ".flea-test-sandbox").touch(exist_ok=False)
+    (root / ".dlea-test-sandbox").touch(exist_ok=False)
     decoder = shutil.which("glycin-thumbnailer")
     assert decoder, "glycin-thumbnailer is required for the large-image regression"
     files = root / "files"
@@ -60,7 +60,7 @@ def main():
         environment = dict(os.environ, HOME=str(run), XDG_CACHE_HOME=str(run / "cache"),
                            XDG_STATE_HOME=str(run / "state"), XDG_CONFIG_HOME=str(run / "config"),
                            XDG_RUNTIME_DIR=str(run / "runtime"), XDG_DATA_HOME=str(root / "data"),
-                           TMPDIR=str(run), FLEA_THUMB_TRACE="1", FLEA_THUMB_WORKER="off")
+                           TMPDIR=str(run), DLEA_THUMB_TRACE="1", DLEA_THUMB_WORKER="off")
         (run / "runtime").mkdir(mode=0o700)
         requests = [{"c": "list", "path": str(files), "first": 10},
                     {"c": "thumb", "rows": [0]}, {"c": "quit"}]
@@ -83,8 +83,8 @@ def main():
         assert png[:8] == b"\x89PNG\r\n\x1a\n"
         assert struct.unpack(">II", png[16:24]) == (256, 256)
         assert b"Thumb::URI\x00" + image.as_uri().encode() in png
-        assert not (run / "cache" / "thumbnails" / "fail" / "flea" / key).exists()
-        assert not list(published.parent.glob(".flea-*")), "thumbnail temp survived publish"
+        assert not (run / "cache" / "thumbnails" / "fail" / "dlea" / key).exists()
+        assert not list(published.parent.glob(".dlea-*")), "thumbnail temp survived publish"
         timings.append(elapsed)
     print(f"large PNG: 3 valid 256px thumbnails, elapsed={min(timings):.3f}..{max(timings):.3f}s", flush=True)
 

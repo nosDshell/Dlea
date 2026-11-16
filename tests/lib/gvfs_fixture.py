@@ -35,7 +35,7 @@ def isolated(root):
     require(root.is_absolute() and not root.is_symlink(), "fixture root must be absolute and real")
     require(root.stat().st_uid == account.pw_uid and stat.S_IMODE(root.stat().st_mode) == 0o700,
             "fixture root must be owned by the current uid with mode 0700")
-    require((root / ".flea-test-sandbox").is_file(), "fixture root has no ownership marker")
+    require((root / ".dlea-test-sandbox").is_file(), "fixture root has no ownership marker")
     home = Path(account.pw_dir)
     require(not root.is_relative_to(home), "fixture root must be outside the caller's home")
     for name in ("home", "tmp", "runtime", "config", "cache", "data", "state"):
@@ -45,8 +45,8 @@ def isolated(root):
                        XDG_RUNTIME_DIR=str(root / "runtime"), TMPDIR=str(root / "tmp"))
     for name in ("CONFIG", "CACHE", "DATA", "STATE"):
         environment[f"XDG_{name}_HOME"] = str(root / name.lower())
-    if "FLEA_FIXTURE_ROOT" in os.environ:
-        environment["FLEA_FIXTURE_ROOT"] = os.environ["FLEA_FIXTURE_ROOT"]
+    if "DLEA_FIXTURE_ROOT" in os.environ:
+        environment["DLEA_FIXTURE_ROOT"] = os.environ["DLEA_FIXTURE_ROOT"]
     argv = ["/usr/bin/dbus-run-session", "--", "/usr/bin/python3", "-B", str(Path(__file__).resolve()),
             "--inside", str(root)]
     process = None
@@ -137,7 +137,7 @@ def endpoint_stopped(uri):
 
 
 def fixture(root):
-    tool = str(REPO / "tools/flea-gvfs-fixture")
+    tool = str(REPO / "tools/dlea-gvfs-fixture")
     environment = dict(os.environ, DIR=str(root / "dav"))
     other = dict(os.environ, DIR=str(root / "other"))
     dead = dict(os.environ, DIR=str(root / "dead"))
@@ -177,7 +177,7 @@ def fixture(root):
         if replacement != second:
             endpoint_stopped(second)
         run([tool, "make"], environment=dead)
-        run([sys.executable, "-B", str(REPO / "tools/flea-gvfs-dav.py"), "stop", str(root / "dead")])
+        run([sys.executable, "-B", str(REPO / "tools/dlea-gvfs-dav.py"), "stop", str(root / "dead")])
         # A bound socket nobody listens on is what a killed server leaves behind.
         with socket.socket(socket.AF_UNIX) as orphan:
             orphan.bind(str(root / "dead/control.sock"))

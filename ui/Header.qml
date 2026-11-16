@@ -1,7 +1,7 @@
 import QtQuick
 import qs.Commons
 import qs.Ui
-import "." as Flea
+import "." as Dlea
 import "js/Columns.js" as Columns
 import "js/Sort.js" as Sort
 
@@ -163,7 +163,7 @@ Item {
         active: root.viewMode === "list" && root.visible && !root.dualMode && root.sortable && root.pane !== null
         sourceComponent: Item {
             anchors.fill: parent
-            Flea.ResizeHandle {
+            Dlea.ResizeHandle {
                 id: modeHandle
                 visible: root.cols.mode
                 x: headerMode.x - Math.floor(width / 2)
@@ -177,7 +177,7 @@ Item {
                 onReleased: root.endDrag()
                 onDoubleClicked: root.autofitColumn("mode")
             }
-            Flea.ResizeHandle {
+            Dlea.ResizeHandle {
                 id: sizeHandle
                 visible: root.cols.size
                 x: headerSize.x - Math.floor(width / 2)
@@ -191,7 +191,7 @@ Item {
                 onReleased: root.endDrag()
                 onDoubleClicked: root.autofitColumn("size")
             }
-            Flea.ResizeHandle {
+            Dlea.ResizeHandle {
                 id: dateHandle
                 visible: root.cols.date
                 x: headerDate.x - Math.floor(width / 2)
@@ -205,7 +205,7 @@ Item {
                 onReleased: root.endDrag()
                 onDoubleClicked: root.autofitColumn("date")
             }
-            Flea.ResizeHandle {
+            Dlea.ResizeHandle {
                 id: kindHandle
                 visible: root.cols.kind
                 x: headerKind.x - Math.floor(width / 2)

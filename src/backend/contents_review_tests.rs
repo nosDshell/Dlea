@@ -410,7 +410,7 @@ fn ey333_exit_two_is_partial_only_for_skipped_paths() {
     ] {
         let mut f = Fixture::new();
         let tool = f.root.join("exit-two-rg");
-        let mut writer = std::process::Command::new(flea::testpath::tool("/bin/sh"))
+        let mut writer = std::process::Command::new(dlea::testpath::tool("/bin/sh"))
             .args(["-c", "cat > \"$1\" && chmod 755 \"$1\"", "sh"])
             .arg(&tool)
             .stdin(std::process::Stdio::piped())

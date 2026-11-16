@@ -1,4 +1,4 @@
-use flea::jsondoc::{self, Json};
+use dlea::jsondoc::{self, Json};
 use std::fs;
 use std::io::Write;
 
@@ -48,7 +48,7 @@ impl Sandbox {
         assert!(temporary.is_absolute() && temporary != sandbox_home);
         let output = Command::new("mktemp")
             .arg("-d")
-            .arg(temporary.join("flea-gpui-launch.XXXXXX"))
+            .arg(temporary.join("dlea-gpui-launch.XXXXXX"))
             .output()
             .unwrap();
         assert!(output.status.success());
@@ -57,14 +57,14 @@ impl Sandbox {
         assert_eq!(root.parent(), Some(temporary.as_path()));
         assert_eq!(root.canonicalize().unwrap(), root);
         assert!(root.is_dir());
-        fs::write(root.join(".flea-test-sandbox"), "gpui launcher test\n").unwrap();
+        fs::write(root.join(".dlea-test-sandbox"), "gpui launcher test\n").unwrap();
         write_in_child(
-            &root.join("flea"),
-            &fs::read(env!("CARGO_BIN_EXE_flea")).unwrap(),
+            &root.join("dlea"),
+            &fs::read(env!("CARGO_BIN_EXE_dlea")).unwrap(),
         );
-        flea::executable_file::write(
-            &root.join("flea"),
-            &std::fs::read(root.join("flea")).unwrap(),
+        dlea::executable_file::write(
+            &root.join("dlea"),
+            &std::fs::read(root.join("dlea")).unwrap(),
             0o755,
         )
         .unwrap();
@@ -80,21 +80,21 @@ impl Sandbox {
                 .root
                 .file_name()
                 .and_then(|name| name.to_str())
-                .is_some_and(|name| name.starts_with("flea-gpui-launch."))
+                .is_some_and(|name| name.starts_with("dlea-gpui-launch."))
             && self.root.canonicalize().is_ok_and(|root| root == self.root)
             && fs::symlink_metadata(&self.root).is_ok_and(|metadata| metadata.is_dir())
-            && fs::symlink_metadata(self.root.join(".flea-test-sandbox"))
+            && fs::symlink_metadata(self.root.join(".dlea-test-sandbox"))
                 .is_ok_and(|metadata| metadata.is_file())
     }
 
     fn frontend(&self) {
-        let path = self.root.join("flea-gui");
+        let path = self.root.join("dlea-gui");
         write_in_child(&path, r#"#!/usr/bin/python3
 import json,os,sys
-keys=('QSG_RHI_BACKEND','FLEA_RENDERER_AUTOMATIC','FLEA_VK_PIN','VK_DRIVER_FILES','VK_ICD_FILENAMES','FLEA_PATH','FLEA_SELECT','FLEA_UNLOCK')
+keys=('QSG_RHI_BACKEND','DLEA_RENDERER_AUTOMATIC','DLEA_VK_PIN','VK_DRIVER_FILES','VK_ICD_FILENAMES','DLEA_PATH','DLEA_SELECT','DLEA_UNLOCK')
 print(json.dumps({'argv':sys.argv[1:],'env':{key:os.environ.get(key) for key in keys}}))
 "#.as_bytes());
-        flea::executable_file::write(&path, &std::fs::read(&path).unwrap(), 0o755).unwrap();
+        dlea::executable_file::write(&path, &std::fs::read(&path).unwrap(), 0o755).unwrap();
     }
 
     fn command(&self) -> Command {
@@ -104,13 +104,13 @@ print(json.dumps({'argv':sys.argv[1:],'env':{key:os.environ.get(key) for key in 
     }
 
     fn launch_command(&self) -> Command {
-        let mut command = Command::new(self.root.join("flea"));
+        let mut command = Command::new(self.root.join("dlea"));
         command
-            .env("FLEA_FRONTEND", "gpui")
-            .env("WAYLAND_DISPLAY", "flea-test")
+            .env("DLEA_FRONTEND", "gpui")
+            .env("WAYLAND_DISPLAY", "dlea-test")
             .env("QT_QPA_PLATFORMTHEME", "")
-            .env("FLEA_UI", self.root.join("no-ui"))
-            .env("FLEA_BIN", self.root.join("flea"))
+            .env("DLEA_UI", self.root.join("no-ui"))
+            .env("DLEA_BIN", self.root.join("dlea"))
             .env("XDG_CACHE_HOME", self.root.join("cache"))
             .env("XDG_STATE_HOME", self.root.join("state"))
             .env("XDG_CONFIG_HOME", self.root.join("config"))
@@ -119,10 +119,10 @@ print(json.dumps({'argv':sys.argv[1:],'env':{key:os.environ.get(key) for key in 
             .env("VK_LOADER_DRIVERS_DISABLE", "operator-filter");
         for key in [
             "QSG_RHI_BACKEND",
-            "FLEA_RENDERER_AUTOMATIC",
-            "FLEA_VK_PIN",
-            "FLEA_PATH",
-            "FLEA_SELECT",
+            "DLEA_RENDERER_AUTOMATIC",
+            "DLEA_VK_PIN",
+            "DLEA_PATH",
+            "DLEA_SELECT",
         ] {
             command.env_remove(key);
         }
@@ -133,12 +133,12 @@ print(json.dumps({'argv':sys.argv[1:],'env':{key:os.environ.get(key) for key in 
 impl Drop for Sandbox {
     fn drop(&mut self) {
         if !self.removable() {
-            eprintln!("flea test sandbox cleanup refused {}", self.root.display());
+            eprintln!("dlea test sandbox cleanup refused {}", self.root.display());
             return;
         }
         if let Err(error) = fs::remove_dir_all(&self.root) {
             eprintln!(
-                "flea test sandbox cleanup failed for {}: {error}",
+                "dlea test sandbox cleanup failed for {}: {error}",
                 self.root.display()
             );
         }
@@ -162,7 +162,7 @@ fn unlock_launch_uses_gpui_without_qml_and_forgets_the_parent_request() {
     let output = sandbox
         .launch_command()
         .args(["--unlock", "/dev/mapper/vault"])
-        .env("FLEA_UNLOCK", "/dev/stale-parent")
+        .env("DLEA_UNLOCK", "/dev/stale-parent")
         .output()
         .unwrap();
     let document = reply(&output);
@@ -171,17 +171,17 @@ fn unlock_launch_uses_gpui_without_qml_and_forgets_the_parent_request() {
         document
             .get("env")
             .unwrap()
-            .get("FLEA_UNLOCK")
+            .get("DLEA_UNLOCK")
             .and_then(Json::as_str),
         Some("/dev/mapper/vault")
     );
     let output = sandbox
         .command()
-        .env("FLEA_UNLOCK", "/dev/stale-parent")
+        .env("DLEA_UNLOCK", "/dev/stale-parent")
         .output()
         .unwrap();
     assert_eq!(
-        reply(&output).get("env").unwrap().get("FLEA_UNLOCK"),
+        reply(&output).get("env").unwrap().get("DLEA_UNLOCK"),
         Some(&Json::Null)
     );
 }
@@ -223,7 +223,7 @@ fn gpui_skips_qt_renderer_switches_and_diagnostics() {
             command.env("QSG_RHI_BACKEND", renderer);
         }
         let output = command
-            .env("FLEA_RENDERER_AUTOMATIC", "1")
+            .env("DLEA_RENDERER_AUTOMATIC", "1")
             .output()
             .unwrap();
         let document = reply(&output);
@@ -233,7 +233,7 @@ fn gpui_skips_qt_renderer_switches_and_diagnostics() {
             "{}",
             String::from_utf8_lossy(&output.stderr)
         );
-        for key in ["QSG_RHI_BACKEND", "FLEA_RENDERER_AUTOMATIC", "FLEA_VK_PIN"] {
+        for key in ["QSG_RHI_BACKEND", "DLEA_RENDERER_AUTOMATIC", "DLEA_VK_PIN"] {
             assert_eq!(
                 environment.get(key),
                 Some(&Json::Null),
@@ -255,9 +255,9 @@ fn gpui_skips_qt_renderer_switches_and_diagnostics() {
     let output = sandbox
         .command()
         .env("QSG_RHI_BACKEND", "opengl")
-        .env("FLEA_RENDERER_AUTOMATIC", "1")
+        .env("DLEA_RENDERER_AUTOMATIC", "1")
         .env("VK_LOADER_DRIVERS_DISABLE", "*")
-        .env("FLEA_VK_PIN", "1")
+        .env("DLEA_VK_PIN", "1")
         .output()
         .unwrap();
     let document = reply(&output);
@@ -267,11 +267,11 @@ fn gpui_skips_qt_renderer_switches_and_diagnostics() {
         "{}",
         String::from_utf8_lossy(&output.stderr)
     );
-    for key in ["QSG_RHI_BACKEND", "FLEA_RENDERER_AUTOMATIC"] {
+    for key in ["QSG_RHI_BACKEND", "DLEA_RENDERER_AUTOMATIC"] {
         assert_eq!(environment.get(key), Some(&Json::Null), "{key}");
     }
     // GPUI picks its own adapter: an inherited launcher pin is dropped and no software ICD is added.
-    for key in ["FLEA_VK_PIN", "VK_DRIVER_FILES", "VK_ICD_FILENAMES"] {
+    for key in ["DLEA_VK_PIN", "VK_DRIVER_FILES", "VK_ICD_FILENAMES"] {
         assert_eq!(environment.get(key), Some(&Json::Null), "{key}");
     }
 }
@@ -285,8 +285,8 @@ fn gpui_path_and_selection_use_argv_despite_stale_parent_environment() {
     let output = sandbox
         .command()
         .env("QSG_RHI_BACKEND", "opengl")
-        .env("FLEA_PATH", "/stale-parent/path")
-        .env("FLEA_SELECT", "/stale-parent/selection")
+        .env("DLEA_PATH", "/stale-parent/path")
+        .env("DLEA_SELECT", "/stale-parent/selection")
         .arg("--select")
         .arg(&selected)
         .arg(sandbox.root.join("ignored"))
@@ -309,14 +309,14 @@ fn gpui_path_and_selection_use_argv_despite_stale_parent_environment() {
             sandbox.root.join("files").to_str().unwrap()
         ]
     );
-    for key in ["FLEA_PATH", "FLEA_SELECT"] {
+    for key in ["DLEA_PATH", "DLEA_SELECT"] {
         assert_eq!(document.get("env").unwrap().get(key), Some(&Json::Null));
     }
     let output = sandbox
         .command()
         .env("QSG_RHI_BACKEND", "opengl")
-        .env("FLEA_PATH", "/stale-parent/path")
-        .env("FLEA_SELECT", "/stale-parent/selection")
+        .env("DLEA_PATH", "/stale-parent/path")
+        .env("DLEA_SELECT", "/stale-parent/selection")
         .output()
         .unwrap();
     let document = reply(&output);
@@ -331,7 +331,7 @@ fn gpui_path_and_selection_use_argv_despite_stale_parent_environment() {
         arguments.is_empty(),
         "an unnamed launch must let saved startup settings choose the path"
     );
-    for key in ["FLEA_PATH", "FLEA_SELECT"] {
+    for key in ["DLEA_PATH", "DLEA_SELECT"] {
         assert_eq!(document.get("env").unwrap().get(key), Some(&Json::Null));
     }
     let start = sandbox.root.join("files");
@@ -350,7 +350,7 @@ fn gpui_path_and_selection_use_argv_despite_stale_parent_environment() {
 fn gpui_exec_errors_name_the_program_and_os_reason() {
     let _serial = EXECUTABLE_FIXTURES.lock().unwrap();
     let denied = Sandbox::new();
-    let frontend = denied.root.join("flea-gui");
+    let frontend = denied.root.join("dlea-gui");
     write_in_child(&frontend, b"not executable\n");
     let output = denied
         .command()
@@ -373,7 +373,7 @@ fn gpui_exec_errors_name_the_program_and_os_reason() {
         .unwrap();
     let error = String::from_utf8(output.stderr).unwrap();
     assert!(!output.status.success());
-    assert!(error.contains("flea-gui"), "{error}");
+    assert!(error.contains("dlea-gui"), "{error}");
     assert!(
         error.contains(&std::io::Error::from_raw_os_error(2).to_string()),
         "{error}"

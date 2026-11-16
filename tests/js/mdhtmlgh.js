@@ -90,8 +90,8 @@ function run(check) {
     check("H15 the stray closer is drawn once, balanced with its centring wrapper", runs(shared.join("\n")), '<p align="center"><b>Name</b></p>|After')
     check("H16 an inline image in a paragraph stays inline", types('text <a href="' + url + '"><img src="img/logo.png"></a> tail'), "run")
     check("H4 a width past the pane is kept for the pane to clamp", at(blocks('<img src="img/logo.png" width="5000">'), 0).width, 5000)
-    check("H17 a heading and a paragraph on adjacent lines are heading and run", types('<h1 align="center">Flea</h1>\n<p align="center"><b>A file manager</b> for <i>Omarchy</i></p>'), "heading,run")
-    var h17 = blocks('<h1 align="center">Flea</h1>\n<p align="center">x</p>')
+    check("H17 a heading and a paragraph on adjacent lines are heading and run", types('<h1 align="center">Dlea</h1>\n<p align="center"><b>A file manager</b> for <i>Omarchy</i></p>'), "heading,run")
+    var h17 = blocks('<h1 align="center">Dlea</h1>\n<p align="center">x</p>')
     check("H17 each keeps its own centring", at(h17, 0).align + "|" + at(h17, 1).text, "center|<p align=\"center\">x</p>")
     check("H17 nested blocks inside one div stay one run", types("<div>\n<p>a</p>\n<p>b</p>\n</div>"), "run")
     check("H17 a details summary line stays with its details", types("<details>\n<summary>S</summary>\n\nbody\n\n</details>"), "run")
@@ -127,7 +127,7 @@ function run(check) {
     check("H11 deep indentation inside a fence is code, never nesting", types("```\n" + list(60) + "\n```"), "fence")
     check("H11 deep indentation of plain text is not nesting", types(" ".repeat(200) + "word") !== "deep", true)
     check("H11 a heading before the deep part is not drawn", types("# Title\n\n" + quote(40)), "deep")
-    check("H11 the notice names the limit", typeof Markdown.deepNotice === "function" ? Markdown.deepNotice() : "", "This file nests deeper than 32 levels, so Flea shows its source.")
+    check("H11 the notice names the limit", typeof Markdown.deepNotice === "function" ? Markdown.deepNotice() : "", "This file nests deeper than 32 levels, so Dlea shows its source.")
 
     // An HTML link draws in the text's ink like a Markdown link: the importer's own link blue never shows.
     var inked = '<a href="' + url + '"><font color="' + ink + '">Install</font></a>'

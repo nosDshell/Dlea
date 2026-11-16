@@ -1,4 +1,4 @@
-//! The payload shapes pinned byte for byte: the fork doc's cut example, the backend's GNOME, URI, plain, KDE and FLEA forms, and the foreign chooser.
+//! The payload shapes pinned byte for byte: the fork doc's cut example, the backend's GNOME, URI, plain, KDE and DLEA forms, and the foreign chooser.
 use super::payload::*;
 
 fn paths(list: &[&str]) -> Vec<String> {
@@ -69,16 +69,16 @@ fn decode_refuses_hosts_nuls_and_dot_parts() {
 }
 
 #[test]
-fn kde_and_flea_tokens_read_exactly() {
+fn kde_and_dlea_tokens_read_exactly() {
     assert!(parse_kde_cut(b"1"));
     assert!(parse_kde_cut(b"1\r\n"));
     assert!(!parse_kde_cut(b"0"));
     assert_eq!(
-        parse_flea(b"cut ab12cd34ab12cd34ab12cd34ab12cd34"),
+        parse_dlea(b"cut ab12cd34ab12cd34ab12cd34ab12cd34"),
         Some(("cut".into(), "ab12cd34ab12cd34ab12cd34ab12cd34".into()))
     );
-    assert!(parse_flea(b"copy short").is_none());
-    assert!(parse_flea(b"move ab12cd34ab12cd34ab12cd34ab12cd34").is_none());
+    assert!(parse_dlea(b"copy short").is_none());
+    assert!(parse_dlea(b"move ab12cd34ab12cd34ab12cd34ab12cd34").is_none());
     assert!(is_token("ab12cd34ab12cd34ab12cd34ab12cd34"));
     assert!(!is_token("short"));
     assert!(is_op("copy") && is_op("cut") && !is_op("move"));
@@ -89,7 +89,7 @@ fn the_chooser_prefers_gnome_then_uri_then_nothing() {
     let mine = paths(&["/example/a b"]);
     let gnome = build_gnome("cut", &mine);
     let uri = build_urilist(&mine);
-    let flea = build_flea("cut", "ab12cd34ab12cd34ab12cd34ab12cd34");
+    let dlea = build_dlea("cut", "ab12cd34ab12cd34ab12cd34ab12cd34");
     let foreign = choose(&[
         Offer {
             mime: URILIST,
@@ -100,8 +100,8 @@ fn the_chooser_prefers_gnome_then_uri_then_nothing() {
             bytes: &gnome,
         },
         Offer {
-            mime: FLEA,
-            bytes: &flea,
+            mime: DLEA,
+            bytes: &dlea,
         },
     ]);
     assert_eq!(

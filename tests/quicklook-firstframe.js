@@ -1,5 +1,5 @@
 .pragma library
-.import "flea/js/Markdown.js" as Markdown
+.import "dlea/js/Markdown.js" as Markdown
 
 // Object keys in sorted order, because a block that crossed the worker's boundary comes back with its keys sorted.
 function canon(v) {

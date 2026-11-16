@@ -1,6 +1,6 @@
 # Field bench manifest
 
-Written by tools/flea-bench-manifest. Every measurement below is read off the installed artefact.
+Written by tools/dlea-bench-manifest. Every measurement below is read off the installed artefact.
 The host name and the checkout path are generalised for publication; no measured value is touched.
 Wording outside the measurements was made neutral after the run; every number, version and setting is as the tool
 recorded it. The text as first recorded is in this file's history before commit b91358a5.
@@ -8,17 +8,17 @@ recorded it. The text as first recorded is in this file's history before commit 
 NOTE: this run wrote its manifest to bench/results.manifest.md, which the media run that
 followed it overwrote. Regenerated 2026-09-02T20:50:33-04:00 by the same tool against the
 same fixture, so the date and load-average lines below are the regeneration and not the run.
-The flea entrant line is the one the harness itself recorded at run time, against the same
+The dlea entrant line is the one the harness itself recorded at run time, against the same
 binary (built 20:13:50, 972008 bytes); everything else is read live off the installed artefact.
 
 ## Run
 
 - date: 2026-09-02T20:50:33-04:00
 - host: the bench box, kernel 7.1.9-arch1-2
-- fixture: /home/flea-sandbox/flea-bench-btrfs
+- fixture: /home/dlea-sandbox/dlea-bench-btrfs
 - fixture payload: 100000 visible entries, filesystem btrfs
 - TUI terminal: kitty 0.48.2-1
-- flea launch line: FLEA_BIN=<repo>/target/release/flea FLEA_UI=<repo>/ui setsid nohup <repo>/target/release/flea --gui /home/flea-sandbox/flea-bench-btrfs
+- dlea launch line: DLEA_BIN=<repo>/target/release/dlea DLEA_UI=<repo>/ui setsid nohup <repo>/target/release/dlea --gui /home/dlea-sandbox/dlea-bench-btrfs
 - load average at start: 0.22 0.66 1.29
 - waited 0 seconds for the box to go idle before starting
 - TUI preview target: not recorded by the caller
@@ -42,7 +42,7 @@ binary (built 20:13:50, 972008 bytes); everything else is read live off the inst
 ## Entrants
 
 ```
-flea       gui  source b857757 (clean), release binary built 2026-09-02T20:13:50-04:00, 972008 bytes
+dlea       gui  source b857757 (clean), release binary built 2026-09-02T20:13:50-04:00, 972008 bytes
 nautilus   gui  nautilus 50.2.2-1
 thunar     gui  thunar 4.20.9-1
 pcmanfm    gui  pcmanfm 1.4.0-2
@@ -68,7 +68,7 @@ from the published release, which is equally true of every AUR entrant in the li
 
 ## The TUI group's configuration, as it ran
 
-Provenance per entrant is in `tools/flea-bench-tui/README.md`. lf's is AUTHORED HERE
+Provenance per entrant is in `tools/dlea-bench-tui/README.md`. lf's is AUTHORED HERE
 because lf ships no image preview at all; every other file came from that project's own docs.
 
 ### README.md
@@ -122,7 +122,7 @@ document carrying both says so rather than merging the two tables.
 # whatever font size somebody set last week is not reproducible, and nnn's preview plugin needs
 # remote control switched on, which is not something to turn on in an operator's real terminal.
 allow_remote_control yes
-listen_on unix:/tmp/flea-bench-kitty
+listen_on unix:/tmp/dlea-bench-kitty
 
 # A fixed grid, so every entrant is handed the same viewport and the same amount of preview to draw.
 font_size 12

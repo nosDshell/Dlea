@@ -95,17 +95,17 @@ fn rank_capture_mute_row_reads_its_where() {
 }
 
 #[test]
-fn rank_fl_lists_favourite_then_recent_file() {
+fn rank_dl_lists_favourite_then_recent_file() {
     let rail = [RailEntry {
-        label: "flea".into(),
+        label: "dlea".into(),
         group: "favourite".into(),
         kind: "favourite".into(),
-        identity: "favourite:/home/probe/flea".into(),
+        identity: "favourite:/home/probe/dlea".into(),
     }];
     let mut rows = place_candidates(&rail);
-    rows.extend(recent_candidates(&["/home/probe/Documents/claude/mix.flac".into()], "/home/probe"));
-    let found: Vec<String> = ranked(&rows, "fl").iter().map(|row| format!("{} in {}", say(&row.label), say(&row.where_))).collect();
-    assert_eq!(found.join("|"), "Open flea in Favorites|Open mix.flac in ~/Documents/claude");
+    rows.extend(recent_candidates(&["/home/probe/Documents/claude/dl-mix.flac".into()], "/home/probe"));
+    let found: Vec<String> = ranked(&rows, "dl").iter().map(|row| format!("{} in {}", say(&row.label), say(&row.where_))).collect();
+    assert_eq!(found.join("|"), "Open dlea in Favorites|Open dl-mix.flac in ~/Documents/claude");
 }
 
 #[test]

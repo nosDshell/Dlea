@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-griddroplive-test
+//@ pragma ShellId dlea-griddroplive-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // The shipped GridArea over the pane's floor under a real Qt drag (no mime data, so entry and drop are read from the area and the pane): who takes a folder tile, a file tile, the margin and bare ground.
 ShellRoot {
@@ -79,7 +79,7 @@ ShellRoot {
         }
     }
     Component { id: menuStub; QtObject { function close() {} } }
-    Component { id: floorMaker; Flea.DropInto { z: -1; width: 900; height: 700; pane: root.floorPane; dest: "/probe" } }
+    Component { id: floorMaker; Dlea.DropInto { z: -1; width: 900; height: 700; pane: root.floorPane; dest: "/probe" } }
     Component { id: decoyMaker; Item { z: 20 } }
 
     FloatingWindow {
@@ -95,7 +95,7 @@ ShellRoot {
                 active: false
                 width: 900
                 height: 700
-                sourceComponent: Flea.GridArea { pane: root.gridPane; menu: menuStub.createObject(root) }
+                sourceComponent: Dlea.GridArea { pane: root.gridPane; menu: menuStub.createObject(root) }
             }
             Item {
                 id: puck

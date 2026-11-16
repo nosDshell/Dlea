@@ -58,7 +58,7 @@ pub(super) fn run(root: &Path) {
         "cancel must reap decoder"
     );
     assert!(m.combining.card.is_none() && graphics.bytes.is_empty());
-    assert!(root.is_absolute() && root.join(".flea-test-sandbox").is_file());
+    assert!(root.is_absolute() && root.join(".dlea-test-sandbox").is_file());
     std::fs::rename(root.join("held"), root.join("preview-reaped")).unwrap();
     epoch_change(root);
     let (mut m, mut w) = open(root);
@@ -107,8 +107,8 @@ pub(super) fn install_slow_sandbox(root: &Path) {
     // Input sample: bwrap --die-with-parent --ro-bind /usr /usr ... magick -- /work/input-0.png.
     let script = r#"#!/bin/sh
 set -eu
-root=${FLEA_TUI_COMBINE_ROOT:?}
-case "$root" in /*) test -f "$root/.flea-test-sandbox" ;; *) exit 98 ;; esac
+root=${DLEA_TUI_COMBINE_ROOT:?}
+case "$root" in /*) test -f "$root/.dlea-test-sandbox" ;; *) exit 98 ;; esac
 if test -f "$root/slow"; then
   printf '%s\n' "$$" > "$root/held.part"
   mv "$root/held.part" "$root/held"
@@ -117,7 +117,7 @@ fi
 exec /usr/bin/bwrap "$@"
 "#;
     std::fs::write(&path, script).unwrap();
-    flea::executable_file::write(&path, &std::fs::read(&path).unwrap(), 0o755).unwrap();
+    dlea::executable_file::write(&path, &std::fs::read(&path).unwrap(), 0o755).unwrap();
 }
 
 fn epoch_change(root: &Path) {
@@ -148,7 +148,7 @@ fn epoch_change(root: &Path) {
         &mut frame,
     )
     .unwrap();
-    assert!(root.is_absolute() && root.join(".flea-test-sandbox").is_file());
+    assert!(root.is_absolute() && root.join(".dlea-test-sandbox").is_file());
     std::fs::rename(root.join("slow"), root.join("epoch-slow-used")).unwrap();
     preview(&mut m, &mut w, Protocol::None);
     let f = m.combining.card.as_ref().unwrap();

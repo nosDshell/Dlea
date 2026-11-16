@@ -1,7 +1,7 @@
 // Duration, pixels and sample rate for a media row, which the preview column names and no listing
 // carries. ffprobe reads the container's own header; nothing is decoded and nothing is written.
 use crate::backend::sandbox;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::io::Read;
 use std::path::Path;
 use std::sync::{Arc, Condvar, Mutex};

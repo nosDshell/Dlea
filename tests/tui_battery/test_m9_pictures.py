@@ -98,7 +98,7 @@ class BoundaryTerminal:
 
 class PictureDriverTests(unittest.TestCase):
     def setUp(self):
-        self.root = Path(tempfile.mkdtemp(prefix="m9-picture.", dir=os.environ["FLEA_BATTERY_TEST_ROOT"]))
+        self.root = Path(tempfile.mkdtemp(prefix="m9-picture.", dir=os.environ["DLEA_BATTERY_TEST_ROOT"]))
         (self.root / MARKER).write_text("owned synthetic picture boundary\n")
 
     def state(self):
@@ -108,7 +108,7 @@ class PictureDriverTests(unittest.TestCase):
     def test_configuration_uses_the_actual_board_and_native_cell_calibration(self):
         from .bundle.pictures import configure
         from .references import Board
-        boards = Path(os.environ["FLEA_BATTERY_BOARDS"]) / "boards"
+        boards = Path(os.environ["DLEA_BATTERY_BOARDS"]) / "boards"
         terminal = SimpleNamespace(case=self.root)
         configure(terminal, Board(boards / "tui-3d-quicklook.html"), Board(boards / "tui-3d-column.html"),
                   [4, 9, 1040, 682], [8, 22])
@@ -180,7 +180,7 @@ class PictureDriverTests(unittest.TestCase):
         media_transcript(self.root, [{"ns": 30, "data": token}], kitty=False, sixel=True)
         receipt = candidate.picture_frame(terminal)["native_source"]
         records = terminal.commands.records
-        self.assertEqual([row["argv"][row["argv"].index("/opt/flea") - 1] for row in records],
+        self.assertEqual([row["argv"][row["argv"].index("/opt/dlea") - 1] for row in records],
                          ["/usr/bin/sixel2png", "/usr/bin/magick"])
         self.assertEqual(receipt["command"], 1)
         self.assertEqual(records[0]["argv"][-2:], ["-o", "/" + receipt["raster_path"]])

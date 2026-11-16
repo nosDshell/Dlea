@@ -1,7 +1,7 @@
 use crate::backend::thumbcache::uri_for;
 use crate::backend::thumbspec::Spec;
-use flea::bytename::ExactText as _;
-use flea::ui_logic_print_convert::output as magick;
+use dlea::bytename::ExactText as _;
+use dlea::ui_logic_print_convert::output as magick;
 use std::path::{Path, PathBuf};
 
 // argv returns the canonicalised input beside the argv, so a caller cannot bind one path and hand the child another; see AGENTS.md "Thumbnailer specs".

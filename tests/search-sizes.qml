@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-search-sizes-test
+//@ pragma ShellId dlea-search-sizes-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Search.js" as Search
-import "flea/js/DirSizes.js" as DirSizes
+import "dlea" as Dlea
+import "dlea/js/Search.js" as Search
+import "dlea/js/DirSizes.js" as DirSizes
 
 // A folder row a live answer lists draws its size in the first frame it appears, once this search has seen that folder.
 ShellRoot {
@@ -66,12 +66,12 @@ ShellRoot {
         id: win
         implicitWidth: 1400
         implicitHeight: 1000
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
     }
-    Flea.Backend { id: realBackend }
+    Dlea.Backend { id: realBackend }
     Component {
         id: paneComponent
-        Flea.Pane {
+        Dlea.Pane {
             width: 1400
             height: 1000
             backend: realBackend
@@ -204,7 +204,7 @@ ShellRoot {
 
     function run(op) {
         if (op.open) {
-            Flea.ViewState.changeKey("view", "list")
+            Dlea.ViewState.changeKey("view", "list")
             root.pane = paneComponent.createObject(win.contentItem)
             root.keys = Qt.createQmlObject("import QtTest; TestEvent {}", root.pane.listArea)
             root.pane.open(root.fixture)

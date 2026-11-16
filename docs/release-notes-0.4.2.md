@@ -1,4 +1,4 @@
-# Flea 0.4.2
+# Dlea 0.4.2
 
 - Start a new search in the current folder (#451, @muellan).
 - Open large folders at Tight row density instead of failing to load (#454, @austrasien).
@@ -33,7 +33,7 @@
 - Select text by dragging in the Save chooser name field.
 - Keep the typed name in inline rename and refuse the change if another file has replaced the selected one, whether rename started from the keyboard or the menu.
 - Keep an inline rename open on Escape while its change is pending, and explain why the row disappears when renaming to a hidden name.
-- Land carried files in List, Columns, Grid and another Flea window; cancel the carry with Escape in either window.
+- Land carried files in List, Columns, Grid and another Dlea window; cancel the carry with Escape in either window.
 - Make the footer's Undo hint work on click, and refresh the folder after completed undo and redo even when no file-watch event arrives.
 - Support undo and redo inside the Trash view, and show their receipts there.
 - Recreate a missing original folder on Restore, and keep healthy entries visible when Trash records are damaged.
@@ -47,7 +47,7 @@
 - Handle deeply nested folders in copy, folder-size walks and delete without a stack overflow or running out of open files.
 - Keep sparse files' holes when copying where the filesystem supports it, and support names near the filename-length limit in Duplicate and Keep both.
 - Report a copy failure if its source is truncated before it finishes.
-- Report an error for copies that exceed a shell file-size limit without interrupting the rest of Flea.
+- Report an error for copies that exceed a shell file-size limit without interrupting the rest of Dlea.
 - Keep percent signs in Convert and Combine output paths literal.
 - Refuse eject and unmount while a transfer uses the drive, name the running job, and keep the folder and transfer card in place.
 - Return to the nearest surviving parent when an open folder disappears.
@@ -79,7 +79,7 @@
 - Use tab-number and tab-move keys from the sidebar, and keep a visible menu target on a right-clicked Columns row.
 - Open menus beside a running Jobs card, and refuse Trash before deletion is armed on a phone or mount without Trash.
 - Reach Print with Ctrl+P and show Ctrl+P in the menu's key hint.
-- Identify a flea-bin installation as a Release build in About.
+- Identify a dlea-bin installation as a Release build in About.
 - Honour NO_COLOR in the TUI, keep menu and card focus visible, and draw readable image and 3D previews in monochrome and 16-colour terminals.
 - Open symlinked folders under the link's path in the TUI and explain a broken link.
 - Open the highlighted result with one Enter in TUI Find and Filter, and choose a file with Right or l in chooser mode.
@@ -88,8 +88,8 @@
 - Clean up dots and trailing slashes in TUI Go to folder without resolving links, and copy a relative path with r.
 - Use VISUAL before EDITOR for TUI editing and bulk rename and name a missing editor or helper program.
 - Keep TUI receipts visible during Find, stop modified Return and Space from accidentally accepting fields or toggling options, and fit the key sheet in a short terminal.
-- Answer flea --help, -h and -V directly, and refuse unknown options.
-- Declare Arch packages' conflict with mutt so pacman explains the shared /usr/bin/flea path (#437, @synacktic).
+- Answer dlea --help, -h and -V directly, and refuse unknown options.
+- Declare Arch packages' conflict with mutt so pacman explains the shared /usr/bin/dlea path (#437, @synacktic).
 - Distinguish in the command interface between a closed window and a window that dropped a request without replying.
 
 Thanks to @AkitaOnRails, @AksharP5, @alextakitani, @austrasien, @dpan, @Ewerton, @filip-spaldon, @jlahijani, @k-kostin, @kevinpardo, @MISTERNEGATIVE21, @mtp13, @muellan, @rms1982, @synacktic, @timothy-ecc, @vitonique and @zm14.

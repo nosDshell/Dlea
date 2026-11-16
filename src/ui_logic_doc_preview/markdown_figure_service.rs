@@ -24,13 +24,13 @@ pub const NOT_STARTED: &str = "figure engine did not start";
 /// What the host does for the service: start, feed or end the helper and the store, and hand an answer to its figure.
 #[derive(Clone, Debug, PartialEq)]
 pub enum Command {
-    /// Starts `flea --figure-helper`, with `--warm=` and these kinds when there are any.
+    /// Starts `dlea --figure-helper`, with `--warm=` and these kinds when there are any.
     HelperSpawn(Vec<&'static str>),
     HelperWrite(String),
     HelperKill,
     /// An idle stop: the helper is ended and its exit then reported.
     HelperStop,
-    /// Starts `flea --figure-store`.
+    /// Starts `dlea --figure-store`.
     StoreSpawn,
     StoreWrite(String),
     StoreKill,

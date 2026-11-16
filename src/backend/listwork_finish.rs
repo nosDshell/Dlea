@@ -25,7 +25,7 @@ pub fn finish<W: Write>(
     if crate::backend::unmount::crossed_answers(
         out,
         watch,
-        &flea::bytename::view(&path),
+        &dlea::bytename::view(&path),
         &done.result,
     ) {
         out.flush().ok();
@@ -38,7 +38,7 @@ pub fn finish<W: Write>(
             // Said once per listing, because a folder nobody can watch goes stale in silence.
             if watch.refused() {
                 eprintln!(
-                    "flea: {} will not follow outside changes, inotify refused a watch on it",
+                    "dlea: {} will not follow outside changes, inotify refused a watch on it",
                     path
                 );
             }
@@ -55,7 +55,7 @@ pub fn finish<W: Write>(
                 st,
                 watch,
                 poller,
-                &flea::bytename::view(&path),
+                &dlea::bytename::view(&path),
                 &failed,
             ) {
                 say_failed(out, &failed);
@@ -80,7 +80,7 @@ pub fn finish_session<W: Write>(
 ) {
     let Landed { job, done } = landed;
     let current = st.search_session.as_ref().is_some_and(|session| {
-        session.last_answered_gen == scan.gen && session.folder == *flea::bytename::view(&job.path)
+        session.last_answered_gen == scan.gen && session.folder == *dlea::bytename::view(&job.path)
     });
     match done.result {
         Ok(listed) => {

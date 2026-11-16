@@ -3,8 +3,8 @@
 set -euo pipefail
 : "${BIN:?absolute picker launcher}" "${MATCH:?picker command-line marker}" "${FX:?guarded fixture root}"
 [[ $BIN == /* && -x $BIN && -n $MATCH ]] || exit 2
-export FLEA_FIXTURE_ROOT="$FX"
-. "$(dirname -- "$0")/../../../tools/flea-sandbox-guard"
+export DLEA_FIXTURE_ROOT="$FX"
+. "$(dirname -- "$0")/../../../tools/dlea-sandbox-guard"
 sandbox_root_ok
 FX=$SANDBOX_ROOT
 [[ -f $FX/$SANDBOX_MARKER && ! -L $FX/$SANDBOX_MARKER ]] || sandbox_refuse "unowned fixture: $FX"
@@ -62,7 +62,7 @@ for ((i = 1; i <= runs; i++)); do
     sandbox_require "$scratch/reply-$i.json"
     reply=$SANDBOX_PATH
     start=$(date +%s%3N)
-    FLEA_PICKER="$request" "$BIN" --pick "$reply" > "$scratch/launch-$i.log" 2>&1 &
+    DLEA_PICKER="$request" "$BIN" --pick "$reply" > "$scratch/launch-$i.log" 2>&1 &
     pid=$!
     wait_identity || { printf 'not-the-picker: pid=%s marker=%s\n' "$pid" "$MATCH" >&2; exit 1; }
     address=$(wait_window) || { printf 'no mapped picker window for pid=%s\n' "$pid" >&2; exit 1; }

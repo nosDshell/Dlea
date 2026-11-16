@@ -6,7 +6,7 @@ pub const NAME_BYTES: usize = 255;
 /// The edit file's ceiling per name line, so a runaway edit is refused before it is split.
 pub const NAME_LINE_BYTES: usize = 256;
 /// The private edit directory's leaf prefix, so a cleanup never walks elsewhere.
-pub const SCRATCH_STEM: &str = "flea-rename-";
+pub const SCRATCH_STEM: &str = "dlea-rename-";
 
 pub fn apply_find_replace(old_names: &[String], find: &str, replace: &str) -> Vec<String> {
     old_names.iter().map(|name| if find.is_empty() { name.clone() } else { name.replace(find, replace) }).collect()
@@ -170,7 +170,7 @@ pub fn edit_text(new_names: &[String]) -> String {
     text
 }
 
-/// A scratch dir is the base plus one flea-rename leaf, so a cleanup never walks elsewhere.
+/// A scratch dir is the base plus one dlea-rename leaf, so a cleanup never walks elsewhere.
 pub fn is_scratch_dir(base: &str, dir: &str) -> bool {
     if base.is_empty() || dir.len() <= base.len() + SCRATCH_STEM.len() + 1 {
         return false;
@@ -181,7 +181,7 @@ pub fn is_scratch_dir(base: &str, dir: &str) -> bool {
 
 /// The editor's argv: the file rides as an argument and never inside the shell string.
 pub fn editor_argv(folder: &str, editor: &str, file: &str) -> Vec<String> {
-    ["xdg-terminal-exec", &format!("--dir={folder}"), "--", "/bin/sh", "-c", &format!("exec {editor} \"$1\""), "flea-bulk-rename", file]
+    ["xdg-terminal-exec", &format!("--dir={folder}"), "--", "/bin/sh", "-c", &format!("exec {editor} \"$1\""), "dlea-bulk-rename", file]
         .iter().map(|s| s.to_string()).collect()
 }
 

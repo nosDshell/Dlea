@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Render hostile Markdown through the preview and Text.MarkdownText; require a control GET and zero corpus requests.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 . "$(dirname "$0")/qslog-gate.sh"
 cd "$(dirname "$0")/.." || exit 1
 
@@ -15,7 +15,7 @@ if ! command -v python3 >/dev/null; then
     exit 1
 fi
 
-test_root="$FIXTURE_ROOT/flea-markdown-security-$$"
+test_root="$FIXTURE_ROOT/dlea-markdown-security-$$"
 sandbox_make "$test_root"
 server_pid=""
 cleanup() { sandbox_remove "$test_root"; kill "$server_pid" 2>/dev/null; }
@@ -23,7 +23,7 @@ trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/cache" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-cp -a ui "$test_root/config/flea" || exit 1
+cp -a ui "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/markdown-security.qml "$test_root/config/shell.qml" || exit 1
@@ -231,8 +231,8 @@ source_view_verdict() {
 # The delayed negative control must finish before the control and still fail the zero-hit check.
 delayed_output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_MARKDOWN_FIXTURE="$test_root/notes.md" \
-    FLEA_MARKDOWN_COUNTER="http://127.0.0.1:$port" FLEA_MARKDOWN_DELAYED_CORPUS=1 \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_MARKDOWN_FIXTURE="$test_root/notes.md" \
+    DLEA_MARKDOWN_COUNTER="http://127.0.0.1:$port" DLEA_MARKDOWN_DELAYED_CORPUS=1 \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 QT_LOGGING_RULES="$(qslog_rules "${QT_LOGGING_RULES:-}")" \
     timeout 60 qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 
@@ -262,8 +262,8 @@ RESET
 # The harness ends itself with a kill, so the subshell keeps bash's "Terminated" notice out of the report.
 output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_MARKDOWN_FIXTURE="$test_root/notes.md" \
-    FLEA_MARKDOWN_COUNTER="http://127.0.0.1:$port" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_MARKDOWN_FIXTURE="$test_root/notes.md" \
+    DLEA_MARKDOWN_COUNTER="http://127.0.0.1:$port" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 QT_LOGGING_RULES="$(qslog_rules "${QT_LOGGING_RULES:-}")" \
     timeout 60 qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 

@@ -3,15 +3,15 @@
 # A rested Markdown document holding a table builds Quick Look's unseen warm table once per prepare, and a held key never does.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 command -v qs >/dev/null || { printf 'FAIL quicklook-tablewarm: qs is required\n'; exit 1; }
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-quicklook-tablewarm.XXXXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-quicklook-tablewarm.XXXXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER"
 trap 'sandbox_remove "$test_root"' EXIT
 mkdir -p "$test_root"/{config,fixture,home,state,cache,data,runtime,tmp}
 chmod 700 "$test_root/runtime"
-ln -s "$PWD/ui" "$test_root/config/flea"
+ln -s "$PWD/ui" "$test_root/config/dlea"
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui"
 cp tests/quicklook-tablewarm.qml "$test_root/config/shell.qml"
@@ -24,7 +24,7 @@ limit=60
 output=$(env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CONFIG_HOME="$test_root/home/.config" \
     XDG_CACHE_HOME="$test_root/cache" XDG_DATA_HOME="$test_root/data" XDG_RUNTIME_DIR="$test_root/runtime" TMPDIR="$test_root/tmp" \
-    FLEA_TABLEWARM_DIR="$test_root/fixture" \
+    DLEA_TABLEWARM_DIR="$test_root/fixture" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
     timeout "$limit" qs -p "$test_root/config" 2>&1)
 code=$?

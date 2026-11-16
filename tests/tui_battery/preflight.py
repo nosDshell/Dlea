@@ -27,7 +27,7 @@ def display(commands, quiet=QUIET_SECONDS):
     if native.locked():
         raise Blocked("display is locked by hyprlock, so every capture would show the lock screen")
     first = sample(commands)
-    stale = [m["name"] for m in first["monitors"] if m["name"].startswith("FLEA-")]
+    stale = [m["name"] for m in first["monitors"] if m["name"].startswith("DLEA-")]
     if stale:
         raise Blocked("owned output " + ", ".join(stale) + " from another run is still present; that run is live or crashed")
     owned = [c.get("class") for c in first["clients"] if str(c.get("class", "")).startswith(OWNED_CLASS_PREFIX)]

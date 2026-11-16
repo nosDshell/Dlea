@@ -2,28 +2,28 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Escape out of a live search begun past the folder's first window lands the cursor on its row in list, columns and grid.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
     echo "search-exit-deep.sh: qs is not installed, cannot build the views"
     exit 1
 fi
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [ -x "$bin" ] || { echo "search-exit-deep.sh: build the backend first: $bin"; exit 1; }
 reps=${EXITDEEP_REPS:-1}
 case "$reps" in ''|*[!0-9]*|0*) echo "search-exit-deep.sh: EXITDEEP_REPS='$reps' is not a positive integer"; exit 2 ;; esac
 
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-search-exit-deep.XXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-search-exit-deep.XXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER" || exit 1
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/runtime" "$test_root/fixture" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/search-exit-deep.qml "$test_root/config/shell.qml" || exit 1
@@ -36,7 +36,7 @@ for i in $(seq -w 1 300); do printf 'x\n' > "$test_root/fixture/north-$i.txt"; d
 output=$(env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_RUNTIME_DIR="$test_root/runtime" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
-    FLEA_BIN="$bin" EXITDEEP_DIR="$test_root/fixture" EXITDEEP_REPS="$reps" \
+    DLEA_BIN="$bin" EXITDEEP_DIR="$test_root/fixture" EXITDEEP_REPS="$reps" \
     timeout "${EXITDEEP_TIMEOUT:-120}" qs -p "$test_root/config" 2>&1)
 
 # Sample input, the receipt: "  INFO qml: EXITDEEP DONE checks=108 failed=0", 12 checks for each of 9 exits per repetition.

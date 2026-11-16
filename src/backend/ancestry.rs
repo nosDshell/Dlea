@@ -120,7 +120,7 @@ fn start() -> mpsc::Sender<Ask> {
         let wake = asks.clone();
         thread::spawn(move || pump(fd, wake));
     } else {
-        eprintln!("flea: a folder moved or deleted above the open one will not be followed, inotify is unavailable");
+        eprintln!("dlea: a folder moved or deleted above the open one will not be followed, inotify is unavailable");
     }
     thread::spawn(move || {
         Follower {
@@ -142,7 +142,7 @@ fn pump(fd: c_int, wake: mpsc::Sender<Ask>) {
             continue;
         }
         if n < 0 {
-            eprintln!("flea: folders above the open one stopped being followed, the inotify read failed: {}", io::Error::last_os_error());
+            eprintln!("dlea: folders above the open one stopped being followed, the inotify read failed: {}", io::Error::last_os_error());
         }
         if n <= 0 {
             return;
@@ -274,7 +274,7 @@ impl Follower {
             let wd = unsafe { inotify_add_watch(self.fd, c.as_ptr(), MASK) };
             if wd < 0 {
                 eprintln!(
-                    "flea: {} will not be followed if it moves, inotify refused a watch on it: {}",
+                    "dlea: {} will not be followed if it moves, inotify refused a watch on it: {}",
                     dir.display(),
                     io::Error::last_os_error()
                 );

@@ -33,7 +33,7 @@ def run(binary, sandbox):
         process.stdin.flush()
     def checked(path):
         assert path.is_absolute() and path != sandbox and path.is_relative_to(sandbox)
-        assert (sandbox / ".flea-test-sandbox").is_file()
+        assert (sandbox / ".dlea-test-sandbox").is_file()
         return path
     def answer(expected, identity=None, timeout=10):
         deadline = time.monotonic() + timeout
@@ -117,8 +117,8 @@ def run(binary, sandbox):
             process.wait(timeout=10)
 
 
-with tempfile.TemporaryDirectory(prefix="flea-search-watch-") as name:
+with tempfile.TemporaryDirectory(prefix="dlea-search-watch-") as name:
     sandbox = Path(name).resolve()
     assert sandbox.is_absolute() and not sandbox.is_relative_to(Path.home())
-    (sandbox / ".flea-test-sandbox").write_text("search-watch\n")
+    (sandbox / ".dlea-test-sandbox").write_text("search-watch\n")
     run(sys.argv[1], sandbox)

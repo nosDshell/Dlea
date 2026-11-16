@@ -14,8 +14,8 @@ shipped `ui/` unmodified, `ui/List.qml`'s `model: pane.total`. Arm S patches `ui
 `model: rowModel`, a `ScriptModel` filled through one `setRowCount(n)` function that assigns `[]`
 before the new array, because a single disjoint replace of 100,000 values diffs quadratically
 (about 294 s in the windowless probe; clear-then-fill there cost 17 ms). Both arms launched
-`flea --gui` against the same `target/release/flea`, so only `FLEA_UI` differed. Nine interleaved
-pairs on the scale fixture (`/home/flea-sandbox/flea-bench-btrfs`, 100,000 files), `Pss` read from
+`dlea --gui` against the same `target/release/dlea`, so only `DLEA_UI` differed. Nine interleaved
+pairs on the scale fixture (`/home/dlea-sandbox/dlea-bench-btrfs`, 100,000 files), `Pss` read from
 `smaps_rollup` in KiB after settling to a 256 KiB band held for three 300 ms samples, order
 alternated pair to pair:
 

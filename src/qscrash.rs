@@ -1,9 +1,9 @@
-//! Flea owns crash recovery; Quickshell must leave a fatal signal visible instead of execing another window.
+//! Dlea owns crash recovery; Quickshell must leave a fatal signal visible instead of execing another window.
 use std::ffi::OsStr;
 use std::process::Command;
 
 const DISABLE: &str = "QS_DISABLE_CRASH_HANDLER";
-const MARKER: &str = "FLEA_QS_CRASH_POLICY";
+const MARKER: &str = "DLEA_QS_CRASH_POLICY";
 
 fn ours(disabled: Option<&OsStr>, marker: Option<&OsStr>) -> bool {
     disabled == Some(OsStr::new("1")) && marker == Some(OsStr::new("1"))
@@ -20,7 +20,7 @@ pub fn disable(command: &mut Command) {
     }
 }
 
-/// An opened program or the GPUI frontend keeps the operator's policy and drops only Flea's pair.
+/// An opened program or the GPUI frontend keeps the operator's policy and drops only Dlea's pair.
 pub fn restore(command: &mut Command) {
     if ours(
         std::env::var_os(DISABLE).as_deref(),

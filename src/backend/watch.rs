@@ -2,7 +2,7 @@
 use crate::backend::events::Event;
 use crate::backend::inotifyburst::each_event;
 use crate::json::escape;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::io;
 use std::ffi::{c_char, c_int, c_void, CString};
 use std::path::Path;
@@ -144,7 +144,7 @@ impl Watch {
         *self.fd.get_or_init(|| {
             let fd = unsafe { inotify_init1(IN_CLOEXEC) };
             if fd < 0 {
-                eprintln!("flea: the open folder will not follow outside changes, inotify is unavailable");
+                eprintln!("dlea: the open folder will not follow outside changes, inotify is unavailable");
             } else {
                 let tx = self.events.clone();
                 thread::spawn(move || pump(fd, tx));
@@ -209,7 +209,7 @@ fn pump(fd: c_int, tx: Sender<Event>) {
             if failure.kind() == io::ErrorKind::Interrupted {
                 continue;
             }
-            eprintln!("flea: the open folder stopped following outside changes, the inotify read failed: {}", failure);
+            eprintln!("dlea: the open folder stopped following outside changes, the inotify read failed: {}", failure);
             return;
         }
         // A closed descriptor ends the thread; the loop keeps running without a watch.

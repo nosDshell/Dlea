@@ -1,5 +1,5 @@
 // Paste as links: one exclusive link per source, journaled for undo.
-use crate::error::{from_io, FleaError};
+use crate::error::{from_io, DleaError};
 use std::path::{Component, Path, PathBuf};
 
 // The Paste as leaf kind, journaled so redo recreates it.
@@ -45,7 +45,7 @@ fn dest_dir_of(file: &Path) -> &Path {
     file.parent().unwrap_or(Path::new("/"))
 }
 
-pub fn create_relative(source: &Path, dest_file: &Path) -> Result<(), FleaError> {
+pub fn create_relative(source: &Path, dest_file: &Path) -> Result<(), DleaError> {
     // Both folders are canonicalized but never the source leaf, so a symlink source stays the item named.
     source.symlink_metadata()
         .map_err(|e| from_io("link", &source.to_string_lossy(), &e))?;
@@ -64,13 +64,13 @@ pub fn create_relative(source: &Path, dest_file: &Path) -> Result<(), FleaError>
         .map_err(|e| link_err(dest_file, &e))
 }
 
-pub fn create_absolute(source: &Path, dest_file: &Path) -> Result<(), FleaError> {
+pub fn create_absolute(source: &Path, dest_file: &Path) -> Result<(), DleaError> {
     std::os::unix::fs::symlink(source, dest_file)
         .map_err(|e| link_err(dest_file, &e))
 }
 
 // Refused before the syscall so the sentence names the refusal, not the errno.
-pub fn create_hard(source: &Path, dest_file: &Path) -> Result<(), FleaError> {
+pub fn create_hard(source: &Path, dest_file: &Path) -> Result<(), DleaError> {
     let body = super::iomount::mount_body();
     let from = source.to_path_buf();
     let is_dir = super::iomount::call(source, &body, "link", move || {
@@ -78,7 +78,7 @@ pub fn create_hard(source: &Path, dest_file: &Path) -> Result<(), FleaError> {
     })
     .unwrap_or(false);
     if is_dir {
-        return Err(FleaError {
+        return Err(DleaError {
             where_: "link".to_string(),
             path: dest_file.to_string_lossy().to_string(),
             msg: "a hard link cannot point to a folder".to_string(),
@@ -88,7 +88,7 @@ pub fn create_hard(source: &Path, dest_file: &Path) -> Result<(), FleaError> {
         if e.raw_os_error() == Some(EXDEV) {
             let from = fs_name_in(source, &body);
             let to = fs_name_in(dest_dir_of(dest_file), &body);
-            FleaError {
+            DleaError {
                 where_: "link".to_string(),
                 path: dest_file.to_string_lossy().to_string(),
                 msg: cross_drive_sentence(&from, &to),
@@ -103,13 +103,13 @@ pub fn create_hard(source: &Path, dest_file: &Path) -> Result<(), FleaError> {
 const EXDEV: i32 = 18;
 
 // EPERM from a link names the missing capability on linkless filesystems and stays a permission error everywhere else.
-fn link_err(dest_file: &Path, e: &std::io::Error) -> FleaError {
+fn link_err(dest_file: &Path, e: &std::io::Error) -> DleaError {
     const EPERM: i32 = 1;
     if e.raw_os_error() == Some(EPERM) {
         let parent = dest_file.parent().unwrap_or(dest_file);
         let magic = crate::backend::fsinfo::magic_of(parent);
         if let Some(sentence) = no_links_sentence(magic) {
-            return FleaError { where_: "link".to_string(), path: dest_file.to_string_lossy().to_string(), msg: sentence.to_string() };
+            return DleaError { where_: "link".to_string(), path: dest_file.to_string_lossy().to_string(), msg: sentence.to_string() };
         }
     }
     from_io("link", &dest_file.to_string_lossy(), e)

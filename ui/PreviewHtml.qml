@@ -1,7 +1,7 @@
 import QtQuick
 import qs.Commons
 import Quickshell.Io
-import "." as Flea
+import "." as Dlea
 import "js/Markdown.js" as Markdown
 import "js/Format.js" as Format
 import "js/PreviewKeys.js" as PreviewKeys
@@ -212,14 +212,14 @@ Item {
             item.pixelSize = Qt.binding(function () { return root.compact ? Theme.font.caption : Theme.font.body })
         }
     }
-    Flea.FastScrollHandler { flickable: root.viewport; visible: !root.externalScrollBars }
+    Dlea.FastScrollHandler { flickable: root.viewport; visible: !root.externalScrollBars }
     Loader {
         id: scrollBars
         anchors.fill: parent
         property var targetView: root.viewport
         active: !root.externalScrollBars && root.viewport !== null
-        sourceComponent: Flea.ViewportScrollBars { flickable: parent.targetView }
+        sourceComponent: Dlea.ViewportScrollBars { flickable: parent.targetView }
     }
-    Flea.LoadingState { anchors.fill: parent; visible: root.loading }
-    Flea.CodeRefusal { anchors.fill: parent; visible: !root.compact; binary: root.binary; failed: root.failed; tooLarge: root.tooLarge; markName: "html" }
+    Dlea.LoadingState { anchors.fill: parent; visible: root.loading }
+    Dlea.CodeRefusal { anchors.fill: parent; visible: !root.compact; binary: root.binary; failed: root.failed; tooLarge: root.tooLarge; markName: "html" }
 }

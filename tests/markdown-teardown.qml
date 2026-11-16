@@ -1,7 +1,7 @@
-//@ pragma ShellId flea-markdown-teardown-test
+//@ pragma ShellId dlea-markdown-teardown-test
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // A Loader built as PreviewColumn builds its Markdown one, switched off and on at every pace, over a document whose blocks the list builds ahead.
 ShellRoot {
@@ -10,7 +10,7 @@ ShellRoot {
     function log(line) { console.log("MARKDOWN_TEARDOWN " + line) }
     function quit() { Quickshell.execDetached(["kill", String(Quickshell.processId)]) }
 
-    readonly property string fixture: Quickshell.env("FLEA_TEARDOWN_DOC")
+    readonly property string fixture: Quickshell.env("DLEA_TEARDOWN_DOC")
     // Each round holds the Loader on for one to holdSpread timer ticks, so the switch-off lands at every stage of the build.
     readonly property int rounds: 300
     readonly property int holdSpread: 9
@@ -27,8 +27,8 @@ ShellRoot {
     // The board's text size and palette, so the blocks lay out as they do on the card.
     readonly property string palette: 'background = "#1a1b26"\nforeground = "#a9b1d6"\nbright_foreground = "#c0caf5"\n'
     Component.onCompleted: {
-        Flea.ViewState.state = { display: { textSize: { mode: 14 } } }
-        Flea.Theme.applyColors(shell.palette)
+        Dlea.ViewState.state = { display: { textSize: { mode: 14 } } }
+        Dlea.Theme.applyColors(shell.palette)
     }
 
     FloatingWindow {
@@ -40,7 +40,7 @@ ShellRoot {
             id: loader
             anchors.fill: parent
             active: shell.on
-            source: "flea/PreviewMarkdown.qml"
+            source: "dlea/PreviewMarkdown.qml"
             onLoaded: {
                 item.path = shell.fixture
                 item.size = 1

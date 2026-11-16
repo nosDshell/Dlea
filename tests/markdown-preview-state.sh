@@ -2,9 +2,9 @@
 # Execute the shipped preview state callbacks and the list geometry probe under qml6.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 command -v qml6 >/dev/null || { echo "FAIL markdown-preview-state: qml6 is required"; exit 1; }
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-markdown-state.XXXXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-markdown-state.XXXXXXXX") || exit 1
 [ -n "$test_root" ] && [[ "$test_root" = /* ]] || exit 1
 : > "$test_root/$SANDBOX_MARKER"
 trap 'sandbox_remove "$test_root"' EXIT

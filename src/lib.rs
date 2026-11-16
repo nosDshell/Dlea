@@ -1,5 +1,5 @@
-//! Shared, dependency-free protocol primitives for Flea frontends.
-extern crate self as flea;
+//! Shared, dependency-free protocol primitives for Dlea frontends.
+extern crate self as dlea;
 
 pub mod bytename;
 pub mod chooser_startup;

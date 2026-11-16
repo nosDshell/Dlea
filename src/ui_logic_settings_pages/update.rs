@@ -7,7 +7,7 @@ pub const INTERVAL_MS: u64 = 6 * 60 * 60 * 1000;
 // The first background look, a minute after the window opens, well inside the first poll.
 pub const FIRST_CHECK_MS: u64 = 60 * 1000;
 
-// The four words `flea --update check` prints first; anything else is a check that failed.
+// The four words `dlea --update check` prints first; anything else is a check that failed.
 const ANSWERS: [&str; 4] = ["available", "current", "failed", "unchecked"];
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -53,7 +53,7 @@ fn field(word: &str) -> String {
 
 // Sample input: "available opr 0.3.2-1 0.3.3-1\n", the one line src/update.rs prints.
 pub fn answered(status: &Status, text: &str, now: u64) -> Status {
-    // A launch is final until Flea restarts: a check that was already running when it began changes nothing.
+    // A launch is final until Dlea restarts: a check that was already running when it began changes nothing.
     if status.state == State::Launched {
         return status.clone();
     }
@@ -80,7 +80,7 @@ pub fn answered(status: &Status, text: &str, now: u64) -> Status {
     }
 }
 
-// A launch hands the machine to Omarchy until Flea restarts; one that failed leaves the row as it was.
+// A launch hands the machine to Omarchy until Dlea restarts; one that failed leaves the row as it was.
 pub fn launched_from(status: &Status, started: bool) -> Status {
     if started {
         Status {

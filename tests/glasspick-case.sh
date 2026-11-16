@@ -2,7 +2,7 @@
 # Exercises capture targeting and teardown with fixture windows and real tagged children, without a display.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 sandbox_root_ok
 test_root=$(mktemp -d "$SANDBOX_ROOT/glasspick-case.XXXXXX") || exit 1
 [[ "$test_root" == /*/* ]] || exit 1
@@ -15,10 +15,10 @@ foreign_pid=""
 # SIGKILL exits as 137; the outer trap returns 1 when it refuses the unrelated PID.
 interrupted_replay_status=137
 interrupted_cleanup_status=1
-interrupted_fixture_count=3 # Backdrop, terminal and Flea.
+interrupted_fixture_count=3 # Backdrop, terminal and Dlea.
 control_lifetime_s=60
 fail() { printf 'FAIL glasspick-case: %s\n' "$*" >&2; exit 1; }
-sed -n '/^flea_process_dir()/p; /^flea_process_owned()/,/^}/p' tests/ui.sh > "$test_root/ownership.sh"
+sed -n '/^dlea_process_dir()/p; /^dlea_process_owned()/,/^}/p' tests/ui.sh > "$test_root/ownership.sh"
 . "$test_root/ownership.sh"
 . "$PWD/tests/ui-captures-glass.sh"
 . "$PWD/tests/lib/hypr-dispatch.sh"
@@ -37,14 +37,14 @@ cleanup() {
     exit "$status"
 }
 trap cleanup EXIT
-env FLEA_TEST_RUN_ROOT="$test_root" sleep 60 &
+env DLEA_TEST_RUN_ROOT="$test_root" sleep 60 &
 owned_pid=$!
-env FLEA_TEST_RUN_ROOT="$test_root/foreign" sleep 60 &
+env DLEA_TEST_RUN_ROOT="$test_root/foreign" sleep 60 &
 foreign_pid=$!
 wait_tag() {
     local pid="$1" end=$((SECONDS + 3))
     while (( SECONDS < end )); do
-        flea_process_owned "$pid" && return 0
+        dlea_process_owned "$pid" && return 0
         sleep 0.01
     done
     fail "child $pid did not reach its expected environment tag"
@@ -62,7 +62,7 @@ fi
 grep -q 'refusing to stop unowned or unreadable fixture' "$test_root/refusal.log" || fail "foreign refusal was not explicit"
 kill -0 "$foreign_pid" || fail "foreign child was signaled despite its ownership mismatch"
 run_root="$test_root/foreign"
-flea_process_owned "$foreign_pid" || fail "foreign control cannot be reclaimed by its own tag"
+dlea_process_owned "$foreign_pid" || fail "foreign control cannot be reclaimed by its own tag"
 glasspick_stop "$foreign_pid" || fail "foreign control did not stop under its own owner"
 foreign_pid=""
 run_root="$test_root"
@@ -73,7 +73,7 @@ capture_targeting() (
     set -e
     trap - EXIT
     local scenario="$1" helper replay="$test_root/replay-$1" capture_pid=100 cursor=0 launches=0 status
-    local ipc_pid=sentinel flea_window_class=com.thisisgm.flea ipc_call_timeout=2s ipc_call_kill_after=1s
+    local ipc_pid=sentinel dlea_window_class=com.nosDshell.dlea ipc_call_timeout=2s ipc_call_kill_after=1s
     local repo="$PWD" fixture_root="$replay/fixtures" evidence_dir="$replay/evidence" real_state_dir="$replay/current"
     local real_foreground='#dddddd' real_accent='#7799bb' caller_trap pid ownership expected
     # Sample input: the line 'async_wait_ms=15000' in tests/ui.sh, which seek_row_named reads.
@@ -125,7 +125,7 @@ fi
 exec sleep 60
 STUB
     chmod +x "$replay/bin/foot" "$replay/bin/qs"
-    export FLEA_TEST_RUN_ROOT="$run_root" GLASSPICK_FOOT_SCENARIO="$scenario" GLASSPICK_FOOT_CHECKS="$replay/foot-checks"
+    export DLEA_TEST_RUN_ROOT="$run_root" GLASSPICK_FOOT_SCENARIO="$scenario" GLASSPICK_FOOT_CHECKS="$replay/foot-checks"
     export GLASSPICK_FOOT_READY="$replay/foot-ready"
     printf 'replay\n' > "$real_state_dir/theme.name"
     printf 'foreground = "#dddddd"\naccent = "#7799bb"\nbackground = "#222222"\n' > "$real_state_dir/theme/colors.toml"
@@ -161,7 +161,7 @@ STUB
     settle() { :; }
     timeout() { shift 2; "$@"; }
     seed_ui_state() { mkdir -p "$1"; }
-    kill_flea() {
+    kill_dlea() {
         if [[ "${FUNCNAME[1]}" == glasspick_cleanup ]]; then
             printf 'ipc=%s term=%s back=%s shots=%s\n' "$ipc_pid" "${glasspick_term_pid-unset}" \
                 "${glasspick_back_pid-unset}" "${glasspick_shots-unset}" >> "$replay/cleanup"
@@ -174,17 +174,17 @@ STUB
     launch() {
         [[ -z "$ipc_pid" ]] || fail "launch inherited a stale capture pid: $ipc_pid"
         launches=$((launches + 1))
-        env FLEA_TEST_RUN_ROOT="$run_root" sleep 60 &
+        env DLEA_TEST_RUN_ROOT="$run_root" sleep 60 &
         capture_pid=$!; cursor=0
         printf '%s\n' "$capture_pid" > "$replay/capture-pid"
         printf '%s\n' "$capture_pid" > "$replay/focus-pid"
         remember_pid "$capture_pid"
         printf '%s\n' "$capture_pid" >> "$replay/launches"
     }
-    flea_pid() { printf '%s\n' "$capture_pid"; }
+    dlea_pid() { printf '%s\n' "$capture_pid"; }
     qs() {
         [[ "$1" != -p ]] || return 0
-        [[ "$1 $2 $3 $4 $5" == "ipc --pid $capture_pid call flea" ]] || fail "IPC missed owned capture: $*"
+        [[ "$1 $2 $3 $4 $5" == "ipc --pid $capture_pid call dlea" ]] || fail "IPC missed owned capture: $*"
         shift 5
         case "$1" in
             total) printf '4\n' ;;
@@ -200,12 +200,12 @@ STUB
         esac
     }
     # The registry entry the evaluated xw_ipc calls answers through the case's qs double, keeping every captured IPC byte owned.
-    flea_ipc_helper_stub() { qs ipc "$@"; }
-    FLEA_IPC_HELPER=flea_ipc_helper_stub
+    dlea_ipc_helper_stub() { qs ipc "$@"; }
+    DLEA_IPC_HELPER=dlea_ipc_helper_stub
     omarchy-drive() {
         [[ "$1 $2" != 'window center' ]] || return 0
-        if [[ "$1 $2 $3" == 'key --window com.thisisgm.flea' ]]; then
-            printf 'ambiguous selector flea: 3 fixture windows\n' >&2
+        if [[ "$1 $2 $3" == 'key --window com.nosDshell.dlea' ]]; then
+            printf 'ambiguous selector dlea: 3 fixture windows\n' >&2
             return 1
         fi
         [[ "$1 $2 $3" == "key --window $(printf '0x%x' "$capture_pid")" ]] || fail "key missed owned address: $*"
@@ -240,7 +240,7 @@ STUB
     [[ "$(tail -1 "$replay/focus")" == 0x64 ]] || fail "actual EXIT cleanup did not restore caller focus"
     while read -r pid; do
         ownership=0
-        flea_process_owned "$pid" || ownership=$?
+        dlea_process_owned "$pid" || ownership=$?
         [[ "$ownership" == 2 ]] || fail "owned fixture $pid survived actual cleanup (ownership=$ownership)"
     done < "$replay/pids"
     if [[ "$scenario" == check-* ]]; then
@@ -277,7 +277,7 @@ STUB
     printf '%s\n' "$capture_pid" > "$replay/focus-pid"
     ipc_pid=""
     if ( test_frontend=qml; key g ) > "$replay/ambiguous.log" 2>&1; then fail "broad selector was accepted"; fi
-    grep -qx 'ambiguous selector flea: 3 fixture windows' "$replay/ambiguous.log" || fail "broad selector failed for another reason"
+    grep -qx 'ambiguous selector dlea: 3 fixture windows' "$replay/ambiguous.log" || fail "broad selector failed for another reason"
     if ( test_frontend=gpui; key g ) > "$replay/unowned.log" 2>&1; then fail "unowned native selector was accepted"; fi
     grep -q '^FAIL.*native input has no owned PID$' "$replay/unowned.log" || fail "unowned native selector failed for another reason"
     ipc_pid="$capture_pid"
@@ -292,7 +292,7 @@ STUB
 interrupted_replay_control() {
     local run_root="$run_root" replay_owner="$run_root" foreign_pid="" interrupted_foreign_pid
     local log="$test_root/interrupted-outer.log" status pid ownership count=0 survivors=0 failed=false
-    env FLEA_TEST_RUN_ROOT="$test_root/foreign" sleep "$control_lifetime_s" &
+    env DLEA_TEST_RUN_ROOT="$test_root/foreign" sleep "$control_lifetime_s" &
     foreign_pid=$!
     interrupted_foreign_pid="$foreign_pid"
     run_root="$test_root/foreign"
@@ -316,7 +316,7 @@ interrupted_replay_control() {
         [[ "$pid" != "$foreign_pid" ]] || continue
         count=$((count + 1))
         ownership=0
-        flea_process_owned "$pid" || ownership=$?
+        dlea_process_owned "$pid" || ownership=$?
         if [[ "$ownership" != 2 ]]; then
             survivors=$((survivors + 1))
             glasspick_stop "$pid" || failed=true
@@ -324,7 +324,7 @@ interrupted_replay_control() {
     done < "$test_root/replay-interrupted/pids"
     [[ "$count" == "$interrupted_fixture_count" && "$survivors" == 0 ]] || failed=true
     run_root="$test_root/foreign"
-    flea_process_owned "$foreign_pid" && kill -0 "$foreign_pid" || failed=true
+    dlea_process_owned "$foreign_pid" && kill -0 "$foreign_pid" || failed=true
     glasspick_stop "$foreign_pid" || failed=true
     foreign_pid=""
     if [[ "$failed" == true ]]; then

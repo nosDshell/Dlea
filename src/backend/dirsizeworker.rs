@@ -58,7 +58,7 @@ fn spawn_thread<F>(
 {
     // The recursive walker previously used the main thread; retain stack headroom for deep trees.
     std::thread::Builder::new()
-        .name("flea-dirsize".into())
+        .name("dlea-dirsize".into())
         .stack_size(16 * 1024 * 1024)
         .spawn(move || {
             for job in rx {

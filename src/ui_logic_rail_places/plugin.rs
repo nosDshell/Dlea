@@ -165,7 +165,7 @@ pub fn sections(descriptors: &[Descriptor], answers: &[(String, Vec<RailEntry>)]
         .collect()
 }
 
-// The heading Flea draws over plugin rows that name no title of their own: the Settings page's own word.
+// The heading Dlea draws over plugin rows that name no title of their own: the Settings page's own word.
 pub const PLUGINS_HEADING: &str = "settings.section.plugins";
 // Every heading the rail draws for itself; a plugin title that reads as one of these goes under PLUGINS.
 pub const BUILT_IN_HEADINGS: [&str; 7] = [

@@ -4,14 +4,14 @@ set -u
 set -o pipefail
 
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete below.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 for tool in dbus-run-session setsid; do
     command -v "$tool" >/dev/null 2>&1 || { printf 'portal-startup-abort.sh: %s is missing, and the suite under test needs it\n' "$tool" >&2; exit 1; }
 done
 
-root="$FIXTURE_ROOT/flea-portal-abort-$$"
+root="$FIXTURE_ROOT/dlea-portal-abort-$$"
 runner=0
 cleanup() {
     # The two pids come from this suite's own spawns: the run it started and the frontend stub that run started.
@@ -41,11 +41,11 @@ check() {
 # The frontend stub notes its pid and never owns the portal name, so the run under test sits in its first wait.
 cat > "$root/frontend" <<'STUB'
 #!/bin/sh
-echo $$ > "$FLEA_PORTAL_ABORT_PIDFILE"
+echo $$ > "$DLEA_PORTAL_ABORT_PIDFILE"
 exec sleep 60
 STUB
 chmod +x "$root/frontend"
-export FLEA_FIXTURE_ROOT="$root" FLEA_PORTAL_FRONTEND="$root/frontend" FLEA_PORTAL_ABORT_PIDFILE="$root/frontend.pid"
+export DLEA_FIXTURE_ROOT="$root" DLEA_PORTAL_FRONTEND="$root/frontend" DLEA_PORTAL_ABORT_PIDFILE="$root/frontend.pid"
 
 bash tests/portal-startup.sh > "$root/term.out" 2>&1 &
 runner=$!
@@ -55,7 +55,7 @@ while [ ! -s "$root/frontend.pid" ] && [ "$waited" -lt 100 ]; do
     waited=$((waited + 1))
 done
 check "term: the run reached its frontend" "1" "$([ -s "$root/frontend.pid" ] && echo 1 || echo 0)"
-check "term: the run's sandbox is present before the TERM" "present" "$([ -e "$root/flea-portal-startup-$runner" ] && echo present || echo gone)"
+check "term: the run's sandbox is present before the TERM" "present" "$([ -e "$root/dlea-portal-startup-$runner" ] && echo present || echo gone)"
 kill -TERM "$runner"
 waited=0
 while kill -0 "$runner" 2>/dev/null && [ "$waited" -lt 100 ]; do
@@ -70,7 +70,7 @@ fi
 check "term: the run stops within 10 s of a TERM" "gone" "$state"
 wait "$runner"
 check "term: the run exits with the signal's code" "143" "$?"
-check "term: the run's sandbox is gone" "gone" "$([ -e "$root/flea-portal-startup-$runner" ] && echo present || echo gone)"
+check "term: the run's sandbox is gone" "gone" "$([ -e "$root/dlea-portal-startup-$runner" ] && echo present || echo gone)"
 runner=0
 check "term: the frontend it started is gone" "gone" "$(kill -0 "$(cat "$root/frontend.pid")" 2>/dev/null && echo running || echo gone)"
 check "term: the run did not resume on the removed sandbox" "0" "$(grep -c 'No such file' "$root/term.out")"

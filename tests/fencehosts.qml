@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-fencehosts-test
+//@ pragma ShellId dlea-fencehosts-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/MarkdownPrepared.js" as Prepared
+import "dlea" as Dlea
+import "dlea/js/MarkdownPrepared.js" as Prepared
 import "fencehosts.js" as Fence
 
 // Every fixture document through the preview column's host and Quick Look's two (prepared entry, then none); no host may draw a fence line, and all three draw the same blocks.
@@ -46,7 +46,7 @@ ShellRoot {
         function rowFor(i) { return pane.rows[i] || null }
         function join(a, b) { return a + "/" + b }
     }
-    Flea.QuickLookPrepare {
+    Dlea.QuickLookPrepare {
         id: prepare
         pane: pane
         restMs: 1
@@ -55,7 +55,7 @@ ShellRoot {
     }
 
     // The preview column's own set-up: compact, the surface code colour, no shared parse.
-    Flea.PreviewMarkdown {
+    Dlea.PreviewMarkdown {
         id: column
         width: 560
         height: 600
@@ -63,12 +63,12 @@ ShellRoot {
         onContentReadyChanged: Qt.callLater(root.landed, column)
     }
     // Quick Look's: the window colour under code, the shared entry, and a first read that blocks for the named file.
-    Flea.PreviewMarkdown {
+    Dlea.PreviewMarkdown {
         id: quick
         width: 560
         height: 600
         shareParse: true
-        codeSurface: Flea.Theme.color.background
+        codeSurface: Dlea.Theme.color.background
         onContentReadyChanged: Qt.callLater(root.landed, quick)
     }
 

@@ -2,8 +2,8 @@ import QtQuick
 import QtTest
 import Quickshell
 import qs.Commons
-import "flea" as Flea
-import "flea/js/Keymap.js" as Keymap
+import "dlea" as Dlea
+import "dlea/js/Keymap.js" as Keymap
 
 // Drive the real picker and its real backend, with native Qt key events.
 ShellRoot {
@@ -11,7 +11,7 @@ ShellRoot {
     property var pickerShell: null
     property var win: null
     property var keys: null
-    property string scenario: Quickshell.env("FLEA_PICKER_HUNT_CASE")
+    property string scenario: Quickshell.env("DLEA_PICKER_HUNT_CASE")
     property int stage: 0
     property double stamp: Date.now()
     property int failures: 0
@@ -68,7 +68,7 @@ ShellRoot {
         return root.descendants(win.contentItem).filter(function(item) { return item.pathFrame !== undefined })[0]
     }
     function startFolder() {
-        try { return JSON.parse(Quickshell.env("FLEA_PICKER")).folder } catch (e) { return "" }
+        try { return JSON.parse(Quickshell.env("DLEA_PICKER")).folder } catch (e) { return "" }
     }
     function pickerLogic() {
         return root.descendants(win.contentItem).filter(function(item) { return item.leaf !== undefined && item.backend !== undefined })[0]
@@ -156,9 +156,9 @@ ShellRoot {
         var cancel = root.cancelButton()
         // Cancel and the answer sit right-aligned, 14 from the edge with a gap of 9, whether or not a filter stands at the left.
         root.check("the answer row sits under the listing", root.near(root.at(bar, 0, 0).y, root.at(win.viewItem(), 0, win.viewItem().height).y), true)
-        root.check("the answer row stands on the footer", root.near(root.at(bar, 0, bar.height).y + Flea.Theme.chromeHeight, win.contentItem.height), true)
-        root.check("the answer sits 14 from the right edge", root.near(root.at(accept, accept.width, 0).x, win.contentItem.width - Flea.Theme.spacing.rowPaddingX), true)
-        root.check("Cancel sits one gap left of the answer", root.near(root.at(cancel, cancel.width, 0).x + Flea.Theme.spacing.gap, root.at(accept, 0, 0).x), true)
+        root.check("the answer row stands on the footer", root.near(root.at(bar, 0, bar.height).y + Dlea.Theme.chromeHeight, win.contentItem.height), true)
+        root.check("the answer sits 14 from the right edge", root.near(root.at(accept, accept.width, 0).x, win.contentItem.width - Dlea.Theme.spacing.rowPaddingX), true)
+        root.check("Cancel sits one gap left of the answer", root.near(root.at(cancel, cancel.width, 0).x + Dlea.Theme.spacing.gap, root.at(accept, 0, 0).x), true)
         root.check("the buttons are the 30 px body control", [cancel.height, accept.height], [30, 30])
     }
     readonly property var focusScenarios: ["fresh-save", "backend-save", "pointer-save", "list-folder", "list-file", "field-cancel", "field-keys"]
@@ -327,19 +327,19 @@ ShellRoot {
     function saveColumn(form) {
         var label = root.visibleTexts("Filename")[0]
         var frame = form.fieldItem.parent
-        root.check("Filename is 9 above the field", root.near(root.at(frame, 0, 0).y - root.at(label, 0, label.height).y, Flea.Theme.spacing.gap), true)
-        root.check("the field is the area less 14 each side", [frame.width, root.near(root.at(frame, 0, 0).x, Flea.Theme.spacing.rowPaddingX)], [form.width - 2 * Flea.Theme.spacing.rowPaddingX, true])
-        root.check("the field is the control height with the hitMin floor", frame.height, Math.max(Flea.Theme.hitMin, root.acceptButton().height))
+        root.check("Filename is 9 above the field", root.near(root.at(frame, 0, 0).y - root.at(label, 0, label.height).y, Dlea.Theme.spacing.gap), true)
+        root.check("the field is the area less 14 each side", [frame.width, root.near(root.at(frame, 0, 0).x, Dlea.Theme.spacing.rowPaddingX)], [form.width - 2 * Dlea.Theme.spacing.rowPaddingX, true])
+        root.check("the field is the control height with the hitMin floor", frame.height, Math.max(Dlea.Theme.hitMin, root.acceptButton().height))
         root.check("no Output URI item exists", [form.uriItem === undefined, root.visibleTexts("Output URI").length], [true, 0])
         root.check("a save draws no error line at rest", form.statusItem.visible, false)
         root.check("a save answers Save in the primary role", [root.acceptButton().label, root.acceptButton().destructive], ["Save", false])
         root.check("a save answers under the save area", root.near(root.at(root.typed("PickerAnswers"), 0, 0).y, root.at(form, 0, form.height).y), true)
         // The board draws field, 9, the answer row in one column: no second rule, and 9 from the field to the buttons.
         var answers = root.typed("PickerAnswers")
-        var rule = root.descendants(answers).filter(function(item) { return item.visible && item.color !== undefined && item.height === Flea.Theme.spacing.hairline && item.width === answers.width })
+        var rule = root.descendants(answers).filter(function(item) { return item.visible && item.color !== undefined && item.height === Dlea.Theme.spacing.hairline && item.width === answers.width })
         root.check("a save has no rule between the field and the answers", rule.length, 0)
-        root.check("a save puts the answers 9 under the field", root.near(root.at(root.cancelButton(), 0, 0).y - root.at(frame, 0, frame.height).y, Flea.Theme.spacing.gap), true)
-        root.check("a save answer row is 9, the buttons and 14", root.near(answers.height, Flea.Theme.spacing.gap + root.cancelButton().height + Flea.Theme.spacing.rowPaddingX), true)
+        root.check("a save puts the answers 9 under the field", root.near(root.at(root.cancelButton(), 0, 0).y - root.at(frame, 0, frame.height).y, Dlea.Theme.spacing.gap), true)
+        root.check("a save answer row is 9, the buttons and 14", root.near(answers.height, Dlea.Theme.spacing.gap + root.cancelButton().height + Dlea.Theme.spacing.rowPaddingX), true)
     }
     function reviewShown(form) {
         var field = form.fieldItem
@@ -350,10 +350,10 @@ ShellRoot {
         root.check("focus returns to Filename", field.activeFocus, true)
         root.check("exactly the stem is selected", [field.selectedText, field.selectionStart, field.selectionEnd, field.cursorPosition], ["a", 0, 1, 1])
         root.check("the error line names the file", line.text.replace(/\u200b/g, ""), "a.txt already exists here.")
-        root.check("the error line is the surface error role at caption", [Qt.colorEqual(line.color, Flea.Theme.color.errorOnSurface), line.font.pixelSize], [true, Flea.Theme.font.caption])
-        root.check("the error line is 9 under the field", root.near(root.at(line, 0, 0).y - root.at(frame, 0, frame.height).y, Flea.Theme.spacing.gap), true)
-        root.check("the listing gave up the error line's row", root.near(root.listingBefore - win.viewItem().height, line.height + Flea.Theme.spacing.gap), true)
-        root.check("the answer relabels to Replace in the error ink", replace !== null && [replace.destructive, replace.primary, Qt.colorEqual(replace.ink, Flea.Theme.color.error)], [true, false, true])
+        root.check("the error line is the surface error role at caption", [Qt.colorEqual(line.color, Dlea.Theme.color.errorOnSurface), line.font.pixelSize], [true, Dlea.Theme.font.caption])
+        root.check("the error line is 9 under the field", root.near(root.at(line, 0, 0).y - root.at(frame, 0, frame.height).y, Dlea.Theme.spacing.gap), true)
+        root.check("the listing gave up the error line's row", root.near(root.listingBefore - win.viewItem().height, line.height + Dlea.Theme.spacing.gap), true)
+        root.check("the answer relabels to Replace in the error ink", replace !== null && [replace.destructive, replace.primary, Qt.colorEqual(replace.ink, Dlea.Theme.color.error)], [true, false, true])
         root.check("Cancel stays the secondary answer", [root.cancelButton().label, root.cancelButton().destructive], ["Cancel", false])
         root.check("the answer row holds two buttons", root.answerButtons().length, 2)
         root.check("no second line and no Use this location", root.descendants(win.contentItem).filter(function(item) {
@@ -498,7 +498,7 @@ ShellRoot {
             return Array.prototype.slice.call(row.children).filter(function(item) { return item.visible && item.color !== undefined && Qt.colorEqual(item.color, color) && item.width === list.width }).length
         }
         function bars(row) {
-            return Array.prototype.slice.call(row.children).filter(function(item) { return item.visible && item.color !== undefined && item.width === 2 * Flea.Theme.spacing.hairline && Qt.colorEqual(item.color, Flea.Theme.color.accent) }).length
+            return Array.prototype.slice.call(row.children).filter(function(item) { return item.visible && item.color !== undefined && item.width === 2 * Dlea.Theme.spacing.hairline && Qt.colorEqual(item.color, Dlea.Theme.color.accent) }).length
         }
         root.check("a marked row's fill is the selection fill", fills(marked, Style.selectionFill), 1)
         root.check("a marked row has no accent wash", fills(marked, Style.selectedAccentFill), 0)
@@ -517,10 +517,10 @@ ShellRoot {
             var texts = root.titleLine()
             var baseline = texts.map(function(item) { return root.at(item, 0, item.baselineOffset).y })
             // The line's height is the font's: 33 px with the board's face and one pixel more with the CI image's, so the strip is judged by its formula.
-            root.check("the title strip is one body line and its padding", ask.height, Math.max(Flea.Theme.chromeHeight, texts[0].implicitHeight + 2 * Flea.Theme.spacing.rowPaddingY))
+            root.check("the title strip is one body line and its padding", ask.height, Math.max(Dlea.Theme.chromeHeight, texts[0].implicitHeight + 2 * Dlea.Theme.spacing.rowPaddingY))
             root.check("the title strip holds no button", root.descendants(ask).filter(function(item) { return typeof item.activated === "function" }).length, 0)
             root.check("the title line stands on one baseline", baseline.every(function(y) { return root.near(y, baseline[0]) }), true)
-            root.check("the title starts at the strip inset", root.near(root.at(texts[0], 0, 0).x, Flea.Theme.spacing.rowPaddingX), true)
+            root.check("the title starts at the strip inset", root.near(root.at(texts[0], 0, 0).x, Dlea.Theme.spacing.rowPaddingX), true)
             root.answerRow()
             if (scenario === "answers") {
                 root.check("a portal caller is named after a middot on the title line",
@@ -530,11 +530,11 @@ ShellRoot {
                 var requester = root.named("pickerRequester")
                 requester.text = "Requested by " + "org.example.".repeat(40)
                 root.check("a long requester elides", requester.truncated, true)
-                root.check("a long requester stays inside the strip's inset", root.at(requester, requester.width, 0).x <= ask.width - Flea.Theme.spacing.rowPaddingX + 1, true)
-                root.check("the middot is muted caption and the requester is foreground caption", [Qt.colorEqual(texts[1].color, Flea.Theme.color.muted), Qt.colorEqual(texts[2].color, Flea.Theme.color.foreground), texts[1].font.pixelSize, texts[2].font.pixelSize], [true, true, Flea.Theme.font.caption, Flea.Theme.font.caption])
-                root.check("the trigger is the menu's width", trigger.width, Flea.Theme.menuWidth)
+                root.check("a long requester stays inside the strip's inset", root.at(requester, requester.width, 0).x <= ask.width - Dlea.Theme.spacing.rowPaddingX + 1, true)
+                root.check("the middot is muted caption and the requester is foreground caption", [Qt.colorEqual(texts[1].color, Dlea.Theme.color.muted), Qt.colorEqual(texts[2].color, Dlea.Theme.color.foreground), texts[1].font.pixelSize, texts[2].font.pixelSize], [true, true, Dlea.Theme.font.caption, Dlea.Theme.font.caption])
+                root.check("the trigger is the menu's width", trigger.width, Dlea.Theme.menuWidth)
                 root.check("the trigger is the control height", trigger.height, accept.height)
-                root.check("the trigger sits 14 from the left", root.near(root.at(trigger, 0, 0).x, Flea.Theme.spacing.rowPaddingX), true)
+                root.check("the trigger sits 14 from the left", root.near(root.at(trigger, 0, 0).x, Dlea.Theme.spacing.rowPaddingX), true)
                 root.check("the trigger names the current filter", root.descendants(trigger).filter(function(item) { return item.text === "Pictures" }).length, 1)
                 root.check("no menu object exists before the first open", menu === null, true)
                 console.log("PICKER_HUNT objects " + root.objectsUnder(win.contentItem))
@@ -548,10 +548,10 @@ ShellRoot {
             root.check("a host caller's title is drawn as it came", texts[0].text, "X \u00b7 Firefox")
             root.check("a title that imitates a requester gets no requester text", [texts.length, root.named("pickerRequester").visible, root.named("pickerRequester").text], [1, false, ""])
             root.check("a request with no filters draws no trigger", trigger === null || !trigger.visible, true)
-            root.check("the answer area is one row 14 padded with a hairline rule", root.near(root.typed("PickerAnswers").height, 1 + 2 * Flea.Theme.spacing.rowPaddingX + accept.height), true)
+            root.check("the answer area is one row 14 padded with a hairline rule", root.near(root.typed("PickerAnswers").height, 1 + 2 * Dlea.Theme.spacing.rowPaddingX + accept.height), true)
             // A folder or an empty listing drops Open to 0.55; a file keeps it live.
             win.cursorIndex = root.rowIndex("sub")
-            root.check("Open drops to 0.55 on a folder", [accept.available, Math.abs(accept.opacity - Flea.Theme.disabledOpacity) < 0.001], [false, true])
+            root.check("Open drops to 0.55 on a folder", [accept.available, Math.abs(accept.opacity - Dlea.Theme.disabledOpacity) < 0.001], [false, true])
             win.cursorIndex = root.rowIndex("a.txt")
             root.check("Open is live on a file in a one-file request", [accept.available, accept.opacity, accept.label], [true, 1, "Open"])
             root.finish()
@@ -582,10 +582,10 @@ ShellRoot {
             var frame = menu.frameItem
             root.check("the menu opens flush above the trigger", root.near(root.at(frame, 0, frame.height).y, root.at(trigger, 0, 0).y), true)
             root.check("the menu stands at the trigger's left", root.near(root.at(frame, 0, 0).x, root.at(trigger, 0, 0).x), true)
-            root.check("the menu is the menu width", frame.width, Flea.Theme.menuWidth)
+            root.check("the menu is the menu width", frame.width, Dlea.Theme.menuWidth)
             root.check("the menu lists the caller's filters then All files", menu.entries.map(function(entry) { return entry.label }), ["Text", "Pictures", "Data", "All files"])
             root.check("the menu keeps the mark slot empty", menu.entries.every(function(entry) { return entry.mark === "" }), true)
-            root.check("the menu rows are the 37 px row", menu.itemFor(0).height, Flea.Theme.rowHeight)
+            root.check("the menu rows are the 37 px row", menu.itemFor(0).height, Dlea.Theme.rowHeight)
             root.check("the cursor starts on the current filter", menu.cursor, 1)
             root.listingsBefore = root.listings
             root.press(Qt.Key_Down)
@@ -657,7 +657,7 @@ ShellRoot {
     }
 
     Component.onCompleted: {
-        var comp = Qt.createComponent("flea/PickerWindow.qml")
+        var comp = Qt.createComponent("dlea/PickerWindow.qml")
         if (comp.status !== Component.Ready) {
             console.log("PICKER_HUNT FAIL compile " + comp.errorString())
             Qt.exit(1)
@@ -751,12 +751,12 @@ ShellRoot {
                     // The field is the one ChromeBar draws: 23 px at base size 14, centred in whatever strip holds it.
                     var entry = root.pathEntry()
                     var frame = entry.pathFrame
-                    root.check("the field is the chrome's own height", frame.height, Flea.Theme.chromeHeight - 4 * frame.border.width)
+                    root.check("the field is the chrome's own height", frame.height, Dlea.Theme.chromeHeight - 4 * frame.border.width)
                     var above = entry.y + frame.y
                     var below = entry.parent.height - above - frame.height
                     root.check("the field is centred in the strip", Math.abs(above - below) <= 1, true)
                     // The board's numbers at base size 14: a 27 px strip holding the chrome's 23 px field.
-                    root.check("base size 14 draws the chrome at 27 px", Flea.Theme.chromeHeight, 27)
+                    root.check("base size 14 draws the chrome at 27 px", Dlea.Theme.chromeHeight, 27)
                     root.check("the path strip is the board's 27 px", entry.parent.height, 27)
                     root.check("the entry takes the chrome's slot", [entry.y, entry.height], [0, 26])
                     root.check("the field is the board's 23 px", frame.height, 23)

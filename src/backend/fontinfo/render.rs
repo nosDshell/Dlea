@@ -9,9 +9,9 @@ use crate::backend::fontinfo::{self, Facts};
 use crate::backend::iomount;
 use crate::backend::mime::Db;
 use crate::backend::opsreq::{op_err, OpMsg};
-use crate::error::FleaError;
+use crate::error::DleaError;
 use crate::json::{escape, field_str, field_usize, field_usize_array};
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::os::unix::fs::DirBuilderExt;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -44,7 +44,7 @@ impl Ask {
     pub fn parse(line: &str) -> Ask {
         Ask {
             id: field_usize(line, "id").unwrap_or(0),
-            path: flea::bytename::exact(field_str(line, "path").unwrap_or_default()),
+            path: dlea::bytename::exact(field_str(line, "path").unwrap_or_default()),
             fg: field_str(line, "fg").unwrap_or_default(),
             bg: field_str(line, "bg").unwrap_or_default(),
             sizes: field_usize_array(line, "sizes"),
@@ -115,7 +115,7 @@ fn check(ask: &Ask) -> Result<String, String> {
 
 // One process, three images: -write then +delete is how magick makes several files from one run.
 pub fn argv(program: &str, font: &Path, ask: &Ask, label: &str, out: &[PathBuf]) -> Vec<String> {
-    let [define, literal] = flea::ui_logic_print_convert::output::MAGICK_LITERAL;
+    let [define, literal] = dlea::ui_logic_print_convert::output::MAGICK_LITERAL;
     let mut a: Vec<String> = [
         program,
         define,
@@ -129,24 +129,24 @@ pub fn argv(program: &str, font: &Path, ask: &Ask, label: &str, out: &[PathBuf])
     .iter()
     .map(|s| s.to_string())
     .collect();
-    a.push(flea::ui_logic_print_convert::output::magick_font(font));
+    a.push(dlea::ui_logic_print_convert::output::magick_font(font));
     for (i, px) in ask.sizes.iter().enumerate() {
         a.push("-pointsize".to_string());
         a.push(px.to_string());
         a.push(format!("label:{}", label));
         if i + 1 < ask.sizes.len() {
             a.push("-write".to_string());
-            a.push(flea::ui_logic_print_convert::output::magick_output(&out[i]));
+            a.push(dlea::ui_logic_print_convert::output::magick_output(&out[i]));
             a.push("+delete".to_string());
         } else {
-            a.push(flea::ui_logic_print_convert::output::magick_output(&out[i]));
+            a.push(dlea::ui_logic_print_convert::output::magick_output(&out[i]));
         }
     }
     a
 }
 
 // The one runner: the archive jail, the CPU cap, and a wall-clock cancel for a font that never reads.
-fn jail(inner: &[String], font: &Path, work: &mut Work) -> Result<(), FleaError> {
+fn jail(inner: &[String], font: &Path, work: &mut Work) -> Result<(), DleaError> {
     if !convert::available() {
         return Err(op_err("font", MAGICK, "ImageMagick is not installed"));
     }
@@ -171,7 +171,7 @@ fn jail(inner: &[String], font: &Path, work: &mut Work) -> Result<(), FleaError>
     result
 }
 
-type Runner<'a> = dyn FnMut(&[String], &Path, &mut Work) -> Result<(), FleaError> + 'a;
+type Runner<'a> = dyn FnMut(&[String], &Path, &mut Work) -> Result<(), DleaError> + 'a;
 
 // The reply line for one ask. run draws the three files into the work folder it is given; a hit never calls it.
 pub fn answer(

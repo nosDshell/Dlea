@@ -559,8 +559,8 @@ Item {
 
     Process {
         id: child
-        // FLEA_BIN is the dev seam, see AGENTS.md "Where the backend binary comes from".
-        command: [Quickshell.env("FLEA_BIN") || "flea", "--backend"]
+        // DLEA_BIN is the dev seam, see AGENTS.md "Where the backend binary comes from".
+        command: [Quickshell.env("DLEA_BIN") || "dlea", "--backend"]
         running: true
         stdinEnabled: true
 

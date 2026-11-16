@@ -1,4 +1,4 @@
-//@ pragma ShellId flea-preview-holdframes-test
+//@ pragma ShellId dlea-preview-holdframes-test
 
 import Quickshell
 import QtQuick

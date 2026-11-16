@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Buttons.js" as Buttons
 
 // A live chrome control inks in foreground; an active one uses the accent and the keyboard draws its own foreground frame.
@@ -76,7 +76,7 @@ Item {
         }
     }
 
-    Flea.Glyph {
+    Dlea.Glyph {
         id: mark
         anchors.centerIn: ringBand
         width: root.glyphSize

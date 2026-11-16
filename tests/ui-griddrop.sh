@@ -87,7 +87,7 @@ case_griddrop() {
     wait_message "Copied 1 item · z undoes"
     [[ -f "$dir/f.txt" && -f "$dir/box/f.txt" ]] || fail "griddrop: ctrl at the lift did not copy f.txt"
     printf 'GRIDDROP move=box follow=side empty=refused copy=ctrl\n'
-    kill_flea
+    kill_dlea
 
     echo "-- hover: a resting pointer lights its tile, the wheel moves the light, leaving the tiles puts it out --"
     launch "$hov"
@@ -118,5 +118,5 @@ case_griddrop() {
     lit=$(griddrop_hovered)
     [[ -z "$lit" ]] || fail "griddrop: with the pointer off the tiles [$lit] stay lit"
     printf 'GRIDDROP hover=rest,wheel,off\n'
-    kill_flea
+    kill_dlea
 }

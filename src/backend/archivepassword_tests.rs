@@ -14,7 +14,7 @@ fn encrypted_fixture(root: &TestDir, encrypt_names: bool) -> PathBuf {
     let fixture = PathBuf::from(String::from_utf8(output.stdout).unwrap().trim());
     root.assert_contains(&fixture);
     std::fs::write(
-        fixture.join(".flea-test-sandbox"),
+        fixture.join(".dlea-test-sandbox"),
         "archive password fixture\n",
     )
     .unwrap();

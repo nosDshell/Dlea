@@ -2,7 +2,7 @@
 use crate::i18n::I18n;
 use crate::jsondoc::Json;
 
-/// The asks `flea --open` answers beyond its 0, 2 and 3 contract, and the run card's own failures (src/runfile.rs).
+/// The asks `dlea --open` answers beyond its 0, 2 and 3 contract, and the run card's own failures (src/runfile.rs).
 pub const IS_DIRECTORY: i32 = 3;
 pub const ASK_RUN: i32 = 4;
 pub const ASK_OPEN_WITH: i32 = 5;
@@ -67,7 +67,7 @@ impl Button {
     }
 }
 
-/// The ask line `flea --open` prints with status 4, carrying the identity the run checks again.
+/// The ask line `dlea --open` prints with status 4, carrying the identity the run checks again.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Ask {
     pub kind: Kind,
@@ -252,7 +252,7 @@ pub enum Action {
     Handler,
 }
 
-pub fn argv(flea: &str, action: Action, ask: &Ask) -> Vec<String> {
+pub fn argv(dlea: &str, action: Action, ask: &Ask) -> Vec<String> {
     let identity = [
         ask.dev.clone(),
         ask.ino.clone(),
@@ -260,11 +260,11 @@ pub fn argv(flea: &str, action: Action, ask: &Ask) -> Vec<String> {
         ask.mtime_s.to_string(),
         ask.mtime_ns.to_string(),
     ];
-    let mut out = vec![flea.to_string()];
+    let mut out = vec![dlea.to_string()];
     match action {
         Action::Run => out.extend(["--run".into(), ask.target.clone()]),
         Action::Terminal => out.extend(["--run-terminal".into(), ask.target.clone()]),
-        Action::Text => return vec![flea.to_string(), "--open-text".into(), ask.target.clone()],
+        Action::Text => return vec![dlea.to_string(), "--open-text".into(), ask.target.clone()],
         Action::Handler => out.extend([
             "--open-handler".into(),
             ask.target.clone(),

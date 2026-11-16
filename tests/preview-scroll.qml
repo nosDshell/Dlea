@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-preview-scroll-test
+//@ pragma ShellId dlea-preview-scroll-test
 import QtQuick
 import QtTest
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
-import "flea/js/Scroll.js" as Scroll
+import "dlea" as Dlea
+import "dlea/js/Scroll.js" as Scroll
 
 ShellRoot {
     id: root
@@ -163,7 +163,7 @@ ShellRoot {
     }
     function run(op) {
         if (op === "open") {
-            Flea.ViewState.changeKey("view", "columns")
+            Dlea.ViewState.changeKey("view", "columns")
             root.pane = paneComponent.createObject(win.contentItem)
             root.keys = Qt.createQmlObject("import QtTest; TestEvent {}", root.pane.listArea)
             root.pane.open(root.fixture)
@@ -410,7 +410,7 @@ ShellRoot {
         id: win
         implicitWidth: 1200
         implicitHeight: 760
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
         TestEvent { id: driver }
         Item { id: frameProbe }
     }
@@ -420,7 +420,7 @@ ShellRoot {
         width: 240
         height: 100
         z: 100
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
         visible: root.htmlActive && !coldScroll.loading
     }
     Flickable {
@@ -433,7 +433,7 @@ ShellRoot {
         clip: true
         property int currentIndex: -1
         function forceLayout() {}
-        Text { width: parent.width; height: 1200; text: "Rendered HTML\n".repeat(60); color: Flea.Theme.color.foreground }
+        Text { width: parent.width; height: 1200; text: "Rendered HTML\n".repeat(60); color: Dlea.Theme.color.foreground }
     }
     ListView {
         id: sourceViewport
@@ -442,7 +442,7 @@ ShellRoot {
         visible: htmlDocument.sourceView
         model: 100
         clip: true
-        delegate: Text { required property int index; width: ListView.view.width; height: 20; text: "Source " + index; color: Flea.Theme.color.foreground }
+        delegate: Text { required property int index; width: ListView.view.width; height: 20; text: "Source " + index; color: Dlea.Theme.color.foreground }
     }
     QtObject {
         id: htmlSourceCode
@@ -490,13 +490,13 @@ ShellRoot {
             property bool loading: false
         }
     }
-    Flea.PreviewScroll { id: coldScroll; column: firstMarkdown }
-    Flea.IpcPreviewState { id: previewReader; pane: root.pane }
+    Dlea.PreviewScroll { id: coldScroll; column: firstMarkdown }
+    Dlea.IpcPreviewState { id: previewReader; pane: root.pane }
     Connections {
         target: frameProbe.Window.window
         function onAfterAnimating() { root.sample() }
     }
-    Flea.Backend {
+    Dlea.Backend {
         id: realBackend
         function askCode(slot, source, first, count) {
             realBackend.codeToken += 1
@@ -507,7 +507,7 @@ ShellRoot {
         }
     }
     FileView { id: rewrite; path: root.fixture + "/00-long.rs"; printErrors: false; blockWrites: true }
-    Component { id: paneComponent; Flea.Pane { width: 1200; height: 760; backend: realBackend } }
+    Component { id: paneComponent; Dlea.Pane { width: 1200; height: 760; backend: realBackend } }
     Timer { id: quitter; interval: 100; onTriggered: Qt.exit(root.failures > 0 ? 1 : 0) }
     Timer {
         interval: 40

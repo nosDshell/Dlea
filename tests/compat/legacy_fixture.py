@@ -52,7 +52,7 @@ elif args[:1] == ["-p"]:
     identity = os.environ["OLD_ID"]
     directory = runtime / "quickshell/by-id" / identity
     directory.mkdir(parents=True, mode=0o700)
-    for parent, name in (("by-shell/flea", identity), ("by-pid", str(os.getpid()))):
+    for parent, name in (("by-shell/dlea", identity), ("by-pid", str(os.getpid()))):
         p = runtime / "quickshell" / parent
         p.mkdir(parents=True, exist_ok=True, mode=0o700)
         (p / name).symlink_to(directory)
@@ -60,7 +60,7 @@ elif args[:1] == ["-p"]:
     lock.write(str(os.getpid()))
     lock.flush()
     fcntl.lockf(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    backend = subprocess.Popen([os.environ["FLEA_BIN"], "--backend"], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    backend = subprocess.Popen([os.environ["DLEA_BIN"], "--backend"], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     (directory / "backend.pid").write_text(str(backend.pid))
     server = socket.socket(socket.AF_UNIX)
     directory_fd = os.open(directory, os.O_RDONLY | os.O_DIRECTORY)

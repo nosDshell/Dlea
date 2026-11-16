@@ -3,7 +3,7 @@ use super::{ENGLISH, ENGLISH_PLURAL};
 use crate::jsondoc::{parse, Json};
 
 fn catalog() -> Json {
-    let path = concat!(env!("CARGO_MANIFEST_DIR"), "/i18n/en/flea.json");
+    let path = concat!(env!("CARGO_MANIFEST_DIR"), "/i18n/en/dlea.json");
     parse(&std::fs::read_to_string(path).expect("catalog readable")).expect("catalog parses")
 }
 

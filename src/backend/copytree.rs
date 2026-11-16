@@ -6,7 +6,7 @@ use super::{
 };
 use crate::backend::copystage::Folder;
 use crate::backend::unheld::{self, Kind};
-use crate::error::{from_io, FleaError};
+use crate::error::{from_io, DleaError};
 use std::ffi::OsString;
 use std::fs::File;
 use std::io;
@@ -71,7 +71,7 @@ pub(super) fn copy_dir_at(
     dst: At,
     p: &mut Progress,
     inside: bool,
-) -> Result<(), FleaError> {
+) -> Result<(), DleaError> {
     // Issue 110: a child is reached through held descriptors, or past the window through ".." checked by identity, so a parent renamed aside cannot redirect the tree.
     let from = open_dir(src.at).map_err(|e| from_io("copy", &src.named.to_string_lossy(), &e))?;
     // A move removes every folder's contents once the copy lands, so a folder that cannot give them up fails now.
@@ -158,7 +158,7 @@ pub(super) fn copy_dir_at(
 }
 
 impl Walk {
-    fn run(&mut self, p: &mut Progress) -> Result<(), FleaError> {
+    fn run(&mut self, p: &mut Progress) -> Result<(), DleaError> {
         let rename_fat = p.durability.as_ref().is_some_and(|d| d.rename_fat);
         loop {
             if cancelled(p) {
@@ -226,7 +226,7 @@ impl Walk {
         name: &OsString,
         landed: &OsString,
         p: &mut Progress,
-    ) -> Result<(), FleaError> {
+    ) -> Result<(), DleaError> {
         let from =
             open_dir(src.at).map_err(|e| from_io("copy", &src.named.to_string_lossy(), &e))?;
         if p.for_move {
@@ -265,7 +265,7 @@ impl Walk {
     }
 
     // A finished folder takes its mode and mtime, and the walk climbs back to its parent through "..".
-    fn leave(&mut self, p: &mut Progress) -> Result<(), FleaError> {
+    fn leave(&mut self, p: &mut Progress) -> Result<(), DleaError> {
         let Some(parent) = self.levels.pop() else {
             return Err(from_io(
                 "copy",
@@ -315,6 +315,6 @@ fn record_folder(p: &mut Progress, named: &Path, into: &File) {
 }
 
 // A folder whose entries this process may not remove keeps a move from starting on it.
-fn writable(dir: &File, named: &Path) -> Result<(), FleaError> {
+fn writable(dir: &File, named: &Path) -> Result<(), DleaError> {
     deep::writable(&held_path(dir)).map_err(|e| from_io("move", &named.to_string_lossy(), &e))
 }

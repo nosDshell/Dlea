@@ -143,7 +143,7 @@ cap_collide_theme() {
     done
     printf 'CAP_COLLIDE theme=%s accent=%s foreground=%s\n' "$theme" "$(grep -E '^accent' "$state_theme/theme/colors.toml" | grep -oE '#[0-9A-Fa-f]{6}')" "$real_foreground"
     real_foreground="$live_foreground"
-    kill_flea
+    kill_dlea
 }
 case_cap_collide() {
     local theme menus_checks=0

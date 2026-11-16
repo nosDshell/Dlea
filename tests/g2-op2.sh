@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.."
 scratch="$PWD/.superpowers/g2-op2"
 mkdir -p "$scratch"
 unit_root=$(mktemp -d "$scratch/ci.XXXXXXXX")
-: > "$unit_root/.flea-test-sandbox"
+: > "$unit_root/.dlea-test-sandbox"
 mkdir -p "$unit_root"/{home,config,state,cache,runtime}
 lane() {
     setsid -w env -i PATH="$PATH" HOME="$unit_root/home" \
@@ -18,9 +18,9 @@ lane() {
 # A failing run still prints its tail and a FAIL line, so the rc is captured with errexit off.
 count() { sed -n 's/^test result: ok\. \([0-9]*\) passed.*/\1/p' "$1" | head -1; }
 set +e
-lane cargo test --locked -p flea --lib -- ui_logic_archive_flash > "$unit_root/core.log" 2>&1
+lane cargo test --locked -p dlea --lib -- ui_logic_archive_flash > "$unit_root/core.log" 2>&1
 core_rc=$?
-lane cargo test --locked -p flea-gui --lib -- g2::archive_flash > "$unit_root/gui.log" 2>&1
+lane cargo test --locked -p dlea-gui --lib -- g2::archive_flash > "$unit_root/gui.log" 2>&1
 gui_rc=$?
 set -e
 tail -3 "$unit_root/core.log"
@@ -32,12 +32,12 @@ gui_n=$(count "$unit_root/gui.log")
 [ "${core_n:-0}" -ge 57 ] || { printf 'g2-op2: FAIL core cases %s, want at least 57\n' "${core_n:-0}"; exit 1; }
 [ "${gui_n:-0}" -ge 22 ] || { printf 'g2-op2: FAIL GPUI cases %s, want at least 22\n' "${gui_n:-0}"; exit 1; }
 clippy_root=$(mktemp -d "$scratch/clippy.XXXXXXXX")
-: > "$clippy_root/.flea-test-sandbox"
-printf 'tools/flea-clippy tools/clippy-baseline.txt %s\n' "$clippy_root"
-tools/flea-clippy tools/clippy-baseline.txt "$clippy_root"
+: > "$clippy_root/.dlea-test-sandbox"
+printf 'tools/dlea-clippy tools/clippy-baseline.txt %s\n' "$clippy_root"
+tools/dlea-clippy tools/clippy-baseline.txt "$clippy_root"
 # Remove a passing run's root only when it is absolute, non-empty, marked and directly inside this unit's scratch.
 drop_root() {
-    if [[ -n "$1" && "$1" == "$scratch"/?* && "$(dirname "$1")" == "$scratch" && -f "$1/.flea-test-sandbox" ]]; then
+    if [[ -n "$1" && "$1" == "$scratch"/?* && "$(dirname "$1")" == "$scratch" && -f "$1/.dlea-test-sandbox" ]]; then
         rm -rf -- "$1"
     else
         printf 'g2-op2: FAIL kept %s, not a marked root of %s\n' "$1" "$scratch" >&2

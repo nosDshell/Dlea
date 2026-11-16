@@ -1,6 +1,6 @@
 // gio trash is the freedesktop trash this box already shares with every GTK app; nothing about the spec is written here, only an argv and a result.
-use crate::error::FleaError;
-use flea::bytename::ExactText as _;
+use crate::error::DleaError;
+use dlea::bytename::ExactText as _;
 use std::os::unix::process::ExitStatusExt;
 use std::path::{Path, PathBuf};
 
@@ -55,7 +55,7 @@ pub(crate) fn gio(args: &[&str]) -> Option<std::process::Output> {
     } else {
         std::process::Command::new(&argv[0])
     };
-    command.args(flea::bytename::args(&argv[1..])).output().ok()
+    command.args(dlea::bytename::args(&argv[1..])).output().ok()
 }
 
 // The argv gio runs under, so the suite pins the bound without spawning a subprocess.
@@ -128,7 +128,7 @@ pub fn list() -> Option<Vec<Entry>> {
 pub fn trash(paths: &[PathBuf]) -> (Vec<Entry>, usize, String) {
     match trash_checked(paths, None) {
         Ok(result) => result,
-        Err(error) => { eprintln!("flea: {}", error); (Vec::new(), paths.len(), error) }
+        Err(error) => { eprintln!("dlea: {}", error); (Vec::new(), paths.len(), error) }
     }
 }
 
@@ -262,7 +262,7 @@ pub(crate) fn newest_entry_for(before: &[Entry], after: &[Entry], path: &Path) -
         .cloned()
 }
 
-pub fn restore(entry: &Entry) -> Result<(), FleaError> {
+pub fn restore(entry: &Entry) -> Result<(), DleaError> {
     if !entry.uri.is_empty() {
         // A home Trash entry whose own record names this path goes back in-process, so undo spawns no gio for it.
         if let Some(done) = super::homerestore::restore_from_home(entry) {
@@ -363,7 +363,7 @@ fn stamp_secs(stamp: &str) -> Option<i64> {
     Some(date * SECS_PER_DAY + num(11, 13)? * SECS_PER_HOUR + num(14, 16)? * SECS_PER_MINUTE + num(17, 19)?)
 }
 
-fn restore_uri(entry: &Entry) -> Result<(), FleaError> {
+fn restore_uri(entry: &Entry) -> Result<(), DleaError> {
     match gio(&["trash", "--restore", &entry.uri]) {
         Some(o) if o.status.success() => Ok(()),
         Some(o) => {
@@ -374,8 +374,8 @@ fn restore_uri(entry: &Entry) -> Result<(), FleaError> {
     }
 }
 
-fn err(msg: &str) -> FleaError {
-    FleaError { where_: "undo".to_string(), path: String::new(), msg: msg.to_string() }
+fn err(msg: &str) -> DleaError {
+    DleaError { where_: "undo".to_string(), path: String::new(), msg: msg.to_string() }
 }
 
 // The journal's "t" record: an ordinary entry encodes as before, an unattributed settle adds its resolution data.

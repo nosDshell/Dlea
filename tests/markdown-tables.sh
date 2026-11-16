@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Every Markdown table case (wide, long cells, breaks, inline marks, ragged, nested, CJK, 500 rows) in Quick Look and the preview column: geometry judged, frames grabbed.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -10,13 +10,13 @@ if ! command -v qs >/dev/null; then
     exit 1
 fi
 
-test_root="$FIXTURE_ROOT/flea-markdown-tables-$$"
+test_root="$FIXTURE_ROOT/dlea-markdown-tables-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/cache" "$test_root/runtime" "$test_root/docs" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/markdown-tables.js tests/markdown-tables-scroll.js tests/markdown-markers.js "$test_root/config/" || exit 1
@@ -34,7 +34,7 @@ done
 cases=wide,mid,extreme,overflow,chunkwide,nestedwide,pair,sentence,path,br,inline,align,ragged,headonly,nested,cjk,adjacent,picturewide,picturewide-dot,picfirst,picfirst-dot,picsecond,picsecond-dot,piclist,piclist-dot,picquote,picquote-dot,picwide,picwide-dot,picwidelist,picwidelist-dot,picordered,picordered-dot,picparts,picparts-dot,rows500
 output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_TABLES_DIR="$test_root/docs" FLEA_TABLES_CASES="$cases" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_TABLES_DIR="$test_root/docs" DLEA_TABLES_CASES="$cases" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 \
     timeout 150 qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 
@@ -43,10 +43,10 @@ printf '%s\n' "$output" | grep -a 'MARKDOWN_TABLES' | grep -av ' GEO \| INK ' | 
 picture_verdict=$(printf '%s\n' "$output" | grep -a 'MARKDOWN_TABLES INK ' | sed 's/^.*MARKDOWN_TABLES INK //' | python3 tests/markdown-picture-lines.py "$test_root/runtime" "$test_root/docs")
 picture_status=$?
 printf '%s\n' "$picture_verdict"
-if [ -n "${FLEA_CI_SUITE_LOGS:-}" ]; then
-    mkdir -p "$FLEA_CI_SUITE_LOGS/tables" || exit 1
-    cp "$test_root"/runtime/tables-*.png "$FLEA_CI_SUITE_LOGS/tables/" 2>/dev/null
-    printf '%s\n' "$output" | grep -a ' GEO ' | sed 's/^.*MARKDOWN_TABLES GEO //' > "$FLEA_CI_SUITE_LOGS/tables/geometry.txt"
+if [ -n "${DLEA_CI_SUITE_LOGS:-}" ]; then
+    mkdir -p "$DLEA_CI_SUITE_LOGS/tables" || exit 1
+    cp "$test_root"/runtime/tables-*.png "$DLEA_CI_SUITE_LOGS/tables/" 2>/dev/null
+    printf '%s\n' "$output" | grep -a ' GEO ' | sed 's/^.*MARKDOWN_TABLES GEO //' > "$DLEA_CI_SUITE_LOGS/tables/geometry.txt"
 fi
 if [ "$picture_status" -ne 0 ]; then
     printf 'FAIL markdown-tables: a picture line overlaps what is above it or leaves a stretch below it, or a list marker sits off the baseline of its line\n'

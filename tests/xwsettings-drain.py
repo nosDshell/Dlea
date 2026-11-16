@@ -15,14 +15,14 @@ scratch = Path(os.environ.get('TMPDIR', repo / '.superpowers/tmp'))
 scratch.mkdir(parents=True, exist_ok=True)
 run = Path(tempfile.mkdtemp(prefix='xwsdrain-', dir=scratch))
 assert run.is_absolute() and len(run.parts) > 2
-(run / '.flea-test-sandbox').touch()
+(run / '.dlea-test-sandbox').touch()
 (run / 'files').mkdir()
 for name in ('a.txt', 'b.txt', 'c.txt'):
     (run / 'files' / name).touch()
 config = run / 'ui' / 'boot'
 config.mkdir(parents=True)
 (config / 'Ui').symlink_to((repo / 'ui' / 'boot' / 'Ui').resolve())
-subprocess.run(['bash', '-c', '. tools/flea-sandbox-guard; . tests/headless-commons.sh; headless_commons "$1" "$2"',
+subprocess.run(['bash', '-c', '. tools/dlea-sandbox-guard; . tests/headless-commons.sh; headless_commons "$1" "$2"',
                 'headless_commons', str(run), str(config / 'Commons')], check=True)
 source = (repo / 'tests/xwsettings-start.qml').read_text()
 needle = 'function onQuitReady() { console.log("PROBE " + Quickshell.env("PROBE_ROLE") + " backend drained") }'
@@ -39,8 +39,8 @@ env = os.environ.copy()
 for name in ('DISPLAY', 'WAYLAND_DISPLAY', 'HYPRLAND_INSTANCE_SIGNATURE'):
     env.pop(name, None)
 env.update(QT_QPA_PLATFORM='offscreen', QT_FORCE_STDERR_LOGGING='1',
-           QSG_RHI_BACKEND='opengl', XDG_STATE_HOME=str(run / 'state'), FLEA_UI=str(run / 'ui'),
-           FLEA_BIN=sys.argv[1], FLEA_PATH=str(run / 'files'), PROBE_BODY=str(repo / 'ui' / 'WindowBody.qml'),
+           QSG_RHI_BACKEND='opengl', XDG_STATE_HOME=str(run / 'state'), DLEA_UI=str(run / 'ui'),
+           DLEA_BIN=sys.argv[1], DLEA_PATH=str(run / 'files'), PROBE_BODY=str(repo / 'ui' / 'WindowBody.qml'),
            PROBE_STATE_HELPER=str(repo / 'tests/xwsettings-start-state.qml'), PROBE_ROLE='B',
            PROBE_READY=str(run / 'ready'), PROBE_DONE=str(run / 'done'), PROBE_POLL_S='0.05')
 subprocess.run([sys.argv[1], '--ui-state', '{"hidden":false,"view":"list","density":"compact","updates":{"autoCheck":false}}'],

@@ -5,7 +5,7 @@ import "js/Permissions.js" as Permissions
 QtObject {
     id: root
     property var pane: null
-    property var fleaWindow: null
+    property var dleaWindow: null
     property var shebangReply: ({})
     property var shebangLastReply: ({})
     onPaneChanged: root.shebangReply = ({})
@@ -41,7 +41,7 @@ QtObject {
             shebangAsked: root.pane.shebangAsked, shebangHas: root.pane.rowHasShebang,
             shebangId: root.pane.shebangId, shebangReply: root.shebangReply, shebangLastReply: root.shebangLastReply,
             submenu: menu.submenuOpen, submenuCursor: menu.submenuCursor, submenuEntries: menu.submenuEntries,
-            frame: root.fleaWindow.rectOf(menu.frameItem), flyout: root.fleaWindow.rectOf(menu.submenuFrameItem),
+            frame: root.dleaWindow.rectOf(menu.frameItem), flyout: root.dleaWindow.rectOf(menu.submenuFrameItem),
             workArea: menu.workArea, forHeader: menu.forHeader, forRail: menu.forRail, hasRow: menu.hasRow,
             rows: root.menuRows(menu)})
     }

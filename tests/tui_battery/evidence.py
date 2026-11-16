@@ -7,7 +7,7 @@ import stat
 import subprocess
 import time
 
-MARKER = ".flea-test-sandbox"
+MARKER = ".dlea-test-sandbox"
 
 
 class Blocked(RuntimeError):

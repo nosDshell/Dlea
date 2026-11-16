@@ -443,7 +443,7 @@ QtObject {
     function geometryChecks() {
         // The runner supplies the shipped list and text components beside a local Theme for pure qml6.
         var module = Qt.resolvedUrl(Qt.application.arguments[Qt.application.arguments.length - 1])
-        var probe = Qt.createQmlObject('import QtQuick\nimport "' + module + '" as Flea\nFlea.MarkdownList {\nwidth: ' + geometryWidth + '\n'
+        var probe = Qt.createQmlObject('import QtQuick\nimport "' + module + '" as Dlea\nDlea.MarkdownList {\nwidth: ' + geometryWidth + '\n'
             + 'list: ({ type: "list", ordered: true, start: 9, items: ["nine", "ten"] })\n}', gate.sandbox)
         Qt.callLater(function () {
             var rows = Array.prototype.filter.call(probe.children, function (child) {

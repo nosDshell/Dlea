@@ -3,13 +3,13 @@
 # The focused drag suite owns its launch, marked fixtures, input teardown and both mid-drag PNGs.
 case_cap_raildrop() {
     local log="$evidence_dir/raildrop.log" proof status=0
-    kill_flea
+    kill_dlea
     mkdir -p "$evidence_dir" || fail "cap_raildrop: evidence directory creation failed"
     [[ ! -e "$log" ]] || fail "cap_raildrop: refusing existing evidence log"
-    FLEA_BIN="$flea_bin" /bin/bash "$repo/tests/drag.sh" raildrop > "$log" 2>&1 || status=$?
+    DLEA_BIN="$dlea_bin" /bin/bash "$repo/tests/drag.sh" raildrop > "$log" 2>&1 || status=$?
     cat "$log"
     proof=$(sed -n 's/^RAILDROP_EVIDENCE_ROOT=//p' "$log" | head -n 1)
-    if [[ "$proof" == "${FLEA_FIXTURE_ROOT:-/home/flea-sandbox}"/native.???????? && -d "$proof/raildrop-evidence" ]]; then
+    if [[ "$proof" == "${DLEA_FIXTURE_ROOT:-/home/dlea-sandbox}"/native.???????? && -d "$proof/raildrop-evidence" ]]; then
         mkdir -p "$evidence_dir/raildrop"
         cp -a "$proof/raildrop-evidence/." "$evidence_dir/raildrop/" || fail "cap_raildrop: evidence copy failed"
     elif [[ "$status" == 0 ]]; then
@@ -129,7 +129,7 @@ cap_drops_centre() {
     [[ -n "$point" ]] || fail "cap_drops: $reader $arg has no centre"
     printf '%s\n' "$point"
 }
-# Makes the Flea HOME and data home for the case's trash, and fails unless both sit on the folder's device, which is what decides GLib's trash (g_local_file_trash, glocalfile.c).
+# Makes the Dlea HOME and data home for the case's trash, and fails unless both sit on the folder's device, which is what decides GLib's trash (g_local_file_trash, glocalfile.c).
 cap_drops_trash_home() {
     [[ "$#" -eq 3 ]] || fail "cap_drops: trash_home needs a folder, a home and a data home, got $#"
     local dir="$1" home="$2" data="$3" dir_dev home_dev data_dev
@@ -138,7 +138,7 @@ cap_drops_trash_home() {
     dir_dev=$(stat -c %d "$dir") || fail "cap_drops: stat could not read the device of $dir"
     home_dev=$(stat -c %d "$home") || fail "cap_drops: stat could not read the device of $home"
     data_dev=$(stat -c %d "$data") || fail "cap_drops: stat could not read the device of $data"
-    [[ "$home_dev" == "$dir_dev" ]] || fail "cap_drops: the Flea HOME $home is on device $home_dev and the folder $dir on device $dir_dev, so GLib would trash the pasted image into that mount's own trash and not into the case's."
+    [[ "$home_dev" == "$dir_dev" ]] || fail "cap_drops: the Dlea HOME $home is on device $home_dev and the folder $dir on device $dir_dev, so GLib would trash the pasted image into that mount's own trash and not into the case's."
     [[ "$data_dev" == "$dir_dev" ]] || fail "cap_drops: the data home $data is on device $data_dev and the folder $dir on device $dir_dev, so GLib could not move the pasted image into the case's trash."
 }
 cap_drops_column_s=15
@@ -167,9 +167,9 @@ case_cap_drops() {
     printf 'p two\n' > "$dir/deep/outer/p2.txt"
     for i in $(seq -w 1 200); do printf 'pad\n' > "$dir/pad-$i.txt"; done
     seed_ui_state "$fixture_root/cap-drops-state" '{"keys":"default","view":"list"}'
-    # The pasted image's Delete goes to this case's own trash, never the operator's: GLib takes $XDG_DATA_HOME/Trash only for a file on $HOME's device, so Flea gets a HOME on the fixture's.
+    # The pasted image's Delete goes to this case's own trash, never the operator's: GLib takes $XDG_DATA_HOME/Trash only for a file on $HOME's device, so Dlea gets a HOME on the fixture's.
     local fixture_home="$fixture_root/cap-drops-home" data_home="$fixture_root/cap-drops-data"
-    local -a flea_launch_wrap=(env "HOME=$fixture_home" "XDG_DATA_HOME=$data_home")
+    local -a dlea_launch_wrap=(env "HOME=$fixture_home" "XDG_DATA_HOME=$data_home")
     cap_drops_trash_home "$dir" "$fixture_home" "$data_home"
     launch "$dir"
     wait_listing 203
@@ -319,5 +319,5 @@ case_cap_drops() {
     cap_drops_fat_skip
     wl-copy --clear >/dev/null 2>&1 || true
     printf 'CAP_DROPS settings=off,on pasted=image target=held hover=open scroll=band crumb=held columns=held fat=skip\n'
-    kill_flea
+    kill_dlea
 }

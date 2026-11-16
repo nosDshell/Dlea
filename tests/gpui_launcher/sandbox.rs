@@ -8,7 +8,7 @@ fn executables_written_beside_forking_siblings_exec() {
             let stop = Arc::clone(&stop);
             thread::spawn(move || {
                 while !stop.load(Ordering::Relaxed) {
-                    let mut command = Command::new(flea::testpath::tool("/bin/true"));
+                    let mut command = Command::new(dlea::testpath::tool("/bin/true"));
                     // Holds each child before exec, so it keeps every descriptor this process has open.
                     unsafe {
                         command.pre_exec(|| {
@@ -23,14 +23,14 @@ fn executables_written_beside_forking_siblings_exec() {
         .collect();
     for _ in 0..50 {
         let sandbox = Sandbox::new();
-        let status = Command::new(sandbox.root.join("flea"))
+        let status = Command::new(sandbox.root.join("dlea"))
             .arg("--version")
             .stdout(Stdio::null())
             .status()
             .unwrap();
         assert!(status.success());
         sandbox.frontend();
-        let status = Command::new(sandbox.root.join("flea-gui"))
+        let status = Command::new(sandbox.root.join("dlea-gui"))
             .stdout(Stdio::null())
             .status()
             .unwrap();
@@ -47,7 +47,7 @@ fn sandbox_is_removed_on_drop() {
     let _serial = EXECUTABLE_FIXTURES.lock().unwrap();
     let sandbox = Sandbox::new();
     let root = sandbox.root.clone();
-    assert!(root.join(".flea-test-sandbox").is_file());
+    assert!(root.join(".dlea-test-sandbox").is_file());
     drop(sandbox);
     assert!(
         !root.exists(),
@@ -61,7 +61,7 @@ fn sandbox_cleanup_refuses_unmarked_or_out_of_root_paths() {
     let _serial = EXECUTABLE_FIXTURES.lock().unwrap();
     let sandbox = Sandbox::new();
     let root = sandbox.root.clone();
-    let unmarked = root.join("flea-gpui-launch.unmarked");
+    let unmarked = root.join("dlea-gpui-launch.unmarked");
     fs::create_dir(&unmarked).unwrap();
     let probe = Sandbox {
         root: unmarked.clone(),
@@ -76,7 +76,7 @@ fn sandbox_cleanup_refuses_unmarked_or_out_of_root_paths() {
     };
     assert!(!probe.removable());
     drop(probe);
-    assert!(root.join(".flea-test-sandbox").is_file());
+    assert!(root.join(".dlea-test-sandbox").is_file());
     drop(sandbox);
     assert!(!root.exists());
 }

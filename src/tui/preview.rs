@@ -1,4 +1,4 @@
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::model::Model;
 use crate::backend::regfile;
 use crate::oflags::O_NOFOLLOW;

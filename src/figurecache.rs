@@ -1,4 +1,4 @@
-// The per-user figure bytecode cache under XDG_CACHE_HOME/flea/figures (AGENTS.md "Markdown figures").
+// The per-user figure bytecode cache under XDG_CACHE_HOME/dlea/figures (AGENTS.md "Markdown figures").
 use std::fs;
 use std::io::Read;
 use std::os::unix::fs::OpenOptionsExt;
@@ -7,7 +7,7 @@ use std::path::{Path, PathBuf};
 use crate::oflags::{O_DIRECTORY, O_NOFOLLOW};
 
 // The first manifest line, so a future layout is a different file and not a misread one.
-const FORMAT: &str = "flea-figures 1";
+const FORMAT: &str = "dlea-figures 1";
 pub const MANIFEST: &str = "manifest";
 // The bytecode blobs one cache directory holds, named as vendor/figure-bytecode.mjs writes them.
 pub const BLOBS: [&str; 2] = ["math.bc", "mermaid.bc"];
@@ -155,19 +155,19 @@ pub fn key(qjs: &Path, ui: &Path) -> Option<String> {
 }
 
 // A test and diagnostic hook: "off" runs every start from source and keeps nothing, "svg" turns only the bytecode off.
-pub const CACHE_ENV: &str = "FLEA_FIGURE_CACHE";
+pub const CACHE_ENV: &str = "DLEA_FIGURE_CACHE";
 
 fn hook_is(values: &[&str]) -> bool {
     std::env::var_os(CACHE_ENV).is_some_and(|value| values.iter().any(|v| value == *v))
 }
 
-// $XDG_CACHE_HOME/flea/figures, or None when there is no home to put it in.
+// $XDG_CACHE_HOME/dlea/figures, or None when there is no home to put it in.
 fn base() -> Option<PathBuf> {
     let cache = match crate::userfile::env_dir("XDG_CACHE_HOME") {
         Some(dir) => dir,
         None => crate::userfile::env_dir("HOME")?.join(".cache"),
     };
-    Some(cache.join("flea/figures"))
+    Some(cache.join("dlea/figures"))
 }
 
 // Where the bytecode lives, or None when the hook turns it off.
@@ -188,7 +188,7 @@ pub fn is_key(name: &str) -> bool {
 // One manifest line: a blob's file name, its size in bytes and its content digest.
 pub type BlobEntry = (String, u64, String);
 
-// Sample output: "flea-figures 1\nkey 00112233445566778899aabbccddeeff\nmath.bc 2894225 0123456789abcdef0123456789abcdef\n".
+// Sample output: "dlea-figures 1\nkey 00112233445566778899aabbccddeeff\nmath.bc 2894225 0123456789abcdef0123456789abcdef\n".
 pub fn manifest_text(key: &str, blobs: &[BlobEntry]) -> String {
     let mut text = format!("{FORMAT}\nkey {key}\n");
     for (name, size, sum) in blobs {
@@ -197,7 +197,7 @@ pub fn manifest_text(key: &str, blobs: &[BlobEntry]) -> String {
     text
 }
 
-// Sample input: "flea-figures 1\nkey 00112233445566778899aabbccddeeff\nmath.bc 12 0123456789abcdef0123456789abcdef\n"
+// Sample input: "dlea-figures 1\nkey 00112233445566778899aabbccddeeff\nmath.bc 12 0123456789abcdef0123456789abcdef\n"
 // then "mermaid.bc 34 0123456789abcdef0123456789abcdef\n"; None for any other shape, an unknown blob or a missing one.
 pub fn parse_manifest(text: &str) -> Option<(String, Vec<BlobEntry>)> {
     let mut lines = text.lines();

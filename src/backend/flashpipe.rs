@@ -1,6 +1,6 @@
 // The sandboxed producer behind a piped flash: one argv per kind, the image as its stdin.
 use crate::backend::flashwrite::{Fail, Job};
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::os::raw::c_int;
 
 extern "C" {
@@ -9,7 +9,7 @@ extern "C" {
 // lseek whence: SEEK_CUR reads the shared offset without moving it.
 const SEEK_CUR: c_int = 1;
 
-// The decompressor argv for a kind; raw images are read by Flea directly and need none.
+// The decompressor argv for a kind; raw images are read by Dlea directly and need none.
 fn decompressor_argv(kind: &str, image: &std::path::Path, member: &str) -> Option<Vec<String>> {
     match kind {
         "xz" => Some(vec!["xz".to_string(), "-dc".to_string(), "-T4".to_string()]),

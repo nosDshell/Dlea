@@ -33,7 +33,7 @@ pub(crate) fn purge(uris: &[String]) {
             Err(error) => {
                 if error.kind() != ErrorKind::NotFound {
                     eprintln!(
-                        "flea: could not read Trash thumbnail cache {}: {error}",
+                        "dlea: could not read Trash thumbnail cache {}: {error}",
                         dir.display()
                     );
                 }
@@ -44,7 +44,7 @@ pub(crate) fn purge(uris: &[String]) {
             let entry = match entry {
                 Ok(entry) => entry,
                 Err(error) => {
-                    eprintln!("flea: could not read a Trash thumbnail cache entry: {error}");
+                    eprintln!("dlea: could not read a Trash thumbnail cache entry: {error}");
                     continue;
                 }
             };
@@ -67,7 +67,7 @@ pub(crate) fn purge(uris: &[String]) {
             if let Err(error) = std::fs::remove_file(entry.path()) {
                 if error.kind() != ErrorKind::NotFound {
                     eprintln!(
-                        "flea: could not remove Trash thumbnail {}: {error}",
+                        "dlea: could not remove Trash thumbnail {}: {error}",
                         entry.path().display()
                     );
                 }

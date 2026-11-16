@@ -5,9 +5,9 @@ repo="$(cd "$(dirname "$0")/.." && pwd)" || exit 1
 bash -n "$repo/tests/ui-captures-cohesion.sh" || exit 1
 bash -n "$repo/tests/capture-port.sh" || exit 1
 printf 'CAPTUREPORT SYNTAX both shell scripts passed\n'
-. "$repo/tools/flea-sandbox-guard"
+. "$repo/tools/dlea-sandbox-guard"
 sandbox_root_ok
-scratch=$(mktemp -d "$SANDBOX_ROOT/flea-capture-port.XXXXXXXX") || exit 1
+scratch=$(mktemp -d "$SANDBOX_ROOT/dlea-capture-port.XXXXXXXX") || exit 1
 : > "$scratch/$SANDBOX_MARKER"
 holder=""
 group_fixture="" detached_launcher=""
@@ -125,7 +125,7 @@ footer_after=''
 # Drive the actual themed archive case with its UI steps stubbed; the fixture_home_make stub keeps its real sandbox_scratch guard.
 fixture_root="$scratch/fixtures"
 sandbox_make "$fixture_root"
-flea_bin=/usr/bin/true
+dlea_bin=/usr/bin/true
 test_frontend=gpui
 # The replay owns its 7z and theme, so the leg never depends on what the host or CI image installs.
 mkdir -p "$scratch/bin" && printf '#!/bin/sh\nexit 0\n' > "$scratch/bin/7z" && chmod +x "$scratch/bin/7z"
@@ -137,7 +137,7 @@ cap_archives_format_hue() { :; }
 cap_archives_format_open() { :; }
 cap_archives_format_walk() { :; }
 assert_theme() { :; }
-kill_flea() { :; }
+kill_dlea() { :; }
 case_cap_archives_format_kanagawa > "$scratch/archive.log" 2>&1
 check "the nested theme HOME passes the unchanged guard in the real archive case" "$?" 0
 check "the theme HOME has a marked direct parent" "$([[ -f "$fixture_root/cap-archives-format-kanagawa-home/$SANDBOX_MARKER" ]] && echo yes || echo no)" yes
@@ -178,7 +178,7 @@ cap_resize() {
     resizes=$((resizes + 1))
     printf '%s %s %s %s\n' "$x" "$y" "$1" "$2" > "$native_box_file"
 }
-flea_pid() { printf '4242\n'; }
+dlea_pid() { printf '4242\n'; }
 window_addr_of_pid() { [[ "$1" == 4242 ]] && printf '0xabc\n'; }
 name=window
 coh_held=1
@@ -333,7 +333,7 @@ check "a budget cut releases the current held button" "$(cat "$scratch/buttons.l
 # The actual picker wrapper bounds setup and its process by the same remaining theme second, rather than its own 180s.
 coh_home() { printf '%s\n' "$scratch/picker-home"; }
 python3() { bash -c 'printf "%s\n" "$$" > "$1"; exec sleep 60' bash "$scratch/picker-budget-pid"; }
-flea_ui="$repo/ui"
+dlea_ui="$repo/ui"
 coh_failed=''
 coh_deadline=$((SECONDS + 1))
 budget_started=$SECONDS

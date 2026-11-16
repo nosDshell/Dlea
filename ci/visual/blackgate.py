@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reject black Flea captures and palette errors using saved capture geometry."""
+"""Reject black Dlea captures and palette errors using saved capture geometry."""
 import argparse
 import json
 import math
@@ -71,7 +71,7 @@ def window_rectangles(geometry, clients, kind, image):
         ex, ey = round((right - gx) * scale_x), round((bottom - gy) * scale_y)
         rectangles.append((window.get('address', 'unknown'), (px, py, ex - px, ey - py)))
     if not rectangles:
-        raise ValueError('capture contains no matching Flea window')
+        raise ValueError('capture contains no matching Dlea window')
     return rectangles
 
 
@@ -100,7 +100,7 @@ def main():
     parser.add_argument('--shot', required=True, type=Path)
     parser.add_argument('--geometry', required=True)
     parser.add_argument('--clients', required=True)
-    parser.add_argument('--class', dest='kind', default='com.thisisgm.flea')
+    parser.add_argument('--class', dest='kind', default='com.nosDshell.dlea')
     parser.add_argument('--case', required=True)
     parser.add_argument('--theme', required=True, type=Path)
     parser.add_argument('--logs', nargs='*', type=Path, default=[])

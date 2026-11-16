@@ -38,7 +38,7 @@ fn controlled_runtime(name: &str, probe_exit: u8) -> (std::process::Output, Vec<
         ),
     )
     .unwrap();
-    flea::executable_file::write(&bwrap, &std::fs::read(&bwrap).unwrap(), 0o755).unwrap();
+    dlea::executable_file::write(&bwrap, &std::fs::read(&bwrap).unwrap(), 0o755).unwrap();
     let mut path = vec![bin];
     path.extend(std::env::split_paths(&std::env::var_os("PATH").unwrap()));
     let output = Command::new("timeout")

@@ -39,7 +39,7 @@ fn append_file(args: &mut Vec<String>, font: Option<&Path>, work: &Path) {
         // User-installed fonts live outside /usr, so copy into the existing private image jail.
         args.extend([
             "-font".into(),
-            flea::ui_logic_print_convert::output::magick_font(&path),
+            dlea::ui_logic_print_convert::output::magick_font(&path),
         ]);
     }
 }
@@ -53,7 +53,7 @@ mod tests {
     fn tui_combine_fontconfig_failure_omits_font() {
         let root = TestDir::new("tui-combine-font-fallback");
         for query in [
-            vec!["/nonexistent-flea-fc-match".into()],
+            vec!["/nonexistent-dlea-fc-match".into()],
             vec![
                 "/bin/sh".into(),
                 "-c".into(),

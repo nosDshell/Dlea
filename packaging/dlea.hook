@@ -1,0 +1,11 @@
+# Issue 173: pacman cannot reach what dlea --default and dlea --picker wrote into each user's home, so it says how.
+[Trigger]
+Type = Package
+Operation = Remove
+Target = dlea
+
+[Action]
+Description = Noting what Dlea leaves in each user's config
+# Pre, because pacman reads its hooks again after the transaction, when this file is already gone.
+When = PreTransaction
+Exec = /usr/bin/printf %s\n "Dlea: if you are removing Dlea for good, its per-user settings from dlea --default and dlea --picker stay behind." "Dlea: then each user undoes them with dlea --default off and dlea --picker off, which need Dlea installed." "Dlea: once Dlea is gone, delete by hand what github.com/nosDshell/Dlea/blob/main/docs/install.md says pacman leaves behind."

@@ -1,6 +1,6 @@
 // A contents hit whose name is not UTF-8: its identity and file operations act on its own bytes or refuse.
 use super::{action_key_tests::listing, contents_tests::*, wire};
-use flea::ui_logic_file_search::{ContentsMatch, ContentsMatches};
+use dlea::ui_logic_file_search::{ContentsMatch, ContentsMatches};
 
 #[test]
 fn tui_contents_raw_identity_and_operations_fail_closed() {

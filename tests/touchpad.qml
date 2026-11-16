@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-touchpad-test
+//@ pragma ShellId dlea-touchpad-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/Scroll.js" as Scroll
+import "dlea" as Dlea
+import "dlea/js/Scroll.js" as Scroll
 
 // Fake wheel objects with an injected clock into the real FastScrollHandler on a real ui/List.qml.
 // Stroke, tail, stops, lane sharing and object cost; tests/touchpad.sh drives it offscreen.
@@ -28,7 +28,7 @@ ShellRoot {
     // Lane acceptance and body calls for the propagated End, each tail path pins red alone.
     property bool laneEndAccepted: false
     property int bodyEndCalls: 0
-    // The census stroke's first report (tools/flea-field-instant stroke()): 2.7 mm, 106 px at 1000 dpi.
+    // The census stroke's first report (tools/dlea-field-instant stroke()): 2.7 mm, 106 px at 1000 dpi.
     readonly property int firstUpdateRaw: -106
     // How far the first update's travel may sit from the gained distance, in pixels.
     readonly property real firstMoveSlack: 0.5
@@ -135,9 +135,9 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 900
         implicitHeight: 500
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
-        Flea.List {
+        Dlea.List {
             id: list
             width: 700
             height: 300
@@ -151,7 +151,7 @@ ShellRoot {
     }
 
     Component.onCompleted: {
-        root.stubPane.visibleRows = Qt.binding(function () { return Math.max(1, Math.ceil(list.height / Flea.Theme.fileRowHeight)) })
+        root.stubPane.visibleRows = Qt.binding(function () { return Math.max(1, Math.ceil(list.height / Dlea.Theme.fileRowHeight)) })
         root.stubPane.listArea = list
     }
 
@@ -167,13 +167,13 @@ ShellRoot {
         var body = null, lane = null
         var kids = list.children
         for (var i = 0; i < kids.length; i++)
-            if (kids[i] && kids[i].objectName === "fleaScroll" && kids[i] !== list.scrollBar)
+            if (kids[i] && kids[i].objectName === "dleaScroll" && kids[i] !== list.scrollBar)
                 body = kids[i]
         var bar = list.scrollBar
         if (bar) {
             var inner = bar.children
             for (var j = 0; j < inner.length; j++)
-                if (inner[j] && inner[j].objectName === "fleaScroll")
+                if (inner[j] && inner[j].objectName === "dleaScroll")
                     lane = inner[j]
         }
         return { body: body, lane: lane }

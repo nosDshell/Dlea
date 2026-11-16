@@ -138,7 +138,7 @@ function clipboard(check, pathsPane) {
 function failedClipboard(check, pathsPane) {
     // Sample input: function onFailed(where, input, message, mode) { ... } precedes the state connection.
     var handler = Source.slice(Source.source("ui/PaneWire.qml"),
-        "function onFailed(where, input, message, mode) {", "\n    }\n\n    // flea --ui-state")
+        "function onFailed(where, input, message, mode) {", "\n    }\n\n    // dlea --ui-state")
     var failedFor = eval("(function (pane, root) {\n" + handler + "\nreturn onFailed\n})")
     var sent = []
     var pane = pathsPane(sent)

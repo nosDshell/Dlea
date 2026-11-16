@@ -199,14 +199,14 @@ fn search_bit_edits_match_the_reference_at_both_budgets_and_word_boundaries() {
 
 #[test]
 fn search_fp1_a_typo_never_lists_a_word_two_edits_away() {
-    // FP-1: "flac" is two edits from "flea"; dropping its "e" against the prefix "fla" only leaves a shadow narrowing keeps.
-    for query in ["Flea", "flea"] {
+    // FP-1: "flac" is two edits from "dlea"; dropping its "e" against the prefix "fla" only leaves a shadow narrowing keeps.
+    for query in ["Dlea", "dlea"] {
         let matcher = Matcher::new(query);
         for path in [&b"audio-flac.flac"[..], b"music/song.flac", b"flags.toml", b"flame.png"] {
             assert_eq!(matcher.full(path), Some(SHADOW_TYPO - TYPO_EDIT), "{query} {}", String::from_utf8_lossy(path));
             assert_eq!(reference(query, path), Some(SHADOW_TYPO - TYPO_EDIT), "{query} {}", String::from_utf8_lossy(path));
         }
-        assert!(matcher.full(b"notes/flea.txt").is_some_and(|score| score > TYPO));
+        assert!(matcher.full(b"notes/dlea.txt").is_some_and(|score| score > TYPO));
     }
 }
 

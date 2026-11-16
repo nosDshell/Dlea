@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-settings-tail-test
+//@ pragma ShellId dlea-settings-tail-test
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Settings.js" as Settings
+import "dlea" as Dlea
+import "dlea/js/Settings.js" as Settings
 import "qml-probe.js" as QmlProbe
 
 // tests/settings-tail.sh's harness: Settings > Menus walked by keyboard to its last row reveals the pane to its end, so no lower-edge fade lies over that row; then every section with a heading after a row is swept across host heights, so a heading never lies under a fade that shows only padding.
@@ -31,7 +31,7 @@ ShellRoot {
     // The fade is a cut, so the row after the cursor must have ink under it: at least this share of the fade's height of that ink is drawn above the pane's edge.
     readonly property real minCutShare: 0.5
 
-    // About starts the update check, which spawns the flea binary this harness does not have, so it is not shown.
+    // About starts the update check, which spawns the dlea binary this harness does not have, so it is not shown.
     readonly property string updateCheckSection: "about"
     // After the walk, the sweep takes each section in turn and, at every host height in a span, puts the cursor on each row that a heading follows.
     property var sweepSections: []
@@ -55,7 +55,7 @@ ShellRoot {
         Item {
             width: parent.width
             height: shell.hostHeight
-            Flea.SettingsPanel { id: panel; anchors.fill: parent }
+            Dlea.SettingsPanel { id: panel; anchors.fill: parent }
         }
     }
 

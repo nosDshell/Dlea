@@ -15,7 +15,7 @@ fn sol_gap64_format_one_cache_misses_then_accepts_a_new_render_without_touching_
         let entry = store.join(entry_name(&key).unwrap());
         let legacy = String::from_utf8(encode(&key, SVG))
             .unwrap()
-            .replacen(FORMAT, "flea-figure-svg 1", 1)
+            .replacen(FORMAT, "dlea-figure-svg 1", 1)
             .into_bytes();
         fs::write(&entry, &legacy).unwrap();
         assert_eq!(get(&store, &key), None);
@@ -28,7 +28,7 @@ fn sol_gap64_format_one_cache_misses_then_accepts_a_new_render_without_touching_
         put(&store, &key, rendered, MAX_ENTRIES, MAX_BYTES).unwrap();
         assert!(fs::read(&entry)
             .unwrap()
-            .starts_with(b"flea-figure-svg 4\n"));
+            .starts_with(b"dlea-figure-svg 4\n"));
         assert_eq!(get(&store, &key).as_deref(), Some(rendered));
         assert_eq!(fs::read(&input).unwrap(), source_bytes);
         assert_eq!(fs::read(&captured).unwrap(), fixture.as_slice());

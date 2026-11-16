@@ -113,11 +113,11 @@ pub(super) fn opened(kind: &str) -> Model {
         print::open(&mut m, &mut w, false).unwrap();
         let f = m.printing.card.as_mut().unwrap();
         f.destinations = vec![
-            flea::ui_logic_print_convert::printing::Destination {
+            dlea::ui_logic_print_convert::printing::Destination {
                 name: "First".into(),
                 default: true,
             },
-            flea::ui_logic_print_convert::printing::Destination {
+            dlea::ui_logic_print_convert::printing::Destination {
                 name: "Second".into(),
                 default: false,
             },

@@ -1,4 +1,4 @@
-# QML golden: frozen Flea v0.3.12 UI; original minipc export with Jade Horse and Starship refreshed from CI image 6a8df67c49bb (Omarchy tree 2b04c259704d), tag rule 2026-10-17.
+# QML golden: frozen Dlea v0.3.12 UI; original minipc export with Jade Horse and Starship refreshed from CI image 6a8df67c49bb (Omarchy tree 2b04c259704d), tag rule 2026-10-17.
 # palette	stop	token	value; colors are #AARRGGBB; input.* uses six-digit source-order ordinals.
 catppuccin	12	input.colors.000000.accent	#89b4fa
 catppuccin	12	input.colors.000001.selection	#45475a

@@ -44,7 +44,7 @@ grid_wrap_crossing() {
     [ "$VISUAL_FRONTEND" = gpui ] || return 77
     local extend=$1 root=$C/grid-wrap index name columns
     mkdir -p "$root" || return 1
-    : > "$root/.flea-test-sandbox" || return 1
+    : > "$root/.dlea-test-sandbox" || return 1
     for index in {1..12}; do
         printf -v name 'file-%02d.txt' "$index"
         printf 'grid wrap %s\n' "$index" > "$root/$name" || return 1

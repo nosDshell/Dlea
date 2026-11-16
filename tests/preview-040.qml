@@ -1,11 +1,11 @@
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // TallPreviews callout 7: each file keeps its preview scroll position for the session, scheduled for 0.3.10.
 ShellRoot {
     id: root
-    property string fixture: Quickshell.env("FLEA_PREVIEW_040_DIR")
+    property string fixture: Quickshell.env("DLEA_PREVIEW_040_DIR")
     property int stage: 0
     property double stamp: Date.now()
     property int failures: 0
@@ -34,15 +34,15 @@ ShellRoot {
         return out
     }
     function flickOf(item) {
-        var handlers = descendants(item).filter(function(node) { return node.objectName === "fleaScroll" })
+        var handlers = descendants(item).filter(function(node) { return node.objectName === "dleaScroll" })
         return handlers.length ? handlers[0].flickable : null
     }
 
     FloatingWindow {
         implicitWidth: 760
         implicitHeight: 500
-        color: Flea.Theme.color.background
-        Flea.Preview { id: quick }
+        color: Dlea.Theme.color.background
+        Dlea.Preview { id: quick }
     }
 
     Timer {

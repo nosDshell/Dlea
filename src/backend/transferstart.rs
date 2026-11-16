@@ -18,7 +18,7 @@ pub(super) fn start_transfer_checked(out: &mut impl Write, ops: &mut Ops, op: &s
         }
     };
     // A source or target on a pending mount waits; writes elsewhere run beside the held write.
-    let mut sources: Vec<PathBuf> = paths.iter().map(flea::bytename::exact).collect();
+    let mut sources: Vec<PathBuf> = paths.iter().map(dlea::bytename::exact).collect();
     if let Some(items) = &selection {
         sources.extend(items.iter().map(|item| item.path.clone()));
     }
@@ -248,7 +248,7 @@ mod tests {
         let (tx, _rx) = channel();
         let mut ops = Ops::new(tx);
         let mut out = Vec::new();
-        let paths = vec!["/nonexistent/flea-send-roots/a.png".to_string()];
+        let paths = vec!["/nonexistent/dlea-send-roots/a.png".to_string()];
         // An empty captured selection fails the send before it runs anything.
         let local = Work::Send {
             peer: "Desk".into(),
@@ -272,7 +272,7 @@ mod tests {
         assert_eq!(
             roots,
             Some(
-                r#"{"t":"roots","id":3,"job":true,"kind":"send","requestId":7,"paths":["/nonexistent/flea-send-roots/a.png"]}"#
+                r#"{"t":"roots","id":3,"job":true,"kind":"send","requestId":7,"paths":["/nonexistent/dlea-send-roots/a.png"]}"#
             ),
             "{text}"
         );

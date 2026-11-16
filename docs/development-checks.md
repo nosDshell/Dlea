@@ -1,8 +1,8 @@
 # Development checks: hk hooks and the shared Clippy gate
 
 One checker and one baseline serve both the local hooks and the external CI lane:
-`tools/flea-clippy` judges, `tools/clippy-baseline.txt` holds the per-lint ratchet.
-`tools/flea-commit-rules` judges commit ranges, `tools/flea-commit-msg` judges the
+`tools/dlea-clippy` judges, `tools/clippy-baseline.txt` holds the per-lint ratchet.
+`tools/dlea-commit-rules` judges commit ranges, `tools/dlea-commit-msg` judges the
 proposed message through the same policy. No package or runtime dependency was added;
 every checker is stdlib-only Python 3; only the hook installer is POSIX shell.
 
@@ -13,12 +13,12 @@ Clippy 0.1.100 (0ef1bc3860 2026-11-09) from the Rust 1.100.0 toolchain selected 
 `rust-toolchain.toml` when using rustup (distribution Cargo ignores that file),
 Git 2.47.3 with per-repo legacy shims
 (config-based hooks need Git 2.54+, which this tree does not assume).
-`tools/flea-hooks-install` refuses any other hk version.
+`tools/dlea-hooks-install` refuses any other hk version.
 
 ## Install and run
 
 ```
-tools/flea-hooks-install            # per-repo legacy shims only, never global config
+tools/dlea-hooks-install            # per-repo legacy shims only, never global config
 HK_PKL_OFFLINE=1 hk validate        # config only
 HK_PKL_OFFLINE=1 hk check --all     # full local gate: clippy, file budget
 ```
@@ -46,13 +46,13 @@ not fully staged to a gate or compile input (`src/`, `ui/`, `tests/`, `tools/`,
 `Cargo.*`, `hk.pkl`, `keys.toml`, `AGENTS.md`) would be judged instead of the
 staged commit. That covers untracked inputs too: staged code naming a module the
 index does not hold would not compile as committed. Ignored inputs are scanned
-as well, since the compiler reads them; only `target/` and `.flea-local/` are
+as well, since the compiler reads them; only `target/` and `.dlea-local/` are
 runtime artifacts and stay skipped. Build configuration counts
 as a compile input as well: `build.rs`, `rust-toolchain*`, and `.cargo/`. The guard refuses that commit
 in one sentence rather than validating other bytes:
 
 ```
-flea-hook-check: refused: <file> is not fully staged, so the hook would judge
+dlea-hook-check: refused: <file> is not fully staged, so the hook would judge
 working-tree bytes rather than the staged commit; stage it, or remove or restore
 it, and retry
 ```
@@ -67,7 +67,7 @@ closed with exit 2. The exact archived-head CI lane remains required.
 Every `correctness` or `suspicious` finding fails, every rustc warning fails, and
 every other lint is a per-lint ratchet against the baseline: a risen count fails,
 a fallen count prints LOWER so the baseline can drop. Unknown lints or groups,
-garbage or malformed stream lines, a missing build-finished or unchecked flea
+garbage or malformed stream lines, a missing build-finished or unchecked dlea
 target, and a nonzero cargo exit are ERROR (exit 2), never green. Only cargo's own
 reason and level names are read; note, help and failure-note are skipped, and
 build-script records carry no verdict. A span-less warning keys on its text, so
@@ -118,7 +118,7 @@ with the range checker.
 
 ## CI authority
 
-The external CI lane adopts `tools/flea-clippy` and `tools/clippy-baseline.txt`
+The external CI lane adopts `tools/dlea-clippy` and `tools/clippy-baseline.txt`
 after acceptance instead of carrying a second implementation. An archive carries
 no `.git`, so the commit-range lane stays beside the hooks. The checkers change
 no tracked file: each writes only its own private OUTDIR build and log artifacts.

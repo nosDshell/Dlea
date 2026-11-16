@@ -1,15 +1,15 @@
 # GPUI overrides for UISH-07; seeded from the unchanged oracle at 2faf8d099.
 case_dirsortstale() {
-    local candidate_ui="$flea_ui" candidate_bin="$flea_bin"
+    local candidate_ui="$dlea_ui" candidate_bin="$dlea_bin"
     local dir="$fixture_root/dirsortstale"
     local test_ui="$fixture_root/dirsortstale-ui"
-    local proxy="$fixture_root/dirsortstale-flea"
+    local proxy="$fixture_root/dirsortstale-dlea"
     local proxy_py="$fixture_root/dirsortstale-proxy.py"
     local armed="$fixture_root/dirsortstale-armed"
     local events="$fixture_root/dirsortstale-events"
     local source="$dir/aaa" destination="$dir/zzz"
     local old_bytes new_bytes old_state new_state
-    local flea_ui="$candidate_ui" flea_bin="$candidate_bin"
+    local dlea_ui="$candidate_ui" dlea_bin="$candidate_bin"
     dirsortstale_saved_ui="$candidate_ui"
     dirsortstale_saved_bin="$candidate_bin"
     dirsortstale_test_ui="$test_ui"
@@ -48,10 +48,10 @@ import selectors
 import subprocess
 import sys
 
-real = os.environ["FLEA_DIRSORT_REAL_BIN"]
-armed_path = Path(os.environ["FLEA_DIRSORT_ARMED"])
-events_path = Path(os.environ["FLEA_DIRSORT_EVENTS"])
-old_bytes = int(os.environ["FLEA_DIRSORT_OLD_BYTES"])
+real = os.environ["DLEA_DIRSORT_REAL_BIN"]
+armed_path = Path(os.environ["DLEA_DIRSORT_ARMED"])
+events_path = Path(os.environ["DLEA_DIRSORT_EVENTS"])
+old_bytes = int(os.environ["DLEA_DIRSORT_OLD_BYTES"])
 
 def log(value):
     with events_path.open("a") as stream:
@@ -179,9 +179,9 @@ PY
 #!/usr/bin/env bash
 set -u
 if [[ "${1:-}" == "--backend" ]]; then
-    exec python3 "$FLEA_DIRSORT_PROXY_PY"
+    exec python3 "$DLEA_DIRSORT_PROXY_PY"
 fi
-exec "$FLEA_DIRSORT_REAL_BIN" "$@"
+exec "$DLEA_DIRSORT_REAL_BIN" "$@"
 SH
     chmod +x "$proxy"
 
@@ -189,14 +189,14 @@ SH
     sandbox_require "$events"
     : > "$events"
     seed_ui_state "$fixture_root/dirsortstale-state" '{"sort":{"key":"name","reverse":false}}'
-    kill_flea
-    local -x FLEA_DIRSORT_REAL_BIN="$candidate_bin"
-    local -x FLEA_DIRSORT_PROXY_PY="$proxy_py"
-    local -x FLEA_DIRSORT_ARMED="$armed"
-    local -x FLEA_DIRSORT_EVENTS="$events"
-    local -x FLEA_DIRSORT_OLD_BYTES="$old_bytes"
-    flea_ui="$test_ui"
-    flea_bin="$proxy"
+    kill_dlea
+    local -x DLEA_DIRSORT_REAL_BIN="$candidate_bin"
+    local -x DLEA_DIRSORT_PROXY_PY="$proxy_py"
+    local -x DLEA_DIRSORT_ARMED="$armed"
+    local -x DLEA_DIRSORT_EVENTS="$events"
+    local -x DLEA_DIRSORT_OLD_BYTES="$old_bytes"
+    dlea_ui="$test_ui"
+    dlea_bin="$proxy"
     launch "$dir"
     wait_listing 2
     old_state=$(dirsortstale_wait_size "$old_bytes") || fail "dirsortstale: initial source dirsize never arrived"
@@ -213,7 +213,7 @@ case_nosweep() {
     [[ -d "$bench_dir" ]] || fail "the 100,000-file fixture is missing at $bench_dir"
     # Same shape as case_thumbs: the drain the previous backend owes this cache is finished before the baseline.
     local before_large after_large wx wy ww wh burst
-    kill_flea
+    kill_dlea
     before_large=$(ls -A "$cache_large" | wc -l)
     launch "$bench_dir"
     wait_listing 100000
@@ -232,7 +232,7 @@ case_nosweep() {
     shot nosweep
     [[ "$(ipc thumbRequests)" == "0" ]] || fail "a directory of text files produced $(ipc thumbRequests) thumb requests"
     [[ "$before_large" == "$after_large" ]] || fail "the cache grew from $before_large to $after_large"
-    [[ "$(ls -A "$cache_large" | grep -c '^\.flea-')" == "0" ]] || fail "a temp file was left in the shared cache"
+    [[ "$(ls -A "$cache_large" | grep -c '^\.dlea-')" == "0" ]] || fail "a temp file was left in the shared cache"
 
     # Task 16's twin: every row here is a dirsize candidate; the delta bound stands in for a literal zero, see AGENTS.md "Thumbnail requests".
     local dirsweep_dir before_requests after_requests delta
@@ -241,7 +241,7 @@ case_nosweep() {
         sandbox_scratch "$dirsweep_dir"
         seq 1 100000 | sed "s#^#$dirsweep_dir/dir_#" | xargs mkdir
     fi
-    kill_flea
+    kill_dlea
     launch "$dirsweep_dir"
     wait_listing 100000
     read -r wx wy ww wh < <(window_box) || fail "native window coordinates unavailable"
@@ -261,7 +261,7 @@ case_nosweep() {
 }
 
 case_hiddenlast() {
-    local flea_window_class="$flea_window_class"
+    local dlea_window_class="$dlea_window_class"
     local dir="$fixture_root/hiddenlast" state="$fixture_root/hiddenlast-state" patch
     local l0="$dir" l1="$dir/Alpha" l2="$dir/Alpha/Alpha" l3="$dir/Alpha/Alpha/Alpha"
     local title="Hidden last chooser $$" reply="$fixture_root/hiddenlast-reply.json" picker_pid="" shot_png menus_checks=0
@@ -297,7 +297,7 @@ case_hiddenlast() {
     shot hiddenlast-tab
 
     # The setting goes off in the running window: the plain order returns in the tab, the first tab and a column, with no relaunch.
-    env XDG_STATE_HOME="$state" "$flea_bin" --ui-state '{"hiddenLast":false}' >/dev/null || fail "hiddenlast: the state write failed"
+    env XDG_STATE_HOME="$state" "$dlea_bin" --ui-state '{"hiddenLast":false}' >/dev/null || fail "hiddenlast: the state write failed"
     hiddenlast_expect tab-off "$hiddenlast_off" hiddenlast_rows
     click_tab 0
     wait_path "$l2"
@@ -307,7 +307,7 @@ case_hiddenlast() {
     shot hiddenlast-off
 
     # Both dual panes, each from its own listing.
-    kill_flea
+    kill_dlea
     seed_ui_state "$state-dual" "$(jq -cn --arg l "$l1" --arg r "$l2" '{hidden:true,hiddenLast:true,rememberSort:false,sort:{key:"name",reverse:false},view:"dual",dual:{paths:[$l,$r],focus:0}}')"
     launch "$l1"
     menus_expect dualState '.active and .focused == 0 and all(.panes[]; .total == 6 and (.loading | not))' 'both dual listings landed'
@@ -318,21 +318,21 @@ case_hiddenlast() {
     shot hiddenlast-dual
 
     # The chooser: its list, then its header sort, which used to forget the setting.
-    kill_flea
+    kill_dlea
     if [[ "$test_frontend" == gpui ]]; then
-        flea_test_launch "$l2" "$fixture_root/hiddenlast-picker.log" --binary "$flea_bin" --picker \
+        dlea_test_launch "$l2" "$fixture_root/hiddenlast-picker.log" --binary "$dlea_bin" --picker \
             || fail "hiddenlast: owned native chooser launch failed"
-        picker_pid=$FLEA_TEST_PID
+        picker_pid=$DLEA_TEST_PID
         ipc_pid=$picker_pid
-        flea_window_class=com.thisisgm.flea.picker
+        dlea_window_class=com.nosDshell.dlea.picker
         local deadline=$(( $(date +%s%3N) + async_wait_ms ))
         while ! title=$(window_addr_of_pid "$picker_pid" 2>/dev/null); do
             (( $(date +%s%3N) < deadline )) || fail "hiddenlast: native chooser has no unique window"
             sleep 0.05
         done
     else
-    FLEA_UI="$flea_ui" FLEA_BIN="$flea_bin" FLEA_PICKER="$(jq -cn --arg f "$l2" --arg t "$title" '{mode:"open",folder:$f,title:$t}')" FLEA_PICKER_REPLY="$reply" \
-        flea_test_exec qs -p "$flea_ui/boot/picker.qml" >"$fixture_root/hiddenlast-picker.log" 2>&1 </dev/null &
+    DLEA_UI="$dlea_ui" DLEA_BIN="$dlea_bin" DLEA_PICKER="$(jq -cn --arg f "$l2" --arg t "$title" '{mode:"open",folder:$f,title:$t}')" DLEA_PICKER_REPLY="$reply" \
+        dlea_test_exec qs -p "$dlea_ui/boot/picker.qml" >"$fixture_root/hiddenlast-picker.log" 2>&1 </dev/null &
     for _attempt in $(seq 1 300); do
         omarchy-drive windows --json | jq -e --arg title "$title" '[.windows[] | select(.title == $title)] | length == 1' >/dev/null && break
         sleep 0.05
@@ -340,7 +340,7 @@ case_hiddenlast() {
     fi
     omarchy-drive focus "$title" >/dev/null || fail "hiddenlast: the chooser never opened"
     for _attempt in $(seq 1 100); do
-        picker_pid=$(flea_pids | head -1)
+        picker_pid=$(dlea_pids | head -1)
         [[ -n "$picker_pid" ]] && break
         sleep 0.05
     done
@@ -359,7 +359,7 @@ case_hiddenlast() {
     [[ ! -e "$shot_png" && ! -L "$shot_png" ]] || fail "hiddenlast: refusing existing evidence $shot_png"
     omarchy-drive shot "$shot_png" "$title" >/dev/null || fail "hiddenlast: the sorted chooser shot failed"
     printf 'SHOT %s\n' "$shot_png"
-    kill_flea
+    kill_dlea
     printf 'HIDDENLAST list=ok columns=ok grid=ok tab=ok off=ok dual=ok chooser=ok\n'
 }
 
@@ -374,7 +374,7 @@ case_hanginspect() {
         favs="$favs$(printf '{"label":"F%02d","path":"%s/f%02d"},' "$n" "$dir" "$n")"
         answers="$answers$(printf '{"index":%d,"record":{"label":"F%02d","path":"%s/f%02d"},"error":""},' "$n" "$n" "$dir" "$n")"
     done
-    cat > "$control/bin-flea" <<EOS
+    cat > "$control/bin-dlea" <<EOS
 #!/bin/sh
 # The first inspect hangs past the guard; every later one answers every seeded favourite at once.
 if [ "\$1" = --favourites ] && [ "\${2#*inspect}" != "\$2" ]; then
@@ -383,13 +383,13 @@ if [ "\$1" = --favourites ] && [ "\${2#*inspect}" != "\$2" ]; then
     printf '{"statuses":[${answers%,}]}'
     exit 0
 fi
-exec "$flea_bin" "\$@"
+exec "$dlea_bin" "\$@"
 EOS
-    chmod +x "$control/bin-flea"
-    local real_bin="$flea_bin" real_state="${XDG_STATE_HOME-}"
+    chmod +x "$control/bin-dlea"
+    local real_bin="$dlea_bin" real_state="${XDG_STATE_HOME-}"
     # The state sits beside the listing so the guard sees a marked parent.
     seed_ui_state "$fixture_root/hanginspect-state" "{\"places\":{\"favourites\":[${favs%,}]}}"
-    flea_bin="$control/bin-flea"
+    dlea_bin="$control/bin-dlea"
     launch "$dir"
     wait_listing 1
     wait_rail 40
@@ -432,9 +432,9 @@ EOS
     done
     [[ "$calls" -ge 2 ]] \
         || fail "hanginspect: no second inspect after the deadline, calls is $calls"
-    flea_bin="$real_bin"
+    dlea_bin="$real_bin"
     if [[ -n "$real_state" ]]; then export XDG_STATE_HOME="$real_state"; else unset XDG_STATE_HOME; fi
 
     printf 'HANGINSPECT guard-clears=ok later-inspect-runs=ok\n'
-    kill_flea
+    kill_dlea
 }

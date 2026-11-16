@@ -1,5 +1,5 @@
 // Repository discovery never starts Git, and the status process sees only read-only mounts.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::gitstatus::budget::Budget;
 use super::{jail, regfile, sandbox};
 use std::io::Read;

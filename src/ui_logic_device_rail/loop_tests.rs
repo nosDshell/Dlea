@@ -30,7 +30,7 @@ const BARE_LOOP: &str = concat!(
     r#"{"blockdevices":["#,
     r#"{"name":"nvme0n1","path":"/dev/nvme0n1","label":null,"mountpoints":[null],"rm":false,"size":256060514304,"type":"disk","model":"KBG40ZNS256G","#,
     r#""children":[{"name":"nvme0n1p1","path":"/dev/nvme0n1p1","label":null,"mountpoints":["/"],"rm":false,"size":256060514304,"type":"part","model":null}]},"#,
-    r#"{"name":"loop0","path":"/dev/loop0","label":"FLEATEST","mountpoints":[null],"rm":false,"size":67108864,"type":"loop","model":null}"#,
+    r#"{"name":"loop0","path":"/dev/loop0","label":"DLEATEST","mountpoints":[null],"rm":false,"size":67108864,"type":"loop","model":null}"#,
     r#"]}"#,
 );
 
@@ -94,7 +94,7 @@ fn mounted_hybrid_loop_parent_is_a_row_beside_its_child() {
     assert!(parents.iter().any(|e| e.device == "/dev/loop0p1"), "walking a mounted parent still finds its mounted child");
 }
 
-// The six ejectMessage cases (exit 3, 1 and 0 against a gone, kept or sibling mount) run against the GUI Devices machine: crates/flea-gui/src/g2/device_rail/eject_tests.rs.
+// The six ejectMessage cases (exit 3, 1 and 0 against a gone, kept or sibling mount) run against the GUI Devices machine: crates/dlea-gui/src/g2/device_rail/eject_tests.rs.
 
 #[test]
 fn unmounted_loop_partition_with_a_filesystem_is_not_a_row() {

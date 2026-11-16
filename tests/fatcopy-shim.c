@@ -1,4 +1,4 @@
-// Test-only vfat model at the libc boundary for every path under FLEA_TEST_FAT_ROOT, driven by tests/fatcopy.sh.
+// Test-only vfat model at the libc boundary for every path under DLEA_TEST_FAT_ROOT, driven by tests/fatcopy.sh.
 #define _GNU_SOURCE
 #include <dirent.h>
 #include <dlfcn.h>
@@ -40,7 +40,7 @@ static int resolve(const char *path, char *out, size_t n) {
 
 // Whole components only, so /x/fatter is not under /x/fat.
 static int under(const char *path, char *real, size_t n) {
-    const char *root = getenv("FLEA_TEST_FAT_ROOT");
+    const char *root = getenv("DLEA_TEST_FAT_ROOT");
     if (!root || !*root || !path || resolve(path, real, n) != 0)
         return 0;
     size_t rl = strlen(root);

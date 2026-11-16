@@ -17,7 +17,7 @@ case_collide() {
     mapfile -t bus < <(dbus-daemon --session --fork --print-address=1 --print-pid=1)
     [[ ${#bus[@]} -eq 2 && "${bus[1]}" =~ ^[0-9]+$ ]] || fail "collide: no private session bus, dbus-daemon printed: ${bus[*]}"
     collide_bus_pid=${bus[1]}
-    trap '( kill_flea ) >/dev/null 2>&1 || true; kill "$collide_bus_pid" 2>/dev/null || true' EXIT
+    trap '( kill_dlea ) >/dev/null 2>&1 || true; kill "$collide_bus_pid" 2>/dev/null || true' EXIT
     export DBUS_SESSION_BUS_ADDRESS="${bus[0]}"
     # Enter on a marked set opens every marked file (APL-FILE-11), so the open handoff is a recording stub nothing may reach.
     local collide_opened="$fixture_root/collide-opened.log" collide_bin="$fixture_root/collide-bin" collide_path="$PATH"
@@ -217,7 +217,7 @@ case_collide() {
     shot collide-largest-text
     key -k Escape >/dev/null
     menus_expect collideState '.opened | not' "Escape cancels at the largest stop"
-    kill_flea
+    kill_dlea
     collide_nothing_opened "the case"
     export PATH="$collide_path"
     # A mount-top trash is shared, so only this run's own entry goes, each pair checked in the command.
@@ -249,7 +249,7 @@ case_menu() {
     printf 'MENU on-file visible=%s cursor=%s\n' "$(ipc contextMenuVisible)" "$(ipc cursor)"
     shot menu-open
     printf 'MENU_OCR_BEGIN\n'
-    omarchy-drive ocr flea || true
+    omarchy-drive ocr dlea || true
     printf 'MENU_OCR_END\n'
     [[ "$(ipc contextMenuVisible)" == "true" ]] || fail "right click did not open the context menu"
     [[ "$(ipc cursor)" == "1" ]] || fail "right click did not set the cursor, it is $(ipc cursor)"
@@ -401,7 +401,7 @@ case_clickthrough() {
     clickthrough_permissions "$dir" "$parked"
     clickthrough_delete "$dir" "$parked"
     printf 'CLICKTHROUGH chips=ok rail=ok favourite=ok permissions=ok close=ok delete=ok cursor=%s\n' "$parked"
-    kill_flea
+    kill_dlea
     export XDG_STATE_HOME="$suite_state_home"
 }
 
@@ -462,7 +462,7 @@ case_wheelunder() {
     key -k Escape >/dev/null
     settle
     printf 'WHEELUNDER menu=ok settings=ok keymap=ok network=ok\n'
-    kill_flea
+    kill_dlea
 }
 
 # The HIG card dismisses through Cancel; every checkbox still receives a native click over the listing.

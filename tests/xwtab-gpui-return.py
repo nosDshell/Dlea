@@ -7,8 +7,8 @@ import subprocess
 import tempfile
 
 source = (Path(__file__).resolve().parent / 'ui.sh').read_text()
-root = Path(tempfile.mkdtemp(prefix='flea-gpui-return.', dir='/tmp'))
-(root / '.flea-test-sandbox').touch()
+root = Path(tempfile.mkdtemp(prefix='dlea-gpui-return.', dir='/tmp'))
+(root / '.dlea-test-sandbox').touch()
 
 
 def function(name, optional=False):
@@ -34,7 +34,7 @@ test_frontend=gpui
 xwtab_button_down=${CONTROL_HELD:-true}
 fail() { printf 'FAIL %s\n' "$*"; exit 1; }
 sleep() { :; }
-flea_process_owned() { [[ $1 == 101 && ${CONTROL_OWNED:-true} == true ]]; }
+dlea_process_owned() { [[ $1 == 101 && ${CONTROL_OWNED:-true} == true ]]; }
 xwdrag_assert_focus() { [[ $1 == 101 && ${CONTROL_FOCUS:-true} == true ]]; }
 xwdrag_qsid() { printf '101\n'; }
 xwdrag_qs() {
@@ -80,5 +80,5 @@ hyprctl() { [[ $1 == cursorpos ]] && printf '%s\n' "${CONTROL_CURSOR:-80, 122}";
         print('XWTAB GPUI RETURN ' + name + ' PASS', flush=True)
     print('XWTAB_GPUI_RETURN checks=' + str(len(cases)) + ' failed=0', flush=True)
 finally:
-    assert root.is_absolute() and str(root) and root.parent == Path('/tmp') and (root / '.flea-test-sandbox').is_file()
+    assert root.is_absolute() and str(root) and root.parent == Path('/tmp') and (root / '.dlea-test-sandbox').is_file()
     shutil.rmtree(root)

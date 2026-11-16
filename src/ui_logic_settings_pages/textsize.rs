@@ -1,4 +1,4 @@
-// Flea's text size: Omarchy's size while following, or one stop from Omarchy's own range while overriding.
+// Dlea's text size: Omarchy's size while following, or one stop from Omarchy's own range while overriding.
 use super::Text;
 use crate::jsondoc::Json;
 use crate::keys::presentation;
@@ -35,7 +35,7 @@ pub fn following(stored: Stored) -> bool {
     !matches!(stored, Stored::Stop(px) if px > 0)
 }
 
-// The size Flea draws at: Omarchy's own while following, the nearest stop while overriding.
+// The size Dlea draws at: Omarchy's own while following, the nearest stop while overriding.
 pub fn effective(stored: Stored, omarchy_base: u32) -> u32 {
     if following(stored) {
         omarchy_base

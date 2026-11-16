@@ -36,8 +36,8 @@ fn drawn(section: &str, fixture: &str) -> Vec<String> {
         home: "/home/gm",
         ..State::new(&data)
     };
-    // Make Flea the default is its owner's row, handed in; the stub stands in its place.
-    let make_default = vec![Row::new(Kind::Check, Text::data("Make Flea the default"))];
+    // Make Dlea the default is its owner's row, handed in; the stub stands in its place.
+    let make_default = vec![Row::new(Kind::Check, Text::data("Make Dlea the default"))];
     let rows = pages::rows(section, &state, Vec::new(), || {
         about::rows(&board_facts(), true, "English", make_default)
     });

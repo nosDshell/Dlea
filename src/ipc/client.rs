@@ -39,7 +39,7 @@ pub fn parse(arguments: &[String]) -> Result<Options, Reply> {
             _ => {
                 return Err(Reply::error(
                     2,
-                    "usage: flea ipc [--pid N|--any] call <target> <function> [args...] | show",
+                    "usage: dlea ipc [--pid N|--any] call <target> <function> [args...] | show",
                 ))
             }
         }
@@ -63,7 +63,7 @@ pub fn parse(arguments: &[String]) -> Result<Options, Reply> {
         _ => {
             return Err(Reply::error(
                 2,
-                "usage: flea ipc [--pid N|--any] call <target> <function> [args...] | show",
+                "usage: dlea ipc [--pid N|--any] call <target> <function> [args...] | show",
             ))
         }
     };
@@ -95,7 +95,7 @@ pub fn execute(root: &Path, options: &Options) -> Reply {
         Ok(sockets)
     }) {
         Ok(sockets) => sockets,
-        Err(error) => return Reply::error(255, format!("flea ipc: {error}")),
+        Err(error) => return Reply::error(255, format!("dlea ipc: {error}")),
     };
     let mut matching = sockets
         .iter()
@@ -106,12 +106,12 @@ pub fn execute(root: &Path, options: &Options) -> Reply {
             Err(error)
                 if error.kind() == io::ErrorKind::ConnectionRefused
                     || error.kind() == io::ErrorKind::NotFound => {}
-            Err(error) => return Reply::error(255, format!("flea ipc: {error}")),
+            Err(error) => return Reply::error(255, format!("dlea ipc: {error}")),
         }
     }
     match options.pid {
         Some(pid) => Reply::value(format!("No instance found for pid {pid}")).with_code(255),
-        None => Reply::error(255, "No running instances for flea-gui"),
+        None => Reply::error(255, "No running instances for dlea-gui"),
     }
 }
 
@@ -127,7 +127,7 @@ pub fn run(arguments: &[String]) -> i32 {
         Err(reply) => reply,
         Ok(options) => match endpoint::runtime() {
             Ok(root) => execute(&root, &options),
-            Err(error) => Reply::error(255, format!("flea ipc: {error}")),
+            Err(error) => Reply::error(255, format!("dlea ipc: {error}")),
         },
     };
     print!("{}", reply.stdout);

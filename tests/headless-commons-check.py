@@ -386,7 +386,7 @@ def controls(box):
                 direct.write_text(line)
                 assert len(direct_sources(scanner)) == 1 and 'new-suite.sh:1:' in direct_sources(scanner)[0]
                 direct_controls += 1
-    direct.write_text('# ui/boot/' + 'Commons is supplied by the helper\nheadless_commons "$root" || exit 1\ncp -a "$flea_ui/boot/Commons" "$target"\n')
+    direct.write_text('# ui/boot/' + 'Commons is supplied by the helper\nheadless_commons "$root" || exit 1\ncp -a "$dlea_ui/boot/Commons" "$target"\n')
     assert not direct_sources(scanner)
     assert not unchecked_calls(scanner)
     checker = Path('tests/headless-commons-check.py').resolve()
@@ -422,10 +422,10 @@ def controls(box):
             assert result.returncode == 0, (name, result)
             expected = before if name == 'current' else before.replace('import Quickshell.Hyprland\n', '').replace('  id: root\n', '  id: root\n  property QtObject headlessEvents: QtObject { signal rawEvent(var event) }\n').replace('    target: Hyprland\n', '    target: root.headlessEvents\n')
             assert path.read_text() == expected, name
-    env = dict(os.environ, HOME=str(fixture / 'home'), FLEA_FIXTURE_ROOT=str(fixture / 'fixtures'))
-    root = Path(env['FLEA_FIXTURE_ROOT']) / 'owned'
+    env = dict(os.environ, HOME=str(fixture / 'home'), DLEA_FIXTURE_ROOT=str(fixture / 'fixtures'))
+    root = Path(env['DLEA_FIXTURE_ROOT']) / 'owned'
     root.mkdir(parents=True)
-    (root / '.flea-test-sandbox').touch()
+    (root / '.dlea-test-sandbox').touch()
     source_root = fixture / 'source'
     commons = source_root / 'ui/boot/Commons'
     commons.mkdir(parents=True)
@@ -433,20 +433,20 @@ def controls(box):
     repo = Path.cwd()
     (source_root / 'tests').mkdir()
     (source_root / 'tests/staticgates.py').symlink_to(repo / 'tests/staticgates.py')
-    shell = '. "$3/tools/flea-sandbox-guard"; . "$3/tests/headless-commons.sh"; headless_commons "$1" "$2" || exit 1; printf "QS_REACHED\\n"'
+    shell = '. "$3/tools/dlea-sandbox-guard"; . "$3/tests/headless-commons.sh"; headless_commons "$1" "$2" || exit 1; printf "QS_REACHED\\n"'
     targets = [(root, root / name) for name in ('config/Commons', 'config-KEYS/Commons', 'config/boot/Commons')]
     targets.append((root / 'work', root / 'work/pane/config/Commons'))
     for owner, target in targets:
         owner.mkdir(exist_ok=True)
         result = subprocess.run(['bash', '-c', shell, 'control', str(owner), str(target), str(repo)], cwd=source_root, env=env, capture_output=True, text=True)
         assert result.returncode == 0 and (target / 'Style.qml').is_file() and not (target / 'Style.qml').is_symlink(), result
-    sibling = Path(env['FLEA_FIXTURE_ROOT']) / 'unowned/Commons'
+    sibling = Path(env['DLEA_FIXTURE_ROOT']) / 'unowned/Commons'
     result = subprocess.run(['bash', '-c', shell, 'control', str(root), str(sibling), str(repo)], cwd=source_root, env=env, capture_output=True, text=True)
     assert result.returncode == 1 and not sibling.exists(), result
     (commons / 'Style.qml').write_text(variants['whitespace'])
     result = subprocess.run(['bash', '-c', shell, 'control', str(root), str(root / 'refused/Commons'), str(repo)], cwd=source_root, env=env, capture_output=True, text=True)
     assert result.returncode == 1 and 'reader changed' in result.stderr and 'QS_REACHED' not in result.stdout, result
-    prologue = '. "$3/tools/flea-sandbox-guard"\n. "$3/tests/headless-commons.sh"\nqs() { printf "QS_REACHED\\n"; }\n'
+    prologue = '. "$3/tools/dlea-sandbox-guard"\n. "$3/tests/headless-commons.sh"\nqs() { printf "QS_REACHED\\n"; }\n'
     call = 'headless_commons "$1" "$2" || exit 1\n'
     parents = {
         'root': call,
@@ -507,7 +507,7 @@ def controls(box):
         else:
             assert result.returncode == 1 and 'QS_REACHED' not in result.stdout, (name, result)
     for file in ('tests/framegap.sh', 'tests/headless-commons.sh', 'tests/framegap-picker.py',
-                 'tests/framegap.qml', 'ui/PickerWindow.qml', 'ui/PickerAnswers.qml', 'ui/PickerFilter.qml', 'tools/flea-sandbox-guard'):
+                 'tests/framegap.qml', 'ui/PickerWindow.qml', 'ui/PickerAnswers.qml', 'ui/PickerFilter.qml', 'tools/dlea-sandbox-guard'):
         target = source_root / file
         target.parent.mkdir(parents=True, exist_ok=True)
         target.symlink_to(repo / file)
@@ -520,7 +520,7 @@ def controls(box):
         result = subprocess.run(['bash', script], cwd=cwd, env=dict(env, PATH=str(bin_dir) + os.pathsep + env['PATH']), capture_output=True, text=True)
         assert result.returncode == 1 and 'reader changed' in result.stderr and 'QS_REACHED' not in result.stdout, result
     helper_stub = bin_dir / 'headless_commons'
-    helper_stub.write_text('#!/bin/sh\ncase "$1" in /?*) [ -f "$1/.flea-test-sandbox" ] || exit 2;; *) exit 2;; esac\nprintf "HELPER_REFUSED\\n" >> "$1/refusals"\nexit 1\n')
+    helper_stub.write_text('#!/bin/sh\ncase "$1" in /?*) [ -f "$1/.dlea-test-sandbox" ] || exit 2;; *) exit 2;; esac\nprintf "HELPER_REFUSED\\n" >> "$1/refusals"\nexit 1\n')
     helper_stub.chmod(0o755)
     contract_env = dict(env, PATH=str(bin_dir) + os.pathsep + env['PATH'])
     contract_call = 'headless_commons "$root" || exit 1\n'
@@ -628,7 +628,7 @@ def controls(box):
     for name, body in {**contract_parents, **contract_children, **boundary_parents, **boundary_children, **nesting_parents, **nesting_children, **unsupported_children}.items():
         owner = root / ('external-' + name)
         owner.mkdir()
-        (owner / '.flea-test-sandbox').touch()
+        (owner / '.dlea-test-sandbox').touch()
         direct.write_text('root=$1\n' + body + 'qs -p "$root"\n')
         syntax = subprocess.run(['bash', '-n', str(direct)], capture_output=True, text=True)
         assert syntax.returncode == 0, (name, syntax)
@@ -717,7 +717,7 @@ def controls(box):
     for name, body in {**safety_parents, **unsafe_callers}.items():
         owner = root / ('safety-' + name)
         owner.mkdir()
-        (owner / '.flea-test-sandbox').touch()
+        (owner / '.dlea-test-sandbox').touch()
         direct.write_text('root=$1\n' + body + 'qs -p "$root"\n')
         syntax = subprocess.run(['bash', '-n', str(direct)], capture_output=True, text=True)
         assert syntax.returncode == 0, (name, syntax)
@@ -751,7 +751,7 @@ if __name__ == '__main__':
     if errors:
         raise SystemExit('FAIL headless Commons rule: ' + '\n'.join(errors))
     box = Path(sys.argv[1])
-    if not box.is_absolute() or not (box / '.flea-test-sandbox').is_file():
+    if not box.is_absolute() or not (box / '.dlea-test-sandbox').is_file():
         raise SystemExit('FAIL headless Commons controls need an absolute marked fixture')
     try:
         controls(box)

@@ -1,13 +1,13 @@
 ## The key table is generated
 
 `keys.toml` at the repository root defines the shared key and pointer tables.
-Running `tools/flea-keymap-gen` without arguments generates `ui/js/Keymap.js` for the QML
+Running `tools/dlea-keymap-gen` without arguments generates `ui/js/Keymap.js` for the QML
 reference frontend and `src/keys_generated.rs` for the Rust key API. It also refreshes the
-`keys.*` entries in `i18n/en/flea.json`. Change the table and regenerate these outputs rather
+`keys.*` entries in `i18n/en/dlea.json`. Change the table and regenerate these outputs rather
 than editing generated bindings by hand. The QML-specific notes below describe that reference
 frontend; the Rust and TUI consumers are described at the end of this chapter.
 
-`docs/images/glyphs.svg` is generated the same way, by `tools/flea-glyph-sheet` from the `PATHS`
+`docs/images/glyphs.svg` is generated the same way, by `tools/dlea-glyph-sheet` from the `PATHS`
 table in `ui/js/Icons.js`. It has no diff guard, so re-run the tool whenever a mark joins or
 leaves that table: the sheet kept drawing `send` twelve minutes after `e4b4911` took it out, and
 never drew `drive`, `filter` or `lock` at all.
@@ -46,7 +46,7 @@ targets for both, placed by `ui/ChromeBar.qml` and by `ui/PanePath.qml`, from `u
 Until 0.3.2 a dual pane's path was one `Text` answering only the double click, so a tap on a parent
 there did nothing, measured on 0.3.1 and on the 0.3.2 candidate after the second report on issue 45;
 the `row` column reads `parent` there because the leaf is the directory already listed and answers
-no single click. Neither `where` has a `pointercase_` driver in `tools/flea-acceptance-drive`, so
+no single click. Neither `where` has a `pointercase_` driver in `tools/dlea-acceptance-drive`, so
 both report as derived and undriven in that battery; `tests/js/tap.js` holds their counts and drives
 neither, because both are QML bindings rather than `Tap.js` calls, and **`tests/js` is structurally
 unable to press either one**. `tests/ui.sh` case `click` is what presses them at the real window,
@@ -77,7 +77,7 @@ after the press against Qt's 400 ms interval, on every crumb click. Nobody doubl
 breadcrumb, so a parent now opens at once, a double click on a parent is simply two taps, and the
 tap that types the path lives only where a tap opens no folder: the leaf segment, the collapsed
 marker and the strip beside the crumbs, which `keys.toml` calls `inert`. Since 0.4.2 the GPUI window
-(`crates/flea-gui/src/path/strip.rs`) opens the bar on one tap there (issue 327), where it took a double
+(`crates/dlea-gui/src/path/strip.rs`) opens the bar on one tap there (issue 327), where it took a double
 click; the second tap lands in the field the first opened and keeps the whole path selected. The
 retained QML frontend keeps its double-tap handlers. Ctrl+L and `:` still open the bar anywhere.
 `tests/ui.sh` case `click` double clicks a parent with the backend stopped,
@@ -87,7 +87,7 @@ second press. Under GPUI the same case requires a single tap on the collapsed ma
 field and closes it with Escape (under QML that tap must leave the bar closed), then checks on both
 frontends that a double click opens it without changing the path.
 
-Its effect field is `does` and not `action`, and that is load bearing. `tools/flea-acceptance`
+Its effect field is `does` and not `action`, and that is load bearing. `tools/dlea-acceptance`
 derives its whole key checklist with one `sed` for `^action = ` over this file, with no table
 scoping, so an `action =` in a pointer block would put an item on that checklist that no key
 can press. The generator refuses an empty or unreadable `[[pointer]]` table for the same
@@ -135,10 +135,10 @@ on neither; Windows Page Up loses `pageup` beside `ctrl-u` because ctrl-d is not
 mirrors by data, undo and redo, copy and cut, browse in and parent, are left alone. `tests/js/keymap.js` asserts the
 pairs across every preset and both frontends.
 
-`src/keys.rs` includes and re-exports `src/keys_generated.rs` as `flea::keys`. The GPUI window
-uses that API for keyboard lookup in `crates/flea-gui/src/window/keyboard.rs`. The TUI's
+`src/keys.rs` includes and re-exports `src/keys_generated.rs` as `dlea::keys`. The GPUI window
+uses that API for keyboard lookup in `crates/dlea-gui/src/window/keyboard.rs`. The TUI's
 `src/tui/keymap.rs` instead parses the embedded `keys.toml` through `include_str!`, including
-its terminal-specific `[[tui]]` rows; `src/tui/key_sheet.rs` uses `flea::keys::display` for
+its terminal-specific `[[tui]]` rows; `src/tui/key_sheet.rs` uses `dlea::keys::display` for
 keycap labels. Generating Rust bindings does not replace the TUI's map parser.
 
 For temporary output, pass a JavaScript destination as the first argument and use

@@ -6,7 +6,7 @@ if [[ ${1:-} != --isolated ]]; then
     mkdir -p "$repo/.superpowers/m9-integ-07"
     scratch=$(mktemp -d "$repo/.superpowers/m9-integ-07/consumer.XXXXXXXX")
     [[ -n "$scratch" && "$scratch" == /* ]] || exit 1
-    touch "$scratch/.flea-test-sandbox"
+    touch "$scratch/.dlea-test-sandbox"
     mkdir "$scratch/home"
     exec env -i PATH=/usr/bin:/bin HOME="$scratch/home" LANG=C.UTF-8 \
         setsid -w unshare --user --map-root-user --pid --fork --mount-proc \
@@ -14,8 +14,8 @@ if [[ ${1:-} != --isolated ]]; then
 fi
 repo=$2
 scratch=$3
-trap 'case $scratch in "$repo"/.superpowers/m9-integ-07/consumer.?*) [ -f "$scratch/.flea-test-sandbox" ] && rm -rf -- "$scratch" ;; esac' EXIT
-[[ ! -t 0 && ! -t 1 && -f "$scratch/.flea-test-sandbox" ]] ||
+trap 'case $scratch in "$repo"/.superpowers/m9-integ-07/consumer.?*) [ -f "$scratch/.dlea-test-sandbox" ] && rm -rf -- "$scratch" ;; esac' EXIT
+[[ ! -t 0 && ! -t 1 && -f "$scratch/.dlea-test-sandbox" ]] ||
     { echo "m9_integ_b1: refused: needs no terminal and a marked sandbox at $scratch" >&2; exit 1; }
 python3 -B - "$repo" "$scratch" <<'PY'
 import copy
@@ -38,13 +38,13 @@ except OSError as error:
 else:
     os.close(tty)
     raise AssertionError('CI run unexpectedly has a controlling terminal')
-loader = importlib.machinery.SourceFileLoader('b1_consumer', str(repo / 'tools/flea-strata-bench'))
+loader = importlib.machinery.SourceFileLoader('b1_consumer', str(repo / 'tools/dlea-strata-bench'))
 spec = importlib.util.spec_from_loader(loader.name, loader)
 tool = importlib.util.module_from_spec(spec)
 loader.exec_module(tool)
 
 def invoke(*args, expected=0):
-    result = subprocess.run([sys.executable, '-B', str(repo / 'tools/flea-strata-bench'), *map(str, args)],
+    result = subprocess.run([sys.executable, '-B', str(repo / 'tools/dlea-strata-bench'), *map(str, args)],
                             stdin=subprocess.DEVNULL, capture_output=True, text=True, timeout=30)
     assert result.returncode == expected, (result.returncode, result.stdout, result.stderr)
     print(result.stdout.strip())
@@ -53,8 +53,8 @@ def invoke(*args, expected=0):
 invoke('init', root)
 plan = tool.read_plan(root)
 products = {ident: {'binary': '/synthetic/' + ident, 'sha256': 'a' * 64, 'version': ident + ' 1.0',
-                   'frontend': 'gpui' if ident == 'flea' else 'qml', 'gui_sha256': 'b' * 64} for ident in tool.IDS}
-entrants = {ident: dict(value, gui={'binary': '/synthetic/flea-gui', 'sha256': 'b' * 64}, attestation={})
+                   'frontend': 'gpui' if ident == 'dlea' else 'qml', 'gui_sha256': 'b' * 64} for ident in tool.IDS}
+entrants = {ident: dict(value, gui={'binary': '/synthetic/dlea-gui', 'sha256': 'b' * 64}, attestation={})
             for ident, value in products.items()}
 tool.write_json(root / 'fixtures.json', {})
 manifest = {'plan': plan, 'harness_sha256': tool.sha(tool.__file__), 'latest_verified': True,
@@ -65,7 +65,7 @@ annotations = {}
 for trial_spec in tool.trial_specs(plan):
     folder = root / 'trials' / trial_spec['id']
     (folder / 'frames').mkdir(parents=True)
-    score = 0.1 if trial_spec['entrant'] == 'flea' else 2.0
+    score = 0.1 if trial_spec['entrant'] == 'dlea' else 2.0
     frames = [{'start_s': start, 'end_s': end, 'file': 'frames/%d.jpg' % index}
               for index, (start, end) in enumerate(((-0.2, -0.1), (score, score + 0.05), (score + 0.25, score + 0.3)))]
     for frame in frames:
@@ -74,7 +74,7 @@ for trial_spec in tool.trial_specs(plan):
     trial = dict(trial_spec, product_identity=products[trial_spec['entrant']], product_helper_sha256='c' * 64,
                  argv=['dbus-run-session', '--', products[trial_spec['entrant']]['binary']],
                  baseline=frames[0], frames=frames[1:], navigation_span_s=0.01, ended_s=5,
-                 samples=[(i / 20, min(i / 20, score), 10 if trial_spec['entrant'] == 'flea' else 20) for i in range(101)])
+                 samples=[(i / 20, min(i / 20, score), 10 if trial_spec['entrant'] == 'dlea' else 20) for i in range(101)])
     tool.write_json(folder / 'trial.json', trial)
     annotations[trial_spec['id']] = {'reviewer': 'synthetic consumer contract', 'navigation_verified': True,
         'settings_verified': True, 'visible_total': 12, 'verified': 12, 'first': [-1, 0], 'ready': [0, 1]}
@@ -118,32 +118,32 @@ error = invoke('report', root, expected=3)
 assert 'fixture manifest changed' in error.stderr
 (root / 'fixtures.json').write_bytes(fixtures)
 print('b1-consumer: a harness error exits 3, apart from a measured loss')
-annotations['flea.raw.1']['reviewer'] = None
+annotations['dlea.raw.1']['reviewer'] = None
 tool.write_json(root / 'annotations.json', annotations, replace=True)
 invoke('report', root, expected=2)
 report = json.loads((root / 'results.json').read_text())
-assert 'flea.raw.1' in [item['trial'] for item in report['pending']]
-annotations['flea.raw.1']['reviewer'] = 'synthetic consumer contract'
+assert 'dlea.raw.1' in [item['trial'] for item in report['pending']]
+annotations['dlea.raw.1']['reviewer'] = 'synthetic consumer contract'
 tool.write_json(root / 'annotations.json', annotations, replace=True)
 print('b1-consumer: a non-text reviewer leaves its trial pending instead of crashing the report')
 
 adapter = root / 'adapter'
 (adapter / 'tools').mkdir(parents=True)
-helper = adapter / 'tools/flea_bench_product.py'
+helper = adapter / 'tools/dlea_bench_product.py'
 helper.write_text('# Synthetic ABI spy only.\n')
 old_repo, old_loader = tool.REPO, tool.load_module
 old_producers = tool.manifest, tool.load_raw_corpus, tool.validate_fixtures, tool.run_trial
 calls = []
 def identity(arm, argv):
     calls.append((arm, argv))
-    return copy.deepcopy(products['flea'])
+    return copy.deepcopy(products['dlea'])
 try:
     tool.REPO = adapter
     tool.load_module = lambda name, path: types.SimpleNamespace(identity=identity)
     data = {'entrants': entrants}
-    bound = tool.bind_products(plan, data, ['flea'])
-    assert calls == [({'entrant': 'flea', 'frontend': 'gpui'}, ['/synthetic/flea', '--gui'])]
-    assert bound['identities']['flea'] == products['flea'] and bound['helper_sha256'] == tool.sha(helper)
+    bound = tool.bind_products(plan, data, ['dlea'])
+    assert calls == [({'entrant': 'dlea', 'frontend': 'gpui'}, ['/synthetic/dlea', '--gui'])]
+    assert bound['identities']['dlea'] == products['dlea'] and bound['helper_sha256'] == tool.sha(helper)
     native_root = root / 'native-boundary'
     native_root.mkdir()
     (native_root / tool.MARKER).touch()
@@ -159,30 +159,30 @@ try:
     native = types.SimpleNamespace(ENV=None, session_env=lambda: {}, hypr=lambda *args: '[]')
     tool.load_module = lambda name, path: types.SimpleNamespace(identity=identity) if path == helper else native
     captured = []
-    tool.run_trial = lambda root, plan, spec, native, binaries: captured.append((spec, copy.deepcopy(binaries['flea'])))
-    tool.run(native_root, only='flea', installed=True, raw_corpus=root)
-    assert len(captured) == 42 and all(spec['entrant'] == 'flea' and value['product_identity'] == products['flea']
+    tool.run_trial = lambda root, plan, spec, native, binaries: captured.append((spec, copy.deepcopy(binaries['dlea'])))
+    tool.run(native_root, only='dlea', installed=True, raw_corpus=root)
+    assert len(captured) == 42 and all(spec['entrant'] == 'dlea' and value['product_identity'] == products['dlea']
         and value['product_helper_sha256'] == tool.sha(helper) for spec, value in captured)
     invocation = json.loads(next((native_root / 'invocations').iterdir()).read_text())
     assert invocation['products'] == bound
     print('b1-consumer: real run dispatches 42 selected trials with matching B6 replies and an invocation receipt')
     for key in ('binary', 'version', 'sha256', 'gui_sha256'):
         def stale(arm, argv, key=key):
-            reply = copy.deepcopy(products['flea'])
+            reply = copy.deepcopy(products['dlea'])
             reply[key] = 'wrong'
             return reply
         tool.load_module = lambda name, path: types.SimpleNamespace(identity=stale)
         try:
-            tool.bind_products(plan, data, ['flea'])
+            tool.bind_products(plan, data, ['dlea'])
         except ValueError:
             pass
         else:
             raise AssertionError('B6 accepted mismatched ' + key)
     helper.rename(helper.with_suffix('.withheld'))
     try:
-        tool.bind_products(plan, data, ['flea'])
+        tool.bind_products(plan, data, ['dlea'])
     except ValueError as error:
-        assert 'stage tools/flea_bench_product.py' in str(error)
+        assert 'stage tools/dlea_bench_product.py' in str(error)
     else:
         raise AssertionError('missing B6 helper accepted')
 finally:

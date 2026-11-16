@@ -1,4 +1,4 @@
-# Flea 0.4.1
+# Dlea 0.4.1
 
 - Send files to nearby Apple devices with the AirDrop plugin, off by default, built on [owly](https://github.com/t4t5/owly/releases/tag/v0.4.0) by @t4t5, and accept incoming files from a notification; it needs a supported Wi-Fi card and the owly package (#369, @netmojo).
 - Show Properties and Permissions in the file menu, with Show Hidden Files and Hide Code Icons moved to the background menu; a customized menu list is kept, and Settings > Menus brings either row back.
@@ -10,7 +10,7 @@
 - Enable Save for the caller's file name when the Save chooser starts in an empty folder (#428, @vitonique).
 - Open the first window faster (#381, @chrispository).
 - Play 4K HDR video previews at full frame rate.
-- Stop waking an idle NVIDIA GPU on hybrid laptops while it drives no display, unless FLEA_VK_KEEP_NVIDIA=1 is set (#376, @neuromante).
+- Stop waking an idle NVIDIA GPU on hybrid laptops while it drives no display, unless DLEA_VK_KEEP_NVIDIA=1 is set (#376, @neuromante).
 - Keep Trash rows drawn while scrolling, on a refresh and when Trash changes (#422, #423, @Loafer19).
 - Draw Columns rows at the chosen Row density (#388, @brianblakely).
 - Keep TUI folder sizes across tab switches, and walk a folder again only after it changes (#390, @brianblakely).

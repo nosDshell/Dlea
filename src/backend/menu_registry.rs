@@ -36,7 +36,7 @@ impl Registry {
         let running = self.running.lock().map_err(|_| "The application list stopped answering.")?;
         if let Some(child) = running.as_ref() {
             // Reaping also holds this lock, so cancellation cannot target a reused PID or process group.
-            terminate(child.pid, child.work.group()).map_err(|e| { eprintln!("flea: application cancel, kill: {}", e); child.work.unstopped(&e) })?;
+            terminate(child.pid, child.work.group()).map_err(|e| { eprintln!("dlea: application cancel, kill: {}", e); child.work.unstopped(&e) })?;
         }
         Ok(())
     }
@@ -124,7 +124,7 @@ impl OwnedChild {
         if raw < 0 {
             let cause = std::io::Error::last_os_error();
             // The cleanup faults follow the first cause in the log; the person reads the one that started it.
-            for e in [terminate(child.id() as i32, work.group()).err(), child.wait().err()].into_iter().flatten() { eprintln!("flea: {}", work.unobserved(&e)); }
+            for e in [terminate(child.id() as i32, work.group()).err(), child.wait().err()].into_iter().flatten() { eprintln!("dlea: {}", work.unobserved(&e)); }
             return Err(work.unobserved(&cause));
         }
         *registry.running.lock().unwrap() = Some(Running { pid: child.id() as i32, pidfd: unsafe { OwnedFd::from_raw_fd(raw) }, work });
@@ -152,8 +152,8 @@ impl OwnedChild {
 impl Drop for OwnedChild {
     fn drop(&mut self) {
         if self.child.is_none() { return; }
-        if let Err(error) = self.registry.cancel() { eprintln!("flea: {}", error); }
-        if let Err(error) = self.reap() { eprintln!("flea: {}", error); }
+        if let Err(error) = self.registry.cancel() { eprintln!("dlea: {}", error); }
+        if let Err(error) = self.reap() { eprintln!("dlea: {}", error); }
     }
 }
 
@@ -529,7 +529,7 @@ mod tests {
         let running = registry.clone();
         let generation = cancel.clone();
         let worker = std::thread::spawn(move || {
-            let mut command = Command::new(flea::testpath::tool("/bin/sh"));
+            let mut command = Command::new(dlea::testpath::tool("/bin/sh"));
             command.args(["-c", "sleep 600 & wait"]);
             sent.send(running.capture(&mut command, &generation)).unwrap();
         });
@@ -539,7 +539,7 @@ mod tests {
         assert!(received.recv_timeout(Duration::from_secs(5)).unwrap().unwrap_err().contains("cancelled"));
         worker.join().unwrap();
         assert!(registry.running.lock().unwrap().is_none());
-        let mut next = Command::new(flea::testpath::tool("/usr/bin/printf"));
+        let mut next = Command::new(dlea::testpath::tool("/usr/bin/printf"));
         next.arg("ready");
         assert_eq!(registry.capture(&mut next, &Cancellation::default()).unwrap(), "ready");
     }
@@ -552,12 +552,12 @@ mod tests {
         let running = registry.clone();
         let generation = cancel.clone();
         let worker = std::thread::spawn(move || {
-            let mut command = Command::new(flea::testpath::tool("/usr/bin/sleep"));
+            let mut command = Command::new(dlea::testpath::tool("/usr/bin/sleep"));
             command.arg("600");
             sent.send(running.launch_command(&mut command, &generation)).unwrap();
         });
         let group = started(&registry);
-        let mut application = TestApplication(Command::new(flea::testpath::tool("/usr/bin/sleep")).arg("600")
+        let mut application = TestApplication(Command::new(dlea::testpath::tool("/usr/bin/sleep")).arg("600")
             .process_group(group).stdin(Stdio::null()).stdout(Stdio::null()).stderr(Stdio::null()).spawn().unwrap());
         assert!(!registry.running.lock().unwrap().as_ref().unwrap().work.group());
         cancel.next();
@@ -566,20 +566,20 @@ mod tests {
         worker.join().unwrap();
         assert!(application.0.try_wait().unwrap().is_none(), "cancelling the chooser must not kill an application sharing the launcher's group");
         assert!(registry.running.lock().unwrap().is_none());
-        assert!(registry.launch_command(&mut Command::new(flea::testpath::tool("/usr/bin/true")), &Cancellation::default()).is_ok());
+        assert!(registry.launch_command(&mut Command::new(dlea::testpath::tool("/usr/bin/true")), &Cancellation::default()).is_ok());
     }
 
     #[test]
     fn early_failure_reaps_the_owned_query_before_the_next_request() {
         let registry = Registry::default();
-        let mut command = Command::new(flea::testpath::tool("/usr/bin/sleep"));
+        let mut command = Command::new(dlea::testpath::tool("/usr/bin/sleep"));
         command.arg("600").stdout(Stdio::null()).stderr(Stdio::null());
         let owned = OwnedChild::start(&mut command, &registry, &Cancellation::default(), Work::List).unwrap();
         let descriptor = registry.running.lock().unwrap().as_ref().unwrap().pidfd.try_clone().unwrap();
         drop(owned);
         assert!(registry.running.lock().unwrap().is_none());
         assert!(wait_exit(descriptor.as_raw_fd()).is_ok());
-        assert!(registry.launch_command(&mut Command::new(flea::testpath::tool("/usr/bin/true")), &Cancellation::default()).is_ok());
+        assert!(registry.launch_command(&mut Command::new(dlea::testpath::tool("/usr/bin/true")), &Cancellation::default()).is_ok());
     }
 
     #[test]
@@ -611,8 +611,8 @@ mod tests {
         let registry = Registry::default();
         let cancel = Cancellation::default();
         assert!(registry.capture(&mut Command::new("/definitely-missing-gio-test-helper"), &cancel).unwrap_err().starts_with("Could not start the application list: "));
-        assert!(registry.capture(&mut Command::new(flea::testpath::tool("/usr/bin/false")), &cancel).unwrap_err().starts_with("The application list could not be read: "));
-        let mut large = Command::new(flea::testpath::tool("/usr/bin/head"));
+        assert!(registry.capture(&mut Command::new(dlea::testpath::tool("/usr/bin/false")), &cancel).unwrap_err().starts_with("The application list could not be read: "));
+        let mut large = Command::new(dlea::testpath::tool("/usr/bin/head"));
         large.args(["-c", &(MAX_REGISTRY_BYTES + 1).to_string(), "/dev/zero"]);
         assert_eq!(registry.capture(&mut large, &cancel).unwrap_err(), "The application list could not be read: it is too large.");
         assert!(registry.running.lock().unwrap().is_none());

@@ -70,7 +70,7 @@ def compositor(commands, function, *arguments, check=True):
 class Display:
     def __init__(self, commands, identity):
         self.commands, self.identity = commands, identity
-        self.output = "FLEA-" + identity
+        self.output = "DLEA-" + identity
         self.workspace = "name:" + identity
         self.created = False
         self.original_rounding = None

@@ -15,10 +15,10 @@ if "--ui-state" in sys.argv:
     print("{}", flush=True)
     sys.exit(0)
 
-scenario = os.environ["FLEA_PICKER_HUNT_CASE"]
-refusal_log = Path(os.environ["FLEA_PICKER_HUNT_REFUSAL_LOG"])
-# Sample FLEA_PICKER: {"mode": "open", "multiple": false, "folder": "/tmp/picker", "name": "a.txt", "title": "Picker hunt", "filters": [{"label": "Text", "globs": ["*.txt"], "mimes": []}]}
-folder = json.loads(os.environ["FLEA_PICKER"])["folder"]
+scenario = os.environ["DLEA_PICKER_HUNT_CASE"]
+refusal_log = Path(os.environ["DLEA_PICKER_HUNT_REFUSAL_LOG"])
+# Sample DLEA_PICKER: {"mode": "open", "multiple": false, "folder": "/tmp/picker", "name": "a.txt", "title": "Picker hunt", "filters": [{"label": "Text", "globs": ["*.txt"], "mimes": []}]}
+folder = json.loads(os.environ["DLEA_PICKER"])["folder"]
 path = str(Path(folder) / "a.txt")
 mark = {"path": path, "uri": Path(path).as_uri(), "bytes": 1}
 rows = [{"n": "a.txt", "d": False, "s": 1, "m": 1, "p": REGULAR_FILE_MODE, "i": "text-x-generic", "t": False, "k": 0}]

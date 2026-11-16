@@ -1,7 +1,7 @@
 // The subtree walk behind a search request, ticked a slice at a time so a cancel is never blocked.
 use crate::backend::fuzzy::{rank_order, Fuzzy};
 use crate::backend::listing::Listing;
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::path::{Path, PathBuf};
 use std::time::Instant;
 
@@ -27,7 +27,7 @@ impl Search {
     pub fn new(root: &str, query: &str, hidden: bool) -> Search {
         let (tags, text) = split_query(query);
         Search {
-            root: flea::bytename::exact(root),
+            root: dlea::bytename::exact(root),
             fuzzy: Fuzzy::new(&text),
             tags,
             hidden,
@@ -76,7 +76,7 @@ impl Search {
             }
             // The candidate is the whole relative path, not the base name, so one query can span a
             // separator: "dwnhelp" reaches "downloads/helper.txt", see docs/protocol.md "search".
-            if let Some(score) = self.fuzzy.score(&flea::bytename::display(&text)) {
+            if let Some(score) = self.fuzzy.score(&dlea::bytename::display(&text)) {
                 // The row's name is its path relative to the root, exact for a name that is not UTF-8; the query meets only its lossy spelling.
                 listing.push(&text, is_dir);
                 self.scores.push(score);
@@ -359,7 +359,7 @@ mod tests {
         assert_eq!(
             names(&l),
             [
-                flea::bytename::path_text(std::path::Path::new(std::ffi::OsStr::from_bytes(
+                dlea::bytename::path_text(std::path::Path::new(std::ffi::OsStr::from_bytes(
                     b"bad\xffdir/bench.txt"
                 )))
                 .into_owned()

@@ -10,8 +10,8 @@ from pathlib import Path
 
 root = Path(sys.argv[1]).resolve()
 binary = str(Path(sys.argv[2]).resolve())
-assert root.name.startswith("flea-uistate-det-")
-assert (root / ".flea-test-sandbox").is_file()
+assert root.name.startswith("dlea-uistate-det-")
+assert (root / ".dlea-test-sandbox").is_file()
 assert not root.is_relative_to(Path.home().resolve())
 assert Path(binary).is_file()
 library = root / "write-block.so"
@@ -21,7 +21,7 @@ subprocess.run(["cc", "-shared", "-fPIC", "-o", str(library),
 digest = hashlib.sha256(Path(binary).read_bytes()).hexdigest()
 print(f"deterministic binary sha256={digest}", flush=True)
 
-def run_flea(state, config, patch, extra_env):
+def run_dlea(state, config, patch, extra_env):
     env = dict(os.environ, XDG_STATE_HOME=str(state),
                XDG_CONFIG_HOME=str(config))
     env.update(extra_env)
@@ -98,7 +98,7 @@ def communicate_owned(proc, timeout, label):
                 pass
 
 def run_once(state, config, patch, label):
-    proc = run_flea(state, config, patch, {})
+    proc = run_dlea(state, config, patch, {})
     out, err = communicate_owned(proc, 10, label)
     assert proc.returncode == 0, f"{label} failed: {proc.returncode} {err}"
     return out
@@ -161,7 +161,7 @@ ref_state = root / "ref" / "state"
 ref_config = root / "ref" / "config"
 ref_state.mkdir(parents=True)
 ref_config.mkdir(parents=True)
-ref_ui = ref_state / "flea" / "ui.json"
+ref_ui = ref_state / "dlea" / "ui.json"
 run_once(ref_state, ref_config, '{"view":"list"}', "reference seed")
 run_once(ref_state, ref_config, '{"view":"grid"}', "reference patch")
 expected = read_bytes(ref_ui)
@@ -171,20 +171,20 @@ assert b'"view": "grid"' in expected, f"reference state incomplete: {expected[:2
 case0 = root / "before"
 state0 = case0 / "state"
 config0 = case0 / "config"
-(state0 / "flea").mkdir(parents=True)
+(state0 / "dlea").mkdir(parents=True)
 config0.mkdir(parents=True)
 run_once(state0, config0, '{"view":"list"}', "before seed")
-before0 = read_bytes(state0 / "flea" / "ui.json")
-before0_ino = (state0 / "flea" / "ui.json").stat().st_ino
-lock0 = str(state0 / "flea" / "ui.json.lock")
+before0 = read_bytes(state0 / "dlea" / "ui.json")
+before0_ino = (state0 / "dlea" / "ui.json").stat().st_ino
+lock0 = str(state0 / "dlea" / "ui.json.lock")
 lock_fd = os.open(lock0, os.O_RDWR)
 try:
     fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    child0 = run_flea(state0, config0, '{"view":"grid"}', {})
+    child0 = run_dlea(state0, config0, '{"view":"grid"}', {})
     try:
         wait_lock_held(child0.pid, lock0, 10)
         assert child0.poll() is None, "child exited while the lock was held, so the wait proves nothing"
-        left0 = sorted(p.name for p in (state0 / "flea").iterdir())
+        left0 = sorted(p.name for p in (state0 / "dlea").iterdir())
         assert left0 == ["ui.json", "ui.json.lock"], f"temp exists before the kill: {left0}"
         child0.kill()
         try:
@@ -193,9 +193,9 @@ try:
             child0.kill()
             raise AssertionError("before-temp child did not reap")
         assert child0.returncode == -9, f"before-temp child rc={child0.returncode}"
-        assert read_bytes(state0 / "flea" / "ui.json") == before0, "kill before the temp moved ui.json"
-        assert (state0 / "flea" / "ui.json").stat().st_ino == before0_ino, "kill before the temp replaced inode"
-        left0 = sorted(p.name for p in (state0 / "flea").iterdir())
+        assert read_bytes(state0 / "dlea" / "ui.json") == before0, "kill before the temp moved ui.json"
+        assert (state0 / "dlea" / "ui.json").stat().st_ino == before0_ino, "kill before the temp replaced inode"
+        left0 = sorted(p.name for p in (state0 / "dlea").iterdir())
         assert left0 == ["ui.json", "ui.json.lock"], f"kill before the temp left litter: {left0}"
         print(f"ok   stage before-temp kill kept {len(before0)} bytes with no temp", flush=True)
     finally:
@@ -217,33 +217,33 @@ finally:
 case = root / "killed"
 state = case / "state"
 config = case / "config"
-(state / "flea").mkdir(parents=True)
+(state / "dlea").mkdir(parents=True)
 (config).mkdir(parents=True)
 run_once(state, config, '{"view":"list"}', "killed seed")
-before = read_bytes(state / "flea" / "ui.json")
-before_ino = (state / "flea" / "ui.json").stat().st_ino
+before = read_bytes(state / "dlea" / "ui.json")
+before_ino = (state / "dlea" / "ui.json").stat().st_ino
 entered = case / "entered"
 release = case / "release"
 if entered.exists():
     entered.unlink()
 if release.exists():
     release.unlink()
-child = run_flea(state, config, '{"view":"grid"}', {
+child = run_dlea(state, config, '{"view":"grid"}', {
     "LD_PRELOAD": str(library),
-    "FLEA_TEST_UIS_ENTERED": str(entered),
-    "FLEA_TEST_UIS_RELEASE": str(release),
+    "DLEA_TEST_UIS_ENTERED": str(entered),
+    "DLEA_TEST_UIS_RELEASE": str(release),
 })
 try:
     wait_path(entered, 10, "barrier receipt")
     receipt = entered.read_text().strip()
     print(f"deterministic receipt {receipt}", flush=True)
-    # Sample input: receipt line `12345 7 /run/…/flea/ui.json.12345.tmp`.
+    # Sample input: receipt line `12345 7 /run/…/dlea/ui.json.12345.tmp`.
     parts = receipt.split(" ", 2)
     assert len(parts) == 3, f"receipt shape: {receipt!r}"
     assert parts[0] == str(child.pid), f"receipt pid {parts[0]} != child {child.pid}"
     tmp_path = Path(parts[2])
     assert tmp_path.is_absolute() and tmp_path.is_relative_to(root), f"tmp outside root: {parts[2]}"
-    allow_direct = os.environ.get("FLEA_TEST_UIS_ALLOW_DIRECT") == "1"
+    allow_direct = os.environ.get("DLEA_TEST_UIS_ALLOW_DIRECT") == "1"
     if allow_direct:
         assert parts[2].endswith(f"ui.json.{child.pid}.tmp") or parts[2].endswith("/ui.json"), receipt
     else:
@@ -252,7 +252,7 @@ try:
     size = tmp_path.stat().st_size
     assert size > 0, "temp is empty, so the kill proves nothing"
     assert size < len(expected), f"temp size {size} not incomplete vs {len(expected)}"
-    live = read_bytes(state / "flea" / "ui.json")
+    live = read_bytes(state / "dlea" / "ui.json")
     assert live == before, "ui.json moved before the kill"
     child.kill()
     try:
@@ -261,10 +261,10 @@ try:
         child.kill()
         raise AssertionError("killed child did not reap")
     assert child.returncode == -9, f"killed child rc={child.returncode}"
-    after_kill = read_bytes(state / "flea" / "ui.json")
+    after_kill = read_bytes(state / "dlea" / "ui.json")
     assert after_kill == before, f"interrupted publication left partial: {after_kill[:200]!r}"
-    assert (state / "flea" / "ui.json").stat().st_ino == before_ino, "kill replaced inode"
-    left = sorted(p.name for p in (state / "flea").iterdir())
+    assert (state / "dlea" / "ui.json").stat().st_ino == before_ino, "kill replaced inode"
+    left = sorted(p.name for p in (state / "dlea").iterdir())
     assert set(left) == {"ui.json", "ui.json.lock", tmp_path.name}, f"kill left more than the owned temp: {left}"
     print(f"ok   deterministic interrupted publication kept {len(before)} bytes, tmp {size} bytes", flush=True)
 finally:
@@ -284,27 +284,27 @@ finally:
 case3 = root / "after"
 state3 = case3 / "state"
 config3 = case3 / "config"
-(state3 / "flea").mkdir(parents=True)
+(state3 / "dlea").mkdir(parents=True)
 config3.mkdir(parents=True)
 run_once(state3, config3, '{"view":"list"}', "after seed")
-before3 = read_bytes(state3 / "flea" / "ui.json")
-before3_ino = (state3 / "flea" / "ui.json").stat().st_ino
+before3 = read_bytes(state3 / "dlea" / "ui.json")
+before3_ino = (state3 / "dlea" / "ui.json").stat().st_ino
 entered3 = case3 / "entered"
 release3 = case3 / "release"
 if entered3.exists():
     entered3.unlink()
 if release3.exists():
     release3.unlink()
-child3 = run_flea(state3, config3, '{"view":"grid"}', {
+child3 = run_dlea(state3, config3, '{"view":"grid"}', {
     "LD_PRELOAD": str(library),
-    "FLEA_TEST_UIS_RENAME_ENTERED": str(entered3),
-    "FLEA_TEST_UIS_RENAME_RELEASE": str(release3),
+    "DLEA_TEST_UIS_RENAME_ENTERED": str(entered3),
+    "DLEA_TEST_UIS_RENAME_RELEASE": str(release3),
 })
 try:
     wait_path(entered3, 10, "rename barrier receipt")
     receipt3 = entered3.read_text().strip()
     print(f"rename receipt {receipt3}", flush=True)
-    # Sample input: receipt line `12345 rename /run/.../flea/ui.json`.
+    # Sample input: receipt line `12345 rename /run/.../dlea/ui.json`.
     parts3 = receipt3.split(" ", 2)
     assert len(parts3) == 3, f"receipt shape: {receipt3!r}"
     assert parts3[0] == str(child3.pid), f"receipt pid {parts3[0]} != child {child3.pid}"
@@ -312,10 +312,10 @@ try:
     assert parts3[2].endswith("/ui.json"), receipt3
     assert Path(parts3[2]).is_relative_to(root), f"renamed path outside root: {parts3[2]}"
     assert child3.poll() is None, "child exited past the rename, so the hold proves nothing"
-    landed = read_bytes(state3 / "flea" / "ui.json")
+    landed = read_bytes(state3 / "dlea" / "ui.json")
     assert landed == expected, f"renamed bytes differ before the kill: {landed[:200]!r}"
-    assert (state3 / "flea" / "ui.json").stat().st_ino != before3_ino, "rename did not replace inode"
-    left3 = sorted(p.name for p in (state3 / "flea").iterdir())
+    assert (state3 / "dlea" / "ui.json").stat().st_ino != before3_ino, "rename did not replace inode"
+    left3 = sorted(p.name for p in (state3 / "dlea").iterdir())
     assert left3 == ["ui.json", "ui.json.lock"], f"rename left a temp behind: {left3}"
     child3.kill()
     try:
@@ -324,7 +324,7 @@ try:
         child3.kill()
         raise AssertionError("after-rename child did not reap")
     assert child3.returncode == -9, f"after-rename child rc={child3.returncode}"
-    assert read_bytes(state3 / "flea" / "ui.json") == expected, "kill past the rename moved ui.json"
+    assert read_bytes(state3 / "dlea" / "ui.json") == expected, "kill past the rename moved ui.json"
     print(f"ok   stage after-rename kill kept {len(expected)} bytes past the rename", flush=True)
 finally:
     if child3.poll() is None:
@@ -343,50 +343,50 @@ finally:
 case2 = root / "released"
 state2 = case2 / "state"
 config2 = case2 / "config"
-(state2 / "flea").mkdir(parents=True)
+(state2 / "dlea").mkdir(parents=True)
 config2.mkdir(parents=True)
 run_once(state2, config2, '{"view":"list"}', "released seed")
-seed2 = read_bytes(state2 / "flea" / "ui.json")
-seed2_ino = (state2 / "flea" / "ui.json").stat().st_ino
+seed2 = read_bytes(state2 / "dlea" / "ui.json")
+seed2_ino = (state2 / "dlea" / "ui.json").stat().st_ino
 entered2 = case2 / "entered"
 release2 = case2 / "release"
 if entered2.exists():
     entered2.unlink()
 if release2.exists():
     release2.unlink()
-child2 = run_flea(state2, config2, '{"view":"grid"}', {
+child2 = run_dlea(state2, config2, '{"view":"grid"}', {
     "LD_PRELOAD": str(library),
-    "FLEA_TEST_UIS_ENTERED": str(entered2),
-    "FLEA_TEST_UIS_RELEASE": str(release2),
+    "DLEA_TEST_UIS_ENTERED": str(entered2),
+    "DLEA_TEST_UIS_RELEASE": str(release2),
 })
 try:
     wait_path(entered2, 10, "released barrier receipt")
     receipt2 = entered2.read_text().strip()
     print(f"released receipt {receipt2}", flush=True)
-    # Sample input: receipt line `12345 7 /run/…/flea/ui.json.12345.tmp`.
+    # Sample input: receipt line `12345 7 /run/…/dlea/ui.json.12345.tmp`.
     parts2 = receipt2.split(" ", 2)
     assert len(parts2) == 3, f"receipt shape: {receipt2!r}"
     assert parts2[0] == str(child2.pid), f"receipt pid {parts2[0]} != child {child2.pid}"
     tmp2 = Path(parts2[2])
     assert tmp2.is_absolute() and tmp2.is_relative_to(root), f"tmp outside root: {parts2[2]}"
-    if os.environ.get("FLEA_TEST_UIS_ALLOW_DIRECT") == "1":
+    if os.environ.get("DLEA_TEST_UIS_ALLOW_DIRECT") == "1":
         assert parts2[2].endswith(f"ui.json.{child2.pid}.tmp") or parts2[2].endswith("/ui.json"), receipt2
     else:
         assert parts2[2].endswith(f"ui.json.{child2.pid}.tmp"), receipt2
     assert tmp2.is_file(), f"tmp missing: {tmp2}"
     size2 = tmp2.stat().st_size
     assert size2 > 0 and size2 < len(expected), f"held tmp size {size2} not a partial prefix"
-    assert read_bytes(state2 / "flea" / "ui.json") == seed2, "published bytes moved during hold"
-    assert (state2 / "flea" / "ui.json").stat().st_ino == seed2_ino, "hold replaced inode"
+    assert read_bytes(state2 / "dlea" / "ui.json") == seed2, "published bytes moved during hold"
+    assert (state2 / "dlea" / "ui.json").stat().st_ino == seed2_ino, "hold replaced inode"
     assert child2.poll() is None, "child exited before release, so the hold proves nothing"
     release2.touch()
     out2, err2 = child2.communicate(timeout=15)
     assert child2.returncode == 0, f"released run failed: {child2.returncode} {err2}"
     assert entered2.is_file(), "released barrier never intercepted, so the control proves nothing"
-    got = read_bytes(state2 / "flea" / "ui.json")
+    got = read_bytes(state2 / "dlea" / "ui.json")
     assert got == expected, f"released state differs: {got[:200]!r} vs {expected[:200]!r}"
-    assert (state2 / "flea" / "ui.json").stat().st_ino != seed2_ino, "released write did not replace inode"
-    left = list((state2 / "flea").glob("ui.json.*.tmp"))
+    assert (state2 / "dlea" / "ui.json").stat().st_ino != seed2_ino, "released write did not replace inode"
+    left = list((state2 / "dlea").glob("ui.json.*.tmp"))
     assert left == [], f"released temp survives: {left}"
     print(f"ok   released barrier published {len(got)} bytes with new inode", flush=True)
 finally:

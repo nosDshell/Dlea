@@ -3,7 +3,7 @@ use crate::ui_logic_settings_pages::rows::{focusable, Kind, Row};
 use crate::ui_logic_settings_pages::test_support::say;
 use crate::ui_logic_settings_pages::update::{self, Status};
 
-const LOCAL_QI: &str = "Name            : flea\nVersion         : 0.3.4-1\nPackager        : Unknown Packager\n\
+const LOCAL_QI: &str = "Name            : dlea\nVersion         : 0.3.4-1\nPackager        : Unknown Packager\n\
     Build Date      : Wed Sep 23 12:40:50 2026\nInstall Script  : No\nValidated By    : None\n";
 
 fn answered_status(line: &str) -> Status {
@@ -56,7 +56,7 @@ fn hint_with_prefix<'a>(rows: &'a [Row], prefix: &str) -> &'a Row {
 
 #[test]
 fn updates_group_is_update_then_switch_while_idle() {
-    assert_eq!(updates_group(&about(update::idle())), "action:Update Flea,check:Check automatically");
+    assert_eq!(updates_group(&about(update::idle())), "action:Update Dlea,check:Check automatically");
 }
 
 #[test]
@@ -66,13 +66,13 @@ fn no_static_update_owner_fact() {
 
 #[test]
 fn update_row_wears_the_download_mark() {
-    assert_eq!(find(&about(update::idle()), "updateFlea").glyph, "download");
+    assert_eq!(find(&about(update::idle()), "updateDlea").glyph, "download");
 }
 
 #[test]
 fn idle_row_offers_the_check_in_the_foreground_with_a_chevron() {
     let rows = about(update::idle());
-    let row = find(&rows, "updateFlea");
+    let row = find(&rows, "updateDlea");
     assert_eq!(format!("{}|{:?}|{}", say(&row.value), row.role, row.inert), "Check|Live|false");
     assert!(focusable(row));
 }
@@ -80,21 +80,21 @@ fn idle_row_offers_the_check_in_the_foreground_with_a_chevron() {
 #[test]
 fn an_update_reads_in_the_accent() {
     let rows = about(answered_status("available opr 0.3.3-1 0.3.4-1"));
-    let row = find(&rows, "updateFlea");
+    let row = find(&rows, "updateDlea");
     assert_eq!(format!("{}|{:?}", say(&row.value), row.role), "0.3.4 available|Accent");
 }
 
 #[test]
 fn a_running_check_is_muted_inert_and_still_a_stop() {
     let rows = about(update::checking(&update::idle()));
-    let row = find(&rows, "updateFlea");
+    let row = find(&rows, "updateDlea");
     assert_eq!(format!("{}|{:?}|{}|{}", say(&row.value), row.role, row.inert, focusable(row)), "Checking|None|true|true");
 }
 
 #[test]
 fn an_unchecked_build_is_a_local_fact_the_cursor_steps_over() {
     let rows = about(answered_status("unchecked git - -"));
-    let row = find(&rows, "updateFlea");
+    let row = find(&rows, "updateDlea");
     assert_eq!(format!("{:?}|{}|{}", row.kind, say(&row.value), focusable(row)), "Fact|Built from source|false");
 }
 
@@ -103,7 +103,7 @@ fn after_a_launch_the_group_ends_on_the_restart_note() {
     let launched = update::launched_from(&answered_status("available opr 0.3.3-1 0.3.4-1"), true);
     assert_eq!(
         updates_group(&about(launched)),
-        "action:Update Flea,check:Check automatically,hint:Restart Flea when the update finishes"
+        "action:Update Dlea,check:Check automatically,hint:Restart Dlea when the update finishes"
     );
 }
 
@@ -154,7 +154,7 @@ fn the_switch_is_a_check_the_cursor_stops_on() {
 #[test]
 fn the_two_web_rows_carry_their_own_destinations() {
     let rows = about(update::idle());
-    assert_eq!(find(&rows, "reportIssue").url, "https://github.com/thisisgm/flea/issues");
+    assert_eq!(find(&rows, "reportIssue").url, "https://github.com/nosDshell/Dlea/issues");
     assert_eq!(find(&rows, "support").url, "https://github.com/sponsors/thisisgm");
 }
 
@@ -176,7 +176,7 @@ fn the_pane_lists_its_rows_in_order() {
     assert_eq!(
         labels(&rows),
         [
-            "hero:Flea",
+            "hero:Dlea",
             "fact:Version",
             "fact:Built",
             "fact:Installed from",
@@ -185,14 +185,14 @@ fn the_pane_lists_its_rows_in_order() {
             "group:Language",
             "action:Language",
             "group:Updates",
-            "action:Update Flea",
+            "action:Update Dlea",
             "check:Check automatically",
             "group:This Computer",
             "fact:File manager",
             "check:stub",
             "action:Keyboard sheet",
             "action:Report an issue",
-            "action:Support Flea",
+            "action:Support Dlea",
         ]
     );
 }
@@ -237,41 +237,41 @@ fn the_file_manager_row_elides_its_head_and_takes_the_handler() {
 fn the_local_query_reads_as_its_package_build_and_no_signature() {
     assert_eq!(
         package_facts(LOCAL_QI),
-        PackageFacts { package: "flea 0.3.4-1".to_owned(), built: "Wed Sep 23 12:40:50 2026".to_owned(), signed: false }
+        PackageFacts { package: "dlea 0.3.4-1".to_owned(), built: "Wed Sep 23 12:40:50 2026".to_owned(), signed: false }
     );
 }
 
 #[test]
 fn a_former_binary_package_is_local() {
-    assert_eq!(say(&installed_from("flea-bin", false)), "Local package");
+    assert_eq!(say(&installed_from("dlea-bin", false)), "Local package");
 }
 
 #[test]
 fn the_kind_the_update_row_reads_is_the_same_one() {
     let answer = answered_status("unchecked release 0.3.4-1 -");
-    assert_eq!(format!("{}|{}", answer.kind, install_kind("flea-bin", false)), "release|release");
+    assert_eq!(format!("{}|{}", answer.kind, install_kind("dlea-bin", false)), "release|release");
 }
 
 #[test]
-fn the_signed_opr_flea_keeps_the_board_words() {
-    assert_eq!(say(&installed_from("flea", true)), "Omarchy Package Repository");
+fn the_signed_opr_dlea_keeps_the_board_words() {
+    assert_eq!(say(&installed_from("dlea", true)), "Omarchy Package Repository");
 }
 
 #[test]
 fn the_same_name_unsigned_is_a_local_build() {
-    assert_eq!(say(&installed_from("flea", false)), "Local package");
+    assert_eq!(say(&installed_from("dlea", false)), "Local package");
 }
 
 #[test]
 fn a_former_git_package_is_local_even_when_signed() {
-    assert_eq!(say(&installed_from("flea-git", false)), "Local package");
-    assert_eq!(say(&installed_from("flea-git", true)), "Local package");
-    assert_eq!(say(&installed_from("flea-bin", true)), "Local package");
+    assert_eq!(say(&installed_from("dlea-git", false)), "Local package");
+    assert_eq!(say(&installed_from("dlea-git", true)), "Local package");
+    assert_eq!(say(&installed_from("dlea-bin", true)), "Local package");
 }
 
 #[test]
 fn any_other_owner_is_somebody_elses_package() {
-    assert_eq!(say(&installed_from("flea-custom", true)), "Local package");
+    assert_eq!(say(&installed_from("dlea-custom", true)), "Local package");
 }
 
 #[test]
@@ -323,11 +323,11 @@ fn one_sentence_for_each_kind_word_and_no_other() {
 // tests/js/settings.js: supplied facts read back as given, the handler with its head elided, and the support route takes focus.
 #[test]
 fn supplied_facts_read_back_and_the_support_route_takes_focus() {
-    let facts = Facts { version: "0.1.6".to_owned(), handler: "com.thisisgm.flea.desktop".to_owned(), ..Facts::default() };
+    let facts = Facts { version: "0.1.6".to_owned(), handler: "com.nosDshell.dlea.desktop".to_owned(), ..Facts::default() };
     let rows = rows(&facts, true, "English", Vec::new());
     assert_eq!(say(&find_by_label(&rows, "settings.about.version").value), "0.1.6");
     let handler = find_by_label(&rows, "settings.about.file_manager");
-    assert_eq!(format!("{}|{}", say(&handler.value), handler.elide_head), "com.thisisgm.flea.desktop|true");
+    assert_eq!(format!("{}|{}", say(&handler.value), handler.elide_head), "com.nosDshell.dlea.desktop|true");
     assert!(!focusable(find_by_label(&rows, "settings.about.version")));
     assert!(focusable(find(&rows, "support")));
 }

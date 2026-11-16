@@ -53,7 +53,7 @@ def size(value):
 # Sample input: b'{"t":"listed"}\n{"t":"fsinfo","path":"/fx/v/work","fs":"ext4","free":5000}\n'.
 def fsinfo(candidate, cwd, commands, timeout=8):
     index = len(candidate) - 3
-    if candidate[index] != "/opt/flea":
+    if candidate[index] != "/opt/dlea":
         raise Blocked("unexpected namespace candidate argv")
     argv = candidate[:index + 1] + ["--backend"]
     receipt = {"argv": argv, "start_ns": time.time_ns(), "stdin": []}

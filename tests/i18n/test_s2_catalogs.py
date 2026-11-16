@@ -17,7 +17,7 @@ class S2CatalogTests(unittest.TestCase):
             binding = next(item for item in pointers if item["where"] == place
                            and item["row"] == row and item["press"] == "left")
             key = "keys.label." + hashlib.sha256(binding["label"].encode()).hexdigest()[:12]
-            for path in sorted((ROOT / "i18n").glob("*/flea.json")):
+            for path in sorted((ROOT / "i18n").glob("*/dlea.json")):
                 with self.subTest(locale=path.parent.name, gesture=(place, row)):
                     value = json.loads(path.read_text()).get(key)
                     self.assertIsInstance(value, str, f"missing live pointer label {key}")
@@ -25,9 +25,9 @@ class S2CatalogTests(unittest.TestCase):
 
     def test_s2_manifest_keeps_the_shared_search_result_label(self):
         manifest = json.loads((ROOT / "i18n/translation-manifest.json").read_text())
-        for path in sorted((ROOT / "i18n").glob("*/flea.json")):
+        for path in sorted((ROOT / "i18n").glob("*/dlea.json")):
             with self.subTest(locale=path.parent.name):
-                self.assertIn("flea:keys.label.bfa65befcad0", manifest[path.parent.name])
+                self.assertIn("dlea:keys.label.bfa65befcad0", manifest[path.parent.name])
 
 
 if __name__ == "__main__":

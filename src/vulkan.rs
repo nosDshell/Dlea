@@ -7,8 +7,8 @@ pub(crate) const PCI_VENDOR_NVIDIA: u32 = 0x10de;
 pub(crate) const PCI_VENDOR_INTEL: u32 = 0x8086;
 pub(crate) const PCI_VENDOR_AMD: u32 = 0x1002;
 
-// An older launcher marked its own pin, so a program Flea starts can tell it from the operator's own list.
-pub const PIN_MARKER: &str = "FLEA_VK_PIN";
+// An older launcher marked its own pin, so a program Dlea starts can tell it from the operator's own list.
+pub const PIN_MARKER: &str = "DLEA_VK_PIN";
 
 // Empty is absent, the same rule QSG_RHI_BACKEND and the loader variables already follow.
 fn pin_is_marked(marker: Option<&OsStr>) -> bool {

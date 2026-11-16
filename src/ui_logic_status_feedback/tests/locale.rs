@@ -18,7 +18,7 @@ fn feedback_follows_a_live_language_change_with_per_string_fallback() {
     );
     std::fs::create_dir_all(root.join("catalog/de")).unwrap();
     root.file(
-        "catalog/de/flea.json",
+        "catalog/de/dlea.json",
         r#"{"feedback.error.unread_named":"%1 konnte nicht gelesen werden.","feedback.reload":{"one":"Neu geladen · %1 Element geändert","other":"Neu geladen · %1 Elemente geändert"},"feedback.hint.undo":"%1 macht rückgängig","pane.empty.initial":"NOCH NICHTS HIER"}"#,
     );
     root.file("language", "de");
@@ -66,11 +66,11 @@ fn new_extract_refusals_and_a_trash_cause_read_in_the_shipped_german() {
         include_str!("../../i18n/fixtures/locales.json"),
     );
     for (code, text) in [
-        ("en", include_str!("../../../i18n/en/flea.json")),
-        ("de", include_str!("../../../i18n/de/flea.json")),
+        ("en", include_str!("../../../i18n/en/dlea.json")),
+        ("de", include_str!("../../../i18n/de/dlea.json")),
     ] {
         std::fs::create_dir_all(root.join(format!("catalog/{code}"))).unwrap();
-        root.file(&format!("catalog/{code}/flea.json"), text);
+        root.file(&format!("catalog/{code}/dlea.json"), text);
     }
     root.file("language", "de");
     let german = I18n::load(Paths {

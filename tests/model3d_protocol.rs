@@ -2,7 +2,7 @@ use std::process::Command;
 
 fn run(case: &str) {
     let status = Command::new("python3")
-        .args(["-B", "tests/model3d_protocol.py", env!("CARGO_BIN_EXE_flea"), case, env!("CARGO_TARGET_TMPDIR")])
+        .args(["-B", "tests/model3d_protocol.py", env!("CARGO_BIN_EXE_dlea"), case, env!("CARGO_TARGET_TMPDIR")])
         .status().expect("python3 is required for the 3D protocol integration tests");
     assert!(status.success(), "3D protocol integration case {case} failed: {status}");
 }

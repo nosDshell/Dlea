@@ -50,7 +50,7 @@ fn a_fixed_disk_merge_syncs_no_trash_record_one_by_one() {
 fn a_durable_drive_merge_still_syncs_each_record_before_its_item_moves() {
     let _marks = Marks;
     let d = TestDir::new("merge-speed-durable");
-    assert_eq!(merge_three_replaces(&d, true), 3, "a drive Flea confirms keeps one record sync per Replace");
+    assert_eq!(merge_three_replaces(&d, true), 3, "a drive Dlea confirms keeps one record sync per Replace");
 }
 
 #[test]

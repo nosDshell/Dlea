@@ -24,7 +24,7 @@ class EnglishFixtureTests(unittest.TestCase):
             self.assertEqual(hashlib.sha256((FIXTURES / source).read_bytes()).hexdigest(), record["sha256"])
 
     def test_every_catalog_alias_has_pinned_english_data(self):
-        catalog = json.loads((ROOT / "i18n/en/flea.json").read_text())
+        catalog = json.loads((ROOT / "i18n/en/dlea.json").read_text())
         documents = {}
         for key, value in catalog.items():
             if not isinstance(value, str) or not value.startswith("omarchy:"):

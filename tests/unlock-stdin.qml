@@ -1,11 +1,11 @@
-//@ pragma ShellId flea-unlock-stdin-test
+//@ pragma ShellId dlea-unlock-stdin-test
 
 import QtQuick
 import QtTest
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
-import "flea/js/Unlock.js" as Unlock
+import "dlea" as Dlea
+import "dlea/js/Unlock.js" as Unlock
 import "unlock-stdin-find.js" as Find
 
 // tests/unlock-stdin.sh's harness: the real UnlockDialog against a stub udisksctl, canary S3cr3t-canary-1006; attempts 1 and 2 refuse, 3 unlocks, phases 4 and up arm the stub by failure mode, and a wrong phase proves stdin closed (the recorder cat exits only on EOF).
@@ -65,7 +65,7 @@ UnlockSteps {
 
         TestEvent { id: driver }
 
-        Flea.UnlockDialog {
+        Dlea.UnlockDialog {
             id: dlg
             onClosed: sink.forceActiveFocus()
             onLockFailed: function (note) { shell.lockFailedNote = note }

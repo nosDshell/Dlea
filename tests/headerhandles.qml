@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-headerhandles-test
+//@ pragma ShellId dlea-headerhandles-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // e33: the four resize edges live behind one Loader, so only the list view builds them.
 ShellRoot {
@@ -11,41 +11,41 @@ ShellRoot {
     property var failures: []
     readonly property real pressTolerance: 0.001
 
-    Flea.Header {
+    Dlea.Header {
         id: listHeader
         width: 800
         pane: ({ rows: [], kindNames: [], dirSizeState: { file: {}, order: [] }, held: 0 })
     }
 
-    Flea.Header {
+    Dlea.Header {
         id: columnsHeader
         width: 800
         y: 100
         pane: ({ rows: [], kindNames: [], dirSizeState: { file: {}, order: [] }, held: 0 })
     }
 
-    Flea.Header {
+    Dlea.Header {
         id: gridHeader
         width: 800
         y: 200
         pane: ({ rows: [], kindNames: [], dirSizeState: { file: {}, order: [] }, held: 0 })
     }
 
-    Flea.Header {
+    Dlea.Header {
         id: dualHeader
         width: 800
         y: 300
         pane: ({ rows: [], kindNames: [], dirSizeState: { file: {}, order: [] }, held: 0 })
     }
 
-    Flea.Header {
+    Dlea.Header {
         id: searchHeader
         width: 800
         y: 400
         pane: ({ rows: [], kindNames: [], dirSizeState: { file: {}, order: [] }, held: 0 })
     }
 
-    Flea.Header {
+    Dlea.Header {
         id: nopaneHeader
         width: 800
         y: 500

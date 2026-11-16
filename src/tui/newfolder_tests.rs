@@ -6,12 +6,12 @@ use super::{
     wire::{self, text},
 };
 use crate::backend::testdir::TestDir;
-use flea::i18n::{I18n, Paths};
+use dlea::i18n::{I18n, Paths};
 
 fn catalog(d: &TestDir, base: &str) -> I18n {
     d.dir("catalog/en");
     d.file(
-        "catalog/en/flea.json",
+        "catalog/en/dlea.json",
         &format!(r#"{{"prompt.newFolder":"{}"}}"#, crate::json::escape(base)),
     );
     I18n::load(Paths {

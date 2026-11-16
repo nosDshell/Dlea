@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-gridbare-test
+//@ pragma ShellId dlea-gridbare-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/Selection.js" as Selection
+import "dlea" as Dlea
+import "dlea/js/Selection.js" as Selection
 
 // A real Grid in a real window, driven by pointer events: a tile takes a press, tap, drag or menu only on its icon box or painted caption, and the rest of a cell is the listing's own ground.
 ShellRoot {
@@ -149,9 +149,9 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 900
         implicitHeight: 500
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
-        Flea.GridArea {
+        Dlea.GridArea {
             id: grid
             width: 700
             height: 300
@@ -168,7 +168,7 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 300
         implicitHeight: 200
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
         ListView {
             id: plainList
@@ -177,7 +177,7 @@ ShellRoot {
             model: 6
             delegate: Item { width: 300; height: 20 }
             footer: Item { width: 300; height: 200 }
-            Flea.SelectionBand { id: plainBand; parent: plainList; pane: root.stubPane; flickable: plainList }
+            Dlea.SelectionBand { id: plainBand; parent: plainList; pane: root.stubPane; flickable: plainList }
         }
     }
 

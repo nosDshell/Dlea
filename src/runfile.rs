@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 #[path = "runharden.rs"]
 mod runharden;
 
-// The two answers flea --open gives beyond its 0/2/3 contract, read by ui/Opener.qml.
+// The two answers dlea --open gives beyond its 0/2/3 contract, read by ui/Opener.qml.
 pub const ASK_RUN: i32 = 4;
 pub const ASK_OPEN_WITH: i32 = 5;
 // The run card's own failures, read by ui/RunCard.qml off the exit alone, never off parsed prose.
@@ -15,7 +15,7 @@ pub const RUN_NOEXEC: i32 = 7;
 pub const RUN_SPAWN: i32 = 8;
 // The application the card named was uninstalled between the ask and the press.
 pub const RUN_HANDLER_GONE: i32 = 9;
-// flea --open refused a program that lacks its execute bit, so no application was asked.
+// dlea --open refused a program that lacks its execute bit, so no application was asked.
 pub const NOT_EXECUTABLE: i32 = 10;
 
 use crate::open::FAILED;
@@ -147,7 +147,7 @@ pub fn terminal_argv(dir: &Path, target: &Path) -> Vec<OsString> {
 }
 
 fn canonical(path: &str) -> Option<PathBuf> {
-    std::fs::canonicalize(flea::bytename::text_path(path)).ok()
+    std::fs::canonicalize(dlea::bytename::text_path(path)).ok()
 }
 
 // The card's four modes beside main.rs's --open arms: Some(code) when argv names one, malformed shapes refused through the same usage errors, None for every other mode.
@@ -197,15 +197,15 @@ fn refused(target: &Path) -> Option<i32> {
     match decide(target) {
         Decision::Ask(_) => None,
         Decision::MakeExecutable(_) => {
-            eprintln!("flea: that file is not executable, so it was not run");
+            eprintln!("dlea: that file is not executable, so it was not run");
             Some(FAILED)
         }
         Decision::RefuseNoExec => {
-            eprintln!("flea: that program is on a volume that does not allow running files");
+            eprintln!("dlea: that program is on a volume that does not allow running files");
             Some(RUN_NOEXEC)
         }
         Decision::OpenNormally => {
-            eprintln!("flea: that file is not a program, so it was not run");
+            eprintln!("dlea: that file is not a program, so it was not run");
             Some(FAILED)
         }
     }
@@ -216,7 +216,7 @@ fn rechecked(target: &Path, expect: &crate::runid::FileId) -> Option<i32> {
     match crate::runid::capture(target) {
         Some(now) if now.matches(expect) => None,
         _ => {
-            eprintln!("flea: that file changed since the card asked, so it was not run");
+            eprintln!("dlea: that file changed since the card asked, so it was not run");
             Some(RUN_CHANGED)
         }
     }
@@ -227,7 +227,7 @@ pub fn run(path: &str, expect: &crate::runid::FileId) -> i32 {
     let target = match canonical(path) {
         Some(p) => p,
         None => {
-            eprintln!("flea: that program could not be run, check that it still exists");
+            eprintln!("dlea: that program could not be run, check that it still exists");
             return FAILED;
         }
     };
@@ -246,7 +246,7 @@ pub fn run(path: &str, expect: &crate::runid::FileId) -> i32 {
     match child.spawn() {
         Ok(_) => 0,
         Err(_) => {
-            eprintln!("flea: nothing on this system could be asked to run that file");
+            eprintln!("dlea: nothing on this system could be asked to run that file");
             RUN_SPAWN
         }
     }
@@ -257,7 +257,7 @@ pub fn run_in_terminal(path: &str, expect: &crate::runid::FileId) -> i32 {
     let target = match canonical(path) {
         Some(p) => p,
         None => {
-            eprintln!("flea: that program could not be run, check that it still exists");
+            eprintln!("dlea: that program could not be run, check that it still exists");
             return FAILED;
         }
     };
@@ -275,13 +275,13 @@ pub fn run_in_terminal(path: &str, expect: &crate::runid::FileId) -> i32 {
     match child.spawn() {
         Ok(_) => 0,
         Err(_) => {
-            eprintln!("flea: nothing on this system could be asked to run that file in a terminal");
+            eprintln!("dlea: nothing on this system could be asked to run that file in a terminal");
             RUN_SPAWN
         }
     }
 }
 
-// The ask line flea --open prints on its run answer: the kind, the desktop handler's id and own Name (empty for none), the R3 identity and the resolved target.
+// The ask line dlea --open prints on its run answer: the kind, the desktop handler's id and own Name (empty for none), the R3 identity and the resolved target.
 pub fn ask_line(kind: Kind, handler: Option<&(String, String)>, id: &crate::runid::FileId, target: &Path) -> String {
     let (handler_id, handler_name) = handler.map(|(i, n)| (i.as_str(), n.as_str())).unwrap_or_default();
     format!(
@@ -294,7 +294,7 @@ pub fn ask_line(kind: Kind, handler: Option<&(String, String)>, id: &crate::runi
         id.ino,
         id.mtime_s,
         id.mtime_ns,
-        crate::json::escape(&flea::bytename::path_text(target))
+        crate::json::escape(&dlea::bytename::path_text(target))
     )
 }
 
@@ -303,7 +303,7 @@ pub fn open_text(path: &str) -> i32 {
     let target = match canonical(path) {
         Some(p) => p,
         None => {
-            eprintln!("flea: that file could not be opened, check that it still exists");
+            eprintln!("dlea: that file could not be opened, check that it still exists");
             return FAILED;
         }
     };
@@ -312,25 +312,25 @@ pub fn open_text(path: &str) -> i32 {
     }
     let id = crate::desktopid::text_editor();
     if id.is_empty() {
-        eprintln!("flea: no text editor is installed for that file");
+        eprintln!("dlea: no text editor is installed for that file");
         return FAILED;
     }
     // gio launch needs the file, never the bare id the query names.
     let desktop = match crate::desktopid::resolve(&id) {
         Some(found) => found,
         None => {
-            eprintln!("flea: no text editor on this system opened that file");
+            eprintln!("dlea: no text editor on this system opened that file");
             return FAILED;
         }
     };
     match launch(&desktop, &target) {
         Ok(status) if status.success() => 0,
         Ok(_) => {
-            eprintln!("flea: no text editor on this system opened that file");
+            eprintln!("dlea: no text editor on this system opened that file");
             FAILED
         }
         Err(_) => {
-            eprintln!("flea: nothing on this system could be asked to open that file as text");
+            eprintln!("dlea: nothing on this system could be asked to open that file as text");
             RUN_SPAWN
         }
     }
@@ -341,7 +341,7 @@ pub fn open_handler(path: &str, desktop_id: &str, expect: &crate::runid::FileId)
     let target = match canonical(path) {
         Some(p) => p,
         None => {
-            eprintln!("flea: that file could not be opened, check that it still exists");
+            eprintln!("dlea: that file could not be opened, check that it still exists");
             return FAILED;
         }
     };
@@ -351,18 +351,18 @@ pub fn open_handler(path: &str, desktop_id: &str, expect: &crate::runid::FileId)
     let desktop = match crate::desktopid::named_entry(desktop_id) {
         Some((found, _)) => found,
         None => {
-            eprintln!("flea: that application is no longer installed");
+            eprintln!("dlea: that application is no longer installed");
             return RUN_HANDLER_GONE;
         }
     };
     match launch(&desktop, &target) {
         Ok(status) if status.success() => 0,
         Ok(_) => {
-            eprintln!("flea: that application did not open the file");
+            eprintln!("dlea: that application did not open the file");
             FAILED
         }
         Err(_) => {
-            eprintln!("flea: nothing on this system could be asked to open that file");
+            eprintln!("dlea: nothing on this system could be asked to open that file");
             RUN_SPAWN
         }
     }
@@ -372,7 +372,7 @@ pub fn open_handler(path: &str, desktop_id: &str, expect: &crate::runid::FileId)
 fn launcher(desktop: &Path, target: &Path) -> std::process::Command {
     let mut launcher = std::process::Command::new("gio");
     crate::open::prepare(&mut launcher);
-    // A program the card starts keeps neither Flea's private variables nor an inherited descriptor.
+    // A program the card starts keeps neither Dlea's private variables nor an inherited descriptor.
     runharden::harden(&mut launcher);
     launcher
         .arg("launch")

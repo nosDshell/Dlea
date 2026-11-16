@@ -15,13 +15,13 @@ fn inbox_open_errors_name_the_descriptor_that_failed() {
         .unwrap()
         .success());
     for descriptor in ["eventfd", "timerfd"] {
-        let output = Command::new(env!("CARGO_BIN_EXE_flea"))
+        let output = Command::new(env!("CARGO_BIN_EXE_dlea"))
             .arg("--backend")
             .env_clear()
             .env("HOME", d.path())
             .env("XDG_CACHE_HOME", d.path())
             .env("LD_PRELOAD", &library)
-            .env("FLEA_TEST_FAIL_OPEN", descriptor)
+            .env("DLEA_TEST_FAIL_OPEN", descriptor)
             .stdin(Stdio::null())
             .output()
             .unwrap();
@@ -40,8 +40,8 @@ fn inbox_open_errors_name_the_descriptor_that_failed() {
 fn startup_metadata_is_only_the_work_cache_stat() {
     let d = TestDir::new("empty-window-workfile");
     // A plain file answers the sweep's statx, so std makes no availability probe and no sweep thread starts.
-    d.dir("flea");
-    d.file("flea/work", "");
+    d.dir("dlea");
+    d.file("dlea/work", "");
     let (library, counts) = observer(&d);
     let mut backend = Backend::observed(&d, Some((&library, &counts)));
     backend.ask(r#"{"c":"window","start":999,"count":0}"#);

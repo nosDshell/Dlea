@@ -1,6 +1,6 @@
-"""Offline controls for tools/flea-b3-capture: fake launcher, window and compositor; each control names its refusal.
+"""Offline controls for tools/dlea-b3-capture: fake launcher, window and compositor; each control names its refusal.
 
-The fakes stand in for flea, flea-gui, hyprctl and wtype inside a marked mktemp root. They prove the
+The fakes stand in for dlea, dlea-gui, hyprctl and wtype inside a marked mktemp root. They prove the
 driver's admission and arithmetic only; no number here is a measurement.
 """
 import json
@@ -12,7 +12,7 @@ import sys
 import tempfile
 
 HERE = Path(__file__).resolve().parent
-CAPTURE = HERE.parent / 'tools/flea-b3-capture/capture.py'
+CAPTURE = HERE.parent / 'tools/dlea-b3-capture/capture.py'
 
 LAUNCHER = r'''#!/usr/bin/env python3
 import json, os, signal, sys, time
@@ -20,10 +20,10 @@ from pathlib import Path
 state = Path(os.environ['FAKE_STATE'])
 argv = sys.argv[1:]
 if argv == ['--version']:
-    print('flea 0.4.0-fake'); sys.exit(0)
+    print('dlea 0.4.0-fake'); sys.exit(0)
 if argv[:1] == ['--gui']:
-    os.execv(sys.executable, [sys.executable, str(Path(__file__).with_name('flea-gui')), argv[1]])
-assert argv[:2] == ['ipc', '--pid'] and argv[3:5] == ['call', 'flea'], argv
+    os.execv(sys.executable, [sys.executable, str(Path(__file__).with_name('dlea-gui')), argv[1]])
+assert argv[:2] == ['ipc', '--pid'] and argv[3:5] == ['call', 'dlea'], argv
 pid, function = int(argv[2]), argv[5]
 gui = json.loads((state / 'gui.json').read_text())
 assert gui['pid'] == pid, 'ipc reached a foreign pid'
@@ -112,7 +112,7 @@ def run(root, scenario, query='needle', manifest=None, cgroup=False):
     env = dict(os.environ, PATH=f'{bin_dir}:{os.environ["PATH"]}', FAKE_STATE=str(state),
                FAKE_SCENARIO=scenario, XDG_RUNTIME_DIR=str(root / 'run'), WAYLAND_DISPLAY='wayland-9')
     out = root / f'out-{scenario}-{query}'
-    argv = [sys.executable, '-B', str(CAPTURE), 'run', '--flea', str(bin_dir / 'flea'),
+    argv = [sys.executable, '-B', str(CAPTURE), 'run', '--dlea', str(bin_dir / 'dlea'),
             '--corpus', str(manifest or root / 'corpus.json'), '--query', query, '--output', str(out),
             '--timeout', '8' if scenario in ('stuck', 'pending') else '90', '--tool-timeout', '30', '--poll', '0.05', '--offline', *(['--check-cgroup'] if cgroup else [])]
     done = subprocess.run(argv, env=env, capture_output=True, text=True, timeout=60)
@@ -145,10 +145,10 @@ def blocked(root, scenario, code, rc=3, **options):
 def main():
     parent = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(tempfile.gettempdir())
     root = Path(tempfile.mkdtemp(prefix='bench-b3-capture.', dir=parent))
-    (root / '.flea-test-sandbox').touch()
+    (root / '.dlea-test-sandbox').touch()
     bin_dir = root / 'bin'
     bin_dir.mkdir()
-    for name, body in (('flea', LAUNCHER), ('flea-gui', GUI), ('hyprctl', HYPRCTL), ('wtype', WTYPE)):
+    for name, body in (('dlea', LAUNCHER), ('dlea-gui', GUI), ('hyprctl', HYPRCTL), ('wtype', WTYPE)):
         (bin_dir / name).write_text(body)
         (bin_dir / name).chmod(0o700)
     (root / 'run').mkdir()

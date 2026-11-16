@@ -2,7 +2,7 @@
 # The Grid rename editor proof of 0.3.7, driven headless through its node driver.
 set -u
 cd "$(dirname "$0")/.." || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 # A private D-Bus session for the offscreen run; the driver execs qml6, never qs.
 command -v dbus-run-session >/dev/null || { echo 'FAIL rename-grid-bottom needs a private D-Bus session'; exit 1; }
 # The driver itself needs these; each names what is missing.
@@ -11,7 +11,7 @@ command -v node >/dev/null || { echo 'FAIL rename-grid-bottom needs node'; exit 
 command -v timeout >/dev/null || { echo 'FAIL rename-grid-bottom needs timeout'; exit 1; }
 command -v ffmpeg >/dev/null || { echo 'FAIL rename-grid-bottom needs ffmpeg'; exit 1; }
 sandbox_root_ok
-probe=$(mktemp -d "$SANDBOX_ROOT/flea-rename-grid-bottom.XXXXXX") || exit 1
+probe=$(mktemp -d "$SANDBOX_ROOT/dlea-rename-grid-bottom.XXXXXX") || exit 1
 : > "$probe/$SANDBOX_MARKER" || exit 1
 driver_pid=""
 stop_driver() {
@@ -42,8 +42,8 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 log="$probe/driver.log"
 # Offscreen private session, owned process group, so teardown kills qml6 too.
-env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u FLEA_SELECT \
-    FLEA_RENAME_GRID_ROOT="$probe" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
+env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u DLEA_SELECT \
+    DLEA_RENAME_GRID_ROOT="$probe" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
     QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 setsid dbus-run-session -- node tests/rename-grid-bottom.js >"$log" 2>&1 </dev/null &
 driver_pid=$!
 # Seven qml6 cases at 15s each, polled every 0.1 s for at most three minutes; the driver exits on its own, so a red run ends at once.

@@ -35,7 +35,7 @@ DUPDECL_FIXTURES = {
 # The qmllint command places its JSON output before the requested source paths.
 QMLLINT_JSON_ARGUMENT = 2
 QMLLINT_FIRST_FILE_ARGUMENT = 3
-REAL_QMLLINT = Path(os.environ.get('FLEA_QMLLINT', '/usr/lib/qt6/bin/qmllint'))
+REAL_QMLLINT = Path(os.environ.get('DLEA_QMLLINT', '/usr/lib/qt6/bin/qmllint'))
 
 
 class StaticGateTests(unittest.TestCase):
@@ -74,7 +74,7 @@ class StaticGateTests(unittest.TestCase):
             Path(command[QMLLINT_JSON_ARGUMENT]).write_text(json.dumps(data))
             return subprocess.CompletedProcess(command, 0, stdout='', stderr='')
 
-        with mock.patch.dict(os.environ, {'FLEA_QMLLINT': sys.executable}):
+        with mock.patch.dict(os.environ, {'DLEA_QMLLINT': sys.executable}):
             with mock.patch.object(gates.subprocess, 'run', side_effect=run) as called:
                 with contextlib.redirect_stdout(io.StringIO()):
                     yield called
@@ -118,7 +118,7 @@ class StaticGateTests(unittest.TestCase):
                    'sys.path.insert(0, sys.argv[1]); from staticgates import inventory; '
                    'print(json.dumps(inventory(Path(sys.argv[2]))))')
         result = subprocess.run([sys.executable, '-B', '-c', program, str(Path(gates.__file__).parent), str(self.root)],
-                                env={**os.environ, 'PATH': str(empty_path), 'FLEA_SOURCE_ARCHIVE': str(archive)},
+                                env={**os.environ, 'PATH': str(empty_path), 'DLEA_SOURCE_ARCHIVE': str(archive)},
                                 capture_output=True, text=True)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(result.stdout.strip(), '["sample.txt"]')
@@ -447,7 +447,7 @@ class StaticGateTests(unittest.TestCase):
         self.assertEqual(called.call_args.args[0][QMLLINT_FIRST_FILE_ARGUMENT:], ['ui/A.qml'])
 
     def test_F11_qmllint_skips_inventory_with_only_missing_files(self):
-        with mock.patch.dict(os.environ, {'FLEA_QMLLINT': str(self.root / 'unavailable')}):
+        with mock.patch.dict(os.environ, {'DLEA_QMLLINT': str(self.root / 'unavailable')}):
             self.assertEqual(gates.qml_undeclared_read(self.root, ['ui/Old.qml'], sample=True), (0, []))
 
     def test_F12_markdown_setext_heading_passes(self):
@@ -608,18 +608,18 @@ class StaticGateTests(unittest.TestCase):
                          (1, ['ui/Plain.js:7: wire declared again (first at 1)']))
 
     def test_duplicate_member_qmlcachegen_override_and_fallback(self):
-        with mock.patch.dict(os.environ, {'FLEA_QMLCACHEGEN': sys.executable}):
+        with mock.patch.dict(os.environ, {'DLEA_QMLCACHEGEN': sys.executable}):
             self.assertEqual(gates.qmlcachegen_binary(), sys.executable)
-        with mock.patch.dict(os.environ, {'FLEA_QMLCACHEGEN': str(self.root / 'missing')}):
+        with mock.patch.dict(os.environ, {'DLEA_QMLCACHEGEN': str(self.root / 'missing')}):
             with mock.patch.object(gates, 'QMLCACHEGEN_PATHS', (sys.executable,)):
-                with self.assertRaisesRegex(ValueError, 'FLEA_QMLCACHEGEN is not an executable file: ' + str(self.root / 'missing')):
+                with self.assertRaisesRegex(ValueError, 'DLEA_QMLCACHEGEN is not an executable file: ' + str(self.root / 'missing')):
                     gates.qmlcachegen_binary()
         self.write('ui/plain.txt', 'not a compiler\n')
-        with mock.patch.dict(os.environ, {'FLEA_QMLCACHEGEN': str(self.root / 'ui/plain.txt')}):
+        with mock.patch.dict(os.environ, {'DLEA_QMLCACHEGEN': str(self.root / 'ui/plain.txt')}):
             with mock.patch.object(gates, 'QMLCACHEGEN_PATHS', (sys.executable,)):
                 with self.assertRaisesRegex(ValueError, 'not an executable file'):
                     gates.qmlcachegen_binary()
-        env = {k: v for k, v in os.environ.items() if k != 'FLEA_QMLCACHEGEN'}
+        env = {k: v for k, v in os.environ.items() if k != 'DLEA_QMLCACHEGEN'}
         with mock.patch.dict(os.environ, env, clear=True):
             with mock.patch.object(gates, 'QMLCACHEGEN_PATHS', (str(self.root / 'absent'), sys.executable)):
                 self.assertEqual(gates.qmlcachegen_binary(), sys.executable)
@@ -627,7 +627,7 @@ class StaticGateTests(unittest.TestCase):
     def test_duplicate_member_missing_qmlcachegen_is_loud(self):
         override = str(self.root / 'override')
         fallback = str(self.root / 'fallback')
-        env = {k: v for k, v in os.environ.items() if k != 'FLEA_QMLCACHEGEN'}
+        env = {k: v for k, v in os.environ.items() if k != 'DLEA_QMLCACHEGEN'}
         with mock.patch.dict(os.environ, env, clear=True):
             with mock.patch.object(gates, 'QMLCACHEGEN_PATHS', (override, fallback)):
                 with self.assertRaisesRegex(ValueError, 'qmlcachegen unavailable; tried: ' + override + ', ' + fallback):
@@ -738,7 +738,7 @@ class StaticGateTests(unittest.TestCase):
             'vanished binary': ({'side_effect': FileNotFoundError('qmllint vanished')}, 'qmllint vanished'),
         }
         for name, (kwargs, reason) in failures.items():
-            with self.subTest(failure=name), mock.patch.dict(os.environ, {'FLEA_QMLLINT': sys.executable}):
+            with self.subTest(failure=name), mock.patch.dict(os.environ, {'DLEA_QMLLINT': sys.executable}):
                 with mock.patch.object(gates.subprocess, 'run', **kwargs) as called:
                     count, errors = gates.qml_undeclared_read(self.root, ['ui/A.qml'])
                 self.assertEqual(count, 1)
@@ -746,7 +746,7 @@ class StaticGateTests(unittest.TestCase):
                 self.assertTrue(errors[0].startswith('qmllint import probe failed: ' + reason), errors)
                 self.assertEqual(called.call_count, 1, 'the main qmllint run followed a failed probe')
         output = io.StringIO()
-        with mock.patch.dict(os.environ, {'FLEA_QMLLINT': sys.executable}):
+        with mock.patch.dict(os.environ, {'DLEA_QMLLINT': sys.executable}):
             with mock.patch.object(gates.subprocess, 'run', **failures['timeout'][0]):
                 with mock.patch.object(sys, 'argv', ['staticgates.py', '--gate', 'qml-undeclared-read', '--root', str(self.root)]):
                     with mock.patch.object(gates, 'inventory', return_value=['ui/A.qml']):

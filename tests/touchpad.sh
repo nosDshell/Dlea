@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # tp1 touchpad plus tp2 elastic edges: fake wheels and an injected clock drive FastScrollHandler on a real ui/List.qml over 3000 rows, offscreen with no display or lock.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -11,18 +11,18 @@ if ! command -v qs >/dev/null; then
 fi
 
 # The uinput struct check needs no device, so it runs wherever the scroll probe runs.
-python3 "$PWD/tools/flea-touchpad" check || exit 1
+python3 "$PWD/tools/dlea-touchpad" check || exit 1
 
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-touchpad.XXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-touchpad.XXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER" || exit 1
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/touchpad.qml "$test_root/config/shell.qml" || exit 1

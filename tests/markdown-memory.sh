@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Prove Markdown Loader activation and plain-text teardown; statically pin four panes without direct Layouts imports.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 # A file path, not an inline Component: nothing compiles at startup.
@@ -10,7 +10,7 @@ grep -q 'source: root.isHtml ? "HtmlPane.qml" : "MarkdownPane.qml"' ui/Preview.q
     || { echo "FAIL Quick Look builds its Markdown bar eagerly"; exit 1; }
 grep -q 'source: root.isHtmlRow ? "PreviewHtml.qml" : "PreviewMarkdown.qml"' ui/PreviewColumn.qml \
     || { echo "FAIL the column builds its Markdown pane eagerly"; exit 1; }
-if grep -nE '^[[:space:]]*(Flea\.)?(PreviewMarkdown|MarkdownPane|PreviewHtml|HtmlPane)[[:space:]]*\{' ui/Preview.qml ui/PreviewColumn.qml; then
+if grep -nE '^[[:space:]]*(Dlea\.)?(PreviewMarkdown|MarkdownPane|PreviewHtml|HtmlPane)[[:space:]]*\{' ui/Preview.qml ui/PreviewColumn.qml; then
     echo "FAIL a document pane is instantiated directly"
     exit 1
 fi
@@ -26,14 +26,14 @@ if ! command -v qs >/dev/null; then
     exit 1
 fi
 
-test_root="$FIXTURE_ROOT/flea-markdown-memory-$$"
+test_root="$FIXTURE_ROOT/dlea-markdown-memory-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/cache" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/markdown-memory.qml "$test_root/config/shell.qml" || exit 1
@@ -42,7 +42,7 @@ printf "# Markdown\n" > "$test_root/note.md" || exit 1
 
 output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_MARKDOWN_MEMORY_ROOT="$test_root" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_MARKDOWN_MEMORY_ROOT="$test_root" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 \
     timeout 60 qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 

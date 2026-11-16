@@ -13,11 +13,11 @@ fn kind_lang_mime_override_never_uses_english_fallback() {
     let mut catalog = I18n::load(paths);
     assert_eq!(catalog.mime_comment("text/markdown"), None);
     root.file("language", "ja");
-    root.file("catalog/ja/flea.json", r#"{"mime.markdown":"Markdown 文書"}"#);
+    root.file("catalog/ja/dlea.json", r#"{"mime.markdown":"Markdown 文書"}"#);
     assert!(catalog.poll_changed());
     assert_eq!(catalog.mime_comment("text/markdown"), Some("Markdown 文書"));
     assert_eq!(catalog.mime_comment("image/png"), None);
-    root.file("catalog/ja/flea.json", r#"{"mime.markdown":""}"#);
+    root.file("catalog/ja/dlea.json", r#"{"mime.markdown":""}"#);
     assert!(catalog.poll_changed());
     assert_eq!(catalog.mime_comment("text/markdown"), None);
 }
@@ -33,7 +33,7 @@ impl Fixture {
         assert!(output.status.success());
         let path = PathBuf::from(String::from_utf8(output.stdout).unwrap().trim());
         assert!(path.is_absolute() && path.starts_with(&base) && path != base);
-        fs::write(path.join(".i18n-test-root"), b"flea i18n test\n").unwrap();
+        fs::write(path.join(".i18n-test-root"), b"dlea i18n test\n").unwrap();
         Self(path)
     }
 
@@ -92,12 +92,12 @@ fn selected_catalogs_layer_over_source_with_per_string_and_english_plural_fallba
     let f = Fixture::new();
     f.registry();
     f.write("config/omarchy/language", "ru\n");
-    f.write("source/i18n/ru/flea.json", r#"{"folder.empty":"Пусто","operation.failed":"Не удалось %1: %2"}"#);
-    f.write("installed/i18n/ru/flea.json", r#"{"folder.empty":"","items.count":{"one":"%1 файл","few":"%1 файла","many":"%1 файлов","other":"%1 файла"},"selection.count":{},"app.name":false,"unowned":"No"}"#);
+    f.write("source/i18n/ru/dlea.json", r#"{"folder.empty":"Пусто","operation.failed":"Не удалось %1: %2"}"#);
+    f.write("installed/i18n/ru/dlea.json", r#"{"folder.empty":"","items.count":{"one":"%1 файл","few":"%1 файла","many":"%1 файлов","other":"%1 файла"},"selection.count":{},"app.name":false,"unowned":"No"}"#);
     let i = I18n::load(f.paths());
     assert_eq!(i.language(), "ru");
     assert_eq!(i.tr("folder.empty"), "This folder is empty");
-    assert_eq!(i.tr("app.name"), "Flea");
+    assert_eq!(i.tr("app.name"), "Dlea");
     assert_eq!(i.tr_args("operation.failed", &["open", "denied"]), "Не удалось open: denied");
     assert_eq!(i.trn("items.count", 21), "21 файл");
     assert_eq!(i.trn("items.count", 22), "22 файла");
@@ -111,7 +111,7 @@ fn missing_translation_forms_use_other_before_english() {
     let f = Fixture::new();
     f.registry();
     f.write("config/omarchy/language", "ar");
-    f.write("installed/i18n/ar/flea.json", r#"{"items.count":{"other":"%1 translated"}}"#);
+    f.write("installed/i18n/ar/dlea.json", r#"{"items.count":{"other":"%1 translated"}}"#);
     let i = I18n::load(f.paths());
     assert_eq!(i.trn("items.count", 2), "2 translated");
     assert!(i.locale().right_to_left);
@@ -124,26 +124,26 @@ fn a_gui_line_opening_in_latin_takes_the_rtl_locales_direction() {
     f.registry();
     f.write("config/omarchy/language", "ar");
     f.write(
-        "installed/i18n/en/flea.json",
+        "installed/i18n/en/dlea.json",
         r#"{"copy.done":"Copied %1","copy.lead":"Copied %1","isolated":"Copied"}"#,
     );
     f.write(
-        "installed/i18n/ar/flea.json",
-        r#"{"app.name":"Flea","copy.done":"Flea نسخ %1","copy.lead":"%1 منسوخ","items.count":{"other":"Flea فيه %1"},"isolated":"\u2068Flea\u2069 نسخ"}"#,
+        "installed/i18n/ar/dlea.json",
+        r#"{"app.name":"Dlea","copy.done":"Dlea نسخ %1","copy.lead":"%1 منسوخ","items.count":{"other":"Dlea فيه %1"},"isolated":"\u2068Dlea\u2069 نسخ"}"#,
     );
     let tui = I18n::load(f.paths());
     let mut gui = tui.clone();
     gui.mark_paragraphs();
-    assert_eq!(tui.tr_args("copy.done", &["a.txt"]), "Flea نسخ a.txt");
-    assert_eq!(gui.tr_args("copy.done", &["a.txt"]), "\u{200f}Flea نسخ a.txt");
-    assert_eq!(gui.trn("items.count", 3), "\u{200f}Flea فيه 3");
+    assert_eq!(tui.tr_args("copy.done", &["a.txt"]), "Dlea نسخ a.txt");
+    assert_eq!(gui.tr_args("copy.done", &["a.txt"]), "\u{200f}Dlea نسخ a.txt");
+    assert_eq!(gui.trn("items.count", 3), "\u{200f}Dlea فيه 3");
     // A line that opens in its own script, in a placeholder, in an isolate or in Latin alone keeps its text.
-    assert_eq!(gui.tr("app.name"), "Flea");
+    assert_eq!(gui.tr("app.name"), "Dlea");
     assert_eq!(gui.tr_args("copy.lead", &["a.txt"]), "a.txt منسوخ");
-    assert_eq!(gui.tr("isolated"), "\u{2068}Flea\u{2069} نسخ");
+    assert_eq!(gui.tr("isolated"), "\u{2068}Dlea\u{2069} نسخ");
     assert_eq!(gui.tr("folder.empty"), "This folder is empty");
     gui.reload();
-    assert_eq!(gui.tr_args("copy.done", &["a.txt"]), "\u{200f}Flea نسخ a.txt");
+    assert_eq!(gui.tr_args("copy.done", &["a.txt"]), "\u{200f}Dlea نسخ a.txt");
 }
 
 #[test]
@@ -167,7 +167,7 @@ fn omarchy_words_include_flat_keys_menu_fields_key_names_and_english_fallback() 
     f.write("omarchy/default/i18n/en/keybindings.json", r#"{"Close window":"Close window"}"#);
     f.write("omarchy/default/i18n/de/keybindings.json", r#"{"Close window":"Fenster schließen"}"#);
     f.write("omarchy/default/i18n/en/cli.json", r#"{"common.yes":"Yes"}"#);
-    f.write("source/i18n/en/flea.json", r#"{"search":"omarchy:shell.common.search"}"#);
+    f.write("source/i18n/en/dlea.json", r#"{"search":"omarchy:shell.common.search"}"#);
     let i = I18n::load(f.paths());
     assert_eq!(i.tr("omarchy:shell.common.search"), "Suchen");
     assert_eq!(i.tr("omarchy:shell.common.cancel"), "Cancel");
@@ -196,7 +196,7 @@ const OMARCHY_REFERENCES: [(&str, &str); 17] = [
 
 #[test]
 fn omarchy_references_draw_english_words_without_omarchy_catalogs() {
-    let english = include_str!("../../i18n/en/flea.json");
+    let english = include_str!("../../i18n/en/dlea.json");
     assert_eq!(english.matches("\"omarchy:").count(), OMARCHY_REFERENCES.len(), "every omarchy: reference is pinned here");
     let f = Fixture::new();
     f.write("config/omarchy/language", "de");
@@ -233,7 +233,7 @@ fn watcher_follows_creation_atomic_replacement_removal_and_catalog_updates() {
     assert!(i.poll_changed());
     assert_eq!(i.language(), "de");
     assert!(!i.poll_changed());
-    f.write("installed/i18n/de/flea.json", r#"{"folder.empty":"Leer"}"#);
+    f.write("installed/i18n/de/dlea.json", r#"{"folder.empty":"Leer"}"#);
     assert!(i.poll_changed());
     assert_eq!(i.tr("folder.empty"), "Leer");
     f.write("config/omarchy/next", "fa");
@@ -250,7 +250,7 @@ fn watcher_follows_creation_atomic_replacement_removal_and_catalog_updates() {
 fn malformed_catalogs_and_registry_do_not_break_english_lookup() {
     let f = Fixture::new();
     f.write("omarchy/default/i18n/locales.json", "{broken");
-    f.write("installed/i18n/en/flea.json", "[1,2,3]");
+    f.write("installed/i18n/en/dlea.json", "[1,2,3]");
     let i = I18n::load(f.paths());
     assert_eq!(i.language(), "en");
     assert_eq!(i.tr("folder.empty"), "This folder is empty");
@@ -296,7 +296,7 @@ fn dates_keep_fixed_fields_and_use_digits_without_mutating_global_locale() {
     assert_eq!(&date[10..11], " ");
     assert_eq!(&date[13..14], ":");
     assert!(date.chars().all(|c| c.is_ascii_digit() || "- :".contains(c)));
-    let fa = Locale { zero_digit: '۰', glibc_locale: "missing_FLEA_TEST".into(), ..locale };
+    let fa = Locale { zero_digit: '۰', glibc_locale: "missing_DLEA_TEST".into(), ..locale };
     let persian = fa.format_date(1_750_000_000).unwrap();
     assert_eq!(persian.chars().count(), 16);
     assert!(persian.chars().all(|c| ('۰'..='۹').contains(&c) || "- :".contains(c)));

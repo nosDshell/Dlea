@@ -236,7 +236,7 @@ fn a_dangling_link_is_stored_as_a_link_by_every_writer() {
         let d = TestDir::new("archdangling");
         d.dir("src");
         d.file("src/a.txt", "body");
-        std::os::unix::fs::symlink("/nonexistent-flea-target", d.join("src/dangling")).expect("link");
+        std::os::unix::fs::symlink("/nonexistent-dlea-target", d.join("src/dangling")).expect("link");
         let dest = d.join(&format!("out.{format}"));
         let argv = formats.compress_argv(format, &dest, d.path(), &["src".to_string()]).expect("argv");
         assert_eq!(argv[0], tool, "the {format} arm runs {tool}: {argv:?}");
@@ -251,7 +251,7 @@ fn a_dangling_link_is_stored_as_a_link_by_every_writer() {
         let stored = if tool == "7z" {
             text.split("\n\n").any(|e| e.contains("Path = src/dangling") && e.contains("lrwx"))
         } else {
-            text.contains("src/dangling -> /nonexistent-flea-target")
+            text.contains("src/dangling -> /nonexistent-dlea-target")
         };
         assert!(stored, "{tool} {format} stored the dangling link as a link: {text}");
     }
@@ -284,7 +284,7 @@ fn the_compressor_shares_the_extracts_uncapped_jail() {
 // X1: a cancel answers only after the last writer's EOF, bounded; a sleeping writer stands in with no jail.
 #[test]
 fn a_cancel_drains_the_last_writer_before_it_answers() {
-    let mut writer = std::process::Command::new(flea::testpath::tool("/usr/bin/sleep"))
+    let mut writer = std::process::Command::new(dlea::testpath::tool("/usr/bin/sleep"))
         .arg("1")
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::piped())

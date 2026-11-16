@@ -2,7 +2,7 @@
 use super::copyfile::{copy_any, move_any, Progress};
 use super::opsreq::{OpMsg, PROGRESS_EVERY};
 use super::undo::{self, Entry, ItemIdentity, Step};
-use crate::error::{from_io, FleaError};
+use crate::error::{from_io, DleaError};
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -24,8 +24,8 @@ pub(crate) struct Replay {
 pub(crate) type SavedStep = (Step, Option<ItemIdentity>, Option<(PathBuf, ItemIdentity)>);
 pub(crate) type SavedSteps = Vec<SavedStep>;
 
-fn error(path: &Path, message: &str) -> FleaError {
-    FleaError { where_: "redo".into(), path: path.to_string_lossy().into(), msg: message.into() }
+fn error(path: &Path, message: &str) -> DleaError {
+    DleaError { where_: "redo".into(), path: path.to_string_lossy().into(), msg: message.into() }
 }
 
 // Sample output: "1 item was left in place: a: no", or "2 items were left in place: a: no; b: no".
@@ -68,7 +68,7 @@ fn vacates(vacated: &HashSet<&Path>, path: &Path) -> bool {
 }
 
 impl Replay {
-    pub fn capture(entry: Entry) -> Result<Self, FleaError> {
+    pub fn capture(entry: Entry) -> Result<Self, DleaError> {
         let mut steps = Vec::new();
         for step in entry.steps {
             // A convert's step names the file it read, and a copy of that file is not the conversion.
@@ -82,7 +82,7 @@ impl Replay {
             let parent = destination(&step).map(|path| {
                 let parent = path.parent().filter(|p| p.is_absolute())
                     .ok_or_else(|| error(path, "the destination has no absolute parent"))?;
-                Ok::<_, FleaError>((parent.to_path_buf(), ItemIdentity::inspect(parent)?))
+                Ok::<_, DleaError>((parent.to_path_buf(), ItemIdentity::inspect(parent)?))
             }).transpose()?;
             steps.push(ReplayStep { step, input, parent });
         }
@@ -111,7 +111,7 @@ impl Replay {
             super::undorebase::rebase_step(&mut saved.step, moved);
         }
     }
-    fn check(saved: &ReplayStep, vacated: bool) -> Result<(), FleaError> {
+    fn check(saved: &ReplayStep, vacated: bool) -> Result<(), DleaError> {
         if let (Some(path), Some(identity)) = (source(&saved.step), &saved.input) {
             // A tag write moves the file's ctime, so a tag step is judged by the item alone and its replay compares the tags.
             let judge: fn(&ItemIdentity, &ItemIdentity) -> bool = if matches!(saved.step, Step::Tags { .. }) { ItemIdentity::same_item } else { ItemIdentity::unchanged_for_move };
@@ -137,7 +137,7 @@ impl Replay {
         Ok(())
     }
     pub fn run(self, id: usize, cancel: &AtomicBool, tx: &Sender<OpMsg>)
-        -> (Entry, Vec<(ItemIdentity, ItemIdentity)>, Result<String, FleaError>) {
+        -> (Entry, Vec<(ItemIdentity, ItemIdentity)>, Result<String, DleaError>) {
         let mut entry = Entry { op: self.op.clone(), steps: Vec::new() };
         let mut changes = Vec::new();
         let result = (|| {
@@ -183,7 +183,7 @@ impl Replay {
     }
 }
 
-fn apply(saved: &ReplayStep, id: usize, index: usize, cancel: &AtomicBool, tx: &Sender<OpMsg>, steps: &mut Vec<Step>) -> Result<(), FleaError> {
+fn apply(saved: &ReplayStep, id: usize, index: usize, cancel: &AtomicBool, tx: &Sender<OpMsg>, steps: &mut Vec<Step>) -> Result<(), DleaError> {
     match &saved.step {
         Step::Copied { from, to, .. } | Step::Moved { from, to, .. } => {
             let identity = ItemIdentity::inspect(from)?;

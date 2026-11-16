@@ -1,4 +1,4 @@
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::{archivework::Work, codereq, htmlcache, htmldeps, jail, opsreq::OpMsg, regfile, sandbox, thumbcache};
 use crate::json::{escape, field_bool, field_str, field_usize};
 use std::io::{Read, Write};
@@ -107,12 +107,12 @@ fn confined_html(bytes: &[u8]) -> Vec<u8> {
 
 fn render(ask: &Ask, ticket: &codereq::Ticket) -> Option<String> {
     if ticket.superseded()
-        || !flea::bytename::view(&ask.path).is_absolute()
+        || !dlea::bytename::view(&ask.path).is_absolute()
         || !sandbox::available()
     {
         return None;
     }
-    let path = flea::bytename::view(&ask.path).canonicalize().ok()?;
+    let path = dlea::bytename::view(&ask.path).canonicalize().ok()?;
     let (file, meta) = regfile::open_if_regular_with_meta(&path, 0).ok()?;
     if meta.len() > MAX_BYTES {
         return None;

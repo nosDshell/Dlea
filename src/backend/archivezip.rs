@@ -1,6 +1,6 @@
 // 7z's zip writer blocks opening a FIFO and libarchive reads a zip's backslash as a separator, so one walk plans each zip first.
 use crate::backend::opsreq::op_err;
-use crate::error::FleaError;
+use crate::error::DleaError;
 use std::os::unix::ffi::OsStrExt;
 use std::os::unix::fs::FileTypeExt;
 use std::path::{Path, PathBuf};
@@ -23,7 +23,7 @@ fn special(kind: &std::fs::FileType) -> bool {
     kind.is_fifo() || kind.is_socket() || kind.is_char_device() || kind.is_block_device()
 }
 
-fn backslash(rel: &Path) -> Result<(), FleaError> {
+fn backslash(rel: &Path) -> Result<(), DleaError> {
     if rel.as_os_str().as_bytes().contains(&b'\\') {
         let shown = rel.to_string_lossy();
         return Err(op_err(
@@ -36,14 +36,14 @@ fn backslash(rel: &Path) -> Result<(), FleaError> {
 }
 
 // A selected special file is dropped; a selection of nothing else is refused rather than written as an empty zip.
-pub fn plan(parent: &Path, names: &[String], cancel: &AtomicBool) -> Result<Plan, FleaError> {
+pub fn plan(parent: &Path, names: &[String], cancel: &AtomicBool) -> Result<Plan, DleaError> {
     let mut plan = Plan {
         names: Vec::with_capacity(names.len()),
         skipped: Vec::new(),
     };
     let mut dirs: Vec<PathBuf> = Vec::new();
     for name in names {
-        let rel = flea::bytename::exact(name.as_str());
+        let rel = dlea::bytename::exact(name.as_str());
         backslash(&rel)?;
         match parent.join(&rel).symlink_metadata() {
             Ok(meta) if special(&meta.file_type()) => continue,

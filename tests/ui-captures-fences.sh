@@ -2,13 +2,13 @@
 # Runs the fence14 case's README reader and ui/js/Markdown.js on every fixture the case pins, on fence shapes a README may grow and on the README, so both halves agree before a capture.
 set -uo pipefail
 repo="$(cd "$(dirname "$0")/.." && pwd)" || exit 1
-. "$repo/tools/flea-sandbox-guard"
+. "$repo/tools/dlea-sandbox-guard"
 . "$repo/tests/ui-captures-markdown.sh"
 for tool in jq qml6 expand; do
     command -v "$tool" >/dev/null || { printf 'FAIL ui-captures-fences: %s is required\n' "$tool"; exit 1; }
 done
 sandbox_root_ok
-scratch=$(mktemp -d "$SANDBOX_ROOT/flea-capfences.XXXXXX") || exit 1
+scratch=$(mktemp -d "$SANDBOX_ROOT/dlea-capfences.XXXXXX") || exit 1
 : > "$scratch/$SANDBOX_MARKER"
 trap 'sandbox_remove "$scratch"' EXIT
 checks=0
@@ -64,7 +64,7 @@ shape item-ends-fence '- a\n\n  ```sh\n  ls\nafter\n\n```toml\nk = 1\n```\n' fen
 # The README has no pinned row, so its reader is held to the parser's row.
 readme="$scratch/listing/fence-readme.md"
 declare -A built=()
-# Sample input: "qml: FENCES /tmp/flea-capfences.x/shapes/quote.md fence:js", the tagged fences ui/js/Markdown.js builds for one file.
+# Sample input: "qml: FENCES /tmp/dlea-capfences.x/shapes/quote.md fence:js", the tagged fences ui/js/Markdown.js builds for one file.
 fences_line_re='FENCES ([^ ]+) (.*)$'
 while IFS= read -r line; do
     [[ "$line" =~ $fences_line_re ]] && built[${BASH_REMATCH[1]}]="${BASH_REMATCH[2]}"

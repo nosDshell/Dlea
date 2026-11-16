@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-quicklook-rect-test
+//@ pragma ShellId dlea-quicklook-rect-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/PreviewKeys.js" as PreviewKeys
+import "dlea" as Dlea
+import "dlea/js/PreviewKeys.js" as PreviewKeys
 
 // Sample output: "QLRECT CASE pdf 485x712 frames=14 reveal=41ms" is one Quick Look open at 1200 x 760 whose every revealed frame drew that surface.
 // The real window, listing and backend: code, a PDF and a portrait picture open at their tall rect on the first revealed frame, and no shown surface resizes until close.
@@ -275,8 +275,8 @@ ShellRoot {
         var list = []
         list.push({ label: "code", name: "a-main.rs", want: "984x712" })
         // The board's 485 is the A4 page over the window's height less the edges and the top bar, 27 px at base 14; this box's bar is Theme.chromeHeight.
-        var pdfW = Math.ceil((760 - 2 * Flea.Theme.preview.edge - Flea.Theme.chromeHeight) * 595 / 842)
-        root.log("BAR chromeHeight=" + Flea.Theme.chromeHeight + " baseSize=" + Flea.Theme.baseSize)
+        var pdfW = Math.ceil((760 - 2 * Dlea.Theme.preview.edge - Dlea.Theme.chromeHeight) * 595 / 842)
+        root.log("BAR chromeHeight=" + Dlea.Theme.chromeHeight + " baseSize=" + Dlea.Theme.baseSize)
         list.push({ label: "pdf", name: "b-doc.pdf", want: pdfW + "x712" })
         list.push({ label: "portrait", name: "d-portrait.png", want: "330x712" })
         for (var i = 0; i < root.revealRuns; i++)

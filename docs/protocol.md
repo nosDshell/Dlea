@@ -1,6 +1,6 @@
-# Flea backend protocol
+# Dlea backend protocol
 
-One JSON object per line, newline-delimited, over the `flea --backend` child's stdin
+One JSON object per line, newline-delimited, over the `dlea --backend` child's stdin
 and stdout. No batching, no length prefix: `Quickshell.Io.Process` reads with a
 `SplitParser` on `\n`. Implemented in `src/backend/proto.rs` over the field scanner and
 escaper in `src/json.rs`, dispatched by `src/backend/run.rs`.
@@ -566,7 +566,7 @@ own lines after the walk's terminal `searched`.
 
 **A query may carry `tag:<name>` terms beside the fuzzy text**, `tag:Red holiday` matching files
 that carry the Red tag and fuzzy-match `holiday`. The name matches case-insensitively, and any
-Flea or foreign name is accepted. Every named tag must be present. The attribute is read only on
+Dlea or foreign name is accepted. Every named tag must be present. The attribute is read only on
 files the walk visits, one `getxattr` each, never swept ahead of it.
 
 ### searchcancel
@@ -792,7 +792,7 @@ is scored once per query. Unknown and non-ASCII classes bypass this rejection.
 
 Typo-only matching starts at a word boundary and permits letter replacement,
 insertion, deletion and adjacent swap, including the first letter. A dropped
-query letter counts only where the matched word ends, so `flea` never matches
+query letter counts only where the matched word ends, so `dlea` never matches
 the prefix `fla` of `flac`. Typo-only matches are listed only when no basename
 holds the query exactly, as its prefix or at a word start; with a tag term,
 only the basenames that carry its tags count. The budget
@@ -1005,7 +1005,7 @@ Example: `{"c":"transfer","op":"copy","paths":["/home/gm/a.txt","/home/gm/photos
 
 Copies or moves each top-level path into `dest`. `op` of `"move"` moves; **anything else, including a
 missing `op`, copies**, so a malformed request can never remove a source. `paths` are absolute; `dest`
-is an absolute directory that must already exist, because Flea does not create a destination as a side
+is an absolute directory that must already exist, because Dlea does not create a destination as a side
 effect of a transfer. A `dest` that is missing, relative, not a directory, or cannot be written answers a single `error`
 line with `where` of `transfer` and nothing is started.
 
@@ -1071,7 +1071,7 @@ the item's own failure with the reason as its `err`. Each entry is named on `tra
 destination classes usb, phone or network, sits on a disk that can be pulled out which that class does not
 name (an SD card in a PCI reader, a drive behind a Thunderbolt or USB4 port, a btrfs or dm-crypt stick,
 see `src/backend/removable.rs`), or its filesystem is vfat, exfat or ntfs, each file is
-fsync'd after its last write and every directory Flea created or wrote into is fsync'd before the
+fsync'd after its last write and every directory Dlea created or wrote into is fsync'd before the
 transfer reports done. An rclone mount is the exception: the copy lands in rclone's cache first,
 so no fsync forces its upload and the done line names the background upload instead. Local btrfs and ext4 targets keep today's behaviour. A failed file fsync fails
 that item like any other copy error and journals the partial for undo. The same rule covers a
@@ -1331,7 +1331,7 @@ before the process exits, so shutting down mid-copy also leaves nothing half-wri
 lands as the line or the end of input is read, as `transfercancel`'s does, so a listing still out cannot
 hold the copy running behind it. A
 quit sets each detached compress and convert flag too and drains them under the one 25 s shutdown
-budget, so each job's `Work` cleanup runs before the process exits and no `.flea-work-*` folder is
+budget, so each job's `Work` cleanup runs before the process exits and no `.dlea-work-*` folder is
 left beside the destination. A job whose tool has not exited ten seconds after the cancel keeps its folder in place
 and its terminal `err` names it; one still running when the budget ends is abandoned with the process.
 
@@ -1345,9 +1345,9 @@ Classifies one image and answers one `flashimage` line. The kind comes from the 
 confirmed by magic bytes: `.iso` (ISO 9660 `CD001` at 32769), `.img` and `.raw` (anything),
 `.img.xz` (`FD 37 7A 58 5A 00`), `.img.gz` (`1F 8B`), `.img.zst` (`28 B5 2F FD`),
 `.img.bz2` (`BZh`), `.zip` (`PK 03 04`). A name and magic that disagree answer `"kind":""`
-and the row is refused with "This is not a disk image Flea can flash." The unpacked size is
-read in the sandbox, never parsed in Flea's own process: `xz --robot --list` for xz,
-`zstd -lv` for a frame that records its content size, and the archive listing Flea already
+and the row is refused with "This is not a disk image Dlea can flash." The unpacked size is
+read in the sandbox, never parsed in Dlea's own process: `xz --robot --list` for xz,
+`zstd -lv` for a frame that records its content size, and the archive listing Dlea already
 runs for a zip. gzip's size field wraps at 4 GiB and bzip2 has none, so both answer
 `known:false`. A zip qualifies only when its listing has exactly one member and that member
 is an image by the rules above.
@@ -1838,8 +1838,8 @@ Adds, removes or toggles one tag across those rows of the current listing, or cl
 with `"op":"clear"`, and answers one `settagged` line. A `toggle` is one decision for every row it
 names, made from the attributes read before the first write: where every row already carries the
 tag it is removed from all of them, otherwise it is added to all of them, so a set where only some
-rows carry it never loses the tag from those rows and never ends half toggled. Flea's seven names are `Red`, `Orange`,
-`Yellow`, `Green`, `Blue`, `Purple` and `Gray`, matched case-insensitively; a name Flea does
+rows carry it never loses the tag from those rows and never ends half toggled. Dlea's seven names are `Red`, `Orange`,
+`Yellow`, `Green`, `Blue`, `Purple` and `Gray`, matched case-insensitively; a name Dlea does
 not know is kept untouched, never rewritten and never dropped. **Every file or none**: a
 filesystem without user extended attributes refuses with an `error` line naming its filesystem
 before the first write, each filesystem the rows sit on asked once, and a file that vanished or
@@ -1860,7 +1860,7 @@ same way a remote `rename` does.
 
 Example: `{"c":"tagstates","rows":[0,4000],"id":3,"listing":7}`
 
-Reads which of Flea's seven tags those rows of the current listing carry and answers one
+Reads which of Dlea's seven tags those rows of the current listing carry and answers one
 `tagstates` line with the same `id`. It reads only, so a stale `listing` is not refused; the answer
 names the numbering its rows resolved in instead. The shipped client sends it when a menu opens over
 a selection that reaches past the held window, whose rows it holds no tags for, and draws the Tags
@@ -1877,7 +1877,7 @@ An empty journal answers an `error` line with `where` of `undo`, and so does a r
 removing what an operation created or restoring from the trash. A reversal that renames back goes
 through the same call a `rename` does, so its failure answers `rename`, `rename-kept` or `rename-stranded` instead.
 
-**The journal is the session journal under $XDG_RUNTIME_DIR/flea**, newest entry from any window, surviving a backend restart but not the session, with an in-memory fallback when the dir is refused. An entry too big for the file stores a small barrier, its op name only and no paths, and no window keeps the payload: the undo that claims it answers `That operation was too large to undo.`, the next undo continues with older entries, and a barrier never enters redo. A file written by a newer version is unavailable, never rewritten: the reader falls back to memory. Each kind reverses as follows: a rename or a move renames back (still
+**The journal is the session journal under $XDG_RUNTIME_DIR/dlea**, newest entry from any window, surviving a backend restart but not the session, with an in-memory fallback when the dir is refused. An entry too big for the file stores a small barrier, its op name only and no paths, and no window keeps the payload: the undo that claims it answers `That operation was too large to undo.`, the next undo continues with older entries, and a barrier never enters redo. A file written by a newer version is unavailable, never rewritten: the reader falls back to memory. Each kind reverses as follows: a rename or a move renames back (still
 refusing to clobber, because something may occupy the old name by now), a copy or a duplicate removes
 what that operation created, a merge is undone only in the window that made it and elsewhere refuses
 rather than falling back to the whole folder, a link removes only the link it made, and a trash restores through
@@ -1914,7 +1914,7 @@ Example: `{"c":"jump","id":3,"favourites":["/home/gm/Projects"],"recent":["/home
 A whole ask that follows a provisional one names it: `{"c":"jump","id":4,"ranking":3,"favourites":["/home/gm/Projects"],"recent":["/home/gm/Pictures/screenshots/shot.png"]}`.
 
 The path bar's folder jump, asked **once per open of the bar**, never per keystroke: the client filters
-the answer itself as the line changes. `favourites` are Flea's own favourites in their rail order, and
+the answer itself as the line changes. `favourites` are Dlea's own favourites in their rail order, and
 `recent` is the desktop's `recently-used.xbel` newest first, which the client reads with Qt's XML reader
 because the backend has none, and keeps until the file changes. The backend adds the third source,
 zoxide's ranking, from one `zoxide query --list --all --score`, and answers one `jumped` line from a thread, because zoxide is a subprocess
@@ -1927,7 +1927,7 @@ answers a `ranking` naming that id from it with no second zoxide run, so every o
 the cross-source dedup still happens in each answer. A `ranking` naming any other id, or one no run kept
 (zoxide still running or past its limit, the ranking replaced by a newer ask), runs zoxide as an ask with none does.
 
-**Nothing is written.** `--all` is what keeps zoxide from pruning its own database on a query Flea made:
+**Nothing is written.** `--all` is what keeps zoxide from pruning its own database on a query Dlea made:
 without it zoxide deletes entries missing for 90 days and saves. zoxide is optional: absent, it is an
 empty source and says nothing. A zoxide that runs past 2 s is killed and draws nothing, and its answer is
 read up to 1 MiB and its first 1,000 rows. Only one zoxide runs at a time: an open while an earlier one is
@@ -1970,10 +1970,10 @@ bytes and escapes every byte outside the unreserved set and slash.
 
 `{"c":"clipSet","op":"copy"|"cut","paths":[<string>,...]}`
 
-Owns the system clipboard for those files, so another Flea window (or Nautilus, or
+Owns the system clipboard for those files, so another Dlea window (or Nautilus, or
 Thunar) pastes what this one copied. `paths` are absolute; anything relative, holding a
 NUL or climbing through `..` is refused with an `ok:false` clip line and nothing is
-owned. The backend makes a token, spawns a detached `flea --clip-own` holding the same
+owned. The backend makes a token, spawns a detached `dlea --clip-own` holding the same
 binary, writes it the payload and waits up to 2 s for its `ready`. Runs off the request
 thread, the way `clipGet` does, so an owner that never answers holds up no other request.
 Answers one `clip` line with `op` of `set`; see `clip` below.
@@ -1995,16 +1995,16 @@ one `clip` line with `op` of `get`; see `clip` below.
 `{"c":"clipClear","token":<string>}` or `{"c":"clipClear","cut":[<string>,...]}`
 
 Clears the selection only while it still carries that token, the one `clipSet`
-answered with or `clipGet` read from another Flea process. A live owner started by
+answered with or `clipGet` read from another Dlea process. A live owner started by
 this backend is withdrawn first. Otherwise, including when that owner has exited,
 the token form uses the same token check, queued-selection drain and null selection
-as `flea --clip clear`, so it can clear a selection another Flea process owns.
+as `dlea --clip clear`, so it can clear a selection another Dlea process owns.
 `cleared:true` means a live owner was signalled or the verified clear sent the null
 selection. Both clear forms run on the clipboard mutation queue, off the request
 thread. The `cut` form is a spent cut from another application, which
 Nautilus and Thunar clear after pasting: it clears only when the current selection is
 still a cut whose path list equals the given one exactly, same order, and never
-clears a copy. The verified token clear, `cut` form and `flea --clip clear` check the
+clears a copy. The verified token clear, `cut` form and `dlea --clip clear` check the
 selection, then drain what the compositor queued behind it with one more round trip,
 and send the null selection only while the checked offer is still the current one;
 a newer copy answers `cleared:false`. The protocol has no compare-and-clear request,
@@ -2026,18 +2026,18 @@ two identical selections in a row emit once. No compositor or manager ends the t
 after one `changed` `none` line carrying the error; a dropped connection reconnects at
 most once a second, at most 5 times.
 
-Flea's private `application/x-flea-clip` payload is `copy|cut TOKEN PID`, where TOKEN
+Dlea's private `application/x-dlea-clip` payload is `copy|cut TOKEN PID`, where TOKEN
 is 32 hex characters and PID is the detached owner's process id. The older
 `copy|cut TOKEN` payload remains readable but supplies no owner-exit trigger.
 The two-field form was written only by 0.3.8 development builds, never by a release.
 Such a build rejects the three-field payload and reads the selection through the GNOME
 fallback, so the paths and the cut operation still arrive and only the token is lost.
-Flea 0.3.7 and older read no file selection.
+Dlea 0.3.7 and older read no file selection.
 Every watching backend, including windows that did not start the owner, holds a
-pidfd for a reported Flea selection's live owner. A pid already gone at report time
+pidfd for a reported Dlea selection's live owner. A pid already gone at report time
 (pidfd open returns ESRCH or the pidfd is already readable) triggers the same single
 guarded fresh read as a later exit. A missing pid, a live process whose executable
-or arguments do not identify this Flea binary's `--clip-own`, or another pidfd open
+or arguments do not identify this Dlea binary's `--clip-own`, or another pidfd open
 failure supplies no trigger and no report.
 The watcher uses one reusable waiter thread and replaces its pidfd wait slot when
 the reported selection changes; dropping the watching connection closes the slot
@@ -2056,7 +2056,7 @@ and is not retried. The spawning backend's reaper only reaps, with no separate
 clipboard notification hook.
 
 Hyprland gives data-control clients no event when a selection is emptied. The
-pidfd trigger covers Flea owners; a selection owned by another program and emptied
+pidfd trigger covers Dlea owners; a selection owned by another program and emptied
 on Hyprland reports nothing until the next selection. Paste always reads fresh,
 so no file operation can act on that stale watcher state. See `clip` below.
 
@@ -2067,7 +2067,7 @@ so no file operation can act on that stale watcher state. See `clip` below.
 folder). For `validate`, supply `"source"` as an absolute folder path; it neither clones Git nor expands a literal
 `~/` prefix. `runtime` takes `"plugin"` and a nested `"request"` object, as described under **plugins runtime**.
 
-Settings > Plugins and `flea plugin <verb>` use the management operations. Requests are answered on their own
+Settings > Plugins and `dlea plugin <verb>` use the management operations. Requests are answered on their own
 threads, so a clone, a pull or a start check does not hold the loop. `list` answers one `plugins` line. The management
 operations `enable`, `disable`, `set`, `add`, `update`, `remove` and `validate` answer one `pluginop` line and then
 the `plugins` listing they left, both carrying the request's `id`. Management changes run one at a time. A `runtime`
@@ -2075,7 +2075,7 @@ request instead answers one terminal `pluginruntime` line, optionally preceded b
 not append a `pluginop` line or a `plugins` listing.
 
 The listing names the five built-ins first (Shelf, LocalSend, Tailscale, Dropbox, AirDrop), then every folder under
-`$XDG_CONFIG_HOME/flea/plugins/` whose name does not start with a dot, in name order. Each plugin carries its
+`$XDG_CONFIG_HOME/dlea/plugins/` whose name does not start with a dot, in name order. Each plugin carries its
 manifest's facts, `enabled`, `source` (`builtin`, `git` with the origin in the plugin's own `.git` folder, `folder`
 with the folder it was added from, or empty), its `schema` in the manifest's own shape and its `settings` clamped to that schema. The Shelf also carries
 `shelf`, the ui.json shelf group and its pins. `failure` names why an enabled plugin cannot run, or why a folder is
@@ -2107,7 +2107,7 @@ holds anything a clone does not write (`core.worktree`, `core.hooksPath` and `co
 
 `plugin` identifies the installed plugin. `id` correlates the outer request with its progress and terminal replies.
 `request` is the plugin operation object. The outer `op` is always `runtime`; the nested `op` selects the operation.
-This envelope is accepted by `flea --backend` and the application-wide `flea --plugin-host` process. The latter
+This envelope is accepted by `dlea --backend` and the application-wide `dlea --plugin-host` process. The latter
 accepts only `c:"plugins"` requests.
 
 Except for `cancel`, the plugin must be enabled and have no recorded failure. Ordinary operations must match a kind
@@ -2154,18 +2154,18 @@ Two nested operations are handled by the host rather than forwarded as ordinary 
 For an installed executable plugin, `ready` checks startup and returns `message:{"op":"ready"}` on success.
 Built-ins use in-process adapters rather than the executable handshake. `cancel` stops that installed plugin's
 lasting session and returns `message:{"op":"done"}`. Cancellation identifies the plugin, not a particular request
-id. When a lasting subprocess is stopped, Flea attempts to write `{"op":"cancel"}` and immediately kills its
+id. When a lasting subprocess is stopped, Dlea attempts to write `{"op":"cancel"}` and immediately kills its
 process group; the subprocess has no guaranteed cleanup interval.
 
 The subprocess protocol uses UTF-8 JSON objects separated by newlines. Protocol version 1 is negotiated on that
 separate stream, rather than on the outer backend envelope. The initial exchange is:
 
 ```json
-{"op":"hello","protocolVersion":1,"flea":"0.4.0","language":"en","decimal":".","settings":{},"kinds":["send-target"]}
+{"op":"hello","protocolVersion":1,"dlea":"0.4.0","language":"en","decimal":".","settings":{},"kinds":["send-target"]}
 {"op":"ready","protocolVersion":1}
 ```
 
-`flea` is the package version; `language` and `decimal` describe Flea's locale. `settings` contains values clamped to
+`dlea` is the package version; `language` and `decimal` describe Dlea's locale. `settings` contains values clamped to
 the manifest's schema, and `kinds` contains its declared kinds. The startup deadline is five seconds. A `ready`
 response may omit `protocolVersion`; if present, it must be the number `1`.
 
@@ -2336,7 +2336,7 @@ in the size column, because a link's own `st_size` is the length of that target 
 anyone means.
 
 **`tg` names the file tags Dolphin reads, and only a tagged row carries it.** It is the
-`user.xdg.tags` value filtered to names Flea knows, in the stored order and canonical case, so a
+`user.xdg.tags` value filtered to names Dlea knows, in the stored order and canonical case, so a
 row draws its swatches with no call per row; an untagged row carries no `tg` at all, and a
 foreign word stays untouched and shows in Properties instead. One `getxattr` per emitted row
 reads it, which is exactly the rows a window stats and never a sweep; on a network or phone
@@ -2547,7 +2547,7 @@ Example: `{"t":"tagstates","id":3,"applied":["Red"],"mixed":["Blue"],"listing":7
 
 The answer to one `tagstates` request, carrying its `id` back. `applied` names, in menu order, the
 tags every row carries and `mixed` the tags only some rows carry; a tag no row carries is in neither.
-A name Flea does not know is never listed. `listing` is the numbering the rows resolved in, so a
+A name Dlea does not know is never listed. `listing` is the numbering the rows resolved in, so a
 client drops an answer whose numbering is not the one it asked in.
 
 ### transferstarted
@@ -2622,7 +2622,7 @@ total. That is a different answer from an archive holding nothing, which sends t
 column's mark can follow the target the way a listing row's does.
 
 `raw` is an object for a camera RAW whose largest embedded JPEG preview was copied out, and `null` for every
-other file and for a RAW holding none. `file` is the copy under `$XDG_CACHE_HOME/flea/raw/`, named by the md5
+other file and for a RAW holding none. `file` is the copy under `$XDG_CACHE_HOME/dlea/raw/`, named by the md5
 of the RAW's file URI and carrying the RAW's mtime, so a changed RAW is copied again and an unchanged one is
 neither walked nor written twice.
 The directory is held to 4096 copies and 512 MiB, least recently used first (by ctime, since a copy's mtime is its RAW's:
@@ -2695,7 +2695,7 @@ with `jq` first, so its `total` and lines are those of the formatted text.
 
 `{"t":"html","token":<uint>,"slot":"<string>","state":"<string>","file":"<PNG path>","total":<uint>,"width":<uint>,"title":"<string>"}`
 
-Example: `{"t":"html","token":3,"slot":"look","state":"ready","file":"/cache/thumbnails/flea-html/a.png","total":61,"width":984,"title":"Local page"}`.
+Example: `{"t":"html","token":3,"slot":"look","state":"ready","file":"/cache/thumbnails/dlea-html/a.png","total":61,"width":984,"title":"Local page"}`.
 
 The answer to the latest request in one HTML slot. State is `ready`, `failed`, or `cancelled`;
 only `ready` names a PNG and a whole-file line count. Failure uses the existing unreadable-file
@@ -2775,7 +2775,7 @@ with empty `paths` and `token` in either case. Only file selections enable Paste
 `skipped`
 counts the offered URIs that were refused (bad escapes, NUL, relative paths, `.` or
 `..` parts, non-UTF-8, duplicates, other schemes) rather than failing the read. The
-`token` on a `get` names Flea's own copy when the selection carries it, which is what
+`token` on a `get` names Dlea's own copy when the selection carries it, which is what
 a later `clipClear` hands back; a foreign selection answers an empty one. `changed`
 is the watcher's line and carries no `ok`: it reports the selection as files, with the
 same fields as `get`, and a failed watch reports `none` with an `error` sentence.
@@ -3064,7 +3064,7 @@ startup and then never sends this line, and a `list` whose directory the kernel 
 exactly as before. A client must therefore treat a live listing as an improvement it may not get,
 not as a guarantee. A
 network mount is the other case: inotify sees the local kernel's own view of a directory, so a
-change another machine makes to an NFS or SMB share is not delivered, and Flea is stale there in
+change another machine makes to an NFS or SMB share is not delivered, and Dlea is stale there in
 exactly the way it was before this line existed.
 
 ### gone
@@ -3101,7 +3101,7 @@ directory.
 
 ### plugins
 
-`{"t":"plugins","id":1,"plugins":[{"id":"flea.shelf","name":"Shelf","version":"0.4.0","author":"Flea","license":"MIT","description":"...","kinds":["shelf"],"glyph":"flea","mark":"","access":["shelf:pile"],"source":"builtin","origin":"","enabled":false,"failure":"","detail":"","schema":[],"settings":{},"shelf":{"enabled":false,"bar":true,"rail":"off","screenshots":true,"recordings":true,"recent":3,"pins":[]}}]}`
+`{"t":"plugins","id":1,"plugins":[{"id":"dlea.shelf","name":"Shelf","version":"0.4.0","author":"Dlea","license":"MIT","description":"...","kinds":["shelf"],"glyph":"dlea","mark":"","access":["shelf:pile"],"source":"builtin","origin":"","enabled":false,"failure":"","detail":"","schema":[],"settings":{},"shelf":{"enabled":false,"bar":true,"rail":"off","screenshots":true,"recordings":true,"recent":3,"pins":[]}}]}`
 
 The whole installed list after the request named by `id`; see `plugins` above. `mark` is an absolute path to the
 plugin's own SVG when it has one. `shelf` is `null` on every plugin but the Shelf.
@@ -3186,7 +3186,7 @@ running is still drained after it, so a `thumbed` line can follow). The write
 operations answer over the same stdout and name themselves the same way, and
 `rename-kept` and `rename-stranded` (see `rename`) are the only values on this wire that are not one lowercase
 word, so a client matching this field must allow the hyphen. `error_line`
-is also how `flea --prewarm` reports a failure, to stderr rather than over this wire
+is also how `dlea --prewarm` reports a failure, to stderr rather than over this wire
 protocol. `where` names whichever operation actually failed: a missing or unreadable
 `path` propagates `scan`'s error unchanged, so `where` reads `scan` there too; only a
 failure inside prewarm's own file handling (creating, writing or renaming the temp
@@ -3200,11 +3200,11 @@ because only a denial reaches the Locked state. The stat outlives the denial: `/
 `0o40750`, while `opendir` on it is refused. No other `where` ever carries the field, and a `scan`
 whose path could not be stat'd either leaves it out, which a client reads as "I could not look" and
 draws as a sentence with no permission string under it. It exists because a typed path, or
-`FLEA_PATH`, reaches the denial with no parent listing to remember the mode from.
+`DLEA_PATH`, reaches the denial with no parent listing to remember the mode from.
 
 ## Prewarm reuses this wire format
 
-`flea --prewarm <path> <first> <dest>` writes exactly a `listed` line then a `rows`
+`dlea --prewarm <path> <first> <dest>` writes exactly a `listed` line then a `rows`
 line, the same two lines `--backend` would print for an equivalent `list`, to `dest`
 instead of stdout. See `AGENTS.md`, "Prewarm".
 
@@ -3216,7 +3216,7 @@ file.
 ## Undocumented requests
 
 `peek`, `paths`, `archive`, `convert` and `formats` are on the wire and are not documented
-here yet. `tools/flea-acceptance` derives its checklist from this file, so each one is a gap in that
+here yet. `tools/dlea-acceptance` derives its checklist from this file, so each one is a gap in that
 battery until its section is written.
 
 The `formats` and `archive` parts of that set are named here exactly, because they changed. A `formats` reply's `extract`
@@ -3309,7 +3309,7 @@ listing takes; a failed peek carries neither.
 
 - The two-line prewarm file names its directory, as every `listed` line does, but nothing
   in it says whether that directory changed after it was written, so a stale file cannot be
-  told from a fresh one and production ignores `FLEA_PREWARM`. Add a freshness proof and
+  told from a fresh one and production ignores `DLEA_PREWARM`. Add a freshness proof and
   prove a first-paint win before re-enabling a reader.
 - The pool is built when the backend starts, not when the first `thumb` arrives. That
   costs every backend process about 1.2 ms of startup and about 0.5 MB of PSS for a
@@ -3386,7 +3386,7 @@ Actions requests use absolute selection paths, resolved by the caller from one l
 
 A terminal handoff or refused run answers `actionstarted` with `requestId`, `ok`, and `error`, without a job id. A terminal action opens each expanded argv through `xdg-terminal-exec --dir=... -- ...`, the Open in Terminal launcher. A preview-only action refuses `run`. A preview answers text suitable for the existing `code` request's `text` input and the code renderer. Its process runs in the existing read-only preview jail with only the cursor file and executable added, a five-second wall deadline, the existing CPU and address-space limits, and a 1,048,576-byte output cap. A newer preview request cancels and suppresses the older reply.
 
-The manifest directory is `$XDG_CONFIG_HOME/flea/actions` or `$HOME/.config/flea/actions`. The parser accepts the specimen's TOML subset: five unique required keys, double-quoted basic strings with JSON-compatible escapes, and possibly multiline string arrays with comments and trailing commas. Raw C0 control bytes other than tab, and raw DEL, are prohibited in strings; supported escaped values remain valid. Other keys, tables, duplicate keys, missing fields, wrong types, empty arrays, invalid modes or selection rules, invalid escapes or placeholders, and files over 16,384 bytes are refused whole. Directory discovery examines at most 257 entries to detect overflow, counting unrelated entries too, and reports when that entry limit truncates discovery; it reads at most 256 manifests; arrays hold at most 128 elements. Nonregular files are refused without blocking. Each refusal appears in the `actions.errors` array as `{"file":"bad.toml","error":"..."}`; valid siblings remain available.
+The manifest directory is `$XDG_CONFIG_HOME/dlea/actions` or `$HOME/.config/dlea/actions`. The parser accepts the specimen's TOML subset: five unique required keys, double-quoted basic strings with JSON-compatible escapes, and possibly multiline string arrays with comments and trailing commas. Raw C0 control bytes other than tab, and raw DEL, are prohibited in strings; supported escaped values remain valid. Other keys, tables, duplicate keys, missing fields, wrong types, empty arrays, invalid modes or selection rules, invalid escapes or placeholders, and files over 16,384 bytes are refused whole. Directory discovery examines at most 257 entries to detect overflow, counting unrelated entries too, and reports when that entry limit truncates discovery; it reads at most 256 manifests; arrays hold at most 128 elements. Nonregular files are refused without blocking. Each refusal appears in the `actions.errors` array as `{"file":"bad.toml","error":"..."}`; valid siblings remain available.
 
 ```toml
 name = "Resize to 1600 px"
@@ -3401,7 +3401,7 @@ MIME patterns match the entire MIME string and accept literal characters, `*`, a
 
 `{path}`, `{dir}`, `{name}`, `{stem}`, and `{ext}` expand separately within each argv element, once per selected file. Replacements are not expanded again. The program is literal and cannot contain placeholders. Paths remain absolute; a placeholder-led argument whose result begins with `-` is prefixed with `./`, so a filename cannot become an option. Invocation uses argv without a shell unless the manifest explicitly names one. A background job retains only its last two merged stdout and stderr lines, each bounded to 4,096 decoded UTF-8 bytes with lossy decoding. `output` replaces the file line once nonempty. The invocation owns its entire process group: cancellation and leader exit, successful or unsuccessful, kill remaining descendants with SIGKILL before reaping the leader, including children that ignore SIGTERM.
 
-Executable regular files directly under `$XDG_CONFIG_HOME/flea/scripts` remain Actions entries, with ids `script:<filename>` and labels omitting the final extension. They retain the existing Run script contract: one invocation receives all selected absolute paths. The Actions switch retains the `runScript` id in `menu.hidden` and remains hidden by default. No `src/uischema.rs` defaults change.
+Executable regular files directly under `$XDG_CONFIG_HOME/dlea/scripts` remain Actions entries, with ids `script:<filename>` and labels omitting the final extension. They retain the existing Run script contract: one invocation receives all selected absolute paths. The Actions switch retains the `runScript` id in `menu.hidden` and remains hidden by default. No `src/uischema.rs` defaults change.
 
 ## AirDrop sends (0.4.1)
 
@@ -3417,7 +3417,7 @@ as a `send` job headed by `name` (the service ID when `name` is absent or empty)
 (owly is not on PATH) or `stale` (a path is gone). The window owns the radio, the receiver and discovery: it runs
 `owly doctor --json`, `owly radio up --for 600`, `owly receive --dir <folder>` and `owly browse` itself, and the
 backend's `providers` facts name `owly`'s path. The machine has one radio: the window that turns it on holds an
-exclusive lock on `$XDG_RUNTIME_DIR/flea/airdrop.lock` (with `FLEA_AIRDROP_DIR` set, the three files sit directly in that
+exclusive lock on `$XDG_RUNTIME_DIR/dlea/airdrop.lock` (with `DLEA_AIRDROP_DIR` set, the three files sit directly in that
 directory) and writes `airdrop.state` beside it, three lines: its token, `starting` or `on`, and the card. Every other
 window reads that state, browses and sends over it, and asks the owner to stop by writing the owner's token to
 `airdrop.stop`, which the owner checks once a second. A window reads the state, asks a stop, withdraws one, takes the
@@ -3426,12 +3426,12 @@ before; the look before a Receiving On takes the lock when no radio is up, and g
 the radio. A read that a later Receiving choice
 overtook never lands: a Receiving On waiting for it is dropped, the once-a-second look waits for its next second, and
 a menu or Settings look is taken again. A Receiving Off while an On waits asks the stop again, a shut menu drops a menu
-open still waiting for its read, and a stop asked just before the window closes, Flea quits or Flea is ended by
-SIGTERM, SIGINT or SIGHUP is still written, Flea waiting up to 1 s for it as it exits. The owner's withdrawal removes
+open still waiting for its read, and a stop asked just before the window closes, Dlea quits or Dlea is ended by
+SIGTERM, SIGINT or SIGHUP is still written, Dlea waiting up to 1 s for it as it exits. The owner's withdrawal removes
 the state before releasing the lock; the lock stays held until the stopped radio has exited, and a Receiving On asked
 meanwhile starts once it has, under the same lock. When the receiver or the
 radio exits, the window takes both down and says owly's reason unless the ten minutes ran out. A window that closes, a
-quit, and a Flea ended by SIGTERM, SIGINT or SIGHUP (each one still at its default action when the first owly run
+quit, and a Dlea ended by SIGTERM, SIGINT or SIGHUP (each one still at its default action when the first owly run
 started, the first stop was asked or Receiving was first set to On, whichever came first) send
 SIGTERM to every owly run and wait up to 5 s for them to exit, which gives Wi-Fi back. The receiver asks
 `accept? [y/N]` for each incoming request; the window answers it from a notification with Accept and Decline buttons,

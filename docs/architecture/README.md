@@ -11,7 +11,7 @@ extracted top-level sections lead to their section routes.
 
 ## Sections
 
-- [Flea](../../AGENTS.md#flea)
+- [Dlea](../../AGENTS.md#dlea)
 - [The seven load-bearing rules](../../AGENTS.md#the-seven-load-bearing-rules)
 - [Two-phase listing](two-phase-listing.md#two-phase-listing)
 - [The open directory is watched](the-open-directory-is-watched.md#the-open-directory-is-watched)
@@ -29,7 +29,7 @@ extracted top-level sections lead to their section routes.
 - [The file chooser portal](the-file-chooser-portal.md#the-file-chooser-portal)
 - [Show in folder](show-in-folder.md#show-in-folder)
 - [Updates](updates.md#updates)
-- [Make Flea the default, in Settings > About](make-flea-the-default-in-settings--about.md#make-flea-the-default-in-settings--about)
+- [Make Dlea the default, in Settings > About](make-dlea-the-default-in-settings--about.md#make-dlea-the-default-in-settings--about)
 - [Module map](module-map.md#module-map)
 - [Where the backend binary comes from](where-the-backend-binary-comes-from.md#where-the-backend-binary-comes-from)
 - [Every component needs a qmldir line](every-component-needs-a-qmldir-line.md#every-component-needs-a-qmldir-line)
@@ -95,7 +95,7 @@ extracted top-level sections lead to their section routes.
   - [The rail menu, tested with a stubbed gio and a stubbed lsblk](deliberate-corners.md#the-rail-menu-tested-with-a-stubbed-gio-and-a-stubbed-lsblk)
   - [PR #21: rename and remove a saved place, and one rail row per share](deliberate-corners.md#pr-21-rename-and-remove-a-saved-place-and-one-rail-row-per-share)
   - [Places.relabel: normalized matching, every duplicate rewritten, control characters stripped](deliberate-corners.md#placesrelabel-normalized-matching-every-duplicate-rewritten-control-characters-stripped)
-  - [Flea ends when its last window closes, and a wedged listing no longer freezes the rail](deliberate-corners.md#flea-ends-when-its-last-window-closes-and-a-wedged-listing-no-longer-freezes-the-rail)
+  - [Dlea ends when its last window closes, and a wedged listing no longer freezes the rail](deliberate-corners.md#dlea-ends-when-its-last-window-closes-and-a-wedged-listing-no-longer-freezes-the-rail)
   - [A single-flight guard needs a deadline, and a refusal the user can see](deliberate-corners.md#a-single-flight-guard-needs-a-deadline-and-a-refusal-the-user-can-see)
   - [Closing the window quits the backend, and a copy in flight is cancelled](deliberate-corners.md#closing-the-window-quits-the-backend-and-a-copy-in-flight-is-cancelled)
   - [A list scans off the event loop, so a slow mount cannot freeze progress or cancel](deliberate-corners.md#a-list-scans-off-the-event-loop-so-a-slow-mount-cannot-freeze-progress-or-cancel)

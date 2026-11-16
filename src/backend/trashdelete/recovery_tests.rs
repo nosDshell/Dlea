@@ -36,7 +36,7 @@ fn fixture(d: &TestDir, child: Option<&str>, destination: Option<&Path>) -> (Rev
     let metadata = source.symlink_metadata().unwrap();
     let mut reviewed = Reviewed::inspect(source.clone(), &format!("l{}:{}", metadata.dev(), metadata.ino())).unwrap();
     reviewed.snapshot(&mut Manifest::new(d.path()).unwrap(), d.path(), &Cancellation::default()).unwrap();
-    let quarantine = d.dir("files/.flea-delete-test");
+    let quarantine = d.dir("files/.dlea-delete-test");
     let recovery_root = d.dir("recovery");
     for path in [&source, &reviewed.info, &quarantine, &recovery_root] { guard(d, path); }
     if let Some(destination) = destination { guard(d, destination); }
@@ -144,7 +144,7 @@ fn recovery_never_overwrites_an_original_name_collision() {
     let seen = logged().len();
     let report = replay(&d);
     assert_eq!(report.recovered, 0);
-    assert!(report.failures.len() == 1 && report.failures[0].contains("Flea found an interrupted Trash operation; its items are kept at ") && logged_after(seen, "without overwriting"));
+    assert!(report.failures.len() == 1 && report.failures[0].contains("Dlea found an interrupted Trash operation; its items are kept at ") && logged_after(seen, "without overwriting"));
     assert_eq!(std::fs::read_to_string(&reviewed.path).unwrap(), "later arrival");
     assert_eq!(std::fs::read_to_string(quarantine.join("payload")).unwrap(), "payload");
     assert!(quarantine.join("metadata").exists());
@@ -239,15 +239,15 @@ fn recovery_cleans_restore_metadata_only_for_its_verified_destination() {
 fn recovery_keeps_malformed_and_nonregular_records() {
     let d = TestDir::new("recovery-malformed");
     d.dir("recovery");
-    d.file("recovery/.flea-delete-truncated.review", "short");
-    let malformed = d.join("recovery/.flea-delete-malformed.review");
+    d.file("recovery/.dlea-delete-truncated.review", "short");
+    let malformed = d.join("recovery/.dlea-delete-malformed.review");
     let mut record = Manifest::create(&malformed).unwrap();
     record.append(b"{}").unwrap();
     drop(record);
-    d.dir("recovery/.flea-delete-directory.review");
+    d.dir("recovery/.dlea-delete-directory.review");
     let target = d.file("link-target", "keep");
-    std::os::unix::fs::symlink(&target, d.join("recovery/.flea-delete-link.review")).unwrap();
-    assert!(std::process::Command::new("mkfifo").arg(d.join("recovery/.flea-delete-pipe.review")).status().unwrap().success());
+    std::os::unix::fs::symlink(&target, d.join("recovery/.dlea-delete-link.review")).unwrap();
+    assert!(std::process::Command::new("mkfifo").arg(d.join("recovery/.dlea-delete-pipe.review")).status().unwrap().success());
     let report = replay(&d);
     assert_eq!(report.recovered, 0);
     assert_eq!(report.failures.len(), 5);
@@ -362,8 +362,8 @@ fn recovery_keeps_its_record_when_the_source_parent_was_replaced() {
     drop(journal);
     assert_eq!(replay(&d).failures.len(), 1);
     assert!(record.exists());
-    assert_eq!(std::fs::read_to_string(d.join("saved-files/.flea-delete-test/payload")).unwrap(), "payload");
-    assert!(d.join("saved-files/.flea-delete-test/metadata").exists());
+    assert_eq!(std::fs::read_to_string(d.join("saved-files/.dlea-delete-test/payload")).unwrap(), "payload");
+    assert!(d.join("saved-files/.dlea-delete-test/metadata").exists());
 }
 
 #[test]
@@ -379,7 +379,7 @@ fn recovery_preserves_an_unmarked_record_when_the_quarantine_is_missing() {
     let report = replay(&d);
     assert_eq!(report.recovered, 0);
     assert_eq!(report.failures.len(), 1);
-    assert!(report.failures[0].ends_with("Flea found an interrupted Trash operation; nothing was moved.") && logged_after(seen, "without a completion record"));
+    assert!(report.failures[0].ends_with("Dlea found an interrupted Trash operation; nothing was moved.") && logged_after(seen, "without a completion record"));
     assert!(record.exists());
     assert_eq!(std::fs::read_to_string(moved.join("payload")).unwrap(), "payload");
     assert!(moved.join("metadata").exists());

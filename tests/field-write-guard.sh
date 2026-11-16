@@ -1,9 +1,9 @@
 #!/bin/bash
-# Gates the write guard in tools/flea-field-bench on fixture /proc files with sync and sleep stubbed; NIGHT_LIB=<path> adds the night kit's copy.
+# Gates the write guard in tools/dlea-field-bench on fixture /proc files with sync and sleep stubbed; NIGHT_LIB=<path> adds the night kit's copy.
 set -u
 cd "$(dirname "$0")/.." || exit 1
 repo=$PWD
-bench="$repo/tools/flea-field-bench"
+bench="$repo/tools/dlea-field-bench"
 
 # The fixture root is a mktemp -d of its own, and its one delete is checked absolute and two deep before the trap exists.
 scratch=$(mktemp -d) || exit 1
@@ -148,7 +148,7 @@ stub_header="id,run,ranked,dirty_wb_kb,pgpgout_pre_kb,pgpgout_launch_kb,write_cl
 # drive SEQ: runs the bench's loop for one entrant and leaves the CSV in $OUT.
 drive() {
   STUB_SEQ=$1
-  OUT="$scratch/out.csv"; id=flea; RUN_INDEX=1
+  OUT="$scratch/out.csv"; id=dlea; RUN_INDEX=1
   kind=gui; class=c; comm=c; token=t; helper_comm=""; helper_token=""; cmd=x
   echo "$stub_header" > "$OUT"
   run_guarded "$id" "$kind" "$class" "$comm" "$token" "$helper_comm" "$helper_token" "$cmd" > "$scratch/loop.log" 2> "$scratch/loop.err"
@@ -180,7 +180,7 @@ drive "dirty dirty dirty"
 check "a launch that stays contaminated stops after two repeats: three rows" 3 "$(( $(wc -l < "$OUT") - 1 ))"
 check "their rerun cells are 0, 1 and 2" "0 1 2" "$(cell 1 rerun) $(cell 2 rerun) $(cell 3 rerun)"
 check "and all three stay in the CSV with write_clean 0" "0 0 0" "$(cell 1 write_clean) $(cell 2 write_clean) $(cell 3 write_clean)"
-check "the loop names the launch it gave up on" 1 "$(grep -c '^WRITE-DIRTY: flea run 1' "$scratch/loop.err")"
+check "the loop names the launch it gave up on" 1 "$(grep -c '^WRITE-DIRTY: dlea run 1' "$scratch/loop.err")"
 
 drive "launch clean"
 check "writes during the launch are kept in the row and do not repeat it" "1 1 20000" "$(( $(wc -l < "$OUT") - 1 )) $(cell 1 write_clean) $(cell 1 pgpgout_launch_kb)"
@@ -190,10 +190,10 @@ check "a launch that never started is not repeated" 1 "$(( $(wc -l < "$OUT") - 1
 
 drive "dirty dirty dirty"
 summary=$(write_guard_summary "$OUT" 2>&1)
-check "the summary counts only write_clean 1 rows and names the rest" "write guard: flea counts 0 of 3 rows, left out 3" "$summary"
+check "the summary counts only write_clean 1 rows and names the rest" "write guard: dlea counts 0 of 3 rows, left out 3" "$summary"
 drive "dirty clean"
-check "the summary says how many a clean repeat left out" "write guard: flea counts 1 of 2 rows, left out 1" "$(write_guard_summary "$OUT" 2>&1)"
-check "a CSV with no write_clean column counts nothing and says so" 1 "$(printf 'id,run\nflea,1\n' > "$scratch/old.csv"; write_guard_summary "$scratch/old.csv" > /dev/null 2>&1; echo $?)"
+check "the summary says how many a clean repeat left out" "write guard: dlea counts 1 of 2 rows, left out 1" "$(write_guard_summary "$OUT" 2>&1)"
+check "a CSV with no write_clean column counts nothing and says so" 1 "$(printf 'id,run\ndlea,1\n' > "$scratch/old.csv"; write_guard_summary "$scratch/old.csv" > /dev/null 2>&1; echo $?)"
 
 # The night kit's copy: the same block byte for byte, and its JSON keys.
 night=${NIGHT_LIB:-}
@@ -205,7 +205,7 @@ else
   check "night-lib.sh holds the same guard block, byte for byte" "$block" "$(sed -n '/^# write guard begin$/,/^# write guard end$/p' "$night")"
   night_root="$scratch/night"
   mkdir -p "$night_root/steps" "$night_root/out"
-  : > "$night_root/.flea-test-sandbox"
+  : > "$night_root/.dlea-test-sandbox"
   got=$(
     ROOT=$night_root
     . "$night"

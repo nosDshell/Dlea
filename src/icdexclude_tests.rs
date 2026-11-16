@@ -158,7 +158,7 @@ fn the_filter_fits_the_loader_and_a_flood_of_manifests_excludes_nothing() {
 }
 
 #[test]
-fn only_a_filter_its_marker_names_is_flea_s() {
+fn only_a_filter_its_marker_names_is_dlea_s() {
     fn f(s: &str) -> Option<&OsStr> {
         Some(OsStr::new(s))
     }
@@ -208,7 +208,7 @@ fn decide_writes_a_filter_for_an_absent_vendor() {
 // An operator driver variable wins over the same planted manifest.
 #[test]
 fn decide_treats_an_operator_driver_variable_as_a_choice() {
-    let (_t, pairs, pci, drm, roots) = decide_setup("icdexclude-decide-operator", &[("VK_DRIVER_FILES", "/tmp/flea-operator-driver.json")]);
+    let (_t, pairs, pci, drm, roots) = decide_setup("icdexclude-decide-operator", &[("VK_DRIVER_FILES", "/tmp/dlea-operator-driver.json")]);
     let answer = decide_answer(&pairs, &pci, &drm, &roots);
     assert_eq!(answer, None, "an operator choice excludes nothing");
 }
@@ -223,10 +223,10 @@ fn decide_treats_a_loader_settings_file_as_a_choice() {
     assert_eq!(answer, None, "a loader settings file excludes nothing");
 }
 
-// A filter its marker names is a parent Flea's, so the planted manifest is still excluded.
+// A filter its marker names is a parent Dlea's, so the planted manifest is still excluded.
 #[test]
 fn decide_redecides_a_filter_its_marker_names() {
-    let (_t, pairs, pci, drm, roots) = decide_setup("icdexclude-decide-stale", &[("VK_LOADER_DRIVERS_DISABLE", "stale_icd.json"), ("FLEA_VK_DISABLE", "stale_icd.json")]);
+    let (_t, pairs, pci, drm, roots) = decide_setup("icdexclude-decide-stale", &[("VK_LOADER_DRIVERS_DISABLE", "stale_icd.json"), ("DLEA_VK_DISABLE", "stale_icd.json")]);
     let answer = decide_answer(&pairs, &pci, &drm, &roots);
     assert!(answer.as_ref().is_some_and(|filter| filter.contains("probe_nvidia_icd.json")), "{answer:?}");
 }

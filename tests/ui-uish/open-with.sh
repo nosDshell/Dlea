@@ -4,10 +4,10 @@ case_openterminal() {
     sandbox_scratch "$dir"
     mkdir -p "$dir/bin"
     printf 'abc' > "$dir/target.txt"
-    local ran="$dir/ran.log" opened="$dir/opened.log" real_bin="$flea_bin"
+    local ran="$dir/ran.log" opened="$dir/opened.log" real_bin="$dlea_bin"
     : > "$ran"
     : > "$opened"
-    # FLEA_BIN is the backend's binary as well as the opener's, so only --terminal is intercepted
+    # DLEA_BIN is the backend's binary as well as the opener's, so only --terminal is intercepted
     # and every other mode execs the real one: a stub that swallowed --backend would leave the
     # window with no listing to press a key in. The sleep is what makes the single-flight guard and
     # the two-paths-at-once check observable at all.
@@ -17,13 +17,13 @@ case_openterminal() {
       printf 'sleep 1\n'
       printf 'printf "TERMINAL %%s\\n" "$2" >> %q\n' "$ran"
       printf 'exit 0\n'
-    } > "$dir/bin/flea"
-    chmod +x "$dir/bin/flea"
+    } > "$dir/bin/dlea"
+    chmod +x "$dir/bin/dlea"
     # The real route, stubbed too: if anything ever reaches src/terminal.rs this records it instead
     # of opening a terminal on the operator's display, which is what used to leak a window per run.
     {
       printf '#!/bin/sh\n'
-      printf '# Sample input: xdg-terminal-exec --dir=/home/flea-sandbox/fixtures/openterminal\n'
+      printf '# Sample input: xdg-terminal-exec --dir=/home/dlea-sandbox/fixtures/openterminal\n'
       printf 'printf "REAL-TERMINAL %%s\\n" "${1#--dir=}" >> %q\n' "$ran"
       printf 'exit 0\n'
     } > "$dir/bin/xdg-terminal-exec"
@@ -44,10 +44,10 @@ case_openterminal() {
     seed_ui_state "$fixture_root/openterminal-state" "{\"menu\":{\"hidden\":$terminal_shown}}"
     local saved_path="$PATH"
     export PATH="$dir/bin:$PATH"
-    flea_bin="$dir/bin/flea"
+    dlea_bin="$dir/bin/dlea"
     launch "$dir"
     export PATH="$saved_path"
-    flea_bin="$real_bin"
+    dlea_bin="$real_bin"
     # bin, opened.log, ran.log, target.txt.
     wait_listing 4
 
@@ -66,7 +66,7 @@ case_openterminal() {
 
     # The keyboard half, from the list.
     : > "$ran"
-    hotkey --global ctrl t flea >/dev/null
+    hotkey --global ctrl t dlea >/dev/null
     wait_terminal "$ran" "$dir" "ctrl+t in the list"
 
     # And from the rail, which owns its own keys and would otherwise swallow the chord.
@@ -74,7 +74,7 @@ case_openterminal() {
     key -k Tab >/dev/null
     settle
     [[ "$(ipc focusView)" == "rail" ]] || fail "openterminal: tab did not reach the rail"
-    hotkey --global ctrl t flea >/dev/null
+    hotkey --global ctrl t dlea >/dev/null
     wait_terminal "$ran" "$dir" "ctrl+t on the rail"
     key -k Escape >/dev/null
     settle
@@ -84,22 +84,22 @@ case_openterminal() {
     # has exited, is not: without the second half this check passes for a key that does nothing.
     # The drop is announced, because a swallowed keypress with nothing on screen is the defect.
     : > "$ran"
-    hotkey --global ctrl t flea >/dev/null
+    hotkey --global ctrl t dlea >/dev/null
     settle
-    hotkey --global ctrl t flea >/dev/null
+    hotkey --global ctrl t dlea >/dev/null
     wait_message "Still opening the last terminal; try again in a moment."
     wait_terminal "$ran" "$dir" "the single-flight guard"
     sleep 1
     [[ "$(grep -c . "$ran")" == "1" ]] || fail "openterminal: two terminals were started, log is $(cat "$ran")"
     : > "$ran"
-    hotkey --global ctrl t flea >/dev/null
+    hotkey --global ctrl t dlea >/dev/null
     wait_terminal "$ran" "$dir" "a request after the child exited"
 
     # Both at once: the terminal child is still sleeping when Enter opens a file, so a shared path or
     # a shared Process would show up as one of the two logs carrying the other's argument.
     : > "$ran"
     : > "$opened"
-    hotkey --global ctrl t flea >/dev/null
+    hotkey --global ctrl t dlea >/dev/null
     seek_row_named target.txt
     key -k Return >/dev/null
     local waited
@@ -119,17 +119,17 @@ case_openterminal() {
       printf '#!/bin/sh\n'
       printf '[ "$1" = --terminal ] || exec %q "$@"\n' "$real_bin"
       printf 'exit 2\n'
-    } > "$dir/bin/flea"
-    chmod +x "$dir/bin/flea"
+    } > "$dir/bin/dlea"
+    chmod +x "$dir/bin/dlea"
     : > "$ran"
-    hotkey --global ctrl t flea >/dev/null
+    hotkey --global ctrl t dlea >/dev/null
     wait_message "No terminal on this system opened that folder."
     shot openterminal-failed
     [[ ! -s "$ran" ]] || fail "openterminal: the failing stub still logged $(cat "$ran")"
 
     printf 'OPENTERMINAL menu=ok list=ok rail=ok single-flight=ok crossed=ok failure=ok\n'
     if [[ -n "$real_state" ]]; then export XDG_STATE_HOME="$real_state"; else unset XDG_STATE_HOME; fi
-    kill_flea
+    kill_dlea
 }
 
 case_makeexec() {
@@ -202,23 +202,23 @@ case_openwithdesign() (
     local -a numbers
     sandbox_require "$fixture_root"
     menu_box=$(mktemp -d "$fixture_root/openwith-design.XXXXXXXX") || fail 'openwith: owned fixture creation failed'
-    printf 'native Open with fixture\n' > "$menu_box/.flea-test-sandbox"
+    printf 'native Open with fixture\n' > "$menu_box/.dlea-test-sandbox"
     listing="$menu_box/listing"; config="$menu_box/config"; data="$menu_box/data"; state="$menu_box/state"
     for name in "$listing" "$config" "$data" "$data/applications"; do
         menus_guard "$name"
         mkdir -p "$name" || fail 'openwith: fixture directory creation failed'
     done
     # The fixture entry execs /bin/true, so an Open that reaches the launcher starts nothing.
-    menus_guard "$data/applications/zzflea-openwith.desktop"
-    printf '[Desktop Entry]\nType=Application\nName=Zzflea Fixture\nExec=/bin/true %%f\nIcon=text-x-generic\nMimeType=text/plain;\n' \
-        > "$data/applications/zzflea-openwith.desktop"
+    menus_guard "$data/applications/zzdlea-openwith.desktop"
+    printf '[Desktop Entry]\nType=Application\nName=Zzdlea Fixture\nExec=/bin/true %%f\nIcon=text-x-generic\nMimeType=text/plain;\n' \
+        > "$data/applications/zzdlea-openwith.desktop"
     # gio resolves the id named below through the desktop database, and an applications directory
     # with no cache answers for nothing, so the default silently did not take.
     update-desktop-database "$data/applications" 2>/dev/null \
         || fail 'openwith: the fixture desktop database could not be built'
     # A default the desktop really reads back, so the board's "default" caption has something to name.
     menus_guard "$config/mimeapps.list"
-    printf '[Default Applications]\ntext/plain=zzflea-openwith.desktop\n' > "$config/mimeapps.list"
+    printf '[Default Applications]\ntext/plain=zzdlea-openwith.desktop\n' > "$config/mimeapps.list"
     export XDG_CONFIG_HOME="$config" XDG_DATA_HOME="$data"
     # The system roots stay on the path: the shared mime database names the kind, and dropping it
     # would leave the eyebrow reading "text/plain" instead of the type's own name.
@@ -227,7 +227,7 @@ case_openwithdesign() (
     printf 'a note with real bytes in it\n' > "$listing/notes.txt"
     seed_ui_state "$state" '{"view":"list","keys":"default","preview":{"column":false,"thumbnails":"off"},"menu":{"hidden":[]}}'
     mime_before=$(stat -c %Y "$config/mimeapps.list")
-    trap 'kill_flea' EXIT
+    trap 'kill_dlea' EXIT
     launch "$listing"
     wait_listing 1
 
@@ -241,7 +241,7 @@ case_openwithdesign() (
         || fail "openwith: the flyout is ${numbers[6]} wide, the menu is ${numbers[2]}"
     (( numbers[4] == numbers[0] + numbers[2] )) \
         || fail "openwith: the flyout starts at ${numbers[4]}, not flush at $(( numbers[0] + numbers[2] ))"
-    menus_expect menuState '[.entries[] | select(.action == "openWith") | .submenu[]][0] | .id == "zzflea-openwith.desktop" and .hint == "default"' \
+    menus_expect menuState '[.entries[] | select(.action == "openWith") | .submenu[]][0] | .id == "zzdlea-openwith.desktop" and .hint == "default"' \
         'the desktop default leads the flyout and says so'
     menus_expect menuState '[.entries[] | select(.action == "openWith") | .submenu[]] | (.[-2].separator == true) and (.[-1].glyph == "app-window")' \
         'the tail row sits under its own separator with the app-window glyph'
@@ -250,7 +250,7 @@ case_openwithdesign() (
     # The fixture names a mimetype icon on purpose, which is exactly what that index does not hold.
     menus_expect menuState '[.entries[] | select(.action == "openWith") | .submenu[] | .icon // empty] | any(startswith("/"))' \
         "an entry the app icon index places arrives as a file"
-    menus_expect menuState '[.entries[] | select(.action == "openWith") | .submenu[] | select(.id == "zzflea-openwith.desktop")][0].icon == "text-x-generic"' \
+    menus_expect menuState '[.entries[] | select(.action == "openWith") | .submenu[] | select(.id == "zzdlea-openwith.desktop")][0].icon == "text-x-generic"' \
         "a name that index cannot place is left for the themed lookup"
     shot openwith-flyout
     # Two: the first closes the flyout, the second the menu holding it open behind it.
@@ -263,7 +263,7 @@ case_openwithdesign() (
     menus_expect openWithState '.kind == "Plain text document" and .name == "notes.txt"' 'the card names the file and its kind'
     menus_expect openWithState '[.rows[] | select(.eyebrow) | .eyebrow] == ["Registered for Plain text document", "All applications"]' \
         'both groups draw under their own eyebrow'
-    menus_expect openWithState '.rows[1].id == "zzflea-openwith.desktop" and .rows[1].isDefault' 'the registered group leads with the default'
+    menus_expect openWithState '.rows[1].id == "zzdlea-openwith.desktop" and .rows[1].isDefault' 'the registered group leads with the default'
     # Assert HIG geometry from painted rects and live tokens, allowing one pixel of rounding (CTL2 10-31 15:1x).
     menus_expect openWithState '(.listRect | split(" ")[3] | tonumber) - (7 * .rowHeight + 2 * .eyebrowHeight + .eyebrowAir[0] + .eyebrowAir[1] + 2) | fabs <= 1' \
         'the list holds seven applications, both eyebrows with their air and two hairlines'
@@ -279,8 +279,8 @@ case_openwithdesign() (
     shot openwith-dialog
 
     # Rule 5: the search filters both groups, and a group that matches nothing takes its eyebrow with it.
-    openwith_search Zzflea
-    menus_expect openWithState '[.rows[] | .label // .eyebrow] == ["Registered for Plain text document", "Zzflea Fixture", "All applications", "Zzflea Fixture"]' \
+    openwith_search Zzdlea
+    menus_expect openWithState '[.rows[] | .label // .eyebrow] == ["Registered for Plain text document", "Zzdlea Fixture", "All applications", "Zzdlea Fixture"]' \
         'the search filters both groups and keeps both eyebrows'
     openwith_clear_search
     openwith_search zzNoMatchingApplication
@@ -297,11 +297,11 @@ case_openwithdesign() (
     # Rule 7: Space toggles the always box from an empty search line, and the write lands once.
     key -k space >/dev/null
     menus_expect openWithState '.always' 'Space toggles the always box'
-    openwith_search Zzflea
-    menus_expect openWithState '.cursor == 0 and .rows[1].id == "zzflea-openwith.desktop"' 'the cursor holds the only match'
+    openwith_search Zzdlea
+    menus_expect openWithState '.cursor == 0 and .rows[1].id == "zzdlea-openwith.desktop"' 'the cursor holds the only match'
     key -k Return >/dev/null
     menus_expect openWithState '.opened | not' 'Open closes the card'
-    grep -q '^text/plain=zzflea-openwith.desktop' "$config/mimeapps.list" \
+    grep -q '^text/plain=zzdlea-openwith.desktop' "$config/mimeapps.list" \
         || fail "openwith: the default was not written: $(cat "$config/mimeapps.list")"
     [[ "$(stat -c %Y "$config/mimeapps.list")" != "$mime_before" ]] \
         || fail 'openwith: mimeapps.list was never rewritten'

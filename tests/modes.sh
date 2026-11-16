@@ -2,29 +2,29 @@
 # Drives the real binary and asserts the mode contract, since main() is only reachable here.
 set -u
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete below.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
-BIN=${FLEA_BIN:-./target/debug/flea}
+BIN=${DLEA_BIN:-./target/debug/dlea}
 # Without this every case below drives a missing binary and reports the result as a product failure.
 [ -x "$BIN" ] || { echo "modes.sh: $BIN is missing, run cargo build" >&2; exit 1; }
 # current_exe() answers with the kernel's own resolved path, so the expectation is resolved the same way.
 BIN_REAL=$(readlink -f "$BIN")
-# Isolate the executable from a real sibling flea-gui so only the recording child can run.
-MODE_BIN=$(mktemp -d "$FIXTURE_ROOT/flea-modes-bin.XXXXXXXX") || exit 1
-: > "$MODE_BIN/.flea-test-sandbox"
-cp "$BIN_REAL" "$MODE_BIN/flea" || exit 1
-BIN="$MODE_BIN/flea"
+# Isolate the executable from a real sibling dlea-gui so only the recording child can run.
+MODE_BIN=$(mktemp -d "$FIXTURE_ROOT/dlea-modes-bin.XXXXXXXX") || exit 1
+: > "$MODE_BIN/.dlea-test-sandbox"
+cp "$BIN_REAL" "$MODE_BIN/dlea" || exit 1
+BIN="$MODE_BIN/dlea"
 BIN_REAL=$(readlink -f "$BIN")
 trap 'sandbox_remove "$MODE_BIN"' EXIT
-# Named, not re-derived from ui_dir's own walk, which an installed /usr/share/flea/ui outranks.
+# Named, not re-derived from ui_dir's own walk, which an installed /usr/share/dlea/ui outranks.
 UI_REAL=$(readlink -f .)/ui
 # An operator exporting any of these would answer for src/gui.rs, which is the thing under test here.
-unset FLEA_FRONTEND QSG_RHI_BACKEND FLEA_RENDERER_AUTOMATIC QT_VK_PHYSICAL_DEVICE_INDEX VK_DRIVER_FILES VK_ICD_FILENAMES QS_ICON_THEME FLEA_QT_THEME \
-  FLEA_PREFETCH FLEA_PREFETCH_SHELL VK_ADD_DRIVER_FILES VK_LOADER_DRIVERS_SELECT VK_LOADER_DRIVERS_DISABLE FLEA_VK_DISABLE
+unset DLEA_FRONTEND QSG_RHI_BACKEND DLEA_RENDERER_AUTOMATIC QT_VK_PHYSICAL_DEVICE_INDEX VK_DRIVER_FILES VK_ICD_FILENAMES QS_ICON_THEME DLEA_QT_THEME \
+  DLEA_PREFETCH DLEA_PREFETCH_SHELL VK_ADD_DRIVER_FILES VK_LOADER_DRIVERS_SELECT VK_LOADER_DRIVERS_DISABLE DLEA_VK_DISABLE
 fail=0
 # Every --gui launch below may cache its Vulkan probe under XDG_CACHE_HOME or ~/.cache, so none of them reaches the operator's own.
-CACHE_ROOT="$FIXTURE_ROOT/flea-modes-cache-$$"
+CACHE_ROOT="$FIXTURE_ROOT/dlea-modes-cache-$$"
 sandbox_make "$CACHE_ROOT"
 export XDG_CACHE_HOME="$CACHE_ROOT"
 
@@ -73,14 +73,14 @@ check "--version is still read before the other modes" "1" "$(echo "$out" | grep
 
 # --pick refuses before any window and writes no reply, and an exported-but-empty request is absent
 # the way an empty display is: a wrapper's unset variable must not open a chooser with no request.
-D="$FIXTURE_ROOT/flea-pick-test-$$"
+D="$FIXTURE_ROOT/dlea-pick-test-$$"
 sandbox_make "$D"
-out=$(env -u FLEA_PICKER $BIN --pick "$D/reply.json" 2>&1 </dev/null); rc=$?
+out=$(env -u DLEA_PICKER $BIN --pick "$D/reply.json" 2>&1 </dev/null); rc=$?
 check "--pick with no request refuses" "2" "$rc"
-check "--pick with no request names FLEA_PICKER" "1" "$(echo "$out" | grep -c 'needs FLEA_PICKER')"
-out=$(env FLEA_PICKER= $BIN --pick "$D/reply.json" 2>&1 </dev/null); rc=$?
+check "--pick with no request names DLEA_PICKER" "1" "$(echo "$out" | grep -c 'needs DLEA_PICKER')"
+out=$(env DLEA_PICKER= $BIN --pick "$D/reply.json" 2>&1 </dev/null); rc=$?
 check "--pick with an empty request refuses" "2" "$rc"
-check "--pick with an empty request gives the same sentence" "1" "$(echo "$out" | grep -c 'needs FLEA_PICKER')"
+check "--pick with an empty request gives the same sentence" "1" "$(echo "$out" | grep -c 'needs DLEA_PICKER')"
 # The request guard is read before the display one, so a headless run cannot pass this case by
 # refusing for the other reason: with a display, that is the branch that would open a window.
 check "--pick with an empty request refuses on the request, not the display" "0" "$(echo "$out" | grep -c 'no graphical session')"
@@ -92,27 +92,27 @@ out=$(env -u WAYLAND_DISPLAY -u DISPLAY $BIN --gui 2>&1 </dev/null)
 check "no display refuses" "1" "$(echo "$out" | grep -c 'no graphical session')"
 
 # An exported-but-empty display is absent and must not reach qs.
-out=$(env WAYLAND_DISPLAY= DISPLAY= PATH=/nonexistent-flea-test-path $BIN --gui 2>&1 </dev/null)
+out=$(env WAYLAND_DISPLAY= DISPLAY= PATH=/nonexistent-dlea-test-path $BIN --gui 2>&1 </dev/null)
 check "an empty display refuses" "1" "$(echo "$out" | grep -c 'no graphical session')"
-out=$(env -u DISPLAY WAYLAND_DISPLAY= PATH=/nonexistent-flea-test-path $BIN --gui 2>&1 </dev/null)
+out=$(env -u DISPLAY WAYLAND_DISPLAY= PATH=/nonexistent-dlea-test-path $BIN --gui 2>&1 </dev/null)
 check "an empty WAYLAND_DISPLAY alone refuses" "1" "$(echo "$out" | grep -c 'no graphical session')"
-out=$(env -u WAYLAND_DISPLAY DISPLAY= PATH=/nonexistent-flea-test-path $BIN --gui 2>&1 </dev/null)
+out=$(env -u WAYLAND_DISPLAY DISPLAY= PATH=/nonexistent-dlea-test-path $BIN --gui 2>&1 </dev/null)
 check "an empty DISPLAY alone refuses" "1" "$(echo "$out" | grep -c 'no graphical session')"
 
 # Each display variable independently permits launch, and an empty peer must not mask it.
-out=$(env -u DISPLAY WAYLAND_DISPLAY=flea-modes-test-display PATH=/nonexistent-flea-test-path $BIN --gui 2>&1 </dev/null)
+out=$(env -u DISPLAY WAYLAND_DISPLAY=dlea-modes-test-display PATH=/nonexistent-dlea-test-path $BIN --gui 2>&1 </dev/null)
 check "a non-empty WAYLAND_DISPLAY is accepted" "1" "$(echo "$out" | grep -c 'the window could not start')"
-out=$(env -u WAYLAND_DISPLAY DISPLAY=:99 PATH=/nonexistent-flea-test-path $BIN --gui 2>&1 </dev/null)
+out=$(env -u WAYLAND_DISPLAY DISPLAY=:99 PATH=/nonexistent-dlea-test-path $BIN --gui 2>&1 </dev/null)
 check "a non-empty DISPLAY is accepted" "1" "$(echo "$out" | grep -c 'the window could not start')"
-out=$(env WAYLAND_DISPLAY= DISPLAY=:99 PATH=/nonexistent-flea-test-path $BIN --gui 2>&1 </dev/null)
+out=$(env WAYLAND_DISPLAY= DISPLAY=:99 PATH=/nonexistent-dlea-test-path $BIN --gui 2>&1 </dev/null)
 check "an empty WAYLAND_DISPLAY does not mask DISPLAY" "1" "$(echo "$out" | grep -c 'the window could not start')"
-out=$(env WAYLAND_DISPLAY=flea-modes-test-display DISPLAY= PATH=/nonexistent-flea-test-path $BIN --gui 2>&1 </dev/null)
+out=$(env WAYLAND_DISPLAY=dlea-modes-test-display DISPLAY= PATH=/nonexistent-dlea-test-path $BIN --gui 2>&1 </dev/null)
 check "an empty DISPLAY does not mask WAYLAND_DISPLAY" "1" "$(echo "$out" | grep -c 'the window could not start')"
-out=$(env WAYLAND_DISPLAY=flea-modes-test-display DISPLAY=:99 PATH=/nonexistent-flea-test-path $BIN --gui 2>&1 </dev/null)
+out=$(env WAYLAND_DISPLAY=dlea-modes-test-display DISPLAY=:99 PATH=/nonexistent-dlea-test-path $BIN --gui 2>&1 </dev/null)
 check "two non-empty displays are accepted" "1" "$(echo "$out" | grep -c 'the window could not start')"
 
-# A flea-gui found neither beside flea nor on PATH is a broken install, so the error names the binary and its cause.
-out=$(env WAYLAND_DISPLAY=flea-modes-test-display PATH=/nonexistent-flea-test-path $BIN --gui 2>&1 </dev/null)
+# A dlea-gui found neither beside dlea nor on PATH is a broken install, so the error names the binary and its cause.
+out=$(env WAYLAND_DISPLAY=dlea-modes-test-display PATH=/nonexistent-dlea-test-path $BIN --gui 2>&1 </dev/null)
 check "missing GPUI binary is named" "1" "$(echo "$out" | grep -c 'the window could not start')"
 check "missing GPUI binary carries its cause" "1" "$(echo "$out" | grep -c 'os error')"
 
@@ -120,7 +120,7 @@ check "missing GPUI binary carries its cause" "1" "$(echo "$out" | grep -c 'os e
 out=$(env -u WAYLAND_DISPLAY -u DISPLAY $BIN . 2>&1 </dev/null)
 check "no flag defaults to the window" "1" "$(echo "$out" | grep -c 'no graphical session')"
 
-# A shell PTY proves bare flea still means the product that exists, not the reserved terminal interface.
+# A shell PTY proves bare dlea still means the product that exists, not the reserved terminal interface.
 out=$(env -u WAYLAND_DISPLAY -u DISPLAY script -qec "$BIN ." /dev/null 2>&1)
 check "no flag at a terminal defaults to the window" "1" "$(echo "$out" | grep -c 'no graphical session')"
 
@@ -135,55 +135,55 @@ check "--tui --gui is a usage error" "2" "$rc"
 check "--tui --gui names the conflict" "1" "$(echo "$out" | grep -c 'cannot be used together')"
 
 # The prctl and renderer choice have to survive exec, so a stub qs reports the launched child.
-D="$FIXTURE_ROOT/flea-thp-test-$$"
+D="$FIXTURE_ROOT/dlea-thp-test-$$"
 sandbox_make "$D"
 # One stub reports everything the launch has to carry across exec, huge pages and target included.
-cat > "$D/flea-gui" <<'STUB'
+cat > "$D/dlea-gui" <<'STUB'
 #!/bin/sh
 grep -i "^THP_enabled" /proc/self/status
-printf 'FLEA_BIN %s\n' "$FLEA_BIN"
+printf 'DLEA_BIN %s\n' "$DLEA_BIN"
 printf 'RENDERER %s\n' "$QSG_RHI_BACKEND"
-printf 'AUTOMATIC %s\n' "${FLEA_RENDERER_AUTOMATIC-unset}"
+printf 'AUTOMATIC %s\n' "${DLEA_RENDERER_AUTOMATIC-unset}"
 printf 'ICD %s\n' "${VK_ICD_FILENAMES-unset}"
 printf 'DRIVER_FILES %s\n' "${VK_DRIVER_FILES-unset}"
 printf 'ARGV %s\n' "$*"
-printf 'FLEA_PATH %s\n' "${FLEA_PATH-unset}"
-printf 'FLEA_SELECT %s\n' "${FLEA_SELECT-unset}"
+printf 'DLEA_PATH %s\n' "${DLEA_PATH-unset}"
+printf 'DLEA_SELECT %s\n' "${DLEA_SELECT-unset}"
 printf 'PLATFORM_THEME %s\n' "${QT_QPA_PLATFORMTHEME-unset}"
-printf 'PREFETCH %s\n' "${FLEA_PREFETCH-unset}"
-printf 'PREFETCH_SHELL %s %s\n' "${FLEA_PREFETCH_SHELL-unset}" "$$"
+printf 'PREFETCH %s\n' "${DLEA_PREFETCH-unset}"
+printf 'PREFETCH_SHELL %s %s\n' "${DLEA_PREFETCH_SHELL-unset}" "$$"
 printf 'ICON_THEME %s\n' "${QS_ICON_THEME-unset}"
-printf 'THEME_MARKER %s\n' "${FLEA_QT_THEME-unset}"
+printf 'THEME_MARKER %s\n' "${DLEA_QT_THEME-unset}"
 printf 'DRIVERS_DISABLE %s\n' "${VK_LOADER_DRIVERS_DISABLE-unset}"
-printf 'DISABLE_MARKER %s\n' "${FLEA_VK_DISABLE-unset}"
+printf 'DISABLE_MARKER %s\n' "${DLEA_VK_DISABLE-unset}"
 STUB
-chmod +x "$D/flea-gui"
-out=$(env FLEA_BIN=stale FLEA_UI="$UI_REAL" WAYLAND_DISPLAY=flea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
+chmod +x "$D/dlea-gui"
+out=$(env DLEA_BIN=stale DLEA_UI="$UI_REAL" WAYLAND_DISPLAY=dlea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
 check "the launched shell has transparent huge pages off" "1" \
   "$(echo "$out" | grep -c 'THP_enabled:[[:space:]]*0')"
 check "the launched shell reported its THP state at all" "1" "$(echo "$out" | grep -c 'THP_enabled')"
 # GPUI opens its own window, so the default launch hands the binary no QML entry.
 check "the default launch targets GPUI without a QML entry" "ARGV " "$(echo "$out" | grep '^ARGV ')"
-# 24003ab made an explicit FLEA_BIN the operator's choice, the rule FLEA_UI and QSG_RHI_BACKEND
+# 24003ab made an explicit DLEA_BIN the operator's choice, the rule DLEA_UI and QSG_RHI_BACKEND
 # already follow, and this check was left asserting the behaviour that commit replaced. The launch
 # above sets one deliberately, so the operator's own value is what must reach the shell; the unset
 # case further down is the one that derives the running binary.
-check "an explicit FLEA_BIN is the operator's, and reaches the shell" "FLEA_BIN stale" \
-  "$(echo "$out" | grep '^FLEA_BIN ')"
+check "an explicit DLEA_BIN is the operator's, and reaches the shell" "DLEA_BIN stale" \
+  "$(echo "$out" | grep '^DLEA_BIN ')"
 check "GPUI chooses its own renderer" "1" "$(echo "$out" | grep -c '^RENDERER $')"
 check "GPUI inherits no QML retry" "1" "$(echo "$out" | grep -c '^AUTOMATIC unset$')"
-# Which drivers are excluded depends on this box's GPUs, but the marker always names the exact filter Flea wrote.
+# Which drivers are excluded depends on this box's GPUs, but the marker always names the exact filter Dlea wrote.
 disabled=$(echo "$out" | sed -n 's/^DRIVERS_DISABLE //p')
 check "a driver exclusion and its marker travel together" "$disabled" "$(echo "$out" | sed -n 's/^DISABLE_MARKER //p')"
-out=$(env VK_ICD_FILENAMES=/tmp/flea-operator-icd.json WAYLAND_DISPLAY=flea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
-check "an explicit ICD list is preserved" "1" "$(echo "$out" | grep -c '^ICD /tmp/flea-operator-icd.json$')"
-out=$(env VK_DRIVER_FILES=/tmp/flea-operator-driver.json WAYLAND_DISPLAY=flea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
-check "an explicit driver file list is preserved" "1" "$(echo "$out" | grep -c '^DRIVER_FILES /tmp/flea-operator-driver.json$')"
+out=$(env VK_ICD_FILENAMES=/tmp/dlea-operator-icd.json WAYLAND_DISPLAY=dlea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
+check "an explicit ICD list is preserved" "1" "$(echo "$out" | grep -c '^ICD /tmp/dlea-operator-icd.json$')"
+out=$(env VK_DRIVER_FILES=/tmp/dlea-operator-driver.json WAYLAND_DISPLAY=dlea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
+check "an explicit driver file list is preserved" "1" "$(echo "$out" | grep -c '^DRIVER_FILES /tmp/dlea-operator-driver.json$')"
 check "and an explicit driver file list excludes no driver" "1" "$(echo "$out" | grep -c '^DRIVERS_DISABLE unset$')"
-# The loader's own filter is the operator's too, and Flea neither replaces it nor marks it as its own.
-out=$(env VK_LOADER_DRIVERS_DISABLE=flea-operator_icd.json WAYLAND_DISPLAY=flea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
-check "an operator's own driver filter is preserved" "1" "$(echo "$out" | grep -c '^DRIVERS_DISABLE flea-operator_icd.json$')"
-check "and it is not marked as Flea's" "1" "$(echo "$out" | grep -c '^DISABLE_MARKER unset$')"
+# The loader's own filter is the operator's too, and Dlea neither replaces it nor marks it as its own.
+out=$(env VK_LOADER_DRIVERS_DISABLE=dlea-operator_icd.json WAYLAND_DISPLAY=dlea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
+check "an operator's own driver filter is preserved" "1" "$(echo "$out" | grep -c '^DRIVERS_DISABLE dlea-operator_icd.json$')"
+check "and it is not marked as Dlea's" "1" "$(echo "$out" | grep -c '^DISABLE_MARKER unset$')"
 # The system roots src/icdexclude.rs searches beyond XDG_*: a loader settings file there excludes nothing on its own.
 system_settings=""
 for root in /etc/xdg /etc /usr/local/share /usr/share; do
@@ -199,7 +199,7 @@ for root in "${settings_roots[@]}"; do
 done
 # A loader settings file can add or choose drivers itself, so its presence is the operator's choice as well.
 mkdir -p "$D/xdg/vulkan/loader_settings.d" && printf '{}\n' > "$D/xdg/vulkan/loader_settings.d/vk_loader_settings.json"
-out=$(env XDG_CONFIG_DIRS="$D/xdg" WAYLAND_DISPLAY=flea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
+out=$(env XDG_CONFIG_DIRS="$D/xdg" WAYLAND_DISPLAY=dlea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
 if [ -z "$inherited_settings" ]; then
   check "a loader settings file excludes no driver" "1" "$(echo "$out" | grep -c '^DRIVERS_DISABLE unset$')"
 else
@@ -242,7 +242,7 @@ if [ "$decidable" = 1 ]; then
   if [ -z "$plant_lib" ]; then case "$lower " in *" $intel_id "*) ;; *) plant_lib="$intel_lib" ;; esac; fi
   [ -n "$plant_lib" ] || { decidable=0; skip_reason="every known vendor is present"; }
 fi
-[ "$decidable" = 1 ] && printf '{"ICD":{"library_path":"%s"}}\n' "$plant_lib" > "$probe/data/vulkan/icd.d/flea_probe_absent_icd.json"
+[ "$decidable" = 1 ] && printf '{"ICD":{"library_path":"%s"}}\n' "$plant_lib" > "$probe/data/vulkan/icd.d/dlea_probe_absent_icd.json"
 # Mirrors is_hasvk_intel in src/vulkan.rs: a hasvk-class Intel device keeps the hasvk manifest, any other present set excludes it.
 hasvk_here=0
 if [ "$decidable" = 1 ]; then
@@ -252,59 +252,59 @@ if [ "$decidable" = 1 ]; then
     { [ "$((d))" -lt "$((hasvk_ceiling))" ] && [ "$((d))" -ne "$((broxton_below))" ]; } && hasvk_here=1
     for c in $cherryview_ids; do [ "$((d))" -eq "$((c))" ] && hasvk_here=1; done
   done
-  printf '{"ICD":{"library_path":"%s"}}\n' "$hasvk_lib" > "$probe/data/vulkan/icd.d/flea_probe_hasvk_icd.json"
+  printf '{"ICD":{"library_path":"%s"}}\n' "$hasvk_lib" > "$probe/data/vulkan/icd.d/dlea_probe_hasvk_icd.json"
 fi
 if [ "$decidable" = 1 ]; then
   out=$(env XDG_CONFIG_HOME="$probe/config" XDG_CONFIG_DIRS="" XDG_DATA_HOME="$probe/data" XDG_DATA_DIRS="" HOME="$probe/home" \
-    WAYLAND_DISPLAY=flea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
+    WAYLAND_DISPLAY=dlea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
   disabled=$(echo "$out" | sed -n 's/^DRIVERS_DISABLE //p')
-  check "a planted absent-vendor manifest is excluded" "1" "$(echo "$disabled" | grep -c 'flea_probe_absent_icd.json')"
+  check "a planted absent-vendor manifest is excluded" "1" "$(echo "$disabled" | grep -c 'dlea_probe_absent_icd.json')"
   check "and the marker names that same filter" "$disabled" "$(echo "$out" | sed -n 's/^DISABLE_MARKER //p')"
   if [ "$hasvk_here" = 0 ]; then
-    check "a planted hasvk manifest is excluded without a hasvk-class GPU" "1" "$(echo "$disabled" | grep -c 'flea_probe_hasvk_icd.json')"
+    check "a planted hasvk manifest is excluded without a hasvk-class GPU" "1" "$(echo "$disabled" | grep -c 'dlea_probe_hasvk_icd.json')"
   else
-    check "a planted hasvk manifest is kept beside a hasvk-class GPU" "0" "$(echo "$disabled" | grep -c 'flea_probe_hasvk_icd.json')"
+    check "a planted hasvk manifest is kept beside a hasvk-class GPU" "0" "$(echo "$disabled" | grep -c 'dlea_probe_hasvk_icd.json')"
   fi
   mkdir -p "$probe/config/vulkan/loader_settings.d" && printf '{}\n' > "$probe/config/vulkan/loader_settings.d/vk_loader_settings.json"
   out=$(env XDG_CONFIG_HOME="$probe/config" XDG_CONFIG_DIRS="" XDG_DATA_HOME="$probe/data" XDG_DATA_DIRS="" HOME="$probe/home" \
-    WAYLAND_DISPLAY=flea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
+    WAYLAND_DISPLAY=dlea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
   check "a loader settings file excludes nothing, planted manifest included" "1" "$(echo "$out" | grep -c '^DRIVERS_DISABLE unset$')"
   rm "$probe/config/vulkan/loader_settings.d/vk_loader_settings.json"
   out=$(env XDG_CONFIG_HOME="$probe/config" XDG_CONFIG_DIRS="" XDG_DATA_HOME="$probe/data" XDG_DATA_DIRS="" HOME="$probe/home" \
-    VK_DRIVER_FILES=/tmp/flea-operator-driver.json WAYLAND_DISPLAY=flea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
+    VK_DRIVER_FILES=/tmp/dlea-operator-driver.json WAYLAND_DISPLAY=dlea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
   check "an operator driver choice excludes nothing, planted manifest included" "1" "$(echo "$out" | grep -c '^DRIVERS_DISABLE unset$')"
 else
   echo "skip: $skip_reason, leaving the decision to the unit tests"
 fi
 # A new window or the OpenGL retry inherits the shell's own filter, which the launcher decides again in every arm.
 for renderer in "" opengl; do
-  out=$(env QSG_RHI_BACKEND="$renderer" VK_LOADER_DRIVERS_DISABLE=flea-stale_icd.json FLEA_VK_DISABLE=flea-stale_icd.json \
-    WAYLAND_DISPLAY=flea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
-  check "an inherited Flea exclusion is decided again${renderer:+ on $renderer}, not passed on" "0" "$(echo "$out" | grep -c 'flea-stale_icd.json')"
+  out=$(env QSG_RHI_BACKEND="$renderer" VK_LOADER_DRIVERS_DISABLE=dlea-stale_icd.json DLEA_VK_DISABLE=dlea-stale_icd.json \
+    WAYLAND_DISPLAY=dlea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
+  check "an inherited Dlea exclusion is decided again${renderer:+ on $renderer}, not passed on" "0" "$(echo "$out" | grep -c 'dlea-stale_icd.json')"
   disabled=$(echo "$out" | sed -n 's/^DRIVERS_DISABLE //p')
   check "and the fresh decision${renderer:+ on $renderer} carries its own marker" "$disabled" "$(echo "$out" | sed -n 's/^DISABLE_MARKER //p')"
 done
 # A marker that leaked into a shell the operator then changed the filter in names another filter, which stays theirs.
-out=$(env VK_LOADER_DRIVERS_DISABLE=flea-operator_icd.json FLEA_VK_DISABLE=flea-stale_icd.json \
-  WAYLAND_DISPLAY=flea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
-check "a filter its leaked marker does not name is the operator's" "1" "$(echo "$out" | grep -c '^DRIVERS_DISABLE flea-operator_icd.json$')"
+out=$(env VK_LOADER_DRIVERS_DISABLE=dlea-operator_icd.json DLEA_VK_DISABLE=dlea-stale_icd.json \
+  WAYLAND_DISPLAY=dlea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
+check "a filter its leaked marker does not name is the operator's" "1" "$(echo "$out" | grep -c '^DRIVERS_DISABLE dlea-operator_icd.json$')"
 check "and the stale marker is not handed on" "1" "$(echo "$out" | grep -c '^DISABLE_MARKER unset$')"
 # A main window strips obsolete renderer choices and replaces inherited prefetch ownership.
-out=$(env QSG_RHI_BACKEND=opengl FLEA_RENDERER_AUTOMATIC=stale FLEA_PREFETCH=stale FLEA_PREFETCH_SHELL=1 \
-  WAYLAND_DISPLAY=flea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
+out=$(env QSG_RHI_BACKEND=opengl DLEA_RENDERER_AUTOMATIC=stale DLEA_PREFETCH=stale DLEA_PREFETCH_SHELL=1 \
+  WAYLAND_DISPLAY=dlea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
 check "GPUI clears the Qt renderer choice" "RENDERER " "$(echo "$out" | grep '^RENDERER ')"
 check "GPUI clears the QML retry marker" "AUTOMATIC unset" "$(echo "$out" | grep '^AUTOMATIC ')"
-check "GPUI replaces inherited prefetch ownership with its current list" "PREFETCH $CACHE_ROOT/flea/prefetch" "$(echo "$out" | grep '^PREFETCH ')"
-out=$(env -u FLEA_BIN WAYLAND_DISPLAY=flea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
-check "an unset FLEA_BIN is derived from the running binary" "FLEA_BIN $BIN_REAL" "$(echo "$out" | grep '^FLEA_BIN ')"
-out=$(env FLEA_FRONTEND=qml WAYLAND_DISPLAY=flea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
+check "GPUI replaces inherited prefetch ownership with its current list" "PREFETCH $CACHE_ROOT/dlea/prefetch" "$(echo "$out" | grep '^PREFETCH ')"
+out=$(env -u DLEA_BIN WAYLAND_DISPLAY=dlea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
+check "an unset DLEA_BIN is derived from the running binary" "DLEA_BIN $BIN_REAL" "$(echo "$out" | grep '^DLEA_BIN ')"
+out=$(env DLEA_FRONTEND=qml WAYLAND_DISPLAY=dlea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
 rc=$?
 check "the legacy GUI route refuses" "2" "$rc"
-check "the legacy GUI route gives one sentence" "flea: the QML frontend is no longer available; unset FLEA_FRONTEND to open the GPUI window" "$out"
+check "the legacy GUI route gives one sentence" "dlea: the QML frontend is no longer available; unset DLEA_FRONTEND to open the GPUI window" "$out"
 
-# A chooser started from a Flea terminal inherits both variables and must not record over the main window's list.
-out=$(env FLEA_PICKER='{"stub":true}' FLEA_PREFETCH="$D/stale-list" FLEA_PREFETCH_SHELL=1 FLEA_UI="$UI_REAL" \
-  WAYLAND_DISPLAY=flea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --pick "$D/reply.json" 2>&1 </dev/null)
+# A chooser started from a Dlea terminal inherits both variables and must not record over the main window's list.
+out=$(env DLEA_PICKER='{"stub":true}' DLEA_PREFETCH="$D/stale-list" DLEA_PREFETCH_SHELL=1 DLEA_UI="$UI_REAL" \
+  WAYLAND_DISPLAY=dlea-modes-test-display PATH="$D:/usr/bin:/bin" $BIN --pick "$D/reply.json" 2>&1 </dev/null)
 check "a chooser drops the prefetch list" "PREFETCH unset" "$(echo "$out" | grep '^PREFETCH ')"
 check "and the shell pid with it" "1" "$(echo "$out" | grep -c '^PREFETCH_SHELL unset ')"
 
@@ -339,7 +339,7 @@ done
 
 # --open resolves the target, refuses a directory, and hands anything else to gio open, which is
 # the route that reads the desktop database and so honours Terminal=true; see "Opening a file".
-D="$FIXTURE_ROOT/flea-open-test-$$"
+D="$FIXTURE_ROOT/dlea-open-test-$$"
 sandbox_make "$D"
 mkdir -p "$D/dir" "$D/bin" "$D/failbin" "$D/lingerbin"
 printf 'hello' > "$D/file.txt"
@@ -355,7 +355,7 @@ printf 'hello' > "$D/$newline_name"
 opened="$D/opened.log"
 # The last argument on its own, because a name with a newline in it cannot be read back off a line.
 last_arg="$D/last-arg"
-# Sample input: gio open /home/flea-sandbox/flea-open-test-123/file.txt
+# Sample input: gio open /home/dlea-sandbox/dlea-open-test-123/file.txt
 # No strip-to-paren here: cut reads its OWN stat, comm is bare "cut", and its pgid is the stub's by fork.
 {
   printf '#!/bin/sh\n'
@@ -365,15 +365,15 @@ last_arg="$D/last-arg"
   printf 'printf "NARGS %%s\\n" "$#"\n'
   printf 'printf "ICD %%s\\n" "${VK_ICD_FILENAMES-unset}"\n'
   printf 'printf "DRIVER_FILES %%s\\n" "${VK_DRIVER_FILES-unset}"\n'
-  printf 'printf "PIN %%s\\n" "${FLEA_VK_PIN-unset}"\n'
+  printf 'printf "PIN %%s\\n" "${DLEA_VK_PIN-unset}"\n'
   printf 'printf "DRIVERS_DISABLE %%s\\n" "${VK_LOADER_DRIVERS_DISABLE-unset}"\n'
-  printf 'printf "DISABLE_MARKER %%s\\n" "${FLEA_VK_DISABLE-unset}"\n'
+  printf 'printf "DISABLE_MARKER %%s\\n" "${DLEA_VK_DISABLE-unset}"\n'
   printf 'printf "THEME %%s\\n" "${QT_QPA_PLATFORMTHEME-unset}"\n'
   printf 'printf "ICON_THEME %%s\\n" "${QS_ICON_THEME-unset}"\n'
-  printf 'printf "THEME_MARKER %%s\\n" "${FLEA_QT_THEME-unset}"\n'
-  printf 'printf "TAB_PID %%s\\n" "${FLEA_TAB_SOURCE_PID-unset}"\n'
-  printf 'printf "TAB_CURSOR %%s\\n" "${FLEA_TAB_CURSOR-unset}"\n'
-  printf 'printf "TAB_TOKEN %%s\\n" "${FLEA_TAB_TOKEN-unset}"\n'
+  printf 'printf "THEME_MARKER %%s\\n" "${DLEA_QT_THEME-unset}"\n'
+  printf 'printf "TAB_PID %%s\\n" "${DLEA_TAB_SOURCE_PID-unset}"\n'
+  printf 'printf "TAB_CURSOR %%s\\n" "${DLEA_TAB_CURSOR-unset}"\n'
+  printf 'printf "TAB_TOKEN %%s\\n" "${DLEA_TAB_TOKEN-unset}"\n'
   printf 'printf "ARGV %%s\\n" "$*"\n'
   printf 'shift $(($# - 1)); printf "%%s" "$1" > %q\n' "$last_arg"
   printf 'P=$(cut -d" " -f5 /proc/self/stat)\n'
@@ -387,14 +387,14 @@ printf '#!/bin/sh\nexit 3\n' > "$D/failbin/$open_handoff"
 chmod +x "$D/failbin/$open_handoff"
 
 : > "$opened"
-# Quickshell hands flea --open a pipe and closes it, so a pipe is exactly what the handler must not inherit.
+# Quickshell hands dlea --open a pipe and closes it, so a pipe is exactly what the handler must not inherit.
 PATH="$D/bin:/usr/bin:/bin" $BIN --open "$D/file.txt" 2>&1 | cat >/dev/null
 # THP_enabled is the stub's last line, so waiting for it is waiting for the whole record.
 wait_for_line "$opened" '^THP_enabled'
 out=$(cat "$opened")
 check "--open hands the file to gio open" "1" "$(echo "$out" | grep -c "^ARGV open $D/file.txt$")"
 check "and gio is given the subcommand and the path and nothing else" "1" "$(echo "$out" | grep -c '^NARGS 2$')"
-# A pipe here dies with the flea that made it, and the handler dies with it on its first write.
+# A pipe here dies with the dlea that made it, and the handler dies with it on its first write.
 check "the opened program got no inherited pipe" "1" "$(echo "$out" | grep -c '^FD1 /dev/null$')"
 check "and the stub reported its first descriptor at all" "1" "$(echo "$out" | grep -c '^FD1 ')"
 # Field five of /proc/self/stat is the process group; it equals the pid only after setpgid(0, 0).
@@ -425,8 +425,8 @@ check "and --open waited for a launcher that outlived its own last write" "1" \
   "$([ -n "$lingering_pid" ] && ! kill -0 "$lingering_pid" 2>/dev/null && echo 1 || echo 0)"
 
 : > "$opened"
-# Flea's own pin carries a marker, and only a marked pin is taken back off a program Flea opens.
-VK_ICD_FILENAMES=/tmp/flea-pin-icd.json VK_DRIVER_FILES=/tmp/flea-pin-driver.json FLEA_VK_PIN=1 \
+# Dlea's own pin carries a marker, and only a marked pin is taken back off a program Dlea opens.
+VK_ICD_FILENAMES=/tmp/dlea-pin-icd.json VK_DRIVER_FILES=/tmp/dlea-pin-driver.json DLEA_VK_PIN=1 \
   PATH="$D/bin:/usr/bin:/bin" $BIN --open "$D/file.txt" 2>&1 | cat >/dev/null
 # The status wanted is the launcher's own, not cat's, which is 0 whatever happened upstream.
 check "the marked-pin open returned success" "0" "${PIPESTATUS[0]}"
@@ -437,8 +437,8 @@ check "and its driver file list goes with it" "1" "$(echo "$out" | grep -c '^DRI
 check "and the marker itself does not leak onward" "1" "$(echo "$out" | grep -c '^PIN unset$')"
 
 : > "$opened"
-# Flea's own driver exclusion is marked with its exact value, and is taken back off a program Flea opens.
-VK_LOADER_DRIVERS_DISABLE=flea-absent_icd.json FLEA_VK_DISABLE=flea-absent_icd.json \
+# Dlea's own driver exclusion is marked with its exact value, and is taken back off a program Dlea opens.
+VK_LOADER_DRIVERS_DISABLE=dlea-absent_icd.json DLEA_VK_DISABLE=dlea-absent_icd.json \
   PATH="$D/bin:/usr/bin:/bin" $BIN --open "$D/file.txt" 2>&1 | cat >/dev/null
 check "the marked-exclusion open returned success" "0" "${PIPESTATUS[0]}"
 wait_for_line "$opened" '^THP_enabled'
@@ -448,49 +448,49 @@ check "and its marker does not leak onward" "1" "$(echo "$out" | grep -c '^DISAB
 
 : > "$opened"
 # A leaked marker naming another filter makes the filter beside it the operator's, so only the marker goes.
-VK_LOADER_DRIVERS_DISABLE=flea-operator_icd.json FLEA_VK_DISABLE=flea-absent_icd.json \
+VK_LOADER_DRIVERS_DISABLE=dlea-operator_icd.json DLEA_VK_DISABLE=dlea-absent_icd.json \
   PATH="$D/bin:/usr/bin:/bin" $BIN --open "$D/file.txt" 2>&1 | cat >/dev/null
 check "the leaked-marker open returned success" "0" "${PIPESTATUS[0]}"
 wait_for_line "$opened" '^THP_enabled'
 out=$(cat "$opened")
-check "an operator's filter beside a leaked marker reaches the opened program" "1" "$(echo "$out" | grep -c '^DRIVERS_DISABLE flea-operator_icd.json$')"
+check "an operator's filter beside a leaked marker reaches the opened program" "1" "$(echo "$out" | grep -c '^DRIVERS_DISABLE dlea-operator_icd.json$')"
 check "and the leaked marker does not" "1" "$(echo "$out" | grep -c '^DISABLE_MARKER unset$')"
 
 : > "$opened"
 # An operator's own list carries no marker, so it must survive into the program they open.
-VK_ICD_FILENAMES=/tmp/flea-operator-icd.json VK_DRIVER_FILES=/tmp/flea-operator-driver.json \
-  VK_LOADER_DRIVERS_DISABLE=flea-operator_icd.json PATH="$D/bin:/usr/bin:/bin" $BIN --open "$D/file.txt" 2>&1 | cat >/dev/null
+VK_ICD_FILENAMES=/tmp/dlea-operator-icd.json VK_DRIVER_FILES=/tmp/dlea-operator-driver.json \
+  VK_LOADER_DRIVERS_DISABLE=dlea-operator_icd.json PATH="$D/bin:/usr/bin:/bin" $BIN --open "$D/file.txt" 2>&1 | cat >/dev/null
 check "the operator-list open returned success" "0" "${PIPESTATUS[0]}"
 wait_for_line "$opened" '^THP_enabled'
 out=$(cat "$opened")
-check "an operator's own ICD list reaches the opened program" "1" "$(echo "$out" | grep -c '^ICD /tmp/flea-operator-icd.json$')"
-check "and so does their own driver file list" "1" "$(echo "$out" | grep -c '^DRIVER_FILES /tmp/flea-operator-driver.json$')"
-check "and so does their own driver filter" "1" "$(echo "$out" | grep -c '^DRIVERS_DISABLE flea-operator_icd.json$')"
+check "an operator's own ICD list reaches the opened program" "1" "$(echo "$out" | grep -c '^ICD /tmp/dlea-operator-icd.json$')"
+check "and so does their own driver file list" "1" "$(echo "$out" | grep -c '^DRIVER_FILES /tmp/dlea-operator-driver.json$')"
+check "and so does their own driver filter" "1" "$(echo "$out" | grep -c '^DRIVERS_DISABLE dlea-operator_icd.json$')"
 
 : > "$opened"
 # An exported but empty marker is absent, so it must not turn an operator's own list into a pin.
-VK_ICD_FILENAMES=/tmp/flea-operator-icd.json VK_DRIVER_FILES=/tmp/flea-operator-driver.json FLEA_VK_PIN= \
+VK_ICD_FILENAMES=/tmp/dlea-operator-icd.json VK_DRIVER_FILES=/tmp/dlea-operator-driver.json DLEA_VK_PIN= \
   PATH="$D/bin:/usr/bin:/bin" $BIN --open "$D/file.txt" 2>&1 | cat >/dev/null
 check "the empty-marker open returned success" "0" "${PIPESTATUS[0]}"
 wait_for_line "$opened" '^THP_enabled'
 out=$(cat "$opened")
-check "an empty marker leaves an operator's ICD list alone" "1" "$(echo "$out" | grep -c '^ICD /tmp/flea-operator-icd.json$')"
-check "and leaves their driver file list alone" "1" "$(echo "$out" | grep -c '^DRIVER_FILES /tmp/flea-operator-driver.json$')"
+check "an empty marker leaves an operator's ICD list alone" "1" "$(echo "$out" | grep -c '^ICD /tmp/dlea-operator-icd.json$')"
+check "and leaves their driver file list alone" "1" "$(echo "$out" | grep -c '^DRIVER_FILES /tmp/dlea-operator-driver.json$')"
 
 : > "$opened"
 # What the launcher traded for its own startup, the program it opens gets back, and nothing else.
-env -u QT_QPA_PLATFORMTHEME QS_ICON_THEME=Yaru-blue FLEA_QT_THEME=gtk3 \
+env -u QT_QPA_PLATFORMTHEME QS_ICON_THEME=Yaru-blue DLEA_QT_THEME=gtk3 \
   PATH="$D/bin:/usr/bin:/bin" $BIN --open "$D/file.txt" 2>&1 | cat >/dev/null
 check "the traded-theme open returned success" "0" "${PIPESTATUS[0]}"
 wait_for_line "$opened" '^THP_enabled'
 out=$(cat "$opened")
 check "an opened program gets the traded platform theme back" "THEME gtk3" "$(echo "$out" | grep '^THEME ')"
-check "and not the icon theme Flea named for Quickshell" "ICON_THEME unset" "$(echo "$out" | grep '^ICON_THEME ')"
+check "and not the icon theme Dlea named for Quickshell" "ICON_THEME unset" "$(echo "$out" | grep '^ICON_THEME ')"
 check "and not the marker that said so" "THEME_MARKER unset" "$(echo "$out" | grep '^THEME_MARKER ')"
 
 : > "$opened"
 # The tear-off hand-off belongs to the one window ui/TabBar.qml starts, so nothing this window launches replays it.
-FLEA_TAB_SOURCE_PID=111 FLEA_TAB_CURSOR=same.txt FLEA_TAB_TOKEN=old-lift \
+DLEA_TAB_SOURCE_PID=111 DLEA_TAB_CURSOR=same.txt DLEA_TAB_TOKEN=old-lift \
   PATH="$D/bin:/usr/bin:/bin" $BIN --open "$D/file.txt" 2>&1 | cat >/dev/null
 check "the tear-off open returned success" "0" "${PIPESTATUS[0]}"
 wait_for_line "$opened" '^THP_enabled'
@@ -511,7 +511,7 @@ check "and leaves an operator's own icon theme alone" "ICON_THEME Papirus" "$(ec
 
 : > "$opened"
 # An exported but empty marker is absent, the rule the pin marker beside it already follows.
-env QT_QPA_PLATFORMTHEME=qt6ct QS_ICON_THEME=Papirus FLEA_QT_THEME= \
+env QT_QPA_PLATFORMTHEME=qt6ct QS_ICON_THEME=Papirus DLEA_QT_THEME= \
   PATH="$D/bin:/usr/bin:/bin" $BIN --open "$D/file.txt" 2>&1 | cat >/dev/null
 check "the empty-theme-marker open returned success" "0" "${PIPESTATUS[0]}"
 wait_for_line "$opened" '^THP_enabled'
@@ -549,7 +549,7 @@ check "a broken symlink is an error status" "2" "$rc"
 check "and one sentence, with no errno" "0" "$(echo "$out" | grep -c 'os error')"
 check "and that sentence names the file" "1" "$(echo "$out" | grep -c 'could not be opened')"
 
-out=$(env PATH=/nonexistent-flea-test-path $BIN --open "$D/file.txt" 2>&1)
+out=$(env PATH=/nonexistent-dlea-test-path $BIN --open "$D/file.txt" 2>&1)
 rc=$?
 check "a missing gio is an error status" "2" "$rc"
 check "and is elided too" "0" "$(echo "$out" | grep -c 'os error')"
@@ -594,12 +594,12 @@ for handoff in $handoffs; do
   check "PKGBUILD depends on $package, which ships $handoff" "1" "$( (. ./PKGBUILD && printf '%s\n' "${depends[@]}") | grep -cxF "$package")"
 done
 
-# The stub flea-gui is what exec_window launched, so it inherits huge pages off; --open must hand them back.
+# The stub dlea-gui is what exec_window launched, so it inherits huge pages off; --open must hand them back.
 : > "$last_arg"
-printf '#!/bin/sh\ngrep -i "^THP_enabled" /proc/self/status | sed "s/^/QS /"\nexec %s --open %s\n' "$BIN_REAL" "$D/file.txt" > "$D/bin/flea-gui"
-chmod +x "$D/bin/flea-gui"
+printf '#!/bin/sh\ngrep -i "^THP_enabled" /proc/self/status | sed "s/^/QS /"\nexec %s --open %s\n' "$BIN_REAL" "$D/file.txt" > "$D/bin/dlea-gui"
+chmod +x "$D/bin/dlea-gui"
 : > "$opened"
-out=$(env WAYLAND_DISPLAY=flea-modes-test-display PATH="$D/bin:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
+out=$(env WAYLAND_DISPLAY=dlea-modes-test-display PATH="$D/bin:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
 # src/open.rs:43 waits for the launcher, so the stub's record is whole when the chain returns and this wait returns at once.
 wait_for_line "$opened" '^THP_enabled'
 check "the shell inherited huge pages off" "1" "$(echo "$out" | grep -c '^QS THP_enabled:[[:space:]]*0')"
@@ -610,7 +610,7 @@ sandbox_remove "$D"
 # to xdg-terminal-exec as one --dir= argument. src/terminal.rs is its own copy of the stdio, process
 # group and huge page guards --open carries, so each one is pinned here rather than assumed to have
 # travelled with the code; see "Opening a file".
-D="$FIXTURE_ROOT/flea-terminal-test-$$"
+D="$FIXTURE_ROOT/dlea-terminal-test-$$"
 sandbox_make "$D"
 mkdir -p "$D/dir" "$D/bin"
 printf 'hello' > "$D/file.txt"
@@ -618,7 +618,7 @@ ln -s "$D/dir" "$D/linkdir"
 ln -s "$D/nowhere" "$D/broken"
 # Its stdio is detached, so everything the terminal has to say goes to this log, not to our stdout.
 ran="$D/ran.log"
-# Sample input: xdg-terminal-exec --dir=/home/flea-sandbox/flea-terminal-test-123/dir
+# Sample input: xdg-terminal-exec --dir=/home/dlea-sandbox/dlea-terminal-test-123/dir
 # No strip-to-paren here: cut reads its OWN stat, comm is bare "cut", and its pgid is the stub's by fork.
 {
   printf '#!/bin/sh\n'
@@ -628,15 +628,15 @@ ran="$D/ran.log"
   printf 'printf "NARGS %%s\\n" "$#"\n'
   printf 'printf "ICD %%s\\n" "${VK_ICD_FILENAMES-unset}"\n'
   printf 'printf "DRIVER_FILES %%s\\n" "${VK_DRIVER_FILES-unset}"\n'
-  printf 'printf "PIN %%s\\n" "${FLEA_VK_PIN-unset}"\n'
+  printf 'printf "PIN %%s\\n" "${DLEA_VK_PIN-unset}"\n'
   printf 'printf "DRIVERS_DISABLE %%s\\n" "${VK_LOADER_DRIVERS_DISABLE-unset}"\n'
-  printf 'printf "DISABLE_MARKER %%s\\n" "${FLEA_VK_DISABLE-unset}"\n'
+  printf 'printf "DISABLE_MARKER %%s\\n" "${DLEA_VK_DISABLE-unset}"\n'
   printf 'printf "THEME %%s\\n" "${QT_QPA_PLATFORMTHEME-unset}"\n'
   printf 'printf "ICON_THEME %%s\\n" "${QS_ICON_THEME-unset}"\n'
-  printf 'printf "THEME_MARKER %%s\\n" "${FLEA_QT_THEME-unset}"\n'
-  printf 'printf "TAB_PID %%s\\n" "${FLEA_TAB_SOURCE_PID-unset}"\n'
-  printf 'printf "TAB_CURSOR %%s\\n" "${FLEA_TAB_CURSOR-unset}"\n'
-  printf 'printf "TAB_TOKEN %%s\\n" "${FLEA_TAB_TOKEN-unset}"\n'
+  printf 'printf "THEME_MARKER %%s\\n" "${DLEA_QT_THEME-unset}"\n'
+  printf 'printf "TAB_PID %%s\\n" "${DLEA_TAB_SOURCE_PID-unset}"\n'
+  printf 'printf "TAB_CURSOR %%s\\n" "${DLEA_TAB_CURSOR-unset}"\n'
+  printf 'printf "TAB_TOKEN %%s\\n" "${DLEA_TAB_TOKEN-unset}"\n'
   printf 'printf "ARGV %%s\\n" "$*"\n'
   printf 'P=$(cut -d" " -f5 /proc/self/stat)\n'
   printf '[ "$$" = "$P" ] && printf "PGID MATCH pid=%%s pgid=%%s\\n" "$$" "$P" || printf "PGID MISMATCH pid=%%s pgid=%%s\\n" "$$" "$P"\n'
@@ -645,7 +645,7 @@ ran="$D/ran.log"
 chmod +x "$D/bin/$terminal_handoff"
 
 : > "$ran"
-# Quickshell hands flea --terminal a pipe and closes it, so a pipe is what the terminal must not inherit.
+# Quickshell hands dlea --terminal a pipe and closes it, so a pipe is what the terminal must not inherit.
 PATH="$D/bin:/usr/bin:/bin" $BIN --terminal "$D/dir" 2>&1 | cat >/dev/null
 # --terminal spawns and returns without waiting: against a stub that slept half a second before its
 # first write it returned with the log still empty, so every line below arrives after it has exited.
@@ -653,7 +653,7 @@ wait_for_line "$ran" '^THP_enabled'
 out=$(cat "$ran")
 check "--terminal hands the directory to xdg-terminal-exec" "1" "$(echo "$out" | grep -c -- "^ARGV --dir=$D/dir$")"
 check "and it is given that one argument and nothing else" "1" "$(echo "$out" | grep -c '^NARGS 1$')"
-# A pipe here dies with the flea that made it, and the terminal dies with it on its first write.
+# A pipe here dies with the dlea that made it, and the terminal dies with it on its first write.
 check "the terminal got no inherited pipe" "1" "$(echo "$out" | grep -c '^FD1 /dev/null$')"
 check "and the stub reported its first descriptor at all" "1" "$(echo "$out" | grep -c '^FD1 ')"
 # Field five of /proc/self/stat is the process group; it equals the pid only after setpgid(0, 0).
@@ -664,8 +664,8 @@ check "a plain --terminal leaves huge pages on" "1" "$(echo "$out" | grep -c '^T
 check "and the stub reported its THP state at all" "1" "$(echo "$out" | grep -c 'THP_enabled')"
 
 : > "$ran"
-# Flea's own pin carries a marker, and only a marked pin is taken back off a terminal Flea opens.
-VK_ICD_FILENAMES=/tmp/flea-pin-icd.json VK_DRIVER_FILES=/tmp/flea-pin-driver.json FLEA_VK_PIN=1 \
+# Dlea's own pin carries a marker, and only a marked pin is taken back off a terminal Dlea opens.
+VK_ICD_FILENAMES=/tmp/dlea-pin-icd.json VK_DRIVER_FILES=/tmp/dlea-pin-driver.json DLEA_VK_PIN=1 \
   PATH="$D/bin:/usr/bin:/bin" $BIN --terminal "$D/dir" 2>&1 | cat >/dev/null
 # Same reason as the open path's marker arms: cat's status says nothing about the launcher.
 check "the marked-pin terminal returned success" "0" "${PIPESTATUS[0]}"
@@ -676,8 +676,8 @@ check "and its driver file list goes with it" "1" "$(echo "$out" | grep -c '^DRI
 check "and the marker does not leak into the terminal" "1" "$(echo "$out" | grep -c '^PIN unset$')"
 
 : > "$ran"
-# Flea's own driver exclusion is taken back off a terminal Flea opens, the same as its pin.
-VK_LOADER_DRIVERS_DISABLE=flea-absent_icd.json FLEA_VK_DISABLE=flea-absent_icd.json \
+# Dlea's own driver exclusion is taken back off a terminal Dlea opens, the same as its pin.
+VK_LOADER_DRIVERS_DISABLE=dlea-absent_icd.json DLEA_VK_DISABLE=dlea-absent_icd.json \
   PATH="$D/bin:/usr/bin:/bin" $BIN --terminal "$D/dir" 2>&1 | cat >/dev/null
 check "the marked-exclusion terminal returned success" "0" "${PIPESTATUS[0]}"
 wait_for_line "$ran" '^THP_enabled'
@@ -687,49 +687,49 @@ check "and its marker does not leak into the terminal" "1" "$(echo "$out" | grep
 
 : > "$ran"
 # The terminal path reaches the same ownership test, so it needs the leaked-marker arm of its own.
-VK_LOADER_DRIVERS_DISABLE=flea-operator_icd.json FLEA_VK_DISABLE=flea-absent_icd.json \
+VK_LOADER_DRIVERS_DISABLE=dlea-operator_icd.json DLEA_VK_DISABLE=dlea-absent_icd.json \
   PATH="$D/bin:/usr/bin:/bin" $BIN --terminal "$D/dir" 2>&1 | cat >/dev/null
 check "the leaked-marker terminal returned success" "0" "${PIPESTATUS[0]}"
 wait_for_line "$ran" '^THP_enabled'
 out=$(cat "$ran")
-check "an operator's filter beside a leaked marker reaches the terminal" "1" "$(echo "$out" | grep -c '^DRIVERS_DISABLE flea-operator_icd.json$')"
+check "an operator's filter beside a leaked marker reaches the terminal" "1" "$(echo "$out" | grep -c '^DRIVERS_DISABLE dlea-operator_icd.json$')"
 check "and the leaked marker does not reach the terminal" "1" "$(echo "$out" | grep -c '^DISABLE_MARKER unset$')"
 
 : > "$ran"
 # An operator's own list carries no marker, so it must survive into the terminal they open.
-VK_ICD_FILENAMES=/tmp/flea-operator-icd.json VK_DRIVER_FILES=/tmp/flea-operator-driver.json \
-  VK_LOADER_DRIVERS_DISABLE=flea-operator_icd.json PATH="$D/bin:/usr/bin:/bin" $BIN --terminal "$D/dir" 2>&1 | cat >/dev/null
+VK_ICD_FILENAMES=/tmp/dlea-operator-icd.json VK_DRIVER_FILES=/tmp/dlea-operator-driver.json \
+  VK_LOADER_DRIVERS_DISABLE=dlea-operator_icd.json PATH="$D/bin:/usr/bin:/bin" $BIN --terminal "$D/dir" 2>&1 | cat >/dev/null
 check "the operator-list terminal returned success" "0" "${PIPESTATUS[0]}"
 wait_for_line "$ran" '^THP_enabled'
 out=$(cat "$ran")
-check "an operator's own ICD list reaches the terminal" "1" "$(echo "$out" | grep -c '^ICD /tmp/flea-operator-icd.json$')"
-check "and so does their own driver file list" "1" "$(echo "$out" | grep -c '^DRIVER_FILES /tmp/flea-operator-driver.json$')"
-check "and so does their own driver filter in a terminal" "1" "$(echo "$out" | grep -c '^DRIVERS_DISABLE flea-operator_icd.json$')"
+check "an operator's own ICD list reaches the terminal" "1" "$(echo "$out" | grep -c '^ICD /tmp/dlea-operator-icd.json$')"
+check "and so does their own driver file list" "1" "$(echo "$out" | grep -c '^DRIVER_FILES /tmp/dlea-operator-driver.json$')"
+check "and so does their own driver filter in a terminal" "1" "$(echo "$out" | grep -c '^DRIVERS_DISABLE dlea-operator_icd.json$')"
 
 : > "$ran"
 # Both spawn sites reach one shared guard, pin_is_marked, so each needs this arm of its own.
-VK_ICD_FILENAMES=/tmp/flea-operator-icd.json VK_DRIVER_FILES=/tmp/flea-operator-driver.json FLEA_VK_PIN= \
+VK_ICD_FILENAMES=/tmp/dlea-operator-icd.json VK_DRIVER_FILES=/tmp/dlea-operator-driver.json DLEA_VK_PIN= \
   PATH="$D/bin:/usr/bin:/bin" $BIN --terminal "$D/dir" 2>&1 | cat >/dev/null
 check "the empty-marker terminal returned success" "0" "${PIPESTATUS[0]}"
 wait_for_line "$ran" '^THP_enabled'
 out=$(cat "$ran")
-check "an empty marker leaves an operator's ICD list alone in a terminal" "1" "$(echo "$out" | grep -c '^ICD /tmp/flea-operator-icd.json$')"
-check "and leaves their driver file list alone in a terminal" "1" "$(echo "$out" | grep -c '^DRIVER_FILES /tmp/flea-operator-driver.json$')"
+check "an empty marker leaves an operator's ICD list alone in a terminal" "1" "$(echo "$out" | grep -c '^ICD /tmp/dlea-operator-icd.json$')"
+check "and leaves their driver file list alone in a terminal" "1" "$(echo "$out" | grep -c '^DRIVER_FILES /tmp/dlea-operator-driver.json$')"
 
 : > "$ran"
 # The same hand-back on the terminal path, which carries its own copy of these guards.
-env -u QT_QPA_PLATFORMTHEME QS_ICON_THEME=Yaru-blue FLEA_QT_THEME=gtk3 \
+env -u QT_QPA_PLATFORMTHEME QS_ICON_THEME=Yaru-blue DLEA_QT_THEME=gtk3 \
   PATH="$D/bin:/usr/bin:/bin" $BIN --terminal "$D/dir" 2>&1 | cat >/dev/null
 check "the traded-theme terminal returned success" "0" "${PIPESTATUS[0]}"
 wait_for_line "$ran" '^THP_enabled'
 out=$(cat "$ran")
 check "a terminal gets the traded platform theme back" "THEME gtk3" "$(echo "$out" | grep '^THEME ')"
-check "and not the icon theme Flea named for Quickshell" "ICON_THEME unset" "$(echo "$out" | grep '^ICON_THEME ')"
+check "and not the icon theme Dlea named for Quickshell" "ICON_THEME unset" "$(echo "$out" | grep '^ICON_THEME ')"
 check "and not the marker that said so" "THEME_MARKER unset" "$(echo "$out" | grep '^THEME_MARKER ')"
 
 : > "$ran"
-# The terminal path takes the same refusal: a tab lift replayed in a shell Flea started would move a cursor it never asked for.
-FLEA_TAB_SOURCE_PID=111 FLEA_TAB_CURSOR=same.txt FLEA_TAB_TOKEN=old-lift \
+# The terminal path takes the same refusal: a tab lift replayed in a shell Dlea started would move a cursor it never asked for.
+DLEA_TAB_SOURCE_PID=111 DLEA_TAB_CURSOR=same.txt DLEA_TAB_TOKEN=old-lift \
   PATH="$D/bin:/usr/bin:/bin" $BIN --terminal "$D/dir" 2>&1 | cat >/dev/null
 check "the tear-off terminal returned success" "0" "${PIPESTATUS[0]}"
 wait_for_line "$ran" '^THP_enabled'
@@ -749,7 +749,7 @@ check "an unmarked terminal keeps the platform theme" "THEME qt6ct" "$(echo "$ou
 check "and keeps an operator's own icon theme" "ICON_THEME Papirus" "$(echo "$out" | grep '^ICON_THEME ')"
 
 : > "$ran"
-env QT_QPA_PLATFORMTHEME=qt6ct QS_ICON_THEME=Papirus FLEA_QT_THEME= \
+env QT_QPA_PLATFORMTHEME=qt6ct QS_ICON_THEME=Papirus DLEA_QT_THEME= \
   PATH="$D/bin:/usr/bin:/bin" $BIN --terminal "$D/dir" 2>&1 | cat >/dev/null
 check "the empty-theme-marker terminal returned success" "0" "${PIPESTATUS[0]}"
 wait_for_line "$ran" '^THP_enabled'
@@ -776,7 +776,7 @@ check "a dangling link opens its listing folder in a terminal" "0" "$rc"
 wait_for_line "$ran" '^THP_enabled'
 check "the terminal receives the dangling link parent" "1" "$(grep -c -- "^ARGV --dir=$D$" "$ran")"
 
-out=$(env PATH=/nonexistent-flea-test-path $BIN --terminal "$D/dir" 2>&1)
+out=$(env PATH=/nonexistent-dlea-test-path $BIN --terminal "$D/dir" 2>&1)
 rc=$?
 check "a missing xdg-terminal-exec is an error status" "2" "$rc"
 check "and is elided too" "0" "$(echo "$out" | grep -c 'os error')"
@@ -786,11 +786,11 @@ check "and that sentence names the handler" "1" "$(echo "$out" | grep -c 'nothin
 out=$($BIN --terminal 2>&1 </dev/null)
 check "--terminal with no path is a usage error" "1" "$(echo "$out" | grep -c -- '--terminal')"
 
-# exec_window starts the stub flea-gui with huge pages off, so only this arm proves --terminal hands them back.
-printf '#!/bin/sh\nexec %s --terminal %s\n' "$BIN_REAL" "$D/dir" > "$D/bin/flea-gui"
-chmod +x "$D/bin/flea-gui"
+# exec_window starts the stub dlea-gui with huge pages off, so only this arm proves --terminal hands them back.
+printf '#!/bin/sh\nexec %s --terminal %s\n' "$BIN_REAL" "$D/dir" > "$D/bin/dlea-gui"
+chmod +x "$D/bin/dlea-gui"
 : > "$ran"
-env WAYLAND_DISPLAY=flea-modes-test-display PATH="$D/bin:/usr/bin:/bin" $BIN --gui >/dev/null 2>&1 </dev/null
+env WAYLAND_DISPLAY=dlea-modes-test-display PATH="$D/bin:/usr/bin:/bin" $BIN --gui >/dev/null 2>&1 </dev/null
 # The sandbox is removed below and src/terminal.rs:40 is a spawn, so this wait is what keeps the stub
 # from being deleted out from under the chain that is still starting it.
 wait_for_line "$ran" '^THP_enabled'
@@ -798,15 +798,15 @@ check "the terminal got its huge pages back through the shell" "1" "$(grep -c '^
 sandbox_remove "$D"
 
 # Issue 41. A handler declaring Terminal=true has to be run inside a terminal or it maps no window
-# at all, and which programs need one is the desktop database's judgement, never Flea's. This drives
+# at all, and which programs need one is the desktop database's judgement, never Dlea's. This drives
 # the real gio against an isolated XDG_DATA_HOME and XDG_CONFIG_HOME, so the operator's own MIME
 # state is neither read nor written, and a stub xdg-terminal-exec records whether it was reached.
-T="$FIXTURE_ROOT/flea-terminal-entry-$$"
+T="$FIXTURE_ROOT/dlea-terminal-entry-$$"
 sandbox_make "$T"
 mkdir -p "$T/data/applications" "$T/config" "$T/bin"
 terminal_log="$T/ran.log"
-{ printf '#!/bin/sh\n'; printf 'printf "HANDLER %%s\\n" "$*" >> %q\n' "$terminal_log"; } > "$T/bin/flea-t41-handler"
-chmod +x "$T/bin/flea-t41-handler"
+{ printf '#!/bin/sh\n'; printf 'printf "HANDLER %%s\\n" "$*" >> %q\n' "$terminal_log"; } > "$T/bin/dlea-t41-handler"
+chmod +x "$T/bin/dlea-t41-handler"
 # What glib runs a Terminal=true entry inside; glib names this one, not src/terminal.rs, so it is
 # not derived, and it records the call and then runs the command itself.
 { printf '#!/bin/sh\n'; printf 'printf "TERMINAL %%s\\n" "$*" >> %q\n' "$terminal_log"; printf 'exec "$@"\n'; } > "$T/bin/xdg-terminal-exec"
@@ -814,13 +814,13 @@ chmod +x "$T/bin/xdg-terminal-exec"
 {
   printf '[Desktop Entry]\n'
   printf 'Type=Application\n'
-  printf 'Name=Flea issue 41 handler\n'
-  printf 'Exec=flea-t41-handler %%f\n'
+  printf 'Name=Dlea issue 41 handler\n'
+  printf 'Exec=dlea-t41-handler %%f\n'
   printf 'Terminal=true\n'
   printf 'NoDisplay=true\n'
   printf 'MimeType=text/plain;\n'
-} > "$T/data/applications/flea-t41.desktop"
-printf '[Default Applications]\ntext/plain=flea-t41.desktop\n' > "$T/config/mimeapps.list"
+} > "$T/data/applications/dlea-t41.desktop"
+printf '[Default Applications]\ntext/plain=dlea-t41.desktop\n' > "$T/config/mimeapps.list"
 printf 'hello\n' > "$T/note.txt"
 # Built if the tool is here and skipped if it is not; the checks below read the run, not this.
 update-desktop-database "$T/data/applications" >/dev/null 2>&1
@@ -840,7 +840,7 @@ sandbox_remove "$T"
 out=$(printf '{"c":"quit"}\n' | $BIN --backend)
 check "--backend still runs" "0" "$?"
 
-D="$FIXTURE_ROOT/flea-modes-test-$$"
+D="$FIXTURE_ROOT/dlea-modes-test-$$"
 sandbox_make "$D"
 mkdir -p "$D"; : > "$D/a.txt"
 $BIN --prewarm "$D" 1 "$D/out.json" >/dev/null 2>&1
@@ -855,7 +855,7 @@ check "and names the accepted shape" "1" "$(echo "$out" | grep -c -- '--default 
 
 # With no desktop entry installed, --default must refuse and touch nothing: pointing
 # xdg-mime or Hyprland's bindings at an uninstalled binary would be a claim on nothing.
-D="$FIXTURE_ROOT/flea-default-missing-test-$$"
+D="$FIXTURE_ROOT/dlea-default-missing-test-$$"
 sandbox_make "$D"
 mkdir -p "$D/data" "$D/config/hypr"
 printf -- '-- stock omarchy bindings\n' > "$D/config/hypr/bindings.lua"
@@ -870,10 +870,10 @@ sandbox_remove "$D"
 
 # At a terminal --picker restarts the portal as Settings does; piped, it leaves that to its caller.
 sandbox_root_ok
-D=$(mktemp -d "$SANDBOX_ROOT/flea-portal-restart-test.XXXXXX") || exit 1
+D=$(mktemp -d "$SANDBOX_ROOT/dlea-portal-restart-test.XXXXXX") || exit 1
 : > "$D/$SANDBOX_MARKER"
 mkdir -p "$D/data/xdg-desktop-portal/portals" "$D/config/hypr" "$D/bin"
-: > "$D/data/xdg-desktop-portal/portals/flea.portal"
+: > "$D/data/xdg-desktop-portal/portals/dlea.portal"
 printf -- '-- stock omarchy bindings\n' > "$D/config/hypr/bindings.lua"
 # Sample input: systemctl --user try-restart xdg-desktop-portal.service
 printf '#!/bin/sh\nprintf "%%s\\n" "$*" >> "%s/restarts"\nexit "$(cat "%s/restart-status")"\n' "$D" "$D" > "$D/bin/systemctl"
@@ -894,7 +894,7 @@ restarted="xdg-desktop-portal restarted if it was running, so file dialogs follo
 at_startup="xdg-desktop-portal reads this at startup: systemctl --user restart xdg-desktop-portal"
 command -v script >/dev/null || check "script(1) is installed for the terminal cases" "yes" "no"
 out=$("${picker_env[@]}" "$BIN_REAL" --picker 2>&1 </dev/null)
-check "a piped --picker claims" "1" "$(grep -c 'flea;gtk, written to' <<<"$out")"
+check "a piped --picker claims" "1" "$(grep -c 'dlea;gtk, written to' <<<"$out")"
 check "a piped --picker restarts nothing" "0" "$(restarts)"
 check "and ends on the restart command instead" "$at_startup" "$(grep '^xdg-desktop-portal ' <<<"$out")"
 out=$(at_terminal "" --picker off)
@@ -920,25 +920,25 @@ printf '%s' "$nautilus" > "$shadow"
 out=$(at_terminal "" --picker)
 check "the claim names the desktop file it wrote" "1" "$(grep -c 'written to .*hyprland-portals.conf, the file xdg-desktop-portal reads on this desktop' <<<"$out")"
 check "and the backend it replaced" "1" "$(grep -c 'it named gnome;gtk before, and the undo below puts that back' <<<"$out")"
-check "the desktop file now routes the chooser to flea" "1" "$(grep -cx 'org.freedesktop.impl.portal.FileChooser=flea;gtk' "$shadow")"
-check "and keeps the note naming what it replaced" "1" "$(grep -cx '# flea replaced: org.freedesktop.impl.portal.FileChooser=gnome;gtk' "$shadow")"
+check "the desktop file now routes the chooser to dlea" "1" "$(grep -cx 'org.freedesktop.impl.portal.FileChooser=dlea;gtk' "$shadow")"
+check "and keeps the note naming what it replaced" "1" "$(grep -cx '# dlea replaced: org.freedesktop.impl.portal.FileChooser=gnome;gtk' "$shadow")"
 check "and keeps its default line" "1" "$(grep -cx 'default=hyprland;gtk' "$shadow")"
 check "a routed claim at a terminal restarts the portal" "4" "$(restarts)"
 check "and says file dialogs follow now" "$restarted" "$(grep '^xdg-desktop-portal ' <<<"$out")"
-check "an older Flea's portals.conf line is still there before the undo" "1" "$(grep -cx 'org.freedesktop.impl.portal.FileChooser=flea;gtk' "$D/config/xdg-desktop-portal/portals.conf")"
+check "an older Dlea's portals.conf line is still there before the undo" "1" "$(grep -cx 'org.freedesktop.impl.portal.FileChooser=dlea;gtk' "$D/config/xdg-desktop-portal/portals.conf")"
 # The undo reads the directory, not the session: an off run over ssh has no XDG_CURRENT_DESKTOP.
 no_desktop=(env -u XDG_CURRENT_DESKTOP)
 for setting in "${picker_env[@]:1}"; do [ "$setting" = XDG_CURRENT_DESKTOP=Hyprland ] || no_desktop+=("$setting"); done
 out=$(script -qec "$(printf '%q ' "${no_desktop[@]}" "$BIN_REAL" --picker off)" /dev/null </dev/null | tr -d '\r')
 check "--picker off puts the replaced backend back byte for byte" "${nautilus}x" "$(cat "$shadow"; printf x)"
 check "and says so, without the session's desktop to name the file" "1" "$(grep -c 'gnome;gtk put back in .*hyprland-portals.conf' <<<"$out")"
-check "and removes the portals.conf an older Flea left, naming it" "1" "$(grep -c 'portals.conf held nothing else, so it is gone' <<<"$out")"
+check "and removes the portals.conf an older Dlea left, naming it" "1" "$(grep -c 'portals.conf held nothing else, so it is gone' <<<"$out")"
 check "which is gone" "no" "$([ -e "$D/config/xdg-desktop-portal/portals.conf" ] && echo yes || echo no)"
 check "and restarts the portal once more" "5" "$(restarts)"
 # Without the session's desktop a claim cannot tell which file the portal reads, so it refuses before either half writes.
 binds_before=$(cat "$D/config/hypr/bindings.lua"; printf x)
 out=$(script -qec "$(printf '%q ' "${no_desktop[@]}" "$BIN_REAL" --picker); echo rc=\$?" /dev/null </dev/null | tr -d '\r')
-check "a claim with no desktop named beside a desktop file refuses" "1" "$(grep -c 'The desktop is unknown, so Flea cannot tell whether this desktop reads .*hyprland-portals.conf' <<<"$out")"
+check "a claim with no desktop named beside a desktop file refuses" "1" "$(grep -c 'The desktop is unknown, so Dlea cannot tell whether this desktop reads .*hyprland-portals.conf' <<<"$out")"
 check "and exits 1" "1" "$(grep -cx 'rc=1' <<<"$out")"
 check "and leaves that file as it was" "${nautilus}x" "$(cat "$shadow"; printf x)"
 check "and writes no picker window rule into bindings.lua" "$binds_before" "$(cat "$D/config/hypr/bindings.lua"; printf x)"
@@ -947,7 +947,7 @@ check "and restarts nothing" "5" "$(restarts)"
 # With no desktop named and no desktop file, portals.conf is the only user file the portal can read.
 [ -n "$D" ] && [[ "$D" = /* ]] && [ -f "$D/$SANDBOX_MARKER" ] && [[ "$shadow" = "$D/"* ]] && rm -- "$shadow"
 out=$(script -qec "$(printf '%q ' "${no_desktop[@]}" "$BIN_REAL" --picker); echo rc=\$?" /dev/null </dev/null | tr -d '\r')
-check "a claim with no desktop named and no desktop file writes portals.conf" "1" "$(grep -c 'flea;gtk, written to .*/xdg-desktop-portal/portals.conf' <<<"$out")"
+check "a claim with no desktop named and no desktop file writes portals.conf" "1" "$(grep -c 'dlea;gtk, written to .*/xdg-desktop-portal/portals.conf' <<<"$out")"
 check "and exits 0" "1" "$(grep -cx 'rc=0' <<<"$out")"
 check "and restarts the portal" "6" "$(restarts)"
 # The routing alone decides: a claim whose float block fails (no bindings.lua) still exits 1 but restarts.
@@ -988,7 +988,7 @@ out=$($BIN --select "file:///home/gm/My%20Files/note.txt" --print-target 2>&1)
 check "select: a percent-encoded uri decodes" "/home/gm/My Files /home/gm/My Files/note.txt" "$out"
 
 # A relative --select names a child of the launch directory, so the pair is absolute before the window sees it.
-D="$FIXTURE_ROOT/flea-relselect-$$"
+D="$FIXTURE_ROOT/dlea-relselect-$$"
 sandbox_make "$D"
 mkdir -p "$D/deep/er"
 D_REAL=$(cd "$D" && pwd -P)
@@ -998,9 +998,9 @@ out=$(cd "$D/deep/er" && "$BIN_REAL" --select ../x --print-target 2>&1)
 check "select: a dot dot name folds into an absolute pair" "$D_REAL/deep $D_REAL/deep/x" "$out"
 out=$(cd "$D/deep/er" && "$BIN_REAL" --select ./sub/note.txt --print-target 2>&1)
 check "select: a dot slash name drops the dot" "$D_REAL/deep/er/sub $D_REAL/deep/er/sub/note.txt" "$out"
-# A stand-in flea-gui prints the start and select arguments the window is handed.
+# A stand-in dlea-gui prints the start and select arguments the window is handed.
 mkdir -p "$D/bin" "$D/home" "$D/data" "$D/cache"
-cat > "$D/bin/flea-gui" <<'START_STUB'
+cat > "$D/bin/dlea-gui" <<'START_STUB'
 #!/bin/sh
 start=""; select=unset
 while [ "$#" -gt 0 ]; do
@@ -1012,11 +1012,11 @@ while [ "$#" -gt 0 ]; do
 done
 printf 'START %s\nSELECT %s\n' "$start" "$select"
 START_STUB
-chmod +x "$D/bin/flea-gui"
+chmod +x "$D/bin/dlea-gui"
 relstart_launch() {
   local cwd="$1"; shift
-  (cd "$cwd" && env -u FLEA_PATH -u FLEA_SELECT HOME="$D/home" XDG_DATA_HOME="$D/data" XDG_CACHE_HOME="$D/cache" \
-    WAYLAND_DISPLAY=flea-modes-test-display PATH="$D/bin:/usr/bin:/bin" "$BIN_REAL" --gui "$@" 2>"$D/relstart.err" </dev/null)
+  (cd "$cwd" && env -u DLEA_PATH -u DLEA_SELECT HOME="$D/home" XDG_DATA_HOME="$D/data" XDG_CACHE_HOME="$D/cache" \
+    WAYLAND_DISPLAY=dlea-modes-test-display PATH="$D/bin:/usr/bin:/bin" "$BIN_REAL" --gui "$@" 2>"$D/relstart.err" </dev/null)
 }
 relstart_check() {
   check "$1" "$2" "$3"
@@ -1037,16 +1037,16 @@ SELECT $D_REAL/deep/x" "$out"
 sandbox_remove "$D"
 
 # u1-nopin: a GPUI launch leaves adapter choice to GPUI, so the launcher hands its child no driver pin.
-VKD="$FIXTURE_ROOT/flea-nopin-$$"
+VKD="$FIXTURE_ROOT/dlea-nopin-$$"
 sandbox_make "$VKD"
 mkdir -p "$VKD/bin" "$VKD/cache" "$VKD/data" "$VKD/home"
-cat > "$VKD/bin/flea-gui" <<'STUB'
+cat > "$VKD/bin/dlea-gui" <<'STUB'
 #!/bin/sh
 printf 'DRIVER_FILES %s\n' "${VK_DRIVER_FILES-unset}"
 STUB
-chmod +x "$VKD/bin/flea-gui"
+chmod +x "$VKD/bin/dlea-gui"
 out=$(env XDG_CACHE_HOME="$VKD/cache" XDG_DATA_HOME="$VKD/data" HOME="$VKD/home" \
-  WAYLAND_DISPLAY=flea-modes-test-display PATH="$VKD/bin:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
+  WAYLAND_DISPLAY=dlea-modes-test-display PATH="$VKD/bin:/usr/bin:/bin" $BIN --gui 2>&1 </dev/null)
 check "a GPUI launch reaches the GPUI child with no driver pin" "1" "$(echo "$out" | grep -c '^DRIVER_FILES unset$')"
 sandbox_remove "$VKD"
 sandbox_remove "$CACHE_ROOT"

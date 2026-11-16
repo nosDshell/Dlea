@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-button-hueless-test
+//@ pragma ShellId dlea-button-hueless-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "button-probe.js" as Probe
 import "qml-probe.js" as QmlProbe
 
@@ -41,9 +41,9 @@ ShellRoot {
 
         Item {
             anchors.fill: parent
-            Flea.ProtocolChip { id: picked; x: 20; y: 10; label: "Picked"; picked: true }
-            Flea.ProtocolChip { id: unpicked; x: 140; y: 10; label: "Unpicked" }
-            Flea.SettingsSegment { id: format; x: 20; y: 60; options: ["7z", "zip"]; value: "7z"; tabStop: true }
+            Dlea.ProtocolChip { id: picked; x: 20; y: 10; label: "Picked"; picked: true }
+            Dlea.ProtocolChip { id: unpicked; x: 140; y: 10; label: "Unpicked" }
+            Dlea.SettingsSegment { id: format; x: 20; y: 60; options: ["7z", "zip"]; value: "7z"; tabStop: true }
             Item { id: parking; y: 100; width: 10; height: 10; focus: true }
         }
     }
@@ -72,10 +72,10 @@ ShellRoot {
 
     // One theme: its accent has no colour, so each focused chip draws its own frame 2 px in the foreground, inward, and moves nothing.
     function hueless(name, body) {
-        var c = Flea.Theme.color, rgba = Probe.rgba
-        Flea.Theme.applyColors(body)
+        var c = Dlea.Theme.color, rgba = Probe.rgba
+        Dlea.Theme.applyColors(body)
         parking.forceActiveFocus()
-        var h = Flea.Theme.spacing.hairline
+        var h = Dlea.Theme.spacing.hairline
         var restCold = Probe.read(unpicked)
         var restWarm = Probe.read(picked)
         var cold = Probe.focusRead(unpicked)
@@ -97,20 +97,20 @@ ShellRoot {
     }
 
     function run() {
-        var c = Flea.Theme.color, rgba = Probe.rgba
+        var c = Dlea.Theme.color, rgba = Probe.rgba
         var inside = shell.rootDir.length > 0 && (Quickshell.env("HOME") || "").indexOf(shell.rootDir + "/") === 0
         shell.check("sandbox: HOME lies under the harness root", inside, true)
         if (!inside) { shell.finish(); return }
-        Flea.Theme.applyColors(Probe.COLOURED_THEME)
+        Dlea.Theme.applyColors(Probe.COLOURED_THEME)
         shell.check("tokyo-night's accent has a hue, apart from its foreground", [c.accentHasHue, rgba(c.accent) !== rgba(c.foreground)], [true, true])
         shell.hueless("kanagawa", Probe.KANAGAWA_THEME)
         shell.hueless("white", Probe.WHITE_THEME)
-        Flea.Theme.applyColors(Probe.COLOURED_THEME)
+        Dlea.Theme.applyColors(Probe.COLOURED_THEME)
         parking.forceActiveFocus()
         var back = Probe.focusRead(unpicked)
-        shell.check("the coloured accent is back with its accent hairline focus frame", [c.accentHasHue, back.frameColor, back.frameWidth, back.ringItem], [true, rgba(c.accent), Flea.Theme.spacing.hairline, false])
+        shell.check("the coloured accent is back with its accent hairline focus frame", [c.accentHasHue, back.frameColor, back.frameWidth, back.ringItem], [true, rgba(c.accent), Dlea.Theme.spacing.hairline, false])
         var seg = shell.segmentRead()
-        shell.check("a focused Format segment on the coloured accent is its accent hairline", seg ? [seg.frameColor, seg.frameWidth, seg.inside] : null, [rgba(c.accent), Flea.Theme.spacing.hairline, true])
+        shell.check("a focused Format segment on the coloured accent is its accent hairline", seg ? [seg.frameColor, seg.frameWidth, seg.inside] : null, [rgba(c.accent), Dlea.Theme.spacing.hairline, true])
         shell.finish()
     }
 

@@ -1,4 +1,4 @@
-# Flea 0.4.3
+# Dlea 0.4.3
 
 - Use a touchscreen again on Wayland: tap to click, double tap to open, and scroll List, Grid and the preview with a moving finger (#479, @nicolasfalesy).
 - Leave a window open and idle without its CPU and memory climbing (#478, @Imacx-maria).
@@ -15,7 +15,7 @@
 - Preview a 3MF project with many parts instead of ending the preview worker (#467, @ids444).
 - Delete Permanently on rclone mounts that renumber a file when it is renamed, for files and folders, without a refused delete renaming every object on the mount (#464, @lzm3, @jekitf).
 - Measure folder sizes without crossing into, or mounting, autofs and network mounts below the folder (#458, @hachre).
-- Open a favourite again when its folder comes back, without restarting Flea (#462, @nicolasfalesy).
+- Open a favourite again when its folder comes back, without restarting Dlea (#462, @nicolasfalesy).
 - Reload a phone folder that stopped answering from its not-responding state (#144, @mfilm77).
 - Drop a file on a symlink that points at a folder and have it land in that folder, as on a folder row.
 - Turn on Wrap at row ends in Settings > View, off by default: in Grid, Right on a row's last tile moves to the next row's first and Left on a row's first tile to the previous row's last (#434, #433, @letargopausado-byte; #447, @manish0467; #439, @reverb256).

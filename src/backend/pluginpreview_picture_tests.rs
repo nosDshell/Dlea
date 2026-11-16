@@ -99,7 +99,7 @@ fn plugin_preview_validates_pixel_formats_and_compressed_scanlines() {
 
 #[test]
 fn plugin_preview_retention_child() {
-    let Some(root) = std::env::var_os("FLEA_TEST_PLUGIN_PREVIEW_ROOT") else {
+    let Some(root) = std::env::var_os("DLEA_TEST_PLUGIN_PREVIEW_ROOT") else {
         return;
     };
     let root = PathBuf::from(root).canonicalize().unwrap();
@@ -111,8 +111,8 @@ fn plugin_preview_retention_child() {
         .file_name()
         .unwrap()
         .to_string_lossy()
-        .starts_with("flea-test-"));
-    assert!(root.join(".flea-test-sandbox").is_file());
+        .starts_with("dlea-test-"));
+    assert!(root.join(".dlea-test-sandbox").is_file());
     let work = Work::new(&root).unwrap();
     std::fs::write(work.0.join(PNG_NAME), PNG).unwrap();
     assert!(picture(&work.0, &root).unwrap().0.is_file());
@@ -142,7 +142,7 @@ fn plugin_preview_retention_preserves_another_process_fresh_publication() {
             "--exact",
             "backend::pluginpreview::picture_tests::plugin_preview_retention_child",
         ])
-        .env("FLEA_TEST_PLUGIN_PREVIEW_ROOT", root)
+        .env("DLEA_TEST_PLUGIN_PREVIEW_ROOT", root)
         .output()
         .unwrap();
     assert!(

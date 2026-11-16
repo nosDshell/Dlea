@@ -24,8 +24,8 @@ Item {
     signal failed(string text, var origin)
     signal notice(string text, var origin)
 
-    // The test seam: FLEA_GVFS_FUSE names a fake bridge command the way FLEA_BIN names one.
-    property string fuseEnv: Quickshell.env("FLEA_GVFS_FUSE") || ""
+    // The test seam: DLEA_GVFS_FUSE names a fake bridge command the way DLEA_BIN names one.
+    property string fuseEnv: Quickshell.env("DLEA_GVFS_FUSE") || ""
     property string runtimeDir: Quickshell.env("XDG_RUNTIME_DIR") || ""
     // Which question checkProcess is answering: the directory check, the file check, a wait
     // poll or the classify after a poll landed.

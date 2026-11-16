@@ -2,12 +2,12 @@
 # Leaving the TUI while mpv is still drawing writes none of mpv's bytes after the terminal is restored.
 set -u
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete below.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [[ -x "$bin" ]] || { echo 'FAIL tui-quit-playing needs the candidate binary'; exit 1; }
 
-scratch="$FIXTURE_ROOT/flea-tui-quit-playing-$$"
+scratch="$FIXTURE_ROOT/dlea-tui-quit-playing-$$"
 sandbox_make "$scratch" || exit 1
 cleanup() { sandbox_remove "$scratch"; }
 trap cleanup EXIT

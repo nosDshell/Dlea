@@ -40,7 +40,7 @@ var INVENTORY = [
     // it carries are the ones that take a path and not the clipboard, archive, send or destroy ones.
     ["openTab", "New tab", "plus", "P", "open"],
     ["openwith", "Open with", "app-window", "F", "open", "openWith"],
-    // The run card's own entrances: Run asks through flea --open like Enter does, so the card stays the one place anything executes.
+    // The run card's own entrances: Run asks through dlea --open like Enter does, so the card stays the one place anything executes.
     ["run", "Run", "play", "F", "open"],
     ["openAsText", "Open as text", "file-text", "F", "open"],
     // Mount and Unmount are one toggle; a locked container offers Unlock alone (ui/UnlockDialog.qml).
@@ -75,7 +75,7 @@ var INVENTORY = [
     ["convert", "Convert", "sliders", "F", "archive"],
     // Flash to drive opens the flasher with this image chosen, after Convert.
     ["flashDrive", "Flash to drive", "drive", "F", "archive"],
-    // Flea's own spiral drawn static: FleaMark paints in over two seconds, which a menu row never waits for.
+    // Dlea's own spiral drawn static: DleaMark paints in over two seconds, which a menu row never waits for.
     ["shelf", "Add to shelf", "shelf", "F", "share", "addToShelf"],
     ["taildrop", "Send with Taildrop", "tailscale", "F", "share"],
     // MenuAdditions rule 1: between Taildrop and Dropbox, present only while a localsend binary is
@@ -94,7 +94,7 @@ var INVENTORY = [
     ["makeExecutable", "Make executable", "play", "F", "inspect", "makeExecutable"],
     // MenuAdditions040: Copy as replaces the file menu's hidden Copy path row; a place keeps the flat Copy path behind the same switch.
     ["copyAs", "Copy as", "file-text", "FP", "inspect", "copyAs"],
-    // MenuAdditions rule 2: after Copy as, one row per executable in ~/.config/flea/scripts, and
+    // MenuAdditions rule 2: after Copy as, one row per executable in ~/.config/dlea/scripts, and
     // absent rather than greyed when that directory is missing or holds none.
     ["runScript", "Run script", "terminal", "F", "inspect"],
     // MenuAdditions040 specimen e: Compare sits before Add to Favorites, with no key, and is absent unless two regular files are marked.
@@ -107,7 +107,7 @@ var INVENTORY = [
     ["toggleLangMarks", "Show code icons", "code", "FB", "view"],
     ["extThumbs", "Show thumbnails", "image", "B", "view"],
     ["settings", "Settings", "sliders", "B", "settings"],
-    ["updateFlea", "Update Flea", "download", "B", "settings"],
+    ["updateDlea", "Update Dlea", "download", "B", "settings"],
     ["restoreAll", "Restore all", "undo", "T", "restore"],
     ["emptyTrash", "Empty Trash", "trash", "T", "empty"]
 ]
@@ -252,7 +252,7 @@ function availableEntry(e, p, kind) {
     }
     if (e.action === "sort") e.submenu = sortEntries(p.hasFolderSort === true)
     // Present only while a check has found a newer build, whose version rides the hint slot beside the status square.
-    if (e.action === "updateFlea") {
+    if (e.action === "updateDlea") {
         if (!p.updateVersion) return false
         e.hint = p.updateVersion
         e.hintSquare = true

@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-menu-shebang-test
+//@ pragma ShellId dlea-menu-shebang-test
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Permissions.js" as Permissions
+import "dlea" as Dlea
+import "dlea/js/Permissions.js" as Permissions
 
 // The real backend and IPC seam distinguish a completed negative read from a retained request path.
 ShellRoot {
@@ -26,7 +26,7 @@ ShellRoot {
     }
     function state() { return JSON.parse(ipc.seam.menuState()) }
 
-    Flea.Backend { id: probeBackend; onQuitReady: root.finish() }
+    Dlea.Backend { id: probeBackend; onQuitReady: root.finish() }
     QtObject {
         id: stubPane
         property var backend: probeBackend
@@ -58,7 +58,7 @@ ShellRoot {
         function menuSelectionIdentity() { return "[]" }
         function contextMenu() { return stubPane.contextMenu() }
     }
-    Flea.Ipc { id: ipc; pane: stubPane; fleaWindow: windowStub }
+    Dlea.Ipc { id: ipc; pane: stubPane; dleaWindow: windowStub }
     Connections {
         target: probeBackend
         function onShebang(path, hasShebang, id) {

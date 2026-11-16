@@ -3,7 +3,7 @@ use std::process::Command;
 
 #[test]
 fn local_calendar_in_fresh_timezone_processes() {
-    const CHILD: &str = "FLEA_T4_CALENDAR_CASE";
+    const CHILD: &str = "DLEA_T4_CALENDAR_CASE";
     if let Ok(case) = std::env::var(CHILD) {
         let (seconds, expected) = case.split_once('|').unwrap();
         assert_eq!(modified(seconds.parse().unwrap()), expected);

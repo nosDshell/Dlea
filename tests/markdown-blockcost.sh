@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Gate that a Markdown block builds only its own kind: no block holds another kind's parts, and every kind stays under its object count.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 . "$(dirname "$0")/qslog-gate.sh"
 cd "$(dirname "$0")/.." || exit 1
 
@@ -126,14 +126,14 @@ if ! command -v qs >/dev/null; then
     exit 1
 fi
 
-test_root="$FIXTURE_ROOT/flea-markdown-blockcost-$$"
+test_root="$FIXTURE_ROOT/dlea-markdown-blockcost-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/cache" "$test_root/runtime" "$test_root/docs" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-cp -a ui "$test_root/config/flea" || exit 1
+cp -a ui "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/markdown-blockcost.qml "$test_root/config/shell.qml" || exit 1
@@ -179,7 +179,7 @@ MD
 
 # A stand-in figure helper: it answers each request line with a small SVG, so the formula in kinds.md draws.
 mkdir -p "$test_root/stub" || exit 1
-cat > "$test_root/stub/flea" <<'PY'
+cat > "$test_root/stub/dlea" <<'PY'
 #!/usr/bin/env python3
 import json, sys
 SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="2ex" height="2ex" viewBox="0 0 10 10"><rect width="10" height="10"/></svg>'
@@ -187,7 +187,7 @@ for line in sys.stdin:
     # Sample input: {"id":3,"kind":"math","source":"x^2","display":false,"theme":{"bg":"#101315"}}.
     print(json.dumps({"id": json.loads(line)["id"], "svg": SVG}), flush=True)
 PY
-chmod +x "$test_root/stub/flea" || exit 1
+chmod +x "$test_root/stub/dlea" || exit 1
 
 # Sample input: '    readonly property int watchdogMs: 50000'; qs gets a margin past it so a stuck load names itself.
 watchdog_ms=$(sed -n 's/.*readonly property int watchdogMs: *\([0-9][0-9]*\).*/\1/p' tests/markdown-blockcost.qml)
@@ -196,7 +196,7 @@ probe_timeout_margin=10
 probe_timeout=$((watchdog_ms / 1000 + probe_timeout_margin))
 output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_BLOCKCOST_LIST="$test_root/docs/kinds.md" FLEA_BIN="$test_root/stub/flea" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_BLOCKCOST_LIST="$test_root/docs/kinds.md" DLEA_BIN="$test_root/stub/dlea" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 QT_LOGGING_RULES="$(qslog_rules "${QT_LOGGING_RULES:-}")" \
     timeout "$probe_timeout" qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 

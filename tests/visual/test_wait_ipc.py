@@ -41,9 +41,9 @@ caller
 
 class WaitIpc(unittest.TestCase):
     def run_wait(self, scenario):
-        with tempfile.TemporaryDirectory(prefix='flea-wait-ipc.') as root:
+        with tempfile.TemporaryDirectory(prefix='dlea-wait-ipc.') as root:
             model = Path(root)
-            (model / '.flea-test-sandbox').touch()
+            (model / '.dlea-test-sandbox').touch()
             (model / 'reads').write_text('0\n')
             result = subprocess.run(
                 ['bash'], input=SCRIPT, text=True, capture_output=True, timeout=10,

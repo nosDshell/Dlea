@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/LangMarks.js" as LangMarks
 
 // Quick Look's strip: language mark, name, line count and close; no fill, the chrome surface rounds its corners.
@@ -45,7 +45,7 @@ Item {
     }
 
     // The kind's mark of the LanguageMarks set, in foreground and centred above the rule like the PDF viewer's kind mark.
-    Flea.Glyph {
+    Dlea.Glyph {
         id: barMark
         anchors.left: parent.left
         anchors.leftMargin: Theme.spacing.rowPaddingX
@@ -86,7 +86,7 @@ Item {
         textFormat: Text.PlainText
     }
 
-    Flea.ChromeButton {
+    Dlea.ChromeButton {
         id: barClose
         gesturePolicy: TapHandler.ReleaseWithinBounds
         ruleRows: Theme.spacing.hairline

@@ -65,5 +65,5 @@ case_cap_merge() {
     [[ "$(cat "$dir/Pictures/trip/IMG_4120.HEIC")" == "there photo one" ]] || fail "cap_merge: Cancel changed the destination photo"
     [[ "$(cat "$dir/src/trip/IMG_4120.HEIC")" == "src photo one" ]] || fail "cap_merge: Cancel changed the source photo"
     printf 'CAP_MERGE folder=keep,skip,cancel,merge,replace inner=keep,skip,cancel,replace\n'
-    kill_flea
+    kill_dlea
 }

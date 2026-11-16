@@ -31,7 +31,7 @@ fn completed_delete_and_restore_report_a_record_removed_without_confirmed_sync()
         let refused = refused.unwrap_err();
         assert_eq!(refused.outcome(), &Outcome::RecordUnconfirmed(Some(op)));
         let effect = if op == Op::Delete { "deleted" } else { "restored" };
-        assert_eq!(refused.shown(), format!("The item was {effect}, but after removing its recovery record, Flea could not confirm the removal on disk: permission denied."));
+        assert_eq!(refused.shown(), format!("The item was {effect}, but after removing its recovery record, Dlea could not confirm the removal on disk: permission denied."));
         assert_logged(seen, "Could not open Trash folder");
         assert_eq!(std::fs::read_dir(&root).unwrap().count(), 0);
         assert!(!path.exists());
@@ -152,7 +152,7 @@ fn a_temporary_folder_that_will_not_go_is_named_after_the_step_finished() {
         Ok(())
     }).unwrap_err();
     let temporary = quarantine_in(&d.join("files"));
-    assert_eq!(restored.shown(), format!("The item was restored, but Flea could not remove its temporary folder at {}: it still holds items.", temporary.display()));
+    assert_eq!(restored.shown(), format!("The item was restored, but Dlea could not remove its temporary folder at {}: it still holds items.", temporary.display()));
     assert_eq!(std::fs::read_to_string(temporary.join("stray")).unwrap(), "x");
     assert_logged(seen, "no cleanup was recorded");
     assert_eq!(std::fs::read_to_string(&original).unwrap(), "payload");
@@ -162,7 +162,7 @@ fn a_temporary_folder_that_will_not_go_is_named_after_the_step_finished() {
     let (review, _) = PathReview::prepare(path.clone(), &mut Manifest::new(d.path()).unwrap(), d.path(), &Cancellation::default()).unwrap();
     let deleted = review.delete_after(d.path(), || std::fs::write(quarantine_in(d.path()).join("stray"), "x").unwrap()).unwrap_err();
     let temporary = quarantine_in(d.path());
-    assert_eq!(deleted.shown(), format!("The item was deleted, but Flea could not remove its temporary folder at {}: it still holds items.", temporary.display()));
+    assert_eq!(deleted.shown(), format!("The item was deleted, but Dlea could not remove its temporary folder at {}: it still holds items.", temporary.display()));
     assert_eq!(std::fs::read_to_string(temporary.join("stray")).unwrap(), "x");
     assert!(!path.exists());
 }

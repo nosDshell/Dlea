@@ -50,7 +50,7 @@ class RtlPolicyTests(unittest.TestCase):
         self.assertEqual(set(policy["roles"]), ROLES)
         for role in policy["roles"].values():
             self.assertIn(role["action"], ["mirror", "keep"])
-            self.assertIn(role["basis"], ["shell-source", "flea-adaptation", "shared-text-contract"])
+            self.assertIn(role["basis"], ["shell-source", "dlea-adaptation", "shared-text-contract"])
             self.assertTrue(role["rule"].strip())
             self.assertTrue(role["sources"])
             self.assertLessEqual(set(role["sources"]), set(sources))
@@ -76,9 +76,9 @@ class RtlPolicyTests(unittest.TestCase):
             "backend_identity": "original-bytes",
         })
 
-    @unittest.skipUnless(os.environ.get("FLEA_RTL_OMARCHY_SOURCE"), "optional read-only pinned source audit")
+    @unittest.skipUnless(os.environ.get("DLEA_RTL_OMARCHY_SOURCE"), "optional read-only pinned source audit")
     def test_i50_rtl_pinned_source_bytes(self):
-        checkout = Path(os.environ["FLEA_RTL_OMARCHY_SOURCE"])
+        checkout = Path(os.environ["DLEA_RTL_OMARCHY_SOURCE"])
         sha = subprocess.check_output(["git", "-C", str(checkout), "rev-parse", "HEAD"], text=True).strip()
         self.assertEqual(sha, SOURCE_SHA)
         for entry in self.policy()["sources"].values():
@@ -90,18 +90,18 @@ class RtlPolicyTests(unittest.TestCase):
 
 
 class RtlHoleIsolationTests(unittest.TestCase):
-    """flea-i18n-manifest refuses a placeholder outside an isolate run in an rtl_languages catalog."""
+    """dlea-i18n-manifest refuses a placeholder outside an isolate run in an rtl_languages catalog."""
 
     def check(self, text, rtl=("ar",)):
-        with tempfile.TemporaryDirectory(prefix="flea-rtl-holes.") as box:
+        with tempfile.TemporaryDirectory(prefix="dlea-rtl-holes.") as box:
             root = Path(box)
             for code, value in (("en", "Open %1 in %2"), ("ar", text), ("de", "%1 in %2 öffnen")):
                 (root / code).mkdir()
-                (root / code / "flea.json").write_text(json.dumps({"open": value}, ensure_ascii=False), encoding="utf-8")
-            subprocess.run([sys.executable, "-B", str(ROOT / "tools/flea-i18n-manifest"), "--i18n-dir", str(root)],
+                (root / code / "dlea.json").write_text(json.dumps({"open": value}, ensure_ascii=False), encoding="utf-8")
+            subprocess.run([sys.executable, "-B", str(ROOT / "tools/dlea-i18n-manifest"), "--i18n-dir", str(root)],
                            check=True, capture_output=True)
             (root / "rtl-policy.json").write_text(json.dumps({"rtl_languages": list(rtl)}), encoding="utf-8")
-            return subprocess.run([sys.executable, "-B", str(ROOT / "tools/flea-i18n-manifest"), "--check",
+            return subprocess.run([sys.executable, "-B", str(ROOT / "tools/dlea-i18n-manifest"), "--check",
                                    "--i18n-dir", str(root)], capture_output=True, text=True)
 
     def test_i50_rtl_isolated_holes_pass(self):
@@ -122,13 +122,13 @@ class RtlHoleIsolationTests(unittest.TestCase):
         self.assertEqual(self.check("افتح %1 في %2", rtl=()).returncode, 0)
 
     def test_i50_rtl_repo_catalogs_isolate_every_hole(self):
-        loader = importlib.machinery.SourceFileLoader("flea_i18n_manifest", str(ROOT / "tools/flea-i18n-manifest"))
+        loader = importlib.machinery.SourceFileLoader("dlea_i18n_manifest", str(ROOT / "tools/dlea-i18n-manifest"))
         manifest = importlib.util.module_from_spec(importlib.util.spec_from_loader(loader.name, loader))
         loader.exec_module(manifest)
         codes = manifest.rtl_languages(ROOT / "i18n")
         self.assertEqual(codes, {"ar", "fa", "he", "ur"})
         for code in sorted(codes):
-            for key, value in manifest.read(ROOT / "i18n" / code / "flea.json").items():
+            for key, value in manifest.read(ROOT / "i18n" / code / "dlea.json").items():
                 for text in manifest.forms(value, f"{code}:{key}"):
                     self.assertEqual(manifest.bare_holes(text), [], f"{code}:{key}")
 

@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-grid-gap-test
+//@ pragma ShellId dlea-grid-gap-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/GridGeometry.js" as GridGeometry
+import "dlea" as Dlea
+import "dlea/js/GridGeometry.js" as GridGeometry
 
 // The first tile's frame stood 1 px from both edge lines; the live view is read at three widths.
 ShellRoot {
@@ -59,9 +59,9 @@ ShellRoot {
     }
 
     Column {
-        Flea.GridArea { id: narrow; width: 500; height: 320; pane: paneStub.createObject(root); menu: menuStub.createObject(root) }
-        Flea.GridArea { id: middle; width: 800; height: 320; pane: paneStub.createObject(root); menu: menuStub.createObject(root) }
-        Flea.GridArea { id: wide; width: 1200; height: 320; pane: paneStub.createObject(root); menu: menuStub.createObject(root) }
+        Dlea.GridArea { id: narrow; width: 500; height: 320; pane: paneStub.createObject(root); menu: menuStub.createObject(root) }
+        Dlea.GridArea { id: middle; width: 800; height: 320; pane: paneStub.createObject(root); menu: menuStub.createObject(root) }
+        Dlea.GridArea { id: wide; width: 1200; height: 320; pane: paneStub.createObject(root); menu: menuStub.createObject(root) }
     }
 
     // Delegates are built on the polish pass, so each read waits one turn like mount-listing.qml.
@@ -112,11 +112,11 @@ ShellRoot {
     function measure() {
         root.failures = []
         var failures = root.failures
-        var gap = Flea.Theme.spacing.gap
-        var hairline = Flea.Theme.spacing.hairline
-        var minCell = Flea.Theme.grid.minCellWidth
-        var thumbPx = Flea.ViewState.thumbnailPixels
-        var padX = Flea.Theme.spacing.rowPaddingX
+        var gap = Dlea.Theme.spacing.gap
+        var hairline = Dlea.Theme.spacing.hairline
+        var minCell = Dlea.Theme.grid.minCellWidth
+        var thumbPx = Dlea.ViewState.thumbnailPixels
+        var padX = Dlea.Theme.spacing.rowPaddingX
         var grids = [narrow, middle, wide]
         for (var g = 0; g < grids.length; g++) {
             var grid = grids[g]
@@ -170,8 +170,8 @@ ShellRoot {
 
     function measureBottom() {
         var failures = root.failures
-        var gap = Flea.Theme.spacing.gap
-        var hairline = Flea.Theme.spacing.hairline
+        var gap = Dlea.Theme.spacing.gap
+        var hairline = Dlea.Theme.spacing.hairline
         var grids = [narrow, middle, wide]
         for (var g = 0; g < grids.length; g++) {
             var grid = grids[g]
@@ -234,8 +234,8 @@ ShellRoot {
 
     function measureRestore() {
         var failures = root.failures
-        var gap = Flea.Theme.spacing.gap
-        var hairline = Flea.Theme.spacing.hairline
+        var gap = Dlea.Theme.spacing.gap
+        var hairline = Dlea.Theme.spacing.hairline
         if (narrow.hiddenHeld)
             failures.push("hidden-held restore still holds the view")
         if (root.restoreTicksSeen < 1)
@@ -250,16 +250,16 @@ ShellRoot {
                 failures.push("restored last tile bottom " + (frameBottom + hairline) + " past " + (narrow.height - gap))
         }
         // Ctrl+wheel through the real zoomWheel: Qt 6.12's notch (pixels 15 beside angle 120, no phase) is one whole step.
-        Flea.ViewState.changeSetting("preview.thumbSize", "medium")
+        Dlea.ViewState.changeSetting("preview.thumbSize", "medium")
         narrow.zoomTravel = 0
         narrow.zoomWheel({ phase: Qt.NoScrollPhase, pixelDelta: { x: 0, y: 15 }, angleDelta: { x: 0, y: 120 }, modifiers: Qt.ControlModifier })
-        if (narrow.zoomTravel !== 0 || Flea.ViewState.thumbnailSize !== "large")
-            failures.push("a Qt 6.12 notch took medium to " + Flea.ViewState.thumbnailSize + " with travel " + narrow.zoomTravel + ", want large")
+        if (narrow.zoomTravel !== 0 || Dlea.ViewState.thumbnailSize !== "large")
+            failures.push("a Qt 6.12 notch took medium to " + Dlea.ViewState.thumbnailSize + " with travel " + narrow.zoomTravel + ", want large")
         narrow.zoomWheel({ phase: Qt.ScrollUpdate, pixelDelta: { x: 0, y: 24 }, angleDelta: { x: 0, y: 120 }, modifiers: Qt.ControlModifier })
         if (Math.abs(narrow.zoomTravel - 24 / narrow.touchpadStep) > 1e-9)
             failures.push("a 24 px touchpad stroke left zoom travel " + narrow.zoomTravel + ", want " + 24 / narrow.touchpadStep)
         if (failures.length === 0)
-            console.log("GRID_GAP PASS widths=500,800,1200 gap=" + gap + " lane=" + Flea.Theme.spacing.rowPaddingX + " columns=" + narrow.columns + "," + middle.columns + "," + wide.columns)
+            console.log("GRID_GAP PASS widths=500,800,1200 gap=" + gap + " lane=" + Dlea.Theme.spacing.rowPaddingX + " columns=" + narrow.columns + "," + middle.columns + "," + wide.columns)
         for (var f = 0; f < failures.length; f++)
             console.log("GRID_GAP FAIL " + failures[f])
         Quickshell.execDetached(["kill", String(Quickshell.processId)])

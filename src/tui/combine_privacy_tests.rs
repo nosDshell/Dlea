@@ -32,7 +32,7 @@ pub(super) fn run(root: &Path) {
             entry
                 .file_name()
                 .to_string_lossy()
-                .starts_with(".flea-work-tui-combine-preview-")
+                .starts_with(".dlea-work-tui-combine-preview-")
         })
         .collect();
     assert_eq!(directories.len(), 1);
@@ -45,7 +45,7 @@ pub(super) fn run(root: &Path) {
     assert!(m.i18n.poll_changed());
     assert_eq!(m.i18n.language(), "ar");
     stage(&mut m, &mut graphics, &mut shown, &mut w, &mut frame);
-    assert!(root.is_absolute() && root.join(".flea-test-sandbox").is_file());
+    assert!(root.is_absolute() && root.join(".dlea-test-sandbox").is_file());
     std::fs::rename(root.join("slow"), root.join("locale-slow-used")).unwrap();
     let arabic = native(&mut m, &mut graphics, &mut shown, &mut w, &mut frame);
     assert!(

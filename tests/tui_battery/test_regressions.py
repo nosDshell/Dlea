@@ -22,7 +22,7 @@ PALETTE = {'fg': '#ffffff', 'bg': '#000000'}
 
 class RegressionTests(unittest.TestCase):
     def setUp(self):
-        parent = Path(os.environ.get('FLEA_BATTERY_TEST_ROOT', Path(__file__).resolve().parents[2] / '.superpowers/t12a'))
+        parent = Path(os.environ.get('DLEA_BATTERY_TEST_ROOT', Path(__file__).resolve().parents[2] / '.superpowers/t12a'))
         parent.mkdir(parents=True, exist_ok=True)
         self.root = Path(tempfile.mkdtemp(prefix='regressions.', dir=parent))
         self.addCleanup(shutil.rmtree, self.root, ignore_errors=True)
@@ -30,7 +30,7 @@ class RegressionTests(unittest.TestCase):
 
     def test_display_accepts_help_that_exits_one_like_hyprctl_0562(self):
         # Sample input: hyprctl --help on Hyprland 0.56.2 prints the command list, including output, and exits 1.
-        monitors = [b'[]', json.dumps([{'name': 'FLEA-id', 'scale': 1, 'width': 2560, 'height': 1440, 'id': 7}]).encode()]
+        monitors = [b'[]', json.dumps([{'name': 'DLEA-id', 'scale': 1, 'width': 2560, 'height': 1440, 'id': 7}]).encode()]
         def answer(argv, **_):
             function = argv[5]
             code, stdout = {'hypr_query_help': (1, b'commands: monitors clients output version'),
@@ -248,7 +248,7 @@ class RegressionTests(unittest.TestCase):
                           '  print(json.dumps({"t":"fsinfo","path":"/fx/v/work","fs":"ext4","free":5000}),flush=True)\n'
                           '  sys.stderr.write("x"*262144);sys.stderr.flush()\n'
                           f' elif value["c"]=="quit": {quit_action}\n')
-        return [sys.executable, str(script), '/opt/flea', '--tui', '/fx/v/work']
+        return [sys.executable, str(script), '/opt/dlea', '--tui', '/fx/v/work']
 
     def test_fsinfo_drains_after_result(self):
         result = dynamic.fsinfo(self.fact_candidate('break'), '/fx/v/work', Commands())

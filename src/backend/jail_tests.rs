@@ -89,7 +89,7 @@ fn a_concurrent_spawn_does_not_inherit_the_status_pipe() {
 // A forged child-pid naming a process this jail did not start must never be signalled.
 #[test]
 fn a_reported_pid_owned_by_someone_else_is_never_killed() {
-    let mut victim = std::process::Command::new(flea::testpath::tool("/usr/bin/sleep"))
+    let mut victim = std::process::Command::new(dlea::testpath::tool("/usr/bin/sleep"))
         .arg("30")
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::null())
@@ -158,7 +158,7 @@ fn a_jail_that_never_writes_the_status_fd_still_returns_promptly() {
 // A reap the kernel holds, as an uninterruptible sleep does, must not hold kill_tree: it returns within its bound, and the reap thread takes the child once the hold lets go.
 #[test]
 fn a_child_the_kernel_holds_does_not_hold_kill_tree() {
-    let child = std::process::Command::new(flea::testpath::tool("/usr/bin/sleep"))
+    let child = std::process::Command::new(dlea::testpath::tool("/usr/bin/sleep"))
         .arg("30")
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::null())
@@ -190,7 +190,7 @@ fn a_child_the_kernel_holds_does_not_hold_kill_tree() {
 
 // Sample /proc/self/fd listing: one numeric entry per open descriptor, so the count is the inheritance signal.
 fn child_fd_count() -> usize {
-    let out = std::process::Command::new(flea::testpath::tool("/usr/bin/ls"))
+    let out = std::process::Command::new(dlea::testpath::tool("/usr/bin/ls"))
         .arg("/proc/self/fd")
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::piped())
@@ -221,7 +221,7 @@ fn gone(pid: i32) -> bool {
 
 #[test]
 fn a_raw_named_argument_reaches_the_child_as_its_own_bytes() {
-    use flea::bytename::ExactText as _;
+    use dlea::bytename::ExactText as _;
     use std::io::Read;
     use std::os::unix::ffi::OsStrExt;
     let root = crate::backend::testdir::TestDir::new("jail-raw-arg");

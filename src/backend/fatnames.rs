@@ -149,7 +149,7 @@ pub fn apply_dst(fat: Option<Choice>, fs_fat: bool, dst: PathBuf, here: bool) ->
 
 // One question leaf under the same answer: renamed leaves ask under their new name, skips ask nothing.
 pub fn ask_leaf(fat: Option<Choice>, fs_fat: bool, dest: &Path, name: &str) -> Option<(PathBuf, String)> {
-    let first = dest.join(flea::bytename::view(name));
+    let first = dest.join(dlea::bytename::view(name));
     let Some(choice) = fat else { return Some((first, name.to_string())) };
     match map_dst(choice, fs_fat, &first) {
         Mapped::Same => Some((first, name.to_string())),
@@ -162,7 +162,7 @@ pub fn ask_leaf(fat: Option<Choice>, fs_fat: bool, dest: &Path, name: &str) -> O
 fn rename_rows(paths: &[String], body: &str, mime: &super::mime::Db, icons: &super::icons::Names) -> Vec<String> {
     let mut shown = Vec::new();
     for raw in paths {
-        let src = flea::bytename::view(raw);
+        let src = dlea::bytename::view(raw);
         let Some(leaf) = src.file_name().and_then(|n| n.to_str()) else {
             continue;
         };
@@ -193,7 +193,7 @@ pub fn answer(id: usize, paths: &[String], dest: &str, mime: &super::mime::Db, i
 
 // The answer against a given mount table, so a suite can stand a FAT mount where it cannot make one.
 fn answer_in(body: &str, id: usize, paths: &[String], dest: &str, mime: &super::mime::Db, icons: &super::icons::Names) -> Option<String> {
-    let entry = super::mountinfo::mount_entry_in(&flea::bytename::view(dest), body).filter(|entry| is_fat_fstype(&entry.fstype))?;
+    let entry = super::mountinfo::mount_entry_in(&dlea::bytename::view(dest), body).filter(|entry| is_fat_fstype(&entry.fstype))?;
     let shown = rename_rows(paths, body, mime, icons);
     let volume = entry.mount.file_name().and_then(|n| n.to_str()).unwrap_or_default();
     (!shown.is_empty()).then(|| format!(r#"{{"t":"fatnames","id":{},"fstype":"{}","volume":"{}","renames":[{}]}}"#,
@@ -377,7 +377,7 @@ mod tests {
 
     #[test]
     fn a_raw_leaf_keeps_its_own_bytes_and_asks_under_them() {
-        use flea::bytename::ExactText as _;
+        use dlea::bytename::ExactText as _;
         use std::os::unix::ffi::OsStrExt;
         let raw = Path::new(std::ffi::OsStr::from_bytes(b"/mnt/128GB/clip: \xff"));
         assert!(

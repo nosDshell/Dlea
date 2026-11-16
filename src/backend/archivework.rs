@@ -8,7 +8,7 @@ use crate::backend::archivespec::ListSpec;
 #[cfg(test)]
 use crate::backend::archivelist::parse_reader;
 use crate::backend::opsreq::op_err;
-use crate::error::{from_io, FleaError};
+use crate::error::{from_io, DleaError};
 use std::io::Read;
 #[cfg(test)]
 use std::io;
@@ -23,7 +23,7 @@ use std::time::{Duration, Instant};
 // What both archive runners answer when the jail's programs are missing.
 pub(crate) const SANDBOX_MISSING: &str = "the sandbox is unavailable: bubblewrap or prlimit is not installed";
 // A private directory beside the destination, so the rename that follows never crosses a filesystem.
-pub(crate) const WORK_PREFIX: &str = ".flea-work-";
+pub(crate) const WORK_PREFIX: &str = ".dlea-work-";
 // A cancel is observed within this; a killed child is reaped on the next round.
 const CANCEL_STEP: Duration = Duration::from_millis(50);
 // How long a cancel waits for the jail's last writer to reach EOF before it answers.
@@ -85,7 +85,7 @@ const WORK_ATTEMPTS: usize = 64;
 
 impl Work {
     // create_dir alone: a taken name is a collision and must never merge with a live directory.
-    pub fn new(beside: &Path, tag: &str) -> Result<Work, FleaError> {
+    pub fn new(beside: &Path, tag: &str) -> Result<Work, DleaError> {
         let mut last = String::new();
         for _ in 0..WORK_ATTEMPTS {
             let seq = WORK_SEQ.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
@@ -158,7 +158,7 @@ pub(crate) fn spawn_stderr_reader(stderr: Option<std::process::ChildStderr>) -> 
 
 // A cancel kills the jail and answers after the last stderr writer's EOF; past the bound the work folder stays.
 pub(crate) fn cancel_failure(what: &str, jailed: &mut crate::backend::jail::Jailed,
-                             reader: std::thread::JoinHandle<String>, work: &mut Work) -> FleaError {
+                             reader: std::thread::JoinHandle<String>, work: &mut Work) -> DleaError {
     crate::backend::jail::kill_tree(jailed);
     if drain_reader(reader) {
         return op_err(what, "", "cancelled");
@@ -171,13 +171,13 @@ pub(crate) fn cancel_failure(what: &str, jailed: &mut crate::backend::jail::Jail
 
 // The cancellable runner, watched for a cancel: kill and reap here, so nothing is renamed and stderr is drained.
 pub fn run_boxed_cancellable(what: &str, inner: Vec<String>, read_only: &Path, work: &mut Work,
-                             cancel: &AtomicBool) -> Result<(), FleaError> {
+                             cancel: &AtomicBool) -> Result<(), DleaError> {
     run_boxed_cancellable_inner(what, inner, read_only, work, cancel, None, Limits::Capped { cpu: None, address_space: sandbox::ADDRESS_SPACE_BYTES })
 }
 
 // Convert keeps its CPU cap on the cancellable runner; archive jobs run uncapped.
 pub fn run_boxed_cancellable_capped(what: &str, inner: Vec<String>, read_only: &Path, work: &mut Work,
-                                    cancel: &AtomicBool) -> Result<(), FleaError> {
+                                    cancel: &AtomicBool) -> Result<(), DleaError> {
     run_boxed_cancellable_inner(what, inner, read_only, work, cancel, None, Limits::Capped { cpu: Some(sandbox::CPU_SECONDS), address_space: sandbox::ADDRESS_SPACE_BYTES })
 }
 
@@ -187,14 +187,14 @@ pub(crate) fn run_boxed_office(
     read_only: &Path,
     work: &mut Work,
     cancel: &AtomicBool,
-) -> Result<(), FleaError> {
+) -> Result<(), DleaError> {
     run_boxed_cancellable_inner("office", inner, read_only, work, cancel, None, Limits::Office)
 }
 
 // Test seam: the convert runner with a lower cap, so the pin burns seconds, not 30 s.
 #[cfg(test)]
 fn run_boxed_cancellable_capped_with_cpu(what: &str, inner: Vec<String>, read_only: &Path, work: &mut Work,
-                                         cancel: &AtomicBool, cpu_seconds: u32) -> Result<(), FleaError> {
+                                         cancel: &AtomicBool, cpu_seconds: u32) -> Result<(), DleaError> {
     run_boxed_cancellable_inner(what, inner, read_only, work, cancel, None, Limits::Capped { cpu: Some(cpu_seconds), address_space: sandbox::ADDRESS_SPACE_BYTES })
 }
 
@@ -206,7 +206,7 @@ enum Limits {
 
 // limits picks the jail: the CPU cap (none for an archive job) and address-space cap, or the office jail with its own failure reading.
 fn run_boxed_cancellable_inner(what: &str, inner: Vec<String>, read_only: &Path, work: &mut Work,
-                               cancel: &AtomicBool, started: Option<&AtomicU32>, limits: Limits) -> Result<(), FleaError> {
+                               cancel: &AtomicBool, started: Option<&AtomicU32>, limits: Limits) -> Result<(), DleaError> {
     let office = matches!(limits, Limits::Office);
     let mut full = match limits {
         Limits::Capped { cpu, address_space } => sandbox::wrap_with(&inner, read_only, &work.dir, cpu, address_space),
@@ -255,7 +255,7 @@ fn run_boxed_cancellable_inner(what: &str, inner: Vec<String>, read_only: &Path,
 
 #[cfg(test)]
 fn run_boxed_cancellable_observed(what: &str, inner: Vec<String>, read_only: &Path, work: &mut Work,
-                                  cancel: &AtomicBool, started: &AtomicU32) -> Result<(), FleaError> {
+                                  cancel: &AtomicBool, started: &AtomicU32) -> Result<(), DleaError> {
     run_boxed_cancellable_inner(what, inner, read_only, work, cancel, Some(started), Limits::Capped { cpu: None, address_space: sandbox::ADDRESS_SPACE_BYTES })
 }
 
@@ -263,7 +263,7 @@ fn run_boxed_cancellable_observed(what: &str, inner: Vec<String>, read_only: &Pa
 #[cfg(test)]
 pub(crate) fn run_boxed_cancellable_capped_observed(what: &str, inner: Vec<String>, read_only: &Path,
                                                    work: &mut Work, cancel: &AtomicBool,
-                                                   started: &AtomicU32) -> Result<(), FleaError> {
+                                                   started: &AtomicU32) -> Result<(), DleaError> {
     run_boxed_cancellable_inner(what, inner, read_only, work, cancel, Some(started), Limits::Capped { cpu: Some(sandbox::CPU_SECONDS), address_space: sandbox::ADDRESS_SPACE_BYTES })
 }
 
@@ -282,7 +282,7 @@ pub fn archive_produced_count(formats: &Formats, archive: &Path) -> Option<usize
 #[cfg(test)]
 fn archive_produced_count_inner(inner: Vec<String>, spec: ListSpec, read_only: &Path,
                                 cancel: &AtomicBool, started: Option<&AtomicU32>,
-                                ready: Option<Arc<AtomicBool>>) -> Result<Option<usize>, FleaError> {
+                                ready: Option<Arc<AtomicBool>>) -> Result<Option<usize>, DleaError> {
     if !sandbox::available() {
         return Ok(None);
     }
@@ -371,7 +371,7 @@ impl<R: Read> Read for ReadyReader<R> {
 #[cfg(test)]
 fn archive_produced_count_with_inner(inner: Vec<String>, spec: ListSpec, read_only: &Path,
                                      cancel: &AtomicBool, started: &AtomicU32,
-                                     ready: &Arc<AtomicBool>) -> Result<Option<usize>, FleaError> {
+                                     ready: &Arc<AtomicBool>) -> Result<Option<usize>, DleaError> {
     archive_produced_count_inner(inner, spec, read_only, cancel, Some(started),
                                  Some(Arc::clone(ready)))
 }

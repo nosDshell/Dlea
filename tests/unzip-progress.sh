@@ -3,4 +3,4 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 exec setsid -w env -i PATH=/usr/local/bin:/usr/bin:/bin \
-    python3 -B tests/unzip-progress.py "${FLEA_BIN:-target/debug/flea}" </dev/null
+    python3 -B tests/unzip-progress.py "${DLEA_BIN:-target/debug/dlea}" </dev/null

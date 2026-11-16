@@ -208,7 +208,7 @@ mod tests {
     fn both_refusals_read_back_into_their_catalog_keys() {
         let read = |names: &[&str], rules: &Rules| {
             let sentence = refusal(&members(names), rules).unwrap();
-            let refusal = flea::ui_logic_status_feedback::errors::extract_refusal(&sentence)
+            let refusal = dlea::ui_logic_status_feedback::errors::extract_refusal(&sentence)
                 .unwrap_or_else(|| panic!("{sentence} reads back"));
             (refusal.key, refusal.args)
         };

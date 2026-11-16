@@ -72,8 +72,8 @@ fn a_lit_connector_on_an_unreadable_card_decides_nothing() {
 fn the_operator_keep_switch_and_prime_offload_keep_nvidia() {
     let t = TestDir::new("icdidle-operator");
     let drm = hybrid(&t);
-    assert!(!nvidia_idle(env(&[("FLEA_VK_KEEP_NVIDIA", "1")]), &drm));
-    assert!(nvidia_idle(env(&[("FLEA_VK_KEEP_NVIDIA", "0")]), &drm));
+    assert!(!nvidia_idle(env(&[("DLEA_VK_KEEP_NVIDIA", "1")]), &drm));
+    assert!(nvidia_idle(env(&[("DLEA_VK_KEEP_NVIDIA", "0")]), &drm));
     let offload = [("__NV_PRIME_RENDER_OFFLOAD", "1"), ("__VK_LAYER_NV_optimus", "NVIDIA_only"), ("DRI_PRIME", "1"), ("DRI_PRIME", "pci-0000_01_00_0")];
     for (name, value) in offload {
         let var = move |key: &str| (key == name).then(|| OsString::from(value));
@@ -95,7 +95,7 @@ fn a_compositor_whose_primary_gpu_is_nvidia_or_unknown_keeps_nvidia() {
     assert!(!nvidia_idle(env(&[("AQ_DRM_DEVICES", "/dev/dri/card0:/dev/dri/card1")]), &drm));
     assert!(!nvidia_idle(env(&[("WLR_DRM_DEVICES", "/dev/dri/card0")]), &drm));
     // A name that resolves to no card here is unknown, and unknown keeps the drivers.
-    assert!(!nvidia_idle(env(&[("AQ_DRM_DEVICES", "/dev/dri/flea-no-such-gpu")]), &drm));
+    assert!(!nvidia_idle(env(&[("AQ_DRM_DEVICES", "/dev/dri/dlea-no-such-gpu")]), &drm));
 }
 
 #[test]

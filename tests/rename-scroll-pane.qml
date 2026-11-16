@@ -1,6 +1,6 @@
 import QtQuick
-import "flea" as Flea
-import "flea/js/Filter.js" as Filter
+import "dlea" as Dlea
+import "dlea/js/Filter.js" as Filter
 
 // Only the Pane surface List, GridArea, Row, GridTile, RenameField, SelectionBand and FileDrag read; shared by the rename-scroll probes.
 QtObject {
@@ -43,7 +43,7 @@ QtObject {
     property string storageClass: ""
     property bool listInFlight: false
     property string listingState: "ready"
-    property int visibleRows: listArea ? Math.ceil(listArea.height / Flea.Theme.fileRowHeight) : 0
+    property int visibleRows: listArea ? Math.ceil(listArea.height / Dlea.Theme.fileRowHeight) : 0
     property int cacheRows: 0
     property int firstSettleMs: 70
     property int settleMs: 120

@@ -1,46 +1,46 @@
 #!/usr/bin/env bash
 . "$(dirname "$0")/headless-commons.sh"
-# Quick Look on code and text over the real backend and bat: the bar, the gutter, w and its memory, the binary and too-large frames. Offscreen, in the flea-ci image.
+# Quick Look on code and text over the real backend and bat: the bar, the gutter, w and its memory, the binary and too-large frames. Offscreen, in the dlea-ci image.
 set -uo pipefail
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 . "$(dirname "$0")/qslog-gate.sh"
 cd "$(dirname "$0")/.." || exit 1
 for tool in qs bat dbus-run-session; do
-    command -v "$tool" >/dev/null || { printf 'FAIL quicklook-code: %s is required; this suite runs in the flea-ci image\n' "$tool"; exit 1; }
+    command -v "$tool" >/dev/null || { printf 'FAIL quicklook-code: %s is required; this suite runs in the dlea-ci image\n' "$tool"; exit 1; }
 done
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [ -x "$bin" ] || { printf 'FAIL quicklook-code: build the backend first: %s\n' "$bin"; exit 1; }
-test_root="$FIXTURE_ROOT/flea-quicklook-code-$$"
+test_root="$FIXTURE_ROOT/dlea-quicklook-code-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
-mkdir -p "$test_root"/{config,fixture,home,state/flea,cache,runtime} || exit 1
+mkdir -p "$test_root"/{config,fixture,home,state/dlea,cache,runtime} || exit 1
 chmod 700 "$test_root/runtime" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -m ui/boot/Ui)" "$test_root/config/Ui" || exit 1
-ln -s "$test_root/config/flea/boot/fleatab.qml" "$test_root/config/fleatab.qml" || exit 1
-cp -a ui "$test_root/config/flea" || exit 1
+ln -s "$test_root/config/dlea/boot/dleatab.qml" "$test_root/config/dleatab.qml" || exit 1
+cp -a ui "$test_root/config/dlea" || exit 1
 cp tests/quicklook-code-defaults.qml "$test_root/config/shell.qml" || exit 1
-mkdir -p "$test_root/defaults-state/flea" || exit 1
+mkdir -p "$test_root/defaults-state/dlea" || exit 1
 
 # Read absent wrap through the actual singleton, before the full suite's navigation writes defaults.
 defaults_probe() {
     local mode=$1 label=$2 log="$test_root/defaults-$2.log" status
     case "$mode" in
-        empty) printf '{}\n' > "$test_root/defaults-state/flea/ui.json" ;;
-        off) printf '{"langMarks":false}\n' > "$test_root/defaults-state/flea/ui.json" ;;
+        empty) printf '{}\n' > "$test_root/defaults-state/dlea/ui.json" ;;
+        off) printf '{"langMarks":false}\n' > "$test_root/defaults-state/dlea/ui.json" ;;
         seeded) env HOME="$test_root/home" XDG_STATE_HOME="$test_root/defaults-state" "$bin" --ui-state '{"langMarks":false}' > "$test_root/defaults-seed.json" || return 1 ;;
         *) return 1 ;;
     esac
-    cp "$test_root/defaults-state/flea/ui.json" "$test_root/defaults-input-$label.json" || return 1
+    cp "$test_root/defaults-state/dlea/ui.json" "$test_root/defaults-input-$label.json" || return 1
     env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
         HOME="$test_root/home" XDG_STATE_HOME="$test_root/defaults-state" XDG_CACHE_HOME="$test_root/cache" \
-        XDG_RUNTIME_DIR="$test_root/runtime" QLCODE_DEFAULTS="$mode" FLEA_BIN="$bin" \
+        XDG_RUNTIME_DIR="$test_root/runtime" QLCODE_DEFAULTS="$mode" DLEA_BIN="$bin" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
         dbus-run-session -- bash -c 'timeout 10 qs -p "$1" > "$2" 2>&1' _ "$test_root/config" "$log" 2> "$test_root/defaults-$label-bus.log"
     status=$?
-    if [[ -n "${FLEA_CI_SUITE_LOGS:-}" ]]; then cp "$log" "$FLEA_CI_SUITE_LOGS/quicklook-defaults-$label.log" || return 1; fi
-    cmp "$test_root/defaults-input-$label.json" "$test_root/defaults-state/flea/ui.json" || return 1
+    if [[ -n "${DLEA_CI_SUITE_LOGS:-}" ]]; then cp "$log" "$DLEA_CI_SUITE_LOGS/quicklook-defaults-$label.log" || return 1; fi
+    cmp "$test_root/defaults-input-$label.json" "$test_root/defaults-state/dlea/ui.json" || return 1
     [[ "$status" == 0 ]] && grep -aq "QLDEFAULT DONE mode=$mode failures=0" "$log" \
         && ! grep -aqE 'QLDEFAULT FAIL|TypeError|ReferenceError|Unable to assign|Cannot assign' "$log"
 }
@@ -49,7 +49,7 @@ for mode in empty off; do
     grep -ao 'QLDEFAULT .*' "$test_root/defaults-$mode.log"
 done
 # Explicit schema false masks this mutant; both genuinely missing-key contexts must reject it.
-python3 - "$test_root/config/flea/ViewState.qml" <<'PY' || exit 1
+python3 - "$test_root/config/dlea/ViewState.qml" <<'PY' || exit 1
 from pathlib import Path
 import sys
 path = Path(sys.argv[1])
@@ -66,7 +66,7 @@ for mode in empty off; do
     grep -aq "QLDEFAULT FAIL mode=$mode missing-wrap fallback got=true expected=false" "$test_root/defaults-$mode-mutant.log" \
         || { cat "$test_root/defaults-$mode-wrapper.log"; printf 'FAIL quicklook-code: %s missed wrap fallback mutant\n' "$mode"; exit 1; }
 done
-cp ui/ViewState.qml "$test_root/config/flea/ViewState.qml" || exit 1
+cp ui/ViewState.qml "$test_root/config/dlea/ViewState.qml" || exit 1
 printf 'QLDEFAULT MUTANT missing-wrap-true schema-seeded-accepted=1 empty-rejected=1 explicit-off-rejected=1\n'
 cp tests/quicklook-code.qml "$test_root/config/shell.qml" || exit 1
 cp tests/langmark-count.js "$test_root/config/langmark-count.js" || exit 1
@@ -95,13 +95,13 @@ run_leg() {
     local leg=$1 log="$test_root/$1.log" status loops
     ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
         HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-        XDG_RUNTIME_DIR="$test_root/runtime" FLEA_BIN="$bin" FLEA_PATH="$fixture" FLEA_REDUCED_MOTION=1 \
-        QLCODE_UI="$test_root/config/flea" QLCODE_STATE="$test_root/state" QLCODE_RUN="$leg" \
+        XDG_RUNTIME_DIR="$test_root/runtime" DLEA_BIN="$bin" DLEA_PATH="$fixture" DLEA_REDUCED_MOTION=1 \
+        QLCODE_UI="$test_root/config/dlea" QLCODE_STATE="$test_root/state" QLCODE_RUN="$leg" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
         dbus-run-session -- bash -c 'timeout 240 qs -p "$1" > "$2" 2>&1' _ "$test_root/config" "$log" 2> "$test_root/$leg-bus.log" ) 2>/dev/null
     status=$?
     legs=$((legs + 1))
-    [ -z "${FLEA_CI_SUITE_LOGS:-}" ] || cp "$log" "$FLEA_CI_SUITE_LOGS/quicklook-code-$leg.log" 2>/dev/null
+    [ -z "${DLEA_CI_SUITE_LOGS:-}" ] || cp "$log" "$DLEA_CI_SUITE_LOGS/quicklook-code-$leg.log" 2>/dev/null
     grep -a 'QLCODE \(PASS\|FAIL\|DONE\)' "$log" | sed "s/^/$leg: /"
     loops=$(grep -ac 'Binding loop detected' "$log")
     if [ "$loops" -ne 0 ]; then

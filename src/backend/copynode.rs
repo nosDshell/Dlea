@@ -1,7 +1,7 @@
 // Recreating a node at the destination, which is how a copy carries a fifo, a socket or a device
 // across without an open that could block on one.
 use crate::backend::copyfile::At;
-use crate::error::{from_io, FleaError};
+use crate::error::{from_io, DleaError};
 use std::ffi::{c_char, CString};
 use std::fs::Metadata;
 use std::os::unix::fs::MetadataExt;
@@ -14,19 +14,19 @@ extern "C" {
 }
 
 // Unlike the O_ flags copyfile.rs and regfile.rs pin per architecture, these two come from the
-// architecture-independent uapi header and are the same value on every Linux flea is built for.
+// architecture-independent uapi header and are the same value on every Linux dlea is built for.
 const AT_FDCWD: i32 = -100;
 const AT_SYMLINK_NOFOLLOW: i32 = 0x100;
 
 // A node is recreated, never read: a fifo's open waits for a writer, a socket's answers ENXIO, a device streams until the drive is full.
-pub fn copy_node(src: &Metadata, src_path: &Path, dst: At, inside: Option<&Path>) -> Result<(), FleaError> {
+pub fn copy_node(src: &Metadata, src_path: &Path, dst: At, inside: Option<&Path>) -> Result<(), DleaError> {
     use crate::backend::unheld::{fault, refused, Kind};
     let named = dst.named;
     let c_dst = match CString::new(dst.at.as_os_str().as_encoded_bytes()) {
         Ok(c) => c,
         // corner: a path with an interior NUL cannot reach a syscall, and no listing can produce one.
         Err(_) => {
-            return Err(FleaError {
+            return Err(DleaError {
                 where_: "copy".to_string(),
                 path: named.to_string_lossy().to_string(),
                 msg: "path contains an interior NUL".to_string(),

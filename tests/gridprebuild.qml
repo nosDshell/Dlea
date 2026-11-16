@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-gridprebuild-test
+//@ pragma ShellId dlea-gridprebuild-test
 
 import QtQuick
 import Quickshell
 import QtTest
-import "flea" as Flea
+import "dlea" as Dlea
 
 // gridprebuild: 1 row parks tiles unparented, 1000 rows land with zero builds, guards hold the driver, the way back builds nothing and goes quiet, a pool beside a partial park parks and fills for the next landing, hide drains all, and a key holds the next tick a frame out.
 ShellRoot {
@@ -113,7 +113,7 @@ ShellRoot {
         implicitWidth: 2536
         implicitHeight: 1381
         color: "black"
-        Flea.GridArea {
+        Dlea.GridArea {
             id: grid
             width: 2536
             height: 1381
@@ -450,7 +450,7 @@ ShellRoot {
     }
 
     Component.onCompleted: {
-        Flea.ViewState.setTextSize({ mode: 14 })
+        Dlea.ViewState.setTextSize({ mode: 14 })
         stageTimer.interval = 600
         stageTimer.start()
     }

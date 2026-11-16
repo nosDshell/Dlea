@@ -8,16 +8,16 @@ mod claims;
 mod clip;
 mod defaults;
 mod desktopid;
-use flea::error;
+use dlea::error;
 mod gui;
 mod heap;
 mod hyprkeys;
 // Tests swap in a catalog module that also carries the fixture catalogs.
 #[cfg(not(test))]
-use flea::i18n;
+use dlea::i18n;
 #[cfg(test)]
 mod i18n {
-    pub use flea::i18n::{I18n, Locale, Paths};
+    pub use dlea::i18n::{I18n, Locale, Paths};
     #[path = "test_catalogs.rs"]
     pub(crate) mod test_catalogs;
 }
@@ -105,7 +105,7 @@ mod copysrc_tests;
 fn main() {
     // args() panics on a non-UTF-8 argument and a Linux filename is any bytes, so each argument is carried as its exact text.
     let args: Vec<String> = std::env::args_os()
-        .map(|a| flea::bytename::path_text(std::path::Path::new(&a)).into_owned())
+        .map(|a| dlea::bytename::path_text(std::path::Path::new(&a)).into_owned())
         .collect();
     if args.get(1).map(String::as_str) == Some("--plugin-host") {
         exit(backend::pluginhost::run());
@@ -113,15 +113,15 @@ fn main() {
 
     // IPC owns its arguments, including strings that spell another mode flag.
     if args.get(1).map(String::as_str) == Some("ipc") {
-        exit(flea::ipc::client::run(&args[2..]));
+        exit(dlea::ipc::client::run(&args[2..]));
     }
 
-    // flea --action <id> and flea --actions: one request to a running window's IPC socket, never a new window.
+    // dlea --action <id> and dlea --actions: one request to a running window's IPC socket, never a new window.
     if matches!(
         args.get(1).map(String::as_str),
         Some("--action" | "--actions")
     ) {
-        exit(flea::ipc::action::run(&args[1..]));
+        exit(dlea::ipc::action::run(&args[1..]));
     }
 
     // A bare version query needs no display or path parsing.
@@ -145,17 +145,17 @@ fn main() {
         exit(backend::previewraster::run(&args[2..]));
     }
 
-    // flea --thumb-worker: only ever started by the backend, inside its sandbox, with a socket on stdin.
+    // dlea --thumb-worker: only ever started by the backend, inside its sandbox, with a socket on stdin.
     if args.len() == 2 && args[1] == "--thumb-worker" {
         exit(backend::thumbworker::run());
     }
 
-    // flea --figure-helper, --figure-compile and --figure-store: the figure engine's launcher modes; see AGENTS.md "Markdown figures".
+    // dlea --figure-helper, --figure-compile and --figure-store: the figure engine's launcher modes; see AGENTS.md "Markdown figures".
     if let Some(code) = figurehelper::dispatch(&args) {
         exit(code);
     }
 
-    // flea --launch-warm <list> <gvfs-path> <gvfs-dest>: one fork for both launch jobs, "-" skips one.
+    // dlea --launch-warm <list> <gvfs-path> <gvfs-dest>: one fork for both launch jobs, "-" skips one.
     if args.len() == 5 && args[1] == "--launch-warm" {
         exit(gui::run_launch_warm(&args[2], &args[3], &args[4]));
     }
@@ -163,7 +163,7 @@ fn main() {
         usage("--launch-warm takes a list, a gvfs path and a destination");
     }
 
-    // flea --prewarm <path> <count> <dest>
+    // dlea --prewarm <path> <count> <dest>
     if args.len() == 5 && args[1] == "--prewarm" {
         let first: usize = args[3].parse().unwrap_or(0);
         match launcher::prewarm::write_prewarm(&args[2], first, &PathBuf::from(&args[4])) {
@@ -178,7 +178,7 @@ fn main() {
         usage("--prewarm takes a path, a first index and a destination");
     }
 
-    // flea --open <path> [images...]: the window's entrance; the first target still asks the run card.
+    // dlea --open <path> [images...]: the window's entrance; the first target still asks the run card.
     if args.len() >= 3 && args[1] == "--open" {
         exit(open::open_many(&args[2..]));
     }
@@ -186,7 +186,7 @@ fn main() {
         usage("--open <path> [images...]");
     }
 
-    // flea --terminal <dir>
+    // dlea --terminal <dir>
     if args.len() == 3 && args[1] == "--terminal" {
         exit(terminal::open_terminal(&args[2]));
     }
@@ -194,17 +194,17 @@ fn main() {
         usage("--terminal takes one directory");
     }
 
-    // flea --unlock <device>: the encrypted-drive dialog, see src/unlock.rs.
+    // dlea --unlock <device>: the encrypted-drive dialog, see src/unlock.rs.
     if let Some(code) = unlock::dispatch(&args) {
         exit(code);
     }
 
-    // flea --run, --run-terminal, --open-text and --open-handler: the run card's own launches; see src/runfile.rs.
+    // dlea --run, --run-terminal, --open-text and --open-handler: the run card's own launches; see src/runfile.rs.
     if let Some(code) = runfile::dispatch(&args) {
         exit(code);
     }
 
-    // flea --update [check]: ask the installing source for a newer Flea, or open Omarchy's updater; see src/update.rs.
+    // dlea --update [check]: ask the installing source for a newer Dlea, or open Omarchy's updater; see src/update.rs.
     if args.len() == 2 && args[1] == "--update" {
         exit(update::launch());
     }
@@ -215,7 +215,7 @@ fn main() {
         usage("--update takes nothing, or check");
     }
 
-    // flea --default [off]: both per-user steps pacman cannot own, see docs/install.md.
+    // dlea --default [off]: both per-user steps pacman cannot own, see docs/install.md.
     if args.len() == 2 && args[1] == "--default" {
         exit(claim_both());
     }
@@ -234,7 +234,7 @@ fn main() {
         usage("--youleftmeforstrata takes nothing");
     }
 
-    // flea --picker [off]: the chooser routing, the other per-user step, see docs/install.md.
+    // dlea --picker [off]: the chooser routing, the other per-user step, see docs/install.md.
     if args.len() == 2 && args[1] == "--picker" {
         exit(claim_picker());
     }
@@ -245,7 +245,7 @@ fn main() {
         usage("--picker takes nothing, or off");
     }
 
-    // flea --pick <reply>: one portal request's picker window, opened by tools/flea-portal.
+    // dlea --pick <reply>: one portal request's picker window, opened by tools/dlea-portal.
     if args.len() == 3 && args[1] == "--pick" {
         exit(gui::pick(&args[2]));
     }
@@ -253,7 +253,7 @@ fn main() {
         usage("--pick takes one reply file");
     }
 
-    // flea --clip-own: the detached owner behind one clipboard copy, reading its payload on stdin.
+    // dlea --clip-own: the detached owner behind one clipboard copy, reading its payload on stdin.
     if args.len() == 2 && args[1] == "--clip-own" {
         exit(clip::own::run());
     }
@@ -261,7 +261,7 @@ fn main() {
         usage("--clip-own takes nothing");
     }
 
-    // flea --clip get|set copy|cut|clear TOKEN: the terminal and test seam over the clipboard.
+    // dlea --clip get|set copy|cut|clear TOKEN: the terminal and test seam over the clipboard.
     if args.len() == 3 && args[1] == "--clip" && args[2] == "get" {
         exit(clip::cli::get());
     }
@@ -279,7 +279,7 @@ fn main() {
         usage("--clip takes get, set copy|cut, or clear TOKEN");
     }
 
-    // flea --ui-state [<json patch>]: the shared ui.json read and update path, see AGENTS.md "The state file".
+    // dlea --ui-state [<json patch>]: the shared ui.json read and update path, see AGENTS.md "The state file".
     if args.get(1).map(String::as_str) == Some("--ui-state") {
         exit(uistatecli::ui_state(&args));
     }
@@ -331,11 +331,11 @@ fn main() {
     let interactive = std::io::stdin().is_terminal() && std::io::stdout().is_terminal();
     if want_tui {
         if !interactive {
-            eprintln!("flea: the terminal interface needs a terminal on stdin and stdout");
+            eprintln!("dlea: the terminal interface needs a terminal on stdin and stdout");
             exit(2);
         }
         if dumb_terminal(std::env::var_os("TERM").as_deref()) {
-            eprintln!("flea: the terminal interface cannot draw on a dumb terminal (TERM=dumb)");
+            eprintln!("dlea: the terminal interface cannot draw on a dumb terminal (TERM=dumb)");
             exit(2);
         }
         exit(tui::run(
@@ -349,7 +349,7 @@ fn main() {
         exit(2);
     }
     if !paths::has_display() {
-        eprintln!("flea: there is no graphical session to open a window in");
+        eprintln!("dlea: there is no graphical session to open a window in");
         exit(2);
     }
 
@@ -381,13 +381,13 @@ mod tests {
 
     #[test]
     fn a_path_named_flash_still_opens() {
-        let bare = ["flea".to_string(), "flash".to_string()];
+        let bare = ["dlea".to_string(), "flash".to_string()];
         assert!(
             !flash_picker(&bare),
             "a bare flash is a path, not the picker"
         );
         let picker = [
-            "flea".to_string(),
+            "dlea".to_string(),
             "flash".to_string(),
             "choose".to_string(),
         ];

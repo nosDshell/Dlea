@@ -1,4 +1,4 @@
-# Flea 0.4.3
+# Dlea 0.4.3
 
 - A touchscreen works again on Wayland: a tap clicks, a double tap opens, and a moving finger scrolls List, Grid and the preview (#479, @nicolasfalesy).
 - A window left open and idle no longer climbs in CPU and memory (#478, @Imacx-maria).
@@ -15,7 +15,7 @@
 - A 3MF project with many parts previews instead of ending the preview worker (#467, @ids444).
 - Delete Permanently works on rclone mounts that renumber a file when it is renamed, for files and folders, and a refused delete no longer renames every object on the mount (#464, @lzm3, @jekitf).
 - Folder sizes no longer cross into, or mount, autofs and network mounts below the folder being measured (#458, @hachre).
-- A favourite whose folder comes back opens again without restarting Flea (#462, @nicolasfalesy).
+- A favourite whose folder comes back opens again without restarting Dlea (#462, @nicolasfalesy).
 - A phone folder that stops answering shows Reload in its not-responding state (#144, @mfilm77).
 - A file dropped on a symlink that points at a folder lands in that folder, as on a folder row.
 - Settings > View offers Wrap at row ends, off by default: in Grid, Right on a row's last tile moves to the next row's first and Left on a row's first tile to the previous row's last (#434, #433, @letargopausado-byte; #447, @manish0467; #439, @reverb256).
@@ -39,7 +39,7 @@
 
 Thanks to @AksharP5, @atomicol, @chrizbee, @derekroper, @dyedfox, @hachre, @iccodes, @ids444, @Imacx-maria, @jekitf, @JonathanPitre, @jotapesse, @k-kostin, @letargopausado-byte, @Loafer19, @lzm3, @manish0467, @mfilm77, @muellan, @nicolasfalesy, @reeseroyster, @reverb256 and @sixers.
 
-# Flea 0.4.2
+# Dlea 0.4.2
 
 - A new search starts in the current folder (#451, @muellan).
 - Large folders open at Tight row density instead of failing to load (#454, @austrasien).
@@ -74,7 +74,7 @@ Thanks to @AksharP5, @atomicol, @chrizbee, @derekroper, @dyedfox, @hachre, @icco
 - Dragging in the Save chooser name field selects text.
 - Inline rename keeps the typed name and refuses the change if another file has replaced the selected one, whether rename started from the keyboard or the menu.
 - Escape keeps an inline rename open while its change is pending, and renaming to a hidden name says why the row disappears.
-- Carried files land in List, Columns, Grid and another Flea window; Escape in either window cancels the carry.
+- Carried files land in List, Columns, Grid and another Dlea window; Escape in either window cancels the carry.
 - The footer's Undo hint works on click, and completed undo and redo refresh the folder even when no file-watch event arrives.
 - Undo and redo work inside the Trash view and show their receipts there.
 - Restore recreates a missing original folder, and damaged Trash records no longer hide healthy entries.
@@ -88,7 +88,7 @@ Thanks to @AksharP5, @atomicol, @chrizbee, @derekroper, @dyedfox, @hachre, @icco
 - Copy, folder-size walks and delete handle deeply nested folders without a stack overflow or running out of open files.
 - Sparse files keep their holes when copied where the filesystem supports it, and Duplicate and Keep both work with names near the filename-length limit.
 - A copy reports failure if its source is truncated before it finishes.
-- Copies that exceed a shell file-size limit report an error without interrupting the rest of Flea.
+- Copies that exceed a shell file-size limit report an error without interrupting the rest of Dlea.
 - Convert and Combine keep percent signs in output paths literal.
 - Eject and unmount refuse while a transfer uses the drive, name the running job, and keep the folder and transfer card in place.
 - An open folder that disappears returns to its nearest surviving parent.
@@ -120,7 +120,7 @@ Thanks to @AksharP5, @atomicol, @chrizbee, @derekroper, @dyedfox, @hachre, @icco
 - Tab-number and tab-move keys work from the sidebar, and a right-clicked Columns row keeps a visible menu target.
 - Menus can open beside a running Jobs card, and Trash is refused before deletion is armed on a phone or mount without Trash.
 - Ctrl+P reaches Print and appears in the menu's key hint.
-- About identifies a flea-bin installation as a Release build.
+- About identifies a dlea-bin installation as a Release build.
 - The TUI honours NO_COLOR, keeps menu and card focus visible, and draws readable image and 3D previews in monochrome and 16-colour terminals.
 - The TUI opens symlinked folders under the link's path and explains a broken link.
 - TUI Find and Filter open the highlighted result with one Enter, and Right or l chooses a file in chooser mode.
@@ -129,13 +129,13 @@ Thanks to @AksharP5, @atomicol, @chrizbee, @derekroper, @dyedfox, @hachre, @icco
 - TUI Go to folder cleans up dots and trailing slashes without resolving links, and r copies a relative path.
 - TUI editing and bulk rename use VISUAL before EDITOR and name a missing editor or helper program.
 - TUI receipts remain visible during Find, modified Return and Space do not accidentally accept fields or toggle options, and the key sheet fits a short terminal.
-- flea --help, -h and -V answer directly, and unknown options are refused.
-- Arch packages declare their conflict with mutt so pacman explains the shared /usr/bin/flea path (#437, @synacktic).
+- dlea --help, -h and -V answer directly, and unknown options are refused.
+- Arch packages declare their conflict with mutt so pacman explains the shared /usr/bin/dlea path (#437, @synacktic).
 - The command interface distinguishes a closed window from a window that dropped a request without replying.
 
 Thanks to @AkitaOnRails, @AksharP5, @alextakitani, @austrasien, @dpan, @Ewerton, @filip-spaldon, @jlahijani, @k-kostin, @kevinpardo, @MISTERNEGATIVE21, @mtp13, @muellan, @rms1982, @synacktic, @timothy-ecc, @vitonique and @zm14.
 
-# Flea 0.4.1
+# Dlea 0.4.1
 
 - The AirDrop plugin, off by default, sends files to nearby Apple devices and accepts incoming files from a notification; it is built on [owly](https://github.com/t4t5/owly/releases/tag/v0.4.0) by @t4t5 and needs a supported Wi-Fi card and the owly package (#369, @netmojo).
 - The file menu shows Properties and Permissions, Show Hidden Files and Hide Code Icons move to the background menu, a customized menu list is kept, and Settings > Menus brings either row back.
@@ -147,7 +147,7 @@ Thanks to @AkitaOnRails, @AksharP5, @alextakitani, @austrasien, @dpan, @Ewerton,
 - Save is enabled for the caller's file name when the Save chooser starts in an empty folder (#428, @vitonique).
 - The first window opens faster (#381, @chrispository).
 - 4K HDR video previews play at full frame rate.
-- An idle NVIDIA GPU on a hybrid laptop stays suspended while it drives no display, unless FLEA_VK_KEEP_NVIDIA=1 is set (#376, @neuromante).
+- An idle NVIDIA GPU on a hybrid laptop stays suspended while it drives no display, unless DLEA_VK_KEEP_NVIDIA=1 is set (#376, @neuromante).
 - Trash rows stay drawn while scrolling, on a refresh and when Trash changes (#422, #423, @Loafer19).
 - Columns rows draw at the chosen Row density (#388, @brianblakely).
 - TUI folder sizes survive tab switches, and a folder is walked again only after it changes (#390, @brianblakely).
@@ -169,7 +169,7 @@ Thanks to @AkitaOnRails, @AksharP5, @alextakitani, @austrasien, @dpan, @Ewerton,
 - Inactive windows draw a grey list cursor.
 - Each tag keeps its own hue on every theme, so red, orange and yellow tags no longer draw green on Hackerman.
 - A live language switch translates sidebar place names, the Projects row included.
-- When no graphics driver can open a window, Flea names vulkan-swrast in the user's language and lists each refused adapter on stderr.
+- When no graphics driver can open a window, Dlea names vulkan-swrast in the user's language and lists each refused adapter on stderr.
 - The copy card's spinner is back, held still and dimmed while a job waits.
 - The sign-in fields open when an SMB share lists nothing without credentials.
 - The Grid cursor lands in the same place every time a filter clears.
@@ -179,10 +179,10 @@ Thanks to @AkitaOnRails, @AksharP5, @alextakitani, @austrasien, @dpan, @Ewerton,
 
 Thanks to @brianblakely, @chrispository, @filip-spaldon, @gdeyoung, @k-kostin, @Loafer19, @MrVoicer, @muellan, @nchudleigh, @netmojo, @neuromante, @nixfred, @OldJobobo, @root1945, @simonhull, @t4t5 and @vitonique.
 
-# Flea 0.4.0
+# Dlea 0.4.0
 
-- Flea's window is drawn by a new GPU renderer built on GPUI, with every view, card, menu, preview and dialog of 0.3.12 carried over. Machines without a working Vulkan driver fall back to software Vulkan and then OpenGL, and when no renderer can open a window Flea says so and points to flea --tui.
-- Flea follows the system language and includes the 50 languages Omarchy offers, with missing strings falling back to English (#43, @eachann1024).
+- Dlea's window is drawn by a new GPU renderer built on GPUI, with every view, card, menu, preview and dialog of 0.3.12 carried over. Machines without a working Vulkan driver fall back to software Vulkan and then OpenGL, and when no renderer can open a window Dlea says so and points to dlea --tui.
+- Dlea follows the system language and includes the 50 languages Omarchy offers, with missing strings falling back to English (#43, @eachann1024).
 - On non-Latin keyboard layouts, digits and letter keys reach their bindings by their position on a US keyboard, while Latin layouts keep the printed key and typed text is unchanged.
 - Theme, font and Window Transparency changes reach an open window at once, and window and card corners follow Hyprland's rounding.
 - Ctrl+G searches the contents of files in the open folder (#252, @passport0819).
@@ -190,7 +190,7 @@ Thanks to @brianblakely, @chrispository, @filip-spaldon, @gdeyoung, @k-kostin, @
 - Folders expand in place in List view (#113, @muellan).
 - A tab can be dragged into its own window or onto another window, and files drag between panes and windows.
 - A tab change closes the filter, search and Quick Look, and the tab strip exposes its controls to accessibility tools.
-- With Start in set to Last folder, Flea restores tab folders and their order (#353, @dyedfox).
+- With Start in set to Last folder, Dlea restores tab folders and their order (#353, @dyedfox).
 - X carries selected files to another application without moving the pointer (#57, @jesedv).
 - Open agent here starts Omarchy's agent in the folder being shown (#61, @jesedv).
 - Dragging the window's top bar moves the window, and a user@host:/path location opens as a network share (#32, @nixfred).
@@ -242,9 +242,9 @@ Thanks to @brianblakely, @chrispository, @filip-spaldon, @gdeyoung, @k-kostin, @
 - Thumbnailer field codes expand inside options such as --output=%o (#339, @k-kostin).
 - F3D thumbnailers receive expanded options and a bounded 3 GiB address-space allowance (#357, @not-that-nda).
 - Previews release images when selection changes, and a crashed window is not relaunched in a loop (#151, @marvreichmann).
-- Third-party plugins run as separate processes, with settings, menu actions, key bindings and previews drawn by Flea.
+- Third-party plugins run as separate processes, with settings, menu actions, key bindings and previews drawn by Dlea.
 - Plugin startup failures identify the plugin that failed, and PLUGINS.md provides the protocol and working examples.
-- Flea checks for and installs updates through the Omarchy Package Repository.
+- Dlea checks for and installs updates through the Omarchy Package Repository.
 - Convert processes selected images as a batch (#269, @muellan).
 - The terminal interface previews office documents and 3D models, searches names and contents, and gains Print and Convert cards.
 - The terminal interface can clear its selection without clearing the filter (#164, @muellan; #317, @itsmunzir).
@@ -255,7 +255,7 @@ Thanks to @brianblakely, @chrispository, @filip-spaldon, @gdeyoung, @k-kostin, @
 
 Thanks to @aholbreich, @akitaonrails, @AksharP5, @avillagran, @axelfontaine, @AyushKr2003, @chrispository, @dyedfox, @eachann1024, @EmilsValdmanis, @felixzsh, @FortyTwoFifty, @gdeyoung, @gjouret, @group6digital, @hegjon, @itsmunzir, @jakovius, @jesedv, @jessekalil, @jesusalcaladev, @joebaus, @johnkattenhorn, @jotapesse, @k-kostin, @letsfkccp, @marvreichmann, @MiguelDebruyne, @MISTERNEGATIVE21, @mubshrx, @muellan, @murilocb, @nerdislb, @nixfred, @NjengaFelix, @not-that-nda, @OldJobobo, @passport0819, @paulnunezm, @pvpmartins, @razmikb, @root1945, @tko76, @vitonique and @wmfeht.
 
-# Flea 0.3.10
+# Dlea 0.3.10
 
 - Tags in Omarchy's colours, shared with Dolphin. T tags the selection, 1 to 7 pick a colour, the menus gain a Tags row and flyout, a TAGS section can show in the sidebar (off by default), and search finds files by tag, such as the red tag.
 - Pasting a folder onto one with the same name can merge the two, and undo puts both back as they were.
@@ -263,22 +263,22 @@ Thanks to @aholbreich, @akitaonrails, @AksharP5, @avillagran, @axelfontaine, @Ay
 - A run card shows what a script, program or AppImage will run and asks before starting it (#174, @dedeanth; #71, @nate8199).
 - Bulk rename edits every selected name at once in your terminal editor, with swaps, bad lines and undo handled (#183, @muellan).
 - Archives take a password for 7z, refuse to extract onto a drive without room, and open ISO images and package files.
-- Encrypted drives unlock and relock in Flea, and flea --unlock does it from a terminal.
+- Encrypted drives unlock and relock in Dlea, and dlea --unlock does it from a terminal.
 - A new image flasher writes an ISO or disk image to a USB stick and verifies every byte.
 - An unlocked encrypted volume appears in the sidebar with its eject mark (#200, @akitaonrails).
 - Back and forward return the cursor to the row it was on (#235, @t1nk333r).
-- Listing a phone or network share no longer holds up the rest of Flea (#144, @mfilm77; #247, @itsmunzir).
+- Listing a phone or network share no longer holds up the rest of Dlea (#144, @mfilm77; #247, @itsmunzir).
 - A WebDAV share's breadcrumb shows the name you saved it under (#237, @bthome; #246, @aholbreich).
 - A refused WebDAV sign-in says the server did not accept the password, and a failure is no longer guessed as a TLS handshake failure from the address (#238, @bthome; #241, @GreyforgeLabs).
 - Unmount is offered on every mounted volume, so a mounted NTFS drive can be unmounted from the sidebar (#232, @MiguelDebruyne).
-- NFS and SMB shares that the system mounts appear under NETWORK in the sidebar, beside the shares Flea mounts (#257, @citizen-why).
+- NFS and SMB shares that the system mounts appear under NETWORK in the sidebar, beside the shares Dlea mounts (#257, @citizen-why).
 - The file picker takes a typed path (#191, @dyedfox; #206, @akitaonrails; #256, @karacas).
 - A drop on the Shelf's edge rail lands even after the rail has opened the card (#255, @liri2006).
-- Flea skips Vulkan drivers for graphics cards the machine does not have (#248, @t1nk333r).
+- Dlea skips Vulkan drivers for graphics cards the machine does not have (#248, @t1nk333r).
 - Properties shows a folder's size and item count (#172, @nerdislb).
-- A thumbnailer installed outside /usr, such as one under ~/.local, now runs inside Flea's thumbnail sandbox (#171, @matirossi93).
+- A thumbnailer installed outside /usr, such as one under ~/.local, now runs inside Dlea's thumbnail sandbox (#171, @matirossi93).
 - Quick Look on an image that cannot decode and has no thumbnail yet waits for the row thumbnail and draws it, instead of showing "This image could not be read." (#263, @kevinbsr).
-- Quick Look works when Flea was started with a relative path (#290, @fishandsheep).
+- Quick Look works when Dlea was started with a relative path (#290, @fishandsheep).
 - A copy or move onto a FAT or exFAT drive goes on past links, special files and names it cannot hold, and names what it skipped (#271, @jotapesse).
 - Moving a folder onto an rclone mount that refuses no-replace renames no longer fails, and the move copies across with progress, cancel and the journal (#282, @protoavatar).
 - Replacing a file on phone storage, where there is no Trash, works and Undo restores the old file (#261, @kosmicus).
@@ -289,7 +289,7 @@ Thanks to @aholbreich, @akitaonrails, @AksharP5, @avillagran, @axelfontaine, @Ay
 - A bare digit switches to that tab (#284, @joebaus).
 - With hidden files sorted last, a click on a file picker column header keeps them last, as every view does (#291, @KelpyShades).
 - Grid view's selection band starts from the margin between tiles (#292, @KelpyShades).
-- Flea can remember the view mode of each folder (#293, @carldx).
+- Dlea can remember the view mode of each folder (#293, @carldx).
 - The file picker remembers its sort (#281, @pedrosatin).
 - The window can fade its background alone, leaving text and icons fully opaque (#274, @erikrjohansson).
 - The system disk's other partitions, such as a Windows or second Linux install, show in the sidebar and follow Show unmounted drives, while boot and recovery partitions and the one holding / stay hidden (#215, @AyushKr2003; #217, @fsrodrig).
@@ -303,7 +303,7 @@ Thanks to @aholbreich, @akitaonrails, @AksharP5, @avillagran, @axelfontaine, @Ay
 - A damaged volume that will not mount says why, with the system's reason as the detail (@maeandrew).
 - In a pane without focus, selected rows keep a muted fill, and the sidebar lights the place that holds the current folder.
 - Dialogs, panels and menus fade in and out the same way, and a long dialog keeps its title and buttons in view while its body scrolls.
-- Window corners follow a Hyprland config reload without restarting Flea.
+- Window corners follow a Hyprland config reload without restarting Dlea.
 
 Known issues
 
@@ -313,22 +313,22 @@ Known issues
 - The thumbnail stall reported in #268 is not fixed in 0.3.10. PR #268 changes only the thumbnail test harness.
 - HFS+ eject could not be reproduced, so it is not claimed for 0.3.10 (#232).
 - The memory growth and crash in #151 have not been reproduced; the report stays open.
-- On a folder whose first row is a video the field run drew Flea's window about 28 ms after 0.3.9's, 530 against 502 ms on 2,000 mixed files and 541 against 513 on 1,700 (medians of 3 runs, with 0.3.10 launched first every time). Rerun with each version launched first in half of 10 runs, the medians are 502.5 against 502.5 ms on 2,000 files and 507.5 against 503.5 on 1,700. On 100,000 text files the field run had them level, 505 against 510.
-- PCManFM's window appears first on all three folders (448, 420 and 416 ms), and in the field run Thunar's also appeared before Flea's on the two media folders (513 and 507 ms against 530 and 541).
-- On the two media folders Flea's window uses 93.5 and 93.6 MiB, fifth for window PSS after Thunar, PCManFM, Nemo and Strata (34.2 to 87.5 MiB). On 100,000 files it uses the least, 80.7 MiB.
-- On the media folders Thunar, and on 1,700 files Nemo, settle sooner and use less CPU than Flea, but the bench measured no thumbnail work from either, so those columns are not ranked.
+- On a folder whose first row is a video the field run drew Dlea's window about 28 ms after 0.3.9's, 530 against 502 ms on 2,000 mixed files and 541 against 513 on 1,700 (medians of 3 runs, with 0.3.10 launched first every time). Rerun with each version launched first in half of 10 runs, the medians are 502.5 against 502.5 ms on 2,000 files and 507.5 against 503.5 on 1,700. On 100,000 text files the field run had them level, 505 against 510.
+- PCManFM's window appears first on all three folders (448, 420 and 416 ms), and in the field run Thunar's also appeared before Dlea's on the two media folders (513 and 507 ms against 530 and 541).
+- On the two media folders Dlea's window uses 93.5 and 93.6 MiB, fifth for window PSS after Thunar, PCManFM, Nemo and Strata (34.2 to 87.5 MiB). On 100,000 files it uses the least, 80.7 MiB.
+- On the media folders Thunar, and on 1,700 files Nemo, settle sooner and use less CPU than Dlea, but the bench measured no thumbnail work from either, so those columns are not ranked.
 
 Thanks to @dedeanth, @nate8199, @muellan, @akitaonrails, @t1nk333r, @mfilm77, @itsmunzir, @bthome, @aholbreich, @GreyforgeLabs, @MiguelDebruyne, @citizen-why, @dyedfox, @karacas, @liri2006, @nerdislb, @matirossi93, @kevinbsr, @fishandsheep, @jotapesse, @protoavatar, @kosmicus, @demostenex, @joebaus, @KelpyShades, @carldx, @pedrosatin, @erikrjohansson, @AyushKr2003, @fsrodrig, @iccodes and @maeandrew.
 
 Source revision: f1c46dbf758dc93338f0d6e4bcbdcc829c4edc1b (v0.3.10).
 
-# Flea 0.3.9
+# Dlea 0.3.9
 
 - Theme colours draw again on Qt 6.12, where QtQuick's own Color type hid the Omarchy palette and left every view black (#276, @jfg96; #278, @AndreasDellrud; #285, @zigmoo; #289, @playGitboy).
 
-# Flea 0.3.8
+# Dlea 0.3.8
 
-- Copy, cut and paste reach the system clipboard, so they work between two Flea windows and with other file managers (#203, @akitaonrails).
+- Copy, cut and paste reach the system clipboard, so they work between two Dlea windows and with other file managers (#203, @akitaonrails).
 - A drag between windows moves within a drive, copies across drives, and says the verb it will perform; a drop from another app follows that app's action (#212, @shawnyeager).
 - Drop modifiers held at lift: Shift moves, Ctrl copies, Ctrl+Shift links.
 - Trackpad scrolling matches Finder's speed, coasts after the fingers lift, and stretches at a list's ends; the mouse wheel is unchanged.
@@ -359,7 +359,7 @@ Source revision: f1c46dbf758dc93338f0d6e4bcbdcc829c4edc1b (v0.3.10).
 - A key pressed right after clicking a selected name runs alone, with no rename editor opening behind it.
 - Menus and flyouts widen to their widest row, so a long label is no longer cut beside its key hint (#213, @AksharP5).
 - Menus, flyouts and the sidebar draw no scrollbar and keep no room for one; in a menu the wheel and trackpad move the highlight.
-- A hung NFS, SMB or other network share no longer freezes Flea: listings, previews and file operations on it answer within seconds, and a slow rename or new folder says it is still running and finishes on its own.
+- A hung NFS, SMB or other network share no longer freezes Dlea: listings, previews and file operations on it answer within seconds, and a slow rename or new folder says it is still running and finishes on its own.
 - Moving 1,000 small files to a USB stick confirms every file on the stick before its source is removed, in about 4.3 s against 6.6 s for 0.3.7 measured the same way on the same stick (medians of 18 runs each; the 9.62 s in 0.3.7's notes came from a different harness).
 - Undo and redo stay quick after a long session: one operation reads and writes the shared undo history once.
 - Partitions with no filesystem, and EFI and other system partitions, no longer appear in the sidebar (#232, @MiguelDebruyne).
@@ -370,13 +370,13 @@ Source revision: f1c46dbf758dc93338f0d6e4bcbdcc829c4edc1b (v0.3.10).
 - A focused field draws its own frame in the theme accent, and so does a focused protocol chip in the Network dialog.
 - Rename uses the list view's editor in every view.
 - The terminal version's rename editor no longer paints terminal control characters from a file name (#239, @GreyforgeLabs).
-- flea-git now updates on every release with flea and flea-bin.
+- dlea-git now updates on every release with dlea and dlea-bin.
 - The test suites run headless on an Omarchy box with no display, on Qt's generic theme (#253, @nixfred).
 
 Known issues
 
 - A new window maps about 35 ms later than 0.3.7 on a local folder and about 50 ms later on a USB folder, so PCManFM's window appears first on both (532 and 550 ms against 464 and 524, medians of 5 runs); the startup cost is the first item for 0.3.9.
-- USB folders rank fourth for GUI PSS among the file managers measured (third in 0.3.7; 88.9 MB against 86.4 MB for 0.3.7 in the same run) and NAS folders third; PCManFM skips thumbnails on removable and network media, and Flea's floor is the Quickshell and Qt base.
+- USB folders rank fourth for GUI PSS among the file managers measured (third in 0.3.7; 88.9 MB against 86.4 MB for 0.3.7 in the same run) and NAS folders third; PCManFM skips thumbnails on removable and network media, and Dlea's floor is the Quickshell and Qt base.
 - On the NAS, Strata settles with slightly less CPU (1.38 s against 1.44 s), as in 0.3.7.
 - Quick Look's first Space on a Markdown document whose first screen is a table draws about 37 ms later than other documents (60 ms against about 23 ms), still ahead of Strata's 104 ms.
 - The 5 GB memory growth and crash in #151 have not been reproduced; the report stays open.

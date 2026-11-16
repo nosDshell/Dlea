@@ -3,13 +3,13 @@
 # Real rendered Markdown and Quick Look scroll behavior against the release boards.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-preview-hunt.XXXXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-preview-hunt.XXXXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER"
 trap 'sandbox_remove "$test_root"' EXIT
 mkdir -p "$test_root/config" "$test_root/fixture"
-ln -s "$PWD/ui" "$test_root/config/flea"
+ln -s "$PWD/ui" "$test_root/config/dlea"
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui"
 cp tests/preview-hunt.qml "$test_root/config/shell.qml"
@@ -81,8 +81,8 @@ fallback_wait_ms=200
 sed -i "s/^\(    readonly property int parseFallbackMs: \)10000\$/\1$fallback_wait_ms/" "$fallback_ui/PreviewMarkdown.qml"
 grep -q "parseFallbackMs: $fallback_wait_ms\$" "$fallback_ui/PreviewMarkdown.qml" || { echo 'FAIL scratch ui: parseFallbackMs not patched'; exit 1; }
 printf '%s\n' 'WorkerScript.onMessage = function (msg) {};' > "$fallback_ui/MarkdownWorker.js"
-sed -i 's/^function blocks(source, dir, chrome, ink) {$/&\n    if (String(source).indexOf("FLEA-SCRATCH-THROW") >= 0) throw new Error("scratch parse failure")/' "$fallback_ui/js/Markdown.js"
-grep -q 'FLEA-SCRATCH-THROW' "$fallback_ui/js/Markdown.js" || { echo 'FAIL scratch ui: parser not patched'; exit 1; }
+sed -i 's/^function blocks(source, dir, chrome, ink) {$/&\n    if (String(source).indexOf("DLEA-SCRATCH-THROW") >= 0) throw new Error("scratch parse failure")/' "$fallback_ui/js/Markdown.js"
+grep -q 'DLEA-SCRATCH-THROW' "$fallback_ui/js/Markdown.js" || { echo 'FAIL scratch ui: parser not patched'; exit 1; }
 # The outer kill for one phase; the probe caps its give-up below this, so its timeout line lands first.
 probe_timeout_s=15
 failures=0
@@ -103,7 +103,7 @@ for entry in "${scenarios[@]}"; do
         *) cp tests/preview-hunt.qml "$test_root/config/shell.qml" ;;
     esac
     # Only parse-fallback runs on the scratch ui; every other phase is back on the real one, whatever order they run in.
-    if [ "$scenario" = parse-fallback ]; then ln -sfn "$fallback_ui" "$test_root/config/flea"; else ln -sfn "$PWD/ui" "$test_root/config/flea"; fi
+    if [ "$scenario" = parse-fallback ]; then ln -sfn "$fallback_ui" "$test_root/config/dlea"; else ln -sfn "$PWD/ui" "$test_root/config/dlea"; fi
     [ "$scenario" != links ] || link_preload="$test_root/link-spy.so"
     phase="$test_root/${entry/@/-tick}"
     mkdir -p "$phase"/{home,state,cache,data,runtime,tmp}
@@ -111,9 +111,9 @@ for entry in "${scenarios[@]}"; do
     output=$(env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
         HOME="$phase/home" XDG_STATE_HOME="$phase/state" XDG_CONFIG_HOME="$phase/home/.config" \
         XDG_CACHE_HOME="$phase/cache" XDG_DATA_HOME="$phase/data" XDG_RUNTIME_DIR="$phase/runtime" TMPDIR="$phase/tmp" \
-        FLEA_BIN="$PWD/target/debug/flea" FLEA_PREVIEW_HUNT_CASE="$scenario" FLEA_PREVIEW_HUNT_TICK_MS="$tick" FLEA_PREVIEW_HUNT_DIR="$test_root/fixture" FLEA_PREVIEW_HUNT_PICS="$test_root/pics" \
-        FLEA_PREVIEW_HUNT_TIMEOUT_S="$probe_timeout_s" \
-        LD_PRELOAD="$link_preload" FLEA_MARKDOWN_OPEN_LOG="$phase/open.log" \
+        DLEA_BIN="$PWD/target/debug/dlea" DLEA_PREVIEW_HUNT_CASE="$scenario" DLEA_PREVIEW_HUNT_TICK_MS="$tick" DLEA_PREVIEW_HUNT_DIR="$test_root/fixture" DLEA_PREVIEW_HUNT_PICS="$test_root/pics" \
+        DLEA_PREVIEW_HUNT_TIMEOUT_S="$probe_timeout_s" \
+        LD_PRELOAD="$link_preload" DLEA_MARKDOWN_OPEN_LOG="$phase/open.log" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
         timeout "$probe_timeout_s" qs -p "$test_root/config" 2>&1)
     code=$?
@@ -130,7 +130,7 @@ for entry in "${scenarios[@]}"; do
     if [ -n "$warnings" ]; then printf 'FAIL preview binding warning: %s\n' "$warnings"; failures=$((failures+1)); fi
     if [ "$scenario" = source-key ]; then
         # A state file the flip never wrote is fine; one that exists must not hold the retired leaf.
-        if ! python3 - "$phase/state/flea/ui.json" <<'PY'
+        if ! python3 - "$phase/state/dlea/ui.json" <<'PY'
 import json,sys
 try:r=json.load(open(sys.argv[1]))
 except OSError:sys.exit(0)

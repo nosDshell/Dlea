@@ -2,7 +2,7 @@ import Quickshell
 import Quickshell.Io
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/RunFile.js" as RunFile
 
 // Opening an executable file asks once, in this one card: Cancel, Open as text, Run and Run in terminal, with the ring on the default. An AppImage the desktop names a handler for offers that application first, by its own name, and focuses it instead.
@@ -56,7 +56,7 @@ FocusScope {
     function open(info, pane) {
         var ask = RunFile.parseAsk(info.raw || "")
         if (ask === null) {
-            if (pane) pane.message("Flea could not check that file, so it was not run.", true)
+            if (pane) pane.message("Dlea could not check that file, so it was not run.", true)
             return
         }
         root.pane = pane
@@ -98,20 +98,20 @@ FocusScope {
         runChild.command = command
         runChild.running = true
     }
-    // Sample argv: flea --run /home/gm/tool.sh <the card's identity>, never a shell string.
+    // Sample argv: dlea --run /home/gm/tool.sh <the card's identity>, never a shell string.
     function run(path, dev, ino, size, mtimeS, mtimeNs) {
-        root.launch("run", [Quickshell.env("FLEA_BIN") || "flea", "--run", path, dev, ino, size, mtimeS, mtimeNs], path)
+        root.launch("run", [Quickshell.env("DLEA_BIN") || "dlea", "--run", path, dev, ino, size, mtimeS, mtimeNs], path)
     }
     function runTerminal(path, dev, ino, size, mtimeS, mtimeNs) {
-        root.launch("terminal", [Quickshell.env("FLEA_BIN") || "flea", "--run-terminal", path, dev, ino, size, mtimeS, mtimeNs], path)
+        root.launch("terminal", [Quickshell.env("DLEA_BIN") || "dlea", "--run-terminal", path, dev, ino, size, mtimeS, mtimeNs], path)
     }
     function openText(path, pane) {
         if (pane) root.pane = pane
-        root.launch("text", [Quickshell.env("FLEA_BIN") || "flea", "--open-text", path], path)
+        root.launch("text", [Quickshell.env("DLEA_BIN") || "dlea", "--open-text", path], path)
     }
-    // Sample argv: flea --open-handler /home/gm/app.AppImage appimagelauncher.desktop <the card's identity>.
+    // Sample argv: dlea --open-handler /home/gm/app.AppImage appimagelauncher.desktop <the card's identity>.
     function openHandler(path, id, dev, ino, size, mtimeS, mtimeNs) {
-        root.launch("handler", [Quickshell.env("FLEA_BIN") || "flea", "--open-handler", path, id, dev, ino, size, mtimeS, mtimeNs], path)
+        root.launch("handler", [Quickshell.env("DLEA_BIN") || "dlea", "--open-handler", path, id, dev, ino, size, mtimeS, mtimeNs], path)
     }
     // The choice lands on the pane that asked, through ui/js/RunFile.js.
     function choose(choice) {
@@ -131,7 +131,7 @@ FocusScope {
         root.keyPressed(event.key, event.isAutoRepeat, event.modifiers)
         event.accepted = true
     }
-    Flea.Reveal { target: root; shown: root.opened; lift: card }
+    Dlea.Reveal { target: root; shown: root.opened; lift: card }
     Process {
         id: runChild
 
@@ -147,8 +147,8 @@ FocusScope {
                 return
             }
             if (exitCode === root.runChangedStatus) {
-                root.pane.message(action === "handler" ? "That file changed after Flea checked it, so it was not opened."
-                    : "That file changed after Flea checked it, so it was not run.", true)
+                root.pane.message(action === "handler" ? "That file changed after Dlea checked it, so it was not opened."
+                    : "That file changed after Dlea checked it, so it was not run.", true)
                 return
             }
             if (exitCode === root.runNoExecStatus) {
@@ -180,7 +180,7 @@ FocusScope {
                 root.pane.message("No text editor opened that file.", true)
         }
     }
-    Flea.DialogScrim {
+    Dlea.DialogScrim {
         onDismissed: root.choose("cancel")
     }
     Rectangle {
@@ -231,7 +231,7 @@ FocusScope {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             onWheel: function (wheel) { wheel.accepted = true }
         }
-        Flea.CardFrame {
+        Dlea.CardFrame {
             id: body
             bleed: Theme.focusClearance
             anchors.fill: parent
@@ -239,7 +239,7 @@ FocusScope {
             anchors.rightMargin: card.cardPadding + Theme.spacing.hairline - Theme.focusClearance
             anchors.topMargin: card.cardPadding + Theme.spacing.hairline - Theme.focusClearance
             anchors.bottomMargin: card.cardBottomPadding + Theme.spacing.hairline - Theme.focusClearance
-            title: Flea.DialogHeader {
+            title: Dlea.DialogHeader {
                 id: title
                 width: parent.width
                 text: RunFile.titleFor(root.fileName)
@@ -252,7 +252,7 @@ FocusScope {
                 Repeater {
                     id: buttonRow
                     model: root.buttons
-                    Flea.DialogButton {
+                    Dlea.DialogButton {
                         required property string modelData
                         label: RunFile.labelFor(modelData, handlerLabel.elidedText) || modelData
                         primary: modelData === root.defaultName
@@ -265,7 +265,7 @@ FocusScope {
                 width: parent.width
                 height: Theme.fileRowHeight
                 spacing: Theme.spacing.gap
-                Flea.Glyph {
+                Dlea.Glyph {
                     width: Theme.markSize
                     height: parent.height
                     name: RunFile.glyphFor(root.kind, root.listedGlyph)

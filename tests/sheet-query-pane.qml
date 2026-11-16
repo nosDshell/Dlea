@@ -1,16 +1,16 @@
-//@ pragma ShellId flea-sheet-query-pane-test
+//@ pragma ShellId dlea-sheet-query-pane-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/SheetQuery.js" as SheetQuery
+import "dlea" as Dlea
+import "dlea/js/SheetQuery.js" as SheetQuery
 
 // tests/sheet-query.sh's pane half: under shipped defaults, Enter on a hidden menu row in the real sheet reaches that row's own surface with no menu opened.
 ShellRoot {
     id: root
     readonly property var pane: body.currentPane
     readonly property var sheet: pane.keymapSheet.item
-    readonly property string fixture: Quickshell.env("FLEA_PATH")
+    readonly property string fixture: Quickshell.env("DLEA_PATH")
     readonly property int fixtureRows: 4
     readonly property string copiedName: "b.txt"
     readonly property int cursorRow: 1
@@ -207,7 +207,7 @@ ShellRoot {
             var left = Math.round(rect.x), top = Math.round(rect.y)
             return left + " " + top + " " + (Math.round(rect.x + rect.width) - left) + " " + (Math.round(rect.y + rect.height) - top)
         }
-        Flea.WindowBody { id: body; host: window }
+        Dlea.WindowBody { id: body; host: window }
         Item { anchors.fill: parent; TestEvent { id: driver } }
     }
     Timer { interval: root.pollMs; repeat: true; running: !root.finished; onTriggered: root.advance() }

@@ -1,4 +1,4 @@
-//@ pragma ShellId flea-pdf-idle-test
+//@ pragma ShellId dlea-pdf-idle-test
 
 import Quickshell
 import QtQuick

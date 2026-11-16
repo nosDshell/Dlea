@@ -1,5 +1,5 @@
 use crate::backend::undo::{Entry, ItemIdentity, Step};
-use crate::error::FleaError;
+use crate::error::DleaError;
 use std::path::PathBuf;
 
 // What an operation thread sends back, joined onto the same receiver every other event already arrives on.
@@ -24,7 +24,7 @@ pub enum OpMsg {
     },
     JobReady {
         id: usize,
-        result: Result<(String, String), FleaError>,
+        result: Result<(String, String), DleaError>,
     },
     JobSample {
         id: usize,
@@ -60,7 +60,7 @@ pub enum OpMsg {
     Duplicated { ok: bool, path: String, err: String, entry: Entry },
     // The legacy operation still owns its journal and slot; the optional GUI receipt is published with it.
     CreationReceipt { request: usize, inner: Box<OpMsg> },
-    RedoDone { journal: Box<crate::backend::undo::Journal>, result: Result<String, FleaError>, touched: crate::backend::undo::Reached },
+    RedoDone { journal: Box<crate::backend::undo::Journal>, result: Result<String, DleaError>, touched: crate::backend::undo::Reached },
     MenuDeleteDone { line: String },
     // Legacy archive worker receipt used by archivequit_tests and archivepass_tests.
     #[cfg(test)]
@@ -73,12 +73,12 @@ pub enum OpMsg {
     // A pasted clipboard image, journaled beside its line; it claims no slot either.
     Pasted { line: String, entry: Option<Entry> },
     // Rename execution returned; the dispatcher hands its entry to the journal publisher.
-    RenameDone { id: usize, result: Result<(PathBuf, Vec<Step>), FleaError> },
+    RenameDone { id: usize, result: Result<(PathBuf, Vec<Step>), DleaError> },
     RenameSlow { id: usize, line: String },
     JournalDone { journal: Box<crate::backend::undo::Journal>, renames: Vec<(usize, crate::backend::renamework::Outcome)> },
-    MkdirDone { id: usize, result: Result<(PathBuf, Vec<Step>), FleaError> },
+    MkdirDone { id: usize, result: Result<(PathBuf, Vec<Step>), DleaError> },
     // A slow bulk rename reporting late: the landed steps with the batch counts.
-    BulkRenameDone { id: usize, result: Result<crate::backend::bulkrename::BulkOutcome, FleaError> },
+    BulkRenameDone { id: usize, result: Result<crate::backend::bulkrename::BulkOutcome, DleaError> },
     SetTagsDone { id: usize, result: crate::backend::tagsreq::Written },
     // Meta rides this channel because a media probe is a subprocess; it claims no operation slot.
     Meta { line: String },

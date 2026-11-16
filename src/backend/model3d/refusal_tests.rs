@@ -4,7 +4,7 @@ use std::process::Command;
 
 #[test]
 fn an_oversized_document_requires_a_typed_refusal() {
-    const CHILD: &str = "FLEA_FX467_REFUSAL_CHILD";
+    const CHILD: &str = "DLEA_FX467_REFUSAL_CHILD";
     if let Some(root) = std::env::var_os(CHILD) {
         let root = super::memory_tests::child_root(&root);
         let bytes = super::memory_tests::read_fixture(root, "oversized.3mf").into_boxed_slice();

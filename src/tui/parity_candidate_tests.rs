@@ -97,7 +97,7 @@ fn preview_model(w: &mut wire::Wire, preset: &str, context: &str) -> Model {
     m.preview_focus = true;
     if context == "pdf" || context == "office" {
         let mut pdf = Pdf::new(
-            "/nonexistent/flea-parity.pdf".into(),
+            "/nonexistent/dlea-parity.pdf".into(),
             Protocol::None,
             40,
             20,
@@ -111,7 +111,7 @@ fn preview_model(w: &mut wire::Wire, preset: &str, context: &str) -> Model {
     }
     if context == "media" {
         m.player = Some(Player::resting(
-            Path::new("/nonexistent/flea-parity.mp4"),
+            Path::new("/nonexistent/dlea-parity.mp4"),
             Protocol::None,
             false,
             (0, 0, 40, 20),
@@ -276,14 +276,14 @@ impl Sandbox {
         let parent = std::env::temp_dir();
         let made = std::process::Command::new("mktemp")
             .arg("-d")
-            .arg(parent.join("flea-tui15.XXXXXXXX"))
+            .arg(parent.join("dlea-tui15.XXXXXXXX"))
             .output()
             .unwrap();
         assert!(made.status.success());
         let root = PathBuf::from(String::from_utf8(made.stdout).unwrap().trim());
         assert!(root.is_absolute() && root.parent() == Some(parent.as_path()));
         std::fs::write(
-            root.join(".flea-test-sandbox"),
+            root.join(".dlea-test-sandbox"),
             "owned TUI15 parity proof\n",
         )
         .unwrap();
@@ -296,7 +296,7 @@ impl Drop for Sandbox {
         if root.is_absolute()
             && !root.as_os_str().is_empty()
             && root.parent() == Some(std::env::temp_dir().as_path())
-            && root.join(".flea-test-sandbox").is_file()
+            && root.join(".dlea-test-sandbox").is_file()
         {
             let _ = std::fs::remove_dir_all(root);
         }
@@ -610,11 +610,11 @@ fn tui_parity_status_jobs_cancel_through_the_existing_escape_route() {
 
 #[test]
 fn tui_parity_terminal_route_child() {
-    let Some(root) = std::env::var_os("FLEA_PARITY_ROUTE_ROOT") else {
+    let Some(root) = std::env::var_os("DLEA_PARITY_ROUTE_ROOT") else {
         return;
     };
     let root = PathBuf::from(root);
-    assert!(root.is_absolute() && root.join(".flea-test-sandbox").is_file());
+    assert!(root.is_absolute() && root.join(".dlea-test-sandbox").is_file());
     for name in ["XDG_DATA_HOME", "XDG_CONFIG_HOME", "XDG_CACHE_HOME"] {
         assert!(PathBuf::from(std::env::var_os(name).unwrap()).starts_with(&root));
     }
@@ -661,8 +661,8 @@ fn tui_parity_terminal_refusals_name_a_real_launch_route() {
         std::fs::create_dir(root.join(dir)).unwrap();
     }
     let script = root.join("bin/xdg-terminal-exec");
-    std::fs::write(&script, "#!/bin/sh\ncase ${FLEA_PARITY_ROUTE_ROOT:?} in /*) ;; *) exit 2 ;; esac\n[ -f \"$FLEA_PARITY_ROUTE_ROOT/.flea-test-sandbox\" ] || exit 2\nprintf '%s\\n' \"$@\" > \"$FLEA_PARITY_ROUTE_ROOT/terminal.args\"\n").unwrap();
-    flea::executable_file::write(&script, &std::fs::read(&script).unwrap(), 0o700).unwrap();
+    std::fs::write(&script, "#!/bin/sh\ncase ${DLEA_PARITY_ROUTE_ROOT:?} in /*) ;; *) exit 2 ;; esac\n[ -f \"$DLEA_PARITY_ROUTE_ROOT/.dlea-test-sandbox\" ] || exit 2\nprintf '%s\\n' \"$@\" > \"$DLEA_PARITY_ROUTE_ROOT/terminal.args\"\n").unwrap();
+    dlea::executable_file::write(&script, &std::fs::read(&script).unwrap(), 0o700).unwrap();
     let output = std::process::Command::new(std::env::current_exe().unwrap())
         .args([
             "--exact",
@@ -678,7 +678,7 @@ fn tui_parity_terminal_refusals_name_a_real_launch_route() {
         .env("XDG_DATA_HOME", root.join("data"))
         .env("XDG_CONFIG_HOME", root.join("config"))
         .env("XDG_CACHE_HOME", root.join("cache"))
-        .env("FLEA_PARITY_ROUTE_ROOT", &root)
+        .env("DLEA_PARITY_ROUTE_ROOT", &root)
         .stdin(std::process::Stdio::null())
         .output()
         .unwrap();

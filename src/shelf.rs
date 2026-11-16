@@ -8,7 +8,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::{SystemTime, UNIX_EPOCH};
 
-const DIR: &str = "omarchy/flea-shelf";
+const DIR: &str = "omarchy/dlea-shelf";
 const PILE: &str = "shelf.json";
 const DRAGS: &str = "drags.json";
 const DRAGS_LOCK: &str = "drags.json.lock";
@@ -93,7 +93,7 @@ impl Shelf {
 
     // Main rule 10: a pinned row is always there. The flag rides the pile's own entry, so the bar's
     // reader needs no second file, and pinning a path the shelf is not holding puts it on first.
-    // An unpin never stats the file: a pinned row whose file was deleted outside Flea is exactly the
+    // An unpin never stats the file: a pinned row whose file was deleted outside Dlea is exactly the
     // row that has to be unpinnable, and settle will not drop it while the flag is on.
     pub fn pin(&self, paths: &[String], pinned: bool) -> Result<(), String> {
         let mut entries = Vec::new();
@@ -255,7 +255,7 @@ fn rebuilt(item: &Json, keep: impl Fn(&str) -> bool, mut added: Vec<(String, Jso
     Json::Obj(fields)
 }
 
-// std::path::absolute, with Flea's own sentence for an empty path.
+// std::path::absolute, with Dlea's own sentence for an empty path.
 pub(crate) fn absolute(path: &str) -> std::io::Result<PathBuf> {
     if path.is_empty() {
         return Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, "an empty path has no absolute form"));

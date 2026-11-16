@@ -53,7 +53,7 @@ fn line_kind(name: &str) -> Option<LineKind> {
 
 // The notice as the pane fills it: the English catalog string with the nesting limit.
 fn deep_notice() -> Option<String> {
-    let english = crate::jsondoc::parse(include_str!("../../i18n/en/flea.json")).ok()?;
+    let english = crate::jsondoc::parse(include_str!("../../i18n/en/dlea.json")).ok()?;
     let notice = english.get("document.markdown_too_deep")?.as_str()?;
     Some(crate::i18n::substitute(
         notice,

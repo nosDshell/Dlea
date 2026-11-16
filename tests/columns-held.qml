@@ -1,16 +1,16 @@
-//@ pragma ShellId flea-columns-held-test
+//@ pragma ShellId dlea-columns-held-test
 import QtQuick
 import QtTest
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 
 // Columns-held: a held j through one real Pane in the list and then in columns, counts only; sweep 1 of each view replaces the rows mid-burst.
 ShellRoot {
     id: root
-    readonly property string fixture: Quickshell.env("FLEA_COLHELD_DIR") || ""
-    readonly property string reqLog: Quickshell.env("FLEA_COLHELD_REQLOG") || ""
-    readonly property int files: Number(Quickshell.env("FLEA_COLHELD_FILES") || "0")
+    readonly property string fixture: Quickshell.env("DLEA_COLHELD_DIR") || ""
+    readonly property string reqLog: Quickshell.env("DLEA_COLHELD_REQLOG") || ""
+    readonly property int files: Number(Quickshell.env("DLEA_COLHELD_FILES") || "0")
     readonly property int steps: 70
     readonly property int stepMs: 25
     readonly property int sweeps: 3
@@ -125,10 +125,10 @@ ShellRoot {
         id: win
         implicitWidth: 1280
         implicitHeight: 800
-        Flea.Backend { id: probeBackend }
+        Dlea.Backend { id: probeBackend }
         Component {
             id: paneComponent
-            Flea.Pane {
+            Dlea.Pane {
                 width: 1280
                 height: 800
                 backend: probeBackend

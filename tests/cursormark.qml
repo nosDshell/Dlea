@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-cursormark-test
+//@ pragma ShellId dlea-cursormark-test
 
 import QtQuick
 import Quickshell
 import qs.Commons
-import "flea" as Flea
+import "dlea" as Dlea
 
 // cursormark: in a real list, grid and columns view, the cursor row and only it draws the cursor in the turn that moves it.
 ShellRoot {
@@ -134,9 +134,9 @@ ShellRoot {
         }
     }
 
-    Component { id: listView; Flea.List { pane: root.stubPane; menu: menuStub.createObject(root) } }
-    Component { id: gridView; Flea.GridArea { pane: root.stubPane; menu: menuStub.createObject(root) } }
-    Component { id: columnsView; Flea.ColumnsArea { pane: root.stubPane; menu: menuStub.createObject(root) } }
+    Component { id: listView; Dlea.List { pane: root.stubPane; menu: menuStub.createObject(root) } }
+    Component { id: gridView; Dlea.GridArea { pane: root.stubPane; menu: menuStub.createObject(root) } }
+    Component { id: columnsView; Dlea.ColumnsArea { pane: root.stubPane; menu: menuStub.createObject(root) } }
 
     // The ListView or GridView that draws the pane's own listing: the view itself, or the columns view's active column.
     function listingView() {
@@ -249,7 +249,7 @@ ShellRoot {
     property var markProbe: null
     property var deadCell: null
     property var liveCell: null
-    Component { id: markProbeComponent; Flea.CursorMark {} }
+    Component { id: markProbeComponent; Dlea.CursorMark {} }
     Component { id: fakeCell; Item { property int listingIndex: -1; property int markRow: -1; property bool cursor: false } }
 
     function finish() {

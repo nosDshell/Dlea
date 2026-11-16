@@ -1,8 +1,8 @@
 //! Shelf kinds use Omarchy's own plugin switch; the packaged pile retains its existing adapter.
 use super::plugins::{Env, Installed};
-use flea::jsondoc::Json;
-use flea::plugin_runtime::{protocol, Reply};
-use flea::ui_logic_plugin_settings::{manifest::Invalid, wire::Source};
+use dlea::jsondoc::Json;
+use dlea::plugin_runtime::{protocol, Reply};
+use dlea::ui_logic_plugin_settings::{manifest::Invalid, wire::Source};
 use std::process::{Command, Stdio};
 use std::time::Duration;
 

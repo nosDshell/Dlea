@@ -6,7 +6,7 @@ use std::path::PathBuf;
 
 // English from the source catalog alone: no Omarchy roster and no language file, so nothing is written.
 pub(super) fn english() -> I18n {
-    let none = PathBuf::from("/nonexistent/flea-pv4");
+    let none = PathBuf::from("/nonexistent/dlea-pv4");
     I18n::load(Paths {
         omarchy: none.clone(),
         language_file: none,
@@ -340,10 +340,10 @@ fn a_ready_reply_parses_its_facts_slicer_plates_and_unknowns() {
 
 #[test]
 fn failed_and_cancelled_replies_keep_only_what_the_view_needs() {
-    let failed = wire::parse(r#"{"t":"model3d","slot":"look","token":3,"state":"failed","message":"This file cannot be previewed.","reason":"flea: truncated ASCII STL solid"}"#).unwrap();
+    let failed = wire::parse(r#"{"t":"model3d","slot":"look","token":3,"state":"failed","message":"This file cannot be previewed.","reason":"dlea: truncated ASCII STL solid"}"#).unwrap();
     assert_eq!(
         failed.state,
-        State::Failed("flea: truncated ASCII STL solid".into())
+        State::Failed("dlea: truncated ASCII STL solid".into())
     );
     let cancelled =
         wire::parse(r#"{"t":"model3d","slot":"look","token":4,"state":"cancelled"}"#).unwrap();

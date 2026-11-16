@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-columnclip-empty-test
+//@ pragma ShellId dlea-columnclip-empty-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 // The same resolved URL ui/ColumnPane.qml imports, so this is the column's own library instance and not a copy.
-import "flea/js/ClipMarks.js" as ClipMarks
+import "dlea/js/ClipMarks.js" as ClipMarks
 
 // w56 columnclip-empty: a real ui/ColumnPane over a stub pane proves the empty-clipboard
 // short-circuit; tests/columnclip-empty.sh drives it offscreen.
@@ -85,7 +85,7 @@ ShellRoot {
     property var stubBackend: backendStub.createObject(root)
     property var stubPane: paneStub.createObject(root, { backend: root.stubBackend, rows: root.sampleRows })
 
-    Flea.ColumnPane {
+    Dlea.ColumnPane {
         id: column
         width: 400
         height: 185
@@ -196,7 +196,7 @@ ShellRoot {
                 root.fail("cut draws " + d.clipMark + " on b.txt, want scissors")
             if (d.clipCut !== true)
                 root.fail("cut reads no cut")
-            if (Math.abs(d.dimOpacity - Flea.Theme.disabledOpacity) > 0.01)
+            if (Math.abs(d.dimOpacity - Dlea.Theme.disabledOpacity) > 0.01)
                 root.fail("cut dims at " + d.dimOpacity + ", want the board opacity")
         }
         if (root.failures.length > 0) { root.report(); return }

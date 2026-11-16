@@ -10,7 +10,7 @@ var HOME = "/home/gm"
 // lib.FAVORITES, the board's FREQUENT and RECENT, as the backend answers them, with the board fixture's
 // zoxide scores: ~/Documents ranked 20 an hour ago and ~/Downloads 10 two hours ago.
 var BOARD = {
-    favourites: ["/home/gm/Projects", "/home/gm/Documents/claude/flea", "/home/gm/Documents/claude/omarchy"],
+    favourites: ["/home/gm/Projects", "/home/gm/Documents/claude/dlea", "/home/gm/Documents/claude/omarchy"],
     zoxide: ["/home/gm/Documents", "/home/gm/Downloads"],
     recent: ["/home/gm/Pictures/screenshots", "/home/gm/Work/field"],
     frecency: { "/home/gm/Documents": 80, "/home/gm/Downloads": 20 }
@@ -56,7 +56,7 @@ function run(check) {
     // The board, query o, under the ruling: own-name matches by frecency, then the favourites that tie at
     // none, then the recent folder, then the two whose o is only in a parent, the favourite first.
     check("the board's query o", drawn(Jump.rows(BOARD, "o", HOME)),
-          "~/D[o]cuments ~/D[o]wnloads ~/Pr[o]jects ~/Documents/claude/[o]marchy ~/Pictures/screensh[o]ts ~/D[o]cuments/claude/flea ~/W[o]rk/field")
+          "~/D[o]cuments ~/D[o]wnloads ~/Pr[o]jects ~/Documents/claude/[o]marchy ~/Pictures/screensh[o]ts ~/D[o]cuments/claude/dlea ~/W[o]rk/field")
     check("the cursor opens on the first row", Jump.step(Jump.rows(BOARD, "o", HOME), -1, 1), 0)
     check("one list has no separators", Jump.rows(BOARD, "o", HOME).filter(function (r) { return r.path === undefined }).length, 0)
     check("a source with no match draws nothing", drawn(Jump.rows(BOARD, "shots", HOME)), "~/Pictures/screen[shots]")
@@ -88,15 +88,15 @@ function run(check) {
           "/f/x1 /f/x2 /a/x1 /a/x2 /a/x3 /a/x4 /a/x5")
 
     // A scattered match is dropped, so an earlier source cannot bury the folder the name was typed for.
-    var scattered = { favourites: ["/home/gm/Documents/claude/omarchy"], zoxide: ["/home/gm/Work/claude/flea-013/src"] }
+    var scattered = { favourites: ["/home/gm/Documents/claude/omarchy"], zoxide: ["/home/gm/Work/claude/dlea-013/src"] }
     check("src scattered through a favourite's parents is dropped", drawn(Jump.rows(scattered, "src", HOME)),
-          "~/Work/claude/flea-013/[src]")
+          "~/Work/claude/dlea-013/[src]")
     var buried = { zoxide: ["/home/gm/Projects/homelab/nix"], recent: ["/home/gm/Documents/tax"] }
     check("a scattered zoxide row does not bury a recent folder", drawn(Jump.rows(buried, "tax", HOME)), "~/Documents/[tax]")
-    var abbreviated = { favourites: ["/home/gm/Documents/claude/flea"], zoxide: ["/home/gm/Downloads"] }
+    var abbreviated = { favourites: ["/home/gm/Documents/claude/dlea"], zoxide: ["/home/gm/Downloads"] }
     check("an abbreviation on word starts still matches", drawn(Jump.rows(abbreviated, "dl", HOME)), "~/[D]ownloads")
-    check("a run through a parent is not scattered", drawn(Jump.rows({ zoxide: ["/home/gm/Documents/claude/flea"] }, "claude", HOME)),
-          "~/Documents/[claude]/flea")
+    check("a run through a parent is not scattered", drawn(Jump.rows({ zoxide: ["/home/gm/Documents/claude/dlea"] }, "claude", HOME)),
+          "~/Documents/[claude]/dlea")
     check("one character is never scattered", Jump.rows({ zoxide: ["/home/gm/Work/field"] }, "o", HOME).length, 1)
 
     // The search scorer's own cases, src/backend/fuzzy.rs tests, so the jump matches what search matches.
@@ -139,10 +139,10 @@ function run(check) {
     var omarchy = Jump.rows(BOARD, "o", HOME)[3]
     check("a wash in the leaf splits the leaf", JSON.stringify(Jump.segments(omarchy)),
           '[{"text":"~/Documents/claude/","leaf":false,"wash":false},{"text":"o","leaf":true,"wash":true},{"text":"marchy","leaf":true,"wash":false}]')
-    var flea = Jump.rows(BOARD, "o", HOME)[5]
-    check("a wash in the parent keeps the parent muted", JSON.stringify(Jump.segments(flea)),
-          '[{"text":"~/D","leaf":false,"wash":false},{"text":"o","leaf":false,"wash":true},{"text":"cuments/claude/","leaf":false,"wash":false},{"text":"flea","leaf":true,"wash":false}]')
-    var across = { text: "/w/claude/flea", leafStart: 10, washStart: 8, washLength: 3 }
+    var dlea = Jump.rows(BOARD, "o", HOME)[5]
+    check("a wash in the parent keeps the parent muted", JSON.stringify(Jump.segments(dlea)),
+          '[{"text":"~/D","leaf":false,"wash":false},{"text":"o","leaf":false,"wash":true},{"text":"cuments/claude/","leaf":false,"wash":false},{"text":"dlea","leaf":true,"wash":false}]')
+    var across = { text: "/w/claude/dlea", leafStart: 10, washStart: 8, washLength: 3 }
     check("a wash across the last slash is cut in two", JSON.stringify(Jump.segments(across).map(function (s) { return s.text + (s.leaf ? "L" : "") + (s.wash ? "W" : "") })),
           '["/w/claud","e/W","fLW","leaL"]')
 

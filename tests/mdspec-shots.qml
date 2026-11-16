@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-mdspec-shots
+//@ pragma ShellId dlea-mdspec-shots
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // One PNG of the real ui/PreviewMarkdown.qml per spec example, grabbed offscreen at the board's body size; tests/mdspec-shots.sh sets it up.
 ShellRoot {
@@ -20,8 +20,8 @@ ShellRoot {
     readonly property int minFrameHeight: 1
     readonly property int insetSides: 2
     readonly property color windowGround: "#101315"
-    property string outDir: Quickshell.env("FLEA_SHEET_OUT")
-    property string mdDir: Quickshell.env("FLEA_SHEET_MD")
+    property string outDir: Quickshell.env("DLEA_SHEET_OUT")
+    property string mdDir: Quickshell.env("DLEA_SHEET_MD")
     property var manifest: []
     property int at: -1
     property int seqBefore: 0
@@ -63,7 +63,7 @@ ShellRoot {
 
     Component.onCompleted: {
         shell.manifest = shell.load(shell.mdDir + "/manifest.json")
-        Flea.ViewState.state = { display: { textSize: { mode: shell.sheetBody } } }
+        Dlea.ViewState.state = { display: { textSize: { mode: shell.sheetBody } } }
         shell.next()
     }
 
@@ -76,10 +76,10 @@ ShellRoot {
             id: grabRoot
             width: shell.sheetWidth
             height: Math.max(shell.minFrameHeight, Math.min(shell.sheetMaxHeight, Math.ceil(shell.contentEnd())))
-            color: Flea.Theme.color.background
+            color: Dlea.Theme.color.background
             clip: true
 
-            Flea.PreviewMarkdown {
+            Dlea.PreviewMarkdown {
                 id: md
                 width: parent.width
                 height: shell.sheetMaxHeight

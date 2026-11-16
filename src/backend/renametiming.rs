@@ -107,7 +107,7 @@ mod tests {
 
     #[test]
     fn protocol_child() {
-        if std::env::var_os("FLEA_RENAME_TIMING_CHILD").is_none() {
+        if std::env::var_os("DLEA_RENAME_TIMING_CHILD").is_none() {
             return;
         }
         let sampler = enable();

@@ -68,7 +68,7 @@ Item {
 
     // Each settagged answer reports its own change in send order, a refusal takes its own change, and nothing changed says nothing.
     function measureAnswers() {
-        var state = Qt.createComponent("flea/TagState.qml").createObject(probe, { pane: stubPane })
+        var state = Qt.createComponent("dlea/TagState.qml").createObject(probe, { pane: stubPane })
         probe.check(state !== null, "answers: TagState did not build")
         if (state === null) return
         probe.check(probe.stateOf(state.flyout(), "Red") === "mixed", "answers: one of two rows carrying Red is not mixed")
@@ -137,7 +137,7 @@ Item {
 
     // A tag place walks Home for its tag through the same live session f opens: one open, one query, and the results mode.
     function measureWalk() {
-        var state = Qt.createComponent("flea/TagState.qml").createObject(probe, { pane: stubPane })
+        var state = Qt.createComponent("dlea/TagState.qml").createObject(probe, { pane: stubPane })
         probe.check(state !== null, "walk: TagState did not build")
         if (state === null) return
         stubPane.showHidden = true

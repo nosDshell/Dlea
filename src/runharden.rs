@@ -1,10 +1,10 @@
-// The run child's hardening (R6): no Flea descriptor above fd 2 and none of its private variables reach a program the card starts; terminal::detach keeps the rest.
+// The run child's hardening (R6): no Dlea descriptor above fd 2 and none of its private variables reach a program the card starts; terminal::detach keeps the rest.
 use std::ffi::OsString;
 use std::os::raw::c_int;
 use std::os::unix::process::CommandExt;
 
-// Every Flea-private variable starts here; the child keeps PATH, HOME, the session bus and the rest of the operator's environment.
-const PRIVATE_ENV_PREFIX: &[u8] = b"FLEA_";
+// Every Dlea-private variable starts here; the child keeps PATH, HOME, the session bus and the rest of the operator's environment.
+const PRIVATE_ENV_PREFIX: &[u8] = b"DLEA_";
 
 extern "C" {
     fn close_range(first: u32, last: u32, flags: c_int) -> c_int;

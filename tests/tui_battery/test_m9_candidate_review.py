@@ -15,7 +15,7 @@ from .evidence import Blocked, MARKER, Owned, digest
 
 class CandidateReviewTests(unittest.TestCase):
     def setUp(self):
-        self.root = Path(tempfile.mkdtemp(prefix="m9-review.", dir=os.environ["FLEA_BATTERY_TEST_ROOT"]))
+        self.root = Path(tempfile.mkdtemp(prefix="m9-review.", dir=os.environ["DLEA_BATTERY_TEST_ROOT"]))
         (self.root / MARKER).write_text("owned candidate review regression\n")
 
     def test_missing_auxiliary_identity_cannot_be_relabelled_at_join(self):
@@ -100,7 +100,7 @@ class CandidateReviewTests(unittest.TestCase):
         self.assertEqual(self.check_retained(source, identity, row, config)["status"], "PASS")
 
     def test_candidate_preflight_uses_only_existing_preflight_path(self):
-        boards = os.environ["FLEA_BATTERY_BOARDS"]
+        boards = os.environ["DLEA_BATTERY_BOARDS"]
         with patch.object(driver, "main", return_value=0) as run:
             self.assertEqual(candidate.main(["--boards", boards, "--preflight"]), 0)
         run.assert_called_once_with(["--boards", boards, "--preflight"])
@@ -117,7 +117,7 @@ class CandidateReviewTests(unittest.TestCase):
 
     def calendar_args(self, output, inputs=None):
         from types import SimpleNamespace
-        return SimpleNamespace(output=output, boards=Path(os.environ["FLEA_BATTERY_BOARDS"]),
+        return SimpleNamespace(output=output, boards=Path(os.environ["DLEA_BATTERY_BOARDS"]),
                                binary=Path("/not-executed"), identity_inputs=inputs, terminals="kitty",
                                preset="default", timeout=1, profiles=None, reviews=None)
 
@@ -204,7 +204,7 @@ class CandidateReviewTests(unittest.TestCase):
 
     def test_calendar_capture_rejects_conflicting_modes_before_producer(self):
         from . import calendar_native
-        common = ["--boards", os.environ["FLEA_BATTERY_BOARDS"], "--capture-calendar", "--binary", "/not-executed",
+        common = ["--boards", os.environ["DLEA_BATTERY_BOARDS"], "--capture-calendar", "--binary", "/not-executed",
                   "--output", str(self.root / "never-launched")]
         for flag in (["--dry-run"], ["--reconcile", str(self.root)], ["--smoke"], ["--list"]):
             with patch.object(calendar_native, "run", side_effect=AssertionError("capture forbidden")) as run, \

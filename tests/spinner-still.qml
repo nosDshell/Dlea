@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-spinner-still-test
+//@ pragma ShellId dlea-spinner-still-test
 
 import QtQuick
 import Quickshell
 import qs.Commons
-import "flea" as Flea
+import "dlea" as Dlea
 
 // tests/spinner-still.sh's harness: the real ui/Spinner.qml rests for its first second on screen, then crawls, and a hide resets it; frames and dash writes are counted, never timed.
 ShellRoot {
@@ -49,7 +49,7 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 200
         implicitHeight: 100
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
         Item {
             id: frameProbe
@@ -62,9 +62,9 @@ ShellRoot {
             id: host
             width: 48
             height: 48
-            Flea.Spinner { id: spin; anchors.fill: parent }
+            Dlea.Spinner { id: spin; anchors.fill: parent }
         }
-        Flea.Spinner { id: own; x: 100; width: 48; height: 48 }
+        Dlea.Spinner { id: own; x: 100; width: 48; height: 48 }
     }
 
     Connections {

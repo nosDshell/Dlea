@@ -34,7 +34,7 @@ pub(super) fn read(path: &Path, result: std::io::Result<Identity>) -> std::io::R
 }
 
 fn in_child(name: &str) -> bool {
-    const CHILD: &str = "FLEA_TEST_DELETE_CACHE_CHILD";
+    const CHILD: &str = "DLEA_TEST_DELETE_CACHE_CHILD";
     if std::env::var_os(CHILD).as_deref() == Some(OsStr::new(name)) {
         assert_eq!(HELD_REVIEW_HANDLES.load(Ordering::Relaxed), 0);
         return false;

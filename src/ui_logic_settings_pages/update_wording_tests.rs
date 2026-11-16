@@ -4,10 +4,10 @@ use crate::ui_logic_settings_pages::{about, test_support::say};
 #[test]
 fn wording_unchecked_packages_use_the_packaged_install_sentence() {
     for (owner, signed) in [
-        ("flea", true),
-        ("flea", false),
-        ("flea-bin", false),
-        ("flea-git", false),
+        ("dlea", true),
+        ("dlea", false),
+        ("dlea-bin", false),
+        ("dlea-git", false),
     ] {
         let kind = about::install_kind(owner, signed);
         let status = answered(&idle(), &format!("unchecked {kind} 0.4.2-2 -"), 1);

@@ -4,13 +4,13 @@ set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 export PYTHONDONTWRITEBYTECODE=1  # importing the tool must not litter tools/__pycache__
 
-python3 - "${1:-$PWD/tools/flea-touchpad}" <<'PYEOF'
+python3 - "${1:-$PWD/tools/dlea-touchpad}" <<'PYEOF'
 import importlib.util
 import struct
 import sys
 from importlib.machinery import SourceFileLoader
 
-spec = importlib.util.spec_from_loader("flea_touchpad", SourceFileLoader("flea_touchpad", sys.argv[1]))
+spec = importlib.util.spec_from_loader("dlea_touchpad", SourceFileLoader("dlea_touchpad", sys.argv[1]))
 tp = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(tp)
 
@@ -81,8 +81,8 @@ else:
     except struct.error as e:
         fail("UI_DEV_SETUP buffer does not unpack as uinput_setup: %s" % e)
         name = None
-    if name is not None and name != b"flea-touchpad":
-        fail("UI_DEV_SETUP name reads %r, want b'flea-touchpad'" % (name,))
+    if name is not None and name != b"dlea-touchpad":
+        fail("UI_DEV_SETUP name reads %r, want b'dlea-touchpad'" % (name,))
 
 # Every axis declared with UI_SET_ABSBIT has a UI_ABS_SETUP with maximum above 0.
 declared = [a for r, a in calls if r == tp.UI_SET_ABSBIT]

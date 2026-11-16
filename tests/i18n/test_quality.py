@@ -12,7 +12,7 @@ import unittest
 
 
 REPO = Path(__file__).resolve().parents[2]
-TOOL = REPO / "tools/flea-i18n-quality"
+TOOL = REPO / "tools/dlea-i18n-quality"
 FIXTURES = Path(__file__).parent / "fixtures/quality"
 
 
@@ -36,7 +36,7 @@ class QualityTests(unittest.TestCase):
         parent.mkdir(parents=True, exist_ok=True)
         self.temporary = tempfile.TemporaryDirectory(prefix="quality.", dir=parent)
         self.box = Path(self.temporary.name).resolve()
-        (self.box / ".flea-test-sandbox").touch()
+        (self.box / ".dlea-test-sandbox").touch()
         self.addCleanup(self.temporary.cleanup)
         self.source = self.box / "source"
         self.index = self.source / "source-index.json"
@@ -57,11 +57,11 @@ class QualityTests(unittest.TestCase):
         self.exceptions = self.box / "exceptions.json"
         self.language = "de"
         self.tool = TOOL
-        self.english = {"action": "Open %1", "brand": "Flea",
+        self.english = {"action": "Open %1", "brand": "Dlea",
                         "count": {"one": "%1 item", "other": "%1 items"}}
         self.catalog = {"action": "Oeffne %1", "brand": "Floh",
                         "count": {"one": "%1 Ding", "other": "%1 Dinge"}}
-        write(self.source / "en/flea.json", self.english)
+        write(self.source / "en/dlea.json", self.english)
         write(self.exceptions, {"schema": 1, "language": self.language, "entries": {}})
         data = self.omarchy / "default/i18n"
         data.mkdir(parents=True)
@@ -91,7 +91,7 @@ class QualityTests(unittest.TestCase):
             "catalog_sha256": hashlib.sha256(json.dumps(
                 self.english, ensure_ascii=False, sort_keys=True, separators=(",", ":")
             ).encode()).hexdigest(),
-            "catalog_file_sha256": sha(self.source / "en/flea.json"),
+            "catalog_file_sha256": sha(self.source / "en/dlea.json"),
             "reference_checkout_sha": "1" * 40,
             "roster": {"sha256": hashlib.sha256(json.dumps(json.loads((data / "locales.json").read_text()),
                         ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode()).hexdigest(),
@@ -122,7 +122,7 @@ class QualityTests(unittest.TestCase):
         self.save()
 
     def save(self):
-        write(self.root / self.language / "flea.json", self.catalog)
+        write(self.root / self.language / "dlea.json", self.catalog)
 
     def refused(self, message):
         result = self.cli("check", ok=False)
@@ -136,19 +136,19 @@ class QualityTests(unittest.TestCase):
 
     def test_kind_lang_optional_mime_override_keeps_receipt_provenance(self):
         self.english["mime.markdown"] = "Markdown document"
-        write(self.source / "en/flea.json", self.english)
+        write(self.source / "en/dlea.json", self.english)
         self.freeze()
         index = json.loads(self.index.read_text())
         index["keys"]["mime.markdown"]["placeholders"] = []
         write(self.index, index)
         self.prepare()
         hashes = json.loads((self.root / "translation-manifest.json").read_text())
-        hashes[self.language].pop("flea:mime.markdown")
+        hashes[self.language].pop("dlea:mime.markdown")
         write(self.root / "translation-manifest.json", hashes)
         receipt = self.box / "mime-receipt.json"
         self.cli("check")
         self.cli("receipt", "--out", receipt)
-        write(self.source / self.language / "flea.json", self.catalog)
+        write(self.source / self.language / "dlea.json", self.catalog)
         write(self.source / "translation-manifest.json", hashes)
         self.cli("prepare", "--translation-receipt", receipt, root=self.box / "mime-reopen")
         del self.catalog["action"]
@@ -157,14 +157,14 @@ class QualityTests(unittest.TestCase):
 
     def test_kind_lang_missing_override_does_not_skip_english_provenance(self):
         self.english["mime.markdown"] = "Markdown document"
-        write(self.source / "en/flea.json", self.english)
+        write(self.source / "en/dlea.json", self.english)
         self.freeze()
         index = json.loads(self.index.read_text())
         index["keys"]["mime.markdown"]["placeholders"] = []
         write(self.index, index)
         self.prepare()
         hashes = json.loads((self.root / "translation-manifest.json").read_text())
-        hashes[self.language].pop("flea:mime.markdown")
+        hashes[self.language].pop("dlea:mime.markdown")
         write(self.root / "translation-manifest.json", hashes)
         self.cli("check")
         index["keys"]["mime.markdown"]["resolved_english"] = "Outdated source"
@@ -175,7 +175,7 @@ class QualityTests(unittest.TestCase):
 
     def test_i50_quality_duplicate_key(self):
         self.prepare()
-        (self.root / "de/flea.json").write_bytes((FIXTURES / "duplicate.json").read_bytes())
+        (self.root / "de/dlea.json").write_bytes((FIXTURES / "duplicate.json").read_bytes())
         self.refused("duplicate JSON key")
 
     def test_i50_quality_holes_per_form(self):
@@ -215,16 +215,16 @@ class QualityTests(unittest.TestCase):
         self.prepare()
         path = self.root / "translation-manifest.json"
         manifest = json.loads(path.read_text())
-        manifest["de"]["flea:action"] = "0123456789ab"
+        manifest["de"]["dlea:action"] = "0123456789ab"
         write(path, manifest)
         self.refused("stale")
-        del manifest["de"]["flea:action"]
+        del manifest["de"]["dlea:action"]
         write(path, manifest)
         self.refused("missing source hash")
 
     def test_i50_quality_reference_target_missing(self):
         self.english["brand"] = "omarchy:shell.common.name"
-        write(self.source / "en/flea.json", self.english)
+        write(self.source / "en/dlea.json", self.english)
         self.catalog["brand"] = self.english["brand"]
         write(self.omarchy / "default/i18n/en/shell.json", {"common.name": "Widget"})
         write(self.omarchy / "default/i18n/de/shell.json", {})
@@ -236,12 +236,12 @@ class QualityTests(unittest.TestCase):
 
     def test_i50_quality_english_exception_scoped(self):
         self.prepare()
-        self.catalog["brand"] = "Flea"
+        self.catalog["brand"] = "Dlea"
         self.save()
         self.refused("English equality")
         write(self.exceptions, {"schema": 1, "language": "de", "entries": {
             "brand": {"rationale": "Product name", "reviewer": "Fixture reviewer",
-                      "source_hash": digest("Flea"), "translation": "Flea"}}})
+                      "source_hash": digest("Dlea"), "translation": "Dlea"}}})
         self.cli("check")
         self.catalog["action"] = self.english["action"]
         self.save()
@@ -254,9 +254,9 @@ class QualityTests(unittest.TestCase):
         self.cli("check")
         self.cli("receipt", "--out", receipt)
         data = json.loads(receipt.read_text())
-        catalog_path = str(self.root / "de/flea.json")
+        catalog_path = str(self.root / "de/dlea.json")
         self.assertEqual(base64.b64decode(data["inputs"][catalog_path]["bytes"]),
-                         (self.root / "de/flea.json").read_bytes())
+                         (self.root / "de/dlea.json").read_bytes())
         self.catalog["brand"] = "Anders"
         self.save()
         self.cli("receipt", "--out", receipt, ok=False)
@@ -281,7 +281,7 @@ class QualityTests(unittest.TestCase):
                 self.refused(message)
                 self.catalog = original
         self.save()
-        write(self.root / "en/flea.json", {**self.english, "brand": "Changed"})
+        write(self.root / "en/dlea.json", {**self.english, "brand": "Changed"})
         self.refused("source index")
 
     def test_receipt_binds_policy_exceptions_and_tool(self):
@@ -299,7 +299,7 @@ class QualityTests(unittest.TestCase):
         copied_tools.mkdir()
         self.tool = copied_tools / TOOL.name
         self.tool.write_bytes(TOOL.read_bytes())
-        (copied_tools / "flea-i18n-manifest").write_bytes((REPO / "tools/flea-i18n-manifest").read_bytes())
+        (copied_tools / "dlea-i18n-manifest").write_bytes((REPO / "tools/dlea-i18n-manifest").read_bytes())
         self.cli("check")
         self.tool.write_bytes(self.tool.read_bytes() + b"\n")
         self.cli("receipt", "--out", self.box / "receipt.json", ok=False)
@@ -309,16 +309,16 @@ class QualityTests(unittest.TestCase):
         self.cli("check")
         receipt = self.box / "receipt.json"
         self.cli("receipt", "--out", receipt)
-        write(self.source / "de/flea.json", self.catalog)
+        write(self.source / "de/dlea.json", self.catalog)
         write(self.source / "translation-manifest.json", json.loads((self.root / "translation-manifest.json").read_text()))
         self.cli("prepare", root=self.box / "missing", ok=False)
         self.cli("prepare", "--translation-receipt", receipt, root=self.box / "review")
-        source_catalog = self.source / "de/flea.json"
+        source_catalog = self.source / "de/dlea.json"
         original_bytes = source_catalog.read_bytes()
         source_catalog.write_bytes(original_bytes + b" ")
         self.cli("prepare", "--translation-receipt", receipt, root=self.box / "bad-format", ok=False)
         source_catalog.write_bytes(original_bytes)
-        write(self.source / "de/flea.json", {**self.catalog, "brand": "Tampered"})
+        write(self.source / "de/dlea.json", {**self.catalog, "brand": "Tampered"})
         self.cli("prepare", "--translation-receipt", receipt, root=self.box / "bad-review", ok=False)
 
     def test_delta_advances_only_changed_provided_keys(self):
@@ -326,11 +326,11 @@ class QualityTests(unittest.TestCase):
         self.cli("check")
         receipt = self.box / "receipt.json"
         self.cli("receipt", "--out", receipt)
-        write(self.source / "de/flea.json", {**self.catalog, "action": "Neue %1"})
+        write(self.source / "de/dlea.json", {**self.catalog, "action": "Neue %1"})
         write(self.source / "translation-manifest.json", json.loads((self.root / "translation-manifest.json").read_text()))
         old = digest(self.english["action"])
         self.english["action"] = "New %1"
-        write(self.source / "en/flea.json", self.english)
+        write(self.source / "en/dlea.json", self.english)
         self.freeze()
         delta = self.box / "delta.json"
         write(delta, {"schema": 1, "source_base": "0" * 40,
@@ -342,19 +342,19 @@ class QualityTests(unittest.TestCase):
         root = self.box / "delta-root"
         self.cli("prepare", "--translation-receipt", receipt, "--delta-index", delta, root=root)
         manifest = json.loads((root / "translation-manifest.json").read_text())
-        self.assertEqual(manifest["de"]["flea:action"], digest("New %1"))
+        self.assertEqual(manifest["de"]["dlea:action"], digest("New %1"))
         self.cli("check", root=root)
-        write(self.source / "de/flea.json", self.catalog)
+        write(self.source / "de/dlea.json", self.catalog)
         self.cli("prepare", "--translation-receipt", receipt, "--delta-index", delta,
                  root=self.box / "unchanged-delta", ok=False)
 
     def test_existing_catalog_cannot_mint_fresh_hashes(self):
-        write(self.source / "de/flea.json", self.catalog)
+        write(self.source / "de/dlea.json", self.catalog)
         self.cli("prepare", ok=False)
 
     def test_i50_quality_producer_generated_schema(self):
         self.index.write_bytes((FIXTURES / "producer-source-index.json").read_bytes())
-        (self.source / "en/flea.json").write_bytes((FIXTURES / "producer-en.json").read_bytes())
+        (self.source / "en/dlea.json").write_bytes((FIXTURES / "producer-en.json").read_bytes())
         self.cli("prepare")
 
     def test_alternate_schema_one_refused(self):
@@ -368,20 +368,20 @@ class QualityTests(unittest.TestCase):
     def test_alias_exception_binds_token_and_resolved_identities(self):
         reference = "omarchy:shell.common.name"
         self.english["brand"] = reference
-        write(self.source / "en/flea.json", self.english)
+        write(self.source / "en/dlea.json", self.english)
         data = self.omarchy / "default/i18n"
-        write(data / "en/shell.json", {"common.name": "Flea"})
-        write(data / "de/shell.json", {"common.name": "Flea"})
+        write(data / "en/shell.json", {"common.name": "Dlea"})
+        write(data / "de/shell.json", {"common.name": "Dlea"})
         self.freeze()
         self.catalog["brand"] = reference
         self.prepare()
         exception = {"rationale": "Fixture product name", "reviewer": "Fixture reviewer",
                      "source_hash": digest(reference), "translation": reference,
-                     "resolved_english_sha256": hashlib.sha256(b'"Flea"').hexdigest(),
-                     "resolved_translation_sha256": hashlib.sha256(b'"Flea"').hexdigest()}
+                     "resolved_english_sha256": hashlib.sha256(b'"Dlea"').hexdigest(),
+                     "resolved_translation_sha256": hashlib.sha256(b'"Dlea"').hexdigest()}
         write(self.exceptions, {"schema": 1, "language": "de", "entries": {"brand": exception}})
         self.cli("check")
-        exception["source_hash"] = digest("Flea")
+        exception["source_hash"] = digest("Dlea")
         write(self.exceptions, {"schema": 1, "language": "de", "entries": {"brand": exception}})
         self.refused("English equality")
         exception["source_hash"] = digest(reference)
@@ -411,10 +411,10 @@ class QualityTests(unittest.TestCase):
 
     def test_null_review_metadata_refused(self):
         self.prepare()
-        self.catalog["brand"] = "Flea"
+        self.catalog["brand"] = "Dlea"
         self.save()
         write(self.exceptions, {"schema": 1, "language": "de", "entries": {"brand": {
-            "rationale": None, "reviewer": None, "source_hash": digest("Flea"), "translation": "Flea"}}})
+            "rationale": None, "reviewer": None, "source_hash": digest("Dlea"), "translation": "Dlea"}}})
         self.refused("English equality")
 
     def test_pinned_checkout_identity_required(self):
@@ -431,9 +431,9 @@ class QualityTests(unittest.TestCase):
         receipt = self.box / "receipt.json"
         self.cli("receipt", "--out", receipt)
         self.english["action"] = "New %1"
-        write(self.source / "en/flea.json", self.english)
+        write(self.source / "en/dlea.json", self.english)
         self.freeze()
-        source_catalog = self.source / "de/flea.json"
+        source_catalog = self.source / "de/dlea.json"
         updated = {**self.catalog, "action": "Neue %1"}
         write(source_catalog, updated)
         write(self.source / "translation-manifest.json", json.loads((self.root / "translation-manifest.json").read_text()))
@@ -466,7 +466,7 @@ class QualityTests(unittest.TestCase):
         self.cli("check")
         receipt = self.box / "receipt.json"
         self.cli("receipt", "--out", receipt)
-        write(self.source / "de/flea.json", self.catalog)
+        write(self.source / "de/dlea.json", self.catalog)
         write(self.source / "translation-manifest.json", json.loads((self.root / "translation-manifest.json").read_text()))
         index = json.loads(self.index.read_text())
         index["source_note"] = "new identity with same English"
@@ -484,13 +484,13 @@ class QualityTests(unittest.TestCase):
         write(data / "de/shell.json", {"common.name": "Ding"})
         self.english["brand"] = reference
         self.catalog["brand"] = reference
-        write(self.source / "en/flea.json", self.english)
+        write(self.source / "en/dlea.json", self.english)
         self.freeze()
         self.prepare()
         self.cli("check")
         receipt = self.box / "receipt.json"
         self.cli("receipt", "--out", receipt)
-        write(self.source / "de/flea.json", self.catalog)
+        write(self.source / "de/dlea.json", self.catalog)
         write(self.source / "translation-manifest.json", json.loads((self.root / "translation-manifest.json").read_text()))
         write(data / "de/shell.json", {"common.name": "Geaendert"})
         self.git_revision = "2" * 40

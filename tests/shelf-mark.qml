@@ -1,4 +1,4 @@
-//@ pragma ShellId flea-shelf-mark-test
+//@ pragma ShellId dlea-shelf-mark-test
 
 import QtQuick
 import QtQuick.Shapes
@@ -41,14 +41,14 @@ ShellRoot {
             id: smallCapture
             width: 20
             height: 20
-            Shelf.FleaShelfMark { id: smallMark; x: 4; y: 4; width: 12; height: 12 }
+            Shelf.DleaShelfMark { id: smallMark; x: 4; y: 4; width: 12; height: 12 }
         }
         Item {
             id: largeCapture
             x: 32
             width: 32
             height: 32
-            Shelf.FleaShelfMark { id: largeMark; x: 4; y: 4; width: 24; height: 24 }
+            Shelf.DleaShelfMark { id: largeMark; x: 4; y: 4; width: 24; height: 24 }
         }
         Image {
             id: shot
@@ -95,7 +95,7 @@ ShellRoot {
             && shell.near(mapped.width, mark.width) && shell.near(mapped.height, mark.height), shell.rectText(mapped))
         if (!shell.captures[shell.sample].grabToImage(function(result) {
             shell.captureResult = result
-            if (!result.saveToFile(Quickshell.env("FLEA_SHELF_MARK_DIR") + "/mark-" + mark.width + ".png")) {
+            if (!result.saveToFile(Quickshell.env("DLEA_SHELF_MARK_DIR") + "/mark-" + mark.width + ".png")) {
                 shell.check(name + "grab saves", false, "saveToFile refused")
                 shell.finish()
                 return

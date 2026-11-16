@@ -11,9 +11,9 @@ import unittest
 REPO = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(REPO / "tests/lib"), str(REPO / "tests")]
 
-from flea_uish_fixtures import (FixtureRoot, MARKER, Refused, digest, require_decoder_fixture,
+from dlea_uish_fixtures import (FixtureRoot, MARKER, Refused, digest, require_decoder_fixture,
                                 smoke_fixture, validate_schedule)
-from flea_uish_receipts import ReceiptError, SOURCE_FILES, capabilities, record, source_receipt, verify
+from dlea_uish_receipts import ReceiptError, SOURCE_FILES, capabilities, record, source_receipt, verify
 
 
 def exchange(fixture, spec, requests):
@@ -107,7 +107,7 @@ class Controls(unittest.TestCase):
     def test_private_environment_has_no_operator_inputs(self):
         environment = self.fixture.environment()
         for name in ("HOME", "XDG_CONFIG_HOME", "XDG_DATA_HOME", "XDG_STATE_HOME", "XDG_CACHE_HOME",
-                     "XDG_RUNTIME_DIR", "FLEA_UNDO_DIR", "TMPDIR"):
+                     "XDG_RUNTIME_DIR", "DLEA_UNDO_DIR", "TMPDIR"):
             self.assertTrue(Path(environment[name]).is_relative_to(self.fixture.root), name)
         self.assertEqual(self.fixture.root.stat().st_mode & 0o777, 0o700)
         self.assertEqual(Path(environment["XDG_RUNTIME_DIR"]).stat().st_mode & 0o777, 0o700)
@@ -272,7 +272,7 @@ class Controls(unittest.TestCase):
             verify(self.fixture, path)
         path = record(self.fixture, "changed-source", {"fixture-ready": True})
         from unittest.mock import patch
-        with patch("flea_uish_receipts.source_receipt", return_value={"commit": "other", "files": {}}):
+        with patch("dlea_uish_receipts.source_receipt", return_value={"commit": "other", "files": {}}):
             with self.assertRaisesRegex(ReceiptError, "source identity"):
                 verify(self.fixture, path)
 
@@ -282,7 +282,7 @@ class Controls(unittest.TestCase):
         for name in SOURCE_FILES:
             self.fixture.write("archive/" + name, (REPO / name).read_bytes())
         expected = source_receipt(REPO)["files"]
-        with patch("flea_uish_receipts.subprocess.run", side_effect=AssertionError("archive must not inspect ancestor Git metadata")):
+        with patch("dlea_uish_receipts.subprocess.run", side_effect=AssertionError("archive must not inspect ancestor Git metadata")):
             identity = source_receipt(archive)
         self.assertEqual(identity, {"kind": "source-files", "commit": None, "files": expected})
         self.fixture.write("archive/.git", "gitdir: missing\n")
@@ -310,22 +310,22 @@ class Controls(unittest.TestCase):
             self.fixture.stop(child.pid)
 
     def test_ci_execution_contract(self):
-        if os.environ.get("FLEA_UISH_CI") == "1":
+        if os.environ.get("DLEA_UISH_CI") == "1":
             with self.assertRaises(OSError):
                 os.open("/dev/tty", os.O_RDONLY)
             self.assertEqual(os.readlink("/proc/self/fd/0"), "/dev/null")
-            self.assertNotEqual(os.readlink("/proc/self/ns/pid"), os.environ["FLEA_UISH_PARENT_PIDNS"])
-            for name in ("HOME", "XDG_CONFIG_HOME", "XDG_CACHE_HOME", "XDG_RUNTIME_DIR", "FLEA_UNDO_DIR", "TMPDIR"):
+            self.assertNotEqual(os.readlink("/proc/self/ns/pid"), os.environ["DLEA_UISH_PARENT_PIDNS"])
+            for name in ("HOME", "XDG_CONFIG_HOME", "XDG_CACHE_HOME", "XDG_RUNTIME_DIR", "DLEA_UNDO_DIR", "TMPDIR"):
                 self.assertTrue(Path(os.environ[name]).is_relative_to(REPO / ".superpowers" / "m9-uish-03"))
         else:
-            self.assertIsNone(os.environ.get("FLEA_UISH_CI"))
+            self.assertIsNone(os.environ.get("DLEA_UISH_CI"))
 
 
 def ci_launch():
     fixture = FixtureRoot.create(REPO)
     try:
         environment = fixture.environment()
-        environment.update(FLEA_UISH_CI="1", FLEA_UISH_PARENT_PIDNS=os.readlink("/proc/self/ns/pid"))
+        environment.update(DLEA_UISH_CI="1", DLEA_UISH_PARENT_PIDNS=os.readlink("/proc/self/ns/pid"))
         command = ["bwrap", "--unshare-pid", "--die-with-parent", "--dev-bind", "/", "/", "--proc", "/proc",
                    "--", "setsid", "-w", "env", "-i"]
         command.extend(f"{key}={value}" for key, value in environment.items())
@@ -349,6 +349,6 @@ if __name__ == "__main__":
     suite = unittest.defaultTestLoader.loadTestsFromTestCase(Controls)
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     if result.wasSuccessful() and result.testsRun:
-        print("CI_ISOLATION=" + ("exercised" if os.environ.get("FLEA_UISH_CI") == "1" else "not-exercised"))
+        print("CI_ISOLATION=" + ("exercised" if os.environ.get("DLEA_UISH_CI") == "1" else "not-exercised"))
         print(f"PASS ui-uish-fixtures: {result.testsRun} controls; eight known-nonzero twins; native acceptance pending")
     raise SystemExit(0 if result.wasSuccessful() and result.testsRun else 1)

@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "." as Flea
+import "." as Dlea
 import "js/Flash.js" as Flash
 import "js/FlashPane.js" as FlashPane
 import "js/Keymap.js" as Keymap
@@ -103,7 +103,7 @@ FocusScope {
         if (chooser.running || root.running)
             return
         var home = Quickshell.env("HOME") || ""
-        chooser.command = [Quickshell.env("FLEA_BIN") || "flea", "flash", "choose", home + "/Downloads"]
+        chooser.command = [Quickshell.env("DLEA_BIN") || "dlea", "flash", "choose", home + "/Downloads"]
         chooser.running = true
     }
 
@@ -335,7 +335,7 @@ FocusScope {
     }
 
     // The flash's own run, answered by the backend; the view owns the cursor and the rows.
-    Flea.FlashRunner {
+    Dlea.FlashRunner {
         id: runner
         pane: root.pane
     }
@@ -346,11 +346,11 @@ FocusScope {
         anchors.fill: parent
         spacing: 0
         // The strip without an action: Back, an unavailable Up, the title, nothing else.
-        Flea.FlashStrip {
+        Dlea.FlashStrip {
             width: parent.width
             onBack: root.close()
         }
-        Flea.FlashImageRow {
+        Dlea.FlashImageRow {
             width: parent.width
             image: root.image
             cursor: root.cursor === 0
@@ -362,7 +362,7 @@ FocusScope {
                 root.contextPress()
             }
         }
-        Flea.FlashDriveRows {
+        Dlea.FlashDriveRows {
             width: parent.width
             drives: root.drives
             drivesReady: root.drivesReady
@@ -377,7 +377,7 @@ FocusScope {
             }
         }
         // The Flash step: one 37 px row carrying the alert mark, the erase line and the action.
-        Flea.FlashStepRow {
+        Dlea.FlashStepRow {
             id: stepRow
             width: parent.width
             transfer: root.transfer

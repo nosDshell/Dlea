@@ -21,7 +21,7 @@ pub struct HtmlHeading {
     pub inner: String,
 }
 
-/// '<h1 align="center">Flea</h1>' answers level 1, centred, inner "Flea"; '<h2>x</h2> tail' answers None.
+/// '<h1 align="center">Dlea</h1>' answers level 1, centred, inner "Dlea"; '<h2>x</h2> tail' answers None.
 pub fn html_heading(line: &str) -> Option<HtmlHeading> {
     let text = trim(line);
     if text.len() < HEADING_SHORTEST {
@@ -71,7 +71,7 @@ pub struct HeadingUnit {
     pub wrapper: Vec<String>,
 }
 
-/// ['<div align="center">', '<h1>Flea</h1>', '<p>x</p>', '</div>'] at 0 lifts the heading, centred, with '<div align="center"><p>x</p></div>' after it.
+/// ['<div align="center">', '<h1>Dlea</h1>', '<p>x</p>', '</div>'] at 0 lifts the heading, centred, with '<div align="center"><p>x</p></div>' after it.
 pub fn heading_unit<S: AsRef<str>>(lines: &[S], at_line: usize) -> Option<HeadingUnit> {
     let open = trim(lines[at_line].as_ref());
     if !is_wrapper_open(open) || at_line + 1 >= lines.len() {
@@ -92,7 +92,7 @@ pub fn heading_unit<S: AsRef<str>>(lines: &[S], at_line: usize) -> Option<Headin
     Some(HeadingUnit { head, end, wrapper })
 }
 
-/// A picture opening a heading's text, '<a href="https://x/"><img src="logo.png"></a><br>Flea', as its image block and the rest.
+/// A picture opening a heading's text, '<a href="https://x/"><img src="logo.png"></a><br>Dlea', as its image block and the rest.
 pub fn heading_picture(inner: &str, dir: &str) -> Option<(Block, String)> {
     let mut i = skip_space(inner, 0);
     let link = open_tag_at(inner, i, &["a"]).map(|(end, _)| {
@@ -125,7 +125,7 @@ pub fn heading_picture(inner: &str, dir: &str) -> Option<(Block, String)> {
     Some((block, inner[i..].to_string()))
 }
 
-/// True when drawn heading text holds a picture: '![](file:///d/logo.png)Flea' and '<img src="a.png">' do, 'Wow!\[beta]' does not.
+/// True when drawn heading text holds a picture: '![](file:///d/logo.png)Dlea' and '<img src="a.png">' do, 'Wow!\[beta]' does not.
 pub fn drawn_picture(text: &str) -> bool {
     let lower = text.to_ascii_lowercase();
     if lower

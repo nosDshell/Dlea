@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Markdown.js" as Markdown
 import "js/MarkdownTableFit.js" as Fit
 import "js/Scroll.js" as Scroll
@@ -46,7 +46,7 @@ Column {
 
         Repeater {
             model: root.block.head.length
-            delegate: Flea.MarkdownText {
+            delegate: Dlea.MarkdownText {
                 linkGate: Markdown.isExternalLink
                 width: root.textWidth(index)
                 bodyPx: root.bodyPx
@@ -82,7 +82,7 @@ Column {
 
                 Repeater {
                     model: root.columns
-                    delegate: Flea.MarkdownText {
+                    delegate: Dlea.MarkdownText {
                         linkGate: Markdown.isExternalLink
                         width: root.textWidth(index)
                         bodyPx: root.bodyPx

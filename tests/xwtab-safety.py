@@ -212,7 +212,7 @@ sleep() { :; }
 hyprctl() {
     case "$1" in
         clients)
-            printf '%s\n' '[{"pid":303,"address":"0xc","title":"flea-drag-receiver"}]'
+            printf '%s\n' '[{"pid":303,"address":"0xc","title":"dlea-drag-receiver"}]'
             ;;
         activewindow)
             printf 'readback\n' >> "$call_log"
@@ -283,14 +283,14 @@ xwtab_cleanup
     check('cleanup check refuses a kill of the wrong pid', wrong_pid != cleanup_function and kills == ['1345'],
           result.stdout + result.stderr + repr(kills))
 
-    room_helpers = UI[UI.index('xwtab_rect_of() {'):UI.index('# xw6: a tab dragged onto another Flea')]
+    room_helpers = UI[UI.index('xwtab_rect_of() {'):UI.index('# xw6: a tab dragged onto another Dlea')]
     double = f'''
 repo='{ROOT}'
 . "$repo/tests/lib/hypr-dispatch.sh"
 xwtab_saved=''
 xwtab_cleanup() {{ :; }}
 fail() {{ echo "FAIL $*"; exit 1; }}
-flea_process_owned() {{ [[ "$1" == 101 || "$1" == 202 ]]; }}
+dlea_process_owned() {{ [[ "$1" == 101 || "$1" == 202 ]]; }}
 sleep() {{ :; }}
 hyprctl() {{
     if [[ "$1" == monitors ]]; then
@@ -436,7 +436,7 @@ exit "$status"
     for failure_step in ('float-on', 'resize', 'move', 'float-off', 'readback'):
         result = shell(TYPED_LIBRARY + restore + "\nfail_at='" + failure_step + "'\n" + r'''
 xwtab_saved='101 0xa 20 20 900 500 False'
-flea_process_owned() { return 0; }
+dlea_process_owned() { return 0; }
 xwtab_rect_of() { printf '0xa 40 40 900 500 True\n'; }
 hyprctl() {
     local step
@@ -501,7 +501,7 @@ xwtab_trace_lines() { echo 'TABDRAG drag-finished pid=101 action=0'; }
     unmap_attempts = int(re.search(r'xwtab_unmap_attempts=(\d+)', UI).group(1))
     unmap_constants = UI[UI.index('xwtab_unmap_attempts='):UI.index('xwtab_wait_unmapped()')]
     unmap_function = function(UI, 'xwtab_wait_unmapped')
-    mapped_layers = '{"DP-2":{"levels":{"1":[{"namespace":"flea-tab-tearoff","pid":101}]}}}'
+    mapped_layers = '{"DP-2":{"levels":{"1":[{"namespace":"dlea-tab-tearoff","pid":101}]}}}'
     clear_layers = '{"DP-2":{"levels":{"1":[]}}}'
     mapped_failure = 'Escape left the catcher mapped'
     reads_log = scratch / 'layer-reads'
@@ -576,8 +576,8 @@ xwtab_wait_enter 202 {mode}
     own_test_attempts = 2
     own_source_pid = 101
     own_other_pid = 202
-    source_log = scratch / 'flea.log'
-    target_log = scratch / 'flea-second.log'
+    source_log = scratch / 'dlea.log'
+    target_log = scratch / 'dlea-second.log'
     own_constants = UI[UI.index('xwtab_own_attempts='):UI.index('xwtab_wait_own_enter()')]
     own_helpers = '\n'.join(function(UI, name) for name in
                             ('xwtab_trace_lines', 'xwtab_wait_own_enter'))
@@ -590,7 +590,7 @@ fail() {{ printf 'FAIL %s\\n' "$*"; exit 1; }}
 sleep() {{ printf '%s\\n' "$1" >> '{log}'; }}
 '''
     catcher_receipt = f'qml: TABDRAG catcher-enter pid={own_source_pid} global=501,106\n'
-    strip_receipt = f'qml: TABDRAG enter-strip pid={own_source_pid} formats=application/x-flea-tab ok=true\n'
+    strip_receipt = f'qml: TABDRAG enter-strip pid={own_source_pid} formats=application/x-dlea-tab ok=true\n'
     finished_receipt = f'qml: TABDRAG drag-finished pid={own_source_pid} action=0\n'
     stale_receipt = strip_receipt.rstrip('\n') + ' old=true\n'
     for name, trace, succeeds in (
@@ -725,7 +725,7 @@ fail() {
 }
 sleep() {
     if [[ "$scenario" == delayed-finish && "$xwtab_button_down" == false ]]; then
-        printf 'qml: TABDRAG drag-finished pid=%s action=0\n' "$apid" >> "$flea_log"
+        printf 'qml: TABDRAG drag-finished pid=%s action=0\n' "$apid" >> "$dlea_log"
     fi
 }
 settle() {
@@ -737,10 +737,10 @@ xwtab_key() {
 xwdrag_focus() {
     :
 }
-flea_pids() {
+dlea_pids() {
     printf '%s\n' "$apid" "$bpid"
 }
-flea_process_owned() {
+dlea_process_owned() {
     [[ "$1" == "$bpid" ]]
 }
 xwdrag_qs() {
@@ -769,25 +769,25 @@ xwdrag_glide() {
     [[ "$xwtab_button_down" == true && "$1 $2" == "$fixture_floor_point" ]] || return 0
     case "$scenario" in
         outside) fixture_cursor=$fixture_outside_cursor ;;
-        early-finish) printf 'qml: TABDRAG drag-finished pid=%s action=0\n' "$apid" >> "$flea_log" ;;
-        target-enter) printf 'qml: TABDRAG enter-window pid=%s ok=true\n' "$bpid" >> "$run_root/flea-second.log" ;;
+        early-finish) printf 'qml: TABDRAG drag-finished pid=%s action=0\n' "$apid" >> "$dlea_log" ;;
+        target-enter) printf 'qml: TABDRAG enter-window pid=%s ok=true\n' "$bpid" >> "$run_root/dlea-second.log" ;;
     esac
 }
 ydotool() {
     if [[ "$2" == 0x40 ]]; then
-        printf 'qml: TABDRAG drag-start pid=%s index=1\n' "$apid" >> "$flea_log"
+        printf 'qml: TABDRAG drag-start pid=%s index=1\n' "$apid" >> "$dlea_log"
         return 0
     fi
     case "$scenario" in
-        target-drop) printf 'qml: TABDRAG drop-window pid=%s empty=false\n' "$bpid" >> "$run_root/flea-second.log" ;;
-        late-enter) printf 'qml: TABDRAG enter-strip pid=%s ok=true\n' "$bpid" >> "$run_root/flea-second.log" ;;
+        target-drop) printf 'qml: TABDRAG drop-window pid=%s empty=false\n' "$bpid" >> "$run_root/dlea-second.log" ;;
+        late-enter) printf 'qml: TABDRAG enter-strip pid=%s ok=true\n' "$bpid" >> "$run_root/dlea-second.log" ;;
         no-finish|delayed-finish) return 0 ;;
         accepted)
-            printf 'qml: TABDRAG drag-finished pid=%s action=2\n' "$apid" >> "$flea_log"
+            printf 'qml: TABDRAG drag-finished pid=%s action=2\n' "$apid" >> "$dlea_log"
             return 0
             ;;
     esac
-    printf 'qml: TABDRAG drag-finished pid=%s action=0\n' "$apid" >> "$flea_log"
+    printf 'qml: TABDRAG drag-finished pid=%s action=0\n' "$apid" >> "$dlea_log"
 }
 '''
     for scenario, succeeds, diagnostic in (
@@ -800,11 +800,11 @@ ydotool() {
             ('late-enter', False, 'entered or dropped'),
             ('no-finish', False, 'no refused finish'),
             ('accepted', False, 'action=0')):
-        source_log = scratch / 'flea.log'
-        target_log = scratch / 'flea-second.log'
+        source_log = scratch / 'dlea.log'
+        target_log = scratch / 'dlea-second.log'
         source_log.write_text('qml: TABDRAG drag-finished pid=101 action=0 old=true\n')
         target_log.write_text('qml: TABDRAG enter-window pid=202 old=true\nqml: TABDRAG drop-strip pid=202 old=true\n')
-        setup = f"flea_log='{source_log}'\nrun_root='{scratch}'\nscenario='{scenario}'\n"
+        setup = f"dlea_log='{source_log}'\nrun_root='{scratch}'\nscenario='{scenario}'\n"
         result = shell(setup + refusal_helpers + '\n' + refusal_double + '\n' + listing_leg)
         detail = result.stdout + result.stderr
         condition = result.returncode == 0 if succeeds else result.returncode != 0 and diagnostic in detail
@@ -920,7 +920,7 @@ ww=900
 wh=500
 dx=8
 dy=1432
-flea_pid=101
+dlea_pid=101
 srcdir=/fixture
 layerdrop_outside_x=200
 layerdrop_outside_y=60
@@ -935,15 +935,15 @@ refuse() {
     exit 1
 }
 sleep() { :; }
-hyprctl() { printf '%s\n' '{"DP-2": {"levels": {"1": [{"namespace": "flea-tab-tearoff"}]}}}'; }
+hyprctl() { printf '%s\n' '{"DP-2": {"levels": {"1": [{"namespace": "dlea-tab-tearoff"}]}}}'; }
 move_to() {
     printf 'motion %s %s\n' "$1" "$2" >> "$call_log"
     [[ "$pressed" == true ]] || return 0
     motions=$((motions + 1))
     if [[ "$motions" == 1 ]]; then
-        printf 'TABDRAG drag-start pid=101 path=/fixture mime=application/x-flea-tab\n' >> "$work/flea.log"
+        printf 'TABDRAG drag-start pid=101 path=/fixture mime=application/x-dlea-tab\n' >> "$work/dlea.log"
     else
-        printf 'TABDRAG catcher-enter pid=101 global=%s,%s\n' "$1" "$2" >> "$work/flea.log"
+        printf 'TABDRAG catcher-enter pid=101 global=%s,%s\n' "$1" "$2" >> "$work/dlea.log"
     fi
 }
 ydotool() {
@@ -952,16 +952,16 @@ ydotool() {
         printf 'press\n' >> "$call_log"
     else
         printf 'release\n' >> "$call_log"
-        grep -q catcher-enter "$work/flea.log" || return 1
+        grep -q catcher-enter "$work/dlea.log" || return 1
     fi
 }
 ''' + gesture)
     expected = ['motion 348 81', 'press', 'motion 240 600', 'motion 8 1432', 'motion 14 1432', 'motion 8 1432', 'release']
     check('layer probe waits for receiver after platform start before release', result.returncode == 0 and log.read_text().splitlines() == expected, result.stdout + result.stderr + log.read_text())
-    for trace in ('TABDRAG drag-start pid=101 path=/fixture mime=application/x-flea-tab\nTABDRAG drag-finished pid=101 action=0\n', 'TABDRAG drag-start pid=101 path=/fixture mime=application/x-flea-tab\n'):
-        (scratch / 'flea.log').write_text(trace)
+    for trace in ('TABDRAG drag-start pid=101 path=/fixture mime=application/x-dlea-tab\nTABDRAG drag-finished pid=101 action=0\n', 'TABDRAG drag-start pid=101 path=/fixture mime=application/x-dlea-tab\n'):
+        (scratch / 'dlea.log').write_text(trace)
         result = shell(waits + f"\nwork='{scratch}'\n" + '''
-flea_pid=101
+dlea_pid=101
 srcdir=/fixture
 drag_mark=0
 log=/dev/null
@@ -985,11 +985,11 @@ layerdrop_wait_drag receiver
 . '{ROOT / 'tests/probes/layer-drop-verdict.sh'}'
 layerdrop_path_attempts=2
 layerdrop_path_poll=0
-flea_pid=101
+dlea_pid=101
 torn=202
 lifted_path=/fixture
-before_flea=101
-after_flea='101 202'
+before_dlea=101
+after_dlea='101 202'
 log=/dev/null
 layerdrop_qsid() {{
     case "$1" in
@@ -1072,7 +1072,7 @@ check('bare bound control accepts named helper arguments',
 check('bare bound control accepts a named bound and a comment',
       bare_bounds('for _ in $(seq 1 "$n"); do\n' + LUA_PREFIX + 'window.move({ x = $px, y = $py })\n# seq 1 40') == [])
 probe_text = (ROOT / 'tests/probes/layer-drop-bottom.sh').read_text()
-ui_branch = [UI[UI.index('# Sample input: {"pid":101,"address":"0xa","class":"com.thisisgm.flea"'):UI.index('xwdrag_geometry() {')],
+ui_branch = [UI[UI.index('# Sample input: {"pid":101,"address":"0xa","class":"com.nosDshell.dlea"'):UI.index('xwdrag_geometry() {')],
              UI[UI.index('xwtab_logs=('):UI.index('# The cursor parks on row 0 above the card')]]
 for label, text in (('probe', probe_text), ('ui.sh helpers', ui_branch[0]), ('ui.sh xwtab case', ui_branch[1])):
     check(label + ' puts a sample input above every parser', unsampled_parsers(text) == [], str(unsampled_parsers(text)))

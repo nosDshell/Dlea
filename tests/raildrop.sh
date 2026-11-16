@@ -3,7 +3,7 @@
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 repo=$PWD
-. "$repo/tools/flea-sandbox-guard"
+. "$repo/tools/dlea-sandbox-guard"
 . "$repo/tests/headless-commons.sh"
 FIXTURE_ROOT="$repo/.superpowers/raildrop"
 sandbox_root_ok
@@ -16,18 +16,18 @@ mkdir -p "$probe"/{config,home,state,cache,runtime,undo,fixture/source,fixture/f
 chmod 700 "$probe/runtime" "$probe/undo"
 for name in a b c; do printf '%s incoming\n' "$name" > "$probe/fixture/source/$name.txt"; done
 printf 'occupied\n' > "$probe/fixture/favorite/c.txt"
-ln -s "$repo/ui" "$probe/config/flea"
+ln -s "$repo/ui" "$probe/config/dlea"
 headless_commons "$probe" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$probe/config/Ui"
-ln -s "$repo/ui/boot/fleatab.qml" "$probe/config/fleatab.qml"
+ln -s "$repo/ui/boot/dleatab.qml" "$probe/config/dleatab.qml"
 cp tests/raildrop.qml "$probe/config/shell.qml"
 # The caller may name the build under test, as tests/ui-captures-drops.sh does.
-bin=${FLEA_BIN:-$repo/target/debug/flea}
+bin=${DLEA_BIN:-$repo/target/debug/dlea}
 run_probe() {
     env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
         HOME="$probe/home" XDG_STATE_HOME="$probe/state" XDG_CONFIG_HOME="$probe/config" XDG_DATA_HOME="$probe/home/data" \
         XDG_CACHE_HOME="$probe/cache" XDG_RUNTIME_DIR="$probe/runtime" \
-        FLEA_UNDO_DIR="$probe/undo" FLEA_BIN="$bin" RAILDROP_FIXTURE="$probe/fixture" \
+        DLEA_UNDO_DIR="$probe/undo" DLEA_BIN="$bin" RAILDROP_FIXTURE="$probe/fixture" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
         timeout 45 dbus-run-session -- qs -p "$probe/config" > "$1" 2>&1
 }
@@ -51,7 +51,7 @@ done
 seed=$(printf '{"places":{"rail":"shown","autoHide":false,"favourites":[{"label":"Favorite","path":"%s/favorite"}]},"preview":{"column":false,"thumbnails":"off"},"updates":{"autoCheck":false}}' "$probe/fixture")
 env HOME="$probe/home" XDG_STATE_HOME="$probe/state" "$bin" --ui-state "$seed" >/dev/null || exit 1
 cp tests/raildrop-undo.qml "$probe/config/shell.qml"
-FLEA_PATH="$probe/fixture/source" run_probe "$probe/undo.log"
+DLEA_PATH="$probe/fixture/source" run_probe "$probe/undo.log"
 status=$?
 grep 'RAILUNDO ' "$probe/undo.log"
 if { [ "$status" -ne 0 ] && [ "$status" -ne 143 ]; } || ! grep -q 'RAILUNDO DONE checks=[1-9][0-9]* failed=0$' "$probe/undo.log" \
@@ -73,8 +73,8 @@ rest=${body#*"$needle"}
     || { echo 'FAIL raildrop mutant seam must occur exactly once'; exit 1; }
 printf '%s\n' "${body/"$needle"/0}" > "$mutant" || exit 1
 [[ -n "$probe" && "$probe" == /* && -f "$probe/$SANDBOX_MARKER" ]] || exit 1
-rm -- "$probe/config/flea"
-ln -s "$probe/mutant-ui" "$probe/config/flea"
+rm -- "$probe/config/dlea"
+ln -s "$probe/mutant-ui" "$probe/config/dlea"
 run_probe "$probe/mutant.log"
 status=$?
 if { [ "$status" -eq 0 ] || [ "$status" -eq 143 ]; } && grep -q 'RAILDROP FAIL source presence follows the chosen verb' "$probe/mutant.log" \

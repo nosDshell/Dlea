@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-listnarrow-test
+//@ pragma ShellId dlea-listnarrow-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // listnarrow: a real ui/List.qml keeps its drawn delegates across a narrowing and a widening; tests/listnarrow.sh drives it.
 ShellRoot {
@@ -82,7 +82,7 @@ ShellRoot {
     property var stubBackend: backendStub.createObject(root)
     property var stubPane: paneStub.createObject(root, { backend: root.stubBackend })
 
-    Flea.List {
+    Dlea.List {
         id: list
         width: 700
         height: 300

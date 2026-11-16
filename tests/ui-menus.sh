@@ -2,7 +2,7 @@
 # Sourced by ui.sh; all actions enter through native pointer/key input, with read-only IPC observations.
 menus_guard() {
     local target="$1" canonical
-    [[ -n "$target" && "$target" == /* && -f "$menu_box/.flea-test-sandbox" ]] || fail "menus: invalid sandbox target"
+    [[ -n "$target" && "$target" == /* && -f "$menu_box/.dlea-test-sandbox" ]] || fail "menus: invalid sandbox target"
     canonical=$(realpath -m -- "$target") || fail "menus: cannot resolve $target"
     [[ "$canonical" == "$menu_box/"* && "$canonical" != "$menu_box" ]] || fail "menus: target outside owned sandbox: $target"
 }
@@ -14,7 +14,7 @@ menus_evidence() {
     printf 'MENUS_EVIDENCE rename=%s error=%s primary=%q detail=%q last=%q path=%q\n' "$(ipc renameEditorLive 2>&1)" \
         "$(ipc statusError 2>&1)" "$(ipc statusPrimary 2>&1)" "$(ipc statusDetail 2>&1)" "$(ipc lastMessage 2>&1)" "$(ipc path 2>&1)"
     printf 'MENUS_EVIDENCE active=%s\n' "$(hyprctl activewindow -j 2>&1 | jq -c '{class, address, title}' 2>&1)"
-    if mkdir -p "$evidence_dir" 2>/dev/null && omarchy-drive shot "$png" flea >/dev/null 2>&1; then printf 'MENUS_EVIDENCE shot=%s\n' "$png"
+    if mkdir -p "$evidence_dir" 2>/dev/null && omarchy-drive shot "$png" dlea >/dev/null 2>&1; then printf 'MENUS_EVIDENCE shot=%s\n' "$png"
     else printf 'MENUS_EVIDENCE shot=failed\n'; fi
     return 0
 }
@@ -121,7 +121,7 @@ menus_trash_own() {
     menus_trash_files="$trash" menus_trash_name="${uri#trash:///}"
 }
 
-# Proves ORIGINAL sits in the Trash Flea's rule picks for its device, with its bytes and a trashinfo naming the original path.
+# Proves ORIGINAL sits in the Trash Dlea's rule picks for its device, with its bytes and a trashinfo naming the original path.
 menus_trash_lands() {
     local original="$1" bytes="$2" root="${menus_trash_files%/files}" info recorded
     info="$root/info/$menus_trash_name.trashinfo"
@@ -204,11 +204,11 @@ menus_file_menu() {
 
 menus_shot() {
     local name="$1" png="$evidence_dir/menus-$1-${BASHPID:-$$}.png" canonical
-    [[ -f "$run_root/.flea-test-sandbox" && "$png" == /* && ! -e "$png" ]] || fail "menus: screenshot must be fresh and sandboxed"
+    [[ -f "$run_root/.dlea-test-sandbox" && "$png" == /* && ! -e "$png" ]] || fail "menus: screenshot must be fresh and sandboxed"
     canonical=$(realpath -m -- "$png") || fail "menus: cannot resolve screenshot path"
     [[ "$canonical" == "$run_root/"* ]] || fail "menus: screenshot escaped evidence sandbox"
     mkdir -p "$evidence_dir" || fail "menus: cannot create evidence directory"
-    omarchy-drive shot "$png" flea >/dev/null || fail "menus: native capture failed"
+    omarchy-drive shot "$png" dlea >/dev/null || fail "menus: native capture failed"
     [[ -s "$png" ]] || fail "menus: native capture is empty"
     printf 'MENUS_SHOT_REQUIRES_INSPECTION %s\n' "$png"
 }
@@ -278,8 +278,8 @@ menus_launcher_fixture() {
     cat > "$menu_box/bin/gio" <<'SH'
 #!/usr/bin/env bash
 set -eu
-box=${FLEA_MENUS_BOX:?}
-[[ "$box" == /* && -f "$box/.flea-test-sandbox" ]] || exit 90
+box=${DLEA_MENUS_BOX:?}
+[[ "$box" == /* && -f "$box/.dlea-test-sandbox" ]] || exit 90
 guard() {
     [[ -n "$1" && "$1" == /* ]] || exit 96
     local resolved
@@ -287,9 +287,9 @@ guard() {
     [[ "$resolved" == "$box/"* && "$resolved" != "$box" ]] || exit 96
 }
 case "${1:-}" in
-  info) exec "$FLEA_MENUS_GIO" "$@" ;;
-  mime) [[ $# == 2 ]] || exit 91; exec "$FLEA_MENUS_GIO" "$@" ;;
-  mount) [[ $# == 2 && ( "$2" == -l || "$2" == -li ) ]] || exit 92; exec "$FLEA_MENUS_GIO" "$@" ;;
+  info) exec "$DLEA_MENUS_GIO" "$@" ;;
+  mime) [[ $# == 2 ]] || exit 91; exec "$DLEA_MENUS_GIO" "$@" ;;
+  mount) [[ $# == 2 && ( "$2" == -l || "$2" == -li ) ]] || exit 92; exec "$DLEA_MENUS_GIO" "$@" ;;
   open)
     [[ $# == 2 ]] || exit 97
     guard "$2"
@@ -297,16 +297,16 @@ case "${1:-}" in
     printf '%s\n' "$2" >> "$box/gio-open.log"
     exit 23 ;;
   trash|list|monitor)
-    [[ "${DBUS_SESSION_BUS_ADDRESS:-}" == "$FLEA_MENUS_BUS" && "${XDG_DATA_HOME:-}" == "$box/data" ]] || exit 98
+    [[ "${DBUS_SESSION_BUS_ADDRESS:-}" == "$DLEA_MENUS_BUS" && "${XDG_DATA_HOME:-}" == "$box/data" ]] || exit 98
     if [[ "$1" == trash && "${2:-}" == -- && $# -ge 3 ]]; then
         shift 2
         for target in "$@"; do guard "$target"; done
         guard "$box/gio-trash.log"
         printf '%s\n' "$@" >> "$box/gio-trash.log"
-        exec "$FLEA_MENUS_GIO" trash -- "$@"
+        exec "$DLEA_MENUS_GIO" trash -- "$@"
     fi
     [[ $# == 2 && ( "$1 $2" == 'trash --list' || "$1 $2" == 'list trash:///' || "$1 $2" == 'monitor --dir=trash:///' ) ]] || exit 98
-    exec "$FLEA_MENUS_GIO" "$@" ;;
+    exec "$DLEA_MENUS_GIO" "$@" ;;
   launch)
     [[ $# == 3 && "$2" == "$box/data/applications/"* && "$3" == "$box/list/"* ]] || exit 93
     [[ ! -L "$box/launcher.pid" && ! -L "$box/launcher-mode" ]] || exit 94
@@ -317,25 +317,25 @@ esac
 exit 95
 SH
     chmod +x "$menu_box/bin/gio"
-    printf '[Desktop Entry]\nType=Application\nName=Flea fixture viewer\nExec=/usr/bin/false %%f\nMimeType=text/plain;\n' > "$menu_box/data/applications/flea-menu-fixture.desktop"
-    printf '[Default Applications]\ntext/plain=flea-menu-fixture.desktop;\n[Added Associations]\ntext/plain=flea-menu-fixture.desktop;\n' > "$menu_box/config/mimeapps.list"
+    printf '[Desktop Entry]\nType=Application\nName=Dlea fixture viewer\nExec=/usr/bin/false %%f\nMimeType=text/plain;\n' > "$menu_box/data/applications/dlea-menu-fixture.desktop"
+    printf '[Default Applications]\ntext/plain=dlea-menu-fixture.desktop;\n[Added Associations]\ntext/plain=dlea-menu-fixture.desktop;\n' > "$menu_box/config/mimeapps.list"
     printf 'fail\n' > "$menu_box/launcher-mode"
     for target in gio-open.log gio-trash.log; do
         menus_guard "$menu_box/$target"
         : > "$menu_box/$target"
     done
     mkfifo "$menu_box/launcher-gate" || fail "menus: cannot create cancellation fixture gate"
-    export FLEA_MENUS_BOX="$menu_box" FLEA_MENUS_GIO="$real_gio" FLEA_MENUS_BUS="$trash_bus_address" PATH="$menu_box/bin:$PATH"
+    export DLEA_MENUS_BOX="$menu_box" DLEA_MENUS_GIO="$real_gio" DLEA_MENUS_BUS="$trash_bus_address" PATH="$menu_box/bin:$PATH"
 }
 
 menus_open_with() {
     local state target cursor count step pid deadline
     menus_file_menu a.txt
     menus_open_with_dialog
-    menus_expect menuDialogState '.opened and (.busy | not) and any((.applications // [.rows[] | select(has("id"))])[]; .id == "flea-menu-fixture.desktop")' "Open With queries the real fixture registry"
+    menus_expect menuDialogState '.opened and (.busy | not) and any((.applications // [.rows[] | select(has("id"))])[]; .id == "dlea-menu-fixture.desktop")' "Open With queries the real fixture registry"
     state=$(ipc menuDialogState)
     # The card draws a registered application twice, once per group, so the first seat is the target.
-    target=$(jq -r '[(.applications // [.rows[] | select(has("id"))]) | to_entries[] | select(.value.id == "flea-menu-fixture.desktop")][0].key' <<< "$state")
+    target=$(jq -r '[(.applications // [.rows[] | select(has("id"))]) | to_entries[] | select(.value.id == "dlea-menu-fixture.desktop")][0].key' <<< "$state")
     count=$(jq -r '(.applications // [.rows[] | select(has("id"))]) | length' <<< "$state")
     for ((step = 0; step <= count; step++)); do
         cursor=$(ipc menuDialogState | jq -r .cursor)
@@ -352,7 +352,7 @@ menus_open_with() {
     printf 'block\n' > "$menu_box/launcher-mode"
     menus_file_menu a.txt
     menus_open_with_dialog
-    menus_expect menuDialogState '.opened and (.busy | not) and (.applications // [.rows[] | select(has("id"))])[0].id == "flea-menu-fixture.desktop"' "fixture viewer retains registry priority"
+    menus_expect menuDialogState '.opened and (.busy | not) and (.applications // [.rows[] | select(has("id"))])[0].id == "dlea-menu-fixture.desktop"' "fixture viewer retains registry priority"
     key -k Return >/dev/null
     menus_expect menuDialogState '.busy and .committing and any(.controls[]; .name == "Cancel" and .enabled)' "Cancel remains available while launcher waits"
     deadline=$((SECONDS + 15))
@@ -630,13 +630,13 @@ menus_hidden_copy_as() {
     cat > "$menu_box/bin/wl-copy" <<'SH'
 #!/usr/bin/env bash
 set -eu
-log=${FLEA_MENUS_BOX:?}/wl-copy.log
+log=${DLEA_MENUS_BOX:?}/wl-copy.log
 cat >> "$log"
 SH
     chmod +x "$menu_box/bin/wl-copy" || fail "menus: cannot make wl-copy stub executable"
     menus_guard "$log"
     : > "$log"
-    "$flea_bin" --ui-state '{"view":"list","keys":"default","menu":{"hidden":["copyAs"]}}' >/dev/null || fail "menus: hidden Copy as fixture settings failed"
+    "$dlea_bin" --ui-state '{"view":"list","keys":"default","menu":{"hidden":["copyAs"]}}' >/dev/null || fail "menus: hidden Copy as fixture settings failed"
     launch "$directory"
     wait_listing 1
     key c >/dev/null
@@ -672,7 +672,7 @@ case_menuscoverage() (
     local trash_parent_bus_id="" trash_private_bus_id="" trash_bus_address="" trash_bus_pid="" trash_provider_pid=""
     local preset before target token
     sandbox_scratch "$menu_box"
-    : > "$menu_box/.flea-test-sandbox"
+    : > "$menu_box/.dlea-test-sandbox"
     for target in list state config cache data bin data/applications; do
         menus_guard "$menu_box/$target"
         mkdir -p "$menu_box/$target" || fail "menus: cannot create $target fixture"
@@ -689,7 +689,7 @@ case_menuscoverage() (
     menus_launcher_fixture
     for preset in default vim mac windows; do
         printf 'MENUS_PRESET=%s\n' "$preset"
-        "$flea_bin" --ui-state "{\"view\":\"list\",\"keys\":\"$preset\",\"menu\":{\"hidden\":[]}}" >/dev/null || fail "menus: fixture settings failed"
+        "$dlea_bin" --ui-state "{\"view\":\"list\",\"keys\":\"$preset\",\"menu\":{\"hidden\":[]}}" >/dev/null || fail "menus: fixture settings failed"
         launch "$menu_dir"
         wait_listing 4
         trash_guard_store "$menus_trashed"
@@ -752,9 +752,9 @@ case_menuscoverage() (
         done
         key -k Escape >/dev/null
         menus_actions "$preset"
-        kill_flea
+        kill_dlea
     done
-    "$flea_bin" --ui-state '{"keys":"default","menu":{"hidden":[]}}' >/dev/null || fail "menus: default fixture preset failed"
+    "$dlea_bin" --ui-state '{"keys":"default","menu":{"hidden":[]}}' >/dev/null || fail "menus: default fixture preset failed"
     launch "$menu_dir"
     wait_listing 4
     menus_open_with

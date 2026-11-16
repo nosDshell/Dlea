@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Every framed control in the real dialogs, cards, rows and Settings keeps Theme.chromeControlInset from the nearest rule and its host's edge, at stops 12, 14 and 16, at rest and focused; offscreen.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 . "$(dirname "$0")/headless-commons.sh"
 cd "$(dirname "$0")/.." || exit 1
 python3 -B tests/framegap-picker.py || exit 1
@@ -12,7 +12,7 @@ if ! command -v qs >/dev/null; then
 fi
 
 # A marked sandbox of its own under the fixture root, so cleanup deletes only what this run owns.
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-framegap-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-framegap-XXXXXX") || exit 1
 # GNU mktemp -d honours a relative TMPDIR verbatim, so the path is checked absolute and two components deep.
 case $test_root in
   /*/*) ;;
@@ -26,8 +26,8 @@ trap cleanup EXIT
 mkdir -p "$test_root/config" "$test_root/home/.config" "$test_root/state" "$test_root/data" "$test_root/cache" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
 headless_commons "$test_root" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/framegap.qml "$test_root/config/shell.qml" || exit 1
 cp tests/framegap.js "$test_root/config/framegap.js" || exit 1
@@ -91,9 +91,9 @@ fi
 for control_host in GapDialog GapCheck GapChrome GapCrossing; do
     printf '%s\n' "$output" | grep -q "FRAMEGAP CONTROLROW $control_host" || fail "no flagged control row names $control_host"
 done
-# The offscreen platform cannot mask a FloatingWindow, and Settings > About asks a flea binary the harness does not ship for its version; neither line is a host's.
+# The offscreen platform cannot mask a FloatingWindow, and Settings > About asks a dlea binary the harness does not ship for its version; neither line is a host's.
 platform_warning='This plugin does not support setting window masks'
-binary_warning='Process failed to start, likely because the binary could not be found. Command: QList("flea"'
+binary_warning='Process failed to start, likely because the binary could not be found. Command: QList("dlea"'
 warnings=$(printf '%s\n' "$output" | grep -aE 'TypeError|ReferenceError|WARN' | grep -vF -e "$platform_warning" -e "$binary_warning")
 if [ -n "$warnings" ]; then
     fail 'the framegap harness logged a warning'

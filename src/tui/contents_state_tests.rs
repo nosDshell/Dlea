@@ -55,7 +55,7 @@ fn tui_contents_replacement_is_coherent_and_scope_switch_is_generation_safe() {
     press(&mut m, &mut w, Key::named("Tab", ""));
     assert_eq!(
         m.find.session.scope,
-        flea::ui_logic_file_search::Scope::Home
+        dlea::ui_logic_file_search::Scope::Home
     );
     m.editor.as_mut().unwrap().replace("other".into());
     press(&mut m, &mut w, Key::named("Enter", ""));
@@ -84,7 +84,7 @@ fn tui_contents_replacement_is_coherent_and_scope_switch_is_generation_safe() {
         ),
     );
     assert!(
-        m.find.session.scope == flea::ui_logic_file_search::Scope::Folder,
+        m.find.session.scope == dlea::ui_logic_file_search::Scope::Folder,
         "failed Home request keeps the held Here scope"
     );
     assert_eq!(m.search_query, "needle");
@@ -183,8 +183,8 @@ fn tui_contents_prompt_strings_use_the_catalog_delta_overlay() {
     let root = super::contents_process_tests::Root::new();
     let catalog = root.0.join("catalog/en");
     std::fs::create_dir_all(&catalog).unwrap();
-    std::fs::write(catalog.join("flea.json"),r#"{"tui.find.scope_hint":"%1 · tab changes scope","tui.find.status":"Find “%1” %2","tui.find.invalid_response":"The search response could not be used safely. Try Find again."}"#).unwrap();
-    let paths = flea::i18n::Paths {
+    std::fs::write(catalog.join("dlea.json"),r#"{"tui.find.scope_hint":"%1 · tab changes scope","tui.find.status":"Find “%1” %2","tui.find.invalid_response":"The search response could not be used safely. Try Find again."}"#).unwrap();
+    let paths = dlea::i18n::Paths {
         omarchy: root.0.join("omarchy"),
         language_file: root.0.join("language"),
         catalogs: vec![
@@ -194,7 +194,7 @@ fn tui_contents_prompt_strings_use_the_catalog_delta_overlay() {
     };
     let (mut w, reader) = wire::echo_wire();
     let mut m = listing(&mut w, "default");
-    m.prompts.i18n = flea::i18n::I18n::load(paths);
+    m.prompts.i18n = dlea::i18n::I18n::load(paths);
     press(&mut m, &mut w, Key::character('g', "ctrl"));
     // /listing is outside Home, so only a wired Everywhere gives Tab another scope to offer.
     m.find.session.wire.everywhere = true;
@@ -308,7 +308,7 @@ fn tui_contents_here_scope_matches_the_header_home_abbreviation() {
     m.path = home.join("Docs");
     let catalog = super::contents_process_tests::Root::new();
     m.prompts.i18n = super::contents_tests::catalog(&catalog);
-    m.find.session.scope = flea::ui_logic_file_search::Scope::Folder;
+    m.find.session.scope = dlea::ui_logic_file_search::Scope::Folder;
     m.editor = Some(super::editor::Editor::new(
         "search",
         String::new(),

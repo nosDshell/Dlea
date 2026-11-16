@@ -245,7 +245,7 @@ impl Taildrop {
         self.child = Some(
             Command::new(sender)
                 .arg(&peer.address)
-                .args(flea::bytename::args(paths))
+                .args(dlea::bytename::args(paths))
                 .stdin(Stdio::null())
                 .stdout(Stdio::null())
                 .stderr(Stdio::null())

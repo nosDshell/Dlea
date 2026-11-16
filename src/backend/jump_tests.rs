@@ -39,7 +39,7 @@ fn script(dir: &TestDir, name: &str, body: &str) -> String {
 #[test]
 fn a_zoxide_that_is_not_installed_is_an_empty_source() {
     let _turn = serial();
-    assert!(ranked_by("/nonexistent/flea-test-zoxide", ZOXIDE_LIMIT).is_empty());
+    assert!(ranked_by("/nonexistent/dlea-test-zoxide", ZOXIDE_LIMIT).is_empty());
     assert!(!ZOXIDE_RUNNING.load(Ordering::SeqCst), "a spawn that failed must not hold the one zoxide slot");
 }
 

@@ -3,12 +3,12 @@ use std::os::unix::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
 
 // This application's name in the shared cache's fail/ namespace, per the freedesktop thumbnail spec.
-const APP_NAME: &str = "flea";
+const APP_NAME: &str = "dlea";
 const LARGE_DIR: &str = "large";
 const FAIL_DIR: &str = "fail";
 const CACHE_DIR: &str = "thumbnails";
 // The PNG text key a fail marker carries to name the thumbnailer table that made it; see AGENTS.md "Thumbnail cache".
-pub const TABLE_KEY: &str = "X-Flea-Table";
+pub const TABLE_KEY: &str = "X-Dlea-Table";
 // The bytes GLib leaves literal in a file URI, measured here across every printable ASCII byte, plus the "/" that separates components and is structure; see AGENTS.md "Thumbnail cache".
 const URI_LITERAL_BYTES: &[u8] = b"!$&'()*+,-./:=@_~";
 const PNG_SIGNATURE: [u8; 8] = [0x89, b'P', b'N', b'G', 0x0d, 0x0a, 0x1a, 0x0a];
@@ -212,7 +212,7 @@ mod tests {
     fn the_fail_path_is_namespaced_by_this_application() {
         let c = Cache::new();
         let p = c.fail_path("file:///tmp/a.jpg");
-        assert!(p.to_string_lossy().contains("/thumbnails/fail/flea/"));
+        assert!(p.to_string_lossy().contains("/thumbnails/fail/dlea/"));
         assert!(p.to_string_lossy().ends_with(".png"));
     }
 
@@ -225,7 +225,7 @@ mod tests {
         );
         assert_eq!(
             c.fail_path("file:///tmp/a.jpg").parent().unwrap(),
-            Path::new("/x/y/thumbnails/fail/flea")
+            Path::new("/x/y/thumbnails/fail/dlea")
         );
         assert!(default_root().ends_with("thumbnails"));
     }

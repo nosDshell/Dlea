@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-preview-colwork
+//@ pragma ShellId dlea-preview-colwork
 
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
-import "flea/js/Messages.js" as Messages
+import "dlea" as Dlea
+import "dlea/js/Messages.js" as Messages
 
 // Counts preview work after observed completions and checks every frame request against its decode target.
 ShellRoot {
@@ -152,16 +152,16 @@ ShellRoot {
         id: win
         implicitWidth: root.fixtureColumns * root.previewColumnWidth
         implicitHeight: 700
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
-        Flea.ColumnsArea {
+        Dlea.ColumnsArea {
             id: area
             anchors.fill: parent
             pane: pane
             menu: menu
         }
 
-        Flea.Preview {
+        Dlea.Preview {
             id: quick
             pane: pane
             onPathChanged: if (path !== "") root.bump("qlShow")
@@ -188,10 +188,10 @@ ShellRoot {
     // The fixture sets a 400 px column with a 16:10 frame; only the theme supplies padding and border.
     function expectedRequest(cached) {
         if (cached) return { w: 0, h: 0 }
-        var frameWidth = root.previewColumnWidth - 2 * Flea.Theme.spacing.rowPaddingX
+        var frameWidth = root.previewColumnWidth - 2 * Dlea.Theme.spacing.rowPaddingX
         var frameHeight = Math.round(frameWidth * root.previewFrameRatio)
-        var w = Math.max(1, Math.round(frameWidth - 2 * Flea.Theme.spacing.hairline))
-        var h = Math.max(1, Math.round(frameHeight - 2 * Flea.Theme.spacing.hairline))
+        var w = Math.max(1, Math.round(frameWidth - 2 * Dlea.Theme.spacing.hairline))
+        var h = Math.max(1, Math.round(frameHeight - 2 * Dlea.Theme.spacing.hairline))
         return { w: w, h: h }
     }
     // Qt rounds the PNG's aspect-fit decode within the independently sized request.

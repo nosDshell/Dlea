@@ -8,12 +8,12 @@ scratch=()
 drop_scratch() {
     local root
     for root in "${scratch[@]}"; do
-        case $root in "$PWD"/.superpowers/g2-pl1/ci.?*|"$PWD"/.superpowers/g2-pl1/clippy.?*) [ -f "$root/.flea-test-sandbox" ] && rm -rf -- "$root" ;; esac
+        case $root in "$PWD"/.superpowers/g2-pl1/ci.?*|"$PWD"/.superpowers/g2-pl1/clippy.?*) [ -f "$root/.dlea-test-sandbox" ] && rm -rf -- "$root" ;; esac
     done
 }
 trap drop_scratch EXIT
 unit_root=$(mktemp -d "$PWD/.superpowers/g2-pl1/ci.XXXXXXXX")
-: > "$unit_root/.flea-test-sandbox"
+: > "$unit_root/.dlea-test-sandbox"
 scratch+=("$unit_root")
 mkdir -p "$unit_root/home" "$unit_root/config" "$unit_root/cache" "$unit_root/state" "$unit_root/runtime"
 run() {
@@ -25,11 +25,11 @@ run() {
         CARGO_PROFILE_TEST_DEBUG=line-tables-only CARGO_PROFILE_DEV_DEBUG=line-tables-only \
         "$@" < /dev/null
 }
-run cargo test --locked -p flea --lib -- ui_logic_device_rail
-run cargo test --locked -p flea-gui --lib -- g2::device_rail
+run cargo test --locked -p dlea --lib -- ui_logic_device_rail
+run cargo test --locked -p dlea-gui --lib -- g2::device_rail
 clippy_root=$(mktemp -d "$PWD/.superpowers/g2-pl1/clippy.XXXXXXXX")
-: > "$clippy_root/.flea-test-sandbox"
+: > "$clippy_root/.dlea-test-sandbox"
 scratch+=("$clippy_root")
-printf 'tools/flea-clippy tools/clippy-baseline.txt %s\n' "$clippy_root"
-tools/flea-clippy tools/clippy-baseline.txt "$clippy_root"
+printf 'tools/dlea-clippy tools/clippy-baseline.txt %s\n' "$clippy_root"
+tools/dlea-clippy tools/clippy-baseline.txt "$clippy_root"
 printf 'G2_PL1 PASS devices, phones, eject, unlock and clippy\n'

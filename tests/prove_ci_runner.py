@@ -13,7 +13,7 @@ import sys
 
 
 HELPER = r'''#!/usr/bin/python3
-"""Fail-closed workspace evidence checks for the staged Flea CI runner."""
+"""Fail-closed workspace evidence checks for the staged Dlea CI runner."""
 import hashlib
 import json
 from pathlib import Path
@@ -28,7 +28,7 @@ def require(condition, message):
 
 def binaries(work, profile):
     fields = []
-    for name, suffix in (("flea", ""), ("flea-gui", "_gui")):
+    for name, suffix in (("dlea", ""), ("dlea-gui", "_gui")):
         path = Path(work) / "target" / profile / name
         require(path.is_file() and path.stat().st_mode & 0o111, f"missing executable {path}")
         size = path.stat().st_size
@@ -44,17 +44,17 @@ def binaries(work, profile):
 
 def dependencies(path):
     lines = [line.strip() for line in Path(path).read_text().splitlines() if line.strip()]
-    # Sample tree line: flea v0.4.0 (/work/flea)
-    require(len(lines) == 1 and re.fullmatch(r"flea v\S+ \(.+\)", lines[0]),
-            "core tree must contain exactly flea and no dependencies")
+    # Sample tree line: dlea v0.4.0 (/work/dlea)
+    require(len(lines) == 1 and re.fullmatch(r"dlea v\S+ \(.+\)", lines[0]),
+            "core tree must contain exactly dlea and no dependencies")
     print("core-dependencies: PASS packages=1 edges=0")
 
 
 def tests(metadata_path, log_path):
-    # Sample metadata: {"workspace_members":["flea"],"packages":[{"id":"flea","name":"flea","targets":[]}]}
+    # Sample metadata: {"workspace_members":["dlea"],"packages":[{"id":"dlea","name":"dlea","targets":[]}]}
     metadata = json.loads(Path(metadata_path).read_text())
     packages = [p for p in metadata["packages"] if p["id"] in metadata["workspace_members"]]
-    require({p["name"] for p in packages} == {"flea", "flea-gui"}, "unexpected workspace packages")
+    require({p["name"] for p in packages} == {"dlea", "dlea-gui"}, "unexpected workspace packages")
     expected = set()
     owners = {}
     for package in packages:
@@ -73,12 +73,12 @@ def tests(metadata_path, log_path):
                 require(key not in expected, f"ambiguous doc target {key}")
                 expected.add(key)
                 owners[key] = package["name"]
-    require(expected and {owners[k] for k in expected} == {"flea", "flea-gui"}, "missing workspace test targets")
+    require(expected and {owners[k] for k in expected} == {"dlea", "dlea-gui"}, "missing workspace test targets")
     text = Path(log_path).read_text()
     # Sample failing child output: child: FAIL failed operation
     require(not re.search(r"(^|[: ])FAIL[: ]|^test result: FAILED\.|^SKIP ", text, re.M), "failing or skipped child output")
     seen = set()
-    passed = {"flea": 0, "flea-gui": 0}
+    passed = {"dlea": 0, "dlea-gui": 0}
     active = None
     count = None
     last = None
@@ -92,9 +92,9 @@ def tests(metadata_path, log_path):
         passed[owners[active]] += last
 
     for line in text.splitlines():
-        # Sample cargo header:      Running unittests src/lib.rs (target/debug/deps/flea-abc123)
+        # Sample cargo header:      Running unittests src/lib.rs (target/debug/deps/dlea-abc123)
         run = re.match(r"^\s+Running (?:unittests )?(\S+) \(([^()]+)\)$", line)
-        # Sample doc-test header:    Doc-tests flea_gui
+        # Sample doc-test header:    Doc-tests dlea_gui
         doc = re.match(r"^\s+Doc-tests (\S+)$", line)
         if run or doc:
             finish()
@@ -102,7 +102,7 @@ def tests(metadata_path, log_path):
                 active = ("doc", doc[1], "")
             else:
                 binary = Path(run[2]).name
-                # Sample target pair: src/lib.rs and flea_gui-abc123 from target/debug/deps/flea_gui-abc123
+                # Sample target pair: src/lib.rs and dlea_gui-abc123 from target/debug/deps/dlea_gui-abc123
                 matches = [key for key in expected if key[0] == "run" and key[2] == run[1]
                            and re.fullmatch(re.escape(key[1]) + r"-[0-9a-f]+", binary)]
                 require(len(matches) == 1, f"unexpected or ambiguous target header {line}")
@@ -125,7 +125,7 @@ def tests(metadata_path, log_path):
     finish()
     require(seen == expected, f"missing test targets {sorted(expected - seen)}")
     require(all(passed.values()), f"zero executed tests for a workspace package: {passed}")
-    print(f"workspace-tests: PASS targets={len(seen)} flea={passed['flea']} flea-gui={passed['flea-gui']}")
+    print(f"workspace-tests: PASS targets={len(seen)} dlea={passed['dlea']} dlea-gui={passed['dlea-gui']}")
 
 
 def main():
@@ -176,15 +176,15 @@ LANE_FUNCTIONS = {
   local name=$1
   shift
   step "$name" cargo build --locked --workspace "$@"
-  result "$name rc=$STEP_RC child_rc=$STEP_CHILD_RC secs=$STEP_SECS warnings=$(warnings_in "$name") compiled=$(grep -c '^ *Compiling flea v' "$out/$name.log") gui_compiled=$(grep -c '^ *Compiling flea-gui v' "$out/$name.log")"
+  result "$name rc=$STEP_RC child_rc=$STEP_CHILD_RC secs=$STEP_SECS warnings=$(warnings_in "$name") compiled=$(grep -c '^ *Compiling dlea v' "$out/$name.log") gui_compiled=$(grep -c '^ *Compiling dlea-gui v' "$out/$name.log")"
 }''',
     "lane_prep": r'''lane_prep() {
   extract_fresh
   cargo_build build-debug
   cargo_build build-release --release
   local debug release
-  debug=$(python3 /in/flea-ci-workspace.py binaries "$work" debug) || fail "$debug"
-  release=$(python3 /in/flea-ci-workspace.py binaries "$work" release) || fail "$release"
+  debug=$(python3 /in/dlea-ci-workspace.py binaries "$work" debug) || fail "$debug"
+  release=$(python3 /in/dlea-ci-workspace.py binaries "$work" release) || fail "$release"
   result "binaries $debug $release"
   if grep -q '^RESULT build-debug rc=0 .*warnings=0 .*compiled=1 gui_compiled=1$' "$out/results" \
     && grep -q '^RESULT build-release rc=0 .*warnings=0 .*compiled=1 gui_compiled=1$' "$out/results"; then
@@ -198,12 +198,12 @@ LANE_FUNCTIONS = {
   step_data metadata cargo metadata --locked --no-deps --format-version=1
   [ "$STEP_RC" = 0 ] || fail "workspace metadata failed; see metadata.log"
   step "$name" cargo test --locked --workspace "${profile[@]}" -- --nocapture
-  python3 /in/flea-ci-workspace.py tests "$out/metadata.stdout" "$out/$name.log" > "$out/$name-audit.log" 2>&1 || audit_rc=$?
-  result "$name rc=$STEP_RC child_rc=$STEP_CHILD_RC secs=$STEP_SECS warnings=$(warnings_in "$name") $(test_totals "$name") skipped=$(skipped_tests "$name") compiled=$(grep -c '^ *Compiling flea' "$out/$name.log") workspace_audit=$audit_rc failed_tests=$(failed_tests "$name")"
+  python3 /in/dlea-ci-workspace.py tests "$out/metadata.stdout" "$out/$name.log" > "$out/$name-audit.log" 2>&1 || audit_rc=$?
+  result "$name rc=$STEP_RC child_rc=$STEP_CHILD_RC secs=$STEP_SECS warnings=$(warnings_in "$name") $(test_totals "$name") skipped=$(skipped_tests "$name") compiled=$(grep -c '^ *Compiling dlea' "$out/$name.log") workspace_audit=$audit_rc failed_tests=$(failed_tests "$name")"
 }''',
     "deny_offline": r'''# cargo-deny 0.20.2 opens https://github.com/rustsec/advisory-db at advisory-db-3157b0e258782691 under its db root, so the image's pinned snapshot is linked there.
 deny_offline() {
-  local snapshot=/usr/share/flea-ci/advisory-db root=${CARGO_HOME:-$HOME/.cargo}/advisory-dbs
+  local snapshot=/usr/share/dlea-ci/advisory-db root=${CARGO_HOME:-$HOME/.cargo}/advisory-dbs
   [ -d "$snapshot/.git" ] || { echo "deny: FAIL no advisory-db snapshot at $snapshot in the image"; return 2; }
   mkdir -p "$root" && ln -sfn "$snapshot" "$root/advisory-db-3157b0e258782691" || { echo "deny: FAIL cannot link $snapshot under $root"; return 2; }
   cargo deny --offline --locked check
@@ -215,12 +215,12 @@ deny_offline() {
     case $name in
       fmt) step "$name" cargo fmt --all -- --check ;;
       strict-clippy) step "$name" cargo clippy --locked --workspace --all-targets -- -D warnings ;;
-      core-dependencies) step_data "$name" cargo tree --locked -p flea --prefix none --edges normal,build
+      core-dependencies) step_data "$name" cargo tree --locked -p dlea --prefix none --edges normal,build
         local tree_rc=$STEP_RC child_rc=$STEP_CHILD_RC
-        python3 /in/flea-ci-workspace.py dependencies "$out/$name.stdout" > "$out/core-dependencies-audit.log" 2>&1 || tree_rc=1
+        python3 /in/dlea-ci-workspace.py dependencies "$out/$name.stdout" > "$out/core-dependencies-audit.log" 2>&1 || tree_rc=1
         STEP_RC=$tree_rc; STEP_CHILD_RC=$child_rc ;;
       deny) step "$name" deny_offline ;;
-      gpui-lint) step "$name" tools/flea-gpui-lint ;;
+      gpui-lint) step "$name" tools/dlea-gpui-lint ;;
     esac
     result "$name rc=$STEP_RC child_rc=$STEP_CHILD_RC secs=$STEP_SECS last=$(tail -1 "$out/$name.log" | tr ' ' '_' | cut -c1-120)"
   done
@@ -230,19 +230,19 @@ deny_offline() {
   copy_prep
   shard_runall
   local before after debug_before release_before debug_gui release_gui
-  debug_gui=$(python3 /in/flea-ci-workspace.py binaries "$work" debug) || fail "$debug_gui"
-  release_gui=$(python3 /in/flea-ci-workspace.py binaries "$work" release) || fail "$release_gui"
+  debug_gui=$(python3 /in/dlea-ci-workspace.py binaries "$work" debug) || fail "$debug_gui"
+  release_gui=$(python3 /in/dlea-ci-workspace.py binaries "$work" release) || fail "$release_gui"
   before="$debug_gui $release_gui"
-  debug_before=$(sha_of "$work/target/debug/flea")
-  release_before=$(sha_of "$work/target/release/flea")
-  export FLEA_CI_SUITES="$*"
+  debug_before=$(sha_of "$work/target/debug/dlea")
+  release_before=$(sha_of "$work/target/release/dlea")
+  export DLEA_CI_SUITES="$*"
   step run-all tests/run-all.sh
-  debug_gui=$(python3 /in/flea-ci-workspace.py binaries "$work" debug) || fail "$debug_gui"
-  release_gui=$(python3 /in/flea-ci-workspace.py binaries "$work" release) || fail "$release_gui"
+  debug_gui=$(python3 /in/dlea-ci-workspace.py binaries "$work" debug) || fail "$debug_gui"
+  release_gui=$(python3 /in/dlea-ci-workspace.py binaries "$work" release) || fail "$release_gui"
   after="$debug_gui $release_gui"
   local tally
   tally=$(grep -E '^run-all: [0-9]+ suite\(s\) run, [0-9]+ failed$' "$out/run-all.log" | tail -1)
-  result "run-all rc=$STEP_RC child_rc=$STEP_CHILD_RC secs=$STEP_SECS asked=$# ran=$(echo "$tally" | cut -d' ' -f2) failed=$(echo "$tally" | cut -d' ' -f5) debug_same=$([ "$(sha_of "$work/target/debug/flea")" = "$debug_before" ] && echo yes || echo NO) release_same=$([ "$(sha_of "$work/target/release/flea")" = "$release_before" ] && echo yes || echo NO) workspace_same=$([ "$before" = "$after" ] && echo yes || echo NO)"
+  result "run-all rc=$STEP_RC child_rc=$STEP_CHILD_RC secs=$STEP_SECS asked=$# ran=$(echo "$tally" | cut -d' ' -f2) failed=$(echo "$tally" | cut -d' ' -f5) debug_same=$([ "$(sha_of "$work/target/debug/dlea")" = "$debug_before" ] && echo yes || echo NO) release_same=$([ "$(sha_of "$work/target/release/dlea")" = "$release_before" ] && echo yes || echo NO) workspace_same=$([ "$before" = "$after" ] && echo yes || echo NO)"
   grep -E '^  \S+ +(ok|FAIL|SKIP) ' "$out/run-all.log" | sed 's/^  /SUITE /' >> "$out/results"
 }''',
 }
@@ -318,7 +318,7 @@ HOST_FUNCTIONS = {
     "stage_receipt": r'''stage_receipt() {
   local f sum
   : > "$stage/in/worker-files.sha256" || die "cannot open the worker receipt"
-  for f in flea-ci-lane flea-ci-unit flea-ci-status flea-ci-deps flea-ci-workspace.py flea-commit-rules suite-evidence.txt minipc-only.txt dri-suites.txt layout tree.id image.id; do
+  for f in dlea-ci-lane dlea-ci-unit dlea-ci-status dlea-ci-deps dlea-ci-workspace.py dlea-commit-rules suite-evidence.txt minipc-only.txt dri-suites.txt layout tree.id image.id; do
     [ -s "$stage/in/$f" ] || die "staged input $f is missing or empty"
     sum=$(sha256sum "$stage/in/$f" | cut -d' ' -f1) || die "cannot hash $f"
     echo "$sum  $f" >> "$stage/in/worker-files.sha256" || die "cannot record $f"
@@ -333,7 +333,7 @@ PRESERVED_IMAGES = r'''check_images() {
   [ -n "$image" ] || die "no id= line in $image_id_file"
   for host in $hosts; do
     have=$(on "$host" "podman image inspect $image --format '{{.Id}}' 2>/dev/null")
-    [ "$have" = "$image" ] || die "$host does not hold flea-ci $image_label $image (run $ship_hint)"
+    [ "$have" = "$image" ] || die "$host does not hold dlea-ci $image_label $image (run $ship_hint)"
   done
 }'''
 
@@ -367,17 +367,17 @@ def replace_once(source, old, new):
 
 def transform(files):
     files = dict(files)
-    lane = files["bin/flea-ci-lane"]
+    lane = files["bin/dlea-ci-lane"]
     for name, body in LANE_FUNCTIONS.items():
         if name in ("step_data", "deny_offline", "lane_gpui_checks"):
             lane = replace_once(lane, "lane_tool() {", body + "\n\nlane_tool() {")
         else:
             lane = replace_function(lane, name, body)
     lane = replace_once(lane, "  start_session\n", '  (cd /in && sha256sum -c worker-files.sha256) > "$out/input-receipt.log" 2>&1 || fail "staged inputs changed"\n  start_session\n')
-    lane = replace_once(lane, "    qmllint-gate) lane_tool qmllint-gate tools/flea-qmllint-gate ;;", "    gpui-checks) lane_gpui_checks ;;")
+    lane = replace_once(lane, "    qmllint-gate) lane_tool qmllint-gate tools/dlea-qmllint-gate ;;", "    gpui-checks) lane_gpui_checks ;;")
     lane = replace_once(lane, "qmllint-gate|file-budget", "gpui-checks|file-budget")
     lane = replace_once(lane, "qmllint-gate | file-budget", "gpui-checks | file-budget")
-    host = files["bin/flea-ci"]
+    host = files["bin/dlea-ci"]
     if PRESERVED_IMAGES not in host:
         raise ValueError("image check changed; refresh its fixture from the reviewed input")
     if PRESERVED_TOOL not in host:
@@ -387,27 +387,27 @@ def transform(files):
     host = replace_once(host, '    sk=$(field "$f" "$check" skipped); c=$(field "$f" "$check" compiled)', '    [ "$(field "$f" "$check" workspace_audit)" = 0 ] || ok=FAIL\n    sk=$(field "$f" "$check" skipped); c=$(field "$f" "$check" compiled)')
     host = replace_once(host, '  verdict_tool qmllint-gate', '  local gpui_check\n  for gpui_check in fmt strict-clippy core-dependencies deny gpui-lint; do verdict_tool "$gpui_check"; done')
     host = replace_once(host, '    [ "$(field "$f" run-all debug_same)" = yes ] && [ "$(field "$f" run-all release_same)" = yes ]', '    [ "$(field "$f" run-all workspace_same)" = yes ] && [ "$(field "$f" run-all debug_same)" = yes ] && [ "$(field "$f" run-all release_same)" = yes ]')
-    host = replace_once(host, '  stage_checker\n', '  cp "$ci_home/bin/flea-ci-workspace.py" "$stage/in/" || die "cannot stage workspace checker"\n  cp "$evidence_rules_file" "$stage/in/suite-evidence.txt" || die "cannot stage evidence rules"\n  cp "$minipc_only_file" "$stage/in/minipc-only.txt" || die "cannot stage native dispositions"\n  cp "$ci_home/dri-suites.txt" "$stage/in/dri-suites.txt" || die "cannot stage DRM inventory"\n  cp "$layout" "$stage/in/layout" || die "cannot stage layout"\n  cp "$stage/in/suite-evidence.txt" "$stage/in/minipc-only.txt" "$stage/in/layout" "$evidence/" || die "cannot retain suite inputs"\n  evidence_rules_file=$evidence/suite-evidence.txt\n  minipc_only_file=$evidence/minipc-only.txt\n  stage_checker\n')
-    host = replace_once(host, 'for f in flea-ci-lane flea-ci-unit flea-commit-rules; do', 'for f in flea-ci-lane flea-ci-unit flea-ci-workspace.py flea-commit-rules suite-evidence.txt minipc-only.txt dri-suites.txt layout; do')
-    host = replace_once(host, 'cat "$d/flea-ci-lane" "$d/flea-ci-unit" "$d/flea-commit-rules"', 'cat "$d/flea-ci-lane" "$d/flea-ci-unit" "$d/flea-ci-workspace.py" "$d/flea-commit-rules" "$d/suite-evidence.txt" "$d/minipc-only.txt" "$d/dri-suites.txt" "$d/layout"')
-    host = replace_once(host, '--unit=flea-ci-$run-$lane --slice=', '--unit=flea-ci-$run-$lane --working-directory=\'$run_dir\' --slice=')
-    unit = files["bin/flea-ci-unit"]
-    unit = replace_once(unit, 'image=$(cat "$run_dir/in/image.id")', '(cd "$run_dir/in" && sha256sum -c worker-files.sha256) || { echo "flea-ci-unit: staged inputs changed" >&2; exit 125; }\nimage=$(cat "$run_dir/in/image.id")')
+    host = replace_once(host, '  stage_checker\n', '  cp "$ci_home/bin/dlea-ci-workspace.py" "$stage/in/" || die "cannot stage workspace checker"\n  cp "$evidence_rules_file" "$stage/in/suite-evidence.txt" || die "cannot stage evidence rules"\n  cp "$minipc_only_file" "$stage/in/minipc-only.txt" || die "cannot stage native dispositions"\n  cp "$ci_home/dri-suites.txt" "$stage/in/dri-suites.txt" || die "cannot stage DRM inventory"\n  cp "$layout" "$stage/in/layout" || die "cannot stage layout"\n  cp "$stage/in/suite-evidence.txt" "$stage/in/minipc-only.txt" "$stage/in/layout" "$evidence/" || die "cannot retain suite inputs"\n  evidence_rules_file=$evidence/suite-evidence.txt\n  minipc_only_file=$evidence/minipc-only.txt\n  stage_checker\n')
+    host = replace_once(host, 'for f in dlea-ci-lane dlea-ci-unit dlea-commit-rules; do', 'for f in dlea-ci-lane dlea-ci-unit dlea-ci-workspace.py dlea-commit-rules suite-evidence.txt minipc-only.txt dri-suites.txt layout; do')
+    host = replace_once(host, 'cat "$d/dlea-ci-lane" "$d/dlea-ci-unit" "$d/dlea-commit-rules"', 'cat "$d/dlea-ci-lane" "$d/dlea-ci-unit" "$d/dlea-ci-workspace.py" "$d/dlea-commit-rules" "$d/suite-evidence.txt" "$d/minipc-only.txt" "$d/dri-suites.txt" "$d/layout"')
+    host = replace_once(host, '--unit=dlea-ci-$run-$lane --slice=', '--unit=dlea-ci-$run-$lane --working-directory=\'$run_dir\' --slice=')
+    unit = files["bin/dlea-ci-unit"]
+    unit = replace_once(unit, 'image=$(cat "$run_dir/in/image.id")', '(cd "$run_dir/in" && sha256sum -c worker-files.sha256) || { echo "dlea-ci-unit: staged inputs changed" >&2; exit 125; }\nimage=$(cat "$run_dir/in/image.id")')
     # Sample inventory operand: /usr/bin/grep -qx -- "$s" /srv/ci/dri-suites.txt 2>/dev/null
     inventory = r'''(?m)(/usr/bin/grep -qx -- "\$s" )(?:"[^"\n]*/dri-suites\.txt"|'[^'\n]*/dri-suites\.txt'|[^\s"'`;]+/dri-suites\.txt)(?= 2>/dev/null)'''
     unit, count = re.subn(inventory, lambda match: match[1] + '"$run_dir/in/dri-suites.txt"', unit)
     if count != 1:
         raise ValueError(f"expected one DRM inventory operand, found {count}")
-    unit = replace_once(unit, '"$image" setpriv --inh-caps=-all --ambient-caps=-all -- /bin/bash /in/flea-ci-lane "$@" &', '"$image" setpriv --inh-caps=-all --ambient-caps=-all -- env -i PATH=/usr/bin:/bin HOME=/home/gm USER=gm LOGNAME=gm LANG=en_US.UTF-8 \\\n    setsid -w /bin/bash /in/flea-ci-lane "$@" < /dev/null &')
-    files.update({"bin/flea-ci": host, "bin/flea-ci-lane": lane, "bin/flea-ci-unit": unit,
-                  "bin/flea-ci-workspace.py": HELPER,
+    unit = replace_once(unit, '"$image" setpriv --inh-caps=-all --ambient-caps=-all -- /bin/bash /in/dlea-ci-lane "$@" &', '"$image" setpriv --inh-caps=-all --ambient-caps=-all -- env -i PATH=/usr/bin:/bin HOME=/home/gm USER=gm LOGNAME=gm LANG=en_US.UTF-8 \\\n    setsid -w /bin/bash /in/dlea-ci-lane "$@" < /dev/null &')
+    files.update({"bin/dlea-ci": host, "bin/dlea-ci-lane": lane, "bin/dlea-ci-unit": unit,
+                  "bin/dlea-ci-workspace.py": HELPER,
                   "layouts/default.layout": replace_once(files["layouts/default.layout"], "west qml qmllint-gate", "west gpui gpui-checks")})
     return files
 
 
 def prepare(preimage, output):
     output.mkdir(parents=True, exist_ok=True)
-    names = ["bin/flea-ci", "bin/flea-ci-lane", "bin/flea-ci-unit", "layouts/default.layout"]
+    names = ["bin/dlea-ci", "bin/dlea-ci-lane", "bin/dlea-ci-unit", "layouts/default.layout"]
     originals = {name: (preimage / name).read_text() for name in names}
     candidates = transform(originals)
     patch = []
@@ -443,9 +443,9 @@ verdict_line() { echo "$1 $2 $3"; }
 
 
 def fixtures(root):
-    if not root.is_absolute() or not (root / ".flea-test-sandbox").is_file():
+    if not root.is_absolute() or not (root / ".dlea-test-sandbox").is_file():
         raise ValueError("fixtures need an absolute marked root")
-    helper = root / "flea-ci-workspace.py"
+    helper = root / "dlea-ci-workspace.py"
     helper.write_text(HELPER)
     checks = []
 
@@ -471,25 +471,25 @@ def fixtures(root):
 
     work = root / "work"
     for profile in ("debug", "release"):
-        for binary in ("flea", "flea-gui"):
+        for binary in ("dlea", "dlea-gui"):
             path = work / "target" / profile / binary
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(f"fixture {binary} {profile}\n")
             path.chmod(0o755)
         helper_run(f"binaries-{profile}", ["binaries", work, profile])
-    gui = work / "target/debug/flea-gui"
+    gui = work / "target/debug/dlea-gui"
     gui.rename(gui.with_suffix(".saved"))
     helper_run("missing-gui-build", ["binaries", work, "debug"], False, "missing executable")
     gui.with_suffix(".saved").rename(gui)
     tree = root / "tree.txt"
-    tree.write_text("flea v0.4.0 (/work/flea)\n")
+    tree.write_text("dlea v0.4.0 (/work/dlea)\n")
     helper_run("core-no-dependencies", ["dependencies", tree])
-    for name, content in (("core-dependency", "flea v0.4.0 (/work/flea)\nother v1.0\n"),
-                          ("empty-core-tree", ""), ("wrong-core-tree", "flea-gui v0.4.0 (/work/flea)\n")):
+    for name, content in (("core-dependency", "dlea v0.4.0 (/work/dlea)\nother v1.0\n"),
+                          ("empty-core-tree", ""), ("wrong-core-tree", "dlea-gui v0.4.0 (/work/dlea)\n")):
         tree.write_text(content)
         helper_run(name, ["dependencies", tree], False)
 
-    metadata = {"packages": [], "workspace_members": ["flea", "flea-gui"]}
+    metadata = {"packages": [], "workspace_members": ["dlea", "dlea-gui"]}
     sections = []
     for package in metadata["workspace_members"]:
         crate = package.replace("-", "_")
@@ -508,7 +508,7 @@ def fixtures(root):
     valid = "".join(content for _, content in sections)
     cases = {
         "workspace-tests": valid,
-        "missing-gui-test-target": "".join(content for package, content in sections if package == "flea"),
+        "missing-gui-test-target": "".join(content for package, content in sections if package == "dlea"),
         "missing-doc-test": "".join(content for _, content in sections[:-1]),
         "missing-unit-target": "".join(content for _, content in sections[1:]),
         "zero-tests": valid.replace("running 1 test", "running 0 tests").replace("ok. 1 passed", "ok. 0 passed"),
@@ -556,11 +556,11 @@ def fixtures(root):
     staged = root / "stage"
     staged_in = staged / "in"
     staged_in.mkdir(parents=True)
-    receipt_names = "flea-ci-lane flea-ci-unit flea-ci-status flea-ci-deps flea-ci-workspace.py flea-commit-rules suite-evidence.txt minipc-only.txt dri-suites.txt layout tree.id image.id".split()
+    receipt_names = "dlea-ci-lane dlea-ci-unit dlea-ci-status dlea-ci-deps dlea-ci-workspace.py dlea-commit-rules suite-evidence.txt minipc-only.txt dri-suites.txt layout tree.id image.id".split()
     for name in receipt_names:
         (staged_in / name).write_text(f"fixture {name}\n")
     shell("stage-receipt", f"stage={str(staged)!r}\ndie() {{ exit 2; }}\n" + HOST_FUNCTIONS["stage_receipt"] + '\nstage_receipt\ncd "$stage/in" && sha256sum -c worker-files.sha256\n')
-    for name in ("flea-ci-lane", "suite-evidence.txt", "minipc-only.txt", "dri-suites.txt", "layout", "image.id"):
+    for name in ("dlea-ci-lane", "suite-evidence.txt", "minipc-only.txt", "dri-suites.txt", "layout", "image.id"):
         path = staged_in / name
         old = path.read_text()
         path.write_text(old + "changed\n")
@@ -573,11 +573,11 @@ def fixtures(root):
     fake_cargo.write_text(r'''#!/bin/bash
 printf '%s\n' "$*" >> "$COMMAND_LOG"
 case $* in
-  'tree --locked -p flea --prefix none --edges normal,build') echo 'flea v0.4.0 (/work/flea)' ;;
+  'tree --locked -p dlea --prefix none --edges normal,build') echo 'dlea v0.4.0 (/work/dlea)' ;;
   'deny --offline --locked check') [ "${MISSING_DENY:-0}" = 0 ] || { echo 'error: no such command: deny'; exit 101; }
     [ -d "$CARGO_HOME/advisory-dbs/advisory-db-3157b0e258782691/.git" ] || { echo 'error: failed to load advisory database'; exit 1; } ;;
-  build*) echo '   Compiling flea v0.4.0 (/work/flea)'
-    case " $* " in *' --workspace '*) echo '   Compiling flea-gui v0.4.0 (/work/flea/crates/flea-gui)' ;; esac ;;
+  build*) echo '   Compiling dlea v0.4.0 (/work/dlea)'
+    case " $* " in *' --workspace '*) echo '   Compiling dlea-gui v0.4.0 (/work/dlea/crates/dlea-gui)' ;; esac ;;
   metadata*) cat "$FAKE_META" ;;
   test*) cat "$FAKE_TEST"; exit "${FAKE_TEST_RC:-0}" ;;
 esac
@@ -585,7 +585,7 @@ esac
     fake_cargo.chmod(0o755)
     tools = work / "tools"
     tools.mkdir()
-    lint = tools / "flea-gpui-lint"
+    lint = tools / "dlea-gpui-lint"
     lint.write_text('#!/bin/bash\necho gpui-lint >> "$COMMAND_LOG"\n')
     lint.chmod(0o755)
     command_log = root / "commands.log"
@@ -597,19 +597,19 @@ esac
     checks.append({"name": "both-build-profiles-executed", "passed": build_commands == expected_builds,
                    "rc": 0, "log": "workspace-builds.log"})
     print(f"{'ok' if build_commands == expected_builds else 'FAIL'} both-build-profiles-executed")
-    shell("missing-workspace-build", cargo_body.replace("cargo build --locked --workspace", "cargo build --locked -p flea"), contains="compiled=1 gui_compiled=0")
+    shell("missing-workspace-build", cargo_body.replace("cargo build --locked --workspace", "cargo build --locked -p dlea"), contains="compiled=1 gui_compiled=0")
     prep_done = root / "prep.done"
     prep_body = step + f"\nexport PATH={str(fake_bin)!r}:$PATH COMMAND_LOG={str(command_log)!r}\n"
-    prep_body += LANE_FUNCTIONS["cargo_build"] + "\n" + LANE_FUNCTIONS["lane_prep"].replace("/in/flea-ci-workspace.py", str(helper)).replace("/work/prep.done", str(prep_done))
+    prep_body += LANE_FUNCTIONS["cargo_build"] + "\n" + LANE_FUNCTIONS["lane_prep"].replace("/in/dlea-ci-workspace.py", str(helper)).replace("/work/prep.done", str(prep_done))
     prep_body += '\n: > "$out/results"\nlane_prep\ncat "$out/results"\n'
     shell("prep-publishes-complete-workspace", prep_body + f"\n[ -f {str(prep_done)!r} ]\n")
     if prep_done.exists():
         prep_done.unlink()
-    incomplete = prep_body.replace("cargo build --locked --workspace", "cargo build --locked -p flea")
+    incomplete = prep_body.replace("cargo build --locked --workspace", "cargo build --locked -p dlea")
     shell("prep-refuses-incomplete-workspace", incomplete + f"\n[ ! -e {str(prep_done)!r} ]\n", contains="gui_compiled=0")
     test_body = step + f"\nexport PATH={str(fake_bin)!r}:$PATH COMMAND_LOG={str(command_log)!r} FAKE_META={str(meta)!r} FAKE_TEST={str(log)!r}\n"
     test_body += 'test_totals() { echo "passed=4 failed=0 ignored=0 result_lines=6 targets=6 filtered_out=0"; }\nskipped_tests() { echo 0; }\nfailed_tests() { echo none; }\n'
-    test_body += LANE_FUNCTIONS["lane_cargo_test"].replace("/in/flea-ci-workspace.py", str(helper))
+    test_body += LANE_FUNCTIONS["lane_cargo_test"].replace("/in/dlea-ci-workspace.py", str(helper))
     command_log.write_text("")
     test_body += '\n: > "$out/results"\nlane_cargo_test\nlane_cargo_test --release\ncat "$out/results"\n'
     profile_run = shell("test-both-profiles", test_body)
@@ -629,8 +629,8 @@ esac
     command_log.write_text("")
     snapshot = root / "advisory-db"
     (snapshot / ".git").mkdir(parents=True)
-    lint_body = step + "\n" + LANE_FUNCTIONS["deny_offline"].replace("/usr/share/flea-ci/advisory-db", str(snapshot))
-    lint_body += "\n" + LANE_FUNCTIONS["lane_gpui_checks"].replace("/in/flea-ci-workspace.py", str(helper))
+    lint_body = step + "\n" + LANE_FUNCTIONS["deny_offline"].replace("/usr/share/dlea-ci/advisory-db", str(snapshot))
+    lint_body += "\n" + LANE_FUNCTIONS["lane_gpui_checks"].replace("/in/dlea-ci-workspace.py", str(helper))
     lint_body += f"\nexport PATH={str(fake_bin)!r}:$PATH COMMAND_LOG={str(command_log)!r} CARGO_HOME={str(root / 'cargo-home')!r}\n: > \"$out/results\"\nlane_gpui_checks\ncat \"$out/results\"\n"
     lint_run = shell("lint-execution", lint_body)
     # Sample lint result: RESULT deny rc=0 child_rc=0 secs=0.0 last=ok
@@ -641,7 +641,7 @@ esac
                    "rc": lint_run.returncode, "log": "lint-execution.log"})
     print(f"{'ok' if lint_success else 'FAIL'} all-lint-results-successful")
     expected_commands = ["fmt --all -- --check", "clippy --locked --workspace --all-targets -- -D warnings",
-                         "tree --locked -p flea --prefix none --edges normal,build", "deny --offline --locked check", "gpui-lint"]
+                         "tree --locked -p dlea --prefix none --edges normal,build", "deny --offline --locked check", "gpui-lint"]
     actual = command_log.read_text().splitlines()
     checks.append({"name": "all-lints-executed", "passed": actual == expected_commands,
                    "rc": 0, "log": "commands.log"})

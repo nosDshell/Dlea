@@ -1,4 +1,4 @@
-//! The clipboard payload bytes, one place for every front end: GNOME's copy/cut form, the URI list, plain paths, KDE's cut mark and Flea's token; byte for byte the backend shapes (src/clip/format.rs) and the fork MIME contract. X11 stays out.
+//! The clipboard payload bytes, one place for every front end: GNOME's copy/cut form, the URI list, plain paths, KDE's cut mark and Dlea's token; byte for byte the backend shapes (src/clip/format.rs) and the fork MIME contract. X11 stays out.
 use crate::plugin_runtime::protocol::place_path;
 use std::collections::HashSet;
 
@@ -8,7 +8,7 @@ pub const KDE_CUT: &str = "application/x-kde-cutselection";
 pub const PLAIN_UTF8: &str = "text/plain;charset=utf-8";
 pub const PLAIN: &str = "text/plain";
 pub const UTF8_STRING: &str = "UTF8_STRING";
-pub const FLEA: &str = "application/x-flea-clip";
+pub const DLEA: &str = "application/x-dlea-clip";
 
 // Keep a place's scheme and percent-encode its path just as for a local file.
 fn encode_uri(path: &str) -> String {
@@ -147,13 +147,13 @@ pub fn parse_kde_cut(bytes: &[u8]) -> bool {
     String::from_utf8_lossy(bytes).trim_matches(|c: char| c == '\0' || c.is_whitespace()) == "1"
 }
 
-pub fn build_flea(op: &str, token: &str) -> Vec<u8> {
+pub fn build_dlea(op: &str, token: &str) -> Vec<u8> {
     format!("{op} {token} {}", std::process::id()).into_bytes()
 }
 
 // Sample input: "cut 0123456789abcdef0123456789abcdef 4242" reads ("cut", that token).
 // The token is TOKEN_HEX_LEN hex chars; anything else is another owner's bytes, not a refusal.
-pub fn parse_flea(bytes: &[u8]) -> Option<(String, String)> {
+pub fn parse_dlea(bytes: &[u8]) -> Option<(String, String)> {
     let text = std::str::from_utf8(bytes).ok()?;
     let text = text.trim_matches(|c: char| c == '\0' || c.is_whitespace());
     let (op, token) = text.split_once(' ')?;
@@ -200,8 +200,8 @@ pub fn choose(offers: &[Offer<'_>]) -> Option<ForeignSel> {
             .find(|offer| offer.mime == mime)
             .map(|offer| offer.bytes)
     };
-    let token = bytes_of(FLEA)
-        .and_then(parse_flea)
+    let token = bytes_of(DLEA)
+        .and_then(parse_dlea)
         .map_or(String::new(), |(_, token)| token);
     // A GNOME offer that does not parse or names no files falls through to the URI list, as the backend reads it.
     if let Some((op, paths, _)) = bytes_of(GNOME)

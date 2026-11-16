@@ -347,7 +347,7 @@ function run(check) {
     Focus.act("escape", carded)
     check("and so does the collision card", carded.climbed + "|" + carded.retreated, "0|1")
 
-    // A climb landing mark is Flea's, so it never blocks the next climb.
+    // A climb landing mark is Dlea's, so it never blocks the next climb.
     var landed = escaper("", 0)
     landed.escapeUp = true
     landed.selection = Selection.create()
@@ -558,7 +558,7 @@ function run(check) {
     Focus.act("eject", outside)
     check("ctrl e in a listing on the internal disk says so, even with the rail cursor on the stick",
           outside.sidebar.released.length + "|" + outside.said,
-          "0|This folder is not on a volume Flea can unmount")
+          "0|This folder is not on a volume Dlea can unmount")
 
     // Ctrl+E with the rail hidden: the Loader unloads the Sidebar, so root.sidebar is null and
     // there are no entries to resolve against. The key hands to the pane's transient one-shot
@@ -589,7 +589,7 @@ function run(check) {
                    releaseChosen: function (action, key) {} }
     Eject.release(hiddenOutside, noRail, false)
     check("the hidden-rail completion outside any volume says so instead of releasing",
-          hiddenOutside.said, "This folder is not on a volume Flea can unmount")
+          hiddenOutside.said, "This folder is not on a volume Dlea can unmount")
 
     // The listing's m goes through the pane, which says whether a delegate was under the cursor; an
     // empty directory and a filter that hides every row both get the sentence rather than silence.

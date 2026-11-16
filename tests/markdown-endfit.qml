@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-markdown-endfit-test
+//@ pragma ShellId dlea-markdown-endfit-test
 
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 import "markdown-render.js" as Checks
 import "markdown-board.js" as Board
 
@@ -14,9 +14,9 @@ ShellRoot {
     function log(line) { console.log("MARKDOWN_ENDFIT " + line) }
     function quit() { Quickshell.execDetached(["kill", String(Quickshell.processId)]) }
 
-    readonly property string fixture: Quickshell.env("FLEA_ENDFIT_DOC")
-    readonly property string pictureBytes: Quickshell.env("FLEA_ENDFIT_BYTES")
-    readonly property string pictureFifo: Quickshell.env("FLEA_ENDFIT_FIFO")
+    readonly property string fixture: Quickshell.env("DLEA_ENDFIT_DOC")
+    readonly property string pictureBytes: Quickshell.env("DLEA_ENDFIT_BYTES")
+    readonly property string pictureFifo: Quickshell.env("DLEA_ENDFIT_FIFO")
     // The board is resolved at body 14, the text size this suite pins.
     readonly property int boardText: 14
     // The picture the fixture feeds is 160 by 80, so its block grows by 80 once decoded.
@@ -39,8 +39,8 @@ ShellRoot {
     readonly property string palette: 'background = "#1a1b26"\nforeground = "#a9b1d6"\nbright_foreground = "#c0caf5"\n'
 
     Component.onCompleted: {
-        Flea.ViewState.state = { display: { textSize: { mode: shell.boardText } } }
-        Flea.Theme.applyColors(shell.palette)
+        Dlea.ViewState.state = { display: { textSize: { mode: shell.boardText } } }
+        Dlea.Theme.applyColors(shell.palette)
     }
 
     function check(error, name) {
@@ -63,7 +63,7 @@ ShellRoot {
         implicitHeight: 400
         color: "#101315"
 
-        Flea.PreviewMarkdown {
+        Dlea.PreviewMarkdown {
             id: md
             anchors.fill: parent
             active: true
@@ -73,7 +73,7 @@ ShellRoot {
         }
 
         // Built beside the window and not under it, since a hidden tree draws no text for the probe to read.
-        Flea.PreviewMarkdown {
+        Dlea.PreviewMarkdown {
             id: column
             x: parent.width
             width: 560
@@ -118,7 +118,7 @@ ShellRoot {
 
     // The board at body 14, in its own pixels and not the renderer's tokens.
     function board() {
-        shell.check(Flea.Theme.font.body === shell.boardText ? "" : "body " + Flea.Theme.font.body, "the suite runs at the board's text size")
+        shell.check(Dlea.Theme.font.body === shell.boardText ? "" : "body " + Dlea.Theme.font.body, "the suite runs at the board's text size")
         var blocks = shell.rects()
         var gapError = ""
         for (var i = 1; i < blocks.length && gapError === ""; i++) {
@@ -134,14 +134,14 @@ ShellRoot {
         var para = shell.textIn(md, shell.blockOf("run"))
         shell.check(h1 && h2 && h1.font.pixelSize === Checks.BOARD_H1 && h2.font.pixelSize === Checks.BOARD_H2 ? ""
             : "Quick Look h1 " + (h1 && h1.font.pixelSize) + " h2 " + (h2 && h2.font.pixelSize), "Quick Look headings are the board's 20 and 15")
-        shell.check(String(Flea.Theme.color.foregroundBright) !== String(Flea.Theme.color.foreground) ? "" : "the palette gave no heading ink of its own",
+        shell.check(String(Dlea.Theme.color.foregroundBright) !== String(Dlea.Theme.color.foreground) ? "" : "the palette gave no heading ink of its own",
             "the heading ink differs from the foreground")
-        shell.check(Board.headerInkError(md.blockItem(shell.blockOf("table")), String(Flea.Theme.color.foregroundBright),
-            String(Flea.Theme.color.foreground)), "table header cells are bold in the heading ink")
+        shell.check(Board.headerInkError(md.blockItem(shell.blockOf("table")), String(Dlea.Theme.color.foregroundBright),
+            String(Dlea.Theme.color.foreground)), "table header cells are bold in the heading ink")
         var c1 = shell.textIn(column, shell.blockOf("heading", 1))
         var c2 = shell.textIn(column, shell.blockOf("heading", 2))
         var cp = shell.textIn(column, shell.blockOf("run"))
-        shell.check(Board.compactHeadingError(c1, c2, cp, Flea.Theme.font.body, Flea.Theme.font.bodySmall), "the column keeps the board's 20 and 15 over its 13")
+        shell.check(Board.compactHeadingError(c1, c2, cp, Dlea.Theme.font.body, Dlea.Theme.font.bodySmall), "the column keeps the board's 20 and 15 over its 13")
     }
 
     // The last block's picture, found by what it is rather than where it sits in the delegate.

@@ -1,7 +1,7 @@
 // Linux's atomic no-clobber rename, plus the measured mounts that need a safe caller-owned copy fallback.
 use crate::backend::copyfile::{copy_any, Progress};
 use crate::backend::mountinfo::mount_type_in;
-use crate::error::{from_io, FleaError};
+use crate::error::{from_io, DleaError};
 use std::ffi::{c_char, CString};
 use std::io;
 use std::path::Path;
@@ -150,7 +150,7 @@ fn take_forced_fallback() -> bool {
 }
 
 // Rename uses the atomic syscall everywhere except a measured fallback, which copies exclusively before removing the source.
-pub(crate) fn rename_path(from: &Path, to: &Path) -> Result<(), FleaError> {
+pub(crate) fn rename_path(from: &Path, to: &Path) -> Result<(), DleaError> {
     if is_same_item_for_move(from, to) {
         return case_twin_move(from, to);
     }
@@ -158,12 +158,12 @@ pub(crate) fn rename_path(from: &Path, to: &Path) -> Result<(), FleaError> {
 }
 
 // One rename without the case-twin check, so the twin's own temp steps never recurse.
-fn rename_inner(from: &Path, to: &Path) -> Result<(), FleaError> {
+fn rename_inner(from: &Path, to: &Path) -> Result<(), DleaError> {
     rename_source(from, to, &AtomicBool::new(false), Source::Item)
 }
 
 // A job's staged result lands here, so its copy fallback stops on the job's own cancel, and a stage that will not go still publishes (issue 370).
-pub(crate) fn rename_cancellable(from: &Path, to: &Path, cancel: &AtomicBool) -> Result<(), FleaError> {
+pub(crate) fn rename_cancellable(from: &Path, to: &Path, cancel: &AtomicBool) -> Result<(), DleaError> {
     rename_source(from, to, cancel, Source::Stage)
 }
 
@@ -172,7 +172,7 @@ fn rename_source(
     to: &Path,
     cancel: &AtomicBool,
     source: Source,
-) -> Result<(), FleaError> {
+) -> Result<(), DleaError> {
     match rename_noreplace(from, to) {
         Ok(()) => Ok(()),
         Err(error) if error.raw_os_error() == Some(EXDEV) || needs_copy_fallback(from, &error) => {
@@ -195,10 +195,10 @@ pub(crate) fn is_same_item_for_move(from: &Path, to: &Path) -> bool {
 const CASE_TRIES: usize = 100;
 
 // A case twin moves via a temp sibling, so undo and redo share the path the rename took.
-pub(crate) fn case_twin_move(from: &Path, to: &Path) -> Result<(), FleaError> {
+pub(crate) fn case_twin_move(from: &Path, to: &Path) -> Result<(), DleaError> {
     let parent = from.parent().unwrap_or(Path::new("/"));
     for n in 0..CASE_TRIES {
-        let temp = parent.join(format!(".flea-case-{}-{}", std::process::id(), n));
+        let temp = parent.join(format!(".dlea-case-{}-{}", std::process::id(), n));
         if temp.symlink_metadata().is_ok() {
             continue;
         }
@@ -208,7 +208,7 @@ pub(crate) fn case_twin_move(from: &Path, to: &Path) -> Result<(), FleaError> {
             if let Err(back) = move_back(&temp, from) {
                 return Err(kept_temp(&temp, from, back));
             }
-            return Err(FleaError { where_: "rename".to_string(), path: from.to_string_lossy().to_string(), msg: "an item with that name is already here".to_string() });
+            return Err(DleaError { where_: "rename".to_string(), path: from.to_string_lossy().to_string(), msg: "an item with that name is already here".to_string() });
         }
         if let Err(error) = move_forward(&temp, to) {
             if let Err(back) = move_back(&temp, from) {
@@ -218,11 +218,11 @@ pub(crate) fn case_twin_move(from: &Path, to: &Path) -> Result<(), FleaError> {
         }
         return Ok(());
     }
-    Err(FleaError { where_: "rename".to_string(), path: from.to_string_lossy().to_string(), msg: "an item with that name is already here".to_string() })
+    Err(DleaError { where_: "rename".to_string(), path: from.to_string_lossy().to_string(), msg: "an item with that name is already here".to_string() })
 }
 
 // The move-back a twin strands on, injectable in tests so a failed restore needs no sick filesystem.
-fn move_back(temp: &Path, from: &Path) -> Result<(), FleaError> {
+fn move_back(temp: &Path, from: &Path) -> Result<(), DleaError> {
     #[cfg(test)]
     if FAIL_TWIN_BACK.with(|flag| flag.replace(false)) {
         return Err(from_io("rename", &from.to_string_lossy(), &std::io::Error::from_raw_os_error(EIO)));
@@ -231,7 +231,7 @@ fn move_back(temp: &Path, from: &Path) -> Result<(), FleaError> {
 }
 
 // The forward step a twin strands on, injectable in tests like the move-back beside it.
-fn move_forward(temp: &Path, to: &Path) -> Result<(), FleaError> {
+fn move_forward(temp: &Path, to: &Path) -> Result<(), DleaError> {
     #[cfg(test)]
     if FAIL_TWIN_FORWARD.with(|flag| flag.replace(false)) {
         return Err(from_io("rename", &to.to_string_lossy(), &std::io::Error::from_raw_os_error(EIO)));
@@ -252,8 +252,8 @@ fn test_fail_twin_forward() {
 }
 
 // A stranded twin answers its own kind with the source path, so the rename request closes and msg names the temp leaf.
-fn kept_temp(temp: &Path, from: &Path, back: FleaError) -> FleaError {
-    FleaError { where_: STRANDED.to_string(), path: from.to_string_lossy().to_string(), msg: format!("the file was left as {} in this folder: {}", temp.file_name().unwrap_or_default().to_string_lossy(), back.msg) }
+fn kept_temp(temp: &Path, from: &Path, back: DleaError) -> DleaError {
+    DleaError { where_: STRANDED.to_string(), path: from.to_string_lossy().to_string(), msg: format!("the file was left as {} in this folder: {}", temp.file_name().unwrap_or_default().to_string_lossy(), back.msg) }
 }
 
 // WebDAV is decided from the path and errno alone, so a FUSE check never reads mountinfo for it.
@@ -297,7 +297,7 @@ pub(crate) fn needs_fuse_fallback_in(from: &Path, error: &io::Error, mountinfo: 
 
 // The tests drive the copy fallback uncancelled through this name.
 #[cfg(test)]
-pub(crate) fn copy_then_remove(from: &Path, to: &Path) -> Result<(), FleaError> {
+pub(crate) fn copy_then_remove(from: &Path, to: &Path) -> Result<(), DleaError> {
     copy_then_remove_with(from, to, &AtomicBool::new(false), Source::Item)
 }
 
@@ -307,7 +307,7 @@ fn copy_then_remove_with(
     to: &Path,
     cancel: &AtomicBool,
     source: Source,
-) -> Result<(), FleaError> {
+) -> Result<(), DleaError> {
     let mut sink = |_: u64, _: u64| {};
     // EXDEV and a GVFS WebDAV rename land here too, and a dav share is a durable destination.
     let mut durability = crate::backend::durable::Durability::begin(to.parent().unwrap_or(from));
@@ -323,7 +323,7 @@ fn copy_then_remove_with(
     if let Err(error) = copy_any(from, to, &mut progress) {
         if progress.partial.as_deref() == Some(to) {
             if let Err(cleanup) = take_back(to) {
-                return Err(FleaError {
+                return Err(DleaError {
                     where_: "rename".to_string(),
                     path: to.to_string_lossy().to_string(),
                     msg: format!("{}; the partial copy could not be removed: {}", error.msg, cleanup.msg),
@@ -340,13 +340,13 @@ fn copy_then_remove_with(
             Ok(()) => RENAME_UNCONFIRMED.to_string(),
             Err(cleanup) => format!("{}; the new copy could not be removed: {}", crate::backend::durable::DIR_UNCONFIRMED, cleanup.msg),
         };
-        return Err(FleaError { where_: "rename".to_string(), path: to.to_string_lossy().to_string(), msg });
+        return Err(DleaError { where_: "rename".to_string(), path: to.to_string_lossy().to_string(), msg });
     }
     remove_source(from, to, source)
 }
 
 // A copy the destination does not show whole goes back, and the source stays.
-fn remove_source(from: &Path, to: &Path, source: Source) -> Result<(), FleaError> {
+fn remove_source(from: &Path, to: &Path, source: Source) -> Result<(), DleaError> {
     if let Err(e) = crate::backend::copyfile::landed::same_as_source(from, to) {
         return Err(undo_the_copy(to, e.error("rename", to)));
     }
@@ -362,7 +362,7 @@ fn remove_source(from: &Path, to: &Path, source: Source) -> Result<(), FleaError
 }
 
 // A source still whole makes the copy a duplicate to take back; one gone in whole or in part leaves the copy the whole one.
-fn after_failed_removal(from: &Path, to: &Path, unremoved: crate::backend::copyfile::Unremoved) -> FleaError {
+fn after_failed_removal(from: &Path, to: &Path, unremoved: crate::backend::copyfile::Unremoved) -> DleaError {
     match unremoved {
         crate::backend::copyfile::Unremoved::Whole(error) => undo_the_copy(to, error),
         crate::backend::copyfile::Unremoved::Part(error) => kept_error(from, error),
@@ -370,22 +370,22 @@ fn after_failed_removal(from: &Path, to: &Path, unremoved: crate::backend::copyf
 }
 
 // The take-back of an unconfirmed or partial copy; a test fails it on purpose to reach that leftover state.
-fn take_back(to: &Path) -> Result<(), FleaError> {
+fn take_back(to: &Path) -> Result<(), DleaError> {
     #[cfg(test)]
     if FAIL_TAKE_BACK.with(|fail| fail.replace(false)) {
-        return Err(FleaError { where_: "rename".to_string(), path: to.to_string_lossy().to_string(), msg: "test refused the take-back".to_string() });
+        return Err(DleaError { where_: "rename".to_string(), path: to.to_string_lossy().to_string(), msg: "test refused the take-back".to_string() });
     }
     remove_copy(to)
 }
 
 // The copy is this operation's own, so a folder its copied modes shut is opened to take it back.
-fn remove_copy(to: &Path) -> Result<(), FleaError> {
+fn remove_copy(to: &Path) -> Result<(), DleaError> {
     crate::backend::copyfile::deep::remove_deep(to, true).map_err(|e| from_io("rename", &to.to_string_lossy(), &e))
 }
 
 // The source is not provably whole here, so the target may hold the only complete copy and stays under its own kind.
-fn kept_error(from: &Path, error: FleaError) -> FleaError {
-    FleaError {
+fn kept_error(from: &Path, error: DleaError) -> DleaError {
+    DleaError {
         where_: KEPT.to_string(),
         path: from.to_string_lossy().to_string(),
         msg: error.msg,
@@ -393,10 +393,10 @@ fn kept_error(from: &Path, error: FleaError) -> FleaError {
 }
 
 // Nothing of the source went, so the copy is a duplicate this operation takes back.
-fn undo_the_copy(to: &Path, error: FleaError) -> FleaError {
+fn undo_the_copy(to: &Path, error: DleaError) -> DleaError {
     match remove_copy(to) {
         Ok(()) => rename_error(error),
-        Err(cleanup) => FleaError {
+        Err(cleanup) => DleaError {
             where_: "rename".to_string(),
             path: to.to_string_lossy().to_string(),
             msg: format!("{}; the copy left behind could not be removed: {}", error.msg, cleanup.msg),
@@ -404,7 +404,7 @@ fn undo_the_copy(to: &Path, error: FleaError) -> FleaError {
     }
 }
 
-fn rename_error(mut error: FleaError) -> FleaError {
+fn rename_error(mut error: DleaError) -> DleaError {
     error.where_ = "rename".to_string();
     error
 }
@@ -784,7 +784,7 @@ mod tests {
         let error = rename_path(&from, &twin).expect_err("a failed move-back strands the file");
         assert_eq!(error.where_, STRANDED, "a stranded twin answers its own kind");
         assert_eq!(error.path, from.to_string_lossy(), "the stranded error names the source");
-        assert!(error.msg.starts_with("the file was left as .flea-case-"), "msg names temp leaf: {}", error.msg);
+        assert!(error.msg.starts_with("the file was left as .dlea-case-"), "msg names temp leaf: {}", error.msg);
         assert!(error.msg.ends_with("the drive could not read or write the data"), "msg carries move-back cause: {}", error.msg);
         let leaf = error.msg.split(" as ").nth(1).unwrap().split(" in ").next().unwrap();
         assert!(d.path().join(leaf).is_file(), "the temp holds the file");
@@ -802,7 +802,7 @@ mod tests {
         let error = rename_path(&from, &to).expect_err("a failed forward step strands the file");
         assert_eq!(error.where_, STRANDED, "a stranded twin answers its own kind");
         assert_eq!(error.path, from.to_string_lossy(), "the stranded error names the source");
-        assert!(error.msg.starts_with("the file was left as .flea-case-"), "msg names temp leaf: {}", error.msg);
+        assert!(error.msg.starts_with("the file was left as .dlea-case-"), "msg names temp leaf: {}", error.msg);
         assert!(error.msg.ends_with("the drive could not read or write the data"), "msg carries move-back cause: {}", error.msg);
         let leaf = error.msg.split(" as ").nth(1).unwrap().split(" in ").next().unwrap();
         assert!(d.path().join(leaf).is_file(), "the temp holds the file");

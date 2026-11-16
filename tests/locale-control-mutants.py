@@ -52,7 +52,7 @@ def probe(control, variant, keep, fail_locale_setup=False):
         raise RuntimeError('REFUSED mutant fixture parent outside the repository')
     parent.mkdir(parents=True, exist_ok=True)
     root = Path(tempfile.mkdtemp(prefix='locale-mutant.', dir=parent))
-    marker = root / '.flea-test-sandbox'
+    marker = root / '.dlea-test-sandbox'
     marker.write_text('locale control mutant fixture\n')
     source = (REPO / 'tests/locale.sh').read_text()
     start = source.index('run() {\n')

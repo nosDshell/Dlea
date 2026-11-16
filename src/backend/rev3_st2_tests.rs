@@ -2,7 +2,7 @@
 use super::fifotest::mkfifo;
 use super::plugins_tests::{ask, code, env, get, plugin, READY};
 use super::testdir::TestDir;
-use flea::ui_logic_plugin_settings::wire::Source;
+use dlea::ui_logic_plugin_settings::wire::Source;
 use std::os::unix::fs::symlink;
 use std::os::unix::fs::{MetadataExt, OpenOptionsExt};
 use std::path::{Path, PathBuf};
@@ -118,7 +118,7 @@ fn rev3_st2_a_folder_add_never_writes_through_an_old_record() {
     let env = env(&dir);
     let outside = dir.file("outside", "keep\n");
     let hard = dir.file("hardsrc", "keep too\n");
-    let sources = dir.dir("config/flea/plugins/.sources");
+    let sources = dir.dir("config/dlea/plugins/.sources");
     symlink(&outside, sources.join("me.tool")).unwrap();
     std::fs::hard_link(&hard, sources.join("me.other")).unwrap();
     let fifo = sources.join("me.third");
@@ -167,7 +167,7 @@ fn rev3_st2_a_linked_sources_folder_is_refused_and_written_nowhere() {
     let dir = TestDir::new("rev3-st2-srclink");
     let env = env(&dir);
     let elsewhere = dir.dir("elsewhere");
-    dir.dir("config/flea/plugins");
+    dir.dir("config/dlea/plugins");
     symlink(&elsewhere, env.dir.join(".sources")).unwrap();
     let src = plugin(&dir, "src", "me.tool", READY);
     let refused = code(ask(&env, &add_line(&src.display().to_string())).0);

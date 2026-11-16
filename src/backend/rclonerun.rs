@@ -87,7 +87,7 @@ pub(super) fn background(id: usize, send: Send, cancel: Arc<AtomicBool>, tx: Sen
                 if cancel.load(Ordering::Relaxed) {
                     break;
                 }
-                let source = flea::bytename::view(path);
+                let source = dlea::bytename::view(path);
                 let source = &*source;
                 let selected: Vec<_> = items.iter().filter(|i| i.path == source).cloned().collect();
                 let name = source.file_name().unwrap().to_string_lossy();
@@ -162,7 +162,7 @@ pub(super) fn background(id: usize, send: Send, cancel: Arc<AtomicBool>, tx: Sen
                     if cancel.load(Ordering::Relaxed) {
                         break;
                     }
-                    let source = flea::bytename::view(path);
+                    let source = dlea::bytename::view(path);
                     let source = &*source;
                     let name = source.file_name().unwrap().to_string_lossy();
                     let detail = if check == "size" {
@@ -271,13 +271,13 @@ fn prepare(
     for path in &send.paths {
         let selected = items
             .iter()
-            .find(|item| item.path == *flea::bytename::view(path))
-            .ok_or_else(|| format!("Could not inspect {}.", flea::bytename::display(path)))?;
+            .find(|item| item.path == *dlea::bytename::view(path))
+            .ok_or_else(|| format!("Could not inspect {}.", dlea::bytename::display(path)))?;
         let meta = selected.current()?;
         if !meta.is_dir() && !meta.is_file() {
             return Err(format!(
                 "Cannot send {} with rclone.",
-                flea::bytename::display(path)
+                dlea::bytename::display(path)
             ));
         }
         if !names.insert(selected.path.file_name()) {

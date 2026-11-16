@@ -41,8 +41,8 @@ rail_path_box() {
     cat > "$rail_box/bin/lsblk" <<'SH'
 #!/usr/bin/env bash
 set -eu
-box=${FLEA_RAIL_BOX:?}
-[[ "$box" == /* && -f "$box/.flea-test-sandbox" ]] || exit 90
+box=${DLEA_RAIL_BOX:?}
+[[ "$box" == /* && -f "$box/.dlea-test-sandbox" ]] || exit 90
 cat "$box/lsblk.json"
 SH
     # Only the two calls this case owns are answered here; the trash count, the mount listing and the
@@ -52,8 +52,8 @@ SH
     cat > "$rail_box/bin/gio" <<SH
 #!/usr/bin/env bash
 set -eu
-box=\${FLEA_RAIL_BOX:?}
-[[ "\$box" == /* && -f "\$box/.flea-test-sandbox" ]] || exit 90
+box=\${DLEA_RAIL_BOX:?}
+[[ "\$box" == /* && -f "\$box/.dlea-test-sandbox" ]] || exit 90
 jq -cn --args '{args:\$ARGS.positional}' -- "\$@" >> "\$box/calls.jsonl"
 case "\$*" in
     "mount -d /dev/sdb1")
@@ -92,7 +92,7 @@ rail_wait_entry() {
 # The window this case owns, floated so its width is this case's to set and nobody else's.
 sidebar_resize() {
     local width="$1" height="${2:-800}" addr
-    addr=$(xwdrag_addr "$(flea_pid)") || fail "sidebar: missing owned window"
+    addr=$(xwdrag_addr "$(dlea_pid)") || fail "sidebar: missing owned window"
     hypr_window_resize "$addr" "$width" "$height" \
         || fail "sidebar: the window would not resize to $width"
     settle
@@ -145,11 +145,11 @@ case_sidebar() (
     : > "$dir/a.txt"
     : > "$dir/b.txt"
     seed_ui_state "$state" '{"view":"list"}'
-    stored="$state/flea/ui.json"
+    stored="$state/dlea/ui.json"
 
     launch "$dir"
     wait_listing 2
-    addr=$(xwdrag_addr "$(flea_pid)") || fail "sidebar: missing owned window"
+    addr=$(xwdrag_addr "$(dlea_pid)") || fail "sidebar: missing owned window"
     hypr_window_float "$addr" "on" || fail 'sidebar: the window would not float'
     settle
     sidebar_resize 1200
@@ -167,7 +167,7 @@ case_sidebar() (
     sidebar_stored hidden "$stored"
 
     echo "-- and it is remembered, because a state is not a setting --"
-    kill_flea
+    kill_dlea
     launch "$dir"
     wait_listing 2
     sidebar_wait true
@@ -176,7 +176,7 @@ case_sidebar() (
     sidebar_stored shown "$stored"
 
     echo "-- directive 74: with auto-hide off a narrow window keeps the rail --"
-    addr=$(xwdrag_addr "$(flea_pid)") || fail "sidebar: missing owned window"
+    addr=$(xwdrag_addr "$(dlea_pid)") || fail "sidebar: missing owned window"
     hypr_window_float "$addr" "on" || fail 'sidebar: the window would not float'
     settle
     sidebar_resize 1200
@@ -251,7 +251,7 @@ case_sidebar() (
     key -M ctrl -k b -m ctrl >/dev/null
     sidebar_wait false
     printf 'SIDEBAR autohide=ok remembered=%s\n' "$(jq -r '.places.rail' "$stored")"
-    kill_flea
+    kill_dlea
 )
 
 # The two in-between eject sentences, "Ejecting ..." while gio is held and "Could not confirm ..." off one unreadable listing.
@@ -260,7 +260,7 @@ case_ejectlines() (
     local gio_log="$dir/gio.log" fixture_home="$fixture_root/ejectlines-home"
     local volume_row refusal seen attempt
     sandbox_scratch "$dir"
-    mkdir -p "$dir/bin" "$dir/mnt/FLEASTICK"
+    mkdir -p "$dir/bin" "$dir/mnt/DLEASTICK"
     : > "$dir/0-one.txt"
     : > "$dir/0-two.txt"
 
@@ -272,13 +272,13 @@ if [ -f "$dir/unreadable" ]; then
   printf 'not a listing\n'
   exit 0
 fi
-mp='"$dir/mnt/FLEASTICK"'
+mp='"$dir/mnt/DLEASTICK"'
 cat <<JSON
 {"blockdevices":[
 {"name":"nvme0n1","path":"/dev/nvme0n1","label":null,"mountpoints":[null],"rm":false,"size":"238.5G","type":"disk","model":"KBG40ZNS256G",
 "children":[{"name":"nvme0n1p1","path":"/dev/nvme0n1p1","label":null,"mountpoints":["/"],"rm":false,"size":"238.5G","type":"part","model":null}]},
 {"name":"sda","path":"/dev/sda","label":null,"mountpoints":[null],"rm":true,"size":"116.1G","type":"disk","model":"USB Flash Disk",
-"children":[{"name":"sda1","path":"/dev/sda1","label":"FLEASTICK","mountpoints":[\$mp],"rm":true,"size":"116.1G","type":"part","model":null,"fstype":"vfat"}]}]}
+"children":[{"name":"sda1","path":"/dev/sda1","label":"DLEASTICK","mountpoints":[\$mp],"rm":true,"size":"116.1G","type":"part","model":null,"fstype":"vfat"}]}]}
 JSON
 EOS
     chmod +x "$dir/bin/lsblk"
@@ -311,13 +311,13 @@ EOS
     launch "$dir"
     wait_listing 5
     for attempt in $(seq 1 100); do
-        [[ "$(ipc deviceEntries)" == *"FLEASTICK|device|volume|true"* ]] && break
+        [[ "$(ipc deviceEntries)" == *"DLEASTICK|device|volume|true"* ]] && break
         sleep 0.05
     done
-    [[ "$(ipc deviceEntries)" == *"FLEASTICK|device|volume|true"* ]] \
+    [[ "$(ipc deviceEntries)" == *"DLEASTICK|device|volume|true"* ]] \
         || fail "ejectlines: the stub volume never appeared live, got $(ipc deviceEntries)"
 
-    volume_row=$(rail_row_of FLEASTICK)
+    volume_row=$(rail_row_of DLEASTICK)
 
     # Held open: the Ejecting line stands while gio waits on the release flag.
     : > "$dir/hold"
@@ -332,13 +332,13 @@ EOS
     done
     [[ "$(grep -c '^mount -e ' "$gio_log")" == "1" ]] \
         || fail "ejectlines: the held Eject never reached gio, log is: $(cat "$gio_log")"
-    wait_message "Ejecting FLEASTICK. Do not unplug it yet."
+    wait_message "Ejecting DLEASTICK. Do not unplug it yet."
     printf 'EJECTLINES ejecting message=%q\n' "$(ipc lastMessage)"
     shot eject-ejecting
     : > "$dir/release"
 
     # Released, gio exits 0 over the still-mounted volume, so the refusal ends the leg.
-    refusal="FLEASTICK is still mounted; close what is using it."
+    refusal="DLEASTICK is still mounted; close what is using it."
     seen=""
     for attempt in $(seq 1 250); do
         seen=$(ipc lastMessage)
@@ -348,7 +348,7 @@ EOS
     [[ "$seen" == "$refusal" ]] || fail "ejectlines: the held leg never refused, last said: $seen"
 
     # Unreadable: every listing after gio exits is no listing, so the 15 s verdict wait ends in the unconfirmed sentence.
-    volume_row=$(rail_row_of FLEASTICK)
+    volume_row=$(rail_row_of DLEASTICK)
     click_rail_row "$volume_row" right
     settle
     [[ "$(ipc contextMenuVisible)" == "true" ]] || fail "ejectlines: right click opened no menu on the volume"
@@ -360,7 +360,7 @@ EOS
     done
     [[ "$(grep -c '^mount -e ' "$gio_log")" == "2" ]] \
         || fail "ejectlines: the second Eject never reached gio, log is: $(cat "$gio_log")"
-    wait_message "Could not confirm FLEASTICK was ejected; do not unplug it yet."
+    wait_message "Could not confirm DLEASTICK was ejected; do not unplug it yet."
     printf 'EJECTLINES unconfirmed message=%q\n' "$(ipc lastMessage)"
     shot eject-unconfirmed
     rm -f "$dir/unreadable"
@@ -375,7 +375,7 @@ EOS
         || fail "ejectlines: expected exactly two ejects, log is: $(cat "$gio_log")"
 
     printf 'EJECTLINES ejecting=ok unconfirmed=ok no-force=ok\n'
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
 )
 
@@ -419,7 +419,7 @@ EOS
     key -k Escape >/dev/null
     settle
     printf 'RAIL-LOCKED label=%s menu=ok\n' "$label"
-    kill_flea
+    kill_dlea
 )
 
 # The mark hover, the kernel network rows with their menus and the composite rail, from fed mountinfo lines; nothing is mounted.
@@ -428,7 +428,7 @@ case_kernelrows() (
     local gio_log="$dir/gio.log" fixture_home="$fixture_root/kernelrows-home"
     local attempt idx centre dets dxdy dx dy cx cy wx wy ww wh feed feed_result nets devs label hovered
     sandbox_scratch "$dir"
-    mkdir -p "$dir/bin" "$dir/mnt/FLEASTICK" "$dir/mnt/BACKUP" "$dir/mnt/nas" "$dir/mnt/nfs"
+    mkdir -p "$dir/bin" "$dir/mnt/DLEASTICK" "$dir/mnt/BACKUP" "$dir/mnt/nas" "$dir/mnt/nfs"
     : > "$dir/0-one.txt"
     : > "$dir/0-two.txt"
 
@@ -436,13 +436,13 @@ case_kernelrows() (
     # The device stub of case_eject plus a second marked removable drive and one unmounted drive.
     cat > "$dir/bin/lsblk" <<EOS
 #!/bin/sh
-mp='"$dir/mnt/FLEASTICK"'
+mp='"$dir/mnt/DLEASTICK"'
 cat <<JSON
 {"blockdevices":[
 {"name":"nvme0n1","path":"/dev/nvme0n1","label":null,"mountpoints":[null],"rm":false,"size":"238.5G","type":"disk","model":"KBG40ZNS256G",
 "children":[{"name":"nvme0n1p1","path":"/dev/nvme0n1p1","label":null,"mountpoints":["/"],"rm":false,"size":"238.5G","type":"part","model":null}]},
 {"name":"sda","path":"/dev/sda","label":null,"mountpoints":[null],"rm":true,"size":"116.1G","type":"disk","model":"USB Flash Disk",
-"children":[{"name":"sda1","path":"/dev/sda1","label":"FLEASTICK","mountpoints":[\$mp],"rm":true,"size":"116.1G","type":"part","model":null,"fstype":"vfat"},
+"children":[{"name":"sda1","path":"/dev/sda1","label":"DLEASTICK","mountpoints":[\$mp],"rm":true,"size":"116.1G","type":"part","model":null,"fstype":"vfat"},
 {"name":"sda2","path":"/dev/sda2","label":"SPARE","mountpoints":[null],"rm":true,"size":"8.0G","type":"part","model":null,"fstype":"vfat"}]},
 {"name":"sdc","path":"/dev/sdc","label":null,"mountpoints":[null],"rm":true,"size":"64.0G","type":"disk","model":"Backup Disk",
 "children":[{"name":"sdc1","path":"/dev/sdc1","label":"BACKUP","mountpoints":["$dir/mnt/BACKUP"],"rm":true,"size":"64.0G","type":"part","model":null,"fstype":"vfat"}]}]}
@@ -465,11 +465,11 @@ EOS
     wait_listing 5
     for attempt in $(seq 1 100); do
         devs=$(ipc deviceEntries)
-        [[ "$devs" == *"FLEASTICK|device|volume|true"* && "$devs" == *"BACKUP|device|volume|true"* && "$devs" == *"SPARE|device|volume|false"* ]] && break
+        [[ "$devs" == *"DLEASTICK|device|volume|true"* && "$devs" == *"BACKUP|device|volume|true"* && "$devs" == *"SPARE|device|volume|false"* ]] && break
         sleep 0.05
     done
     devs=$(ipc deviceEntries)
-    [[ "$devs" == *"FLEASTICK|device|volume|true"* && "$devs" == *"BACKUP|device|volume|true"* && "$devs" == *"SPARE|device|volume|false"* ]] \
+    [[ "$devs" == *"DLEASTICK|device|volume|true"* && "$devs" == *"BACKUP|device|volume|true"* && "$devs" == *"SPARE|device|volume|false"* ]] \
         || fail "kernelrows: the stub devices never appeared live, got $devs"
     for attempt in $(seq 1 200); do
         [[ "$(ipc networkBuilt)" == "true" ]] && break
@@ -480,9 +480,9 @@ EOS
     # The pointer glides to the slot centre railDetails gives, and railMarkHovered must read true before the shot.
     command -v ydotool >/dev/null || fail "kernelrows: no ydotool on PATH, so the mark cannot be hovered"
     [[ -S "${XDG_RUNTIME_DIR:-}/.ydotool_socket" ]] || fail "kernelrows: no ydotool socket, so the mark cannot be hovered"
-    ipc railEntries | jq -e '[.[] | select(.label == "FLEASTICK" and .group == "device" and .kind == "volume" and .mounted == true and .releasable == true)] | length == 1' >/dev/null \
-        || fail "kernelrows: FLEASTICK is not a mounted releasable volume, entries $(ipc railEntries | jq -c 'map({label,mounted,releasable})')"
-    idx=$(rail_row_of FLEASTICK)
+    ipc railEntries | jq -e '[.[] | select(.label == "DLEASTICK" and .group == "device" and .kind == "volume" and .mounted == true and .releasable == true)] | length == 1' >/dev/null \
+        || fail "kernelrows: DLEASTICK is not a mounted releasable volume, entries $(ipc railEntries | jq -c 'map({label,mounted,releasable})')"
+    idx=$(rail_row_of DLEASTICK)
     centre=$(ipc railRowCentre "$idx")
     [[ -n "$centre" ]] || fail "kernelrows: rail row $idx has no on-screen centre"
     dets=$(ipc railDetails)
@@ -546,16 +546,16 @@ EOS
     devs=$(ipc deviceEntries)
     [[ "$nets" == *"nas|network|share|true"* && "$nets" == *"nfs|network|share|true"* && "$nets" == *"gdrive|network|share|true"* ]] \
         || fail "kernelrows: the composite lost a network row: $nets"
-    [[ "$devs" == *"FLEASTICK|device|volume|true"* && "$devs" == *"BACKUP|device|volume|true"* && "$devs" == *"SPARE|device|volume|false"* ]] \
+    [[ "$devs" == *"DLEASTICK|device|volume|true"* && "$devs" == *"BACKUP|device|volume|true"* && "$devs" == *"SPARE|device|volume|false"* ]] \
         || fail "kernelrows: the composite lost a device row: $devs"
     dets=$(ipc railDetails)
-    for label in nas nfs gdrive FLEASTICK BACKUP SPARE; do
+    for label in nas nfs gdrive DLEASTICK BACKUP SPARE; do
         [[ "$(jq -r --arg l "$label" '[.rows[] | select(.label == $l and .indicatorVisible == true)] | length' <<< "$dets")" == "1" ]] \
             || fail "kernelrows: the composite lost the mark slot on $label"
     done
     shot rail-composite
 
     printf 'KERNELROWS hover=ok cifs=ok nfs=ok rclone=ok composite=ok\n'
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
 )

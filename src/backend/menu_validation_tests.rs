@@ -4,13 +4,13 @@ use std::time::Duration;
 
 #[test]
 fn uish_misc_hung_catalogue_keeps_all_menu_choices_answerable() {
-    const CHILD: &str = "FLEA_TEST_UISH_CATALOGUE_ROOT";
+    const CHILD: &str = "DLEA_TEST_UISH_CATALOGUE_ROOT";
     if std::env::var_os(CHILD).is_none() {
         let root = TestDir::new("uish-catalogue");
         let bin = root.dir("bin");
         let gio = bin.join("gio");
-        std::fs::write(&gio, "#!/bin/sh\nprintf x > \"$FLEA_TEST_UISH_CATALOGUE_ROOT/entered\"\nexec /usr/bin/sleep 30\n").unwrap();
-        flea::executable_file::write(&gio, &std::fs::read(&gio).unwrap(), 0o700).unwrap();
+        std::fs::write(&gio, "#!/bin/sh\nprintf x > \"$DLEA_TEST_UISH_CATALOGUE_ROOT/entered\"\nexec /usr/bin/sleep 30\n").unwrap();
+        dlea::executable_file::write(&gio, &std::fs::read(&gio).unwrap(), 0o700).unwrap();
         std::fs::write(root.join("selected.txt"), "selected").unwrap();
         let result = std::process::Command::new(std::env::current_exe().unwrap())
             .args(["--exact", "backend::menu_actions::worker::tests::uish_misc_hung_catalogue_keeps_all_menu_choices_answerable", "--nocapture"])
@@ -21,7 +21,7 @@ fn uish_misc_hung_catalogue_keeps_all_menu_choices_answerable() {
         return;
     }
     let root = std::path::PathBuf::from(std::env::var_os(CHILD).unwrap());
-    assert!(root.is_absolute() && root.join(".flea-test-sandbox").is_file());
+    assert!(root.is_absolute() && root.join(".dlea-test-sandbox").is_file());
     let (send, replies) = std::sync::mpsc::channel();
     let menu = MenuActions::new(send);
     assert!(menu.request(

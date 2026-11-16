@@ -4,14 +4,14 @@ set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 . tests/qslog-gate.sh
 . tests/headless-commons.sh
-. tools/flea-sandbox-guard
+. tools/dlea-sandbox-guard
 for tool in qs bat dbus-run-session python3; do
     command -v "$tool" >/dev/null || { printf 'FAIL fenceparity: %s is required\n' "$tool"; exit 1; }
 done
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [ -x "$bin" ] || { printf 'FAIL fenceparity: build the backend first: %s\n' "$bin"; exit 1; }
 sandbox_root_ok
-box=$(mktemp -d "$SANDBOX_ROOT/flea-fenceparity.XXXXXXXX") || exit 1
+box=$(mktemp -d "$SANDBOX_ROOT/dlea-fenceparity.XXXXXXXX") || exit 1
 : > "$box/$SANDBOX_MARKER" || exit 1
 cleanup() { sandbox_remove "$box"; }
 trap cleanup EXIT
@@ -27,17 +27,17 @@ PY
 
 run_leg() {
     local leg=$1 host=$2 mutant=$3 dir="$box/$1" status
-    mkdir -p "$dir"/{config,home,state/flea,cache,runtime} || return 1
+    mkdir -p "$dir"/{config,home,state/dlea,cache,runtime} || return 1
     chmod 700 "$dir/runtime" || return 1
-    printf '{}\n' > "$dir/state/flea/ui.json"
-    cp -a ui "$dir/config/flea" || return 1
+    printf '{}\n' > "$dir/state/dlea/ui.json"
+    cp -a ui "$dir/config/dlea" || return 1
     headless_commons "$box" "$dir/config/Commons" || exit 1
     ln -s "$(readlink -m ui/boot/Ui)" "$dir/config/Ui" || return 1
-    ln -s "$dir/config/flea/boot/fleatab.qml" "$dir/config/fleatab.qml" || return 1
+    ln -s "$dir/config/dlea/boot/dleatab.qml" "$dir/config/dleatab.qml" || return 1
     cp tests/fenceparity.qml "$dir/config/shell.qml" || return 1
     cp tests/fenceparity.js "$dir/config/fenceparity.js" || return 1
     if [ "$mutant" = 1 ]; then
-        python3 - "$dir/config/flea/MarkdownBlockView.qml" <<'PY' || return 1
+        python3 - "$dir/config/dlea/MarkdownBlockView.qml" <<'PY' || return 1
 import sys
 from pathlib import Path
 path = Path(sys.argv[1])
@@ -50,8 +50,8 @@ PY
     fi
     ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
         HOME="$dir/home" XDG_STATE_HOME="$dir/state" XDG_CACHE_HOME="$dir/cache" XDG_RUNTIME_DIR="$dir/runtime" \
-        FLEA_BIN="$bin" FLEA_PATH="$box/fixture" FLEA_REDUCED_MOTION=1 \
-        FENCEPARITY_UI="$dir/config/flea" FENCEPARITY_HOST="$host" FENCEPARITY_OUT="$dir" \
+        DLEA_BIN="$bin" DLEA_PATH="$box/fixture" DLEA_REDUCED_MOTION=1 \
+        FENCEPARITY_UI="$dir/config/dlea" FENCEPARITY_HOST="$host" FENCEPARITY_OUT="$dir" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
         QT_LOGGING_RULES="$(qslog_rules)" \
         dbus-run-session -- bash -c 'timeout 90 qs -p "$1" > "$2" 2>&1' _ "$dir/config" "$dir/run.log" 2> "$dir/bus.log" ) 2>/dev/null
@@ -67,16 +67,16 @@ PY
     fi
 }
 keep_evidence() {
-    [ -n "${FLEA_CI_SUITE_LOGS:-}" ] || return 0
+    [ -n "${DLEA_CI_SUITE_LOGS:-}" ] || return 0
     local leg file
     for leg in list column mutant-column; do
         [ -d "$box/$leg" ] || continue
         for file in "$box/$leg/run.log" "$box/$leg"/*.png; do
             [ -f "$file" ] || continue
-            cp "$file" "$FLEA_CI_SUITE_LOGS/fenceparity-$leg-${file##*/}" || return 1
+            cp "$file" "$DLEA_CI_SUITE_LOGS/fenceparity-$leg-${file##*/}" || return 1
         done
     done
-    [ ! -f "$box/mutant.log" ] || cp "$box/mutant.log" "$FLEA_CI_SUITE_LOGS/fenceparity-mutant-verdict.log"
+    [ ! -f "$box/mutant.log" ] || cp "$box/mutant.log" "$DLEA_CI_SUITE_LOGS/fenceparity-mutant-verdict.log"
 }
 failures=0
 run_leg list list 0 || failures=$((failures + 1))

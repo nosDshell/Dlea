@@ -1,6 +1,6 @@
 #!/bin/bash
 # Shelf rail drop probe (issue 255): a file released on the rail after the dwell opened the card must land in the pile.
-# Usage: FLEA_BIN=/path/to/flea tests/probes/shelf-rail-drop.sh [--mode=product|full] [--edge=right|left|bottom] (full FAILs by design)
+# Usage: DLEA_BIN=/path/to/dlea tests/probes/shelf-rail-drop.sh [--mode=product|full] [--edge=right|left|bottom] (full FAILs by design)
 set -u
 out() { printf 'SHELFRAIL %s\n' "$*"; }
 refuse() { out "FAIL $*"; exit 1; }
@@ -8,9 +8,9 @@ need() { command -v "$1" >/dev/null 2>&1 || refuse "missing $1"; }
 need qs; need hyprctl; need ydotool; need jq
 [ -n "${HYPRLAND_INSTANCE_SIGNATURE:-}" ] || refuse "no Hyprland session"
 [ -n "${XDG_RUNTIME_DIR:-}" ] || refuse "no XDG_RUNTIME_DIR, so no ydotool socket"
-flea_bin="${FLEA_BIN:-$(command -v flea || true)}"
-[ -n "$flea_bin" ] || refuse "no flea binary (set FLEA_BIN)"
-[ -x "$flea_bin" ] || refuse "flea binary is not executable: $flea_bin"
+dlea_bin="${DLEA_BIN:-$(command -v dlea || true)}"
+[ -n "$dlea_bin" ] || refuse "no dlea binary (set DLEA_BIN)"
+[ -x "$dlea_bin" ] || refuse "dlea binary is not executable: $dlea_bin"
 repo="$(cd "$(dirname "$0")/../.." && pwd)"
 mode=product; edge=right
 for arg in "$@"; do
@@ -29,17 +29,17 @@ done
 export YDOTOOL_SOCKET="$XDG_RUNTIME_DIR/.ydotool_socket"
 
 work=$(mktemp -d "${TMPDIR:-/tmp}/shelfrail.XXXXXXXX") || refuse "mktemp failed"
-touch "$work/.flea-test-sandbox"
+touch "$work/.dlea-test-sandbox"
 qs_pid=""
 cleanup() {
   ydotool click 0x80 >/dev/null 2>&1 || true
   [ -n "$qs_pid" ] && kill "$qs_pid" 2>/dev/null || true
-  [ -f "$work/.flea-test-sandbox" ] && case "$work" in /*/shelfrail.????????) rm -rf -- "$work" ;; esac
+  [ -f "$work/.dlea-test-sandbox" ] && case "$work" in /*/shelfrail.????????) rm -rf -- "$work" ;; esac
 }
 trap cleanup EXIT
 
-mkdir -p "$work/src" "$work/state/flea" "$work/cfg"
-printf '{"shelf":{"enabled":true,"bar":false,"rail":"%s","screenshots":false,"recordings":false,"recent":0}}' "$edge" > "$work/state/flea/ui.json"
+mkdir -p "$work/src" "$work/state/dlea" "$work/cfg"
+printf '{"shelf":{"enabled":true,"bar":false,"rail":"%s","screenshots":false,"recordings":false,"recent":0}}' "$edge" > "$work/state/dlea/ui.json"
 echo "drop me" > "$work/src/dropme.txt"
 # Quickshell resolves `import qs.Commons` from the config root, the directory holding harness.qml.
 ln -s /usr/share/omarchy/shell/Commons "$work/cfg/Commons" || refuse "cannot link shell Commons"
@@ -82,11 +82,11 @@ ShellRoot {
   id: root
   property bool carrying: false
   property string work: "$work"
-  property string fleaBin: "$flea_bin"
+  property string dleaBin: "$dlea_bin"
 $cut_qml
   ShelfFiles.ShelfService {
     id: service
-    settings: ({ fleaCommand: root.fleaBin })
+    settings: ({ dleaCommand: root.dleaBin })
   }
   ShelfFiles.ShelfRail {
     id: rail
@@ -102,7 +102,7 @@ $cut_qml
   // Drag source: a held press carries the sandbox file as a copy offer.
   PanelWindow {
     id: source
-    WlrLayershell.namespace: "flea-shelfrail-probe-source"
+    WlrLayershell.namespace: "dlea-shelfrail-probe-source"
     WlrLayershell.layer: WlrLayer.Top
     anchors { top: true; left: true }
     width: 900; height: 500
@@ -129,7 +129,7 @@ $cut_qml
     readonly property real screenW: width
     readonly property real screenH: height
     visible: open
-    WlrLayershell.namespace: "flea-shelfrail-probe-card"
+    WlrLayershell.namespace: "dlea-shelfrail-probe-card"
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     anchors { top: true; bottom: true; left: true; right: true }
@@ -155,7 +155,7 @@ layer_geom() {
 }
 up=""
 for _ in $(seq 1 40); do
-  layer_geom flea-shelf-rail >/dev/null 2>&1 && up=1 && break
+  layer_geom dlea-shelf-rail >/dev/null 2>&1 && up=1 && break
   sleep 0.25
 done
 [ -n "$up" ] || refuse "probe rail surface never mapped (see $work/qs.log)"
@@ -166,7 +166,7 @@ mon_geom() {
 # Hyprland lists a layer before its first arrange, so trust only two equal reads whose centre lies on the monitor.
 rail_geom="" prev=""
 for _ in $(seq 1 40); do
-  cur=$(layer_geom flea-shelf-rail) || refuse "probe rail vanished"
+  cur=$(layer_geom dlea-shelf-rail) || refuse "probe rail vanished"
   read -r rail_mon rail_x rail_y rail_w rail_h <<< "$cur"
   mon_line=$(mon_geom "$rail_mon") || refuse "no geometry for monitor $rail_mon"
   read -r mon_x mon_y mon_scale mon_w mon_h <<< "$mon_line"
@@ -179,7 +179,7 @@ for _ in $(seq 1 40); do
 done
 [ -n "$rail_geom" ] || refuse "rail geometry never settled on its monitor (last $cur on $mon_line)"
 out "rail $rail_geom on monitor $mon_line"
-src_geom=$(layer_geom flea-shelfrail-probe-source) || refuse "probe source never mapped"
+src_geom=$(layer_geom dlea-shelfrail-probe-source) || refuse "probe source never mapped"
 read -r src_mon src_x src_y _ _ <<< "$src_geom"
 [ "$rail_mon" = "$src_mon" ] || refuse "rail on $rail_mon but source on $src_mon, one monitor per run"
 [ "$mon_scale" = "1.0" ] || [ "$mon_scale" = "1" ] || refuse "monitor $rail_mon is at scale $mon_scale, this probe needs 1"
@@ -201,7 +201,7 @@ sleep 0.5
 ydotool click 0x80 >/dev/null 2>&1 || refuse "pointer release failed"
 landed=""
 for _ in $(seq 1 30); do
-  if jq -e --arg path "$work/src/dropme.txt" 'any(.items[]?; .path == $path)' "$work/state/omarchy/flea-shelf/shelf.json" >/dev/null 2>&1; then
+  if jq -e --arg path "$work/src/dropme.txt" 'any(.items[]?; .path == $path)' "$work/state/omarchy/dlea-shelf/shelf.json" >/dev/null 2>&1; then
     landed=1; break
   fi
   sleep 0.5

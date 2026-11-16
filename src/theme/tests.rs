@@ -207,7 +207,7 @@ fn theme_watcher_follows_theme_directory_replacement_font_and_new_override() {
 }
 
 #[test]
-fn flea_config_overlays_the_packaged_theme_and_is_watched() {
+fn dlea_config_overlays_the_packaged_theme_and_is_watched() {
     let root = scratch();
     let paths = ThemePaths::for_home(&root, None);
     write(
@@ -218,7 +218,7 @@ fn flea_config_overlays_the_packaged_theme_and_is_watched() {
     let mut watcher = ThemeWatcher::new(paths.clone());
     assert!(!watcher.poll());
     // A rendered override only names the keys it owns; the rest keep the packaged values.
-    write(&root, &paths.flea.join("colors.toml"), "background = '#202020'");
+    write(&root, &paths.dlea.join("colors.toml"), "background = '#202020'");
     assert!(watcher.poll());
     let theme = paths.load(None, "monospace").unwrap();
     assert_eq!(theme.colors.background, c("#202020"));
@@ -228,12 +228,12 @@ fn flea_config_overlays_the_packaged_theme_and_is_watched() {
     let bare_paths = ThemePaths::for_home(&bare, None);
     write(
         &bare,
-        &bare_paths.flea.join("colors.toml"),
+        &bare_paths.dlea.join("colors.toml"),
         "background = '#303030'",
     );
     write(
         &bare,
-        &bare_paths.flea.join("shell.toml"),
+        &bare_paths.dlea.join("shell.toml"),
         "[font]\nbase-size = 15",
     );
     let bare_theme = bare_paths.load(None, "monospace").unwrap();

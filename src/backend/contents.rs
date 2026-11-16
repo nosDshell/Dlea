@@ -5,7 +5,7 @@ pub(super) mod parse;
 mod worker;
 use super::events::{Event, Sender};
 use crate::jsondoc::{self, Json};
-use flea::ui_logic_file_search::ContentsMatch;
+use dlea::ui_logic_file_search::ContentsMatch;
 #[cfg(test)]
 use std::path::PathBuf;
 use std::sync::{
@@ -51,8 +51,8 @@ impl Ask {
             Some(Json::Bool(value)) => *value,
             _ => return Err("invalid hidden".into()),
         };
-        if !flea::bytename::view(&path).is_absolute()
-            || flea::bytename::is_refused(&path)
+        if !dlea::bytename::view(&path).is_absolute()
+            || dlea::bytename::is_refused(&path)
             || query.is_empty()
             || query.contains(['\0', '\n', '\r'])
             || gen == 0
@@ -160,7 +160,7 @@ impl Slot {
         #[cfg(test)]
         let program = self.program.clone();
         let join = std::thread::Builder::new()
-            .name("flea-contents".into())
+            .name("dlea-contents".into())
             .spawn(move || {
                 let result = worker::run(
                     &work,

@@ -7,7 +7,7 @@ import qs.Ui
 import "Model.js" as Model
 import "Run.js" as Run
 
-// The card, Main board rules 1 to 12 as consolidated: an Omarchy panel and not a Flea window in
+// The card, Main board rules 1 to 12 as consolidated: an Omarchy panel and not a Dlea window in
 // miniature, so there is no hero and no header and the first row is the first thing on it.
 Item {
   id: root
@@ -17,7 +17,7 @@ Item {
   property var rows: []
   // Rule 9: the caption names the kinds Settings has checked.
   property var kinds: ({ screenshots: true, recordings: true })
-  // Rule 8: a tooltip carries the key only when Flea's own key hints setting is on.
+  // Rule 8: a tooltip carries the key only when Dlea's own key hints setting is on.
   property bool keyHints: false
   property color foreground: Commons.Color.popups.text
   property color muted: Qt.darker(foreground, 1.4)
@@ -111,7 +111,7 @@ Item {
     for (var i = 0; i < carried.length; i++) {
       uris.push("file://" + Model.uriPath(carried[i]))
     }
-    var mime = { "application/x-flea-shelf": token + "\n" + (copying ? "copy" : "move") }
+    var mime = { "application/x-dlea-shelf": token + "\n" + (copying ? "copy" : "move") }
     mime["text/uri-list"] = uris.join("\r\n") + "\r\n"
     if (!root.pressing || !root.wanted) {
       return
@@ -224,7 +224,7 @@ Item {
     event.accepted = true
   }
 
-  // Rule 3's pointer half: the three gestures Flea's own listing has, so a hand on the mouse can do
+  // Rule 3's pointer half: the three gestures Dlea's own listing has, so a hand on the mouse can do
   // what the keyboard does. A range is taken from the last row clicked and not from the cursor,
   // because the pointer moves the cursor on its way to the second click.
   property int anchorIndex: -1
@@ -289,7 +289,7 @@ Item {
   readonly property real cardWidth: Style.space(380)
   readonly property real cardCap: Style.space(560)
   // Directive 68 as amended: the row's leading slot is ui/Row.qml's, in the shell's own tokens, so a
-  // thumbnail, a kind mark and a checkbox all sit one distance from the name. Flea's slot is its row's
+  // thumbnail, a kind mark and a checkbox all sit one distance from the name. Dlea's slot is its row's
   // line box, its bodySmall by its own 1.8 ratio, and its inset and gap are rowPaddingX and rowGap.
   readonly property real slotSize: Math.round(Style.font.bodySmall * 1.8)
   // Actions rule 3: Send is absent entirely on a box with no Tailscale, not greyed and not empty.

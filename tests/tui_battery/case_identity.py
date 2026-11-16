@@ -8,7 +8,7 @@ from .adapters import font_profile
 ARTIFACTS = ("native.png", "grid-crop.png", "cells.json", "pty.log", "graphics.log", "capabilities.json",
              "state.json", "commands.json", "diff.png", "overlay.png", "media.json", "dynamic-facts.json",
              "profile.json", "fixtures.json", "launch-spec.json", "relay-spec.json", "capture-config.json",
-             "candidate-settings.json", "fx/state/flea/ui.json")
+             "candidate-settings.json", "fx/state/dlea/ui.json")
 
 
 def configuration(terminal, preset, variant, state, profile=None, steps=None, seam=None):
@@ -49,7 +49,7 @@ def verify(case, hashes, requested):
     profile = json.loads((case / "profile.json").read_text())
     if profile.get("terminal") != requested["terminal"] or any(profile.get(k) != v for k, v in requested["profile"].items()):
         raise Blocked("terminal profile disagrees with capture configuration")
-    for name in ("candidate-settings.json", "fx/state/flea/ui.json"):
+    for name in ("candidate-settings.json", "fx/state/dlea/ui.json"):
         if json.loads((case / name).read_text()).get("keys") != requested["preset"]:
             raise Blocked("candidate preset disagrees with capture configuration")
     state = json.loads((case / "state.json").read_text())

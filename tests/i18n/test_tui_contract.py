@@ -10,7 +10,7 @@ TUI = ROOT / "src/tui"
 LANGUAGES = 50  # English plus the 49 translated catalogs.
 # Floors well under today's counts, so a scan that silently sees nothing fails.
 MIN_LIVE_FILES, MIN_SPEAKING_FILES, MIN_SHEET_ROWS, MIN_TUI_KEYS = 50, 50, 60, 400
-EXTRACT = runpy.run_path(str(ROOT / "tools/flea-i18n-extract"))
+EXTRACT = runpy.run_path(str(ROOT / "tools/dlea-i18n-extract"))
 # Sample input: let q = '"'; // "note" and r#"raw"# are masked so code searches skip them.
 TOKEN = re.compile(r"""(?P<char>b?'(?:\\(?:x[0-9a-fA-F]{2}|u\{[0-9a-fA-F_]+\}|.)|[^'\\\n])')"""
                    r"""|(?P<comment>//[^\n]*|/\*.*?\*/)|(?P<raw>r(?P<marks>\#*)".*?"(?P=marks))|(?P<text>"(?:\\.|[^"\\])*")""", re.S)
@@ -95,7 +95,7 @@ def live_sources():
 
 def catalogs():
     return {path.parent.name: json.loads(path.read_text(encoding="utf-8"))
-            for path in sorted((ROOT / "i18n").glob("*/flea.json"))}
+            for path in sorted((ROOT / "i18n").glob("*/dlea.json"))}
 
 
 # Sample input: ("move", &["cursorDown"], "keys.cursorDown", &["j", "down"]), one row of key_sheet.rs ROWS.
@@ -151,7 +151,7 @@ class TuiContractTests(unittest.TestCase):
         for path, code, text in self.sources:
             for banned in ("I18n::load(", "i18n::Paths", "i18n::catalog", "i18n::document", "Catalog::"):
                 self.assertNotIn(banned, code, f"{path} builds its own catalog with {banned}")
-            self.assertNotRegex(text, r"flea\.json|i18n/[a-z]{2}(?:-[A-Z]{2})?/", f"{path} names a catalog file")
+            self.assertNotRegex(text, r"dlea\.json|i18n/[a-z]{2}(?:-[A-Z]{2})?/", f"{path} names a catalog file")
             for include in re.findall(r'include_(?:str|bytes)!\(\s*"([^"]*)"', text):
                 if "i18n/" in include:
                     self.assertEqual(include, "../../i18n/rtl-policy.json", path)
@@ -170,10 +170,10 @@ class TuiContractTests(unittest.TestCase):
     def test_i50_tui_shared_keycap_api(self):
         code = dict((path, code) for path, code, _ in self.sources)
         text = dict((path, text) for path, _, text in self.sources)
-        self.assertIn("flea::keys::display::{KeycapError, KeycapSnapshot}", code["src/tui/keycaps.rs"])
+        self.assertIn("dlea::keys::display::{KeycapError, KeycapSnapshot}", code["src/tui/keycaps.rs"])
         self.assertRegex(code["src/tui/keycaps.rs"], r"KeycapSnapshot::(?:new|from_group_name)\(")
         # I50-11-AMBIG resolves each chord part on its own, through the legend half of the shared API.
-        self.assertIn("flea::keys::display::chord_legend(", code["src/tui/words.rs"])
+        self.assertIn("dlea::keys::display::chord_legend(", code["src/tui/words.rs"])
         self.assertIn("snapshot.legend(", code["src/tui/key_sheet.rs"])
         run = code["src/tui/mod.rs"]
         self.assertIn("keycaps.apply(&mut model, &map);", block(run, run.index("while !model.quit")))

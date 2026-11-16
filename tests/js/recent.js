@@ -4,7 +4,7 @@
 function run(check) {
     // paths() was test-only in shipped code; the rail's order is entries() with the stamps dropped.
     function paths(marks) { return Recent.entries(marks).map(function (entry) { return entry.path }) }
-    // Where the history lives, which is XDG_DATA_HOME's own file and never a Flea-owned one.
+    // Where the history lives, which is XDG_DATA_HOME's own file and never a Dlea-owned one.
     check("the session's data home is honoured",
           Recent.historyPath("/run/user/1000/data", "/home/gm"), "/run/user/1000/data/recently-used.xbel")
     check("an unset data home falls back to the default",

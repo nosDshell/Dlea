@@ -1,4 +1,4 @@
-//@ pragma ShellId flea-tabtearoff-failure-test
+//@ pragma ShellId dlea-tabtearoff-failure-test
 import QtQuick
 import Quickshell
 import Quickshell.Io
@@ -29,7 +29,7 @@ ShellRoot {
         root.bar = Fixture.bar(root.pane, Quickshell)
         root.bar.tabLiftBegan(1)
         root.bar.tearOffAt()
-        var comp = Qt.createComponent("ui/boot/fleatab.qml")
+        var comp = Qt.createComponent("ui/boot/dleatab.qml")
         var geoComp = Qt.createComponent("geometry.qml")
         if (geoComp.status !== Component.Ready) {
             console.log("GEOMETRY FAIL load=" + geoComp.errorString())
@@ -52,7 +52,7 @@ ShellRoot {
         interval: root.stubWaitMs
         running: root.geometry !== null
         onTriggered: {
-            exited.path = Quickshell.env("FLEA_STUB_MARKER") || ""
+            exited.path = Quickshell.env("DLEA_STUB_MARKER") || ""
             exited.reload()
             var spawned = exited.text().indexOf("exited") >= 0
             var kept = Tabs.count(root.pane) === 2

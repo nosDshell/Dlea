@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Format.js" as Format
 import "js/Filter.js" as Filter
 import "js/Focus.js" as Focus
@@ -347,7 +347,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             width: root.busy ? Theme.chromeMarkSize : 0
             height: Theme.chromeMarkSize
-            sourceComponent: Flea.Spinner {
+            sourceComponent: Dlea.Spinner {
                 width: Theme.chromeMarkSize
                 height: Theme.chromeMarkSize
                 color: Theme.color.mutedFrame
@@ -440,7 +440,7 @@ Item {
         clip: true
         boundsBehavior: Flickable.StopAtBounds
         onVisibleChanged: contentY = 0
-        Flea.FastScrollHandler {
+        Dlea.FastScrollHandler {
             parent: detailView
             flickable: detailView
         }

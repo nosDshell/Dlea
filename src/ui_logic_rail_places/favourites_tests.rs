@@ -89,7 +89,7 @@ fn one_write_runs_at_a_time_and_its_exit_decides_the_sentence() {
     let failed = favs.finish(
         Some(1),
         "",
-        "flea: favourites changed since read\nmore",
+        "dlea: favourites changed since read\nmore",
         None,
     );
     assert_eq!(

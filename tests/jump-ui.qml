@@ -2,7 +2,7 @@ import QtQuick
 import QtTest
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 
 // The folder jump's wiring through the real ui/ChromeBar.qml and ui/PathJump.qml, keys delivered by
 // QtTest's TestEvent into an offscreen window. tests/jump-ui.sh plays the backend: this file records what
@@ -12,7 +12,7 @@ ShellRoot {
     readonly property string home: Quickshell.env("HOME")
     readonly property string here: root.home + "/Documents"
     readonly property var sources: ({
-        favourites: [root.home + "/Projects", root.home + "/Documents/claude/flea", root.home + "/Documents/claude/omarchy"],
+        favourites: [root.home + "/Projects", root.home + "/Documents/claude/dlea", root.home + "/Documents/claude/omarchy"],
         zoxide: [root.home + "/Documents", root.home + "/Downloads"],
         recent: [root.home + "/Pictures/screenshots", root.home + "/Work/field"]
     })
@@ -88,7 +88,7 @@ ShellRoot {
             root.check("the provisional answer draws but does not spend the held Enter", [root.entered, chrome.editing], [[], true])
             root.check("its rows are the kept sources alone", root.rows(), [
                 root.home + "/Projects", root.home + "/Documents/claude/omarchy", root.home + "/Documents",
-                root.home + "/Downloads", root.home + "/Documents/claude/flea"])
+                root.home + "/Downloads", root.home + "/Documents/claude/dlea"])
             root.check("the dropdown builds only while rows show", chrome.jump.dropBuilt, true)
             return true
         },
@@ -115,7 +115,7 @@ ShellRoot {
             // No frecency in this answer, so the own-name matches go favourites first, then zoxide, then recent.
             root.check("query o lists one ranked list", root.rows(), [
                 root.home + "/Projects", root.home + "/Documents/claude/omarchy", root.home + "/Documents",
-                root.home + "/Downloads", root.home + "/Pictures/screenshots", root.home + "/Documents/claude/flea", root.home + "/Work/field"])
+                root.home + "/Downloads", root.home + "/Pictures/screenshots", root.home + "/Documents/claude/dlea", root.home + "/Work/field"])
             root.check("its rows stand seven delegates deep", chrome.jump.dropItem.liveCount, 7)
             var first = chrome.jump.dropItem.liveAt(0)
             root.answer(0)
@@ -301,7 +301,7 @@ ShellRoot {
             TestEvent { id: keys }
         }
 
-        Flea.ChromeBar {
+        Dlea.ChromeBar {
             id: chrome
             anchors.left: parent.left
             anchors.right: parent.right
@@ -347,10 +347,10 @@ ShellRoot {
         }
     }
 
-    Flea.Ipc {
+    Dlea.Ipc {
         id: ipc
         chrome: chrome
-        fleaWindow: QtObject {
+        dleaWindow: QtObject {
             function rectOf(item) { return "10 20 300 400" }
         }
     }

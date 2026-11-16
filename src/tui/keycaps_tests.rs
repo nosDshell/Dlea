@@ -6,7 +6,7 @@ use crate::tui::render::{
     frame_tests::{caps_language, model},
     key_sheet,
 };
-use flea::keys::display::{KeycapError, KeycapSnapshot};
+use dlea::keys::display::{KeycapError, KeycapSnapshot};
 use std::collections::{HashMap, VecDeque};
 use std::io::Write;
 use std::os::unix::net::UnixStream;
@@ -355,7 +355,7 @@ fn ey_tui_keycaps_devices_answers_name_the_main_keyboards_group() {
     for line in [&b"activelayout>>kb,French\n"[..], b"configreloaded>>\n"] {
         assert!(super::changes_layout(line));
     }
-    for line in [&b"activewindow>>kitty,flea\n"[..], b"configreloaded>>x\n"] {
+    for line in [&b"activewindow>>kitty,dlea\n"[..], b"configreloaded>>x\n"] {
         assert!(!super::changes_layout(line));
     }
 }

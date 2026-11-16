@@ -11,7 +11,7 @@ pub struct Options {
 }
 
 impl Options {
-    // Sample argv: ["flea", "--tui", "--cwd-file", "/tmp/cwd", "--select", "a.txt", "/work"].
+    // Sample argv: ["dlea", "--tui", "--cwd-file", "/tmp/cwd", "--select", "a.txt", "/work"].
     pub fn parse(args: &[String]) -> Result<Self, String> {
         let mut options = Self::default();
         let mut want_gui = false;

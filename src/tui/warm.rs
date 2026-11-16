@@ -33,7 +33,7 @@ mod tests {
     fn a_gvfs_start_prepares_and_spawns_a_helper() {
         let d = TestDir::new("tui-warm-gvfs");
         // The dir is a value this process's XDG_RUNTIME_DIR does not hold, so the dest proves the argument was read.
-        let runtime = d.path().join("runtime-given").join("flea");
+        let runtime = d.path().join("runtime-given").join("dlea");
         // Sample path: "/run/user/1000/gvfs/smb-share:server=x,share=y/dir".
         let path = "/run/user/1000/gvfs/smb-share:server=x,share=y/dir";
         let mut spawned = 0;

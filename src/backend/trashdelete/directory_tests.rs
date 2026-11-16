@@ -34,7 +34,7 @@ pub(super) fn before_node_claim(parent: &File, name: &OsStr) {
     if let Some((replacement, saved)) = SWAP.with(|value| value.borrow_mut().take()) {
         let source = std::fs::canonicalize(fd_path(parent, name)).unwrap();
         let root = saved.parent().unwrap();
-        assert!(root.join(".flea-test-sandbox").is_file() && source.starts_with(root));
+        assert!(root.join(".dlea-test-sandbox").is_file() && source.starts_with(root));
         std::fs::rename(&source, saved).unwrap();
         std::fs::rename(replacement, source).unwrap();
     }
@@ -45,7 +45,7 @@ pub(super) fn after_node_claim(name: &OsStr, path: &Path) {
         if let Some(replacement) = STAGED_DIRECTORY.with(|value| value.borrow_mut().take()) {
             let root = replacement.parent().unwrap();
             let staged = std::fs::canonicalize(path).unwrap();
-            assert!(root.join(".flea-test-sandbox").is_file() && staged.starts_with(root));
+            assert!(root.join(".dlea-test-sandbox").is_file() && staged.starts_with(root));
             std::fs::remove_dir(&staged).unwrap();
             std::fs::rename(replacement, staged).unwrap();
         }
@@ -55,7 +55,7 @@ pub(super) fn after_node_claim(name: &OsStr, path: &Path) {
             DIRECTORY_SWAP.with(|value| value.borrow_mut().take())
         {
             let root = kept.parent().unwrap();
-            assert!(root.join(".flea-test-sandbox").is_file() && source.starts_with(root));
+            assert!(root.join(".dlea-test-sandbox").is_file() && source.starts_with(root));
             std::fs::rename(&source, kept).unwrap();
             std::fs::rename(replacement, source).unwrap();
         }

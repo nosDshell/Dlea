@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-markdown-draw-test
+//@ pragma ShellId dlea-markdown-draw-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "markdown-draw.js" as Draw
 
 // The real PreviewMarkdown over the nesting and inline-maths fixtures: pinned geometry of quote bars and list columns, and the ink of drawn formulas.
@@ -12,7 +12,7 @@ ShellRoot {
     function log(line) { console.log("MARKDOWN_DRAW " + line) }
     function quit() { Quickshell.execDetached(["kill", String(Quickshell.processId)]) }
 
-    property string dir: Quickshell.env("FLEA_DRAW_DIR")
+    property string dir: Quickshell.env("DLEA_DRAW_DIR")
     // Nesting twice and maths twice: the second visit is served from the figure cache, so only the failed formula asks again.
     readonly property var plan: ["nesting", "maths", "nesting", "maths", "far"]
     readonly property var groundRgb: [16, 19, 21]
@@ -31,7 +31,7 @@ ShellRoot {
     property int sendsMark: 0
     property int farState: 0
     property string shotPath: Quickshell.env("XDG_RUNTIME_DIR") + "/markdown-draw-" + Quickshell.processId + ".png"
-    Component.onCompleted: Flea.ViewState.setTextSize({ mode: shell.bodySize })
+    Component.onCompleted: Dlea.ViewState.setTextSize({ mode: shell.bodySize })
 
     function check(error, name) {
         shell.checks++
@@ -59,7 +59,7 @@ ShellRoot {
                 anchors.fill: parent
                 color: Qt.rgba(shell.groundRgb[0] / 255, shell.groundRgb[1] / 255, shell.groundRgb[2] / 255, 1)
             }
-            Flea.PreviewMarkdown {
+            Dlea.PreviewMarkdown {
                 id: md
                 anchors.fill: parent
                 active: true
@@ -86,7 +86,7 @@ ShellRoot {
     function start(at) {
         shell.step = at
         shell.loadsMark = md.loadRuns
-        shell.sendsMark = Flea.FigureService.sends
+        shell.sendsMark = Dlea.FigureService.sends
         shell.farState = 0
         md.path = shell.dir + "/" + shell.plan[at] + ".md"
     }
@@ -213,7 +213,7 @@ ShellRoot {
             return shell.farStep()
         if (!shell.settled())
             return
-        var sends = Flea.FigureService.sends - shell.sendsMark
+        var sends = Dlea.FigureService.sends - shell.sendsMark
         if (name === "nesting") {
             shell.nestingChecks()
             shell.check(sends === (shell.step === 0 ? 1 : 0) ? "" : sends + " requests", "nesting visit " + shell.step + " asked only for what the cache lacked")
@@ -235,7 +235,7 @@ ShellRoot {
         if (shell.farState === 0) {
             if (md.blockItem(0) === null)
                 return
-            shell.check(md.blockItem(last) === null && Flea.FigureService.sends === shell.sendsMark ? "" : "the formula below the cache was built or asked for",
+            shell.check(md.blockItem(last) === null && Dlea.FigureService.sends === shell.sendsMark ? "" : "the formula below the cache was built or asked for",
                 "a formula past the cache is not asked for")
             md.bodyItem.positionViewAtEnd()
             shell.farState = 1
@@ -243,7 +243,7 @@ ShellRoot {
             var item = md.blockItem(last)
             if (item === null || Draw.child(item, "mathsText") === null || Draw.child(item, "mathsText").unsettled !== 0)
                 return
-            var delta = Flea.FigureService.sends - shell.sendsMark
+            var delta = Dlea.FigureService.sends - shell.sendsMark
             shell.check(delta === 1 && Draw.child(item, "mathsText").text.indexOf("<img") >= 0 ? "" : delta + " requests", "a formula scrolled into view asks once and draws")
             shell.next()
         }

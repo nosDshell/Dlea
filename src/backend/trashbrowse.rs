@@ -3,7 +3,7 @@ use crate::backend::opsreq::OpMsg;
 use crate::backend::trashdelete::Reviewed;
 use crate::backend::trashmanifest::{Cancellation, Manifest, Op, Outcome, Refusal};
 use crate::json::{escape, field_bool, field_str, field_str_array, field_usize};
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::sync::mpsc::{channel, Sender};
@@ -49,7 +49,7 @@ impl From<Refusal> for Failure {
 fn damaged(detail: &str) -> Refusal {
     Refusal::changed(detail).logged()
 }
-// What GIO said and what Flea could not do with it stay in the log; a person reads one sentence.
+// What GIO said and what Dlea could not do with it stay in the log; a person reads one sentence.
 fn unreadable(detail: impl Into<String>) -> Refusal {
     Refusal::new(Outcome::Unreadable, detail).logged()
 }
@@ -153,7 +153,7 @@ fn gio(args: &[&str]) -> Result<String, Refusal> {
     let prefix = super::trash::gio_prefix();
     answer(crate::backend::locale::command(&prefix[0])
         .args(&prefix[1..])
-        .args(flea::bytename::args(args))
+        .args(dlea::bytename::args(args))
         .output())
 }
 fn answer(output: std::io::Result<std::process::Output>) -> Result<String, Refusal> {
@@ -229,7 +229,7 @@ fn unescape(value: &str) -> Option<String> {
     }
     // No path holds a NUL, and a decoded one could spell another name's exact tail.
     if bytes.contains(&0) { return None; }
-    Some(flea::bytename::path_text(std::path::Path::new(<std::ffi::OsStr as std::os::unix::ffi::OsStrExt>::from_bytes(&bytes))).into_owned())
+    Some(dlea::bytename::path_text(std::path::Path::new(<std::ffi::OsStr as std::os::unix::ffi::OsStrExt>::from_bytes(&bytes))).into_owned())
 }
 // The gio list line for each "uri<TAB>original" pair, so a test names its items the way they read.
 #[cfg(test)]
@@ -412,7 +412,7 @@ fn load_detail(text: &str, trees: &Manifest) -> Result<Detail, Refusal> {
 }
 fn failure(item: &Item, expected: &str, error: &str) -> String {
     format!(r#"{{"uri":"{}","name":"{}","identity":"{}","error":"{}"}}"#,
-        escape(&item.uri), escape(flea::bytename::display(&item.original).rsplit('/').next().unwrap_or("")), escape(expected), escape(error))
+        escape(&item.uri), escape(dlea::bytename::display(&item.original).rsplit('/').next().unwrap_or("")), escape(expected), escape(error))
 }
 // Purge once on request exit, including a partial restore that stops on an unreadable target record.
 struct ThumbnailPurge(Vec<String>);
@@ -570,7 +570,7 @@ impl Session {
             let mut text = row(item);
             text.pop();
             let class = if self.body.is_empty() { "null".into() } else {
-                let class = item.backing.as_ref().and_then(Reviewed::thumbnail_path).and_then(|path| path.parent().map(flea::bytename::exact))
+                let class = item.backing.as_ref().and_then(Reviewed::thumbnail_path).and_then(|path| path.parent().map(dlea::bytename::exact))
                     .map(|parent| *classes.entry(parent.clone()).or_insert_with(|| super::extclass::classify_in(&parent, &self.body))).unwrap_or("");
                 format!(r#""{}""#, class)
             };
@@ -679,7 +679,7 @@ impl Session {
         while let Some(bytes) = targets.records().next(&mut offset)? {
             self.cancellation.check()?;
             let item = record_item(&record_text(bytes)?)?;
-            let mount = crate::backend::iomount::mount_key(&flea::bytename::exact(&item.original), &self.body);
+            let mount = crate::backend::iomount::mount_key(&dlea::bytename::exact(&item.original), &self.body);
             if self.pending.iter().any(|held| held == &mount) {
                 return Ok(true);
             }

@@ -3,18 +3,18 @@
 set -euo pipefail
 ulimit -c 0
 repo=$(cd "$(dirname "$0")/.." && pwd -P)
-if [[ ${FLEA_GPUI_CAPTURE_CLEAN:-} != 1 ]]; then
-    exec setsid -w env -i PATH=/usr/local/bin:/usr/bin:/bin FLEA_GPUI_CAPTURE_CLEAN=1 \
-        CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$repo/target}" FLEA_GPUI_SCENES="${FLEA_GPUI_SCENES:-0}" /bin/bash "$repo/tests/gpui-capture-smoke.sh" </dev/null
+if [[ ${DLEA_GPUI_CAPTURE_CLEAN:-} != 1 ]]; then
+    exec setsid -w env -i PATH=/usr/local/bin:/usr/bin:/bin DLEA_GPUI_CAPTURE_CLEAN=1 \
+        CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$repo/target}" DLEA_GPUI_SCENES="${DLEA_GPUI_SCENES:-0}" /bin/bash "$repo/tests/gpui-capture-smoke.sh" </dev/null
 fi
 # Only these typed functions build compositor commands; cursor parking goes through hypr_cursor_move below.
 . "$repo/tests/lib/hypr-dispatch.sh"
 parent=$repo/.superpowers/g010c
 mkdir -p "$parent"
 root=$(mktemp -d "$parent/run.XXXXXX")
-: > "$root/.flea-test-sandbox"
+: > "$root/.dlea-test-sandbox"
 logs=$(mktemp -d "$parent/evidence.XXXXXX")
-: > "$logs/.flea-test-sandbox"
+: > "$logs/.dlea-test-sandbox"
 helper=$repo/tests/gpui-capture-check.py
 owned=()
 cleanup() {
@@ -39,7 +39,7 @@ cleanup() {
     printf 'GPUI_CAPTURE_LOG_DIR %s\n' "$logs"
     case $root in
         "$parent"/run.?*)
-            [[ $root == /* && -n $root && -f $root/.flea-test-sandbox ]] && rm -rf -- "$root" ;;
+            [[ $root == /* && -n $root && -f $root/.dlea-test-sandbox ]] && rm -rf -- "$root" ;;
     esac
     exit "$rc"
 }
@@ -66,8 +66,8 @@ done
 python3 -B -c 'from PIL import Image' || fail 'missing python-pillow'
 target=${CARGO_TARGET_DIR:-$repo/target}
 [[ $target == /* ]] || target=$repo/$target
-bin=$target/debug/flea-gui
-ipc=$target/debug/flea
+bin=$target/debug/dlea-gui
+ipc=$target/debug/dlea
 [[ -x $bin && -x $ipc ]] || fail "build this worktree first: $bin and $ipc"
 cd "$root"
 mkdir -p "$root/"{runtime,home,config,cache,state,data,fixture}
@@ -95,9 +95,9 @@ done
 [[ -S $runtime/bus ]] || fail 'private D-Bus did not start'
 private+=(DBUS_SESSION_BUS_ADDRESS="unix:path=$runtime/bus")
 cat > "$root/config/hyprland.lua" <<'LUA'
-hl.monitor({ output = "FLEA", mode = "2560x1440@120", position = "0x0", scale = 1 })
+hl.monitor({ output = "DLEA", mode = "2560x1440@120", position = "0x0", scale = 1 })
 hl.monitor({ output = "Virtual-1", disabled = true })
-hl.window_rule({ match = { class = "^com[.]thisisgm[.]flea$" }, float = true, center = true, size = { 1100, 700 } })
+hl.window_rule({ match = { class = "^com[.]thisisgm[.]dlea$" }, float = true, center = true, size = { 1100, 700 } })
 hl.config({ animations = { enabled = false }, input = { repeat_rate = 0 },
     decoration = { rounding = 0, shadow = { enabled = false } },
     misc = { disable_hyprland_logo = true, disable_splash_rendering = true } })
@@ -124,11 +124,11 @@ fi
 private+=(HYPRLAND_INSTANCE_SIGNATURE="$signature")
 hctl() { "${private[@]}" timeout 5 hyprctl "$@"; }
 output_create_rc=0
-"${private[@]}" timeout 30 hyprctl output create headless FLEA > "$logs/output-create.log" 2>&1 || output_create_rc=$?
+"${private[@]}" timeout 30 hyprctl output create headless DLEA > "$logs/output-create.log" 2>&1 || output_create_rc=$?
 printf '%s\n' "$output_create_rc" > "$logs/output-create.rc"
 if [[ $output_create_rc != 0 ]]; then
     cat "$logs/output-create.log" >&2
-    fail "hard wall: Hyprland could not create FLEA (exit=$output_create_rc)"
+    fail "hard wall: Hyprland could not create DLEA (exit=$output_create_rc)"
 fi
 display=
 for socket in "$runtime"/wayland-*; do
@@ -161,10 +161,10 @@ wait_client() {
     cat "$logs/map-error.log" >&2
     return 1
 }
-if [[ ${FLEA_GPUI_SCENES:-0} == 1 ]]; then
+if [[ ${DLEA_GPUI_SCENES:-0} == 1 ]]; then
     "${private[@]}" VK_DRIVER_FILES="$lvp" VK_ICD_FILENAMES="$lvp" \
-        LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe FLEA_GPUI_CAPTURE=1 \
-        FLEA_BIN="$ipc" FLEA_TEST_FRONTEND=gpui \
+        LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe DLEA_GPUI_CAPTURE=1 \
+        DLEA_BIN="$ipc" DLEA_TEST_FRONTEND=gpui \
         python3 -B "$repo/tests/gpui-visual-scenes.py" "$root" "$logs"
     exit 0
 fi
@@ -181,7 +181,7 @@ for backend in vulkan gl; do
     driver=$lvp
     [[ $backend == vulkan ]] || driver=$root/no-vulkan-icd.json
     setsid "${private[@]}" VK_DRIVER_FILES="$driver" VK_ICD_FILENAMES="$driver" \
-        LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe FLEA_GPUI_CAPTURE=1 FLEA_BIN="$ipc" \
+        LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe DLEA_GPUI_CAPTURE=1 DLEA_BIN="$ipc" \
         "$bin" "$root/fixture" > "$logs/$backend-app.log" 2>&1 &
     app_pid=$!
     owned+=("$app_pid")
@@ -191,7 +191,7 @@ for backend in vulkan gl; do
     fi
     ready=false
     for ((attempt=0; attempt<100; attempt++)); do
-        if [[ $("${private[@]}" timeout 5 "$ipc" ipc --pid "$app_pid" call flea total 2> "$logs/ipc-error.log") == 2 ]]; then
+        if [[ $("${private[@]}" timeout 5 "$ipc" ipc --pid "$app_pid" call dlea total 2> "$logs/ipc-error.log") == 2 ]]; then
             ready=true
             break
         fi

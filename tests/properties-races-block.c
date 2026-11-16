@@ -11,12 +11,12 @@
 
 static void hold_directory(const char *path) {
     static atomic_int blocked;
-    const char *target = getenv("FLEA_TEST_SIZE_PATH");
+    const char *target = getenv("DLEA_TEST_SIZE_PATH");
     char resolved[PATH_MAX];
     if (target && (strcmp(path, target) == 0 || (realpath(path, resolved) && strcmp(resolved, target) == 0)) && atomic_exchange(&blocked, 1) == 0) {
-        int fd = open(getenv("FLEA_TEST_SIZE_ENTERED"), O_WRONLY | O_CREAT, 0600);
+        int fd = open(getenv("DLEA_TEST_SIZE_ENTERED"), O_WRONLY | O_CREAT, 0600);
         if (fd >= 0) close(fd);
-        while (access(getenv("FLEA_TEST_SIZE_RELEASE"), F_OK) != 0) usleep(1000);
+        while (access(getenv("DLEA_TEST_SIZE_RELEASE"), F_OK) != 0) usleep(1000);
     }
 }
 
@@ -39,7 +39,7 @@ int open64(const char *path, int flags, ...) {
         mode = (mode_t)va_arg(args, int);
         va_end(args);
     }
-    const char *mounts = getenv("FLEA_REVIEW_MOUNTS");
+    const char *mounts = getenv("DLEA_REVIEW_MOUNTS");
     if (mounts && strcmp(path, "/proc/self/mountinfo") == 0) path = mounts;
     if (flags & O_DIRECTORY) hold_directory(path);
     return real_open(path, flags, mode);
@@ -48,19 +48,19 @@ int open64(const char *path, int flags, ...) {
 int statx(int fd, const char *path, int flags, unsigned int mask, struct statx *out) {
     int (*real_statx)(int, const char *, int, unsigned int, struct statx *) = dlsym(RTLD_NEXT, "statx");
     static atomic_int held;
-    const char *target = getenv("FLEA_REVIEW_STAT");
-    const char *arm = getenv("FLEA_REVIEW_ARM");
+    const char *target = getenv("DLEA_REVIEW_STAT");
+    const char *arm = getenv("DLEA_REVIEW_ARM");
     int armed = target && arm && path && strcmp(path, target) == 0 && access(arm, F_OK) == 0;
-    const char *stats = getenv("FLEA_REVIEW_STATS");
+    const char *stats = getenv("DLEA_REVIEW_STATS");
     if (armed && stats) {
         int trace = open(stats, O_WRONLY | O_CREAT | O_APPEND, 0600);
         if (trace >= 0) { write(trace, "s", 1); close(trace); }
     }
     if (armed && atomic_exchange(&held, 1) == 0) {
-        int marker = open(getenv("FLEA_REVIEW_ENTERED"), O_WRONLY | O_CREAT, 0600);
+        int marker = open(getenv("DLEA_REVIEW_ENTERED"), O_WRONLY | O_CREAT, 0600);
         if (marker >= 0) close(marker);
         char release[4096];
-        snprintf(release, sizeof(release), "%s.stat", getenv("FLEA_REVIEW_RELEASE"));
+        snprintf(release, sizeof(release), "%s.stat", getenv("DLEA_REVIEW_RELEASE"));
         while (access(release, F_OK) != 0) usleep(1000);
     }
     return real_statx(fd, path, flags, mask, out);

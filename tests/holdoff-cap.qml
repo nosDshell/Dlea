@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-holdoff-cap-test
+//@ pragma ShellId dlea-holdoff-cap-test
 
 import Quickshell
 import QtQuick
-import "flea" as Flea
-import "flea/js/Swap.js" as Swap
+import "dlea" as Dlea
+import "dlea/js/Swap.js" as Swap
 
 // The real ui/PreviewPdf.qml: its render cap reads Swap.CAP_MS, a loading state drawn stands Swap.MIN_SHOW_MS before the page that landed shows, and a page landing before the cap draws no loading state.
 ShellRoot {
@@ -110,7 +110,7 @@ ShellRoot {
             width: 1520
             height: 470
 
-            Flea.PreviewPdf {
+            Dlea.PreviewPdf {
                 id: light
                 x: 0
                 width: 740
@@ -119,7 +119,7 @@ ShellRoot {
                 active: true
             }
 
-            Flea.PreviewPdf {
+            Dlea.PreviewPdf {
                 id: heavy
                 x: 760
                 width: 740

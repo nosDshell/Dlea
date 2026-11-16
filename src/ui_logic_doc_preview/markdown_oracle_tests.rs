@@ -262,3 +262,4 @@ fn every_recorded_input_writes_the_blocks_the_javascript_renderer_wrote() {
         bad.join("\n")
     );
 }
+

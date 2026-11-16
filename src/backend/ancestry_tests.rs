@@ -9,7 +9,7 @@ const QUIET: Duration = Duration::from_millis(600);
 
 // Each backend process owns one follower; parallel test cases must not share its queue or watches.
 fn in_own_process(name: &str) -> bool {
-    const CHILD: &str = "FLEA_ANCESTRY_TEST";
+    const CHILD: &str = "DLEA_ANCESTRY_TEST";
     if std::env::var(CHILD).as_deref() == Ok(name) {
         return false;
     }

@@ -35,7 +35,7 @@ impl Session {
                         .ok_or_else(|| unchecked(Op::Restore))?;
                     Ok((current, backing))
                 });
-                let original = flea::bytename::exact(&item.original);
+                let original = dlea::bytename::exact(&item.original);
                 chunk.push((item, retained, original, current));
             }
             if chunk.is_empty() {

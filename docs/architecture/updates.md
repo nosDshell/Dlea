@@ -1,28 +1,28 @@
 ## Updates
 
-Omarchy installs; Flea may check and launch. That revises the About board's "no duplicate
-updater" rule (decided 2026-09-22), and it is the whole design: Flea asks the source that will install an
-update whether it has one, and hands installing to Omarchy's own updater. Nothing in Flea downloads,
-verifies, unpacks or writes a package, and pacman stays the only writer of `/usr/bin/flea`.
+Omarchy installs; Dlea may check and launch. That revises the About board's "no duplicate
+updater" rule (decided 2026-09-22), and it is the whole design: Dlea asks the source that will install an
+update whether it has one, and hands installing to Omarchy's own updater. Nothing in Dlea downloads,
+verifies, unpacks or writes a package, and pacman stays the only writer of `/usr/bin/dlea`.
 
-**What is checked.** `flea --update check` is `src/update.rs`. It asks `pacman -Qqo` which package owns
-the running binary, `std::env::current_exe()` rather than a literal `/usr/bin/flea`, so a checkout build
+**What is checked.** `dlea --update check` is `src/update.rs`. It asks `pacman -Qqo` which package owns
+the running binary, `std::env::current_exe()` rather than a literal `/usr/bin/dlea`, so a checkout build
 run beside an installed package reports itself and not the package. `pacman -Qi` under `LC_ALL=C`, because
 pacman translates its field names, then gives the installed version and "Validated By", and the owner
 decides the kind:
 
-- `flea` validated by a signature is OPR's package, and `checkupdates` is asked. pacman-contrib is a hard
-  dependency of `omarchy`, so it is on every box Flea installs on. It syncs a private copy of the sync
+- `dlea` validated by a signature is OPR's package, and `checkupdates` is asked. pacman-contrib is a hard
+  dependency of `omarchy`, so it is on every box Dlea installs on. It syncs a private copy of the sync
   databases without root and exits 0 with updates, 2 with none and 1 on an error; it is never given
   `--nosync`, which answers 2 when it has no copy to read. GitHub is never asked for OPR, because it
   would announce a tag OPR cannot install yet.
-- `flea-bin`, signed or not, is `release`: the prebuilt release binary, which About names a release build
+- `dlea-bin`, signed or not, is `release`: the prebuilt release binary, which About names a release build
   that Omarchy update keeps current, never a checkout to rebuild.
-- Any other owner is `local`: a `flea` no signature validated (a local `makepkg -si` build), the former
-  AUR name `flea-git`, and any other name. A binary no package owns is `unowned`. All three are
+- Any other owner is `local`: a `dlea` no signature validated (a local `makepkg -si` build), the former
+  AUR name `dlea-git`, and any other name. A binary no package owns is `unowned`. All three are
   `unchecked`: no source here describes them, and none is asked. A box that still has an AUR package moves
-  to OPR's `flea` through `omarchy update` once the OPR recipe declares `replaces=('flea-bin' 'flea-git')`:
-  pacman's `-Syu` takes that replacement, and upgrades a same-name AUR `flea` to a newer repository build.
+  to OPR's `dlea` through `omarchy update` once the OPR recipe declares `replaces=('dlea-bin' 'dlea-git')`:
+  pacman's `-Syu` takes that replacement, and upgrades a same-name AUR `dlea` to a newer repository build.
 
 About's unchecked package kinds use the existing "Release build" state and "Omarchy update installs newer
 releases." note. Only an unowned binary uses "Built from source" and the checkout rebuild note; a checkout
@@ -34,9 +34,9 @@ how network text is kept out of the line; `vercmp` then decides. The line is
 kinds `opr`, `release`, `local` and `unowned`, and `-` for a version the check does not have. See
 "Modes" for the exit statuses.
 
-**What is launched.** `flea --update` spawns `omarchy-launch-floating-terminal-with-presentation
+**What is launched.** `dlea --update` spawns `omarchy-launch-floating-terminal-with-presentation
 omarchy-update`, the command Omarchy's own menu and its bar widget run, as a fixed argv; nothing the
-network said reaches argv or a shell. It updates OPR `flea` through pacman, with Omarchy's snapshot,
+network said reaches argv or a shell. It updates OPR `dlea` through pacman, with Omarchy's snapshot,
 keyring, migrations and pacman guard in step, and it asks for sudo in a real terminal. It goes through
 Rust for the same reason `--terminal` does, "Transparent huge
 pages": `terminal::detach` is the one set of guards both use, the huge page hand-back, the display-GPU
@@ -44,38 +44,38 @@ pin and theme trade dropped, `/dev/null` on all three descriptors and a process 
 
 **Why nothing is replaced in place.** A self-replacing download was rejected in the research: the
 binary is package-owned, so `pacman -Qkk` would fail and the next upgrade would overwrite it; the
-package also ships the QML under `/usr/share/flea/ui`, the helpers, the portal and two D-Bus services,
-so a newer binary against older QML is a skew bug; a `~/.local/bin` copy would put two Fleas on the box;
+package also ships the QML under `/usr/share/dlea/ui`, the helpers, the portal and two D-Bus services,
+so a newer binary against older QML is a skew bug; a `~/.local/bin` copy would put two Dleas on the box;
 and it would need HTTP, TLS and archive code this crate does not have, for no more than same-origin
 checksum integrity. OPR's signature remains the authenticity.
 
 **The window.** `ui/UpdateCheck.qml` is a singleton that owns both processes, the state (pure, in
-`ui/js/Update.js`) and two `Timer`s. A check starts four ways: Enter on Settings > About's Update Flea
+`ui/js/Update.js`) and two `Timer`s. A check starts four ways: Enter on Settings > About's Update Dlea
 row, Settings > About opening (`ui/AboutFacts.qml`), a single look one minute after the window opens,
 which asks only when About would, and a six hour timer that counts from the last answer, whichever
 trigger asked for it. `ui/WindowBody.qml` starts both timers with the window. `updates.autoCheck` in
 `src/uischema.rs`, "Check automatically" under the row and on by default, governs the three automatic
 triggers and never a press. About opening does not ask again while
 an answer from the last six hours stands, and a failed check never stands. The row, its eight states,
-the caption and the note line follow the Update Flea boards (`UpdateStates`, `Main` and `UpdateMenu` in
+the caption and the note line follow the Update Dlea boards (`UpdateStates`, `Main` and `UpdateMenu` in
 the 0.3.3 design canvas). Enter checks from idle and up to date, opens Omarchy's updater from available
 and from a check that failed, because the updater can still run, and does nothing while a check or an
 update runs; a local or unpackaged build is a fact row. A launch is final for the process: the row reads
 "Updating in terminal", the note asks for a restart, and no automatic check runs again, because pacman
 may replace QML this process still loads lazily.
 
-The background menu carries Update Flea only while a check has found a newer build, in the last group
+The background menu carries Update Dlea only while a check has found a newer build, in the last group
 under Settings, with the version in the hint slot beside the rail's 6 px status square; every other
 state leaves that menu exactly as it was. Choosing it launches, the footer says "Opening Omarchy update
-· restart Flea when it finishes", and the row is gone, because the state is then `launched`. It is an
+· restart Dlea when it finishes", and the row is gone, because the state is then `launched`. It is an
 Extras switch in Settings > Menus and ships visible. `ui/js/Focus.js` reaches the singleton through
-`ui/Opener.qml`'s `updateFlea`, because a `.pragma library` cannot name a QML singleton.
+`ui/Opener.qml`'s `updateDlea`, because a `.pragma library` cannot name a QML singleton.
 
-**Privacy.** This is the first request Flea can make on its own: `Cargo.toml` has no dependencies, and
+**Privacy.** This is the first request Dlea can make on its own: `Cargo.toml` has no dependencies, and
 everything else that reaches another machine, a network mount or a LocalSend send through `localsend-cli`,
 starts from something someone did. For an OPR install it is `checkupdates` fetching the
 sync databases from the mirrors pacman already uses. A local or unpackaged build makes no request at
-all, only the two local pacman queries. Requests happen only on a press of Update Flea, when Settings >
+all, only the two local pacman queries. Requests happen only on a press of Update Dlea, when Settings >
 About opens, one minute after a window opens (off the launch
 path, so no benchmark or first frame pays for it) and every six hours after that, all but the first
 only with "Check automatically" on; off means nothing leaves the box until someone presses the row.

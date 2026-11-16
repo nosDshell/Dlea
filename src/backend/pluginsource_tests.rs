@@ -2,7 +2,7 @@
 use super::fifotest::{mkfifo, within};
 use super::plugins_tests::{ask, code, env, get, plugin, READY};
 use super::testdir::TestDir;
-use flea::ui_logic_plugin_settings::wire::Source;
+use dlea::ui_logic_plugin_settings::wire::Source;
 use std::os::unix::fs::symlink;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -68,11 +68,11 @@ fn st2_fix2_a_folder_add_keeps_its_source_outside_the_plugin_folder() {
         "the add wrote its record beside the plugins, not inside one"
     );
     assert!(
-        !env.dir.join("me.tool/.flea-source").exists(),
+        !env.dir.join("me.tool/.dlea-source").exists(),
         "nothing of the record is inside the plugin"
     );
     dir.file(
-        "config/flea/plugins/me.tool/.flea-source",
+        "config/dlea/plugins/me.tool/.dlea-source",
         "/home/me/elsewhere\n",
     );
     assert_eq!(
@@ -159,7 +159,7 @@ fn st2_fix2_update_runs_no_hook_of_a_clean_git_plugin() {
         "reference-transaction",
     ] {
         dir.script(
-            &format!("config/flea/plugins/me.dev/.git/hooks/{hook}"),
+            &format!("config/dlea/plugins/me.dev/.git/hooks/{hook}"),
             &touch,
         );
     }

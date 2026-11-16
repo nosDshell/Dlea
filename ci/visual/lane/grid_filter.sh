@@ -7,7 +7,7 @@ case_grid_filter_row_down() (
     [ "$VISUAL_FRONTEND" = gpui ] || return 77
     local root=$C/grid-filter-row-down index name columns
     mkdir -p "$root" || return 1
-    : > "$root/.flea-test-sandbox" || return 1
+    : > "$root/.dlea-test-sandbox" || return 1
     for index in {1..9}; do
         printf -v name 'file-%02d.txt' "$index"
         printf 'grid filter %s\n' "$index" > "$root/$name" || return 1
@@ -17,7 +17,7 @@ case_grid_filter_row_down() (
     launch grid "$root" || return 1
     key /file-0 || return 1
     wait_ipc drawnCount 9 || return 1
-    # Flea maps at 1100x700; the arrows are driven at the shot size so the drawn cursor matches the asserted index.
+    # Dlea maps at 1100x700; the arrows are driven at the shot size so the drawn cursor matches the asserted index.
     local launch_columns
     launch_columns=$(ipc gridColumns) || return 1
     size_window 800 600 || return 1
@@ -41,7 +41,7 @@ ranked_filter_shift() (
     [ "$VISUAL_FRONTEND" = gpui ] || return 77
     local view=$1 root=$C/$case_name name
     mkdir -p "$root" || return 1
-    : > "$root/.flea-test-sandbox" || return 1
+    : > "$root/.dlea-test-sandbox" || return 1
     for name in a-n-t-s.txt b-n--t--s.txt c-n---t---s.txt z-nt-s.txt; do
         printf 'ranked filter\n' > "$root/$name" || return 1
     done

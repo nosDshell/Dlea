@@ -12,14 +12,14 @@ import tempfile
 
 
 REPO = Path(__file__).resolve().parent.parent
-BINARY = Path(os.environ.get("FLEA_BIN") or REPO / "target/release/flea").resolve()
+BINARY = Path(os.environ.get("DLEA_BIN") or REPO / "target/release/dlea").resolve()
 if not BINARY.is_file() or not os.access(BINARY, os.X_OK):
     sys.exit(f"portal-startup-installer: installer binary is missing or not executable: {BINARY}")
 print(f"portal-startup-installer: testing {BINARY}", flush=True)
 SCRATCH = REPO / ".superpowers/k123"
 SCRATCH.mkdir(parents=True, exist_ok=True)
 ROOT = Path(tempfile.mkdtemp(prefix="portal-installer.", dir=SCRATCH)).resolve()
-MARKER = ROOT / ".flea-test-sandbox"
+MARKER = ROOT / ".dlea-test-sandbox"
 MARKER.touch()
 
 
@@ -61,9 +61,9 @@ try:
     for directory in ["home", "bin", "config/hypr", "data/applications", "data/dbus-1/services", "data/xdg-desktop-portal/portals"]:
         (ROOT / directory).mkdir(parents=True, exist_ok=True)
     (ROOT / "config/hypr/bindings.lua").write_text("-- stock bindings\n")
-    (ROOT / "data/applications/com.thisisgm.flea.desktop").write_text("[Desktop Entry]\nName=Flea\nExec=flea\nType=Application\n")
-    (ROOT / "data/xdg-desktop-portal/portals/flea.portal").write_text((REPO / "packaging/flea.portal").read_text())
-    (ROOT / "data/dbus-1/services/com.thisisgm.flea.FileManager1.service").write_text(
+    (ROOT / "data/applications/com.nosDshell.dlea.desktop").write_text("[Desktop Entry]\nName=Dlea\nExec=dlea\nType=Application\n")
+    (ROOT / "data/xdg-desktop-portal/portals/dlea.portal").write_text((REPO / "packaging/dlea.portal").read_text())
+    (ROOT / "data/dbus-1/services/com.nosDshell.dlea.FileManager1.service").write_text(
         "[D-BUS Service]\nName=org.freedesktop.FileManager1\nExec=/bin/false\n")
     scripts = {
         "systemctl": '#!/bin/sh\nprintf "restart %s\\n" "$*" >> "$PORTAL_TEST_ROOT/calls"\nexit "$(cat "$PORTAL_TEST_ROOT/restart-status")"\n',
@@ -101,7 +101,7 @@ try:
     (ROOT / "restart-status").write_text("1")
     status, text = run(env, ["--picker"], True)
     check("a refused restart is never probed or called successful", status == 0 and "file dialogs follow now" not in text and len((ROOT / "calls").read_text().splitlines()) == 1, text)
-    check("routing retains the gtk fallback", "org.freedesktop.impl.portal.FileChooser=flea;gtk" in (ROOT / "config/xdg-desktop-portal/portals.conf").read_text(), text)
+    check("routing retains the gtk fallback", "org.freedesktop.impl.portal.FileChooser=dlea;gtk" in (ROOT / "config/xdg-desktop-portal/portals.conf").read_text(), text)
     print("portal-startup-installer: all checks passed", flush=True)
 finally:
     if not (ROOT.is_absolute() and ROOT.parent == SCRATCH.resolve() and ROOT != SCRATCH and MARKER.is_file()):

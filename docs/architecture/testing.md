@@ -15,7 +15,7 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
 - `tests/gridmark.sh` is a headless run-all suite for the Grid's match mark: `tests/gridmark.qml` builds the shipped `ui/GridArea.qml` over a pane stub and reads each drawn wash back as a box in caption coordinates, measured against plain Texts for the run and Qt's own laid-out width for each centred line, at rest, on the cursor, hovered, selected, cut and on a drop target, across a wrapped label and in search; the wash lands in the turn the narrowing does, and a key after the strip opens builds nothing.
 
 - `marquee_press` and `marquee_to` stop within 4 px of their target (`marquee_glide`'s default tolerance), so a native case never aims them within that distance of a boundary between two press targets (a row's right edge is the scroll bar's left edge). A band is started through `marquee_begin_below` in `tests/ui-marquee.sh`, which glides onto the bare ground below the last row and checks where the pointer landed; `case_clickedge` starts its band there after End with an exact glide, because the List tail is 3 px, and requires the band live, the selection exact and `viewContentY` unchanged across the release.
-- `tests/run-all.sh` counts a suite that exits 0 while its output holds a line matching `(^|[: ])FAIL[: ]` as failed and quotes that line, the same contract flea-ci enforces, so an expected failure a suite shows is reworded (`expected: ... failed ...`) and never echoed raw. `tests/runall-rule.sh` pins that rule on a scratch copy of run-all.sh with stub suites, a quiet one, one past 64 KB of output and the non-matching controls included, so a rule that loses its match on a loud suite goes red.
+- `tests/run-all.sh` counts a suite that exits 0 while its output holds a line matching `(^|[: ])FAIL[: ]` as failed and quotes that line, the same contract dlea-ci enforces, so an expected failure a suite shows is reworded (`expected: ... failed ...`) and never echoed raw. `tests/runall-rule.sh` pins that rule on a scratch copy of run-all.sh with stub suites, a quiet one, one past 64 KB of output and the non-matching controls included, so a rule that loses its match on a loud suite goes red.
 - **The warning gate covers `#[cfg(test)]`, which is the point of it.** `cargo build` cannot see
   anything inside a test module, so a build-only gate hides every unused import and dead helper
   there; two lived here for three review rounds for exactly that reason. Keep debug and release
@@ -26,7 +26,7 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   of them lived here for three review rounds, one of them predating the whole thumbnail plan,
   because the gate said "build" and nobody ran the other half.
 - `cargo test` runs the unit tests inside every module.
-- `case_network` (and `case_editplace`) run Flea against their own `gio` double, whose `mount -li` lists nothing, so the operator's gio mounts never reach the rail and the case never refuses on them; cases `gvfs` and `networklive` use the real gio by design and check only their own rows. The double does not cover `/proc/self/mountinfo`, which Flea also lists kernel NFS and CIFS mounts from: such a mount outside home still shows, and `case_network` then fails showing that row rather than refusing. It waits on `networkBuilt` (`ui/Ipc.qml`), true only once the rail rebuilt from a listing and a mountinfo read, because an empty group is also the unbuilt state, then asserts the group is empty; a failed ipc read fails by name.
+- `case_network` (and `case_editplace`) run Dlea against their own `gio` double, whose `mount -li` lists nothing, so the operator's gio mounts never reach the rail and the case never refuses on them; cases `gvfs` and `networklive` use the real gio by design and check only their own rows. The double does not cover `/proc/self/mountinfo`, which Dlea also lists kernel NFS and CIFS mounts from: such a mount outside home still shows, and `case_network` then fails showing that row rather than refusing. It waits on `networkBuilt` (`ui/Ipc.qml`), true only once the rail rebuilt from a listing and a mountinfo read, because an empty group is also the unbuilt state, then asserts the group is empty; a failed ipc read fails by name.
 - **Each `tests/ui.sh` case opens with a paragraph rather than a one-line comment**, and that is
   deliberate. A case is a fixture, a stub and a sequence, and the part a reader cannot recover from
   the assertions is what the stub is standing in for and what the case controls for;
@@ -51,7 +51,7 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   0.1.4 lanes until it was restored. **A guard answers "is there a binary", never "is it this
   commit's binary"**, which is the defect `39e1737` and `8eec5fc` were both written to close, so the
   unconditional build is the contract and the per-suite `-x` guards exist only for a suite invoked
-  directly. The suites that drive the debug binary use `target/debug/flea` and `thumbs.sh` the release one. It runs every suite that
+  directly. The suites that drive the debug binary use `target/debug/dlea` and `thumbs.sh` the release one. It runs every suite that
   needs no display, session or hardware, and reads each suite's OWN exit code, never a pipeline's.
   Those suites need a shell, python3, the Qt and Quickshell runtimes, and quickjs-ng for the figure
   suites; the package build and check dependency closure must supply those tools. A missing required
@@ -81,16 +81,16 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   to Chromium as `effectAllowed`, and a move offer is what made Chromium report `dropEffect: move`,
   which Google's uploader refused in 0.1.4. Ctrl at the lift offers copy
   alone, Shift offers move alone, and Ctrl with Shift offers a link alone, because a receiver
-  takes whatever is offered and does not have to notice the key Flea read, so it still takes
+  takes whatever is offered and does not have to notice the key Dlea read, so it still takes
   the lift's verb. Files accepts a move and then
-  moves the uri-list itself, after `dragFinished`, so Flea does not delete on that acceptance:
+  moves the uri-list itself, after `dragFinished`, so Dlea does not delete on that acceptance:
   doing so trashes the files before Files has read them and the destination never gets them. A
   drop this window's own transfer handles accepts copy instead, and the transfer does the move
   or the copy. A directory this user cannot write is marked not deletable on the listed line's
   `w` field, and a drag from it copies unless Shift is held. Qt's platform drag runs a nested
   loop in which the window receives no keys, so Ctrl
   or Shift pressed after the drag starts cannot change what a foreign receiver is offered. A drop
-  onto one of Flea's own folders reads the keys held at the drop (#259, `keys` in `ui/js/DragOut.js`),
+  onto one of Dlea's own folders reads the keys held at the drop (#259, `keys` in `ui/js/DragOut.js`),
   which is why the status line says `Ctrl copies, Shift moves`, naming both keys,
   and a Ctrl with Shift lift links, its Link line naming the verb outright. `drag.sh` proves a same-device move and a Ctrl copy but needs the display and a
   real pointer, so `dragwire.sh` carries the offer into the headless battery: a leaving drag
@@ -106,22 +106,22 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   stolen grab, which a synthetic pointer cannot produce. The rewrite arguably retires that race,
   since the compositor now owns the drop decision, but that is reasoning and is not counted as
   coverage.
-- `tools/flea-field-bench` is the cold-cache comparison against the installed field and the
+- `tools/dlea-field-bench` is the cold-cache comparison against the installed field and the
   instrument behind `docs/baseline-2026-08-30b.md`. **Run it from a copy outside this tree**, because
   it launches the tree it measures; `~/bench/` is where it runs here. A working NOPASSWD rule for
-  `drop_caches` needs no stdin; otherwise the sudo password is read from stdin. It launches Flea through `$FLEA_BIN --gui`, never `qs` directly:
+  `drop_caches` needs no stdin; otherwise the sudo password is read from stdin. It launches Dlea through `$DLEA_BIN --gui`, never `qs` directly:
   the GPUI launcher applies its environment policy and calls `thp::disable()` before execing
-  `flea-gui`, so a direct GUI launch bypasses those steps.
-- `tools/flea-field-nav measure` with the `ql` column journeys Quick Look on a 40-row-table-first Markdown document
+  `dlea-gui`, so a direct GUI launch bypasses those steps.
+- `tools/dlea-field-nav measure` with the `ql` column journeys Quick Look on a 40-row-table-first Markdown document
   (`ql_md_table_first`) against a tableless one of the same 4096 bytes (`ql_md_plain`) and a byte-identical twin as
   the negative control (`ql_md_plain_b`), each in a fresh launch, key to `settled_ms`, and `report` prints INCOMPLETE
   with no twin rows, INVALID when the twin control reports INSTRUMENT-NOISE, else SHIP when p95(table) <= p95(plain) +
   the control's own gap |p95(plain) - p95(twin)|, else HOLD.
-- `tools/flea-localsend-battery --flea BIN --cli LOCALSEND_CLI` is the LocalSend battery. It needs no root: it
+- `tools/dlea-localsend-battery --dlea BIN --cli LOCALSEND_CLI` is the LocalSend battery. It needs no root: it
   re-executes inside a new user and network namespace, puts four nodes on private bridges and runs real
   `localsend-cli` peers that accept with Y (the declined case presses N, the unanswered and cancel-at-prompt cases
   press nothing), so discovery and port 53317 never reach the host's LAN. Node a runs
-  `flea --backend` with that CLI first on its PATH. Each case runs `--runs` times (default 20; `--cases name:runs,...`
+  `dlea --backend` with that CLI first on its PATH. Each case runs `--runs` times (default 20; `--cases name:runs,...`
   narrows it, `--list` names them): discovery, a late answer, small, Unicode-named, 1000-file, 2 GiB and folder sends,
   a second interface, cancel during the transfer and at the accept prompt, an unanswered and a declined send, two
   sends and two discoveries at once, discovery during a send, a peer appearing, leaving mid-transfer and sleeping
@@ -129,18 +129,18 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   the 2 GiB send takes about a minute). Every failure is printed and appended to `--log` with its case, run and
   reason, the summary gives one pass count per case (`send-small 20/20 ok`), and the exit status is 1 if any run
   failed. It needs iproute2 with `tc`, util-linux and Python 3; a full pass takes about an hour.
-- **The tested Flea starts from its own caches, as an installed one does after its first launch.** Its
+- **The tested Dlea starts from its own caches, as an installed one does after its first launch.** Its
   QML units go to `target/qmlcache` of the tree under test (`QML_DISK_CACHE_PATH`), and
-  `tools/flea-field-bench` parks the operator's `~/.cache/flea/prefetch` for the run and restores it
+  `tools/dlea-field-bench` parks the operator's `~/.cache/dlea/prefetch` for the run and restores it
   at exit (gated by `tests/field-prefetch-park.sh`). On TERM, INT or another exit, teardown first
   stops the background warm shell and its process group with bounded TERM and KILL waits, then
-  sweeps the warm Flea and its control group before restoring the operator's caches. The suite
-  checks the shell and group both before Flea starts and while it polls, including a setup child
+  sweeps the warm Dlea and its control group before restoring the operator's caches. The suite
+  checks the shell and group both before Dlea starts and while it polls, including a setup child
   that ignores TERM; dropping the warm-job stop makes these checks red. One untimed warm launch compiles the units and
   records the first list; each timed launch then reads the list the launch before it recorded, so
   every list it reads comes from the build under test. A list recorded by another build names that
   build's binary, QML and units, so its prefetch reads the wrong files and the right ones are read cold.
-- **Nothing an entrant starts outlives its run.** Every launch exports `FLEA_FIELD_BENCH` with a token
+- **Nothing an entrant starts outlives its run.** Every launch exports `DLEA_FIELD_BENCH` with a token
   unique to the invocation, and every `clean_bench` ends any process that still carries it, names it
   as a `LEFTOVER` line, and fails the run if one outlives SIGKILL (gated by
   `tests/field-entrant-sweep.sh`). The kill list and the control group cannot do this alone: nnn's
@@ -165,11 +165,11 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
 - **The settle signal is no longer one process's `utime + stime`.** A run is settled when, for a
   whole 500 ms, neither the watched set's `utime + stime + cutime + cstime` nor the summed
   `utime + stime + cutime + cstime` of its whole LIVE descendant tree has changed. The watched set
-  is the entrant plus its declared helper, and `flea` is the only entrant declaring one
-  (comm `flea`, token `--backend`). The descendant walk is breadth first and runs only on a poll
+  is the entrant plus its declared helper, and `dlea` is the only entrant declaring one
+  (comm `dlea`, token `--backend`). The descendant walk is breadth first and runs only on a poll
   where the watched set earned no tick, because it costs a read per thread and per descendant.
   **`cutime` alone is not enough**: it holds only what a watched pid has REAPED, so a decode still
-  running is invisible to it, and Flea's decode is two levels down under `bwrap`.
+  running is invisible to it, and Dlea's decode is two levels down under `bwrap`.
 - **A gvfs fixture lists outside every entrant's tree, so the settle clock watches the daemons and the
   gap outlasts the server.** On a fixture under `/run/user/*/gvfs/` the readdir runs in `gvfsd-fuse`
   and the share's `gvfsd-smb` backend, so an entrant blocked in readdir earned no tick and read as
@@ -179,7 +179,7 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   a 10k folder, so a 500 ms quiet gap still settles early: `SETTLE_GAP_MS` is an override defaulting to
   500 and to 2000 on a gvfs fixture unless the caller set one, and `settled` stays the last tick so the
   gap never inflates it. Both move `settled_ms` on NAS only; `FIXTURE_KIND=nas|usb` skips the btrfs and
-  marker checks while still asserting `EXPECT_FILES`, `flea-tui` adds TUI `preview_ms` rows, and the
+  marker checks while still asserting `EXPECT_FILES`, `dlea-tui` adds TUI `preview_ms` rows, and the
   per-run receive bytes on the NAS interface land on stderr beside each row, moving no column.
 - **`cpu_tree_s` was added at the END of each row**, so an old parser still works. Until 0.3.2 it
   carried the watched set's tree total; `cpu_s` then reported the entrant process alone, a figure now
@@ -187,14 +187,14 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   fixture they diverged hard then: pcmanfm read 38.83 against 90.00 and dolphin 3.29 against 68.59.
 - **`cpu_tree_s` is read from a control group since 0.3.2, because the tick total was blind to every
   sandboxed decode.** Measured on minipc: ten `ffmpegthumbnailer` decodes of the media fixture add
-  0.95 s to the caller's `cutime` run bare and 0.01 s run under Flea's own `prlimit` plus `bwrap`
+  0.95 s to the caller's `cutime` run bare and 0.01 s run under Dlea's own `prlimit` plus `bwrap`
   argv, so a decode under `bwrap`'s PID namespace never reaches the process that launched it, and
-  the old column counted none of Flea's thumbnails, nor any other entrant's sandboxed ones. The
+  the old column counted none of Dlea's thumbnails, nor any other entrant's sandboxed ones. The
   bench now re-enters itself under `systemd-run --user --scope -p Delegate=yes`, makes one leaf
   cgroup per entrant run, and has the launching shell join that leaf before it forks the entrant,
   so the entrant and everything it starts, reaped, reparented or still alive, is in the leaf's
   `cpu.stat` `usage_usec`. The same ten sandboxed decodes read 1.02 s there. A declared helper
-  outside the leaf, which is `tumblerd` since it is D-Bus activated, is added from its ticks; Flea's
+  outside the leaf, which is `tumblerd` since it is D-Bus activated, is added from its ticks; Dlea's
   backend is inside the leaf and is not added twice. The old figure stays as `cpu_reaped_s` ahead of
   `cpu_sys_s`, so a table from before this change is compared against like, and a leaf, or a
   TUI's kitty scope below, still holding a process after the kill list ran names it as `LEFTOVER`
@@ -217,7 +217,7 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   holds, zeros included, because `webp=0` is the capability claim and a missing row reads as
   untested. `unknown` counts a produced key the fixture cannot explain, which means the cache was
   not clean and the row is not comparable. The key sets themselves land in `<out>.keys/`, so a run
-  can be classified after the fact; a count cannot. `tools/flea-bench-keys` builds the map and does
+  can be classified after the fact; a count cannot. `tools/dlea-bench-keys` builds the map and does
   the classification, and it refuses a fixture holding any name that would need percent-encoding,
   because a shell cannot reproduce the backend's GLib literal set and a wrong key would report
   every entrant as producing zero. Measured against dolphin on a five-file probe: 5 files, 5 new
@@ -232,14 +232,14 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   directory it deletes on drop and keeps the image in memory, and its 0 here was published as
   "strata thumbnails nothing" in three artefacts for a whole release while it drew six of the
   eight formats offered. The raw cache reading survives in `thumbs_by_dir`, which is a true
-  statement about the cache and a false one about the entrant. `tools/flea-bench-capability` is
+  statement about the cache and a false one about the entrant. `tools/dlea-bench-capability` is
   the instrument that answers ability, and it measures an entrant named in its `TRANSIENT_ID` by
   live watch instead of by cache count. The harness names the refusal on stderr the way it names
   an absent entrant and keeps going, because one unmeasurable entrant is not a reason to lose the
   other thirteen. `n/a: tui in <terminal>` is the whole TUI group: a
   TUI previews the cursor file and never fills a grid, and the terminal decides whether it can draw
   an image at all, so those rows carry `n/a` in `thumbs_n` rather than a 0 that reads as slow.
-- **`tools/flea-field-bench` measures its own `TRANSIENT_ID` by the same live watch, so such a row
+- **`tools/dlea-field-bench` measures its own `TRANSIENT_ID` by the same live watch, so such a row
   is ranked rather than refused.** Two watches, because neither answers both questions: an
   `inotifywait` on `/tmp` counts each `result.png` closing under `TRANSIENT_PREFIX`, and an
   `inotifywait` on the fixture directory names the file that earned it, because bwrap binds the
@@ -265,7 +265,7 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
 - **Two rules for the report, which the harness cannot enforce.** The thumbnail count prints beside
   every timing number in every table, not only in the CSV: a settle time without its count is not
   citable for this field. And where two counts differ by an order of magnitude the row says so
-  rather than implying a comparison, because Flea thumbnails the viewport by design and dolphin
+  rather than implying a comparison, because Dlea thumbnails the viewport by design and dolphin
   thumbnails the directory, which on the media fixture was 36 against 790.
 - **The manifest opens before the first entrant and closes after the last.** The open block carries
   the versions, the fixture counted from itself, the thumbnailable denominator with the extension it
@@ -279,7 +279,7 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
 - **The TUI group runs as-intended, in kitty, on the bench's own configuration.** foot is sixel
   only while every entrant here that previews at all prefers the Kitty protocol, so the old
   group's `thumbs_n 0` across all eight was the harness's terminal choice and not a result about
-  the entrants. `tools/flea-bench-tui/` is the `XDG_CONFIG_HOME` handed to every TUI entrant, copied
+  the entrants. `tools/dlea-bench-tui/` is the `XDG_CONFIG_HOME` handed to every TUI entrant, copied
   into a `mktemp -d` per run so the operator's own `~/.config` is neither read nor written and the
   repo never collects the state files entrants leave. Provenance per entrant is in that directory's
   README; the manifest records the materialised files verbatim, because lf reads `previewer` as a
@@ -329,7 +329,7 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
 - **`KILL_TARGETS` includes nautilus's indexer, `localsearch-3` and its extractor, for the same reason.**
   nautilus activates it over D-Bus on its first launch, and on this box it indexes all of `$HOME`
   unthrottled. After the 2026-09-24 reboot it started at 00:54:52 in the 0.3.5 battery's warm-up pass
-  and read 14.5 GB over the next two hours, under every later entrant's cold launch: Flea's scale first
+  and read 14.5 GB over the next two hours, under every later entrant's cold launch: Dlea's scale first
   window read 505 ms against 409 in 0.3.3, and almost every other entrant slowed by 48 to 119 ms. With it idle
   the same trees read 402 to 430 (medians of 12 runs), and a full run with this entry read 407 against
   pcmanfm's 475. A full run refuses to start while it is alive, so stop it first
@@ -340,11 +340,11 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
 - **`EXPECT_FILES` is the payload count and the dotfiles are judged by name, because one count
   cannot do both jobs.** The payload is what the fixture is for and does not move when a marker is
   added: **scale 100000, media 2000, matched 1700**, checked with `ls -U`. Every dotfile is then
-  matched against `.flea-*` (a fixture marker) or `.seed.*` (an encoder seed) and a stray is named
+  matched against `.dlea-*` (a fixture marker) or `.seed.*` (an encoder seed) and a stray is named
   rather than folded into a total. A total was tried and it broke the whole harness the moment
-  `.flea-bench-fixture` landed, because a count that must be re-derived by hand after an unrelated
+  `.dlea-bench-fixture` landed, because a count that must be re-derived by hand after an unrelated
   change is the same defect as a bare `ls` with a different constant.
-- **`ls -A` on each fixture is 100001, 2001 and 1701**, one marker each. `tools/flea-media-fixture`
+- **`ls -A` on each fixture is 100001, 2001 and 1701**, one marker each. `tools/dlea-media-fixture`
   deletes its seven `.seed.*` encoder seeds at the end of a successful build, so a fixture that still
   carries them was built by an interrupted run: **the resident media fixture had all seven and was
   reconciled to the builder on 2026-09-01**, which is why an earlier note here recorded 2008. The
@@ -357,7 +357,7 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   exclusion rather than assuming it.
 - **dolphin restores a KDE session on every launch and it poisoned every dolphin row ever published
   here.** `~/.config/session/dolphin_dolphin_dolphin` held a tab naming
-  `file:///home/flea-sandbox/flea-bench-btrfs`, the 100,000-file fixture, so dolphin listed that in a
+  `file:///home/dlea-sandbox/dlea-bench-btrfs`, the 100,000-file fixture, so dolphin listed that in a
   background tab on top of whatever it was being measured on. Measured on a 24-file directory:
   5417 ms settled, 8.99 s CPU and 177714 kB PSS with the file present, against 1625 ms, 0.68 s and
   86678 kB with it parked. **It is invisible on the scale fixture**, where the restored tab is the
@@ -380,7 +380,7 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   24-file directory holding three of each fixture type, screen against cache: **pcmanfm renders jpg,
   webp and heic and persists none of the three**, 18 on screen against 9 in the cache, so a
   cache-only reading marks it down for work it did. **nautilus shows a play glyph on every mkv** and
-  **dolphin shows an image glyph on every heic**, and both of those the cache does agree with. flea
+  **dolphin shows an image glyph on every heic**, and both of those the cache does agree with. dlea
   and thunar are the only two entrants that render all seven media types.
 - **`pss_kb()` reads the rollup with `mapfile`, never line by line.** A `while read` loop over
   `/proc/<pid>/smaps_rollup` re-renders the seq_file between lines and mixes fields from two
@@ -389,7 +389,7 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   0 of 300 and is about 4.5x cheaper. The `Pss` column was never affected, because it is the first
   field in the file.
 - **`cpu_main_s` is the entrant process's own `utime + stime`**, fields 14 and 15 of `/proc/<pid>/stat`
-  and not `cutime + cstime`, so no child's CPU is in it. For Flea that excludes the Rust backend and
+  and not `cutime + cstime`, so no child's CPU is in it. For Dlea that excludes the Rust backend and
   every thumbnailer child, so that column compares front ends and not total work; `cpu_s` is the
   whole control group, the same value as `cpu_tree_s`.
 - **A PSS row is only comparable to a row taken in the same interleaved run**, and the 4.1 MiB
@@ -412,13 +412,13 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   `shared-mime-info`: a package update, not a code change, is what will redden them.
 - `./tests/protocol.sh` drives the built `--backend` binary over real stdin and
   asserts the exact stdout contract, including the prewarm file.
-- `./tests/modes.sh` drives the real `flea` binary and asserts the mode contract:
+- `./tests/modes.sh` drives the real `dlea` binary and asserts the mode contract:
   refusal messages, the mutual-exclusion usage error and its message, the no-flag
   default landing on the window branch, and that `--backend` and `--prewarm` still dispatch. The `--tui --gui` case checks the message
   as well as the exit code, because the no-tty refusal below it exits 2 too, so the exit
   code alone cannot prove the mutual-exclusion guard fired. It cannot exercise the window
   itself, since that needs a graphical session; see "Modes" above.
-- The transparent huge page check inside `./tests/modes.sh` launches a stub `flea-gui` that
+- The transparent huge page check inside `./tests/modes.sh` launches a stub `dlea-gui` that
   prints `THP_enabled` out of its own `/proc/self/status`, so what it asserts is the kernel's
   view of the process `gui::exec_gpui` launched and not the return value of a function. It reddens if
   the `prctl` is removed and it reddens if the call fails; a second check asserts the stub
@@ -438,10 +438,10 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   resolved the real `/usr/bin/xdg-open` instead, and a stub named from the product cannot drift.
   Issue 41 has its own case beside them, driving the real `gio` against an
   isolated `XDG_DATA_HOME` and `XDG_CONFIG_HOME` holding one `Terminal=true` entry and a stub
-  `xdg-terminal-exec`, so the operator's own MIME state is never read or written. The huge page half needs a second stub, because a bare `flea --open` runs in a
+  `xdg-terminal-exec`, so the operator's own MIME state is never read or written. The huge page half needs a second stub, because a bare `dlea --open` runs in a
   process where nothing disabled huge pages, so `thp::enable()` is a no-op there and that
-  check cannot tell it from an empty function: the paired case launches `flea --gui` against a
-  stub `qs` that reports what it inherited and then execs `flea --open`, and only that one
+  check cannot tell it from an empty function: the paired case launches `dlea --gui` against a
+  stub `qs` that reports what it inherited and then execs `dlea --open`, and only that one
   reddens when the `thp::enable()` call is deleted. Both were measured against a deletion.
 - `.process_group(0)` in `open::open` is pinned by the same stub, which prints its own pid
   beside field five of `/proc/self/stat`, its process group, and reports `PGID MATCH` only when
@@ -455,7 +455,7 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   the status and errno checks all pass unchanged, and only `could not be opened`,
   `gio open refused that file` and `nothing on this system could be asked` tell an implemented
   `--open` from an absent one.
-- `./tests/budget.sh` asserts `tools/flea-file-budget` itself rejects an oversized
+- `./tests/budget.sh` asserts `tools/dlea-file-budget` itself rejects an oversized
   file and passes a clean tree.
 - `./tests/hyprdispatch.sh` keeps compositor command construction in `tests/lib/hypr-dispatch.sh`.
   Its seven typed entry points validate hexadecimal addresses, integer coordinates, nonnegative resize
@@ -478,7 +478,7 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   The proof runs the real helper against a fake compositor, checks exact text and refusal paths,
   and executes each shell harness's own helper source statement from its directory. It verifies
   the resolved source path of every entry point; missing and foreign helper copies must fail.
-- `./tools/flea-acceptance` is the everything-works battery, and **its checklist is derived at run
+- `./tools/dlea-acceptance` is the everything-works battery, and **its checklist is derived at run
   time, never written from memory**: every request in `docs/protocol.md`, every action in
   `keys.toml` (the `[digits]` range included, which binds nine keys no `action =` line names), every
   entry in `ui/ContextMenu.qml`, every artboard in the design canvas, every sidebar entry kind, and
@@ -505,17 +505,17 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   observable on a four-file directory, so the cancels assert that the backend accepted the request,
   answered no error and is still answering, which is coverage of the request and not of the
   cancellation. The canvas lives in the omarchy repo, so a read-only copy sits at
-  `$REPO/../flea-canvas/` on the box and the failure names it rather than skipping the group.
-- `./tests/bench.sh` gates `tools/flea-bench-manifest`, the version and environment record the
+  `$REPO/../dlea-canvas/` on the box and the failure names it rather than skipping the group.
+- `./tests/bench.sh` gates `tools/dlea-bench-manifest`, the version and environment record the
   field bench writes beside its CSV, and the two values the harness derives from its own entrant
   table to feed it. It launches no entrant, only two named copies of `sleep`, one in a systemd scope
   named the way kitty names its own, and builds its fixture in a `mktemp -d`. It exists because
   the field bench had no gate at all, and its first check is the defect that found: an entrant row
-  arriving indented missed its own case arm, so Flea reported itself as `quickshell 0.3.1`, which
+  arriving indented missed its own case arm, so Dlea reported itself as `quickshell 0.3.1`, which
   is what `pacman -Qo` says about its launcher.
 - `./tests/keymap-gen.sh` asserts the committed `ui/js/Keymap.js` is byte-for-byte what
-  `tools/flea-keymap-gen` produces from `keys.toml`; see "The key table is generated" above.
-- `./tests/touchpad-tool.sh` runs `tools/flea-touchpad`'s `create()` and `swipe()` with recorder
+  `tools/dlea-keymap-gen` produces from `keys.toml`; see "The key table is generated" above.
+- `./tests/touchpad-tool.sh` runs `tools/dlea-touchpad`'s `create()` and `swipe()` with recorder
   stubs for `fcntl.ioctl` and `os.open`/`os.write`, so the uinput ioctl shapes are gated headless
   with no `/dev/uinput`.
 - `./tests/thumbs.sh` drives the release binary against the media fixture and asserts the
@@ -530,11 +530,11 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   decode is slow enough to make the cache-hit check meaningless. **It writes into the
   operator's real shared cache and removes exactly what it created**, by the same md5 key
   the backend used, and its last three checks are that `~/.cache/thumbnails/large` ended at
-  the count it started at, that no `.flea-` temp is left in it, and that no `fail/flea`
+  the count it started at, that no `.dlea-` temp is left in it, and that no `fail/dlea`
   namespace was left behind. **Both counts use `ls -A`.** The temps this subsystem leaks are
   dotfiles, so a bare `ls` cannot see them: the operator's cache showed 94 by `ls` and 104 by
   `ls -A`, and the count check alone stays green against a temp that was present both before and
-  after, which is why the explicit `.flea-` check is a separate assertion and not a rewording.
+  after, which is why the explicit `.dlea-` check is a separate assertion and not a rewording.
 - `./tests/js.sh` runs the pure JavaScript suites through `qml6`: every suite under `tests/js/` (the fixture files there are not suites; run the script for the current list). The thumbs suite is 66 lines against a
   77-line helper and pins the four properties the request policy rests on: `plan` names only
   visible rows carrying `t`, it never re-asks a row the map already holds in any of its three
@@ -547,8 +547,8 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   importing `ui/` whole, because a directory import makes Quickshell scan every file in it and warn
   about the two OEM symlinks a headless run has no session for. It makes two column changes in one
   turn, so one run drives the start, the queue and the drain, and it drives that twice: once with
-  `FLEA_BIN` at a path that does not exist, where both patches must end refused and the book must
-  drain, and once against `target/debug/flea`, where both must reach `ui.json` and nothing must be
+  `DLEA_BIN` at a path that does not exist, where both patches must end refused and the book must
+  drain, and once against `target/debug/dlea`, where both must reach `ui.json` and nothing must be
   reported. Without `ViewState`'s `onRunningChanged` arm the first three checks go red and the
   second run stays green, which is the exact shape of the defect it was written for.
 - `./tests/ui.sh` drives the real window through `omarchy-drive` and takes a case name to run
@@ -582,12 +582,12 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
     `Image.status` reached `Ready`, because a URL a test can read is not proof Qt could load it.
   - `nosweep` catches any request for a row the client did not name, which is the rule that
     forfeits the project: a fling and a `G`/`g` traversal of the 100,000-file fixture must end
-    with the request count at zero, the shared cache the size it started, and no `.flea-` temp.
+    with the request count at zero, the shared cache the size it started, and no `.dlea-` temp.
   It needs `jq` and ImageMagick: the cursor case counts warm pixels in the header band of a
   real screenshot, because a clipping bug is a pixel fact that no IPC value reports. Its sample
   starts 16 px in, since the Hyprland corner arc shows wallpaper through the window's own
   top-left pixels.
-- Each case starts a fresh `/tmp/flea.log`, so `launch()` rolls the previous case's log into
+- Each case starts a fresh `/tmp/dlea.log`, so `launch()` rolls the previous case's log into
   one run log and the end-of-run check greps that. Grepping the live log only ever saw the
   last case, which is how a `TypeError` in an earlier case went unreported.
 - `qmllint ui/*.qml`, run from the repository root, is a gate, and it is the only instrument here
@@ -601,7 +601,7 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   - **It does not come back clean and it cannot be made to.** `import qs.Commons` does not
     resolve under qmllint, so `Theme.color` and `Theme.spacing` degrade to `QObject` and two
     categories fill with false positives: **`missing-property` 605 and `unqualified` 331**, out
-    of 8255 lines total (`tools/flea-qmllint-gate` and `cat ui/*.qml | wc -l` at `9cecda3`; an
+    of 8255 lines total (`tools/dlea-qmllint-gate` and `cat ui/*.qml | wc -l` at `9cecda3`; an
     earlier version of this line said 590, 317 and 3601, and 548 and 301 before that). Those two
     track how large `ui/*.qml` is, so a later delta in them alone
     is tree growth, not a regression. Building a `qs` alias tree and passing `-I` was measured
@@ -615,12 +615,12 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
     gate on total silence would be permanently red and would be ignored within a day. A prior
     version of this line also named `index` 12: that count came from the same grep miscounting
     an array subscript in a printed source line, `root.rows[index]`, as a category; `index` is
-    not a real qmllint id, and `--json`, which `tools/flea-qmllint-gate` reads, never emits it.
+    not a real qmllint id, and `--json`, which `tools/dlea-qmllint-gate` reads, never emits it.
   - **`signal-handler-parameters` is gated at 0 because one exact message is filtered first.**
     qmllint cannot resolve `QProcess::ExitStatus`, so every `Process` `onExited` in this tree
     raises `Type QProcess::ExitStatus of parameter exitStatus in signal called exited was not
     found`, thirteen today, and it raises it identically at 0, 1 and 2 declared parameters, so
-    that count was never measuring arity. `tools/flea-qmllint-gate` (`90c5ec2`, corrected in
+    that count was never measuring arity. `tools/dlea-qmllint-gate` (`90c5ec2`, corrected in
     `320f840`) drops the findings carrying that message, matched on the message and deliberately
     not on the handler name, so a genuine arity slip on an `onExited` itself still fails; that was
     proven by injecting one there and one on another signal. The thirteen are printed as context
@@ -643,12 +643,12 @@ The capture port keeps the stage's later suites and native cases. The sweep's PD
   - **It is not on the non-interactive ssh PATH.** `command -v qmllint` prints nothing and exits 1
     over ssh; the binary lives at `/usr/lib/qt6/bin/qmllint`. A gate written as
     `qmllint ui/*.qml | grep -E '...'` runs that "command not found" through the grep, finds no
-    match, and reports clean. `tools/flea-qmllint-gate` is the correct form: it asserts the binary
+    match, and reports clean. `tools/dlea-qmllint-gate` is the correct form: it asserts the binary
     at its absolute path before running anything, reads `--json` instead of the text output so a
     printed source line's array-index syntax cannot be mistaken for a category by a bracket grep,
     and checks the actionable categories against a ceiling rather than an exact count, so a fix
     can lower one without turning the gate red.
-- `./tools/flea-bench` reproduces the backend half of the acceptance table against a
+- `./tools/dlea-bench` reproduces the backend half of the acceptance table against a
   100,000-file directory.
 - `firstRowsAt()` on that same `IpcHandler` reports the `Date.now()` of the first `rows`
   response that carried any row, as a decimal string. It is what the warm product path is
@@ -693,9 +693,9 @@ stat came in far faster, so the measured figure is the baseline, not the estimat
   read next to a cold stat means something warmed the directory before the measurement.
 - The benchmark refuses to run on tmpfs, because `drop_caches` cannot evict it and a
   cold number there would be a fabrication. `/tmp` on this box is tmpfs, which is why
-  the default target moved to `/home/flea-sandbox`, a sibling of $HOME rather than a child of it, per hard rule 9.
+  the default target moved to `/home/dlea-sandbox`, a sibling of $HOME rather than a child of it, per hard rule 9.
 - Cold procedure: `sudo sh -c 'sync; echo 3 > /proc/sys/vm/drop_caches'`, then
-  `COLD=1 ./tools/flea-bench`. A plain `./tools/flea-bench` run warms the directory
+  `COLD=1 ./tools/dlea-bench`. A plain `./tools/dlea-bench` run warms the directory
   before it measures, so it cannot produce a cold number; `COLD=1` skips that check.
 - The `pane-function-value` gate in `tests/staticgates.py` rejects a depth-1 Pane function read that stands beside `===`, `!==`, `==` or `!=` without its call parentheses, while call, callback-argument and `typeof` guard reads pass.
 

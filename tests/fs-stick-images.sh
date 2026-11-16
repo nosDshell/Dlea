@@ -47,7 +47,7 @@ trap cleanup EXIT HUP INT TERM
 note_mnt() { printf '%s\n' "$1" >> "$ROOT/mnts"; }
 track_loops() { printf '%s\n' "$1" >> "$ROOT/loops"; }
 skip_line() { printf 'SKIP %s\n' "$1" >&2; }
-# Sample emit line: {"layout":"vfat","image":"/img","expected_rows_off":["FLEA-VFAT"]}
+# Sample emit line: {"layout":"vfat","image":"/img","expected_rows_off":["DLEA-VFAT"]}
 emit() { printf '{"layout":"%s","image":"%s","expected_rows_off":[%s],"expected_rows_on":[%s],"note":"%s"}\n' "$1" "$2" "$3" "$4" "$5"; }
 qlist() { local s=""; local x; for x in "$@"; do s="$s\"$x\","; done; printf '%s' "${s%,}"; }
 
@@ -107,8 +107,8 @@ mounted_ok() {
 layout_vfat() {
   local img="$ROOT/stick-vfat.img" mb=256
   if [ "$DRY" = 1 ]; then
-    printf 'would build vfat: %s MiB MBR 0x0c FAT32 label FLEA-VFAT, seeded\n' "$mb" >&2
-    emit vfat "$img" "$(qlist FLEA-VFAT)" "$(qlist FLEA-VFAT)" "baseline"
+    printf 'would build vfat: %s MiB MBR 0x0c FAT32 label DLEA-VFAT, seeded\n' "$mb" >&2
+    emit vfat "$img" "$(qlist DLEA-VFAT)" "$(qlist DLEA-VFAT)" "baseline"
     return
   fi
   command -v sfdisk >/dev/null 2>&1 || { skip_line "vfat needs sfdisk"; return; }
@@ -118,21 +118,21 @@ layout_vfat() {
   local loop
   loop=$(as_root losetup --find --show -P "$img")
   track_loops "$loop"
-  as_root mkfs.vfat -F 32 -n FLEA-VFAT "${loop}p1" >/dev/null || return 1
+  as_root mkfs.vfat -F 32 -n DLEA-VFAT "${loop}p1" >/dev/null || return 1
   mkdir -p "$ROOT/mnt-vfat"
   as_root mount -o "uid=$(id -u),gid=$(id -g)" "${loop}p1" "$ROOT/mnt-vfat" || return 1
   mounted_ok "$ROOT/mnt-vfat" || return 1
   note_mnt "$ROOT/mnt-vfat"
   seed_copy "$ROOT" "$ROOT/mnt-vfat" 1 || return 1
   as_root umount "$ROOT/mnt-vfat" || return 1
-  emit vfat "$img" "$(qlist FLEA-VFAT)" "$(qlist FLEA-VFAT)" "baseline"
+  emit vfat "$img" "$(qlist DLEA-VFAT)" "$(qlist DLEA-VFAT)" "baseline"
 }
 
 layout_exfat() {
   local img="$ROOT/stick-exfat.img" mb=256
   if [ "$DRY" = 1 ]; then
-    printf 'would build exfat: %s MiB MBR 0x07 label FLEA-EXFAT, seeded\n' "$mb" >&2
-    emit exfat "$img" "$(qlist FLEA-EXFAT)" "$(qlist FLEA-EXFAT)" "baseline"
+    printf 'would build exfat: %s MiB MBR 0x07 label DLEA-EXFAT, seeded\n' "$mb" >&2
+    emit exfat "$img" "$(qlist DLEA-EXFAT)" "$(qlist DLEA-EXFAT)" "baseline"
     return
   fi
   command -v sfdisk >/dev/null 2>&1 || { skip_line "exfat needs sfdisk"; return; }
@@ -142,22 +142,22 @@ layout_exfat() {
   local loop
   loop=$(as_root losetup --find --show -P "$img")
   track_loops "$loop"
-  as_root mkfs.exfat -L FLEA-EXFAT "${loop}p1" >/dev/null || return 1
+  as_root mkfs.exfat -L DLEA-EXFAT "${loop}p1" >/dev/null || return 1
   mkdir -p "$ROOT/mnt-exfat"
   as_root mount -o "uid=$(id -u),gid=$(id -g)" "${loop}p1" "$ROOT/mnt-exfat" || return 1
   mounted_ok "$ROOT/mnt-exfat" || return 1
   note_mnt "$ROOT/mnt-exfat"
   seed_copy "$ROOT" "$ROOT/mnt-exfat" 1 || return 1
   as_root umount "$ROOT/mnt-exfat" || return 1
-  emit exfat "$img" "$(qlist FLEA-EXFAT)" "$(qlist FLEA-EXFAT)" "baseline"
+  emit exfat "$img" "$(qlist DLEA-EXFAT)" "$(qlist DLEA-EXFAT)" "baseline"
 }
 
 # #232 internal half: only the data row appears (System Reserved and WinRE hide); sizes MiB.
 layout_ntfs3() {
   local img="$ROOT/stick-ntfs3.img" mb=700 sys_mb=50 data_mb=400 winre_mb=100
   if [ "$DRY" = 1 ]; then
-    printf 'would build ntfs3: %s MiB MBR 0x07 %s MiB System Reserved plus data FLEA-NTFS plus 0x27 WinRE, seeded\n' "$mb" "$sys_mb" >&2
-    emit ntfs3 "$img" "$(qlist FLEA-NTFS)" "$(qlist FLEA-NTFS)" "System Reserved and WinRE hidden"
+    printf 'would build ntfs3: %s MiB MBR 0x07 %s MiB System Reserved plus data DLEA-NTFS plus 0x27 WinRE, seeded\n' "$mb" "$sys_mb" >&2
+    emit ntfs3 "$img" "$(qlist DLEA-NTFS)" "$(qlist DLEA-NTFS)" "System Reserved and WinRE hidden"
     return
   fi
   command -v sfdisk >/dev/null 2>&1 || { skip_line "ntfs3 needs sfdisk"; return; }
@@ -169,7 +169,7 @@ layout_ntfs3() {
   track_loops "$loop"
   # mkntfs stderr stays visible, so a failed hidden-partition format names its cause.
   as_root mkntfs -F -L "System Reserved" "${loop}p1" >/dev/null || return 1
-  as_root mkntfs -F -L "FLEA-NTFS" "${loop}p2" >/dev/null || return 1
+  as_root mkntfs -F -L "DLEA-NTFS" "${loop}p2" >/dev/null || return 1
   as_root mkntfs -F "${loop}p3" >/dev/null || return 1
   mkdir -p "$ROOT/mnt-ntfs3"
   as_root mount -t ntfs3 -o "uid=$(id -u),gid=$(id -g)" "${loop}p2" "$ROOT/mnt-ntfs3" || return 1
@@ -178,13 +178,13 @@ layout_ntfs3() {
   as_root chown -R "$(id -u):$(id -g)" "$ROOT/mnt-ntfs3"
   seed_copy "$ROOT" "$ROOT/mnt-ntfs3" 0 || return 1
   as_root umount "$ROOT/mnt-ntfs3" || return 1
-  emit ntfs3 "$img" "$(qlist FLEA-NTFS)" "$(qlist FLEA-NTFS)" "System Reserved and WinRE hidden"
+  emit ntfs3 "$img" "$(qlist DLEA-NTFS)" "$(qlist DLEA-NTFS)" "System Reserved and WinRE hidden"
 }
 
 # GPT ESP plus data (hfsplus, else ext4 standing in); ESP hides in both variants; sizes MiB.
 layout_espdata() {
-  local img="$ROOT/stick-espdata.img" mb=512 esp_mb=64 data_mb=400 label="FLEA-HFS" note="hfsplus data"
-  if ! command -v mkfs.hfsplus >/dev/null 2>&1; then label="FLEA-NOHFSPLUS"; note="ext4 standing in for hfsplus"; fi
+  local img="$ROOT/stick-espdata.img" mb=512 esp_mb=64 data_mb=400 label="DLEA-HFS" note="hfsplus data"
+  if ! command -v mkfs.hfsplus >/dev/null 2>&1; then label="DLEA-NOHFSPLUS"; note="ext4 standing in for hfsplus"; fi
   if [ "$DRY" = 1 ]; then
     printf 'would build espdata: %s MiB GPT ESP %s MiB plus data %s, seeded\n' "$mb" "$esp_mb" "$label" >&2
     emit espdata "$img" "$(qlist "$label")" "$(qlist "$label")" "$note"
@@ -218,8 +218,8 @@ layout_espdata() {
 layout_espmsrswap() {
   local img="$ROOT/stick-espmsrswap.img" mb=640 esp_mb=64 msr_mb=16 swap_mb=64 data_mb=400
   if [ "$DRY" = 1 ]; then
-    printf 'would build espmsrswap: %s MiB GPT ESP plus MSR plus swap plus ext4 FLEA-EXT4, seeded\n' "$mb" >&2
-    emit espmsrswap "$img" "$(qlist FLEA-EXT4)" "$(qlist FLEA-EXT4)" "ESP MSR swap hidden"
+    printf 'would build espmsrswap: %s MiB GPT ESP plus MSR plus swap plus ext4 DLEA-EXT4, seeded\n' "$mb" >&2
+    emit espmsrswap "$img" "$(qlist DLEA-EXT4)" "$(qlist DLEA-EXT4)" "ESP MSR swap hidden"
     return
   fi
   command -v sfdisk >/dev/null 2>&1 || { skip_line "espmsrswap needs sfdisk"; return; }
@@ -234,7 +234,7 @@ layout_espmsrswap() {
   track_loops "$loop"
   as_root mkfs.vfat -F 32 -n EFI "${loop}p1" >/dev/null || return 1
   as_root mkswap "${loop}p3" >/dev/null || return 1
-  as_root mkfs.ext4 -q -L FLEA-EXT4 "${loop}p4" >/dev/null || return 1
+  as_root mkfs.ext4 -q -L DLEA-EXT4 "${loop}p4" >/dev/null || return 1
   mkdir -p "$ROOT/mnt-espmsrswap"
   as_root mount "${loop}p4" "$ROOT/mnt-espmsrswap" || return 1
   mounted_ok "$ROOT/mnt-espmsrswap" || return 1
@@ -242,15 +242,15 @@ layout_espmsrswap() {
   as_root chown -R "$(id -u):$(id -g)" "$ROOT/mnt-espmsrswap"
   seed_copy "$ROOT" "$ROOT/mnt-espmsrswap" 0 || return 1
   as_root umount "$ROOT/mnt-espmsrswap" || return 1
-  emit espmsrswap "$img" "$(qlist FLEA-EXT4)" "$(qlist FLEA-EXT4)" "ESP MSR swap hidden"
+  emit espmsrswap "$img" "$(qlist DLEA-EXT4)" "$(qlist DLEA-EXT4)" "ESP MSR swap hidden"
 }
 
 # Isohybrid raw: partition 1 is 0x0 iso9660, 0xef ESP hides; MBR lives before sector 16.
 layout_isohybrid() {
   local img="$ROOT/stick-isohybrid.img" iso_sectors
   if [ "$DRY" = 1 ]; then
-    printf 'would build isohybrid: ISO9660 FLEA-ISO with MBR 0x0 plus FAT 0xef ESP, seeded\n' >&2
-    emit isohybrid "$img" "$(qlist FLEA-ISO)" "$(qlist FLEA-ISO)" "ISO row kept, ESP hidden"
+    printf 'would build isohybrid: ISO9660 DLEA-ISO with MBR 0x0 plus FAT 0xef ESP, seeded\n' >&2
+    emit isohybrid "$img" "$(qlist DLEA-ISO)" "$(qlist DLEA-ISO)" "ISO row kept, ESP hidden"
     return
   fi
   if command -v xorrisofs >/dev/null 2>&1; then iso_tool="xorrisofs -J -R -V";
@@ -260,7 +260,7 @@ layout_isohybrid() {
   command -v mkfs.vfat >/dev/null 2>&1 || { skip_line "isohybrid needs mkfs.vfat for the ESP"; return; }
   # Word-split here is the ISO tool argv the branch above chose, never user input.
   # shellcheck disable=SC2086
-  as_root $iso_tool FLEA-ISO -o "$img" "$ROOT/seed/tree" >/dev/null || return 1
+  as_root $iso_tool DLEA-ISO -o "$img" "$ROOT/seed/tree" >/dev/null || return 1
   # Sectors of 512 B: partition 1 spans the ISO, the ESP starts where the ISO ends.
   iso_sectors=$(($(stat -c %s "$img") / 512)) || return 1
   as_root truncate -s $(( (iso_sectors + MBR_ESP_SIZE) * 512 )) "$img"
@@ -279,21 +279,21 @@ with open(img, 'r+b') as f:
 PY
   # Real isohybrids carry a FAT ESP, so only the 0xef type can hide this region.
   as_root mkfs.vfat --offset="$iso_sectors" "$img" >/dev/null || return 1
-  emit isohybrid "$img" "$(qlist FLEA-ISO)" "$(qlist FLEA-ISO)" "ISO row kept, ESP hidden"
+  emit isohybrid "$img" "$(qlist DLEA-ISO)" "$(qlist DLEA-ISO)" "ISO row kept, ESP hidden"
 }
 
 if [ "$DRY" = 1 ]; then
   printf 'fs-stick-images plan: %s\n' "$LAYOUTS" >&2
-  ROOT="$PWD/.superpowers/tmp/flea-stick-plan"
+  ROOT="$PWD/.superpowers/tmp/dlea-stick-plan"
   for layout in $LAYOUTS; do "layout_$layout"; done
   printf 'fs-stick-images --dry-run ok\n' >&2
   exit 0
 fi
 
-ROOT=$(mktemp -d "${TMPDIR:-/tmp}/flea-stick-images.XXXXXX") || exit 1
+ROOT=$(mktemp -d "${TMPDIR:-/tmp}/dlea-stick-images.XXXXXX") || exit 1
 case "$ROOT" in /*/*) ;; *) printf 'fs-stick-images.sh: refusing unsafe scratch %s\n' "$ROOT" >&2; exit 1 ;; esac
 [ -n "$ROOT" ] || exit 1
-: > "$ROOT/.flea-test-sandbox"
+: > "$ROOT/.dlea-test-sandbox"
 seed_host "$ROOT"
 for layout in $LAYOUTS; do "layout_$layout" || fails=$((fails + 1)); done
 printf 'images under %s\n' "$ROOT" >&2

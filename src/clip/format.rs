@@ -1,5 +1,5 @@
 // The clipboard formats, one place: every offered type is built and parsed here.
-use flea::plugin_runtime::protocol::place_path;
+use dlea::plugin_runtime::protocol::place_path;
 use std::collections::HashSet;
 
 pub const GNOME: &str = "x-special/gnome-copied-files";
@@ -12,7 +12,7 @@ pub const UTF8_STRING: &str = "UTF8_STRING";
 pub(crate) const TOKEN_BYTES: usize = 16;
 pub(crate) const TOKEN_HEX_LEN: usize = TOKEN_BYTES * 2;
 
-pub const FLEA: &str = "application/x-flea-clip";
+pub const DLEA: &str = "application/x-dlea-clip";
 
 // Every type an owner offers with its bytes, in the order they are served; KDE only on a cut.
 pub fn payloads(op: &str, paths: &[String], token: &str) -> Vec<(&'static str, Vec<u8>)> {
@@ -24,7 +24,7 @@ pub fn payloads(op: &str, paths: &[String], token: &str) -> Vec<(&'static str, V
             .collect();
     }
     let mut out = vec![
-        (FLEA, build_flea(op, token)),
+        (DLEA, build_dlea(op, token)),
         (GNOME, build_gnome(op, paths)),
         (URILIST, build_urilist(paths)),
         (PLAIN_UTF8, build_plain(paths)),
@@ -72,7 +72,7 @@ fn encode_uri(path: &str) -> String {
         None => (String::from("file://"), path),
     };
     // The exact bytes are encoded, so a name that is not UTF-8 names itself and not its lossy twin.
-    for b in std::os::unix::ffi::OsStrExt::as_bytes(flea::bytename::text_path(path).as_os_str()) {
+    for b in std::os::unix::ffi::OsStrExt::as_bytes(dlea::bytename::text_path(path).as_os_str()) {
         if b.is_ascii_alphanumeric() || matches!(b, b'-' | b'_' | b'.' | b'~' | b'/') {
             out.push(*b as char);
         } else {
@@ -113,7 +113,7 @@ fn decode_uri(uri: &[u8]) -> Option<String> {
         return None;
     }
     // A name that is not UTF-8 arrives as the exact text the listing carries, see src/bytename.rs.
-    let s = flea::bytename::path_text(std::path::Path::new(
+    let s = dlea::bytename::path_text(std::path::Path::new(
         <std::ffi::OsStr as std::os::unix::ffi::OsStrExt>::from_bytes(&raw),
     ))
     .into_owned();
@@ -177,7 +177,7 @@ pub fn parse_urilist(bytes: &[u8]) -> (Vec<String>, usize) {
 pub fn build_plain(paths: &[String]) -> Vec<u8> {
     paths
         .iter()
-        .map(|path| flea::bytename::display(path))
+        .map(|path| dlea::bytename::display(path))
         .collect::<Vec<_>>()
         .join("\n")
         .into_bytes()
@@ -192,7 +192,7 @@ pub fn parse_kde_cut(bytes: &[u8]) -> bool {
     trim_payload(&s) == "1"
 }
 
-pub fn build_flea(op: &str, token: &str) -> Vec<u8> {
+pub fn build_dlea(op: &str, token: &str) -> Vec<u8> {
     format!("{} {} {}", op, token, std::process::id()).into_bytes()
 }
 
@@ -202,7 +202,7 @@ fn trim_payload(s: &str) -> &str {
 
 // The token is 32 hex chars; anything else is another owner's bytes, not a refusal.
 // Sample inputs "copy ab12cd34ab12cd34ab12cd34ab12cd34" and "copy ab12cd34ab12cd34ab12cd34ab12cd34 1234" yield the same operation and token.
-pub fn parse_flea(bytes: &[u8]) -> Option<(String, String, Option<u32>)> {
+pub fn parse_dlea(bytes: &[u8]) -> Option<(String, String, Option<u32>)> {
     let s = std::str::from_utf8(bytes).ok()?;
     let s = trim_payload(s);
     let (op, rest) = s.split_once(' ')?;
@@ -263,7 +263,7 @@ pub fn check_path_cap(paths: &[String]) -> Result<(), String> {
 pub fn validate_clip_paths(paths: &[String]) -> Result<(), String> {
     check_path_cap(paths)?;
     for p in paths {
-        if std::os::unix::ffi::OsStrExt::as_bytes(flea::bytename::text_path(p).as_os_str())
+        if std::os::unix::ffi::OsStrExt::as_bytes(dlea::bytename::text_path(p).as_os_str())
             .contains(&0)
         {
             return Err(format!("{} holds a NUL byte", p));

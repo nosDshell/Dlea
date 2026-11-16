@@ -148,8 +148,8 @@ fn a_row_loads_with_its_birth_time_or_without_one_and_a_malformed_one_is_dropped
 fn a_hand_edited_file_that_is_not_the_shelfs_own_undoes_nothing() {
     let dir = TestDir::new("shelfundo-junk");
     let moves = Moves::at(dir.path());
-    std::fs::create_dir_all(dir.path().join("omarchy/flea-shelf")).unwrap();
-    std::fs::write(dir.path().join("omarchy/flea-shelf/undo.json"), "{ not json").unwrap();
+    std::fs::create_dir_all(dir.path().join("omarchy/dlea-shelf")).unwrap();
+    std::fs::write(dir.path().join("omarchy/dlea-shelf/undo.json"), "{ not json").unwrap();
     assert_eq!(moves.at_ms(), 0);
     assert!(moves.take().unwrap_err().contains("left unchanged"));
     assert_eq!(std::fs::read_to_string(&moves.file).unwrap(), "{ not json");

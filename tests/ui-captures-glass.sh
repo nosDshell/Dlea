@@ -1,10 +1,10 @@
-# Native material candidates with a fixture foot beside Flea; sourced by tests/ui.sh, never a headless suite.
+# Native material candidates with a fixture foot beside Dlea; sourced by tests/ui.sh, never a headless suite.
 
 glasspick_client() {
     local pid="$1" end=$((SECONDS + 20)) clients client
     [[ "$pid" =~ ^[1-9][0-9]*$ ]] || fail "glasspick: invalid owned pid $pid"
     while (( SECONDS < end )); do
-        flea_process_owned "$pid" || fail "glasspick: cannot inspect owned process $pid"
+        dlea_process_owned "$pid" || fail "glasspick: cannot inspect owned process $pid"
         clients=$(hyprctl clients -j) || fail "glasspick: cannot read native clients"
         client=$(jq -ec --argjson pid "$pid" '[.[] | select(.pid == $pid)] | select(length == 1) | .[0]' <<< "$clients") || client=""
         if [[ -n "$client" ]]; then printf '%s\n' "$client"; return; fi
@@ -31,7 +31,7 @@ glasspick_opacity() {
             opacity_inactive) value="$inactive" ;;
             *) value=1 ;;
         esac
-        flea_process_owned "$pid" || fail "glasspick: fixture $pid lost ownership before opacity"
+        dlea_process_owned "$pid" || fail "glasspick: fixture $pid lost ownership before opacity"
         hypr_window_opacity "$address" "$prop" "$value" || fail "glasspick: cannot set $prop on owned fixture $pid"
     done
 }
@@ -54,7 +54,7 @@ glasspick_place() {
 glasspick_stop() {
     local pid="$1" ownership end=$((SECONDS + 10))
     [[ -n "$pid" ]] || return 0
-    if flea_process_owned "$pid"; then
+    if dlea_process_owned "$pid"; then
         kill "$pid" || return 1
     else
         ownership=$?
@@ -63,7 +63,7 @@ glasspick_stop() {
         return 1
     fi
     while (( SECONDS < end )); do
-        if flea_process_owned "$pid"; then
+        if dlea_process_owned "$pid"; then
             sleep 0.1
         else
             ownership=$?
@@ -78,7 +78,7 @@ glasspick_stop() {
 
 glasspick_cleanup() {
     local status=$? clients
-    ( kill_flea ) || status=1
+    ( kill_dlea ) || status=1
     glasspick_stop "$glasspick_term_pid" || status=1
     glasspick_stop "$glasspick_back_pid" || status=1
     if [[ -n "$glasspick_old_focus" ]]; then
@@ -127,8 +127,8 @@ glasspick_foot_check() {
 }
 
 glasspick_shot() {
-    local name="$1" fleapid="$2" termpid="$3" a b x y right bottom width height pad=12 png="$evidence_dir/$1.png"
-    a=$(glasspick_client "$fleapid") && b=$(glasspick_client "$termpid") || fail "glasspick: pair geometry unavailable"
+    local name="$1" dleapid="$2" termpid="$3" a b x y right bottom width height pad=12 png="$evidence_dir/$1.png"
+    a=$(glasspick_client "$dleapid") && b=$(glasspick_client "$termpid") || fail "glasspick: pair geometry unavailable"
     x=$(jq -nr --argjson a "$a" --argjson b "$b" '[$a.at[0], $b.at[0]] | min')
     y=$(jq -nr --argjson a "$a" --argjson b "$b" '[$a.at[1], $b.at[1]] | min')
     right=$(jq -nr --argjson a "$a" --argjson b "$b" '[$a.at[0]+$a.size[0], $b.at[0]+$b.size[0]] | max')
@@ -150,9 +150,9 @@ case_cap_glasspick() (
     command -v magick >/dev/null || fail "glasspick: magick is required for the image fixture"
     local capture_root glasspick_term_pid="" glasspick_back_pid="" glasspick_old_focus glasspick_shots=0
     local theme backdrop mode fixture_home dir state config theme_dir live_name low=kanagawa source
-    local bx by client address fleapid terminal_alpha real_foreground="$real_foreground" real_accent="$real_accent"
+    local bx by client address dleapid terminal_alpha real_foreground="$real_foreground" real_accent="$real_accent"
     local ipc_pid=""
-    local -a flea_launch_wrap
+    local -a dlea_launch_wrap
     glasspick_old_focus=$(hyprctl activewindow -j | jq -r '.address // empty') || fail "glasspick: cannot retain previous focus"
     [[ -z "$glasspick_old_focus" || "$glasspick_old_focus" =~ ^0x[0-9a-fA-F]+$ ]] || fail "glasspick: invalid previous focus"
     capture_root=$(mktemp -d "$fixture_root/glasspick.XXXXXXXX") || fail "glasspick: cannot create capture root"
@@ -193,14 +193,14 @@ for line in path.read_text().splitlines(True):
     if header:
         section = header.group(1).strip()
     key = re.match(r'\s*([A-Za-z0-9_.-]+)\s*=', line)
-    if key and (section == '' and key.group(1) == 'flea.background-alpha' or section == 'flea' and key.group(1) == 'background-alpha'):
+    if key and (section == '' and key.group(1) == 'dlea.background-alpha' or section == 'dlea' and key.group(1) == 'background-alpha'):
         continue
     kept.append(line)
 path.write_text(''.join(kept))
 PY
         real_foreground=$(grep -E '^foreground' "$theme_dir/theme/colors.toml" | grep -oE '#[0-9A-Fa-f]{6}')
         real_accent=$(grep -E '^accent' "$theme_dir/theme/colors.toml" | grep -oE '#[0-9A-Fa-f]{6}')
-        flea_launch_wrap=(env HOME="$fixture_home" XDG_CONFIG_HOME="$fixture_home/.config" XDG_DATA_HOME="$fixture_home/.local/share")
+        dlea_launch_wrap=(env HOME="$fixture_home" XDG_CONFIG_HOME="$fixture_home/.config" XDG_DATA_HOME="$fixture_home/.local/share")
         for backdrop in bright dark; do
             config="$capture_root/back-$theme-$backdrop"
             mkdir -p "$config"
@@ -226,35 +226,35 @@ PY
                 printf '[main]\nfont=monospace:size=11\n[colors-dark]\nforeground=%s\nbackground=%s\nalpha=%s\n' \
                     "${real_foreground#\#}" "$(grep -E '^background[[:space:]]*=' "$theme_dir/theme/colors.toml" | grep -oE '#[0-9A-Fa-f]{6}' | cut -c2-)" "$terminal_alpha" > "$config/foot.ini"
                 glasspick_foot_check "$fixture_home" "$config"
-                printf '#!/bin/sh\nprintf "Flea material comparison\\n\\nAlpha/\\nBeta/\\nnotes.txt\\npreview.png\\n\\n"\nread -r answer\n' > "$config/view.sh"
+                printf '#!/bin/sh\nprintf "Dlea material comparison\\n\\nAlpha/\\nBeta/\\nnotes.txt\\npreview.png\\n\\n"\nread -r answer\n' > "$config/view.sh"
                 env HOME="$fixture_home" XDG_CONFIG_HOME="$fixture_home/.config" XDG_DATA_HOME="$fixture_home/.local/share" \
-                    foot --config="$config/foot.ini" --app-id=com.thisisgm.flea.glasspick.terminal /bin/sh "$config/view.sh" > "$config/foot.log" 2>&1 &
+                    foot --config="$config/foot.ini" --app-id=com.nosDshell.dlea.glasspick.terminal /bin/sh "$config/view.sh" > "$config/foot.log" 2>&1 &
                 glasspick_term_pid=$!
                 glasspick_place "$glasspick_term_pid" "$((bx + 1144))" "$((by + 20))" 420 700
                 if [[ "$mode" == transparent ]]; then glasspick_opacity "$glasspick_term_pid" 0.985 0.96
                 else glasspick_opacity "$glasspick_term_pid" 1 1; fi
                 launch "$dir"
-                fleapid=$(flea_pid)
-                ipc_pid="$fleapid"
+                dleapid=$(dlea_pid)
+                ipc_pid="$dleapid"
                 wait_listing 4
-                glasspick_place "$fleapid" "$((bx + 20))" "$((by + 20))" 1100 700
+                glasspick_place "$dleapid" "$((bx + 20))" "$((by + 20))" 1100 700
                 [[ "$(ipc metrics)" == '13 12 14 37' && "$(ipc viewMode)" == columns ]] || fail "glasspick: not Columns at text size 14"
                 seek_row_named preview.png
                 matrix_wait_column image preview.png
                 printf 'GLASSPICK owned-keys=ok preview=preview.png\n'
-                glasspick_focus "$fleapid" true "$mode"
+                glasspick_focus "$dleapid" true "$mode"
                 [[ "$mode" != transparent ]] || jq -e '.alpha == 1' <<< "$(ipc glass)" >/dev/null || fail "glasspick: focused Transparent is not opaque"
                 settle
                 glasspick_foot_log "$config/foot.log"
-                glasspick_shot "glass-$mode-$theme-$backdrop" "$fleapid" "$glasspick_term_pid"
+                glasspick_shot "glass-$mode-$theme-$backdrop" "$dleapid" "$glasspick_term_pid"
                 if [[ "$mode" == transparent ]]; then
                     glasspick_focus "$glasspick_term_pid" false "$mode"
                     jq -e '.alpha == 1' <<< "$(ipc glass)" >/dev/null || fail "glasspick: unfocused Transparent is not opaque"
                     settle
                     glasspick_foot_log "$config/foot.log"
-                    glasspick_shot "glass-$mode-$theme-$backdrop-unfocused" "$fleapid" "$glasspick_term_pid"
+                    glasspick_shot "glass-$mode-$theme-$backdrop-unfocused" "$dleapid" "$glasspick_term_pid"
                 fi
-                kill_flea
+                kill_dlea
                 ipc_pid=""
                 glasspick_stop "$glasspick_term_pid" || fail "glasspick: terminal could not stop"
                 glasspick_term_pid=""

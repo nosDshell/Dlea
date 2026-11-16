@@ -1,10 +1,10 @@
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::{
     parse::{self, Hit, Record},
     Ask, Outcome, Snapshot,
 };
 use crate::backend::{jail, sandbox, sort::name_order};
-use flea::ui_logic_file_search::ContentsMatch;
+use dlea::ui_logic_file_search::ContentsMatch;
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::os::unix::ffi::OsStrExt;
@@ -140,7 +140,7 @@ fn execute(
     if stop.load(Ordering::Acquire) {
         return Ok(None);
     }
-    let root = flea::bytename::view(&ask.path);
+    let root = dlea::bytename::view(&ask.path);
     let root = &*root;
     let meta = root.metadata().map_err(|error| error.to_string())?;
     if !meta.is_dir() {
@@ -201,7 +201,7 @@ fn execute(
         .enumerate()
         .map(|(row, hit)| {
             let path =
-                flea::bytename::path_text(Path::new(OsStr::from_bytes(&hit.path))).into_owned();
+                dlea::bytename::path_text(Path::new(OsStr::from_bytes(&hit.path))).into_owned();
             let operable = true;
             ContentsMatch {
                 row,

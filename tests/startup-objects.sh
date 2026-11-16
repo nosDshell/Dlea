@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
 # Census the real window after a small listing settles, with no display or operator state.
 set -uo pipefail
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 . "$(dirname "$0")/headless-commons.sh"
 cd "$(dirname "$0")/.." || exit 1
 command -v qs >/dev/null || { printf 'FAIL startup-objects: qs is required\n'; exit 1; }
 command -v dbus-run-session >/dev/null || { printf 'FAIL startup-objects: dbus-run-session is required\n'; exit 1; }
-test_root="$FIXTURE_ROOT/flea-startup-objects-$$"
+test_root="$FIXTURE_ROOT/dlea-startup-objects-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
-mkdir -p "$test_root"/{config,home,state/flea,cache,runtime,fixture,bin} || exit 1
+mkdir -p "$test_root"/{config,home,state/dlea,cache,runtime,fixture,bin} || exit 1
 chmod 700 "$test_root/runtime" || exit 1
 headless_commons "$test_root" || exit 1
-printf '{}\n' > "$test_root/state/flea/ui.json"
+printf '{}\n' > "$test_root/state/dlea/ui.json"
 touch "$test_root/fixture/a.rs" "$test_root/fixture/b.py" "$test_root/fixture/c.go"
 ln -s "$(readlink -m ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 # The window loads its tab catcher from the shell directory at startup, so the probe ships it as the product does.
-ln -s "$PWD/ui/boot/fleatab.qml" "$test_root/config/fleatab.qml" || exit 1
+ln -s "$PWD/ui/boot/dleatab.qml" "$test_root/config/dleatab.qml" || exit 1
 cp tests/startup-objects.qml "$test_root/config/shell.qml" || exit 1
 power_disk=""
 for stat_file in /sys/block/*/stat; do
@@ -40,22 +40,22 @@ SH
 chmod +x "$test_root/bin/gio" || exit 1
 # One probe run: run_probe LOG BACKEND HANG EARLY, where EARLY exercises cold or in-flight menu demand.
 run_probe() {
-    if [[ "${5:-}" == off ]]; then printf '{"langMarks":false}\n' > "$test_root/state/flea/ui.json";
-    else printf '{}\n' > "$test_root/state/flea/ui.json"; fi
+    if [[ "${5:-}" == off ]]; then printf '{"langMarks":false}\n' > "$test_root/state/dlea/ui.json";
+    else printf '{}\n' > "$test_root/state/dlea/ui.json"; fi
     # The shell starts the GVfs trash daemon, so it runs on its own bus, whose daemons log to bus.log and stay out of the engine-warning scan.
     ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u QML_DISABLE_DISK_CACHE \
         HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-        XDG_RUNTIME_DIR="$test_root/runtime" FLEA_BIN="$2" STARTUP_OBJECTS_HANG="$3" \
+        XDG_RUNTIME_DIR="$test_root/runtime" DLEA_BIN="$2" STARTUP_OBJECTS_HANG="$3" \
         STARTUP_OBJECTS_MENU_EARLY="${4:-}" \
         STARTUP_OBJECTS_MARKS_OFF="$([[ "${5:-}" == off ]] && printf 1 || printf 0)" \
-        FLEA_PATH="$test_root/fixture" STARTUP_OBJECTS_UI="$PWD/ui" STARTUP_OBJECTS_DISK="$power_disk" \
+        DLEA_PATH="$test_root/fixture" STARTUP_OBJECTS_UI="$PWD/ui" STARTUP_OBJECTS_DISK="$power_disk" \
         PATH="$test_root/bin:$PATH" STARTUP_OBJECTS_LEG_TIMEOUT_SECONDS="$leg_timeout_seconds" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 QML_IMPORT_TRACE=1 \
         QT_LOGGING_RULES='qt.qml.diskcache*=true' \
         dbus-run-session -- bash -c 'timeout "$1" qs -p "$2" > "$3" 2>&1' _ "$probe_timeout_seconds" "$test_root/config" "$1" 2> "$test_root/bus.log" ) 2>/dev/null
 }
 log="$test_root/startup.log"
-run_probe "$log" "$PWD/target/debug/flea" 0
+run_probe "$log" "$PWD/target/debug/dlea" 0
 status=$?
 grep -a 'STARTUP_OBJECTS' "$log" || true
 # Measurements survive a red pin so the next value comes from the actual execution path.
@@ -106,7 +106,7 @@ fi
 # Every unit loaded before the first rows costs each launch; the probe's empty cache logs each one, pinned by name and bytes.
 pinned=tests/startup-units.txt
 grep -aq 'STARTUP_OBJECTS TOTAL' "$log" || { printf 'FAIL startup-objects: log %s has no STARTUP_OBJECTS TOTAL line to cut the units at\n' "$log"; exit 1; }
-# Sample line: Error loading "file:///home/gm/flea/ui/Row.qml" from disk cache: <reason>, kept only before the TOTAL line since the probe's Quick Look and power-off legs follow it.
+# Sample line: Error loading "file:///home/gm/dlea/ui/Row.qml" from disk cache: <reason>, kept only before the TOTAL line since the probe's Quick Look and power-off legs follow it.
 seen=$(sed -n '1,/STARTUP_OBJECTS TOTAL/p' "$log" | grep -aoE 'Error loading "file://[^"]*/ui/[^"]+" from disk cache' | sed -E 's|.*/ui/([^"]+)".*|\1|' | sort -u)
 for cold in CardScroll.qml ContextMenu.qml IpcControls.qml LocalSendMark.qml MenuEdgeFade.qml MenuRow.qml TailscaleMark.qml js/ControlReader.js js/LockedMenu.js js/MenuFit.js js/MenuRefresh.js; do
     if printf '%s\n' "$seen" | grep -Fxq "$cold"; then
@@ -143,7 +143,7 @@ fi
 # Saved OFF keeps its measured object and unit budget independently of the new fresh default.
 off_log="$test_root/off.log"
 sandbox_scratch "$test_root/cache"
-run_probe "$off_log" "$PWD/target/debug/flea" 0 "" off
+run_probe "$off_log" "$PWD/target/debug/dlea" 0 "" off
 status=$?
 grep -a 'STARTUP_OBJECTS' "$off_log" || true
 if { [ "$status" -ne 0 ] && [ "$status" -ne 143 ]; } \
@@ -162,11 +162,11 @@ off_ceiling=$(sed -n 's/^bytes //p' tests/startup-units-off.txt)
 # Sample input: DEBUG qml: STARTUP_OBJECTS TOTAL 590 yields 590 from the first receipt.
 off_objects=$(awk '/STARTUP_OBJECTS TOTAL/ {print $NF; exit}' "$off_log")
 printf 'STARTUP_OBJECTS OFF units=%s bytes=%s objects=%s language=0\n' "$(printf '%s\n' "$off_seen" | grep -c .)" "$off_bytes" "$off_objects"
-if [[ -n "${FLEA_CI_SUITE_LOGS:-}" ]]; then cp "$off_log" "$FLEA_CI_SUITE_LOGS/startup-objects-off.log" || exit 1; fi
+if [[ -n "${DLEA_CI_SUITE_LOGS:-}" ]]; then cp "$off_log" "$DLEA_CI_SUITE_LOGS/startup-objects-off.log" || exit 1; fi
 # A listing that never answers must still build the IPC seam once the pane turns "waiting".
-printf '#!/bin/sh\nexec cat > /dev/null\n' > "$test_root/bin/flea-silent" && chmod +x "$test_root/bin/flea-silent" || exit 1
+printf '#!/bin/sh\nexec cat > /dev/null\n' > "$test_root/bin/dlea-silent" && chmod +x "$test_root/bin/dlea-silent" || exit 1
 hang_log="$test_root/hang.log"
-run_probe "$hang_log" "$test_root/bin/flea-silent" 1
+run_probe "$hang_log" "$test_root/bin/dlea-silent" 1
 status=$?
 grep -a 'STARTUP_OBJECTS' "$hang_log" || true
 if [ "$status" -ne 0 ] && [ "$status" -ne 143 ]; then
@@ -181,7 +181,7 @@ if [ "$(grep -ac 'STARTUP_OBJECTS PASS' "$hang_log")" -ne 1 ] || grep -aq 'START
 fi
 for early in cold warming; do
     early_log="$test_root/early-$early.log"
-    run_probe "$early_log" "$PWD/target/debug/flea" 0 "$early"
+    run_probe "$early_log" "$PWD/target/debug/dlea" 0 "$early"
     status=$?
     if { [ "$status" -ne 0 ] && [ "$status" -ne 143 ]; } \
         || ! grep -aq "STARTUP_OBJECTS PASS early-menu=$early ready=1 retained=1" "$early_log" \

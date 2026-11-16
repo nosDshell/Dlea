@@ -1,13 +1,13 @@
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "qml-probe.js" as QmlProbe
 
 // Probe real Markdown delegates and task boxes; open Quick Look documents through its public trigger.
 ShellRoot {
     id: root
-    property string scenario: Quickshell.env("FLEA_PREVIEW_HUNT_CASE")
-    property string fixture: Quickshell.env("FLEA_PREVIEW_HUNT_DIR")
+    property string scenario: Quickshell.env("DLEA_PREVIEW_HUNT_CASE")
+    property string fixture: Quickshell.env("DLEA_PREVIEW_HUNT_DIR")
     property int stage: 0
     property double stamp: Date.now()
     property int failures: 0
@@ -19,7 +19,7 @@ ShellRoot {
     property bool scrollFramePending: false
     property bool ticking: false
     readonly property int probeTickMs: 20
-    readonly property int tickMs: Number(Quickshell.env("FLEA_PREVIEW_HUNT_TICK_MS")) || root.probeTickMs
+    readonly property int tickMs: Number(Quickshell.env("DLEA_PREVIEW_HUNT_TICK_MS")) || root.probeTickMs
     readonly property int fileAScrollY: 120
     readonly property int fileBScrollY: 240
     // The size-key case ends one settle after its chord check, on a stage the source-key case never reaches.
@@ -68,15 +68,15 @@ ShellRoot {
         return true
     }
     function flickOf(item) {
-        var handlers = descendants(item).filter(function(node) { return node.objectName === "fleaScroll" })
+        var handlers = descendants(item).filter(function(node) { return node.objectName === "dleaScroll" })
         return handlers.length ? handlers[0].flickable : null
     }
 
     FloatingWindow {
         implicitWidth: 760
         implicitHeight: 500
-        color: Flea.Theme.color.background
-        Flea.PreviewMarkdown {
+        color: Dlea.Theme.color.background
+        Dlea.PreviewMarkdown {
             id: md
             width: 600
             height: 400
@@ -84,21 +84,21 @@ ShellRoot {
             path: root.fixture + "/" + root.scenario + ".md"
             size: 1000
         }
-        Flea.Preview { id: quick }
+        Dlea.Preview { id: quick }
         TextEdit {
             id: reader
             visible: false
             textFormat: TextEdit.MarkdownText
         }
     }
-    Flea.Backend { id: realBackend }
+    Dlea.Backend { id: realBackend }
     Connections {
         target: quick.Window.window
         function onFrameSwapped() { root.scrollFramePending = false }
     }
     Component {
         id: paneComponent
-        Flea.Pane {
+        Dlea.Pane {
             width: 760
             height: 500
             backend: realBackend
@@ -127,10 +127,10 @@ ShellRoot {
                     nativePane = paneComponent.createObject(quick.parent)
                     // The same size signal connection WindowBody.qml installs, with a listing-key positive control.
                     nativePane.textSizeRequested.connect(function (direction) {
-                        if (direction === 0) Flea.ViewState.followTextSize()
-                        else Flea.ViewState.stepTextSize(direction)
+                        if (direction === 0) Dlea.ViewState.followTextSize()
+                        else Dlea.ViewState.stepTextSize(direction)
                     })
-                    if (scenario === "size-key") Flea.ViewState.setTextSize({ mode: 14 })
+                    if (scenario === "size-key") Dlea.ViewState.setTextSize({ mode: 14 })
                     quick.pane = nativePane
                     nativePane.open(root.fixture)
                     nativeKeys = Qt.createQmlObject("import QtTest; TestEvent {}", nativePane.listArea)
@@ -142,8 +142,8 @@ ShellRoot {
                     if (scenario === "size-key") {
                         nativePane.listArea.forceActiveFocus()
                         nativeKeys.keyClick(Qt.Key_Plus, Qt.ControlModifier | Qt.ShiftModifier, -1)
-                        root.check("text-size chord works in listing control", Flea.ViewState.textSize.mode, 16)
-                        Flea.ViewState.setTextSize({ mode: 14 })
+                        root.check("text-size chord works in listing control", Dlea.ViewState.textSize.mode, 16)
+                        Dlea.ViewState.setTextSize({ mode: 14 })
                     }
                     quick.open(root.fixture + "/a.md", "text-x-generic", 2000, "Markdown document", "")
                     nativePane.listArea.forceActiveFocus()
@@ -153,10 +153,10 @@ ShellRoot {
                 }
                 if (stage === 2 && quick.status === "ready" && Date.now() - root.stamp > 300) {
                     if (scenario === "size-key") {
-                        root.check("Markdown starts at pinned text size", Flea.ViewState.textSize.mode, 14)
+                        root.check("Markdown starts at pinned text size", Dlea.ViewState.textSize.mode, 14)
                         nativeKeys.keyClick(Qt.Key_Plus, Qt.ControlModifier | Qt.ShiftModifier, -1)
                         // 0.3.7 behaviour (ruled): preview context refuses the listing size chord, so the size stays 14.
-                        root.check("text-size chord is refused while Markdown Quick Look is shown", Flea.ViewState.textSize.mode, 14)
+                        root.check("text-size chord is refused while Markdown Quick Look is shown", Dlea.ViewState.textSize.mode, 14)
                         root.stage = sizeKeySettleStage
                         root.stamp = Date.now()
                         return
@@ -168,7 +168,7 @@ ShellRoot {
                         return node.blockList !== undefined && node.active === true
                     })[0]
                     root.check("Source is drawn by the live pane", liveMarkdown.view, "source")
-                    root.check("the flip is kept nowhere in the state", Flea.ViewState.preview.markdownView, undefined)
+                    root.check("the flip is kept nowhere in the state", Dlea.ViewState.preview.markdownView, undefined)
                     // The flip lives in the open Quick Look, so the cursor moving to another Markdown file keeps it.
                     var fromRow = nativePane.rowFor(nativePane.cursorIndex)
                     root.check("the cursor sits on the file Quick Look shows", fromRow ? fromRow.n : null, "a.md")

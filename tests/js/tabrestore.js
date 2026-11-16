@@ -1,7 +1,7 @@
 .import "tabsfixture.js" as Fixture
 .import "../../ui/js/Tabs.js" as Tabs
 
-// Tabs040 callout 2: with "Flea opens in" on Last folder the window reopens every tab in
+// Tabs040 callout 2: with "Dlea opens in" on Last folder the window reopens every tab in
 // order at its folder. restorePlan() is the pure startup decision, remembered() what a path
 // change writes, restoreItems() the shape a plan takes back. Nothing here can stat a path,
 // so a folder that no longer exists stays in the plan and the listing's own error names it.

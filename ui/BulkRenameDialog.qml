@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/BulkRename.js" as BulkRename
 
 // Bulk rename card: Find/Replace, one editable line per new name, live reasons, one Rename and one undo.
@@ -36,7 +36,7 @@ FocusScope {
     // A new name and its reason sit one side-inset apart.
     readonly property int reasonGap: 8
     // The mktemp leaf's fixed stem, so the cleanup guard measures the template it cleans.
-    readonly property string scratchStem: "flea-rename-"
+    readonly property string scratchStem: "dlea-rename-"
     property string terminalBase: ""
     property string terminalDir: ""
     property string terminalFile: ""
@@ -119,10 +119,10 @@ FocusScope {
             return
         }
         editChild.command = ["xdg-terminal-exec", "--dir=" + root.folder, "--",
-            "/bin/sh", "-c", "exec " + editor + " \"$1\"", "flea-bulk-rename", root.terminalFile]
+            "/bin/sh", "-c", "exec " + editor + " \"$1\"", "dlea-bulk-rename", root.terminalFile]
         editChild.running = true
     }
-    // A scratch dir is the base plus one flea-rename leaf, so a cleanup never walks elsewhere.
+    // A scratch dir is the base plus one dlea-rename leaf, so a cleanup never walks elsewhere.
     function isScratchDir(dir) {
         if (terminalBase.length === 0 || dir.length <= terminalBase.length + root.scratchStem.length + 1) return false
         if (dir.substring(0, terminalBase.length + 1) !== terminalBase + "/") return false
@@ -163,7 +163,7 @@ FocusScope {
         if (event.modifiers & (Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier)) { event.accepted = true; return }
         event.accepted = true
     }
-    Flea.Reveal { target: root; shown: root.opened; lift: card }
+    Dlea.Reveal { target: root; shown: root.opened; lift: card }
     Process {
         id: mktemp
         stderr: StdioCollector { waitForEnd: true }
@@ -219,7 +219,7 @@ FocusScope {
         target: replaceField.input
         function onTextChanged() { root.replace = replaceField.input.text; root.applyFind() }
     }
-    Flea.DialogScrim {
+    Dlea.DialogScrim {
         onDismissed: root.close()
     }
     Rectangle {
@@ -238,7 +238,7 @@ FocusScope {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             onWheel: function (wheel) { wheel.accepted = true }
         }
-        Flea.CardFrame {
+        Dlea.CardFrame {
             id: body
             bleed: Theme.focusClearance
             anchors.fill: parent
@@ -246,14 +246,14 @@ FocusScope {
             anchors.rightMargin: root.cardPadding + Theme.spacing.hairline - Theme.focusClearance
             anchors.topMargin: root.cardPadding + Theme.spacing.hairline - Theme.focusClearance
             anchors.bottomMargin: root.cardPadding + Theme.spacing.hairline - Theme.focusClearance
-            title: Flea.DialogTitle { width: parent.width; text: BulkRename.title(root.oldNames.length) }
+            title: Dlea.DialogTitle { width: parent.width; text: BulkRename.title(root.oldNames.length) }
             buttons: Row {
                 anchors.right: parent.right
                 spacing: Theme.spacing.gap
                 // Tab reaches every button, the BulkRename board's callout 6: Qt's chain skips a button without activeFocusOnTab.
-                Flea.DialogButton { id: editButton; label: "Edit in terminal"; activeFocusOnTab: true; tabHandle: true; onTabbed: function (from, back) { root.stepFocus("edit", back) }; onActivated: root.editInTerminal() }
-                Flea.DialogButton { id: cancelButton; label: "Cancel"; activeFocusOnTab: true; tabHandle: true; onTabbed: function (from, back) { root.stepFocus("cancel", back) }; onActivated: root.close() }
-                Flea.DialogButton { id: renameButton; label: root.renameText; primary: true; available: root.canRename; activeFocusOnTab: true; tabHandle: true; onTabbed: function (from, back) { root.stepFocus("rename", back) }; onActivated: root.commit() }
+                Dlea.DialogButton { id: editButton; label: "Edit in terminal"; activeFocusOnTab: true; tabHandle: true; onTabbed: function (from, back) { root.stepFocus("edit", back) }; onActivated: root.editInTerminal() }
+                Dlea.DialogButton { id: cancelButton; label: "Cancel"; activeFocusOnTab: true; tabHandle: true; onTabbed: function (from, back) { root.stepFocus("cancel", back) }; onActivated: root.close() }
+                Dlea.DialogButton { id: renameButton; label: root.renameText; primary: true; available: root.canRename; activeFocusOnTab: true; tabHandle: true; onTabbed: function (from, back) { root.stepFocus("rename", back) }; onActivated: root.commit() }
             }
             Column {
                 width: parent.width
@@ -261,7 +261,7 @@ FocusScope {
                 Row {
                     width: parent.width
                     spacing: root.columnGap
-                    Flea.DialogField {
+                    Dlea.DialogField {
                         id: findField
                         width: (parent.width - root.columnGap) / 2
                         label: "Find"
@@ -269,7 +269,7 @@ FocusScope {
                         // A field reports Tab instead of moving, so the card keeps the keyboard inside itself.
                         onTabbed: function (from, back) { root.stepFocus("find", back) }
                     }
-                    Flea.DialogField {
+                    Dlea.DialogField {
                         id: replaceField
                         width: (parent.width - root.columnGap) / 2
                         label: "Replace"
@@ -280,7 +280,7 @@ FocusScope {
                 Row {
                     width: parent.width
                     spacing: root.columnGap
-                    Flea.BulkOldNames {
+                    Dlea.BulkOldNames {
                         id: oldColumn
                         oldNames: root.oldNames
                         columnGap: root.columnGap

@@ -80,7 +80,7 @@ function run(check) {
     check("an unnamed container's unlocked volume reads its own label, as it did",
         Devices.parseDevices(named.replace('"label":"Backup"', '"label":null').replace("%M", '"/run/media/gm/S1LUKS"'))[0].label, "S1LUKS")
 
-    // Unlock critic F3: flea --unlock names the card from the rail's locked row for that device, once the rail lists it.
+    // Unlock critic F3: dlea --unlock names the card from the rail's locked row for that device, once the rail lists it.
     var rail = [{ label: "Backup", device: "/dev/sdb1", locked: false, size: 1 }, { label: "Backup", device: "/dev/loop0", locked: true, size: 33554432, fstype: "crypto_LUKS" }]
     check("the CLI device finds its locked row", Unlock.lockedRow(rail, "/dev/loop0").size, 33554432)
     check("an unlocked row of the same device is never the card's name", Unlock.lockedRow([rail[0]], "/dev/sdb1"), null)

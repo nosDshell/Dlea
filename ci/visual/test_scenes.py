@@ -18,7 +18,7 @@ class Sidecars(unittest.TestCase):
         parent = Path(__file__).resolve().parents[2] / '.superpowers/g010v'
         parent.mkdir(parents=True, exist_ok=True)
         self.root = Path(tempfile.mkdtemp(prefix='sidecar.', dir=parent))
-        (self.root / '.flea-test-sandbox').touch()
+        (self.root / '.dlea-test-sandbox').touch()
         self.addCleanup(self.remove_root)
         self.image = self.root / 'frame.png'
         chunk = lambda kind, data: struct.pack('>I', len(data)) + kind + data + struct.pack('>I', zlib.crc32(kind + data))
@@ -37,7 +37,7 @@ class Sidecars(unittest.TestCase):
 
     def remove_root(self):
         root = self.root
-        if root.is_absolute() and root.name.startswith('sidecar.') and (root / '.flea-test-sandbox').is_file():
+        if root.is_absolute() and root.name.startswith('sidecar.') and (root / '.dlea-test-sandbox').is_file():
             shutil.rmtree(root)
 
     def test_wrapper_uses_native_positions_and_keeps_original_png(self):
@@ -47,7 +47,7 @@ class Sidecars(unittest.TestCase):
         self.assertEqual(before, self.image.read_bytes())
         text = out.read_text()
         self.assertIn('left:192px;top:54px;width:908px;height:619px', text)
-        self.assertIn('data-flea="glyph"', text)
+        self.assertIn('data-dlea="glyph"', text)
         self.assertEqual(json.loads(out.with_suffix('.json').read_text())['png_sha256'], digest)
 
     def test_empty_stale_wrong_scale_and_outside_viewport_sidecars_fail(self):
@@ -114,7 +114,7 @@ class Sidecars(unittest.TestCase):
             scenes.validate(data, receipt, self.image)
 
     def test_the_active_track_id_follows_the_painter_slot_order(self):
-        geometry = (Path(__file__).resolve().parents[2] / 'crates/flea-gui/src/columns/geometry.rs').read_text()
+        geometry = (Path(__file__).resolve().parents[2] / 'crates/dlea-gui/src/columns/geometry.rs').read_text()
         active = re.search(r'Self::Active => (\d+),', geometry)
         self.assertIsNotNone(active, 'Slot::index() no longer names Active')
         for side in ('0', '1'):

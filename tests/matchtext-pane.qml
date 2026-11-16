@@ -1,6 +1,6 @@
 import QtQuick
-import "flea/js/Filter.js" as Filter
-import "flea/js/Focus.js" as Focus
+import "dlea/js/Filter.js" as Filter
+import "dlea/js/Focus.js" as Focus
 
 // The stub pane tests/matchtext-zerowidth.qml hands its views: the Columns view and the list read one of these, and the search and no-match rows read their own. Each property is what the real pane holds for those views; the functions answer what they call.
 QtObject {

@@ -65,7 +65,7 @@ noblank_step() {
 # for its whole wait, and one past it, which must fall back to the loading state and is the control
 # that proves the counter sees frames at all, since the loading frames it counts are drawn empty too.
 case_noblank() {
-    local dir="$fixture_root/noblank" bin="$fixture_root/noblank-bin" real_bin="$flea_bin" i
+    local dir="$fixture_root/noblank" bin="$fixture_root/noblank-bin" real_bin="$dlea_bin" i
     local before after
     sandbox_scratch "$dir"
     mkdir -p "$dir/inner" "$dir/held" "$dir/slow" "$dir/zbrief"
@@ -75,7 +75,7 @@ case_noblank() {
 
     # A relay to the real binary that holds back the two late directories' list requests and ends on quit.
     sandbox_scratch "$bin"
-    cat > "$bin/flea" <<'SH'
+    cat > "$bin/dlea" <<'SH'
 #!/usr/bin/env bash
 set -u
 [[ "${1:-}" == --backend ]] || exec "$NOBLANK_REAL_BIN" "$@"
@@ -89,14 +89,14 @@ while IFS= read -r line; do
     [[ "$line" == *'"c":"quit"'* ]] && break
 done | "$NOBLANK_REAL_BIN" --backend
 SH
-    chmod +x "$bin/flea"
+    chmod +x "$bin/dlea"
 
     seed_ui_state "$fixture_root/noblank-state" '{"keys":"default","view":"list"}'
     local -x NOBLANK_REAL_BIN="$real_bin" NOBLANK_HELD="$dir/held" NOBLANK_SLOW="$dir/slow" NOBLANK_BRIEF="$dir/zbrief"
     local -x NOBLANK_HELD_DELAY="$noblank_held_delay_s" NOBLANK_SLOW_DELAY="$noblank_slow_delay_s" NOBLANK_BRIEF_DELAY="$noblank_brief_delay_s"
-    flea_bin="$bin/flea"
+    dlea_bin="$bin/dlea"
     launch "$dir"
-    flea_bin="$real_bin"
+    dlea_bin="$real_bin"
     # held, inner, slow, zbrief, then outer-01 to outer-40.
     wait_listing 44
     settle
@@ -165,7 +165,7 @@ SH
     switch_view list
 
     printf 'NOBLANK enter=ok doubleclick=ok backspace=ok held=ok slow=ok brief=ok grid=ok columns=ok %s\n' "$(noblank_state)"
-    kill_flea
+    kill_dlea
 }
 
 # The session's own stopwatch: the gen whose settled line has landed, so the rows on screen are that query's.
@@ -211,7 +211,7 @@ searchnoblank_filter_key() {
 
 # Search and "/" change the rows in one frame in all three views, with PaneSwap's blank-frame count still across every key, while the relay holds each searchquery 0.8 s past Swap.HOLD_MS.
 case_searchnoblank() {
-    local dir="$fixture_root/searchnoblank" bin="$fixture_root/searchnoblank-bin" real_bin="$flea_bin"
+    local dir="$fixture_root/searchnoblank" bin="$fixture_root/searchnoblank-bin" real_bin="$dlea_bin"
     local before mid after i base
     sandbox_scratch "$dir"
     for i in $(seq -w 1 120); do printf 'x\n' > "$dir/notes-$i.md"; done
@@ -222,7 +222,7 @@ case_searchnoblank() {
 
     # A relay to the real binary that holds back every searchquery answer past the hold cap and ends on quit.
     sandbox_scratch "$bin"
-    cat > "$bin/flea" <<'SH'
+    cat > "$bin/dlea" <<'SH'
 #!/usr/bin/env bash
 set -u
 [[ "${1:-}" == --backend ]] || exec "$SEARCHNOBLANK_REAL_BIN" "$@"
@@ -234,13 +234,13 @@ while IFS= read -r line; do
     [[ "$line" == *'"c":"quit"'* ]] && break
 done | "$SEARCHNOBLANK_REAL_BIN" --backend
 SH
-    chmod +x "$bin/flea"
+    chmod +x "$bin/dlea"
 
     seed_ui_state "$fixture_root/searchnoblank-state" '{"keys":"default","view":"list"}'
     local -x SEARCHNOBLANK_REAL_BIN="$real_bin" SEARCHNOBLANK_QUERY_DELAY="$searchnoblank_query_delay_s"
-    flea_bin="$bin/flea"
+    dlea_bin="$bin/dlea"
     launch "$dir"
-    flea_bin="$real_bin"
+    dlea_bin="$real_bin"
     # 280 files plus the sub folder itself.
     wait_listing 281
     settle
@@ -334,10 +334,10 @@ SH
     done
 
     printf 'SEARCHNOBLANK list=ok columns=ok grid=ok %s\n' "$(noblank_state)"
-    kill_flea
+    kill_dlea
 }
 
-# One launch on the lookopen fixture in a view, from its own state seeded with patch; launch() stops any running Flea first.
+# One launch on the lookopen fixture in a view, from its own state seeded with patch; launch() stops any running Dlea first.
 lookopen_launch() {
     local dir="$1" view="$2" label="$3" patch="$4"
     seed_ui_state "$fixture_root/lookopen-state-$view-$label" "$patch"
@@ -443,7 +443,7 @@ relstart_look() {
     seek_row_named "$name"
     settle
     key -k space >/dev/null
-    flea_ipc_wait -p "$flea_ui/boot" flea previewState "$kind" --timeout 10 >/dev/null \
+    dlea_ipc_wait -p "$dlea_ui/boot" dlea previewState "$kind" --timeout 10 >/dev/null \
         || fail "relstart: Quick Look on $name draws '$(ipc previewState)', not its $kind"
     [[ "$(ipc previewOpen)" == true && "$(ipc previewKind)" == "$kind" ]] \
         || fail "relstart: Quick Look on $name is $(ipc previewKind), open=$(ipc previewOpen), not a $kind"

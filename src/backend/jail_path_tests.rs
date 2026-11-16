@@ -6,7 +6,7 @@ use std::process::{Command, Stdio};
 
 #[test]
 fn sandbox_availability_rejects_relative_launcher_entries() {
-    if let Ok(expected) = std::env::var("FLEA_SANDBOX_AVAILABILITY_PROBE") {
+    if let Ok(expected) = std::env::var("DLEA_SANDBOX_AVAILABILITY_PROBE") {
         let available = crate::backend::sandbox::available();
         if expected == "available" {
             assert!(
@@ -66,7 +66,7 @@ fn sandbox_availability_rejects_relative_launcher_entries() {
                     "--nocapture",
                 ])
                 .current_dir(root.path())
-                .env("FLEA_SANDBOX_AVAILABILITY_PROBE", expected)
+                .env("DLEA_SANDBOX_AVAILABILITY_PROBE", expected)
                 .env("PATH", path)
                 .output()
                 .unwrap();
@@ -84,7 +84,7 @@ fn sandbox_availability_rejects_relative_launcher_entries() {
 
 #[test]
 fn launchers_ignore_relative_empty_and_unset_path_entries() {
-    if let Some(case) = std::env::var_os("FLEA_JAIL_PATH_PROBE") {
+    if let Some(case) = std::env::var_os("DLEA_JAIL_PATH_PROBE") {
         let case = case.to_str().unwrap();
         let args = if case == "bwrap" {
             vec![
@@ -127,7 +127,7 @@ fn launchers_ignore_relative_empty_and_unset_path_entries() {
                 "--nocapture",
             ])
             .current_dir(root.path())
-            .env("FLEA_JAIL_PATH_PROBE", case);
+            .env("DLEA_JAIL_PATH_PROBE", case);
         match case {
             "relative-only" => {
                 probe.env("PATH", ".:relative");
@@ -157,7 +157,7 @@ fn launchers_ignore_relative_empty_and_unset_path_entries() {
 
 #[test]
 fn sandbox_availability_requires_executable_launchers() {
-    const FLAG: &str = "FLEA_SANDBOX_EXECUTABILITY_PROBE";
+    const FLAG: &str = "DLEA_SANDBOX_EXECUTABILITY_PROBE";
     // A regular file with no execute bit, which the launcher lookup refuses.
     const NON_EXECUTABLE_MODE: u32 = 0o644;
     // The same file with execute bits, the positive control.

@@ -1,5 +1,5 @@
 // Dolphin-compatible file tags in user.xdg.tags, read per viewport row and never swept.
-use crate::error::FleaError;
+use crate::error::DleaError;
 use std::ffi::{c_char, c_int, c_void, CString};
 use std::path::Path;
 
@@ -12,7 +12,7 @@ const ENODATA: i32 = 61;
 // A hostile value cannot exceed the filesystem's own limit; this caps the read, never the write.
 pub(crate) const MAX_VALUE: usize = 65536;
 
-// Flea's seven names in menu order, which is also the 1 to 7 key order; see ui/js/Tags.js.
+// Dlea's seven names in menu order, which is also the 1 to 7 key order; see ui/js/Tags.js.
 pub const NAMES: [&str; 7] = ["Red", "Orange", "Yellow", "Green", "Blue", "Purple", "Gray"];
 
 extern "C" {
@@ -46,8 +46,8 @@ pub fn join(names: &[String]) -> Vec<u8> {
 }
 
 // A name no caller can produce still refuses here rather than truncating at the syscall.
-fn cpath(path: &Path) -> Result<CString, FleaError> {
-    CString::new(path.as_os_str().as_encoded_bytes()).map_err(|_| FleaError {
+fn cpath(path: &Path) -> Result<CString, DleaError> {
+    CString::new(path.as_os_str().as_encoded_bytes()).map_err(|_| DleaError {
         where_: "tags".into(),
         path: path.to_string_lossy().into(),
         msg: "the file name cannot be represented".into(),
@@ -62,7 +62,7 @@ fn errno() -> i32 {
     std::io::Error::last_os_error().raw_os_error().unwrap_or(0)
 }
 
-fn io_err(where_: &str, path: &Path, code: i32) -> FleaError {
+fn io_err(where_: &str, path: &Path, code: i32) -> DleaError {
     crate::error::from_io(where_, &path.to_string_lossy(), &std::io::Error::from_raw_os_error(code))
 }
 
@@ -70,7 +70,7 @@ fn io_err(where_: &str, path: &Path, code: i32) -> FleaError {
 thread_local! { pub(crate) static SEARCH_TAG_CALLS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) }; }
 
 // Sample input: a file Dolphin tagged "Red,Blue" answers Some of those bytes; untagged answers None.
-pub fn read_raw(path: &Path) -> Result<Option<Vec<u8>>, FleaError> {
+pub fn read_raw(path: &Path) -> Result<Option<Vec<u8>>, DleaError> {
     #[cfg(test)]
     SEARCH_TAG_CALLS.with(|calls| calls.set(calls.get() + 1));
     let cpath = cpath(path)?;
@@ -83,7 +83,7 @@ pub fn read_raw(path: &Path) -> Result<Option<Vec<u8>>, FleaError> {
         };
     }
     if size as usize > MAX_VALUE {
-        return Err(FleaError {
+        return Err(DleaError {
             where_: "tags".into(),
             path: path.to_string_lossy().into(),
             msg: "the stored tags are too large to read".into(),
@@ -99,7 +99,7 @@ pub fn read_raw(path: &Path) -> Result<Option<Vec<u8>>, FleaError> {
     Ok(Some(buf))
 }
 
-pub fn read(path: &Path) -> Result<Vec<String>, FleaError> {
+pub fn read(path: &Path) -> Result<Vec<String>, DleaError> {
     #[cfg(test)]
     super::tagreadprobe::observe(path);
     Ok(read_raw(path)?.map(|raw| parse(&raw)).unwrap_or_default())
@@ -145,7 +145,7 @@ fn probe_code(path: &Path) -> Result<(), i32> {
 }
 
 // None when tags may be written; Some refusal naming the filesystem when they cannot.
-pub fn support_error(path: &Path) -> Option<FleaError> {
+pub fn support_error(path: &Path) -> Option<DleaError> {
     if forced_unsupported() {
         return Some(refusal(path));
     }
@@ -166,16 +166,16 @@ pub fn dir_supports(path: &Path) -> bool {
 }
 
 // Sample refusal: where "settags", naming the filesystem that cannot hold the attribute.
-fn refusal(path: &Path) -> FleaError {
+fn refusal(path: &Path) -> DleaError {
     let fs = crate::backend::fsinfo::read(path).map(|info| info.name).unwrap_or_else(|| "unknown".into());
-    FleaError {
+    DleaError {
         where_: "settags".into(),
         path: path.to_string_lossy().into(),
         msg: format!("{} does not support file tags, so nothing was changed", fs),
     }
 }
 
-fn write_raw(path: &Path, value: &[u8]) -> Result<(), FleaError> {
+fn write_raw(path: &Path, value: &[u8]) -> Result<(), DleaError> {
     let cpath = cpath(path)?;
     let name = attr();
     let done =
@@ -187,7 +187,7 @@ fn write_raw(path: &Path, value: &[u8]) -> Result<(), FleaError> {
     }
 }
 
-fn remove(path: &Path) -> Result<(), FleaError> {
+fn remove(path: &Path) -> Result<(), DleaError> {
     let cpath = cpath(path)?;
     let name = attr();
     let done = unsafe { lremovexattr(cpath.as_ptr(), name.as_ptr()) };
@@ -202,7 +202,7 @@ fn remove(path: &Path) -> Result<(), FleaError> {
 }
 
 // Sample input: ["Red", "Custom"] writes b"Red,Custom"; [] removes the attribute.
-pub fn write_names(path: &Path, names: &[String]) -> Result<(), FleaError> {
+pub fn write_names(path: &Path, names: &[String]) -> Result<(), DleaError> {
     if names.is_empty() {
         remove(path)
     } else {
@@ -211,7 +211,7 @@ pub fn write_names(path: &Path, names: &[String]) -> Result<(), FleaError> {
 }
 
 // Restores one file's previous attribute exactly, absent included, which is what undo records.
-pub fn restore(path: &Path, before: &Option<Vec<u8>>) -> Result<(), FleaError> {
+pub fn restore(path: &Path, before: &Option<Vec<u8>>) -> Result<(), DleaError> {
     match before {
         Some(bytes) => write_raw(path, bytes),
         None => remove(path),
@@ -291,7 +291,7 @@ mod tests {
     }
 
     #[test]
-    fn a_foreign_name_survives_a_toggle_of_a_flea_one() {
+    fn a_foreign_name_survives_a_toggle_of_a_dlea_one() {
         let d = TestDir::new("tagsforeign");
         let file = d.file("a.txt", "body");
         write_names(&file, &["Custom".to_string(), "Red".to_string()]).unwrap();

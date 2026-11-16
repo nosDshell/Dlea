@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-figure-warm-test
+//@ pragma ShellId dlea-figure-warm-test
 
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 
 // A document with figures starts the helper before its figures are asked for; every other document leaves it stopped.
 ShellRoot {
@@ -12,8 +12,8 @@ ShellRoot {
     function log(line) { console.log("FIGURE_WARM " + line) }
     function quit() { Quickshell.execDetached(["kill", String(Quickshell.processId)]) }
 
-    property string figures: Quickshell.env("FLEA_FIGURE_WARM_FIGURES")
-    property string plain: Quickshell.env("FLEA_FIGURE_WARM_PLAIN")
+    property string figures: Quickshell.env("DLEA_FIGURE_WARM_FIGURES")
+    property string plain: Quickshell.env("DLEA_FIGURE_WARM_PLAIN")
     property int checks: 0
     property int failures: 0
     property bool done: false
@@ -24,8 +24,8 @@ ShellRoot {
     readonly property int idleExitMs: 150
     readonly property int watchdogMs: 90000
     Component.onCompleted: {
-        Flea.ViewState.setTextSize({ mode: 14 })
-        Flea.FigureService.idleExitMs = shell.idleExitMs
+        Dlea.ViewState.setTextSize({ mode: 14 })
+        Dlea.FigureService.idleExitMs = shell.idleExitMs
     }
 
     function check(passed, why) {
@@ -56,7 +56,7 @@ ShellRoot {
     }
 
     // Three documents, each inactive until its step, so each one's parse is its own event.
-    Flea.PreviewMarkdown {
+    Dlea.PreviewMarkdown {
         id: sourceDoc
         width: 560
         height: 800
@@ -65,7 +65,7 @@ ShellRoot {
         path: shell.figures
         size: 1
     }
-    Flea.PreviewMarkdown {
+    Dlea.PreviewMarkdown {
         id: plainDoc
         width: 560
         height: 800
@@ -74,7 +74,7 @@ ShellRoot {
         path: shell.plain
         size: 1
     }
-    Flea.PreviewMarkdown {
+    Dlea.PreviewMarkdown {
         id: figuresDoc
         width: 560
         height: 800
@@ -87,7 +87,7 @@ ShellRoot {
     // The check reads the cause (no warm query or ask, no store or helper spawned): contentReady is the warm inputs' last change, so one deferred turn covers the request side.
     function settledStopped(label) {
         Qt.callLater(function () {
-            var service = Flea.FigureService
+            var service = Dlea.FigureService
             shell.check(service.seq === 0 && service.warmQuery === 0 && !service.persistent.active && service.persistent.exits === 0
                 && !service.helperRunning && !service.starting && service.helperExits === shell.exitsMark,
                 label + " sent no warm query and spawned neither a store nor a helper")
@@ -125,7 +125,7 @@ ShellRoot {
 
     // The exit count and the running flag change in separate turns, so both signals come here for the warm helper's idle exit.
     function idleEnded() {
-        var service = Flea.FigureService
+        var service = Dlea.FigureService
         if (shell.step === 5 && service.helperExits === shell.exitsMark + 1 && !service.helperRunning) {
             shell.check(true, "the idle exit still ends a warm helper")
             shell.step = 6
@@ -134,12 +134,12 @@ ShellRoot {
     }
 
     Connections {
-        target: Flea.FigureService
+        target: Dlea.FigureService
         function onHelperRunningChanged() {
             shell.idleEnded()
-            if (!Flea.FigureService.helperRunning || shell.step !== 3)
+            if (!Dlea.FigureService.helperRunning || shell.step !== 3)
                 return
-            var service = Flea.FigureService
+            var service = Dlea.FigureService
             shell.check(service.sends === 0 && service.workerAnswers === 0 && service.pending.length === 0 && Object.keys(service.waiting).length === 0,
                 "the resting figures document starts the helper before any figure is asked of it")
             shell.exitsMark = service.helperExits
@@ -150,7 +150,7 @@ ShellRoot {
         function onDone(ticket, svg, error) {
             if (ticket !== shell.ticket)
                 return
-            var service = Flea.FigureService
+            var service = Dlea.FigureService
             if (shell.step === 4) {
                 shell.check(svg.indexOf("<svg") === 0 && error === "", "the first figure is answered")
                 shell.check(service.helperExits === shell.exitsMark && service.helperPid === shell.pidMark && service.sends >= 1, "by the helper the warm start made, not a second one")
@@ -181,7 +181,7 @@ ShellRoot {
         interval: 1
         running: true
         onTriggered: {
-            shell.check(!Flea.FigureService.helperRunning && !Flea.FigureService.starting, "a document that is not active (a moving cursor) starts nothing")
+            shell.check(!Dlea.FigureService.helperRunning && !Dlea.FigureService.starting, "a document that is not active (a moving cursor) starts nothing")
             shell.next()
         }
     }

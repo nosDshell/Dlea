@@ -4,15 +4,15 @@
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
 python3 -B tests/picker-focus-helper-check.py || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-picker-hunt.XXXXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-picker-hunt.XXXXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER"
 trap 'sandbox_remove "$test_root"' EXIT
 mkdir -p "$test_root/config" "$test_root/fixture"
-cp -a ui "$test_root/config/flea"
+cp -a ui "$test_root/config/dlea"
 # The probe exits normally after the same saved reply and two worker exits that end the real chooser.
-python3 - "$test_root/config/flea/PickerWindow.qml" <<'PYCODE'
+python3 - "$test_root/config/dlea/PickerWindow.qml" <<'PYCODE'
 from pathlib import Path
 import sys
 path = Path(sys.argv[1])
@@ -53,7 +53,7 @@ for view in list grid; do
             case "$scenario" in cursor-open|cursor-enter|marked-open|marked-enter) ;; *) continue ;; esac
         fi
         phase="$test_root/$preset-$view-$scenario"
-        mkdir -p "$phase"/{home,state/flea,cache,data,runtime,tmp}
+        mkdir -p "$phase"/{home,state/dlea,cache,data,runtime,tmp}
         chmod 700 "$phase/runtime"
         mode=open
         multiple=true
@@ -62,9 +62,9 @@ for view in list grid; do
         case "$scenario" in refuse-*) multiple=false ;; esac
         case "$scenario" in refuse-validate) multiple=true ;; esac
         case "$scenario" in refuse-review|refuse-collision) mode=save ;; esac
-        backend="$PWD/target/debug/flea"
+        backend="$PWD/target/debug/dlea"
         case "$scenario" in refuse-*) backend="$test_root/focus-backend" ;; esac
-        printf '{"pickerView":"%s","keys":"%s"}' "$view" "$preset" > "$phase/state/flea/ui.json"
+        printf '{"pickerView":"%s","keys":"%s"}' "$view" "$preset" > "$phase/state/dlea/ui.json"
         fixture="$test_root/fixture"
         case "$scenario" in
             range-burst)
@@ -98,10 +98,10 @@ PY
         output=$(env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
             HOME="$phase/home" XDG_STATE_HOME="$phase/state" XDG_CONFIG_HOME="$phase/home/.config" \
             XDG_CACHE_HOME="$phase/cache" XDG_DATA_HOME="$phase/data" XDG_RUNTIME_DIR="$phase/runtime" TMPDIR="$phase/tmp" \
-            FLEA_BIN="$backend" FLEA_PICKER="$request" FLEA_PICKER_REPLY="$phase/reply.json" \
-            FLEA_PICKER_HUNT_BASE_FILES="$base_fixture_files" FLEA_PICKER_HUNT_EXTRA_FILES="$wide_extra_files" \
-            FLEA_PICKER_HUNT_REFUSAL_LOG="$phase/refused-operations" \
-            FLEA_PICKER_HUNT_CASE="$scenario" FLEA_PICKER_HUNT_PRESET="$preset" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software \
+            DLEA_BIN="$backend" DLEA_PICKER="$request" DLEA_PICKER_REPLY="$phase/reply.json" \
+            DLEA_PICKER_HUNT_BASE_FILES="$base_fixture_files" DLEA_PICKER_HUNT_EXTRA_FILES="$wide_extra_files" \
+            DLEA_PICKER_HUNT_REFUSAL_LOG="$phase/refused-operations" \
+            DLEA_PICKER_HUNT_CASE="$scenario" DLEA_PICKER_HUNT_PRESET="$preset" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software \
             QT_FORCE_STDERR_LOGGING=1 timeout "$probe_timeout_seconds" qs -p "$test_root/config" 2>&1)
         code=$?
         phases=$((phases+1))
@@ -161,7 +161,7 @@ PY
         if [ "$scenario" = remember ]; then
             wanted=grid
             [ "$view" = grid ] && wanted=list
-            if ! python3 - "$phase/state/flea/ui.json" "$wanted" <<'PY'
+            if ! python3 - "$phase/state/dlea/ui.json" "$wanted" <<'PY'
 import json,sys
 # Sample input: {"pickerView": "grid", "keys": "default"}
 try:r=json.load(open(sys.argv[1]))

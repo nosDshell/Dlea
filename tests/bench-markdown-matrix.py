@@ -20,9 +20,9 @@ import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
 SANDBOX = Path(sys.argv.pop(1)).resolve(strict=True)
-assert SANDBOX.is_absolute() and (SANDBOX / '.flea-test-sandbox').is_file()
+assert SANDBOX.is_absolute() and (SANDBOX / '.dlea-test-sandbox').is_file()
 assert SANDBOX.is_relative_to(ROOT / '.superpowers/m9-bench-14')
-TOOL = ROOT / 'tools/flea-bench-markdown'
+TOOL = ROOT / 'tools/dlea-bench-markdown'
 loader = importlib.machinery.SourceFileLoader('markdown_bench', str(TOOL))
 spec = importlib.util.spec_from_loader(loader.name, loader)
 BENCH = importlib.util.module_from_spec(spec)
@@ -76,7 +76,7 @@ def synthetic_campaign():
         campaign['binaries'][key] = receipt('binary-' + key + '.json',
             dict(scope='installed-product', entrant=key, installed=True, path='/installed/' + key,
                  version=entrant['version'], binary_sha256=BENCH.digest(key.encode()),
-                 source_sha=catalog['reference_ref'] if key == 'flea-anchor' else '2' * 40,
+                 source_sha=catalog['reference_ref'] if key == 'dlea-anchor' else '2' * 40,
                  launch_argv=['/installed/' + key, '--gui'], dependencies=['test'], recorded_at='2026-10-24'))
     for key, fixture in catalog['fixtures'].items():
         outputs = {}
@@ -95,12 +95,12 @@ def synthetic_campaign():
                         observed_at='2026-10-24', capture=capture,
                         binary_sha256=BENCH.digest(row['entrant'].encode()))
         row['receipt'] = receipt('cap-' + '-'.join(identity[key] for key in ('entrant', 'feature', 'surface')) + '.json', identity)
-    for opponent in ['strata-stable', 'strata-nightly', 'flea-anchor']:
+    for opponent in ['strata-stable', 'strata-nightly', 'dlea-anchor']:
         for feature in catalog['features']:
             for mode in BENCH.MODES:
                 for pair in range(1, 11):
-                    first = 'flea' if pair % 2 else opponent
-                    for arm in ('flea', opponent):
+                    first = 'dlea' if pair % 2 else opponent
+                    for arm in ('dlea', opponent):
                         sample = dict(entrant=arm, opponent=opponent, feature=feature['id'], surface='quicklook',
                                       mode=mode, pair=pair, position=0 if arm == first else 1)
                         start = pair * 1_000_000_000 + sample['position'] * 100_000_000
@@ -110,7 +110,7 @@ def synthetic_campaign():
                             cache_state='cold-first-use' if mode == 'cold' else 'warm-reuse',
                             process_instance=arm + '-' + opponent + '-' + feature['id'] + ('-' + str(pair) if mode == 'cold' else '-warm'),
                             host='test-host', session='test-session', viewport_px=[1100, 700], theme='test-theme',
-                            input_ns=start, presented_ns=start + (2 if arm == 'flea' else 4) * 1_000_000,
+                            input_ns=start, presented_ns=start + (2 if arm == 'dlea' else 4) * 1_000_000,
                             useful_content='Synthetic feature pixels',
                             fixture_receipts={key: campaign['fixtures'][key]['sha256'] for key in feature['fixtures']},
                             captures={key: capture for key in feature['checks']})
@@ -122,7 +122,7 @@ def synthetic_campaign():
     component_output = artifact('components.txt', ''.join('FIGBENCH%s %-9s n=10 median=5 min=1 max=10 ms\n' %
         (' warm' if mode == 'warm' else '', case) for mode in BENCH.MODES for case in catalog['component_cases']).encode())
     campaign['components'] = [dict(entrant=arm, case=case, mode=mode, kind='helper-response', output=component_output)
-                              for arm in ('flea', 'flea-anchor') for case in catalog['component_cases'] for mode in BENCH.MODES]
+                              for arm in ('dlea', 'dlea-anchor') for case in catalog['component_cases'] for mode in BENCH.MODES]
     return campaign, catalog, catalog_hash
 
 
@@ -160,9 +160,9 @@ class MatrixTests(unittest.TestCase):
         row.update(input_ns=begin, presented_ns=begin + width)
         sample['observation'] = receipt('retimed-' + BENCH.digest(json.dumps(row).encode()) + '.json', row)
 
-    def flea_cell(self, feature, status):
+    def dlea_cell(self, feature, status):
         for row in self.campaign['applicability']:
-            if row['entrant'] == 'flea' and row['feature'] == feature:
+            if row['entrant'] == 'dlea' and row['feature'] == feature:
                 row['status'] = status
                 self.change_receipt(row, 'receipt', 'status', status)
 
@@ -194,8 +194,8 @@ class MatrixTests(unittest.TestCase):
     def test_original_generator_writes_exact_controls_and_receipt(self):
         root = SANDBOX / 'original-generator'
         root.mkdir()
-        (root / '.flea-test-sandbox').touch()
-        process = subprocess.run([sys.executable, '-B', str(ROOT / 'tools/flea-bench-markdown'), 'fixtures', str(root)],
+        (root / '.dlea-test-sandbox').touch()
+        process = subprocess.run([sys.executable, '-B', str(ROOT / 'tools/dlea-bench-markdown'), 'fixtures', str(root)],
                                  capture_output=True, text=True, check=True)
         result = json.loads(process.stdout)
         self.assertEqual(result['status'], 'GENERATED')
@@ -208,7 +208,7 @@ class MatrixTests(unittest.TestCase):
         self.assertEqual(rows, BENCH.control_texts(self.catalog))
         print('CONTROL-GENERATOR-EVIDENCE ' + json.dumps(dict(receipt=generated,
             files_base64={key: base64.b64encode(value).decode() for key, value in rows.items()})))
-        process = subprocess.run([sys.executable, '-B', str(ROOT / 'tools/flea-bench-markdown'), 'fixtures', str(root)],
+        process = subprocess.run([sys.executable, '-B', str(ROOT / 'tools/dlea-bench-markdown'), 'fixtures', str(root)],
                                  capture_output=True, text=True)
         self.assertEqual(process.returncode, 2)
         self.assertEqual(rows, {key: (root / value['path']).read_bytes() for key, value in generated['files'].items()})
@@ -264,9 +264,9 @@ class MatrixTests(unittest.TestCase):
     def test_candidate_only_feature_still_requires_twenty_presented_samples(self):
         catalog = copy.deepcopy(self.catalog)
         catalog['features'] = [row for row in catalog['features'] if row['id'] == 'source-toggle']
-        capabilities = {key: 'supported' if key[0] == 'flea' else 'unsupported' for key in BENCH.cells(catalog)}
+        capabilities = {key: 'supported' if key[0] == 'dlea' else 'unsupported' for key in BENCH.cells(catalog)}
         samples = [row for row in self.campaign['samples'] if row['feature'] == 'source-toggle'
-                   and row['opponent'] == 'strata-stable' and row['entrant'] == 'flea']
+                   and row['opponent'] == 'strata-stable' and row['entrant'] == 'dlea']
         for sample in samples:
             sample['opponent'] = 'none'
             sample['position'] = 0
@@ -287,17 +287,17 @@ class MatrixTests(unittest.TestCase):
             self.verify()
 
     def test_wrong_installed_version_refused(self):
-        self.change_receipt(self.campaign['binaries'], 'flea-anchor', 'version', '0.3.10')
+        self.change_receipt(self.campaign['binaries'], 'dlea-anchor', 'version', '0.3.10')
         with self.rejected('wrong installed version'):
             self.verify()
 
     def test_rebuilt_anchor_refused(self):
-        self.change_receipt(self.campaign['binaries'], 'flea-anchor', 'installed', False)
+        self.change_receipt(self.campaign['binaries'], 'dlea-anchor', 'installed', False)
         with self.rejected('installed'):
             self.verify()
 
     def test_dev_launch_refused(self):
-        self.change_receipt(self.campaign['binaries'], 'flea', 'launch_argv', ['/installed/flea'])
+        self.change_receipt(self.campaign['binaries'], 'dlea', 'launch_argv', ['/installed/dlea'])
         with self.rejected('--gui'):
             self.verify()
 
@@ -306,12 +306,12 @@ class MatrixTests(unittest.TestCase):
         with self.rejected('scope/catalog'):
             self.verify()
 
-    def test_wrong_flea_source_identity_refused(self):
-        for key in ('flea', 'flea-anchor'):
+    def test_wrong_dlea_source_identity_refused(self):
+        for key in ('dlea', 'dlea-anchor'):
             with self.subTest(key):
                 self.campaign = copy.deepcopy(self.original)
                 self.change_receipt(self.campaign['binaries'], key, 'source_sha', '3' * 40)
-                with self.rejected('wrong Flea source identity: changed-'):
+                with self.rejected('wrong Dlea source identity: changed-'):
                     self.verify()
 
     def test_wrong_instrument_identity_refused(self):
@@ -341,28 +341,28 @@ class MatrixTests(unittest.TestCase):
         with self.rejected('unresolved source/native question: ' + key):
             self.verify()
 
-    def test_slower_flea_cell_is_not_first(self):
+    def test_slower_dlea_cell_is_not_first(self):
         result = self.verify()
         self.assertEqual(result['superiority'], 'FIRST')
         for sample in self.campaign['samples']:
-            if (sample['entrant'], sample['opponent'], sample['feature'], sample['mode']) == ('flea', 'strata-stable', 'source-toggle', 'cold'):
+            if (sample['entrant'], sample['opponent'], sample['feature'], sample['mode']) == ('dlea', 'strata-stable', 'source-toggle', 'cold'):
                 self.retime(sample, 5)
         result = self.verify()
         self.assertEqual((result['status'], result['superiority']), ('COMPLETE', 'NOT_FIRST'))
 
     def test_table_control_hold_turns_first_into_not_first(self):
         for sample in self.campaign['samples']:
-            if sample['entrant'] == 'flea' and sample['feature'] == 'ql_md_table_first':
+            if sample['entrant'] == 'dlea' and sample['feature'] == 'ql_md_table_first':
                 self.retime(sample, 3)
         result = self.verify()
-        self.assertTrue(all(row['median_ms'] < 4 for row in result['gui'] if row['entrant'] == 'flea'))
+        self.assertTrue(all(row['median_ms'] < 4 for row in result['gui'] if row['entrant'] == 'dlea'))
         self.assertIn('HOLD', {row['verdict'] for row in result['table_controls']})
         self.assertEqual((result['status'], result['superiority']), ('COMPLETE', 'NOT_FIRST'))
 
     def run_main(self, campaign, *argv):
         path = SANDBOX / 'campaign.json'
         path.write_text(json.dumps(campaign))
-        original, sys.argv = sys.argv, ['flea-bench-markdown', *argv, str(path)]
+        original, sys.argv = sys.argv, ['dlea-bench-markdown', *argv, str(path)]
         self.bench.load_catalog, saved = (lambda: (self.catalog, self.catalog_hash)), self.bench.load_catalog
         stdout = io.StringIO()
         try:
@@ -377,14 +377,14 @@ class MatrixTests(unittest.TestCase):
         self.assertEqual((code, value['superiority']), (0, 'FIRST'))
         slow = copy.deepcopy(self.campaign)
         for sample in slow['samples']:
-            if sample['entrant'] == 'flea' and sample['feature'] == 'source-toggle':
+            if sample['entrant'] == 'dlea' and sample['feature'] == 'source-toggle':
                 self.retime(sample, 9)
         code, value = self.run_main(slow, 'verify')
         self.assertEqual((code, value['status'], value['superiority']), (1, 'COMPLETE', 'NOT_FIRST'))
 
     def test_malformed_receipts_block_with_exit_two(self):
         def binary_path_null(campaign):
-            self.change_receipt(campaign['binaries'], 'flea', 'path', None)
+            self.change_receipt(campaign['binaries'], 'dlea', 'path', None)
         def capture_null(campaign):
             self.change_receipt(campaign['applicability'][0], 'receipt', 'capture', None)
         def captures_list(campaign):
@@ -413,7 +413,7 @@ class MatrixTests(unittest.TestCase):
     def test_warm_group_must_share_one_process(self):
         sample = next(row for row in self.campaign['samples'] if row['mode'] == 'warm' and row['feature'] == 'source-toggle')
         self.change_receipt(sample, 'observation', 'process_instance', 'a-second-warm-process')
-        with self.rejected('cold/warm process reuse disagrees: flea/'):
+        with self.rejected('cold/warm process reuse disagrees: dlea/'):
             self.verify()
 
     def test_candidate_capability_guards(self):
@@ -425,9 +425,9 @@ class MatrixTests(unittest.TestCase):
                 self.campaign = copy.deepcopy(self.original)
                 catalog = copy.deepcopy(self.catalog)
                 next(row for row in catalog['features'] if row['id'] == 'source-toggle')['candidate_required'] = required
-                self.flea_cell('source-toggle', 'unsupported')
+                self.dlea_cell('source-toggle', 'unsupported')
                 for row in self.campaign['applicability']:
-                    if row['entrant'] == 'flea-anchor' and row['feature'] == 'source-toggle':
+                    if row['entrant'] == 'dlea-anchor' and row['feature'] == 'source-toggle':
                         row['status'] = anchor
                         self.change_receipt(row, 'receipt', 'status', anchor)
                 with self.rejected(message):
@@ -482,7 +482,7 @@ class MatrixTests(unittest.TestCase):
         catalog = self.catalog
         campaign = self.bench.plan(catalog, self.catalog_hash)
         for row in campaign['applicability']:
-            solo = row['feature'] == 'source-toggle' and row['entrant'] != 'flea'
+            solo = row['feature'] == 'source-toggle' and row['entrant'] != 'dlea'
             dropped = row['feature'] == 'remote-images' and row['entrant'] == 'strata-nightly'
             row['status'] = 'unsupported' if solo or dropped else 'supported'
         result = self.bench.planned_commands(campaign, catalog, SANDBOX, 'measure', driver)
@@ -493,7 +493,7 @@ class MatrixTests(unittest.TestCase):
             if feature['id'] == 'source-toggle':
                 continue
             for surface in feature['scenes']:
-                want.update((entrant, feature['id'], surface) for entrant in entrants if entrant != 'flea'
+                want.update((entrant, feature['id'], surface) for entrant in entrants if entrant != 'dlea'
                             and not (feature['id'] == 'remote-images' and entrant == 'strata-nightly'))
         self.assertEqual(got, want)
         self.assertTrue(all(row['argv'][1] == str(driver) and row['argv'][4] == 'measure' for row in result['commands']))
@@ -502,12 +502,12 @@ class MatrixTests(unittest.TestCase):
 
     def test_fixture_root_needs_marker(self):
         root = Path(tempfile.mkdtemp(prefix='unmarked-fixture-root.', dir=SANDBOX))
-        with self.rejected('fixture root must hold a .flea-test-sandbox marker'):
+        with self.rejected('fixture root must hold a .dlea-test-sandbox marker'):
             self.bench.generate_controls(root, self.catalog)
         self.assertEqual(list(root.iterdir()), [])
 
     def test_expand_roots_refuses_unset_root_and_substitutes_set_root(self):
-        names = ('FLEA_VISUAL_DESIGN', 'FLEA_RELEASE_ROOT')
+        names = ('DLEA_VISUAL_DESIGN', 'DLEA_RELEASE_ROOT')
         saved = {name: os.environ.pop(name, None) for name in names}
         try:
             for name in names:
@@ -602,7 +602,7 @@ class MatrixTests(unittest.TestCase):
             self.verify()
 
     def test_artifact_escape_refused(self):
-        path = '../../../tools/flea-bench-markdown'
+        path = '../../../tools/dlea-bench-markdown'
         self.assertTrue((SANDBOX / path).resolve().is_file())
         self.campaign['samples'][0]['observation']['path'] = path
         with self.rejected('artifact escapes campaign root: ' + path):
@@ -622,21 +622,21 @@ class MatrixTests(unittest.TestCase):
             self.verify()
 
     def test_twin_noise_and_table_regression(self):
-        times = {('flea', 'flea-anchor', feature, 'quicklook', 'cold'): [value] * 10
+        times = {('dlea', 'dlea-anchor', feature, 'quicklook', 'cold'): [value] * 10
                  for feature, value in zip(BENCH.CONTROLS, [30, 10, 10])}
         self.assertEqual(self.bench.twin_controls(times, 10)[0]['verdict'], 'HOLD')
-        times['flea', 'flea-anchor', BENCH.CONTROLS[2], 'quicklook', 'cold'] = [20] * 10
+        times['dlea', 'dlea-anchor', BENCH.CONTROLS[2], 'quicklook', 'cold'] = [20] * 10
         with self.rejected('INSTRUMENT-NOISE'):
             self.bench.twin_controls(times, 10)
 
     def test_actual_cli_plan_is_unmeasured_and_refuses_acceptance(self):
-        process = subprocess.run([sys.executable, '-B', str(ROOT / 'tools/flea-bench-markdown'), 'plan'],
+        process = subprocess.run([sys.executable, '-B', str(ROOT / 'tools/dlea-bench-markdown'), 'plan'],
                                  capture_output=True, text=True, check=True)
         value = json.loads(process.stdout)
         self.assertEqual(value['status'], 'NOT_RUN')
         self.assertGreater(len(value['applicability']), 2000)
         plan_file = artifact('plan.json', process.stdout.encode())
-        process = subprocess.run([sys.executable, '-B', str(ROOT / 'tools/flea-bench-markdown'),
+        process = subprocess.run([sys.executable, '-B', str(ROOT / 'tools/dlea-bench-markdown'),
                                   'verify', str(SANDBOX / plan_file['path'])], capture_output=True, text=True)
         self.assertEqual(process.returncode, 2)
         self.assertEqual(json.loads(process.stdout)['status'], 'BLOCKED')
@@ -645,7 +645,7 @@ class MatrixTests(unittest.TestCase):
         catalog, catalog_hash = BENCH.load_catalog()
         campaign = BENCH.plan(catalog, catalog_hash)
         output = artifact('campaign.json', json.dumps(campaign).encode())
-        argv = [sys.executable, '-B', str(ROOT / 'tools/flea-bench-markdown'), 'commands', str(SANDBOX / output['path'])]
+        argv = [sys.executable, '-B', str(ROOT / 'tools/dlea-bench-markdown'), 'commands', str(SANDBOX / output['path'])]
         process = subprocess.run(argv, capture_output=True, text=True)
         self.assertEqual(process.returncode, 2)
         self.assertIn('native driver must be an existing absolute file', json.loads(process.stdout)['reason'])
@@ -670,12 +670,12 @@ class MatrixTests(unittest.TestCase):
 
 # Each guard a review named, with the edit that deletes it (or restores the code before the fix); its test must go red.
 MUTANTS = {
-    'test_wrong_flea_source_identity_refused': [("            require(row.get('source_sha') == expected, 'wrong Flea source identity: ' + where)\n", '')],
+    'test_wrong_dlea_source_identity_refused': [("            require(row.get('source_sha') == expected, 'wrong Dlea source identity: ' + where)\n", '')],
     'test_wrong_instrument_identity_refused': [("    require(campaign.get('instrument_sha256') == digest(Path(__file__).read_bytes()), 'instrument identity changed')\n", '')],
     'test_invalid_or_foreign_calibration_refused': [("valid=True, clock='CLOCK_MONOTONIC',\n                                      host=manifest['host'], session=manifest['session']", "clock='CLOCK_MONOTONIC'")],
     'test_missing_cache_policy_receipt_refused': [("        evidence.read(policy.get(mode))", "        pass")],
     'test_unanswered_question_refused': [("        require(answer.get('conclusion') and answer.get('sources'), 'unresolved source/native question: ' + question)\n", '')],
-    'test_slower_flea_cell_is_not_first': [("if wins and all(wins) and not holds", "if wins and any(wins) and not holds")],
+    'test_slower_dlea_cell_is_not_first': [("if wins and all(wins) and not holds", "if wins and any(wins) and not holds")],
     'test_table_control_hold_turns_first_into_not_first': [("if wins and all(wins) and not holds", "if wins and all(wins)")],
     'test_cli_exit_codes_separate_not_first_from_blocked': [("return 1 if result.get('superiority') == 'NOT_FIRST' else 0", "return 0")],
     'test_malformed_receipts_block_with_exit_two': [
@@ -688,7 +688,7 @@ MUTANTS = {
     'test_recipe_fixture_must_equal_pinned_output': [("        elif key != 'table-control':", "        elif False:")],
     'test_rival_without_table_support_keeps_plain_twin_controls': [("require(all(row is None or len(row) == pairs", "require(all(row is not None and len(row) == pairs")],
     'test_measure_commands_cover_resolved_cells_and_solo_candidate': [("                entrant = 'none'\n", '')],
-    'test_fixture_root_needs_marker': [("    require((root / '.flea-test-sandbox').is_file(), 'fixture root must hold a .flea-test-sandbox marker: ' + str(root))\n", '')],
+    'test_fixture_root_needs_marker': [("    require((root / '.dlea-test-sandbox').is_file(), 'fixture root must hold a .dlea-test-sandbox marker: ' + str(root))\n", '')],
     'test_expand_roots_refuses_unset_root_and_substitutes_set_root': [("            path = path.replace(token, os.environ[name])\n", '')],
     'test_artifact_escape_refused': [("        require(target.is_relative_to(self.root), 'artifact escapes campaign root: ' + path)\n", '')],
     'test_missing_in_root_artifact_named': [("        require(target.is_relative_to(self.root), 'artifact escapes campaign root: ' + path)\n        require(target.is_file(), 'missing artifact file: ' + path)",

@@ -11,8 +11,8 @@ fn language(root: &TestDir, code: &str) -> I18n {
     for lang in ["en", "ja", "ar"] {
         std::fs::create_dir_all(catalog.join(lang)).unwrap();
     }
-    std::fs::write(catalog.join("ja/flea.json"), r#"{"preview.loading":"準備中の文書プレビュー","preview.points.folder":"フォルダ","preview.unreadable":"読み取れません","preview.selected":{"other":"%1 選択"},"preview.fact.combined":"合計","preview.fact.modified":"更新日時","document.office_pages":"ページ","document.office_title":"題名","document.office_author":"作成者","media.play":"再生する","media.pause":"一時停止する","pdf.page":"ページ %1 / %2 · %3%"}"#).unwrap();
-    std::fs::write(catalog.join("ar/flea.json"), r#"{"preview.fact.modified":"تعديل","preview.fact.combined":"المجموع","preview.selected":{"other":"%1 مختار"},"document.office_title":"العنوان","document.office_author":"المؤلف","pdf.page":"الصفحة %1 من %2 · %3%","media.play":"تشغيل طويل","media.pause":"إيقاف مؤقت طويل","model3d.plate":"اللوحة %1"}"#).unwrap();
+    std::fs::write(catalog.join("ja/dlea.json"), r#"{"preview.loading":"準備中の文書プレビュー","preview.points.folder":"フォルダ","preview.unreadable":"読み取れません","preview.selected":{"other":"%1 選択"},"preview.fact.combined":"合計","preview.fact.modified":"更新日時","document.office_pages":"ページ","document.office_title":"題名","document.office_author":"作成者","media.play":"再生する","media.pause":"一時停止する","pdf.page":"ページ %1 / %2 · %3%"}"#).unwrap();
+    std::fs::write(catalog.join("ar/dlea.json"), r#"{"preview.fact.modified":"تعديل","preview.fact.combined":"المجموع","preview.selected":{"other":"%1 مختار"},"document.office_title":"العنوان","document.office_author":"المؤلف","pdf.page":"الصفحة %1 من %2 · %3%","media.play":"تشغيل طويل","media.pause":"إيقاف مؤقت طويل","model3d.plate":"اللوحة %1"}"#).unwrap();
     let roster = root.join("omarchy/default/i18n");
     std::fs::create_dir_all(&roster).unwrap();
     std::fs::write(
@@ -20,7 +20,7 @@ fn language(root: &TestDir, code: &str) -> I18n {
         include_str!("../i18n/fixtures/locales.json"),
     )
     .unwrap();
-    std::fs::write(catalog.join("en/flea.json"), PRIVATE_ENGLISH).unwrap();
+    std::fs::write(catalog.join("en/dlea.json"), PRIVATE_ENGLISH).unwrap();
     root.file("language", code);
     I18n::load(Paths {
         omarchy: root.join("omarchy"),
@@ -162,7 +162,7 @@ fn tui_preview_words_cover_every_kind_and_failure() {
         archive.preview_state.unshown.as_ref().unwrap().sentence,
         archive.i18n.tr("preview.archiveUnreadable")
     );
-    use flea::ui_logic_doc_preview::office::{Reason, State as OfficeState};
+    use dlea::ui_logic_doc_preview::office::{Reason, State as OfficeState};
     for (state, expected) in [
         (OfficeState::Converting, None),
         (OfficeState::Cancelled, None),
@@ -247,16 +247,16 @@ fn tui_preview_words_keep_file_content_literal() {
     assert!(!m.preview_reader.outstanding(generation));
     let mut model3d = model(&root, "kit.3mf", "application-x-generic");
     model3d.preview_path = model3d.current_path().unwrap();
-    let raw = flea::ui_logic_model_preview::wire::Data {
+    let raw = dlea::ui_logic_model_preview::wire::Data {
         format: "3mf".into(),
-        facts: flea::ui_logic_model_preview::wire::Facts {
+        facts: dlea::ui_logic_model_preview::wire::Facts {
             dimensions_mm: Some([110., 96., 40.]),
             triangles: Some(1204),
             objects: Some(2),
             plates: Some(2),
             ..Default::default()
         },
-        slicer: flea::ui_logic_model_preview::wire::Slicer {
+        slicer: dlea::ui_logic_model_preview::wire::Slicer {
             printer: Some("Printer · Pages %1".into()),
             filament: Some("تقرير PLA 2025".into()),
             ..Default::default()
@@ -447,7 +447,7 @@ fn tui_preview_mixed_rtl_facts_stay_in_columns() {
     let original_name = m.rows[&0].name.clone();
     m.rows.get_mut(&0).unwrap().name = "تقرير 2025.3mf".into();
     m.preview_path = m.current_path().unwrap();
-    m.model3d.data = Some(Box::new(flea::ui_logic_model_preview::wire::Data {
+    m.model3d.data = Some(Box::new(dlea::ui_logic_model_preview::wire::Data {
         plates: vec![Default::default(); 10],
         ..Default::default()
     }));

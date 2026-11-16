@@ -2,10 +2,10 @@
 use super::jail::{self, Jailed};
 use super::plugins::{self, Env, Installed};
 use super::{mime, sandbox};
-use flea::jsondoc::Json;
-use flea::plugin_runtime::{protocol, Reply};
-use flea::ui_logic_custom_actions::plugins::mime_match;
-use flea::ui_logic_plugin_settings::manifest::{Invalid, Manifest};
+use dlea::jsondoc::Json;
+use dlea::plugin_runtime::{protocol, Reply};
+use dlea::ui_logic_custom_actions::plugins::mime_match;
+use dlea::ui_logic_plugin_settings::manifest::{Invalid, Manifest};
 use std::io::{BufRead, Read, Write};
 use std::os::fd::{AsRawFd, FromRawFd, OwnedFd};
 use std::os::unix::process::CommandExt;
@@ -67,8 +67,8 @@ fn root() -> PathBuf {
     std::env::var_os("XDG_RUNTIME_DIR")
         .map(PathBuf::from)
         .filter(|p| p.is_absolute())
-        .map(|p| p.join("flea-plugin-preview"))
-        .unwrap_or_else(|| crate::userfile::cache_home().join("flea/plugin-preview"))
+        .map(|p| p.join("dlea-plugin-preview"))
+        .unwrap_or_else(|| crate::userfile::cache_home().join("dlea/plugin-preview"))
 }
 
 #[path = "pluginpreview_sandbox.rs"]
@@ -211,7 +211,7 @@ fn run(
     lines.extend(
         request
             .as_ref()
-            .map(flea::ui_logic_plugin_settings::wire::compact),
+            .map(dlea::ui_logic_plugin_settings::wire::compact),
     );
     let answers = exchange(
         &mut jailed,
@@ -233,7 +233,7 @@ pub(super) fn check(env: &Env, found: &Installed) -> Result<(), Invalid> {
 fn selected(manifest: &Manifest, request: &Json) -> Result<std::fs::File, Invalid> {
     let refuse = |why: &str| Invalid::new("request", why);
     let path = match request.get("paths").and_then(Json::as_array) {
-        Some([Json::Str(path)]) => flea::bytename::view(path),
+        Some([Json::Str(path)]) => dlea::bytename::view(path),
         _ => return Err(refuse("preview takes exactly one selected file")),
     };
     let name = path

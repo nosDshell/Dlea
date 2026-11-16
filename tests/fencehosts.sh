@@ -2,22 +2,22 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Every fence in a Markdown file opens as a code block in the preview column and in Quick Look, whatever the line endings, the size or where the entry came from.
 set -uo pipefail
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 . "$(dirname "$0")/qslog-gate.sh"
 cd "$(dirname "$0")/.." || exit 1
 for tool in qs dbus-run-session python3; do
     command -v "$tool" >/dev/null || { printf 'FAIL fencehosts: %s is required\n' "$tool"; exit 1; }
 done
-test_root="$FIXTURE_ROOT/flea-fencehosts-$$"
+test_root="$FIXTURE_ROOT/dlea-fencehosts-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
-mkdir -p "$test_root"/{config,fixture,home,state/flea,cache,runtime} || exit 1
+mkdir -p "$test_root"/{config,fixture,home,state/dlea,cache,runtime} || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-printf '{}\n' > "$test_root/state/flea/ui.json"
+printf '{}\n' > "$test_root/state/dlea/ui.json"
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -m ui/boot/Ui)" "$test_root/config/Ui" || exit 1
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 cp tests/fencehosts.js "$test_root/config/fencehosts.js" || exit 1
 cp tests/fencehosts.qml "$test_root/config/shell.qml" || exit 1
 # The repo's own documents, then the synthetic fences: each shape in LF, CRLF and lone CR, and the 64 KiB line with a fence on each side of the head cut.
@@ -88,7 +88,7 @@ log="$test_root/run.log"
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 QT_LOGGING_RULES="$(qslog_rules)" \
     dbus-run-session -- bash -c 'timeout "$1" qs -p "$2" > "$3" 2>&1' _ "$qs_limit_seconds" "$test_root/config" "$log" 2> "$test_root/bus.log" ) 2>/dev/null
 status=$?
-[ -z "${FLEA_CI_SUITE_LOGS:-}" ] || cp "$log" "$FLEA_CI_SUITE_LOGS/fencehosts.log" 2>/dev/null
+[ -z "${DLEA_CI_SUITE_LOGS:-}" ] || cp "$log" "$DLEA_CI_SUITE_LOGS/fencehosts.log" 2>/dev/null
 failures=0
 grep -a 'FENCEHOSTS \(DOC\|FAIL\|DONE\)' "$log" | sed 's/^.*FENCEHOSTS /FENCEHOSTS /'
 qslog_nullptr fencehosts < "$log" || failures=$((failures + 1))

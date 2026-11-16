@@ -120,8 +120,8 @@ function run(check) {
     check("and it stays hidden with the switch off", hideLeafOff(swapLeaf), "nvme0n1")
     var nofsLeaf = '{"name":"sda1","path":"/dev/sda1","label":null,"mountpoints":[null],"rm":true,"tran":null,"size":268435456,"type":"part","model":null,"fstype":null,"parttypename":null,"parttype":null,"pttype":"dos","partn":1,"uuid":null}'
     check("a partition with no filesystem hides", hideLeaf(nofsLeaf), "nvme0n1")
-    var isoLeaf = '{"name":"sda1","path":"/dev/sda1","label":"FLEA-ISO","mountpoints":[null],"rm":true,"tran":null,"size":1073741824,"type":"part","model":null,"fstype":"iso9660","parttypename":null,"parttype":"0x0","pttype":"dos","partn":1,"uuid":"88888888-8888-8888-8888-888888888888"}'
-    check("an isohybrid ISO partition stays a row", hideLeaf(isoLeaf), "nvme0n1,FLEA-ISO")
+    var isoLeaf = '{"name":"sda1","path":"/dev/sda1","label":"DLEA-ISO","mountpoints":[null],"rm":true,"tran":null,"size":1073741824,"type":"part","model":null,"fstype":"iso9660","parttypename":null,"parttype":"0x0","pttype":"dos","partn":1,"uuid":"88888888-8888-8888-8888-888888888888"}'
+    check("an isohybrid ISO partition stays a row", hideLeaf(isoLeaf), "nvme0n1,DLEA-ISO")
     var dataLeaf = '{"name":"sda1","path":"/dev/sda1","label":"DATA","mountpoints":["/home/gm/Data"],"rm":true,"tran":null,"size":124656812032,"type":"part","model":null,"fstype":"vfat","parttypename":"W95 FAT32","parttype":"0xb","pttype":"dos","partn":1,"uuid":"A1B2-C3D4"}'
     check("a user drive mounted under home stays a row", hideLeaf(dataLeaf), "nvme0n1,DATA")
     var dupBody = '{"blockdevices":[{"name":"nvme0n1","path":"/dev/nvme0n1","label":null,"mountpoints":[null],"rm":false,"size":256060514304,"type":"disk","model":"KBG40ZNS256G","fstype":null,"parttypename":null,"children":[{"name":"nvme0n1p1","path":"/dev/nvme0n1p1","label":null,"mountpoints":["/"],"rm":false,"size":256060514304,"type":"part","model":null}]},'
@@ -231,8 +231,8 @@ function run(check) {
           railActions(idleRows[1]), "Mount,Flash image")
     check("Ctrl+E on an unmounted volume row releases nothing",
           Eject.releaseFromRows(Mounts.railMenu(idleRows[1])), "")
-    var systemSentence = "This folder is on a system volume, which Flea never unmounts"
-    var noVolume = "This folder is not on a volume Flea can unmount"
+    var systemSentence = "This folder is on a system volume, which Dlea never unmounts"
+    var noVolume = "This folder is not on a volume Dlea can unmount"
     check("Ctrl+E under home names the system volume when the backend says a system mountpoint holds it",
           ejector("/home/user/Documents", railRows, undefined, { system: true }).said, systemSentence)
     var cloudRows = railRows.concat([{ label: "gdrive", group: "network", kind: "cloud",
@@ -286,10 +286,10 @@ function run(check) {
           ending(ejector("/home/user", [photos], 0)) + "|" + ejector("/home/user", [photos], 0).said,
           "1 said|0 handed|0 released|Photos has nothing to eject or unmount")
     check("Ctrl+E on the system disk names that drive",
-          ejector("/home/user", railRows, 0).said, "nvme0n1 is the system drive, which Flea never unmounts")
+          ejector("/home/user", railRows, 0).said, "nvme0n1 is the system drive, which Dlea never unmounts")
     var cashRow = { label: "CASH$$", group: "device", kind: "disk", device: "/dev/sda", path: "/", mounted: true, glyph: "drive" }
     check("a label holding dollar signs is printed as written",
-          ejector("/", [cashRow], 0).said, "CASH$$ is the system drive, which Flea never unmounts")
+          ejector("/", [cashRow], 0).said, "CASH$$ is the system drive, which Dlea never unmounts")
     check("and both busy sentences fill a label whole",
           [Mounts.WORDS.stillUnmounting, Mounts.WORDS.stillEjecting].map(function (w) { return Format.fill(w, "CASH$$") }).join("|"),
           "Still unmounting CASH$$; wait for its result|Still ejecting CASH$$; wait for its result")

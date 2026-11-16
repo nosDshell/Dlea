@@ -54,7 +54,7 @@ impl Catalog {
         assert!(self.root.join(".op1-test-root").is_file());
         let dir = self.root.join("catalogs").join(code);
         fs::create_dir_all(&dir).unwrap();
-        fs::write(dir.join("flea.json"), text).unwrap();
+        fs::write(dir.join("dlea.json"), text).unwrap();
         self.i18n.reload();
     }
 }

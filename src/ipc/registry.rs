@@ -21,25 +21,25 @@ macro_rules! function {
 
 pub const ORACLE: &[Function] = &include!("functions.rs");
 pub const LIFECYCLE: &[Function] = &[
-    function!("flea", "version", "string", &[]),
-    function!("flea", "quit", "void", &[]),
-    function!("fleapicker", "version", "string", &[]),
-    function!("fleapicker", "quit", "void", &[]),
+    function!("dlea", "version", "string", &[]),
+    function!("dlea", "quit", "void", &[]),
+    function!("dleapicker", "version", "string", &[]),
+    function!("dleapicker", "quit", "void", &[]),
 ];
 
 pub const VISUAL: &[Function] = &[
-    function!("flea", "langmarksState", "string", &[]),
-    function!("flea", "langmarksCode", "string", &[("column", "bool")]),
-    function!("flea", "columnTrackRect", "string", &[("slot", "string")]),
-    function!("flea", "settingsRailWidth", "string", &[]),
-    function!("flea", "noMatchHeadline", "string", &[]),
-    function!("flea", "outlineState", "string", &[]),
-    function!("flea", "rowDepth", "int", &[("i", "int")]),
-    function!("flea", "rowExpanded", "bool", &[("i", "int")]),
-    function!("flea", "rowRelativePath", "string", &[("i", "int")]),
-    function!("flea", "omiState", "string", &[]),
+    function!("dlea", "langmarksState", "string", &[]),
+    function!("dlea", "langmarksCode", "string", &[("column", "bool")]),
+    function!("dlea", "columnTrackRect", "string", &[("slot", "string")]),
+    function!("dlea", "settingsRailWidth", "string", &[]),
+    function!("dlea", "noMatchHeadline", "string", &[]),
+    function!("dlea", "outlineState", "string", &[]),
+    function!("dlea", "rowDepth", "int", &[("i", "int")]),
+    function!("dlea", "rowExpanded", "bool", &[("i", "int")]),
+    function!("dlea", "rowRelativePath", "string", &[("i", "int")]),
+    function!("dlea", "omiState", "string", &[]),
     function!(
-        "flea",
+        "dlea",
         "scene",
         "string",
         &[
@@ -49,7 +49,7 @@ pub const VISUAL: &[Function] = &[
         ]
     ),
     function!(
-        "flea",
+        "dlea",
         "nativeGeometry",
         "string",
         &[
@@ -58,46 +58,46 @@ pub const VISUAL: &[Function] = &[
             ("frame", "string")
         ]
     ),
-    function!("flea", "pendingRequests", "int", &[]),
-    function!("flea", "previewReadiness", "string", &[]),
-    function!("flea", "sceneState", "string", &[]),
-    function!("flea", "presentedFrame", "string", &[]),
-    function!("flea", "crumbCentreOf", "string", &[("label", "string")]),
-    function!("flea", "dragState", "string", &[]),
-    function!("flea", "railIconSize", "int", &[]),
-    function!("flea", "previewQuality", "string", &[]),
+    function!("dlea", "pendingRequests", "int", &[]),
+    function!("dlea", "previewReadiness", "string", &[]),
+    function!("dlea", "sceneState", "string", &[]),
+    function!("dlea", "presentedFrame", "string", &[]),
+    function!("dlea", "crumbCentreOf", "string", &[("label", "string")]),
+    function!("dlea", "dragState", "string", &[]),
+    function!("dlea", "railIconSize", "int", &[]),
+    function!("dlea", "previewQuality", "string", &[]),
     // GPUI-only readers v0.3.12 never exposed over IPC: the Combine card, the pane's folder walks and their cancels, the Columns counters, the clipboard text and the tab tear-off.
-    function!("flea", "combineState", "string", &[]),
-    function!("flea", "dirSizeState", "string", &[]),
-    function!("flea", "columnsState", "string", &[]),
-    function!("flea", "columnAnimationState", "string", &[]),
-    function!("flea", "clipboardText", "string", &[]),
-    function!("flea", "dirSizeCancels", "int", &[]),
-    function!("flea", "tabTearoffState", "string", &[]),
+    function!("dlea", "combineState", "string", &[]),
+    function!("dlea", "dirSizeState", "string", &[]),
+    function!("dlea", "columnsState", "string", &[]),
+    function!("dlea", "columnAnimationState", "string", &[]),
+    function!("dlea", "clipboardText", "string", &[]),
+    function!("dlea", "dirSizeCancels", "int", &[]),
+    function!("dlea", "tabTearoffState", "string", &[]),
     // The search strip's mode, query and laid-out box, and one Dual pane's list area, read by the ui.sh cases.
-    function!("flea", "searchMode", "string", &[]),
-    function!("flea", "searchQuery", "string", &[]),
-    function!("flea", "searchRect", "string", &[]),
-    function!("flea", "paneListAreaRect", "string", &[("side", "int")]),
+    function!("dlea", "searchMode", "string", &[]),
+    function!("dlea", "searchQuery", "string", &[]),
+    function!("dlea", "searchRect", "string", &[]),
+    function!("dlea", "paneListAreaRect", "string", &[("side", "int")]),
 ];
 
-/// The action entry point behind `flea --action` and `flea --actions`; see PLUGINS.md "Run an action from outside".
+/// The action entry point behind `dlea --action` and `dlea --actions`; see PLUGINS.md "Run an action from outside".
 pub const ACTIONS: &[Function] = &[
-    function!("flea", "runAction", "string", &[("id", "string")]),
-    function!("flea", "actionIds", "string", &[]),
+    function!("dlea", "runAction", "string", &[("id", "string")]),
+    function!("dlea", "actionIds", "string", &[]),
 ];
 
 pub const CARRY: &[Function] = &[
     function!(
-        "flea",
+        "dlea",
         "carryOffer",
         "bool",
         &[("pid", "string"), ("token", "string")]
     ),
-    function!("flea", "carryPeek", "string", &[("token", "string")]),
-    function!("flea", "carryCancel", "bool", &[("token", "string")]),
-    function!("flea", "carryTaken", "bool", &[("token", "string")]),
-    function!("flea", "carryClaim", "bool", &[("token", "string")]),
+    function!("dlea", "carryPeek", "string", &[("token", "string")]),
+    function!("dlea", "carryCancel", "bool", &[("token", "string")]),
+    function!("dlea", "carryTaken", "bool", &[("token", "string")]),
+    function!("dlea", "carryClaim", "bool", &[("token", "string")]),
 ];
 
 pub fn functions() -> impl Iterator<Item = &'static Function> {
@@ -119,7 +119,7 @@ pub fn validate(
     name: &str,
     arguments: &[String],
 ) -> Result<&'static Function, Reply> {
-    if !["flea", "fleapicker", "fleatab"].contains(&target) {
+    if !["dlea", "dleapicker", "dleatab"].contains(&target) {
         return Err(no_target());
     }
     let function = functions()
@@ -165,13 +165,13 @@ fn signature(function: &Function) -> String {
 pub fn refused(function: &Function) -> Reply {
     Reply::error(
         3,
-        format!("FLEA_IPC_NOT_PORTED {}.{}", function.target, function.name),
+        format!("DLEA_IPC_NOT_PORTED {}.{}", function.target, function.name),
     )
 }
 
 pub fn show() -> Reply {
     let mut output = String::new();
-    for target in ["flea", "fleapicker", "fleatab"] {
+    for target in ["dlea", "dleapicker", "dleatab"] {
         output.push_str(&format!("target {target}\n"));
         for function in functions().filter(|f| f.target == target) {
             output.push_str(&format!("  {}\n", signature(function)));

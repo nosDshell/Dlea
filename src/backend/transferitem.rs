@@ -3,7 +3,7 @@ use super::{OpMsg, Pace};
 use crate::backend::collide::{identity_in, Table};
 use crate::backend::copyfile::{copy_any, move_any, Progress};
 use crate::backend::undo::{self, Step};
-use crate::error::FleaError;
+use crate::error::DleaError;
 use std::sync::atomic::{AtomicBool, AtomicU64};
 use std::sync::mpsc::Sender;
 
@@ -16,7 +16,7 @@ pub(super) fn one_item(
     (settled, pace, table): (&AtomicU64, &Pace, &Table),
     steps: &mut Vec<Step>,
     durability: &mut crate::backend::durable::Durability,
-) -> Result<(), FleaError> {
+) -> Result<(), DleaError> {
     let super::TransferItem { id, index, name, src, dst, source } = item;
     // scanned is still 0 while the sweep counts, and the batch's own total from the moment it settles.
     let mut sink = |done: u64, total: u64| pace.report(tx, id, (index, name), (done, total), settled);

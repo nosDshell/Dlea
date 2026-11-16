@@ -1,6 +1,6 @@
 // Job Undo tokens and the busy-lock retry queue, beside the journal they guard.
 use super::{Entry, Journal, UndoToken};
-use crate::error::FleaError;
+use crate::error::DleaError;
 
 impl Journal {
     // Only an entry filed now can offer job Undo; a held reservation or a running publication publishes no premature token.
@@ -14,7 +14,7 @@ impl Journal {
         self.recorded.take()
     }
 
-    pub(crate) fn undo_for_job(&mut self, token: &UndoToken) -> Result<String, FleaError> {
+    pub(crate) fn undo_for_job(&mut self, token: &UndoToken) -> Result<String, DleaError> {
         self.undo_matching(Some(token))
     }
 

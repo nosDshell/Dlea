@@ -11,7 +11,7 @@ function run(check) {
     runCompletionRows(check)
 }
 
-// The Display state ui/SettingsPanel.qml passes in: the stored mode, the size ui/Theme.qml resolved from it, and the two numbers Flea reads off the compositor and never writes.
+// The Display state ui/SettingsPanel.qml passes in: the stored mode, the size ui/Theme.qml resolved from it, and the two numbers Dlea reads off the compositor and never writes.
 function displayState(textSize, baseSize, monitorScale) {
     return { textSize: textSize, baseSize: baseSize,
              monitorScale: monitorScale === undefined ? 1 : monitorScale, cornerRadius: 8 }
@@ -48,7 +48,7 @@ function find(rows, id) {
 
 function runRows(check) {
     var display = Settings.rows("display", displayState(TextSize.follow(), 14))
-    // The board's Display card: the text-size mode over its effective size, then the compositor's two read-only facts. No monitor-scale control, because Flea does not step or cycle that one.
+    // The board's Display card: the text-size mode over its effective size, then the compositor's two read-only facts. No monitor-scale control, because Dlea does not step or cycle that one.
     check("the Display section is text size, then Scale, then Appearance",
           kinds(display), "group|choice|ruler|hint|fact|group|fact|hint|group|check")
     check("its one control opens on Follow Omarchy", find(display, "textMode").value,
@@ -77,7 +77,7 @@ function runRows(check) {
     check("and an unanswered query says so rather than claiming 1x",
           Settings.rows("display", displayState(TextSize.follow(), 14, 0))[6].value, "not reported")
     check("its hint is the board's own sentence, so no reader expects a control",
-          display[7].label, "Flea follows Hyprland's scale and does not change it.")
+          display[7].label, "Dlea follows Hyprland's scale and does not change it.")
     check("the board icon override defaults off", display[9].id + "|" + display[9].on, "display.hyprlandIcons|false")
 
     // Switching to Override adds the stop row, and nothing else about the section moves.
@@ -108,10 +108,10 @@ function runRows(check) {
     check("a hidden action's row is drawn unchecked, not dropped",
           find(menus, "paste").on, false)
     check("and an enabled one is checked", find(menus, "copy").on, true)
-    check("the current menu controls include Permissions, Update Flea and the retained hints preference",
+    check("the current menu controls include Permissions, Update Dlea and the retained hints preference",
           menus.filter(function (r) { return r.kind === "check" })
                .map(function (r) { return r.id }).join(","),
-          "cut,copy,paste,duplicate,rename,trash,delete,openwith,run,openAsText,openTerminal,moveto,copyto,properties,permissions,makeExecutable,copyAs,showOriginal,tags,shelf,compress,extract,convert,flashDrive,taildrop,localsend,dropbox,sharelink,runScript,placeMenu,updateFlea,toggleHidden,toggleLangMarks,extThumbs,pasteAs,invertSelection,keyHints")
+          "cut,copy,paste,duplicate,rename,trash,delete,openwith,run,openAsText,openTerminal,moveto,copyto,properties,permissions,makeExecutable,copyAs,showOriginal,tags,shelf,compress,extract,convert,flashDrive,taildrop,localsend,dropbox,sharelink,runScript,placeMenu,updateDlea,toggleHidden,toggleLangMarks,extThumbs,pasteAs,invertSelection,keyHints")
     // The one check that is not a menu action: it says how every row is drawn, not whether it is. Since 2026-09-10 it is off by default, with the rail's own detail rows, and src/uischema.rs stores that default, so an absent preference reads off and not on.
     check("the hints row defaults off, as ruled over the boards",
           find(menus, "keyHints").label + "|" + find(menus, "keyHints").on,
@@ -246,11 +246,11 @@ function runCompletionRows(check) {
           places.filter(function (row) { return row.kind === "favouriteActions" }).length, 0)
     // Sidebar040: a favourite's path reads as the person writes it, while value keeps the stored absolute path.
     var homed = Settings.rows("places", { home: "/home/gm", data: { places: { favourites: [
-        { label: "Projects", path: "/home/gm/Projects" }, { label: "flea", path: "~/Documents/claude/flea" },
+        { label: "Projects", path: "/home/gm/Projects" }, { label: "dlea", path: "~/Documents/claude/dlea" },
         { label: "Archive", path: "/srv/archive" }, { label: "Sibling", path: "/home/gmx/s" }] } } })
     check("a favourite inside home shows ~/ and keeps the absolute value",
           [find(homed, "favourite:0").display, find(homed, "favourite:0").value].join("|"), "~/Projects|/home/gm/Projects")
-    check("a stored tilde path shows the same tilde form", find(homed, "favourite:1").display, "~/Documents/claude/flea")
+    check("a stored tilde path shows the same tilde form", find(homed, "favourite:1").display, "~/Documents/claude/dlea")
     check("a favourite outside home shows its absolute path", find(homed, "favourite:2").display, "/srv/archive")
     check("a sibling named like home is outside it", find(homed, "favourite:3").display, "/home/gmx/s")
     check("no home published shows the stored path", find(Settings.rows("places", { data: { places: { favourites: [{ label: "P", path: "/home/gm/P" }] } } }), "favourite:0").display, "/home/gm/P")
@@ -339,7 +339,7 @@ function runCompletionRows(check) {
     check("a chosen folder is named by its own path", find(opened, "startFolder").value, "/home/gm/Work")
     check("and the mode beside it reads back", find(opened, "startIn").selected, "folder")
     check("the tab setting reads back too", find(opened, "newTab").selected, "home")
-    // Tabs040 callout 2: the board's own sentence under "Flea opens in", only while Last folder
+    // Tabs040 callout 2: the board's own sentence under "Dlea opens in", only while Last folder
     // is chosen. A hint is read-only, so it is never the cursor; kinds() pins that separately.
     var hinted = Settings.rows("view", { data: { startIn: "last" } })
     var hints = hinted.filter(function (row) { return row.label === "Last folder reopens every tab you had." })
@@ -382,12 +382,12 @@ function runCompletionRows(check) {
     check("grid zoom and thumbnail size depend on nothing, and zoom is named for what it resizes",
           [find(shown, "preview.ctrlZoom").available === undefined, find(shown, "preview.thumbSize").available === undefined, find(shown, "preview.ctrlZoom").label].join("|"),
           "true|true|Zoom the grid with ctrl and scroll")
-    var about = Settings.rows("about", { about: { version: "0.1.6", handler: "com.thisisgm.flea.desktop" } })
+    var about = Settings.rows("about", { about: { version: "0.1.6", handler: "com.nosDshell.dlea.desktop" } })
     // Rules 5 and 6: a fact is muted whole, so no row writes "status only" on itself, and the handler keeps the tail that identifies it.
     check("the handler row states the handler and nothing else",
           about.filter(function (row) { return row.label === "File manager"; })
                .map(function (row) { return row.value + "|" + row.elide; }).join(""),
-          "com.thisisgm.flea.desktop|head")
+          "com.nosDshell.dlea.desktop|head")
     check("About version comes from supplied binary facts", about[1].value, "0.1.6")
     check("unreported builds never repeat a specimen commit", about[2].value, "Not recorded in this build")
     check("passive About metadata takes no focus", Settings.focusable(about[1]), false)

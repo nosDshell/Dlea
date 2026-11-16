@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-columnsback-test
+//@ pragma ShellId dlea-columnsback-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // 31 Columns Back landings over a real ColumnsArea with a stub pane and serial stub backend, each whole in its first frame.
 ShellRoot {
@@ -145,7 +145,7 @@ ShellRoot {
     }
     Component {
         id: areaComponent
-        Flea.ColumnsArea {
+        Dlea.ColumnsArea {
             anchors.fill: parent
             menu: QtObject { function close() {} function openBackground(point) {} }
         }
@@ -390,7 +390,7 @@ ShellRoot {
     }
 
     Component.onCompleted: {
-        Flea.ViewState.state = { previewColumn: false, previewAutomatic: false }
+        Dlea.ViewState.state = { previewColumn: false, previewAutomatic: false }
         root.launch = 0
         root.steps = root.launchSteps(false)
         root.waitUntil = Date.now() + 600

@@ -3,19 +3,19 @@ use super::rows::{Kind, Row};
 use super::update::{self, Status};
 use super::Text;
 
-pub const ISSUES_URL: &str = "https://github.com/thisisgm/flea/issues";
+pub const ISSUES_URL: &str = "https://github.com/nosDshell/Dlea/issues";
 pub const SPONSORS_URL: &str = "https://github.com/sponsors/thisisgm";
 
 // The signed repository package, src/update.rs's OPR_PACKAGE.
-pub const OPR_PACKAGE: &str = "flea";
+pub const OPR_PACKAGE: &str = "dlea";
 // The prebuilt release package, src/update.rs's RELEASE_PACKAGE.
-pub const RELEASE_PACKAGE: &str = "flea-bin";
+pub const RELEASE_PACKAGE: &str = "dlea-bin";
 
 // Each kind word src/update.rs prints, with the key of the sentence About shows for it.
 pub const SOURCES: [(&str, &str); 4] = [
     ("opr", "settings.about.source_opr"),
     ("local", "settings.about.source_local"),
-    // flea-bin, a prebuilt release a package helper installed, so it too is a local package.
+    // dlea-bin, a prebuilt release a package helper installed, so it too is a local package.
     ("release", "settings.about.source_local"),
     ("unowned", "settings.about.source_unowned"),
 ];
@@ -42,7 +42,7 @@ pub struct PackageFacts {
 // The pane's rows in order. The caller supplies the make-default rows, which another unit owns.
 pub fn rows(facts: &Facts, data_auto_check: bool, language_name: &str, make_default: Vec<Row>) -> Vec<Row> {
     let mut out = vec![
-        Row { value: Text::Key("settings.about.tagline"), ..Row::new(Kind::Hero, Text::data("Flea")) },
+        Row { value: Text::Key("settings.about.tagline"), ..Row::new(Kind::Hero, Text::data("Dlea")) },
         Row::fact("settings.about.version", or_key(&facts.version, "settings.about.not_reported")),
         Row::fact("settings.about.built", or_key(&facts.built, "settings.about.not_recorded")),
         Row::fact("settings.about.installed_from", text_or(&facts.source, "settings.about.not_reported")),
@@ -72,17 +72,17 @@ pub fn rows(facts: &Facts, data_auto_check: bool, language_name: &str, make_defa
     out
 }
 
-// Update Flea and the switch that governs automatic checks, then the note when the state needs one.
+// Update Dlea and the switch that governs automatic checks, then the note when the state needs one.
 fn update_rows(update: &Status, data_auto_check: bool) -> Vec<Row> {
     let kind = if update::is_fact(update) { Kind::Fact } else { Kind::Action };
     let mut out = vec![
         Row {
-            id: "updateFlea".to_owned(),
+            id: "updateDlea".to_owned(),
             glyph: "download",
             value: update::value(update),
             role: update::role(update),
             inert: !update::acts(update),
-            ..Row::new(kind, Text::Key("settings.about.update_flea"))
+            ..Row::new(kind, Text::Key("settings.about.update_dlea"))
         },
         Row {
             caption: Text::Key("settings.about.check_automatically_caption"),
@@ -116,7 +116,7 @@ fn package_text(package: Option<&str>) -> Text {
     }
 }
 
-// src/update.rs kind_for over pacman -Qqo's owner, "" when no package owns Flea.
+// src/update.rs kind_for over pacman -Qqo's owner, "" when no package owns Dlea.
 pub fn install_kind(owner: &str, signed: bool) -> &'static str {
     if owner.is_empty() {
         "unowned"
@@ -129,7 +129,7 @@ pub fn install_kind(owner: &str, signed: bool) -> &'static str {
     }
 }
 
-// The sentence for the kind install_kind derives, so this row and the Update Flea row name one source.
+// The sentence for the kind install_kind derives, so this row and the Update Dlea row name one source.
 pub fn installed_from(owner: &str, signed: bool) -> Text {
     let kind = install_kind(owner, signed);
     SOURCES

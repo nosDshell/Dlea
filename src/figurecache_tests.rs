@@ -17,9 +17,9 @@ fn tree(name: &str) -> (TestDir, PathBuf, PathBuf) {
 #[test]
 fn a_digest_tells_every_byte_and_the_length_apart() {
     assert_eq!(digest(b"").len(), KEY_HEX_CHARS);
-    let base = digest(b"flea figure bytecode");
-    assert_eq!(base, digest(b"flea figure bytecode"), "the same bytes, the same digest");
-    assert_ne!(base, digest(b"flea figure bytecodf"), "one changed byte");
+    let base = digest(b"dlea figure bytecode");
+    assert_eq!(base, digest(b"dlea figure bytecode"), "the same bytes, the same digest");
+    assert_ne!(base, digest(b"dlea figure bytecodf"), "one changed byte");
     assert_ne!(digest(b""), digest(&[0]), "a zero byte is not nothing");
     assert_ne!(digest(&[0u8; 8]), digest(&[0u8; 16]), "zero words of different length");
     assert_ne!(digest(&[0u8; 7]), digest(&[0u8; 8]), "a short tail is not a whole word");
@@ -103,7 +103,7 @@ fn a_manifest_reads_back_what_was_written_and_nothing_else() {
     let text = manifest_text(&key, &sample_blobs());
     assert_eq!(parse_manifest(&text), Some((key.clone(), sample_blobs())));
     for bad in [
-        text.replacen("flea-figures 1", "flea-figures 2", 1),
+        text.replacen("dlea-figures 1", "dlea-figures 2", 1),
         text.replacen("key ", "kay ", 1),
         text.lines().take(3).collect::<Vec<_>>().join("\n"),
         text.replacen("math.bc", "evil.bc", 1),

@@ -28,7 +28,7 @@ pub fn formats(root: &Path, w: &mut Wire) {
         String::from_utf8_lossy(&tool(&["magick", "-version"]))
     );
     let mut codec_errors = Vec::new();
-    for (choice, format) in flea::ui_logic_print_convert::output::IMAGE_FORMATS
+    for (choice, format) in dlea::ui_logic_print_convert::output::IMAGE_FORMATS
         .iter()
         .enumerate()
     {
@@ -44,7 +44,7 @@ pub fn formats(root: &Path, w: &mut Wire) {
         }
         submit(&mut m, w);
         assert!(m.error.is_empty(), "{format}: {}", m.error);
-        let output = files.join(flea::ui_logic_print_convert::output::converted_name(
+        let output = files.join(dlea::ui_logic_print_convert::output::converted_name(
             &source, format,
         ));
         let bytes = std::fs::read(&output).unwrap();
@@ -88,7 +88,7 @@ pub fn pages(root: &Path, w: &mut Wire) {
     let files = root.join("files");
     let source = pdf(&files, "report.pdf");
     let original = std::fs::read(&source).unwrap();
-    for (choice, format) in flea::ui_logic_print_convert::output::PDF_FORMATS
+    for (choice, format) in dlea::ui_logic_print_convert::output::PDF_FORMATS
         .iter()
         .enumerate()
     {
@@ -179,7 +179,7 @@ pub fn office(root: &Path, w: &mut Wire) {
     let document = files.join("report.docx");
     std::fs::write(&document, b"unchanged office fixture").unwrap();
     let ready = pdf(&files, "cached.pdf");
-    let cached = root.join("cache/flea/office");
+    let cached = root.join("cache/dlea/office");
     std::fs::create_dir_all(&cached).unwrap();
     let cached = cached.join(format!(
         "{}.pdf",
@@ -249,7 +249,7 @@ pub fn safe(root: &Path, w: &mut Wire) {
     assert_eq!(std::fs::read(source).unwrap(), original);
 }
 fn controlled_converter(root: &Path) {
-    assert!(root.is_absolute() && root.join(".flea-test-sandbox").is_file());
+    assert!(root.is_absolute() && root.join(".dlea-test-sandbox").is_file());
     let bwrap = root.join("bin/bwrap");
     let script = r#"#!/bin/sh
 set -eu
@@ -264,16 +264,16 @@ done
 exit 99
 "#;
     std::fs::write(&bwrap, script).unwrap();
-    flea::executable_file::write(&bwrap, &std::fs::read(&bwrap).unwrap(), 0o755).unwrap();
+    dlea::executable_file::write(&bwrap, &std::fs::read(&bwrap).unwrap(), 0o755).unwrap();
     let magick = root.join("bin/magick");
     let script = r#"#!/bin/sh
 set -eu
-root=${FLEA_TUI_CONVERT_ROOT:?}
-case "$root" in /*) test -f "$root/.flea-test-sandbox" ;; *) exit 98 ;; esac
+root=${DLEA_TUI_CONVERT_ROOT:?}
+case "$root" in /*) test -f "$root/.dlea-test-sandbox" ;; *) exit 98 ;; esac
 if test -f "$root/refuse"; then printf 'fixture converter refusal\n' >&2; exit 1; fi
 printf '%s\n' "$$" > "$root/held"
 exec /bin/sleep 300
 "#;
     std::fs::write(&magick, script).unwrap();
-    flea::executable_file::write(&magick, &std::fs::read(&magick).unwrap(), 0o755).unwrap();
+    dlea::executable_file::write(&magick, &std::fs::read(&magick).unwrap(), 0o755).unwrap();
 }

@@ -8,14 +8,14 @@ case $scratch in
   /*/*) ;;
   *) echo "FAIL: mktemp -d gave '$scratch', which is not an absolute path two components deep" >&2; exit 1 ;;
 esac
-: > "$scratch/.flea-test-sandbox"
-trap 'pkill -9 -f -- "$scratch/bin/" 2>/dev/null || true; [ -f "$scratch/.flea-test-sandbox" ] && rm -rf "$scratch"' EXIT
+: > "$scratch/.dlea-test-sandbox"
+trap 'pkill -9 -f -- "$scratch/bin/" 2>/dev/null || true; [ -f "$scratch/.dlea-test-sandbox" ] && rm -rf "$scratch"' EXIT
 # A PID namespace of its own, so a host indexer can neither fail the suite nor be seen by its pgrep.
 if ! why=$(unshare --user --pid --fork --mount-proc true 2>&1); then
   echo "FAIL field-localsearch: unshare --user --pid --fork --mount-proc is unavailable on this host: ${why:-no message}"
   exit 1
 fi
-unshare --user --pid --fork --mount-proc python3 -B - "$scratch" "${FIELD_LOCALSEARCH_TOOL:-tools/flea-field-search}" <<'PY'
+unshare --user --pid --fork --mount-proc python3 -B - "$scratch" "${FIELD_LOCALSEARCH_TOOL:-tools/dlea-field-search}" <<'PY'
 import json
 import os
 import signal
@@ -28,7 +28,7 @@ from unittest.mock import patch
 root, tool = Path(sys.argv[1]), str(Path(sys.argv[2]).resolve())
 TOOLS = str(Path('tools').resolve())
 sys.path.insert(0, TOOLS)
-from flea_import import load_source
+from dlea_import import load_source
 bindir = root / 'bin'
 bindir.mkdir()
 for name in ('localsearch-3', 'localsearch-ext'):
@@ -40,7 +40,7 @@ driver = root / 'driver.py'
 driver.write_text('''
 import os, subprocess, sys, time
 sys.path.insert(0, sys.argv[6])
-from flea_import import load_source
+from dlea_import import load_source
 S = load_source('search_under_test', sys.argv[1])
 S.LEDGER = sys.argv[2]
 S.KILL_TARGETS = [("localsearch-3", ""), ("localsearch-ext", "")]

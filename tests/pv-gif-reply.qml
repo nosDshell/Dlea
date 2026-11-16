@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-pv-gif-reply-test
+//@ pragma ShellId dlea-pv-gif-reply-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // A backend meta reply carrying a GIF's frames reaches Quick Look's PreviewImage, the Columns frame's meta, and builds the moving layer.
 ShellRoot {
@@ -75,7 +75,7 @@ ShellRoot {
         width: 600
         height: 400
 
-        Flea.SelectionPreview {
+        Dlea.SelectionPreview {
             id: selection
             width: 300
             height: 400
@@ -83,7 +83,7 @@ ShellRoot {
             swap: null
         }
 
-        Flea.Preview {
+        Dlea.Preview {
             id: quick
             x: 300
             width: 300

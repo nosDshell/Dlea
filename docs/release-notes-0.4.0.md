@@ -1,4 +1,4 @@
-# Flea 0.4.0
+# Dlea 0.4.0
 
 - Ship the GPUI interface and 50 language catalogs with 2,227 source strings.
 - Repair picker input and menu behavior (#324, @gjouret).

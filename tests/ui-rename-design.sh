@@ -109,13 +109,13 @@ rename_design_backend_loss() {
     permissions_backend_owned "$pid" || fail 'rename: backend identity changed before termination'
     kill -KILL "$pid" || fail 'rename: owned backend termination failed'
     if [[ "$test_frontend" == gpui ]]; then
-        printf '%s\n' 'flea-gui: The backend closed its reply stream' >> "$expected_warnings"
+        printf '%s\n' 'dlea-gui: The backend closed its reply stream' >> "$expected_warnings"
     fi
     rename_stopped=""
     menus_expect renameState '.index == -1 and (.pending | not) and .listingState == "error"' "$mode backend loss releases the editor and its pending request"
     menus_expect statusError '. == true' "$mode backend loss remains an acknowledged error"
     local stopped_message
-    stopped_message=$(by_frontend 'rename outcome unknown' 'Flea stopped responding, so the rename may not have finished. Check the name.')
+    stopped_message=$(by_frontend 'rename outcome unknown' 'Dlea stopped responding, so the rename may not have finished. Check the name.')
     [[ "$(ipc statusPrimary)" == *"$stopped_message"* ]] || fail 'rename: backend loss misreported the operation outcome'
     menus_shot "rename-$mode-backend-lost"
     menus_acknowledge
@@ -123,7 +123,7 @@ rename_design_backend_loss() {
     menus_guard "$menu_dir/a-unconfirmed.md"
     menus_equal "$mode paused request preserved original bytes" 'original bytes' "$(cat "$menu_dir/a-original.md")"
     [[ ! -e "$menu_dir/a-unconfirmed.md" ]] || fail 'rename: stopped backend unexpectedly processed the request'
-    kill_flea
+    kill_dlea
     launch "$menu_dir"
     wait_listing 1202
     permissions_viewport 1000 700
@@ -139,7 +139,7 @@ case_renamedesign() (
     local proof="${1:-design}" permissions_listing rename_stopped=""
     sandbox_require "$fixture_root"
     menu_box=$(mktemp -d "$fixture_root/rename-design.XXXXXXXX") || fail 'rename: owned fixture creation failed'
-    printf 'native rename fixture\n' > "$menu_box/.flea-test-sandbox"
+    printf 'native rename fixture\n' > "$menu_box/.dlea-test-sandbox"
     menu_dir="$menu_box/listing"
     permissions_listing="$menu_dir"
     for path in "$menu_dir" "$menu_box/config" "$menu_box/cache" "$menu_box/data"; do
@@ -158,7 +158,7 @@ case_renamedesign() (
         printf 'row %s\n' "$index" > "$path"
     done
     # Always restore the owned directory's write bit before harness teardown.
-    trap 'permissions_resume_stopped "$rename_stopped"; menus_guard "$menu_dir"; chmod 700 "$menu_dir"; kill_flea' EXIT
+    trap 'permissions_resume_stopped "$rename_stopped"; menus_guard "$menu_dir"; chmod 700 "$menu_dir"; kill_dlea' EXIT
     launch "$menu_dir"
     wait_listing 1202
     permissions_viewport 1000 700

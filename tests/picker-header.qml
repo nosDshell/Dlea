@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-picker-header-test
+//@ pragma ShellId dlea-picker-header-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Picker.js" as Picker
+import "dlea" as Dlea
+import "dlea/js/Picker.js" as Picker
 
 // The real picker window: grid draws no header, tiles start one gap under the strip; a view round trip keeps the sort and cursor.
 ShellRoot {
@@ -73,9 +73,9 @@ ShellRoot {
         var parents = strip.children[0], leaf = strip.children[1]
         if (!where || !back) return false
         if (where.height !== root.boardStripHeight) root.fail(tag + ": the strip is " + where.height + " px tall, want the board's " + root.boardStripHeight)
-        if (where.height !== Flea.Theme.chromeHeight) root.fail(tag + ": the strip is " + where.height + " px tall, want the chrome height " + Flea.Theme.chromeHeight)
+        if (where.height !== Dlea.Theme.chromeHeight) root.fail(tag + ": the strip is " + where.height + " px tall, want the chrome height " + Dlea.Theme.chromeHeight)
         var start = strip.mapToItem(where, 0, 0).x
-        var want = Flea.Theme.spacing.rowPaddingX + 2 * back.width + 2 * Flea.Theme.spacing.gap
+        var want = Dlea.Theme.spacing.rowPaddingX + 2 * back.width + 2 * Dlea.Theme.spacing.gap
         if (Math.abs(start - want) > root.inlineTolerance) root.fail(tag + ": the path starts at x " + start + ", want " + want + " after Back and Up")
         // Where the parents' drawn text ends, not where their box does: a box wider than its text is the leaf drawn apart. An elided run fills its box.
         var seam = parents.visible ? parents.x + (parents.truncated ? parents.width : parents.contentWidth) : 0
@@ -83,7 +83,7 @@ ShellRoot {
             root.fail(tag + ": the leaf is at x " + leaf.x + ", want " + seam + " right after its parents' text")
         // Qt centres on the parent's rounded half less the strip's rounded half, then adds the offset unrounded.
         var top = strip.mapToItem(where, 0, 0).y
-        var wantTop = Math.round(where.height / 2) - Math.round(strip.height / 2) - Flea.Theme.spacing.hairline / 2
+        var wantTop = Math.round(where.height / 2) - Math.round(strip.height / 2) - Dlea.Theme.spacing.hairline / 2
         if (Math.abs(top - wantTop) > root.centreEpsilon) root.fail(tag + ": the path top is at y " + top + ", want " + wantTop + " in the band above the rule")
         return true
     }
@@ -102,9 +102,9 @@ ShellRoot {
         if (leaf.text !== "winprobe") root.fail(tag + ": leaf " + leaf.text + ", want winprobe")
         // A short path is one run at the strip's left: its text ends well short of the right edge.
         if (leaf.x + leaf.width > strip.width / 2) root.fail(tag + ": the short path ends at x " + (leaf.x + leaf.width) + " of a " + strip.width + " strip, want it at the left")
-        if (!Qt.colorEqual(parents.color, Flea.Theme.color.muted))
+        if (!Qt.colorEqual(parents.color, Dlea.Theme.color.muted))
             root.fail(tag + ": parents ink " + parents.color + ", want muted")
-        if (!Qt.colorEqual(leaf.color, Flea.Theme.color.foreground))
+        if (!Qt.colorEqual(leaf.color, Dlea.Theme.color.foreground))
             root.fail(tag + ": leaf ink " + leaf.color + ", want foreground")
         if (!root.checkGeometry(tag, chrome, strip)) return false
         var up = root.findName(chrome, "pickerUp")
@@ -113,20 +113,20 @@ ShellRoot {
         var grid = root.findName(chrome, "pickerGridView")
         if (!up || !back || !list || !grid) return false
         if (!up.enabled) root.fail(tag + ": Up is disabled over /winprobe, want live")
-        else if (!Qt.colorEqual(up.markItem.color, Flea.Theme.color.foreground))
+        else if (!Qt.colorEqual(up.markItem.color, Dlea.Theme.color.foreground))
             root.fail(tag + ": live Up ink " + up.markItem.color + ", want foreground")
         if (back.enabled) root.fail(tag + ": Back is live with an empty history, want disabled")
         else {
-            if (!Qt.colorEqual(back.markItem.color, Flea.Theme.color.mutedFrame))
+            if (!Qt.colorEqual(back.markItem.color, Dlea.Theme.color.mutedFrame))
                 root.fail(tag + ": dead Back ink " + back.markItem.color + ", want muted")
-            if (Math.abs(back.markItem.opacity - Flea.Theme.disabledOpacity) > 0.001)
-                root.fail(tag + ": dead Back opacity " + back.markItem.opacity + ", want " + Flea.Theme.disabledOpacity)
+            if (Math.abs(back.markItem.opacity - Dlea.Theme.disabledOpacity) > 0.001)
+                root.fail(tag + ": dead Back opacity " + back.markItem.opacity + ", want " + Dlea.Theme.disabledOpacity)
         }
         if (list.lit) root.fail(tag + ": the list mark is lit in grid mode, want unlit")
-        else if (!Qt.colorEqual(list.markItem.color, Flea.Theme.color.mutedFrame))
+        else if (!Qt.colorEqual(list.markItem.color, Dlea.Theme.color.mutedFrame))
             root.fail(tag + ": unlit list ink " + list.markItem.color + ", want muted")
         if (!grid.lit) root.fail(tag + ": the grid mark is unlit in grid mode, want lit")
-        else if (!Qt.colorEqual(grid.markItem.color, Flea.Theme.color.foreground))
+        else if (!Qt.colorEqual(grid.markItem.color, Dlea.Theme.color.foreground))
             root.fail(tag + ": lit grid ink " + grid.markItem.color + ", want foreground")
         return true
     }
@@ -141,9 +141,9 @@ ShellRoot {
         var parents = strip.children[0], leaf = strip.children[1]
         if (parents.text !== "/a/b/") root.fail(tag + ": parents " + parents.text + ", want /a/b/")
         if (leaf.text !== "winprobe") root.fail(tag + ": leaf " + leaf.text + ", want winprobe")
-        if (!Qt.colorEqual(parents.color, Flea.Theme.color.muted))
+        if (!Qt.colorEqual(parents.color, Dlea.Theme.color.muted))
             root.fail(tag + ": parents ink " + parents.color + ", want muted")
-        if (!Qt.colorEqual(leaf.color, Flea.Theme.color.foreground))
+        if (!Qt.colorEqual(leaf.color, Dlea.Theme.color.foreground))
             root.fail(tag + ": leaf ink " + leaf.color + ", want foreground")
         return root.checkGeometry(tag, chrome, strip)
     }
@@ -187,7 +187,7 @@ ShellRoot {
         var back = chrome ? root.findName(chrome, "pickerBack") : null
         if (!back || root.win.history.length === 0) return false
         if (!back.enabled) root.fail(tag + ": Back is dead with a history of " + root.win.history.length)
-        else if (!Qt.colorEqual(back.markItem.color, Flea.Theme.color.foreground))
+        else if (!Qt.colorEqual(back.markItem.color, Dlea.Theme.color.foreground))
             root.fail(tag + ": live Back ink " + back.markItem.color + ", want foreground")
         if (back.markItem.opacity !== 1) root.fail(tag + ": live Back opacity " + back.markItem.opacity + ", want 1")
         return true
@@ -204,7 +204,7 @@ ShellRoot {
         if (parents.text !== "") root.fail(tag + ": parents " + parents.text + ", want empty")
         if (parents.visible) root.fail(tag + ": parents are shown in Recent, want hidden")
         if (leaf.text !== Picker.RECENT_LABEL) root.fail(tag + ": leaf " + leaf.text + ", want " + Picker.RECENT_LABEL)
-        if (!Qt.colorEqual(leaf.color, Flea.Theme.color.foreground))
+        if (!Qt.colorEqual(leaf.color, Dlea.Theme.color.foreground))
             root.fail(tag + ": leaf ink " + leaf.color + ", want foreground")
         return true
     }
@@ -222,7 +222,7 @@ ShellRoot {
         if (head.visible) root.fail(tag + ": grid mode draws the column header")
         if (head.height !== 0) root.fail(tag + ": grid mode header takes height " + head.height + ", want 0")
         var tileTop = tile.mapToItem(root.win.contentItem, 0, 0).y
-        var want = chrome.mapToItem(root.win.contentItem, 0, chrome.height).y + Flea.Theme.spacing.gap
+        var want = chrome.mapToItem(root.win.contentItem, 0, chrome.height).y + Dlea.Theme.spacing.gap
         if (Math.abs(tileTop - want) > root.geometryTolerance)
             root.fail(tag + ": first tile top " + tileTop + ", want " + want + " (path strip bottom plus gap)")
         // Tab walks the picker's own chain from its first control, never a header control, and reaches the grid within one lap.
@@ -281,7 +281,7 @@ ShellRoot {
         if (root.failures.length > 0) { root.report(); return }
         switch (root.stage) {
         case 0: {
-            var comp = Qt.createComponent("flea/PickerWindow.qml")
+            var comp = Qt.createComponent("dlea/PickerWindow.qml")
             if (comp.status !== Component.Ready) { root.fail("PickerWindow does not compile: " + comp.errorString()); return }
             root.winShell = comp.createObject(root)
             if (!root.winShell) { root.fail("PickerWindow did not instantiate: " + comp.errorString()); return }

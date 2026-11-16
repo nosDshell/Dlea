@@ -139,11 +139,11 @@ pub fn spawn_jailed(full: &[String], setup: impl FnOnce(&mut std::process::Comma
     let status_fd = crate::backend::sandbox::STATUS_FD;
     let mut cmd = crate::backend::locale::command(launcher);
     if let Some((at, path)) = nested {
-        cmd.args(flea::bytename::args(&full[1..at]))
+        cmd.args(dlea::bytename::args(&full[1..at]))
             .arg(path)
-            .args(flea::bytename::args(&full[at + 1..]));
+            .args(dlea::bytename::args(&full[at + 1..]));
     } else {
-        cmd.args(flea::bytename::args(&full[1..]));
+        cmd.args(dlea::bytename::args(&full[1..]));
     }
     setup(&mut cmd);
     unsafe {
@@ -172,7 +172,7 @@ pub fn spawn_jailed(full: &[String], setup: impl FnOnce(&mut std::process::Comma
     let reader_pid = Arc::clone(&pid);
     // A reader that never starts leaves the child running, so it is killed here and the caller answers NotStarted.
     if std::thread::Builder::new()
-        .name("flea-jail-status".to_string())
+        .name("dlea-jail-status".to_string())
         .spawn(move || status_reader(read_fd, reader_pid))
         .is_err()
     {

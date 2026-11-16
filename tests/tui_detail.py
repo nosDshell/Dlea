@@ -10,7 +10,7 @@ from tui_pty import Session, fixture
 binary, root = Path(sys.argv[1]).resolve(), Path(sys.argv[2]).resolve()
 work, env = fixture(root)
 # The Properties card's title and Modified label, from the English catalog the TUI draws them with.
-catalog = json.loads((Path(__file__).resolve().parent.parent / 'i18n/en/flea.json').read_text())
+catalog = json.loads((Path(__file__).resolve().parent.parent / 'i18n/en/dlea.json').read_text())
 card_title, modified = catalog['properties.title'], catalog['properties.modified']
 
 with Session(binary, root, work, env) as terminal:

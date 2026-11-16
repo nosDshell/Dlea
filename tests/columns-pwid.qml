@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-columns-pwid-test
+//@ pragma ShellId dlea-columns-pwid-test
 import QtQuick
 import Quickshell
 import Quickshell.Io
 import QtTest
-import "flea" as Flea
+import "dlea" as Dlea
 import "columns-pwid-legs.js" as Grab
 
 // tests/columns-pwid.sh's harness: the real ui/ColumnsArea.qml over a stub pane and the real ViewState, a stub writer that logs each patch, and a pointer driven on the preview column's edge.
@@ -21,7 +21,7 @@ ShellRoot {
     readonly property int stored: Number(Quickshell.env("PWID_STORED"))
     readonly property int areaWidth: 1200
     readonly property int areaHeight: 600
-    readonly property real hair: Flea.Theme.spacing.hairline
+    readonly property real hair: Dlea.Theme.spacing.hairline
 
     // What the first frame drew with the preview column up, kept from the window's frameSwapped.
     property var firstFrame: null
@@ -88,9 +88,9 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: shell.areaWidth
         implicitHeight: shell.areaHeight
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
-        Flea.ColumnsArea {
+        Dlea.ColumnsArea {
             id: area
             anchors.fill: parent
             pane: shell.stubPane
@@ -184,7 +184,7 @@ ShellRoot {
         var edge = shell.edgeItem()
         if (edge === null) return out
         shell.walk(edge, function (o) {
-            if (o.color !== undefined && o.radius !== undefined && String(o.color) === String(Flea.Theme.color.accent) && o.width === shell.hair)
+            if (o.color !== undefined && o.radius !== undefined && String(o.color) === String(Dlea.Theme.color.accent) && o.width === shell.hair)
                 out.push(o)
         })
         return out
@@ -255,7 +255,7 @@ ShellRoot {
                 var mark = shell.marks()[0]
                 var spot = mark.mapToItem(area, 0, 0)
                 shell.check("hover: the mark is 16 px, 12 px left of the edge, top at mid height", [spot.x, spot.y, mark.markSize], [x - 12, shell.areaHeight / 2, 16])
-                shell.check("hover: the mark inks in the foreground", String(mark.color), String(Flea.Theme.color.foreground))
+                shell.check("hover: the mark inks in the foreground", String(mark.color), String(Dlea.Theme.color.foreground))
             }
             shell.pointer(100, 300)
         },
@@ -352,7 +352,7 @@ ShellRoot {
         function () {
             var want = Math.round(shell.areaWidth * shell.stored / 100)
             var column = Math.floor((shell.areaWidth - want) / 2)
-            shell.check("relaunch: the stored percent is read", Flea.ViewState.previewWidth, shell.stored)
+            shell.check("relaunch: the stored percent is read", Dlea.ViewState.previewWidth, shell.stored)
             shell.check("relaunch: a frame drew the preview column", shell.firstFrame !== null, true)
             if (shell.firstFrame !== null) {
                 shell.check("relaunch: the first frame already has the stored width", shell.firstFrame.widths, [column, column, shell.areaWidth - 2 * column])

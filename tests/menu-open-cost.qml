@@ -1,17 +1,17 @@
-//@ pragma ShellId flea-menu-open-cost-test
+//@ pragma ShellId dlea-menu-open-cost-test
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
-import "flea/js/MenuFit.js" as MenuFit
+import "dlea" as Dlea
+import "dlea/js/MenuFit.js" as MenuFit
 
 // tests/menu-settle.sh's open-cost leg: the real pane opens its row menu by the m key and by a click point, and every open reads its rows' widths a few times, never once per row.
 ShellRoot {
     id: root
     readonly property var pane: body.currentPane
     readonly property var menu: pane ? pane.contextMenu() : null
-    readonly property string fixture: Quickshell.env("FLEA_PATH")
-    readonly property string firstPath: Quickshell.env("FLEA_COST_FIRST") === "click" ? "click" : "key"
+    readonly property string fixture: Quickshell.env("DLEA_PATH")
+    readonly property string firstPath: Quickshell.env("DLEA_COST_FIRST") === "click" ? "click" : "key"
     readonly property int fixtureRows: 8
     // One early open precedes four alternating opens with the retained ready menu.
     readonly property int opens: 4
@@ -135,7 +135,7 @@ ShellRoot {
             // A long label widens the card past its base width and past the list it replaces, so a held or stale fit fails here.
             var widthBefore = menu.frameItem.width
             menu.setEntries([{ label: longLabel, action: "open" }, { label: "Short", action: "copy" }])
-            check(label + " card widens for a long label", menu.frameItem.width > Math.max(Flea.Theme.menuWidth, widthBefore))
+            check(label + " card widens for a long label", menu.frameItem.width > Math.max(Dlea.Theme.menuWidth, widthBefore))
             // Copy as has no row in that list, so c opens it as the lone flyout, which reads its rows once too.
             before = MenuFit.reads
             menu.openSubmenuFor("copyAs")
@@ -171,7 +171,7 @@ ShellRoot {
         id: window
         implicitWidth: 1000
         implicitHeight: 800
-        Flea.WindowBody { id: body; host: window }
+        Dlea.WindowBody { id: body; host: window }
         Item { anchors.fill: parent; TestEvent { id: driver } }
     }
     Timer { interval: root.pollMs; repeat: true; running: !root.finished; onTriggered: root.advance() }

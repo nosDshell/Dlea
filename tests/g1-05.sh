@@ -7,7 +7,7 @@ mkdir -p "$scratch"
 roots() { find "$scratch" -mindepth 1 -maxdepth 1 -type d \( -name 'test.*' -o -name 'ci.*' -o -name 'clippy.*' \) | wc -l; }
 before=$(roots)
 unit_root=$(mktemp -d "$scratch/ci.XXXXXXXX")
-: > "$unit_root/.flea-test-sandbox"
+: > "$unit_root/.dlea-test-sandbox"
 mkdir -p "$unit_root"/{home,config,state,cache,runtime}
 lane() {
     setsid -w env -i PATH="$PATH" HOME="$unit_root/home" \
@@ -17,12 +17,12 @@ lane() {
         CARGO_TARGET_DIR="${CARGO_TARGET_DIR:-$PWD/target}" G1_05_VECTORS="$unit_root/vectors.jsonl" \
         CARGO_PROFILE_TEST_DEBUG=line-tables-only CARGO_PROFILE_DEV_DEBUG=line-tables-only "$@" < /dev/null
 }
-lane cargo test --locked -p flea-gui --test g1_05
+lane cargo test --locked -p dlea-gui --test g1_05
 # A filter matching nothing passes with zero, so the largest "test result: ok. N passed; 0 failed" count must reach this unit's cases.
 count() { sed -n 's/^test result: ok\. \([0-9]*\) passed; 0 failed.*/\1/p' "$1" | sort -n | tail -1; }
 wiring_floor=10
 # The shell's wheel, stroke and slow-click wiring tests live in the library's test tree.
-lane cargo test --locked -p flea-gui --lib g1_05 2>&1 | tee "$unit_root/lib.log"
+lane cargo test --locked -p dlea-gui --lib g1_05 2>&1 | tee "$unit_root/lib.log"
 wiring=$(count "$unit_root/lib.log")
 [ "${wiring:-0}" -ge "$wiring_floor" ] || { printf 'FAIL g1_05 library wiring ran %s tests, want at least %s\n' "${wiring:-0}" "$wiring_floor"; exit 1; }
 oracle() {
@@ -48,12 +48,12 @@ for mutation in nudge slow; do
     printf 'G1_05 control %s rejected: %s\n' "$mutation" "${rejected#FAIL native/oracle parity }"
 done
 clippy_root=$(mktemp -d "$scratch/clippy.XXXXXXXX")
-: > "$clippy_root/.flea-test-sandbox"
-printf 'tools/flea-clippy tools/clippy-baseline.txt %s\n' "$clippy_root"
-tools/flea-clippy tools/clippy-baseline.txt "$clippy_root"
+: > "$clippy_root/.dlea-test-sandbox"
+printf 'tools/dlea-clippy tools/clippy-baseline.txt %s\n' "$clippy_root"
+tools/dlea-clippy tools/clippy-baseline.txt "$clippy_root"
 # Remove a passing run's root only when it is absolute, non-empty, marked and directly inside this unit's scratch.
 drop_root() {
-    [[ -n "$1" && "$1" == "$scratch"/?* && "$(dirname "$1")" == "$scratch" && -f "$1/.flea-test-sandbox" ]] || {
+    [[ -n "$1" && "$1" == "$scratch"/?* && "$(dirname "$1")" == "$scratch" && -f "$1/.dlea-test-sandbox" ]] || {
         printf 'FAIL g1-05 refused to remove scratch root %s\n' "$1"
         exit 1
     }

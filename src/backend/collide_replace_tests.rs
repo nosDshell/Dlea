@@ -6,7 +6,7 @@ use crate::backend::opsreq::run_transfer_checked;
 use crate::backend::testdir::TestDir;
 use crate::backend::trash;
 use crate::backend::undo::Journal;
-use crate::error::FleaError;
+use crate::error::DleaError;
 use std::os::unix::fs::PermissionsExt;
 use std::os::unix::process::ExitStatusExt;
 use std::process::{ExitStatus, Output};
@@ -87,7 +87,7 @@ fn unrestorable_trash(d: &TestDir, cancel: Arc<AtomicBool>, lifts: bool) -> Stan
     StandIn
 }
 
-fn redo(journal: &mut Journal) -> Result<String, FleaError> {
+fn redo(journal: &mut Journal) -> Result<String, DleaError> {
     let (tx, _rx) = channel();
     journal.redo(1, &AtomicBool::new(false), &tx)
 }
@@ -188,7 +188,7 @@ fn a_replace_whose_copy_fails_puts_the_old_item_straight_back() {
     assert!(entry.steps.is_empty(), "and there is nothing left for undo to do");
     assert_eq!(std::fs::read_dir(&can).unwrap().count(), 0);
     // A cancel reaches the same path and keeps its own word, which is what the transfer counts it by.
-    let cancelled = |_: &mut Vec<Step>| Err(FleaError { where_: "copy".into(), path: String::new(), msg: CANCELLED.into() });
+    let cancelled = |_: &mut Vec<Step>| Err(DleaError { where_: "copy".into(), path: String::new(), msg: CANCELLED.into() });
     let mut deferred = Deferred::begin();
     let mut steps = Vec::new();
     assert_eq!(replacing_deferred(&there, &mut steps, &mut deferred, &std::sync::atomic::AtomicBool::new(false), cancelled).unwrap_err().msg, CANCELLED);
@@ -213,7 +213,7 @@ fn a_put_back_that_fails_keeps_the_step_for_undo_and_says_the_old_item_is_in_tra
     d.dir("to");
     let there = d.file("to/shut.txt", "there");
     let _trash = unrestorable_trash(&d, Arc::new(AtomicBool::new(false)), true);
-    let failing = |_: &mut Vec<Step>| Err(FleaError { where_: "copy".into(), path: String::new(), msg: "permission denied".into() });
+    let failing = |_: &mut Vec<Step>| Err(DleaError { where_: "copy".into(), path: String::new(), msg: "permission denied".into() });
     let mut deferred = Deferred::begin();
     let mut steps = Vec::new();
     let error = replacing_deferred(&there, &mut steps, &mut deferred, &std::sync::atomic::AtomicBool::new(false), failing).unwrap_err();

@@ -41,7 +41,7 @@ fn a_repeated_fsinfo_probes_a_local_directory_once() {
 #[test]
 fn a_slow_mount_is_never_probed_on_the_loop() {
     let d = TestDir::new("fsinfotagsslow");
-    let (lines, probes) = ask_fsinfo(&d, Path::new("/run/user/1000/gvfs/smb-share:server=flea-fake,share=tags"), 2);
+    let (lines, probes) = ask_fsinfo(&d, Path::new("/run/user/1000/gvfs/smb-share:server=dlea-fake,share=tags"), 2);
     assert_eq!(lines.matches(r#""tagable":true"#).count(), 2, "{}", lines);
     assert_eq!(probes, 0, "a share's probe runs on the fsinfo worker beside its statfs");
 }

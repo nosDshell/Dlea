@@ -4,7 +4,7 @@ cap_dropmods_box() {
     [[ "$#" -eq 1 ]] || fail "cap_dropmods: box needs a qs pid, got $#"
     local geometry
     geometry=$(hyprctl clients -j | jq -er --argjson pid "$1" '
-        [.[] | select(.class == "com.thisisgm.flea" and .pid == $pid)]
+        [.[] | select(.class == "com.nosDshell.dlea" and .pid == $pid)]
         | select(length == 1) | .[0] | [.at[0], .at[1], .size[0], .size[1]]
         | select(all(.[]; type == "number" and . == floor)) | @tsv') \
         || fail "cap_dropmods: no native geometry for qs pid $1"
@@ -69,18 +69,18 @@ cap_dropmods_wait_gone() {
     while (( SECONDS < end )); do [[ ! -e "$1" ]] && return 0; sleep 0.1; done
     fail "cap_dropmods: $1 survived the drop"
 }
-# launch()'s twin that keeps the first window; pids come from flea_pids as window_box's do, never $!, which names the setsid shim.
+# launch()'s twin that keeps the first window; pids come from dlea_pids as window_box's do, never $!, which names the setsid shim.
 cap_dropmods_launch_second() {
     [[ "$#" -eq 1 ]] || fail "cap_dropmods: launch_second needs a path, got $#"
-    FLEA_UI="$flea_ui" FLEA_BIN="$flea_bin" \
-        flea_test_exec "$flea_bin" --gui "$1" >"$flea_log.second" 2>&1 </dev/null &
+    DLEA_UI="$dlea_ui" DLEA_BIN="$dlea_bin" \
+        dlea_test_exec "$dlea_bin" --gui "$1" >"$dlea_log.second" 2>&1 </dev/null &
     local count="" end=$((SECONDS + 20))
     while (( SECONDS < end )); do
-        count=$(hyprctl clients -j 2>/dev/null | jq '[.[] | select(.class == "com.thisisgm.flea")] | length' 2>/dev/null || printf "")
+        count=$(hyprctl clients -j 2>/dev/null | jq '[.[] | select(.class == "com.nosDshell.dlea")] | length' 2>/dev/null || printf "")
         [[ "$count" == "2" ]] && return 0
         sleep 0.2
     done
-    fail "cap_dropmods: the second window never arrived (saw $count flea clients)"
+    fail "cap_dropmods: the second window never arrived (saw $count dlea clients)"
 }
 # Focuses a window and points ipc at it, since the path route reaches only the newest of two windows.
 cap_dropmods_focus_pid() {
@@ -145,9 +145,9 @@ case_cap_dropmods() {
     rm -f "$dir/sub/a2.txt"
     printf 'CAP_DROPMODS a2: same-window shift at drop keeps the ctrl-lift copy\n'
     wait_listing 6
-    win1=$(flea_pid)
+    win1=$(dlea_pid)
     cap_dropmods_launch_second "$dir2"
-    win2=$(flea_pids | grep -vx "$win1" | head -n 1)
+    win2=$(dlea_pids | grep -vx "$win1" | head -n 1)
     [[ -n "$win2" ]] || fail "cap_dropmods: the second window has no surviving qs pid"
     cap_dropmods_focus_pid "$win2" "$dir2"
     wait_listing 2
@@ -201,7 +201,7 @@ case_cap_dropmods() {
     cap_dropmods_wait_file "$dir2/sub2/b2.txt"
     cap_dropmods_wait_gone "$dir/b2.txt"
     printf 'CAP_DROPMODS b2: cross-window shift at drop moves a ctrl lift\n'
-    kill_flea
+    kill_dlea
     ipc_pid=""
     launch "$dir"
     wait_listing 5
@@ -230,15 +230,15 @@ case_cap_dropmods() {
     [[ -n "$probe_box" ]] || fail "cap_dropmods: the probe window has no geometry to aim at"
     read -r tx ty <<< "$probe_box"
     (( tx > wx && tx < wx + ww && ty > wy && ty < wy + wh )) \
-        || fail "cap_dropmods: the probe centre $tx,$ty lies outside the Flea window $wx,$wy,$ww,$wh, so the pointer cannot reach it"
-    cap_dropmods_focus_pid "$(flea_pid)" "$dir"
+        || fail "cap_dropmods: the probe centre $tx,$ty lies outside the Dlea window $wx,$wy,$ww,$wh, so the pointer cannot reach it"
+    cap_dropmods_focus_pid "$(dlea_pid)" "$dir"
     seek_row_named "probe1.txt" || fail "cap_dropmods: probe1.txt never came under the cursor"
     src_pt=$(ipc rowCentre "$(row_index_of probe1.txt)"); read -r cx cy <<< "$src_pt"
     read -r wx wy ww wh <<< "$(window_box)"
     cap_dropmods_probe_clear_of "$((cx + wx))" "$((cy + wy))"
     cap_dropmods_press_at "$((cx + wx))" "$((cy + wy))"
     cap_dropmods_steer_to "$tx" "$ty"
-    printf 'CAP_DROPMODS c1 aim %s,%s cursor %s windows %s\n' "$tx" "$ty" "$(hyprctl cursorpos)" "$(hyprctl clients -j | jq -c '[.[] | select(.title == "DropProbe" or .class == "com.thisisgm.flea") | [.title, .floating, .at, .size]]')"
+    printf 'CAP_DROPMODS c1 aim %s,%s cursor %s windows %s\n' "$tx" "$ty" "$(hyprctl cursorpos)" "$(hyprctl clients -j | jq -c '[.[] | select(.title == "DropProbe" or .class == "com.nosDshell.dlea") | [.title, .floating, .at, .size]]')"
     cap_drops_wait_target "Move 1 item to a folder · ctrl copies, shift moves"
     sleep 0.5
     cap_dropmods_release
@@ -251,11 +251,11 @@ case_cap_dropmods() {
     done
     [[ -n "$offered1" ]] || fail "cap_dropmods: the probe never logged the plain drop (log: $(head -c 500 "$probe_log" 2>/dev/null))"
     grep -aq "PROBE drop#1 .*formats=.*text/uri-list" "$probe_log" || fail "cap_dropmods: the plain drop carried no uri-list"
-    grep -aq "PROBE drop#1 .*formats=.*application/x-flea-rows" "$probe_log" || fail "cap_dropmods: the plain drop carried no Flea marker"
+    grep -aq "PROBE drop#1 .*formats=.*application/x-dlea-rows" "$probe_log" || fail "cap_dropmods: the plain drop carried no Dlea marker"
     grep -aq "PROBE drop#1 chose=copy" "$probe_log" || fail "cap_dropmods: the plain drop chose no copy"
     printf 'CAP_DROPMODS c1: foreign drop offers %s\n' "$offered1"
     # Focus followed the drag onto the probe and stays there, so key() would refuse the seek's keys.
-    cap_dropmods_focus_pid "$(flea_pid)" "$dir"
+    cap_dropmods_focus_pid "$(dlea_pid)" "$dir"
     seek_row_named "probe2.txt" || fail "cap_dropmods: probe2.txt never came under the cursor"
     src_pt=$(ipc rowCentre "$(row_index_of probe2.txt)"); read -r cx cy <<< "$src_pt"
     read -r wx wy ww wh <<< "$(window_box)"
@@ -281,5 +281,5 @@ case_cap_dropmods() {
     printf 'CAP_DROPMODS settings=off a1=lift-move a2=lift-copy b1=drop-copy b2=drop-move c=frozen-offer\n'
     cap_dropmods_cleanup
     trap - EXIT
-    kill_flea
+    kill_dlea
 }

@@ -1,4 +1,4 @@
-//@ pragma ShellId flea-startup-objects-test
+//@ pragma ShellId dlea-startup-objects-test
 import QtQuick
 import Quickshell
 

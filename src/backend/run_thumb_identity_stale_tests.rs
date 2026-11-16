@@ -20,8 +20,8 @@ fn policy_identity_changed_metadata_cannot_retag_predecessor_cache_as_current() 
     set_mtime(10);
     assert!(l.request(r#"{"c":"window","start":0,"count":1}"#) == Control::Continue);
     let rows = l.said();
-    let flea::protocol::Reply::Rows { rows, .. } =
-        flea::protocol::parse_reply(rows.trim()).unwrap()
+    let dlea::protocol::Reply::Rows { rows, .. } =
+        dlea::protocol::parse_reply(rows.trim()).unwrap()
     else {
         panic!("actual window rows")
     };
@@ -38,8 +38,8 @@ fn policy_identity_changed_metadata_cannot_retag_predecessor_cache_as_current() 
     let listing = l.st.generation;
     assert!(l.request(r#"{"c":"window","start":0,"count":1}"#) == Control::Continue);
     let rows = l.said();
-    let flea::protocol::Reply::Rows { rows, .. } =
-        flea::protocol::parse_reply(rows.trim()).unwrap()
+    let dlea::protocol::Reply::Rows { rows, .. } =
+        dlea::protocol::parse_reply(rows.trim()).unwrap()
     else {
         panic!("refreshed window rows")
     };

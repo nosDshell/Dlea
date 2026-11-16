@@ -1,11 +1,11 @@
-//@ pragma ShellId flea-listcost-test
+//@ pragma ShellId dlea-listcost-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 import "langmark-count.js" as LangCost
 // The same resolved URL ui/List.qml imports, so this is the list's own library instance and not a copy.
-import "flea/js/ClipMarks.js" as ClipMarks
+import "dlea/js/ClipMarks.js" as ClipMarks
 
 // e34r2 listcost: a real ui/List.qml over a stub pane hoists its shared values and frees its lookup; tests/listcost.sh drives it offscreen.
 ShellRoot {
@@ -97,7 +97,7 @@ ShellRoot {
     property var stubBackend: backendStub.createObject(root)
     property var stubPane: paneStub.createObject(root, { backend: root.stubBackend, rows: root.sampleRows })
 
-    Flea.List {
+    Dlea.List {
         id: list
         width: 700
         height: 300

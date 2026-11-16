@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/CodeRuns.js" as CodeRuns
 import "js/Compare.js" as Compare
 import "js/Icons.js" as Icons
@@ -137,7 +137,7 @@ Item {
         }
 
         // File a's kind mark, in foreground and centred above the rule like the Markdown bar's.
-        Flea.Glyph {
+        Dlea.Glyph {
             id: barMark
             anchors.left: parent.left
             anchors.leftMargin: Theme.spacing.rowPaddingX
@@ -164,7 +164,7 @@ Item {
         }
 
         // The strip's shared button, so its rest, hover, focus, press and disabled looks are the recipe every strip button draws.
-        Flea.DialogButton {
+        Dlea.DialogButton {
             id: copyButton
             visible: root.hasPatch
             anchors.right: barClose.left
@@ -179,7 +179,7 @@ Item {
             onTabbed: function(from, back) { root.stepFocus(back) }
         }
 
-        Flea.ChromeButton {
+        Dlea.ChromeButton {
             id: barClose
             gesturePolicy: TapHandler.ReleaseWithinBounds
             ruleRows: Theme.spacing.hairline
@@ -307,12 +307,12 @@ Item {
         }
 
         // The wheel and momentum are the text preview's own, so the diff takes the same notch as the code it sits beside.
-        Flea.FastScrollHandler {
+        Dlea.FastScrollHandler {
             parent: view
             flickable: view
         }
 
-        Flea.ViewportScrollBars {
+        Dlea.ViewportScrollBars {
             parent: view
             flickable: view
         }

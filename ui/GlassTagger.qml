@@ -3,8 +3,8 @@ import Quickshell
 import Quickshell.Io
 import "js/GlassTag.js" as GlassTag
 
-// Omarchy's Transparent mode is Hyprland's to draw: a Flea window Hyprland leaves at 1 takes the transparency hotkey's tag, so no alpha stacks.
-// ui/Glass.qml makes this when Hyprland opens the first Flea window, after the first rows, and binds the mode to it.
+// Omarchy's Transparent mode is Hyprland's to draw: a Dlea window Hyprland leaves at 1 takes the transparency hotkey's tag, so no alpha stacks.
+// ui/Glass.qml makes this when Hyprland opens the first Dlea window, after the first rows, and binds the mode to it.
 QtObject {
     id: root
 

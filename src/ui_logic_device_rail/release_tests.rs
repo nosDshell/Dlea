@@ -26,7 +26,7 @@ fn a_folder_no_drive_holds_says_so_as_the_eject_refusal_board_does() {
     let rows = rail();
     let said = release(Some((&rows, None)), "/fx/v/work", false, false, false);
     let Release::Say(note) = said else { panic!("{said:?}") };
-    assert_eq!(note.english(), "This folder is not on a drive Flea can eject.");
+    assert_eq!(note.english(), "This folder is not on a drive Dlea can eject.");
 }
 
 #[test]

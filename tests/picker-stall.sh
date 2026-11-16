@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # A blocked read must be reaped, its stale partial line discarded, the replacement paged, and both read-only children reaped on cancel.
 set -eu
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.."
 command -v qs >/dev/null
 fixture="$FIXTURE_ROOT/picker-stall-$$"
@@ -14,7 +14,7 @@ from pathlib import Path
 import signal
 import sys
 root = Path(sys.argv[1])
-assert (root / '.flea-test-sandbox').is_file()
+assert (root / '.dlea-test-sandbox').is_file()
 for text in (root / 'pids').read_text().splitlines() if (root / 'pids').exists() else []:
     process = Path('/proc') / text
     try:
@@ -26,12 +26,12 @@ PYEND
     sandbox_remove "$fixture"
 }
 trap cleanup EXIT
-mkdir -p "$fixture/flea/js"
-cp ui/PickerListing.qml ui/PickerLifecycle.qml ui/Backend.qml "$fixture/flea/"
+mkdir -p "$fixture/dlea/js"
+cp ui/PickerListing.qml ui/PickerLifecycle.qml ui/Backend.qml "$fixture/dlea/"
 # The js files import each other (FolderSorts.js imports Sort.js), so the fixture takes the whole folder.
-cp ui/js/*.js "$fixture/flea/js/"
+cp ui/js/*.js "$fixture/dlea/js/"
 # A test-only method fixes the rare cancel-before-FailedToStart event order, never the handler under test.
-python3 - "$fixture/flea/Backend.qml" <<'PYEND'
+python3 - "$fixture/dlea/Backend.qml" <<'PYEND'
 from pathlib import Path
 import sys
 path = Path(sys.argv[1])
@@ -51,8 +51,8 @@ if text == before:
     sys.exit(1)
 path.write_text(text)
 PYEND
-printf 'module flea\nsingleton ViewState 1.0 ViewState.qml\n' > "$fixture/flea/qmldir"
-printf 'pragma Singleton\nimport QtQuick\nQtObject { property var state: ({}) }\n' > "$fixture/flea/ViewState.qml"
+printf 'module dlea\nsingleton ViewState 1.0 ViewState.qml\n' > "$fixture/dlea/qmldir"
+printf 'pragma Singleton\nimport QtQuick\nQtObject { property var state: ({}) }\n' > "$fixture/dlea/ViewState.qml"
 cp tests/picker-stall.qml "$fixture/shell.qml"
 cp tests/picker-stall-helper.py "$fixture/helper"
 chmod +x "$fixture/helper"
@@ -62,7 +62,7 @@ for scenario in navigate cancel early missing early-missing missing-order; do
     : > "$fixture/requests"
     helper="$fixture/helper"
     [[ $scenario != *missing* ]] || helper="$fixture/missing"
-    if ! QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic FLEA_BIN="$helper" FLEA_PICKER_CASE="$scenario" FLEA_PICKER_FIXTURE="$fixture" \
+    if ! QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic DLEA_BIN="$helper" DLEA_PICKER_CASE="$scenario" DLEA_PICKER_FIXTURE="$fixture" \
         timeout 6 qs -p "$fixture/shell.qml" > "$fixture/output" 2>&1; then
         cat "$fixture/output"; exit 1
     fi

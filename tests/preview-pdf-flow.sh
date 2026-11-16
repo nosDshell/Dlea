@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # A PDF in the Columns preview fills the frame's width with its pages stacked under one another and a scroll knob, builds only the pages near the frame, and Quick Look keeps one page with its strip, offscreen at 1200 x 760 and 760 x 560.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 # qs exits 128 + SIGTERM when the probe kills itself after its receipt.
 self_kill_exit=143
@@ -13,15 +13,15 @@ if ! command -v qs >/dev/null || ! command -v python3 >/dev/null; then
 fi
 
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-preview-pdf-flow.XXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-preview-pdf-flow.XXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER" || exit 1
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/runtime" "$test_root/fixture" "$test_root/state" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/preview-pdf-flow.qml "$test_root/config/shell.qml" || exit 1
@@ -74,7 +74,7 @@ judge() {
     # Sample input: "  INFO qml: FLOW QMLTALLY passed=41 failed=0".
     passed=$(printf '%s\n' "$output" | sed -n 's/.*FLOW QMLTALLY passed=\([0-9]*\) failed=0$/\1/p')
     # The two injected warnings name broken.pdf, the document the failure checks hand to a slot's image; no other warning passes.
-    noisy=$(printf '%s\n' "$output" | grep -av 'does not support setting window masks\|Detected function' | grep -avE 'PdfPageImage at @flea/PreviewPdf\.qml\[[0-9]+:[0-9]+\]: (document and source properties in conflict: preferring document source QUrl\("[^"]*/fixture/broken\.pdf"\)|Error decoding: [^ ]*/fixture/broken\.pdf: Unsupported image format)' | grep -aiE 'WARN|ERROR|Binding loop|failed to load|Unable to assign|Cannot assign|TypeError|ReferenceError|is not a function|is not defined|in conflict')
+    noisy=$(printf '%s\n' "$output" | grep -av 'does not support setting window masks\|Detected function' | grep -avE 'PdfPageImage at @dlea/PreviewPdf\.qml\[[0-9]+:[0-9]+\]: (document and source properties in conflict: preferring document source QUrl\("[^"]*/fixture/broken\.pdf"\)|Error decoding: [^ ]*/fixture/broken\.pdf: Unsupported image format)' | grep -aiE 'WARN|ERROR|Binding loop|failed to load|Unable to assign|Cannot assign|TypeError|ReferenceError|is not a function|is not defined|in conflict')
     if [ "$status" -ne "$self_kill_exit" ] || [ "$passed" != "$want" ] || printf '%s\n' "$output" | grep -aq 'FLOW FAIL' || [ -n "$noisy" ]; then
         printf 'FAIL %s: qs exit %s, checks passed %s of %s\n' "$label" "$status" "${passed:-none}" "$want"
         printf '%s\n' "$output" | grep -a 'FLOW FAIL\|FLOW COUNTS\|QMLTALLY'

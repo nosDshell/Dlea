@@ -1,7 +1,7 @@
-// The opener lane: one `flea --open` at a time, its exit read as the pane's next step.
+// The opener lane: one `dlea --open` at a time, its exit read as the pane's next step.
 use super::runfile::{ASK_OPEN_WITH, ASK_RUN, IS_DIRECTORY};
 
-/// What the pane does once `flea --open` has exited.
+/// What the pane does once `dlea --open` has exited.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Opened {
     Done,
@@ -24,13 +24,13 @@ impl Opener {
     }
 
     /// The argv to spawn, or None when a launch is already pending and the caller says busy.
-    pub fn start(&mut self, flea: &str, paths: &[String]) -> Option<Vec<String>> {
+    pub fn start(&mut self, dlea: &str, paths: &[String]) -> Option<Vec<String>> {
         if self.pending || paths.is_empty() {
             return None;
         }
         self.current = paths[0].clone();
         self.pending = true;
-        let mut argv = vec![flea.to_string(), "--open".to_string()];
+        let mut argv = vec![dlea.to_string(), "--open".to_string()];
         argv.extend(paths.iter().cloned());
         Some(argv)
     }

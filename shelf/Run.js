@@ -23,7 +23,7 @@ function idle() {
   return { running: false, verb: "", index: 0, count: 0, name: "", bytes: 0, total: 0 }
 }
 
-// Sample input, the lines `flea shelf move|copy` prints, which are the pane's own:
+// Sample input, the lines `dlea shelf move|copy` prints, which are the pane's own:
 // {"t":"transferstarted","id":0,"n":4,"moving":true}
 // {"t":"transferprogress","id":0,"index":1,"name":"plate-2.raw","bytes":36,"total":94,"scanned":0}
 // {"t":"transferdone","id":0,"ok":3,"failed":1,"skipped":0,"cancelled":false,"retryPaths":[]}
@@ -76,7 +76,7 @@ function flyoutTitle(pending, count) {
   return verb + " " + Model.grouped(n) + (n === 1 ? " item" : " items") + " to"
 }
 
-// One line per row, which is how every flea shelf listing answers. Only the line ending is stripped,
+// One line per row, which is how every dlea shelf listing answers. Only the line ending is stripped,
 // because a path may legally begin or end with a space and these lines carry paths.
 function lines(text) {
   var out = []

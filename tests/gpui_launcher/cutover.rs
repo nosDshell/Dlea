@@ -1,7 +1,7 @@
 use super::*;
 
 const LEGACY: &str =
-    "flea: the QML frontend is no longer available; unset FLEA_FRONTEND to open the GPUI window\n";
+    "dlea: the QML frontend is no longer available; unset DLEA_FRONTEND to open the GPUI window\n";
 
 #[test]
 fn gpui_cutover_default_launches_need_no_qml_files_or_switch() {
@@ -11,7 +11,7 @@ fn gpui_cutover_default_launches_need_no_qml_files_or_switch() {
     for arguments in [vec![], vec!["--gui"], vec!["files"], vec!["--gui", "files"]] {
         let output = sandbox
             .launch_command()
-            .env_remove("FLEA_FRONTEND")
+            .env_remove("DLEA_FRONTEND")
             .current_dir(&sandbox.root)
             .args(&arguments)
             .output()
@@ -31,10 +31,10 @@ fn gpui_cutover_default_launches_need_no_qml_files_or_switch() {
         );
         let headless = sandbox
             .launch_command()
-            .env("FLEA_FRONTEND", "qml")
+            .env("DLEA_FRONTEND", "qml")
             .env_remove("WAYLAND_DISPLAY")
             .env_remove("DISPLAY")
-            .env("FLEA_PICKER", "{}")
+            .env("DLEA_PICKER", "{}")
             .args(&arguments)
             .output()
             .unwrap();
@@ -55,7 +55,7 @@ fn gpui_cutover_default_select_and_picker_keep_their_argv() {
     let selected = sandbox.root.join("files/a b.txt");
     let output = sandbox
         .launch_command()
-        .env_remove("FLEA_FRONTEND")
+        .env_remove("DLEA_FRONTEND")
         .arg("--select")
         .arg(&selected)
         .output()
@@ -72,8 +72,8 @@ fn gpui_cutover_default_select_and_picker_keep_their_argv() {
     let target = sandbox.root.join("reply.json");
     let output = sandbox
         .launch_command()
-        .env_remove("FLEA_FRONTEND")
-        .env("FLEA_PICKER", "{\"mode\":\"open\"}")
+        .env_remove("DLEA_FRONTEND")
+        .env("DLEA_PICKER", "{\"mode\":\"open\"}")
         .arg("--pick")
         .arg(&target)
         .output()
@@ -102,7 +102,7 @@ fn gpui_cutover_qml_is_refused_for_every_window_entry() {
     ] {
         for headless in [false, true] {
             let mut command = sandbox.launch_command();
-            command.env("FLEA_FRONTEND", "qml").env("FLEA_PICKER", "{}");
+            command.env("DLEA_FRONTEND", "qml").env("DLEA_PICKER", "{}");
             // Each entry refuses before its display check, so a headless launch gives the same sentence.
             if headless {
                 command.env_remove("WAYLAND_DISPLAY").env_remove("DISPLAY");

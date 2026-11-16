@@ -82,7 +82,7 @@ rail_details_native() {
     done
     rail_assert_details true 12
     trash_shot rail-details-on
-    kill_flea
+    kill_dlea
     launch "$payload"; wait_listing 0
     trash_wait '.count == 12 and .rail.countText == "12"' 'enabled rail count survives restart'
     settings_wait_value '.places.driveSize == true and .places.trashCount == true'
@@ -96,7 +96,7 @@ rail_details_native() {
     done
     key -k Escape >/dev/null; settle
     rail_assert_details false 12
-    kill_flea
+    kill_dlea
     launch "$payload"; wait_listing 0
     trash_wait '.count == 12 and .rail.countText == ""' 'disabled rail count survives restart'
     settings_wait_value '.places.driveSize == false and .places.trashCount == false'
@@ -111,7 +111,7 @@ places_records_diagnostic() {
     printf 'PLACES_STATE phase=%s section=%s side=%s cursor=%s preset=%s\n' \
         "$phase" "$(ipc settingsSection)" "$(ipc settingsSide)" "$cursor" "$(ipc keymapPreset)"
     printf 'PLACES_SESSION %s\n' "$(ipc uiSettings | jq -c '.places.favourites')"
-    printf 'PLACES_PERSISTED %s\n' "$(jq -c '.places.favourites' "$XDG_STATE_HOME/flea/ui.json")"
+    printf 'PLACES_PERSISTED %s\n' "$(jq -c '.places.favourites' "$XDG_STATE_HOME/dlea/ui.json")"
     printf 'PLACES_FOCUSED_ROW %s\n' "$(ipc settingsModel | jq -c --argjson cursor "$cursor" '.[$cursor]')"
     printf 'PLACES_KEY_FOCUS %s\n' "$(ipc keyDeliveryState)"
     printf 'PLACES_STATUS error=%s message=%s\n' "$(ipc statusError)" "$(ipc lastMessage | jq -Rs .)"
@@ -122,7 +122,7 @@ places_wait_records() {
     local expected="$1" attempt matched=false
     for attempt in $(seq 1 30); do
         if ipc uiSettings | jq -e --argjson expected "$expected" '.places.favourites == $expected' >/dev/null \
-            && jq -e --argjson expected "$expected" '.places.favourites == $expected' "$XDG_STATE_HOME/flea/ui.json" >/dev/null \
+            && jq -e --argjson expected "$expected" '.places.favourites == $expected' "$XDG_STATE_HOME/dlea/ui.json" >/dev/null \
             && [[ "$(ipc favouritesSaving)" == false ]]; then
             matched=true
             break
@@ -183,7 +183,7 @@ places_click_menu() {
 }
 
 places_require_store() {
-    sandbox_require "$XDG_STATE_HOME/flea/ui.json"
+    sandbox_require "$XDG_STATE_HOME/dlea/ui.json"
     sandbox_under "$SANDBOX_PATH" "$fixture_root/settingsplaces" \
         || fail "places: refusing a state mutation outside this case's sandbox"
 }
@@ -226,11 +226,11 @@ places_concurrent() (
     local addition="$dir/rail-add"
     sandbox_require "$addition"
     mkdir "$addition" || fail "places: distinct rail identity fixture creation failed"
-    first_pid=$(flea_pid)
-    first_id=$(flea_ipc_list --all --json | jq -er --arg path "$flea_ui/boot/shell.qml" --argjson pid "$first_pid" '.[] | select(.config_path == $path and .pid == $pid) | .id')
+    first_pid=$(dlea_pid)
+    first_id=$(dlea_ipc_list --all --json | jq -er --arg path "$dlea_ui/boot/shell.qml" --argjson pid "$first_pid" '.[] | select(.config_path == $path and .pid == $pid) | .id')
     key -M ctrl -k n -m ctrl >/dev/null
     for attempt in $(seq 1 100); do
-        rows=$(flea_ipc_list --all --json | jq -c --arg path "$flea_ui/boot/shell.qml" '[.[] | select(.config_path == $path)]')
+        rows=$(dlea_ipc_list --all --json | jq -c --arg path "$dlea_ui/boot/shell.qml" '[.[] | select(.config_path == $path)]')
         [[ "$(jq length <<< "$rows")" == 2 ]] && break
         sleep 0.05
     done
@@ -244,19 +244,19 @@ places_concurrent() (
 
     places_owned_window() {
         local owned_id="$1" owned_pid="$2" clients
-        flea_process_owned "$first_pid" || fail "places: first window run ownership changed"
-        flea_process_owned "$second_pid" || fail "places: second window run ownership changed"
+        dlea_process_owned "$first_pid" || fail "places: first window run ownership changed"
+        dlea_process_owned "$second_pid" || fail "places: second window run ownership changed"
         [[ "$owned_pid" =~ ^[0-9]+$ && -r "/proc/$owned_pid/environ" ]] || fail "places: owned window process vanished"
-        flea_ipc_list --all --json | jq -e --arg path "$flea_ui/boot/shell.qml" --arg id "$owned_id" --argjson pid "$owned_pid" \
+        dlea_ipc_list --all --json | jq -e --arg path "$dlea_ui/boot/shell.qml" --arg id "$owned_id" --argjson pid "$owned_pid" \
             'any(.[]; .config_path == $path and .id == $id and .pid == $pid)' >/dev/null || fail "places: instance ownership changed"
-        tr '\0' '\n' < "/proc/$owned_pid/environ" | grep -Fx "FLEA_BIN=$flea_bin" >/dev/null || fail "places: candidate binary changed"
-        tr '\0' '\n' < "/proc/$owned_pid/environ" | grep -Fx "FLEA_UI=$flea_ui" >/dev/null || fail "places: candidate UI changed"
+        tr '\0' '\n' < "/proc/$owned_pid/environ" | grep -Fx "DLEA_BIN=$dlea_bin" >/dev/null || fail "places: candidate binary changed"
+        tr '\0' '\n' < "/proc/$owned_pid/environ" | grep -Fx "DLEA_UI=$dlea_ui" >/dev/null || fail "places: candidate UI changed"
         tr '\0' '\n' < "/proc/$owned_pid/environ" | grep -Fx "XDG_STATE_HOME=$dir/state" >/dev/null || fail "places: state sandbox changed"
         clients=$(hyprctl -j clients) || fail "places: native window ownership unavailable"
-        jq -er --argjson pid "$owned_pid" --argjson first "$first_pid" --argjson second "$second_pid" --arg class "$flea_window_class" \
+        jq -er --argjson pid "$owned_pid" --argjson first "$first_pid" --argjson second "$second_pid" --arg class "$dlea_window_class" \
             '[.[] | select(.class == $class)] | select(all(.[]; .pid == $first or .pid == $second))
              | map(select(.pid == $pid)) | select(length == 1) | .[0].address' <<< "$clients" \
-            || fail "places: foreign or ambiguous native Flea window appeared"
+            || fail "places: foreign or ambiguous native Dlea window appeared"
     }
     places_close_second() {
         [[ -n "$second_pid" ]] || return
@@ -274,7 +274,7 @@ places_concurrent() (
         address=$(places_owned_window "$instance" "$pid") || fail "places: cannot select an owned window"
         omarchy-drive focus "$address" >/dev/null
     }
-    ipc() { flea_ipc_call -i "$instance" call flea "$@"; }
+    ipc() { dlea_ipc_call -i "$instance" call dlea "$@"; }
     key() {
         [[ "$(places_owned_window "$instance" "$pid")" == "$address" ]] || fail "places: window address changed before native input"
         [[ "$(hyprctl activewindow -j | jq -r .address)" == "$address" ]] || fail "places: another window took keyboard focus"
@@ -329,7 +329,7 @@ places_concurrent() (
     omarchy-drive shot "$evidence_dir/places-concurrent-first.png" "$address" >/dev/null
     [[ -s "$evidence_dir/places-concurrent-first.png" ]] || fail "places: concurrent screenshot is missing"
     printf 'SHOT %s/places-concurrent-first.png\n' "$evidence_dir"
-    printf 'PLACES_CONCURRENT first=%s/%s second=%s/%s store=%s records=%s\n' "$first_id" "$first_pid" "$second_id" "$second_pid" "$XDG_STATE_HOME/flea/ui.json" "$expected"
+    printf 'PLACES_CONCURRENT first=%s/%s second=%s/%s store=%s records=%s\n' "$first_id" "$first_pid" "$second_id" "$second_pid" "$XDG_STATE_HOME/dlea/ui.json" "$expected"
 
     places_rail_target() {
         ipc railEntries | jq -c --argjson index "$(ipc railCursor)" \
@@ -436,7 +436,7 @@ places_write_failure_matches() {
 # src/uistore.rs refuses a write it cannot read first. This case is not in tests/ui.sh's default
 # list, which is how it kept a phrase no build has ever printed.
 places_external_failure() {
-    local dir="$1" expected doc="$XDG_STATE_HOME/flea/ui.json" attempt mode
+    local dir="$1" expected doc="$XDG_STATE_HOME/dlea/ui.json" attempt mode
     expected=$(jq -c '.places.favourites' "$doc")
     launch "$dir/listing"; wait_listing 3
     places_wait_records "$expected"
@@ -554,12 +554,12 @@ places_external_failure() {
 case_settingsplaces() {
     local dir="$fixture_root/settingsplaces" records expected initial index attempt
     sandbox_scratch "$dir"
-    mkdir -p "$dir/listing/Alpha" "$dir/listing/Beta" "$dir/state/flea" "$dir/config/gtk-3.0" "$dir/data"
+    mkdir -p "$dir/listing/Alpha" "$dir/listing/Beta" "$dir/state/dlea" "$dir/config/gtk-3.0" "$dir/data"
     printf 'listing fixture\n' > "$dir/listing/proof.txt"
-    export XDG_STATE_HOME="$dir/state" XDG_CONFIG_HOME="$dir/config" XDG_DATA_HOME="$dir/data" FLEA_UI="$flea_ui"
+    export XDG_STATE_HOME="$dir/state" XDG_CONFIG_HOME="$dir/config" XDG_DATA_HOME="$dir/data" DLEA_UI="$dlea_ui"
     printf 'file://%s GTK label preserved\ninvalid GTK entry\n' "$dir/listing/Alpha" > "$dir/config/gtk-3.0/bookmarks"
     cp "$dir/config/gtk-3.0/bookmarks" "$dir/bookmarks.original"
-    printf '%s\n' '{"keys":"default","view":"list","places":{"favourites":[]}}' > "$dir/state/flea/ui.json"
+    printf '%s\n' '{"keys":"default","view":"list","places":{"favourites":[]}}' > "$dir/state/dlea/ui.json"
     launch "$dir/listing"
     wait_listing 3
     places_wait_records '[]'
@@ -681,10 +681,10 @@ case_settingsplaces() {
     mv "$dir/Beta-original" "$dir/listing/Beta"
     shot places-changed-directory-refused
 
-    kill_flea
+    kill_dlea
     records=$(jq -cn --arg path "$dir/listing/Alpha" --arg missing "$dir/missing" \
         '[{label:"  Original <label>  ",path:$path},{label:"Second label",path:$path},{label:"Unavailable",path:$missing},{label:"Relative",path:"relative"},17,{label:"Network URI",path:"smb://unavailable.invalid/share"}]')
-    jq -cn --argjson records "$records" '{keys:"default",view:"list",places:{favourites:$records},unrelated:{retain:true}}' > "$dir/state/flea/ui.json"
+    jq -cn --argjson records "$records" '{keys:"default",view:"list",places:{favourites:$records},unrelated:{retain:true}}' > "$dir/state/dlea/ui.json"
     launch "$dir/listing"; wait_listing 3
     places_wait_records "$records"
     settings_open_key; settle
@@ -724,10 +724,10 @@ case_settingsplaces() {
     key -k Escape >/dev/null; settle
     launch "$dir/listing"; wait_listing 3
     places_wait_records "$expected"
-    jq -e '.unrelated.retain == true' "$dir/state/flea/ui.json" >/dev/null || fail "places: favourites edits dropped unrelated preferences"
+    jq -e '.unrelated.retain == true' "$dir/state/dlea/ui.json" >/dev/null || fail "places: favourites edits dropped unrelated preferences"
     cmp "$dir/bookmarks.original" "$dir/config/gtk-3.0/bookmarks" || fail "places: original GTK bytes changed"
     places_concurrent "$dir" "$expected" || fail "places: concurrent-window proof failed"
     places_external_failure "$dir"
     printf 'PLACES original-records duplicates panel/listing/rail keyboard pointer-drag invalid-retention restart=ok\n'
-    kill_flea
+    kill_dlea
 }

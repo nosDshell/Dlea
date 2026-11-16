@@ -1,8 +1,8 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 
 // One protocol member: buttons A's one control as a set member (ButtonSystem040 callout 1, Nearby callout 6), current in the foreground frame.
-Flea.DialogButton {
+Dlea.DialogButton {
     id: root
 
     property bool picked: false

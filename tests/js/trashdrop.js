@@ -36,12 +36,12 @@ function run(check) {
     check("naming the same files", moved.length === 1 ? moved[0].paths.join(",") : "nothing sent", "/d/a.txt,/d/c.txt")
     check("with no cursor landing in a listing they were not in", elsewhere.trashedFirst, -1)
 
-    // Nothing Flea did not lift here may trash: a foreign drag, another Flea, a drag with no marker.
+    // Nothing Dlea did not lift here may trash: a foreign drag, another Dlea, a drag with no marker.
     var refused = []
     var guard = pane(refused, rows, 7)
     check("a foreign drag is refused", TrashDrop.drop(guard, "", ["file:///d/a.txt"]), false)
-    var otherMarker = "other-flea" + wire[Drag.ROWS_MIME].substring(wire[Drag.ROWS_MIME].indexOf("\n"))
-    check("another Flea's drag is refused", TrashDrop.drop(guard, otherMarker, ["file:///d/a.txt"]), false)
+    var otherMarker = "other-dlea" + wire[Drag.ROWS_MIME].substring(wire[Drag.ROWS_MIME].indexOf("\n"))
+    check("another Dlea's drag is refused", TrashDrop.drop(guard, otherMarker, ["file:///d/a.txt"]), false)
     check("a non-file uri is no path to trash", TrashDrop.drop(guard, Drag.INSTANCE, ["https://example.com/a.txt"]), false)
     var gvfs = "/run/user/1000/gvfs/smb-share:server=nas,share=data"
     check("a drag lifted on a GVFS mount is refused, as d is",

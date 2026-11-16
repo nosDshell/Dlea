@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Archive.js" as Archive
 import "js/ArchiveCard.js" as ArchiveCard
 
@@ -38,7 +38,7 @@ Item {
     opacity: 0
     z: 2
 
-    Flea.Reveal { target: root; shown: root.opened; lift: card }
+    Dlea.Reveal { target: root; shown: root.opened; lift: card }
     // The sentence and the title clear once the fade ended, so the card stays still while it fades out; open() sets both again.
     onOpacityChanged: if (root.opacity === 0 && !root.opened) { root.errorText = ""; root.leaf = "" }
 
@@ -164,7 +164,7 @@ Item {
             onWheel: function (wheel) { wheel.accepted = true }
         }
 
-        Flea.CardFrame {
+        Dlea.CardFrame {
             id: body
             bleedY: Theme.focusClearance
             anchors.fill: parent
@@ -176,7 +176,7 @@ Item {
                 width: parent.width
                 height: header.implicitHeight + Theme.spacing.gap
 
-                Flea.DialogTitle {
+                Dlea.DialogTitle {
                     id: header
                     anchors.left: parent.left
                     anchors.right: parent.right
@@ -204,7 +204,7 @@ Item {
                     anchors.rightMargin: Theme.spacing.rowPaddingX
                     spacing: Theme.spacing.gap
 
-                    Flea.DialogButton {
+                    Dlea.DialogButton {
                         id: cancelButton
                         label: "Cancel"
                         focused: root.focusPart === 1
@@ -214,7 +214,7 @@ Item {
                         onTabbed: function (from, back) { root.stepTab(back) }
                     }
 
-                    Flea.DialogButton {
+                    Dlea.DialogButton {
                         id: extractButton
                         label: "Extract"
                         primary: true
@@ -231,7 +231,7 @@ Item {
                 width: parent.width - 2 * Theme.spacing.rowPaddingX
                 spacing: Theme.spacing.gap
 
-                Flea.DialogField {
+                Dlea.DialogField {
                     id: passwordField
                     width: parent.width
                     label: "Password"

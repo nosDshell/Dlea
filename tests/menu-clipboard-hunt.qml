@@ -1,21 +1,21 @@
-//@ pragma ShellId flea-menu-clipboard-hunt-test
+//@ pragma ShellId dlea-menu-clipboard-hunt-test
 
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
-import "flea/js/Keymap.js" as Keymap
-import "flea/js/Menu.js" as Menu
-import "flea/js/Search.js" as Search
+import "dlea" as Dlea
+import "dlea/js/Keymap.js" as Keymap
+import "dlea/js/Menu.js" as Menu
+import "dlea/js/Search.js" as Search
 
 // Each real window observes native clipboard refusals; the driver records Copy as text separately.
 ShellRoot {
     id: shell
     property int stage: 0
     property int ticks: 0
-    property string action: Quickshell.env("FLEA_HUNT_ACTION")
-    property string source: Quickshell.env("FLEA_HUNT_SOURCE")
-    property string destination: Quickshell.env("FLEA_HUNT_DEST")
+    property string action: Quickshell.env("DLEA_HUNT_ACTION")
+    property string source: Quickshell.env("DLEA_HUNT_SOURCE")
+    property string destination: Quickshell.env("DLEA_HUNT_DEST")
     property var messages: []
     property var clipReplies: []
     property var pasteRequest: null
@@ -51,7 +51,7 @@ ShellRoot {
     }
     FileView {
         id: textPublications
-        path: Quickshell.env("FLEA_HUNT_CLIPBOARD") + ".calls"
+        path: Quickshell.env("DLEA_HUNT_CLIPBOARD") + ".calls"
         watchChanges: true
         onFileChanged: reload()
         onLoaded: {
@@ -131,7 +131,7 @@ ShellRoot {
         implicitWidth: 900
         implicitHeight: 600
         color: "#303030"
-        Flea.WindowBody { id: body; host: window }
+        Dlea.WindowBody { id: body; host: window }
     }
     Connections {
         target: shell.pane
@@ -148,8 +148,8 @@ ShellRoot {
     }
     Process {
         id: artifactCheck
-        command: ["python3", Quickshell.env("FLEA_HUNT_CHECKS"), "files", shell.action, shell.source,
-                  shell.destination, Quickshell.env("FLEA_HUNT_SOURCE_BYTES")]
+        command: ["python3", Quickshell.env("DLEA_HUNT_CHECKS"), "files", shell.action, shell.source,
+                  shell.destination, Quickshell.env("DLEA_HUNT_SOURCE_BYTES")]
         stdout: StdioCollector { onStreamFinished: shell.log(this.text.trim()) }
         onExited: function(exitCode, exitStatus) {
             shell.checkPublication()

@@ -37,9 +37,9 @@ def cases(root):
         ("open-folder", ["--open", path], {}),
         ("open-file", ["--open", file], {}),
         ("terminal", ["--terminal", path], {}),
-        ("pick", ["--pick", str(root / "reply.json")], {"WAYLAND_DISPLAY": "contract", "FLEA_PICKER": '{"kind":"open","multiple":false}'}),
+        ("pick", ["--pick", str(root / "reply.json")], {"WAYLAND_DISPLAY": "contract", "DLEA_PICKER": '{"kind":"open","multiple":false}'}),
         ("pick-no-request", ["--pick", str(root / "reply.json")], {}),
-        ("pick-no-display", ["--pick", str(root / "reply.json")], {"FLEA_PICKER": "{}"}),
+        ("pick-no-display", ["--pick", str(root / "reply.json")], {"DLEA_PICKER": "{}"}),
         ("unlock", ["--unlock", "/dev/contract"], {"WAYLAND_DISPLAY": "contract"}),
         ("ui-state", ["--ui-state"], {}),
         ("ui-state-write", ["--ui-state", '{"view":"grid"}'], {}),
@@ -89,26 +89,26 @@ def main():
     root = sandbox.make("cli-")
     for name in ("home", "config", "state", "data", "cache", "runtime", "bin", "files"):
         (root / name).mkdir(mode=0o700)
-    shutil.copy2(BINARY, root / "bin/flea")
-    BINARY = root / "bin/flea"
+    shutil.copy2(BINARY, root / "bin/dlea")
+    BINARY = root / "bin/dlea"
     (root / "files/a b.txt").write_text("contract\n")
     recorder = '''#!/usr/bin/python3
 import json, os
-print(json.dumps(dict({k: os.environ.get(k) for k in ("FLEA_PATH", "FLEA_SELECT", "FLEA_PICKER", "FLEA_PICKER_REPLY", "FLEA_UNLOCK")}, frontend="qml"), sort_keys=True, separators=(",", ":")))
+print(json.dumps(dict({k: os.environ.get(k) for k in ("DLEA_PATH", "DLEA_SELECT", "DLEA_PICKER", "DLEA_PICKER_REPLY", "DLEA_UNLOCK")}, frontend="qml"), sort_keys=True, separators=(",", ":")))
 '''
-    # flea-gui takes its start and selection only as arguments, so its record maps them onto the same fields.
+    # dlea-gui takes its start and selection only as arguments, so its record maps them onto the same fields.
     gui_recorder = recorder.replace('frontend="qml"', 'frontend="gpui"').replace("import json, os\n", """import json, os, sys
 args = sys.argv[1:]
-assert os.environ.get("FLEA_PATH") is None and os.environ.get("FLEA_SELECT") is None, "start or selection leaked through the environment"
-os.environ.update({k: args[args.index(f) + 1] for k, f in (("FLEA_PATH", "--"), ("FLEA_SELECT", "--select"), ("FLEA_PICKER_REPLY", "--pick")) if f in args})
+assert os.environ.get("DLEA_PATH") is None and os.environ.get("DLEA_SELECT") is None, "start or selection leaked through the environment"
+os.environ.update({k: args[args.index(f) + 1] for k, f in (("DLEA_PATH", "--"), ("DLEA_SELECT", "--select"), ("DLEA_PICKER_REPLY", "--pick")) if f in args})
 """)
-    for name, script in {"qs": recorder, "flea-gui": gui_recorder, "gio": "#!/bin/sh\nexit 0\n", "xdg-terminal-exec": "#!/bin/sh\nexit 0\n", "xdg-mime": "#!/bin/sh\nexit 0\n", "hyprctl": "#!/bin/sh\nexit 0\n", "zoxide": "#!/bin/sh\nexit 0\n", "pacman": "#!/bin/sh\nexit 1\n", "omarchy-launch-floating-terminal-with-presentation": "#!/bin/sh\nexit 0\n"}.items():
+    for name, script in {"qs": recorder, "dlea-gui": gui_recorder, "gio": "#!/bin/sh\nexit 0\n", "xdg-terminal-exec": "#!/bin/sh\nexit 0\n", "xdg-mime": "#!/bin/sh\nexit 0\n", "hyprctl": "#!/bin/sh\nexit 0\n", "zoxide": "#!/bin/sh\nexit 0\n", "pacman": "#!/bin/sh\nexit 1\n", "omarchy-launch-floating-terminal-with-presentation": "#!/bin/sh\nexit 0\n"}.items():
         p = root / "bin" / name
         p.write_text(script)
         p.chmod(0o700)
-    env = {"PATH": str(root / "bin") + ":/usr/bin:/bin", "HOME": str(root / "home"), "XDG_CONFIG_HOME": str(root / "config"), "XDG_STATE_HOME": str(root / "state"), "XDG_DATA_HOME": str(root / "data"), "XDG_CACHE_HOME": str(root / "cache"), "XDG_RUNTIME_DIR": str(root / "runtime"), "XDG_DATA_DIRS": str(root / "missing"), "XDG_CONFIG_DIRS": str(root / "missing"), "FLEA_UI": str(REPO / "ui"), "FLEA_BIN": str(BINARY), "QSG_RHI_BACKEND": "opengl", "VK_LOADER_DRIVERS_DISABLE": "contract", "LC_ALL": "C", "TERM": "xterm"}
+    env = {"PATH": str(root / "bin") + ":/usr/bin:/bin", "HOME": str(root / "home"), "XDG_CONFIG_HOME": str(root / "config"), "XDG_STATE_HOME": str(root / "state"), "XDG_DATA_HOME": str(root / "data"), "XDG_CACHE_HOME": str(root / "cache"), "XDG_RUNTIME_DIR": str(root / "runtime"), "XDG_DATA_DIRS": str(root / "missing"), "XDG_CONFIG_DIRS": str(root / "missing"), "DLEA_UI": str(REPO / "ui"), "DLEA_BIN": str(BINARY), "QSG_RHI_BACKEND": "opengl", "VK_LOADER_DRIVERS_DISABLE": "contract", "LC_ALL": "C", "TERM": "xterm"}
     if "--gpui" in sys.argv:
-        env["FLEA_FRONTEND"] = "gpui"
+        env["DLEA_FRONTEND"] = "gpui"
     result = {}
     expected = {} if CAPTURE else json.loads(GOLDEN.read_text())
     for name, changes in ({} if CAPTURE else deltas.load("cli")).items():
@@ -117,7 +117,7 @@ os.environ.update({k: args[args.index(f) + 1] for k, f in (("FLEA_PATH", "--"), 
         expected[name] = dict(expected[name], stderr=deltas.apply(name, expected[name]["stderr"], changes))
     usage_changes = [] if CAPTURE else deltas.load("cli-usage").get("actions", [])
     for name, record in expected.items():
-        if b"usage: flea " in base64.b64decode(record["stderr"]):
+        if b"usage: dlea " in base64.b64decode(record["stderr"]):
             record["stderr"] = deltas.apply(name, record["stderr"], usage_changes)
     chosen = sys.argv[sys.argv.index("--case") + 1] if "--case" in sys.argv else None
     mismatched = []
@@ -135,10 +135,10 @@ os.environ.update({k: args[args.index(f) + 1] for k, f in (("FLEA_PATH", "--"), 
             mismatched.append(f"{name}: expected {expected.get(name)}, got {record}")
     # --help and -h postdate the 0.3.12 golden, so the built binary is checked against its own usage error: the same lines, on stdout, exit 0.
     if not CAPTURE and chosen is None:
-        # Sample stderr: b"flea: unknown flag --not-a-mode\nusage: flea [--tui|--gui] ...\n", exit 2.
+        # Sample stderr: b"dlea: unknown flag --not-a-mode\nusage: dlea [--tui|--gui] ...\n", exit 2.
         unknown = subprocess.run([str(BINARY), "--not-a-mode"], cwd=root, env=env, capture_output=True, timeout=8)
         lines = unknown.stderr.partition(b"\n")[2]
-        if unknown.returncode != 2 or not lines.startswith(b"usage: flea "):
+        if unknown.returncode != 2 or not lines.startswith(b"usage: dlea "):
             mismatched.append(f"help: --not-a-mode gave code {unknown.returncode} and stderr {unknown.stderr!r}, no usage to compare")
         for flag in (["--help"], ["-h"], ["--tui", "--help"]):
             run = subprocess.run([str(BINARY), *flag], cwd=root, env=env, capture_output=True, timeout=8)

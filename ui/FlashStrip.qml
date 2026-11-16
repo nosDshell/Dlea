@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 
 // The flasher's strip: Back, an unavailable Up and the title; every exit leaves through the view's close.
 Rectangle {
@@ -13,12 +13,12 @@ Rectangle {
         anchors.leftMargin: Theme.spacing.rowPaddingX
         anchors.rightMargin: Theme.spacing.rowPaddingX
         spacing: Theme.spacing.gap
-        Flea.ChromeButton {
+        Dlea.ChromeButton {
             ruleRows: Theme.spacing.hairline
             glyph: "arrow-left"
             onActivated: root.back()
         }
-        Flea.ChromeButton {
+        Dlea.ChromeButton {
             ruleRows: Theme.spacing.hairline
             glyph: "arrow-up"
             accessName: "Up unavailable in Flash"

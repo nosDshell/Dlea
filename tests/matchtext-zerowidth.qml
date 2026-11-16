@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-matchtext-zerowidth-test
+//@ pragma ShellId dlea-matchtext-zerowidth-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Focus.js" as Focus
+import "dlea" as Dlea
+import "dlea/js/Focus.js" as Focus
 import "matchtext-zerowidth.js" as Probe
 
 // A late match whose head fills a MatchText slot never draws a zero-width run over the cells after the name. The Columns view, the list, a search row and a row with no match each get a geometry read of every drawn run and a pixel compare of the cells right of the name, against the same row without the match. The late keystroke goes through the real Focus and Filter path. Stub pane: tests/matchtext-pane.qml.
@@ -70,10 +70,10 @@ ShellRoot {
         id: win
         implicitWidth: 1000
         implicitHeight: 560
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
         // The Columns view: the active column draws the shared listing's rows as ColumnRows.
-        Flea.ColumnsArea {
+        Dlea.ColumnsArea {
             id: area
             x: 0
             y: 0
@@ -84,7 +84,7 @@ ShellRoot {
         }
 
         // The list view: each row draws its name as a MatchText through the same shared pane.
-        Flea.List {
+        Dlea.List {
             id: list
             x: 0
             y: 210
@@ -99,40 +99,40 @@ ShellRoot {
             x: 0
             y: 340
             width: 260
-            height: 4 * Flea.Theme.fileRowHeight
+            height: 4 * Dlea.Theme.fileRowHeight
 
-            Flea.ColumnRow {
+            Dlea.ColumnRow {
                 id: nonePlainRow
                 y: 0
                 width: rowsBox.width
-                height: Flea.Theme.fileRowHeight
+                height: Dlea.Theme.fileRowHeight
                 row: root.longRow
                 pane: root.nonePlain
                 showSize: true
             }
-            Flea.ColumnRow {
+            Dlea.ColumnRow {
                 id: noneQueryRow
-                y: Flea.Theme.fileRowHeight
+                y: Dlea.Theme.fileRowHeight
                 width: rowsBox.width
-                height: Flea.Theme.fileRowHeight
+                height: Dlea.Theme.fileRowHeight
                 row: root.longRow
                 pane: root.noneQuery
                 showSize: true
             }
-            Flea.ColumnRow {
+            Dlea.ColumnRow {
                 id: searchEarlyRow
-                y: 2 * Flea.Theme.fileRowHeight
+                y: 2 * Dlea.Theme.fileRowHeight
                 width: rowsBox.width
-                height: Flea.Theme.fileRowHeight
+                height: Dlea.Theme.fileRowHeight
                 row: root.searchRow
                 pane: root.searchEarly
                 showSize: true
             }
-            Flea.ColumnRow {
+            Dlea.ColumnRow {
                 id: searchLateRow
-                y: 3 * Flea.Theme.fileRowHeight
+                y: 3 * Dlea.Theme.fileRowHeight
                 width: rowsBox.width
-                height: Flea.Theme.fileRowHeight
+                height: Dlea.Theme.fileRowHeight
                 row: root.searchRow
                 pane: root.searchLate
                 showSize: true

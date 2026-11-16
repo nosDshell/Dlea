@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Dlea
+GenericName=File Manager
+Comment=Fast, keyboard-first file manager
+# --gui states the mode rather than choosing it: bare dlea opens the window too, so the flag is a contract, not a correction.
+Exec=dlea --gui %f
+Icon=com.nosDshell.dlea
+Terminal=false
+Categories=System;FileTools;FileManager;
+MimeType=inode/directory;
+Keywords=files;folder;manager;browser;dlea;
+StartupWMClass=com.nosDshell.dlea

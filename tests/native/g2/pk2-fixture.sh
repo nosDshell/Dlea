@@ -2,8 +2,8 @@
 # Usage: pk2-fixture.sh [name]; prints the fixed root.
 set -euo pipefail
 name="${1:-pk2}"
-export FLEA_FIXTURE_ROOT="${FLEA_FIXTURE_ROOT:-/home/flea-sandbox/$name}"
-. "$(dirname -- "$0")/../../../tools/flea-sandbox-guard"
+export DLEA_FIXTURE_ROOT="${DLEA_FIXTURE_ROOT:-/home/dlea-sandbox/$name}"
+. "$(dirname -- "$0")/../../../tools/dlea-sandbox-guard"
 sandbox_root_ok
 root=$SANDBOX_ROOT
 if [ -e "$root" ]; then

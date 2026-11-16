@@ -9,7 +9,7 @@ import sys
 import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
-from flea_import import load_source
+from dlea_import import load_source
 
 Backend = load_source("rename_timing", Path(__file__).with_name("rename-timing.py")).Backend
 
@@ -34,7 +34,7 @@ with open(sys.argv[1], 'r+') as lock:
             if contended:
                 fcntl.flock(lock, fcntl.LOCK_EX)
             result = subprocess.run([sys.executable, "-c", child, str(path), str(CONTENDED_EXIT)],
-                env={"LD_PRELOAD": shim, "FLEA_JOURNAL_LOCK": str(expected), "FLEA_JOURNAL_ENTERED": str(entered)},
+                env={"LD_PRELOAD": shim, "DLEA_JOURNAL_LOCK": str(expected), "DLEA_JOURNAL_ENTERED": str(entered)},
                 stdin=subprocess.DEVNULL, capture_output=True, timeout=10)
             assert result.returncode == (CONTENDED_EXIT if contended else 0), (name, result.stderr)
             assert entered.exists() == (contended and matches), (name, "incorrect flock witness")
@@ -61,10 +61,10 @@ def case(binary, root, shim, mode):
     entered, release = folder / "entered", folder / "release"
     env = {"LD_PRELOAD": shim}
     if mode == "syscall":
-        env.update(FLEA_RENAME_ENTERED=str(entered), FLEA_RENAME_RELEASE=str(release))
+        env.update(DLEA_RENAME_ENTERED=str(entered), DLEA_RENAME_RELEASE=str(release))
     else:
-        env.update(FLEA_JOURNAL_LOCK=str(state / "flea_undo_dir" / "undo-journal.lock"),
-                   FLEA_JOURNAL_ENTERED=str(entered))
+        env.update(DLEA_JOURNAL_LOCK=str(state / "dlea_undo_dir" / "undo-journal.lock"),
+                   DLEA_JOURNAL_ENTERED=str(entered))
     previous = {key: os.environ.get(key) for key in env}
     os.environ.update(env)
     backend = Backend(binary, state)
@@ -81,10 +81,10 @@ def case(binary, root, shim, mode):
         control, _, _, _ = backend.listing(child)
         backend.listing(folder)
         if mode in ("journal", "journal-timeout"):
-            lock = (state / "flea_undo_dir" / "undo-journal.lock").open("a+")
+            lock = (state / "dlea_undo_dir" / "undo-journal.lock").open("a+")
             fcntl.flock(lock, fcntl.LOCK_EX)
         assert source.is_absolute() and target.is_absolute() and root in source.parents and root in target.parents
-        assert (root / ".flea-test-sandbox").is_file()
+        assert (root / ".dlea-test-sandbox").is_file()
         started = backend.send(dict(c="rename", path=str(source), to=target.name))
         pipelined = backend.send(dict(c="list", path=str(child), first=20))
         wait_for(entered.exists, "rename did not reach the witnessed held phase")
@@ -141,13 +141,13 @@ def case(binary, root, shim, mode):
             assert answer["ok"] and answer["path"] == str(target), answer
             assert target.read_text() == "payload" and not source.exists()
             assert source.is_absolute() and target.is_absolute() and root in source.parents and root in target.parents
-            assert (root / ".flea-test-sandbox").is_file()
+            assert (root / ".dlea-test-sandbox").is_file()
             backend.send(dict(c="undo"))
             _, answer, _ = backend.until("undone", time.monotonic())
             assert answer["ok"] and answer["op"] == "rename", answer
             assert source.read_text() == "payload" and not target.exists()
             assert source.is_absolute() and target.is_absolute() and root in source.parents and root in target.parents
-            assert (root / ".flea-test-sandbox").is_file()
+            assert (root / ".dlea-test-sandbox").is_file()
             backend.send(dict(c="undo"))
             _, answer = backend.messages.get(timeout=5)
             while answer["t"] in ("changed", "fsinfo"):
@@ -164,7 +164,7 @@ def main():
     binary, directory, shim = sys.argv[1:]
     root = Path(directory)
     assert directory and root.is_absolute() and root.resolve() == root
-    assert (root / ".flea-test-sandbox").is_file() and not root.is_relative_to(Path.home())
+    assert (root / ".dlea-test-sandbox").is_file() and not root.is_relative_to(Path.home())
     assert Path(shim).is_relative_to(root)
     witness_controls(root, shim)
     results = [case(binary, root, shim, mode) for mode in ("syscall", "journal", "journal-timeout")]

@@ -27,7 +27,7 @@ repository.GLib = types.SimpleNamespace(Error=type("BusError", (Exception,), {})
 repository.Gio = types.SimpleNamespace(DBusCallFlags=types.SimpleNamespace(ALLOW_INTERACTIVE_AUTHORIZATION=1))
 gi.repository = repository
 sys.modules.update({"gi": gi, "gi.repository": repository})
-loader = importlib.machinery.SourceFileLoader("volume_helper", sys.argv[1] if len(sys.argv) > 1 else "tools/flea-udisks")
+loader = importlib.machinery.SourceFileLoader("volume_helper", sys.argv[1] if len(sys.argv) > 1 else "tools/dlea-udisks")
 helper = importlib.util.module_from_spec(importlib.util.spec_from_loader(loader.name, loader))
 loader.exec_module(helper)
 original_drive_for = helper.drive_for
@@ -96,7 +96,7 @@ class Volumes(unittest.TestCase):
     def command(self, *args):
         output = io.StringIO()
         with contextlib.redirect_stdout(output):
-            status = helper.main(["flea-udisks", *args])
+            status = helper.main(["dlea-udisks", *args])
         self.assertEqual(status, 0)
         return json.loads(output.getvalue())
 
@@ -293,7 +293,7 @@ class Volumes(unittest.TestCase):
         helper.manager = forbidden
         for args in (("volumes", "bad"), ("mount",), ("release", "a", "b")):
             with contextlib.redirect_stderr(io.StringIO()):
-                self.assertEqual(helper.main(["flea-udisks", *args]), 2)
+                self.assertEqual(helper.main(["dlea-udisks", *args]), 2)
 
     def test_mount_uses_listed_filesystem_device_and_is_idempotent(self):
         self.assertEqual(self.command("mount", "/dev/sdb2"), {"ok": True, "path": "/mnt/data"})

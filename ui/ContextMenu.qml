@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Keymap.js" as Keymap
 import "js/LockedMenu.js" as LockedMenu
 import "js/Menu.js" as Menu
@@ -192,7 +192,7 @@ Item {
     }
     function listingContext(flyoutAction, includeHidden) {
         return MenuContext.listingContext(root, flyoutAction, includeHidden, {
-            scripts: Flea.Scripts.entries, hiddenActions: ViewState.menuHidden,
+            scripts: Dlea.Scripts.entries, hiddenActions: ViewState.menuHidden,
             langMarks: ViewState.langMarks,
             thumbPreview: ViewState.preview, updateVersion: UpdateCheck.menuVersion
         })
@@ -475,7 +475,7 @@ Item {
     }
 
     // One row off the model, only so the two heights above are read from MenuRow rather than repeated here.
-    Flea.MenuRow {
+    Dlea.MenuRow {
         id: separatorProbe
         visible: false
         entry: ({ separator: true })
@@ -519,7 +519,7 @@ Item {
         // The card takes every press no row takes (padding, separator, disabled row); a stepped body is no Flickable, so the closing ground would.
         MouseArea { anchors.fill: parent; acceptedButtons: Qt.LeftButton | Qt.RightButton }
 
-        Flea.CardScroll {
+        Dlea.CardScroll {
             id: scroll
             // A menu steps the highlight, never pixel scrolls: one row a notch, one row per row height of touchpad travel. No bar, no lane.
             highlightSteps: true
@@ -537,7 +537,7 @@ Item {
             Repeater {
                 id: menuRows
                 model: root.entries
-                delegate: Flea.MenuRow {
+                delegate: Dlea.MenuRow {
                     id: row
                     required property var modelData
                     required property int index
@@ -563,13 +563,13 @@ Item {
             }
         }
         }
-        Flea.MenuEdgeFade {
+        Dlea.MenuEdgeFade {
             anchors.top: parent.top
             inset: Theme.spacing.rowPaddingY
             reach: root.fadeReach
             visible: scroll.contentY > 0
         }
-        Flea.MenuEdgeFade {
+        Dlea.MenuEdgeFade {
             anchors.bottom: parent.bottom
             inset: Theme.spacing.rowPaddingY
             reach: root.fadeReach
@@ -602,7 +602,7 @@ Item {
         // The flyout takes its dead presses the same way.
         MouseArea { anchors.fill: parent; acceptedButtons: Qt.LeftButton | Qt.RightButton }
 
-        Flea.CardScroll {
+        Dlea.CardScroll {
             id: subScroll
             // The flyout steps like the main frame, through its own cursor and reveal.
             highlightSteps: true
@@ -618,7 +618,7 @@ Item {
             Repeater {
                 id: subRows
                 model: root.heldRows
-                delegate: Flea.MenuRow {
+                delegate: Dlea.MenuRow {
                     id: subRow
                     required property var modelData
                     required property int index
@@ -650,13 +650,13 @@ Item {
             }
         }
         }
-        Flea.MenuEdgeFade {
+        Dlea.MenuEdgeFade {
             anchors.top: parent.top
             inset: Theme.spacing.rowPaddingY
             reach: root.fadeReach
             visible: subScroll.contentY > 0
         }
-        Flea.MenuEdgeFade {
+        Dlea.MenuEdgeFade {
             anchors.bottom: parent.bottom
             inset: Theme.spacing.rowPaddingY
             reach: root.fadeReach

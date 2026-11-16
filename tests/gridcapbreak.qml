@@ -1,18 +1,18 @@
-//@ pragma ShellId flea-gridcapbreak-test
+//@ pragma ShellId dlea-gridcapbreak-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/GridGeometry.js" as GridGeometry
-import "flea/js/Match.js" as Match
-import "flea/js/Places.js" as Places
+import "dlea" as Dlea
+import "dlea/js/GridGeometry.js" as GridGeometry
+import "dlea/js/Match.js" as Match
+import "dlea/js/Places.js" as Places
 
-// The Grid caption state names the break Flea drew, so a query can straddle it: the long fixture name at text size 14 under a 1320 px window, one tile per sidebar stop; a name Qt must wrap again reads broken false, a one-line name reads wrapAt -1.
+// The Grid caption state names the break Dlea drew, so a query can straddle it: the long fixture name at text size 14 under a 1320 px window, one tile per sidebar stop; a name Qt must wrap again reads broken false, a one-line name reads wrapAt -1.
 ShellRoot {
     id: root
 
     readonly property string fixtureName: "grid-caption-that-wraps.txt"
-    // Circled digits fall back to a face wider than Flea's cell, so at the narrowest pane the first line Flea broke is wrapped again by Qt: three lines, two shown, truncated.
+    // Circled digits fall back to a face wider than Dlea's cell, so at the narrowest pane the first line Dlea broke is wrapped again by Qt: three lines, two shown, truncated.
     readonly property string againName: "①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯⑰⑱.txt"
     readonly property string singleName: "a.txt"
     // The width the native captures open at (tests/ui-captures-filter.sh cap_filter_width_default).
@@ -26,7 +26,7 @@ ShellRoot {
     function rowOf(name) { return { n: name, i: "text-x-generic", p: 0, d: false, s: 1, m: 0, t: false, v: 0 } }
 
     function cellW(pane) {
-        var th = Flea.Theme, columns = GridGeometry.columnsFor(pane, th.grid.minCellWidth, Flea.ViewState.thumbnailPixels, th.spacing.rowPaddingX, th.spacing.gap, th.spacing.rowPaddingX)
+        var th = Dlea.Theme, columns = GridGeometry.columnsFor(pane, th.grid.minCellWidth, Dlea.ViewState.thumbnailPixels, th.spacing.rowPaddingX, th.spacing.gap, th.spacing.rowPaddingX)
         return GridGeometry.cellWidthFor(pane, columns, th.spacing.gap, th.spacing.rowPaddingX)
     }
 
@@ -37,16 +37,16 @@ ShellRoot {
         function visibleItemFor(i) { return root.tiles[i] || null }
     }
     QtObject { id: windowStub; function centreOf(item) { return "" } function rectOf(item) { return "" } }
-    Flea.Ipc { id: ipc; pane: stubPane; fleaWindow: windowStub }
+    Dlea.Ipc { id: ipc; pane: stubPane; dleaWindow: windowStub }
 
     Column {
         Repeater {
             id: reps
             model: root.cases
-            Flea.GridTile { required property var modelData; width: root.cellW(modelData.pane); height: 200; row: root.rowOf(modelData.name) }
+            Dlea.GridTile { required property var modelData; width: root.cellW(modelData.pane); height: 200; row: root.rowOf(modelData.name) }
         }
     }
-    FontMetrics { id: face; font.family: Flea.Theme.font.family; font.pixelSize: Flea.Theme.font.bodySmall }
+    FontMetrics { id: face; font.family: Dlea.Theme.font.family; font.pixelSize: Dlea.Theme.font.bodySmall }
 
     property int phase: 0
     property var failures: []
@@ -76,16 +76,16 @@ ShellRoot {
         if (!(state.wrapAt > 0 && state.wrapAt < shown.length)) return "wrapAt " + state.wrapAt + " is no inner index"
         var a = shown.substring(0, state.wrapAt), b = shown.substring(state.wrapAt)
         if (String(state.name) !== a + "\n" + b) return "wrapAt " + state.wrapAt + " is not the break of " + JSON.stringify(state.name)
-        // Line 1 and line 2 each fit the caption, so Qt had no reason to wrap again where Flea did not.
+        // Line 1 and line 2 each fit the caption, so Qt had no reason to wrap again where Dlea did not.
         if (face.advanceWidth(a) > cap.width || face.advanceWidth(b) > cap.width) return "a line is wider than the caption " + cap.width
         if (state.textHeight > state.slotHeight) return "the text overflows its slot"
         return ""
     }
 
-    // A caption Flea broke in two whose first line Qt wrapped again: three lines, the cap shows two, so Qt drew more than Flea broke.
+    // A caption Dlea broke in two whose first line Qt wrapped again: three lines, the cap shows two, so Qt drew more than Dlea broke.
     function againVerdict(state) {
         if (state.wrapAt === undefined || state.broken === undefined) return "state has no wrapAt or broken"
-        if (String(state.name).split("\n").length !== 2 || !(state.wrapAt > 0)) return "Flea did not break " + JSON.stringify(state.name) + " in two, wrapAt " + state.wrapAt
+        if (String(state.name).split("\n").length !== 2 || !(state.wrapAt > 0)) return "Dlea did not break " + JSON.stringify(state.name) + " in two, wrapAt " + state.wrapAt
         if (state.lines !== 2 || state.truncated !== true) return "Qt draws " + state.lines + " lines, truncated=" + state.truncated + ", want two shown and a cut"
         if (state.broken !== false) return "broken=" + state.broken + " for a caption Qt wrapped again and cut"
         return ""
@@ -127,7 +127,7 @@ ShellRoot {
             var boxes = wash ? wash.boxes : []
             root.check(boxes.length === 2, "tile " + i + " query " + root.queries[i] + " draws " + boxes.length + " wash boxes, want one per line")
             if (boxes.length !== 2) continue
-            var lh = Flea.Theme.grid.captionLineHeight
+            var lh = Dlea.Theme.grid.captionLineHeight
             root.check(boxes[0].y === 0 && boxes[1].y === lh, "tile " + i + " boxes sit on lines at y " + boxes[0].y + " and " + boxes[1].y)
             root.check(boxes[0].width > 0 && boxes[1].width > 0, "tile " + i + " a wash box has no width")
             var state = JSON.parse(ipc.seam.gridCaptionState(i)), cap = tile.captionItem
@@ -140,7 +140,7 @@ ShellRoot {
     Timer {
         interval: 700; running: true; repeat: true
         onTriggered: {
-            if (root.phase === 0) Flea.ViewState.setTextSize({ mode: 14 })
+            if (root.phase === 0) Dlea.ViewState.setTextSize({ mode: 14 })
             else if (root.phase === 2) root.measure()
             else if (root.phase === 4) root.washed()
             else if (root.phase === 5) {

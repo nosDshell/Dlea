@@ -28,7 +28,7 @@ pub struct Job {
     // The submitted Reviewed identity for Trash; unknown listing and shelf identities stay None.
     pub trash_identity: Option<String>,
     pub mime: String,
-    // None unless FLEA_THUMB_TRACE is set, so an untraced job carries no marks; see AGENTS.md "Thumbnail trace".
+    // None unless DLEA_THUMB_TRACE is set, so an untraced job carries no marks; see AGENTS.md "Thumbnail trace".
     pub trace: Option<Trace>,
 }
 
@@ -45,7 +45,7 @@ pub struct Trace {
 // The environment is read once for the process, because the queue path must not pay a lookup per row.
 pub fn trace(row: usize) -> Option<Trace> {
     static ON: LazyLock<bool> =
-        LazyLock::new(|| std::env::var_os("FLEA_THUMB_TRACE").is_some_and(|v| !v.is_empty()));
+        LazyLock::new(|| std::env::var_os("DLEA_THUMB_TRACE").is_some_and(|v| !v.is_empty()));
     if !*ON {
         return None;
     }
@@ -151,7 +151,7 @@ impl Pool {
             let (results, done) = std::sync::mpsc::channel();
             super::events::spawn_forwarder(done, events);
             if !sandbox::available() {
-                eprintln!("flea: thumbnails are disabled, bwrap or prlimit is not on PATH");
+                eprintln!("dlea: thumbnails are disabled, bwrap or prlimit is not on PATH");
             }
             let tables = Tables {
                 aliases: Arc::clone(&aliases),

@@ -1,7 +1,7 @@
 .import "../../ui/js/Jump.js" as Jump
 
 // The folder jump's headless quality harness: all 22 heldout2 queries through Jump.rows against the
-// field fixture's own folders, no window and no box. The fixture is .flea-local/ref/harness/fixture.sh's
+// field fixture's own folders, no window and no box. The fixture is .dlea-local/ref/harness/fixture.sh's
 // field scenario (favourites, zoxide visits, six recent files) and the queries are tests/fixtures/
 // jump-queries.tsv's heldout2 set, copied here so the runner needs no TSV read; that file stays the
 // authority and this table must not be tuned against. Frecency uses the fixture's own visit ranks as
@@ -11,15 +11,15 @@
 var HOME = "/home/gm"
 
 // The field fixture's folders: favourites first, then zoxide visits with their ranks, then the six
-// recent files' folders. Sample row: "Work/claude/flea-013" visited at rank 40 an hour ago.
+// recent files' folders. Sample row: "Work/claude/dlea-013" visited at rank 40 an hour ago.
 var FIELD = (function () {
-    var zoxide = ["Work/claude/flea-013", "Downloads", "Documents/claude/omarchy", "Documents/claude/flea",
-        "Documents/claude/flea-release", "Work/claude/flea-013/ui", ".config/hypr", "Work/claude/flea-013/src",
+    var zoxide = ["Work/claude/dlea-013", "Downloads", "Documents/claude/omarchy", "Documents/claude/dlea",
+        "Documents/claude/dlea-release", "Work/claude/dlea-013/ui", ".config/hypr", "Work/claude/dlea-013/src",
         "Projects/homelab", "Documents", "Work/strata", "Projects/homelab/nix", "Work/field", ".config/omarchy",
-        "Work/claude/flea-013/tests", "Projects", "Pictures/screenshots", "Documents/notes",
+        "Work/claude/dlea-013/tests", "Projects", "Pictures/screenshots", "Documents/notes",
         "Pictures/wallpapers", "Work/bench", "Music", "Videos", "Pictures/holiday"]
     var ranks = [40, 30, 25, 20, 18, 15, 14, 12, 11, 10, 9, 9, 8, 7, 6, 6, 5, 4, 3, 3, 2, 1, 1]
-    var favourites = [HOME + "/Projects", HOME + "/Documents/claude/flea", HOME + "/Documents/claude/omarchy"]
+    var favourites = [HOME + "/Projects", HOME + "/Documents/claude/dlea", HOME + "/Documents/claude/omarchy"]
     var zpaths = []
     var frecency = {}
     for (var i = 0; i < zoxide.length; i++) {
@@ -39,8 +39,8 @@ var HELDOUT2 = [["doc", "Documents"], ["down", "Downloads"], ["music", "Music"],
     ["proj", "Projects"], ["video", "Videos"], ["wor", "Work"], ["holi", "Pictures/holiday"],
     ["phone", "Pictures/phone"], ["tri", "Pictures/trip"], ["scra", "Documents/scratch"],
     ["tax", "Documents/tax"], ["raw", "Pictures/raw"], ["albu", "Music/albums"],
-    ["flea-", "Work/claude/flea-013"], ["fle", "Documents/claude/flea"], ["flea", "Documents/claude/flea-release"],
-    ["ui", "Work/claude/flea-013/ui"], ["hyp", ".config/hypr"], ["src", "Work/claude/flea-013/src"],
+    ["dlea-", "Work/claude/dlea-013"], ["fle", "Documents/claude/dlea"], ["dlea", "Documents/claude/dlea-release"],
+    ["ui", "Work/claude/dlea-013/ui"], ["hyp", ".config/hypr"], ["src", "Work/claude/dlea-013/src"],
     ["hmelab", "Projects/homelab"], ["srtata", "Work/strata"]]
 
 function firstFor(query) {
@@ -69,7 +69,7 @@ function runQuality(check) {
     check("heldout2 runs all 22 queries", HELDOUT2.length, 22)
     // The tally, the other tools in the file header. It logs rather than asserts a result: a miss here is a
     // report (which queries miss and why, in the return) and never a tuning prompt, the set is frozen.
-    console.log("jump-heldout: Flea " + wins + "/22; misses: " + (misses.length > 0 ? misses.join(" | ") : "none"))
+    console.log("jump-heldout: Dlea " + wins + "/22; misses: " + (misses.length > 0 ? misses.join(" | ") : "none"))
     check("heldout2 harness ran every query deterministically", misses.filter(function (m) { return m.indexOf("unstable") >= 0 }).length, 0)
 }
 
@@ -84,9 +84,9 @@ var PERF_CALLS = 400
 var PERF_ROUNDS = 3
 var PERF_WARMUP = 200
 var PERF = (function () {
-    var rel = ["Work/claude/flea-013", "Work/claude/flea-013/ui", "Work/claude/flea-013/src",
-        "Work/claude/flea-013/tests", "Work/claude/omarchy", "Work/claude/themes", "Work/field",
-        "Work/strata", "Work/bench", "Documents/claude/flea", "Documents/claude/flea-release",
+    var rel = ["Work/claude/dlea-013", "Work/claude/dlea-013/ui", "Work/claude/dlea-013/src",
+        "Work/claude/dlea-013/tests", "Work/claude/omarchy", "Work/claude/themes", "Work/field",
+        "Work/strata", "Work/bench", "Documents/claude/dlea", "Documents/claude/dlea-release",
         "Documents/claude/omarchy", "Documents/notes", "Documents/tax", "Documents/scratch",
         "Documents", "Downloads", "Music", "Music/albums", "Pictures/screenshots", "Pictures/holiday",
         "Pictures/wallpapers", "Pictures/raw", "Pictures/phone", "Pictures/trip", "Projects",
@@ -100,7 +100,7 @@ var PERF = (function () {
     }
     return { favourites: [HOME + "/Projects"], zoxide: zoxide, recent: [], frecency: frecency }
 })()
-var PERF_QUERIES = ["o", "flea", "tax", "src", "ui", "zzz"]
+var PERF_QUERIES = ["o", "dlea", "tax", "src", "ui", "zzz"]
 
 function medianUs(fn) {
     for (var w = 0; w < PERF_WARMUP; w++) {

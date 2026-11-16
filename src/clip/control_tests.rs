@@ -71,12 +71,12 @@ fn the_ext_manager_owns_and_serves_every_type_until_cancelled() {
     }
     assert_eq!(selected, Some(6));
     // Written out by hand, so a wrong row in format::payloads cannot agree with itself.
-    let want = [format::FLEA, format::GNOME, format::URILIST, format::PLAIN_UTF8, format::PLAIN, format::UTF8_STRING, format::KDE_CUT];
+    let want = [format::DLEA, format::GNOME, format::URILIST, format::PLAIN_UTF8, format::PLAIN, format::UTF8_STRING, format::KDE_CUT];
     assert_eq!(offers, want, "every type is offered, the cut one included");
     conn.send(8, 0, &[], &[]).unwrap();
     // Every type is then asked for and its bytes checked.
     let seen: HashMap<&str, Vec<u8>> = HashMap::from([
-        (format::FLEA, format::build_flea("cut", &token)),
+        (format::DLEA, format::build_dlea("cut", &token)),
         (format::GNOME, format::build_gnome("cut", &paths)),
         (format::URILIST, format::build_urilist(&paths)),
         (format::PLAIN_UTF8, format::build_plain(&paths)),
@@ -216,13 +216,13 @@ fn get_reads_the_token_then_the_files() {
     fake_hello(&mut conn, &[(wire::EXT_MANAGER, 1)]);
     let _ = expect(&mut conn, 2, REGISTRY_BIND);
     let _ = expect(&mut conn, 2, REGISTRY_BIND);
-    fake_selection(&mut conn, 6, &[format::FLEA, format::GNOME, format::URILIST, format::KDE_CUT]);
+    fake_selection(&mut conn, 6, &[format::DLEA, format::GNOME, format::URILIST, format::KDE_CUT]);
     let mut answers = HashMap::new();
-    answers.insert(format::FLEA.to_string(), format::build_flea("copy", &token));
+    answers.insert(format::DLEA.to_string(), format::build_dlea("copy", &token));
     answers.insert(format::GNOME.to_string(), format::build_gnome("copy", &["/tmp/a.txt".to_string()]));
     answers.insert(format::URILIST.to_string(), format::build_urilist(&["/tmp/a.txt".to_string()]));
     let asked = serve_receives(&mut conn, &answers);
-    assert_eq!(asked, vec![format::FLEA.to_string(), format::GNOME.to_string()]);
+    assert_eq!(asked, vec![format::DLEA.to_string(), format::GNOME.to_string()]);
     worker.join().unwrap();
 }
 
@@ -269,11 +269,11 @@ fn clear_with_a_stale_token_leaves_the_selection() {
     fake_hello(&mut conn, &[(wire::EXT_MANAGER, 1)]);
     let _ = expect(&mut conn, 2, REGISTRY_BIND);
     let _ = expect(&mut conn, 2, REGISTRY_BIND);
-    fake_selection(&mut conn, 6, &[format::FLEA]);
+    fake_selection(&mut conn, 6, &[format::DLEA]);
     let mut answers = HashMap::new();
-    answers.insert(format::FLEA.to_string(), format::build_flea("copy", "ab12cd34ab12cd34ab12cd34ab12cd34"));
+    answers.insert(format::DLEA.to_string(), format::build_dlea("copy", "ab12cd34ab12cd34ab12cd34ab12cd34"));
     let asked = serve_receives(&mut conn, &answers);
-    assert_eq!(asked, vec![format::FLEA.to_string()]);
+    assert_eq!(asked, vec![format::DLEA.to_string()]);
     // No set_selection with a null source follows: the client drops the connection instead.
     assert!(conn.next_raw(TEST_READ_MS).unwrap().is_none(), "a stale token must clear nothing");
     worker.join().unwrap();
@@ -293,15 +293,15 @@ fn clear_with_the_live_token_clears() {
     fake_hello(&mut conn, &[(wire::EXT_MANAGER, 1)]);
     let _ = expect(&mut conn, 2, REGISTRY_BIND);
     let _ = expect(&mut conn, 2, REGISTRY_BIND);
-    fake_selection(&mut conn, 6, &[format::FLEA]);
+    fake_selection(&mut conn, 6, &[format::DLEA]);
     let mut answers = HashMap::new();
-    answers.insert(format::FLEA.to_string(), format::build_flea("copy", &token));
+    answers.insert(format::DLEA.to_string(), format::build_dlea("copy", &token));
     let event = conn.next_raw(WATCHDOG_MS).unwrap().expect("a receive");
     assert_eq!((event.sender, event.opcode), (10, 0));
     let fd = conn.take_fd(WATCHDOG_MS).unwrap().expect("a pipe");
     use std::io::Write;
     let mut file = std::fs::File::from(fd);
-    file.write_all(&answers[format::FLEA]).unwrap();
+    file.write_all(&answers[format::DLEA]).unwrap();
     drop(file);
     // A drain sync first, then the null source and the closing sync.
     let drain = expect(&mut conn, 1, DISPLAY_SYNC);

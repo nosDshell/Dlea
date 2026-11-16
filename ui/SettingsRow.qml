@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 
 // One row of the settings panel's pane, drawn from the object ui/js/Settings.js rows() built. Every
 // kind is one row height, the window's own, except a hint, which wraps and takes the height its
@@ -96,7 +96,7 @@ Item {
                         elide: Text.ElideRight
                     }
                 }
-                Flea.Glyph {
+                Dlea.Glyph {
                     id: bindingMark
                     x: cap.width + Theme.spacing.gap
                     anchors.verticalCenter: parent.verticalCenter
@@ -122,7 +122,7 @@ Item {
         }
     }
 
-    Flea.SettingsFavourite {
+    Dlea.SettingsFavourite {
         id: favourite
         anchors.fill: parent
         visible: root.isFavourite
@@ -137,7 +137,7 @@ Item {
         visible: root.isHero
         anchors.centerIn: parent
         spacing: Theme.spacing.gap
-        Flea.FleaMark {
+        Dlea.DleaMark {
             anchors.horizontalCenter: parent.horizontalCenter
             width: Theme.markSize * 2
             height: width
@@ -181,7 +181,7 @@ Item {
 
     // A heading and a hint are the only two rows that are not a label and a control on one line, so
     // they draw instead of the pair below rather than beside it.
-    Flea.SettingsGroup {
+    Dlea.SettingsGroup {
         id: groupHead
         visible: root.isGroup
         width: parent.width
@@ -189,7 +189,7 @@ Item {
         first: root.firstGroup
     }
 
-    Flea.SettingsHint {
+    Dlea.SettingsHint {
         id: hint
         visible: root.isHint
         footer: root.isFooter
@@ -216,45 +216,45 @@ Item {
         width: Theme.markSize
         height: Theme.markSize
 
-        Flea.Glyph {
+        Dlea.Glyph {
             anchors.fill: parent
             visible: root.row.glyph !== undefined && root.row.mark === undefined
             name: root.row.glyph !== undefined ? root.row.glyph : "file"
             color: root.isUrgent ? Theme.color.error : Theme.color.mutedFrame
         }
 
-        Flea.TailscaleMark {
+        Dlea.TailscaleMark {
             anchors.centerIn: parent
             visible: root.row.mark === "tailscale"
             iconSize: Theme.markSize
             color: Theme.color.mutedFrame
         }
 
-        Flea.DropboxMark {
+        Dlea.DropboxMark {
             anchors.centerIn: parent
             visible: root.row.mark === "dropbox"
             iconSize: Theme.markSize
             color: Theme.color.mutedFrame
         }
 
-        Flea.LocalSendMark {
+        Dlea.LocalSendMark {
             anchors.centerIn: parent
             visible: root.row.mark === "localsend"
             iconSize: Theme.markSize
             color: Theme.color.mutedFrame
         }
 
-        Flea.HyprlandMark {
+        Dlea.HyprlandMark {
             anchors.centerIn: parent
             visible: root.row.mark === "hyprland"
             iconSize: Theme.markSize
             color: Theme.color.mutedFrame
         }
 
-        // The shelf is Flea's own destination, so its switch carries Flea's own mark, the way ui/MenuRow.qml draws the row it governs.
-        Flea.FleaMark {
+        // The shelf is Dlea's own destination, so its switch carries Dlea's own mark, the way ui/MenuRow.qml draws the row it governs.
+        Dlea.DleaMark {
             anchors.centerIn: parent
-            visible: root.row.mark === "flea"
+            visible: root.row.mark === "dlea"
             width: Theme.markSize
             height: Theme.markSize
             color: Theme.color.mutedFrame
@@ -263,7 +263,7 @@ Item {
 
     // A ruler is the row above it continued, so it starts at that row's label column, as a hint
     // does: HANDOFF rules 3 and 8, nothing is indented and a hint sits under its control's label.
-    Flea.SettingsRuler {
+    Dlea.SettingsRuler {
         id: ruler
         visible: root.isRuler
         anchors.left: markSlot.right
@@ -336,7 +336,7 @@ Item {
             elide: Text.ElideRight
         }
 
-        Flea.SettingsSegment {
+        Dlea.SettingsSegment {
             id: segment
             visible: root.hasSegment
             options: root.row.labels !== undefined ? root.row.labels : []
@@ -345,7 +345,7 @@ Item {
             onPicked: function (i) { root.stopPicked(i) }
         }
 
-        Flea.Glyph {
+        Dlea.Glyph {
             visible: root.hasSteps || root.kind === "action" && root.row.inert !== true
             width: visible ? Theme.markSize : 0
             height: Theme.markSize
@@ -361,7 +361,7 @@ Item {
 
         // A locked row draws the lock mark where the box would be, so the section stays a complete
         // list of what the menu can contain rather than hiding the two rows nobody can switch off.
-        Flea.Glyph {
+        Dlea.Glyph {
             visible: root.isLock
             width: root.isLock ? Theme.markSize : 0
             height: Theme.markSize
@@ -369,7 +369,7 @@ Item {
             color: Theme.color.mutedFrame
         }
 
-        Flea.CheckBox {
+        Dlea.CheckBox {
             visible: root.hasBox
             width: root.hasBox ? implicitWidth : 0
             value: root.boxValue

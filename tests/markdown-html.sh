@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Every Markdown fixture document, raw HTML and pathological nesting included, through the real preview: none may draw blank, and each raw HTML element draws as GitHub does.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 . "$(dirname "$0")/qslog-gate.sh"
 cd "$(dirname "$0")/.." || exit 1
 
@@ -11,14 +11,14 @@ if ! command -v qs >/dev/null; then
     exit 1
 fi
 
-test_root="$FIXTURE_ROOT/flea-markdown-html-$$"
+test_root="$FIXTURE_ROOT/dlea-markdown-html-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/cache" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-cp -a ui "$test_root/config/flea" || exit 1
+cp -a ui "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/markdown-html.qml "$test_root/config/shell.qml" || exit 1
@@ -42,12 +42,12 @@ printf '<table><tr><td><img src="img/logo.png" width="64" alt="logo"></td></tr><
 printf '<p align="center"><img src="img/logo.png" width="64" alt="logo">\n<br><b>Name</b>\n</p>\n\nAfter\n' > "$docs/23-open-wrapper.md"
 printf '<p align=center><img src="img/logo.png" width="64" alt="logo">\n</p>\n\nAfter\n' > "$docs/24-empty-closer.md"
 printf '<p align="center"><img src="img/logo.png" width="5000" alt="logo"></p>\n\nAfter\n' > "$docs/25-wide-logo.md"
-# The flea-ci-visual README header: a heading and a paragraph on adjacent lines, and a line after a break.
+# The dlea-ci-visual README header: a heading and a paragraph on adjacent lines, and a line after a break.
 cat > "$docs/26-readme-header.md" <<'MD'
 <p align="center">
   <img src="img/logo.png" width="64" alt="logo">
 </p>
-<h1 align="center">Flea</h1>
+<h1 align="center">Dlea</h1>
 <p align="center"><b>A file manager</b> for <i>Omarchy</i></p>
 
 Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to copy. Water is H<sub>2</sub>O and area is r<sup>2</sup>.<br>
@@ -95,7 +95,7 @@ doc_list=$(cd "$docs" && ls -- *.md | paste -sd, -)
 # The harness ends itself with a kill, so the subshell keeps bash's "Terminated" notice out of the report.
 output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_MDHTML_DIR="$docs" FLEA_MDHTML_DOCS="$doc_list" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_MDHTML_DIR="$docs" DLEA_MDHTML_DOCS="$doc_list" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 QT_LOGGING_RULES="$(qslog_rules "${QT_LOGGING_RULES:-}")" \
     timeout 600 qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 
@@ -107,8 +107,8 @@ if ! printf '%s\n' "$output" | grep -qE 'MARKDOWN_HTML [1-9][0-9]* checks, 0 fai
     printf '%s\n' "$output" | grep -aE 'ERROR|TypeError|ReferenceError' | head -10
     exit 1
 fi
-if [ -n "${FLEA_CI_SUITE_LOGS:-}" ]; then
-    mkdir -p "$FLEA_CI_SUITE_LOGS" || exit 1
-    cp "$test_root/runtime"/markdown-html-*.png "$FLEA_CI_SUITE_LOGS/" 2>/dev/null
+if [ -n "${DLEA_CI_SUITE_LOGS:-}" ]; then
+    mkdir -p "$DLEA_CI_SUITE_LOGS" || exit 1
+    cp "$test_root/runtime"/markdown-html-*.png "$DLEA_CI_SUITE_LOGS/" 2>/dev/null
 fi
 echo "PASS markdown-html: every fixture draws, and each raw HTML element draws as its recipe"

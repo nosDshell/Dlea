@@ -1,5 +1,5 @@
 // The shared journal's wire form, both directions; a Copied nonce reattaches only in its recorder.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::undoshare::StoredRedo;
 #[cfg(test)]
 use super::undoshare::Doc;
@@ -250,7 +250,7 @@ pub(crate) fn checked_path(value: &Json) -> Option<PathBuf> {
     match value {
         // The bound and the NUL check meet the decoded bytes, where a canonical exact spelling leaves no NUL.
         Json::Str(text) if !text.is_empty() && text.starts_with('/') => {
-            let path = flea::bytename::exact(text);
+            let path = dlea::bytename::exact(text);
             let bytes = std::os::unix::ffi::OsStrExt::as_bytes(path.as_os_str());
             (bytes.len() <= MAX_PATH && !bytes.contains(&0)).then_some(path)
         }

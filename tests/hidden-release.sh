@@ -3,14 +3,14 @@
 # A release in flight outlives the surface that asked for it: the real window against gio doubles that take time.
 set -u
 cd "$(dirname "$0")/.." || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 command -v qs >/dev/null || { echo 'FAIL hidden-release needs qs'; exit 1; }
 command -v dbus-run-session >/dev/null || { echo 'FAIL hidden-release needs a private D-Bus session'; exit 1; }
 real_gio=$(command -v gio) || { echo 'FAIL hidden-release needs a gio to stand behind its double'; exit 1; }
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [[ -x "$bin" ]] || { echo 'FAIL hidden-release needs the built backend'; exit 1; }
 sandbox_root_ok
-probe=$(mktemp -d "$SANDBOX_ROOT/flea-hidden-release.XXXXXX") || exit 1
+probe=$(mktemp -d "$SANDBOX_ROOT/dlea-hidden-release.XXXXXX") || exit 1
 : > "$probe/$SANDBOX_MARKER" || exit 1
 qs_pid=""
 stop_qs() {
@@ -40,8 +40,8 @@ chmod 700 "$probe/runtime"
 # lsblk answers one second disk whose volumes are mounted until their gio unmount leaves a .done marker.
 cat > "$probe/bin/lsblk" <<'SH'
 #!/usr/bin/env bash
-box=${FLEA_HR_BOX:?}
-[[ "$box" == /* && -f "$box/.flea-test-sandbox" ]] || exit 90
+box=${DLEA_HR_BOX:?}
+[[ "$box" == /* && -f "$box/.dlea-test-sandbox" ]] || exit 90
 volume() {
     local mountpoint=null
     [[ -e "$box/${1,,}.done" ]] || mountpoint="\"$box/mnt/$1\""
@@ -55,8 +55,8 @@ SH
 # Each unmount leaves a started marker, waits like a real one, and ends the way its volume is meant to.
 cat > "$probe/bin/gio" <<'SH'
 #!/usr/bin/env bash
-box=${FLEA_HR_BOX:?}
-[[ "$box" == /* && -f "$box/.flea-test-sandbox" ]] || exit 90
+box=${DLEA_HR_BOX:?}
+[[ "$box" == /* && -f "$box/.dlea-test-sandbox" ]] || exit 90
 case "$*" in
     "mount -u $box/mnt/Data") : > "$box/data.started"; sleep 0.3; : > "$box/data.done" ;;
     "mount -u $box/mnt/Busy") : > "$box/busy.started"; sleep 0.3; echo "target is busy" >&2; exit 1 ;;
@@ -70,17 +70,17 @@ sed -i "s|REAL_GIO|$real_gio|" "$probe/bin/gio" || exit 1
 chmod 700 "$probe/bin/lsblk" "$probe/bin/gio" || exit 1
 env HOME="$probe/home" XDG_STATE_HOME="$probe/state" "$bin" --ui-state \
     '{"preview":{"column":false,"thumbnails":"off"},"updates":{"autoCheck":false}}' >/dev/null || exit 1
-ln -s "$PWD/ui" "$probe/config/flea"
+ln -s "$PWD/ui" "$probe/config/dlea"
 headless_commons "$probe" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$probe/config/Ui"
-ln -s "$PWD/ui/boot/fleatab.qml" "$probe/config/fleatab.qml"
+ln -s "$PWD/ui/boot/dleatab.qml" "$probe/config/dleatab.qml"
 cp tests/hidden-release.qml "$probe/config/shell.qml"
 log="$probe/qs.log"
-env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u FLEA_SELECT \
+env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u DLEA_SELECT \
     HOME="$probe/home" XDG_STATE_HOME="$probe/state" XDG_CONFIG_HOME="$probe/config" \
     XDG_DATA_HOME="$probe/data" XDG_CACHE_HOME="$probe/cache" XDG_RUNTIME_DIR="$probe/runtime" \
-    PATH="$probe/bin:$PATH" FLEA_HR_BOX="$probe" \
-    FLEA_PATH="$probe/mnt/Data" FLEA_BIN="$bin" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
+    PATH="$probe/bin:$PATH" DLEA_HR_BOX="$probe" \
+    DLEA_PATH="$probe/mnt/Data" DLEA_BIN="$bin" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
     QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 setsid dbus-run-session -- qs -p "$probe/config" >"$log" 2>&1 </dev/null &
 qs_pid=$!
 for ((tick = 0; tick < 900; tick++)); do

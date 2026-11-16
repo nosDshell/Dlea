@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 
 // Quick Look uses the same bar as Markdown; the column loads only the document body.
 Item {
@@ -33,7 +33,7 @@ Item {
     function zoomFit() { doc.zoomFit() }
     function tableScroller() { return null }
 
-    Flea.QuickLookBar {
+    Dlea.QuickLookBar {
         id: bar
         anchors { top: parent.top; left: parent.left; right: parent.right }
         markName: "html"
@@ -42,7 +42,7 @@ Item {
         closeFocused: root.closeFocused
         onCloseRequested: root.closeRequested()
     }
-    Flea.PreviewHtml {
+    Dlea.PreviewHtml {
         id: doc
         anchors.fill: parent
         anchors.topMargin: bar.height

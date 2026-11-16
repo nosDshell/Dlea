@@ -2,10 +2,10 @@
 QSLOG_NULLPTR='invalid nullptr parameter'
 QSLOG_STARTED='WORKER_STARTED [^ ]'
 
-# The rule that makes the real ui/ announce each WorkerScript start, as one WORKER_STARTED line under the flea.worker category.
-QSLOG_RULES='flea.worker.info=true'
+# The rule that makes the real ui/ announce each WorkerScript start, as one WORKER_STARTED line under the dlea.worker category.
+QSLOG_RULES='dlea.worker.info=true'
 
-# Sample input: the run's existing rules "qt.qml.diskcache*=true" answer "qt.qml.diskcache*=true;flea.worker.info=true"; none answer the rule alone.
+# Sample input: the run's existing rules "qt.qml.diskcache*=true" answer "qt.qml.diskcache*=true;dlea.worker.info=true"; none answer the rule alone.
 qslog_rules() { printf '%s' "${1:+$1;}$QSLOG_RULES"; }
 
 # Sample input: a log holding two such lines and one "WORKER_STARTED file:///x/MarkdownWorker.js" answers FAIL and status 1; with a second started line it answers 0.

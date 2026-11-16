@@ -88,7 +88,7 @@ file:///missing/legacy Local legacy' ]] \
     done
     [[ "$rail_uri" == "smb://legacy2.test/data" ]] \
         || fail "editplace: the rail's network rows are $rail_uri, not the one corrected place"
-    # The edit rewrites the place it came from, so Flea's own favourites gain nothing.
+    # The edit rewrites the place it came from, so Dlea's own favourites gain nothing.
     [[ "$(ipc railEntries | jq -r '[.[] | select(.group == "favorite")] | length')" == "0" ]] \
         || fail "editplace: the edit added a favourite as well as rewriting the place"
     printf 'EDITPLACE edit=%s rail=%s\n' "$(head -1 "$bookmarks")" "$rail_uri"
@@ -128,7 +128,7 @@ file:///missing/legacy Local legacy' ]] \
     printf 'EDITPLACE abandoned=unchanged marks=%s\n' "$(head -1 "$bookmarks")"
 
     export PATH="$saved_path"
-    kill_flea
+    kill_dlea
 }
 
 case_placemenu() {
@@ -187,7 +187,7 @@ case_placemenu() {
     printf 'PLACEMENU tabs=%s path=%s labels=%s\n' "$(ipc tabCount)" "$(ipc path)" "$(ipc tabLabels)"
 
     echo "-- with the switch off it is the menu it was --"
-    kill_flea
+    kill_dlea
     seed_ui_state "$fixture_root/placemenu-off" "$(printf '{"places":{"favourites":[{"label":"Work","path":"%s/Work"}]}}' "$dir")"
     launch "$dir"
     wait_listing 2
@@ -206,7 +206,7 @@ case_placemenu() {
     [[ "$(ipc contextMenuVisible)" == "false" ]] \
         || fail "placemenu: with the switch off the Home row opened $(ipc contextMenuEntries)"
     printf 'PLACEMENU off=%s\n' "$(ipc contextMenuVisible)"
-    kill_flea
+    kill_dlea
 }
 
 case_rename() {
@@ -349,7 +349,7 @@ EOS
     printf 'Mount(0): isos on 192.168.1.10 -> smb://192.168.1.10/isos/\n' > "$dir/bin/gio-out"
     printf 'RENAME poll-survives=ok swap-closes=ok\n'
 
-    kill_flea
+    kill_dlea
 
     # Persistence across a real relaunch: the whole point of writing to the bookmarks file at all.
     export HOME="$fixture_home"
@@ -367,7 +367,7 @@ EOS
         || fail "rename: the label did not survive a relaunch, got $(ipc networkEntries)"
 
     printf 'RENAME relabel=ok escape=ok empty=ok create-bookmark=ok persists=ok\n'
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
 }
 
@@ -445,6 +445,6 @@ EOS
     [[ "$(ipc recentMode)" == "" ]] || fail "recent: Esc left the mode standing"
 
     printf 'RECENT listing=newest-first used-mark=ok esc-returns=ok\n'
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
 }

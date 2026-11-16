@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-touchpad-edge-test
+//@ pragma ShellId dlea-touchpad-edge-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Scroll.js" as Scroll
-import "flea/js/Filter.js" as Filter
+import "dlea" as Dlea
+import "dlea/js/Scroll.js" as Scroll
+import "dlea/js/Filter.js" as Filter
 
 // tp2-r2: elastic-edge review findings on the real ui/List.qml over 3000 rows, offscreen.
 // Fake wheel objects into the real FastScrollHandler, the way tests/touchpad.qml does; real
@@ -112,9 +112,9 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 900
         implicitHeight: 500
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
-        Flea.List {
+        Dlea.List {
             id: list
             width: 700
             height: 300
@@ -126,7 +126,7 @@ ShellRoot {
     }
 
     Component.onCompleted: {
-        root.stubPane.visibleRows = Qt.binding(function () { return Math.max(1, Math.ceil(list.height / Flea.Theme.fileRowHeight)) })
+        root.stubPane.visibleRows = Qt.binding(function () { return Math.max(1, Math.ceil(list.height / Dlea.Theme.fileRowHeight)) })
         root.stubPane.listArea = list
         list.cursorClamped.connect(function (first, last) { Filter.clampCursor(root.stubPane, first, last) })
     }
@@ -141,13 +141,13 @@ ShellRoot {
         var body = null, lane = null
         var kids = list.children
         for (var i = 0; i < kids.length; i++)
-            if (kids[i] && kids[i].objectName === "fleaScroll" && kids[i] !== list.scrollBar)
+            if (kids[i] && kids[i].objectName === "dleaScroll" && kids[i] !== list.scrollBar)
                 body = kids[i]
         var bar = list.scrollBar
         if (bar) {
             var inner = bar.children
             for (var j = 0; j < inner.length; j++)
-                if (inner[j] && inner[j].objectName === "fleaScroll")
+                if (inner[j] && inner[j].objectName === "dleaScroll")
                     lane = inner[j]
         }
         return { body: body, lane: lane }
@@ -281,7 +281,7 @@ ShellRoot {
         // F5: a sub-row move and back pulls an offscreen cursor in; the range dedupe never did.
         root.reset()
         root.stubPane.cursorIndex = 15
-        var rowH = Flea.Theme.fileRowHeight
+        var rowH = Dlea.Theme.fileRowHeight
         list.contentY = rowH * 0.4
         var wantLast = Math.min(root.stubPane.shownTotal - 1, root.stubPane.visibleRows - 1)
         if (root.stubPane.cursorIndex !== wantLast)
@@ -317,7 +317,7 @@ ShellRoot {
             root.pressAdvance()
             return
         }
-        var rowH = Flea.Theme.fileRowHeight
+        var rowH = Dlea.Theme.fileRowHeight
         var want = Math.floor((list.contentY + cases[c].y - list.originY) / rowH)
         root.pressWant = want
         var press = { accepted: true }

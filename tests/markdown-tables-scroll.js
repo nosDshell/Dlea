@@ -1,6 +1,6 @@
 // Judges of the sideways scroll a table wider than its pane owns, over the table readers and the app's own Scroll.js state.
 .import "markdown-tables.js" as Tables
-.import "flea/js/Scroll.js" as Scroll
+.import "dlea/js/Scroll.js" as Scroll
 
 // The sideways scroll a table wider than its pane owns: one flickable each, exactly its columns wide, one bar under the table (its last chunk), none of it in a positioner's flow, and nothing on a table that fits.
 // Sample input: scrollError(tables, scrollers, bars) answers "" when 2 tables, one overflowing, hold 1 flickable and 1 bar.

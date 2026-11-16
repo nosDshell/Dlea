@@ -2,7 +2,7 @@ use super::*;
 use crate::i18n::{I18n, Paths};
 
 fn english() -> I18n {
-    let none = std::path::PathBuf::from("/nonexistent/flea-dg2");
+    let none = std::path::PathBuf::from("/nonexistent/dlea-dg2");
     I18n::load(Paths {
         omarchy: none.clone(),
         language_file: none,

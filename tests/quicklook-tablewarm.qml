@@ -1,12 +1,12 @@
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Markdown.js" as Markdown
+import "dlea" as Dlea
+import "dlea/js/Markdown.js" as Markdown
 
 // QuickLookPrepare builds its unseen warm table once, on the first rested document that holds a table, and never under a held key.
 ShellRoot {
     id: root
-    readonly property string dir: Quickshell.env("FLEA_TABLEWARM_DIR")
+    readonly property string dir: Quickshell.env("DLEA_TABLEWARM_DIR")
     // Polls of the probe timer an event may take before it fails by name; counted, never timed.
     readonly property int landPollLimit: 300
     readonly property int tickMs: 20
@@ -63,17 +63,17 @@ ShellRoot {
     StubPane { id: heldPane; names: ["note.md", "t1.md", "t2.md"] }
     StubPane { id: takenPane; names: ["t2.md"] }
     StubPane { id: nestedPane; names: ["note.md", "quote.md"] }
-    Flea.QuickLookPrepare { id: first; pane: firstPane; restMs: 1 }
-    Flea.QuickLookPrepare { id: held; pane: heldPane; restMs: root.sweepRestMs }
-    Flea.QuickLookPrepare { id: taken; pane: takenPane; restMs: 1 }
-    Flea.QuickLookPrepare { id: nested; pane: nestedPane; restMs: 1 }
+    Dlea.QuickLookPrepare { id: first; pane: firstPane; restMs: 1 }
+    Dlea.QuickLookPrepare { id: held; pane: heldPane; restMs: root.sweepRestMs }
+    Dlea.QuickLookPrepare { id: taken; pane: takenPane; restMs: 1 }
+    Dlea.QuickLookPrepare { id: nested; pane: nestedPane; restMs: 1 }
     StubPane { id: listPane; names: ["list.md"] }
-    Flea.QuickLookPrepare { id: listed; pane: listPane; restMs: 1 }
+    Dlea.QuickLookPrepare { id: listed; pane: listPane; restMs: 1 }
     // The opened prepare records any warm request as it goes out, since the worker can answer one inside a probe tick.
     property bool openedWarmAsked: false
     StubPane { id: openPane; names: ["t1.md"] }
     // Quick Look opens while the parse is out: the request goes to the worker at rest, and the answer lands after Space.
-    Flea.QuickLookPrepare {
+    Dlea.QuickLookPrepare {
         id: opened
         pane: openPane
         restMs: 1
@@ -84,11 +84,11 @@ ShellRoot {
     }
     StubPane { id: spacedPane; names: ["t1.md"] }
     // Quick Look opens while the warm table's parse is out: its answer lands after Space and builds nothing.
-    Flea.QuickLookPrepare { id: spaced; pane: spacedPane; restMs: 1; onAskedChanged: if (spaced.asked !== null && spaced.asked.warm === true) spaced.resting = false }
+    Dlea.QuickLookPrepare { id: spaced; pane: spacedPane; restMs: 1; onAskedChanged: if (spaced.asked !== null && spaced.asked.warm === true) spaced.resting = false }
     // The cursor overtakes the first warm on the turn after it goes out, so its answer is dropped and the next rested table asks again.
     property int overtakenWarms: 0
     StubPane { id: overPane; names: ["t2.md", "quote.md"] }
-    Flea.QuickLookPrepare {
+    Dlea.QuickLookPrepare {
         id: overtaken
         pane: overPane
         restMs: 1

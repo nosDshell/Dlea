@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-. "$(dirname "${BASH_SOURCE[0]}")/../tools/flea-ipc"
-flea_ipc_init qs
+. "$(dirname "${BASH_SOURCE[0]}")/../tools/dlea-ipc"
+dlea_ipc_init qs
 . "$(dirname "$0")/headless-commons.sh"
 # A held first listing reads loading in List and Columns while the IPC seam stays unbuilt, and ui-captures-states.sh proves the reading shot by a live shell's "Target not found." for that absent seam.
 set -u
 cd "$(dirname "$0")/.." || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 
 failed=0
 ok() { printf 'ok   %s\n' "$*"; }
@@ -75,7 +75,7 @@ fi
 for tool in qs dbus-run-session; do
     command -v "$tool" > /dev/null || { printf 'FAIL heldlisting needs %s\n' "$tool"; exit 1; }
 done
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [ -x "$bin" ] || { printf 'FAIL heldlisting needs the built backend: %s\n' "$bin"; exit 1; }
 eval "$(sed -n '/^hanglisting_write_proxy()/,/^}/p' tests/ui.sh)"
 declare -F hanglisting_write_proxy > /dev/null || { printf 'FAIL: hanglisting_write_proxy is not defined by tests/ui.sh\n'; exit 1; }
@@ -88,7 +88,7 @@ cleanup() {
     [ -n "$probe_root" ] && [ -d "$probe_root/w" ] && sandbox_remove "$probe_root/w"
     # The root holds only its marker now; rmdir refuses anything else.
     case "$probe_root" in
-        /tmp/flea-hl.?*) [ -f "$probe_root/$SANDBOX_MARKER" ] && rm -f -- "$probe_root/$SANDBOX_MARKER" && rmdir -- "$probe_root" ;;
+        /tmp/dlea-hl.?*) [ -f "$probe_root/$SANDBOX_MARKER" ] && rm -f -- "$probe_root/$SANDBOX_MARKER" && rmdir -- "$probe_root" ;;
     esac
 }
 trap cleanup EXIT
@@ -96,7 +96,7 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 # A short root under /tmp: the seam's socket path must fit the 108-byte sun_path.
 sandbox_forbidden /tmp && sandbox_refuse "heldlisting: /tmp is inside a forbidden test target"
-probe_root=$(mktemp -d /tmp/flea-hl.XXXXXX) || exit 1
+probe_root=$(mktemp -d /tmp/dlea-hl.XXXXXX) || exit 1
 FIXTURE_ROOT=$probe_root
 sandbox_root_ok
 probe_root=$SANDBOX_ROOT
@@ -113,16 +113,16 @@ leg_dirs() {
     chmod 700 "$probe/runtime"
     : > "$probe/home/fixture/one.txt"
     : > "$probe/home/fixture/two.txt"
-    hanglisting_write_proxy "$probe/flea-proxy"
+    hanglisting_write_proxy "$probe/dlea-proxy"
 }
 
 # One qs ipc call against the control shell's runtime dir, the same two answers the harness reads: "Target not found." for a missing target, a refusal for a missing shell.
 ctl_qs() {
     env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE XDG_RUNTIME_DIR="$ctl/runtime" QT_QPA_PLATFORM=offscreen \
-        timeout 5 "$FLEA_IPC_HELPER" -p "$ctl/config" call "$@"
+        timeout 5 "$DLEA_IPC_HELPER" -p "$ctl/config" call "$@"
 }
 
-# The real qs against a shell that serves one target, other, and never flea: "Target not found." while it lives, "No running instances" once it is gone.
+# The real qs against a shell that serves one target, other, and never dlea: "Target not found." while it lives, "No running instances" once it is gone.
 ipc_control() {
     local up_by=$(( $(now) + 15000 )) out up=""
     ctl=$work/ctl
@@ -138,7 +138,7 @@ ShellRoot {
     }
 }
 QML
-    out=$(helper 'ipc() { ctl_qs flea "$@"; }; heldcolumns_expect_loading 2 "with no shell"; printf "loading\n"')
+    out=$(helper 'ipc() { ctl_qs dlea "$@"; }; heldcolumns_expect_loading 2 "with no shell"; printf "loading\n"')
     case $out in
         "FAIL: heldcolumns: limit 2 got no live answer with no shell, ipc ready said 'No running instances"*) ok "control: no shell fails the loading check" ;;
         *) bad "control: no shell must fail the loading check, got: $out" ;;
@@ -153,13 +153,13 @@ QML
     if [ -z "$up" ]; then
         bad "control: the shell never answered; log tail: $(tail -3 "$ctl/qs.log")"
     else
-        out=$(helper 'ipc() { ctl_qs flea "$@"; }; heldcolumns_expect_loading 2 "with a live shell"; printf "loading\n"')
+        out=$(helper 'ipc() { ctl_qs dlea "$@"; }; heldcolumns_expect_loading 2 "with a live shell"; printf "loading\n"')
         [ "$out" = loading ] && ok "control: a live shell without the seam passes the loading check" || bad "control: a live shell without the seam must pass, got: $out"
     fi
     kill -TERM -- "-$runner" 2> /dev/null
     wait "$runner" 2> /dev/null
     runner=""
-    out=$(helper 'ipc() { ctl_qs flea "$@"; }; heldcolumns_expect_loading 2 "after the shell died"; printf "loading\n"')
+    out=$(helper 'ipc() { ctl_qs dlea "$@"; }; heldcolumns_expect_loading 2 "after the shell died"; printf "loading\n"')
     case $out in
         "FAIL: heldcolumns: limit 2 got no live answer after the shell died, ipc ready said 'No running instances"*) ok "control: a shell that died fails the loading check" ;;
         *) bad "control: a dead shell must fail the loading check, got: $out" ;;
@@ -170,14 +170,14 @@ QML
 pane_leg() {
     local view=$1 probe="$work/pane-$1" out noisy
     leg_dirs "pane-$view" || { bad "pane $view: the probe directories could not be made"; return; }
-    ln -s "$PWD/ui" "$probe/config/flea"
+    ln -s "$PWD/ui" "$probe/config/dlea"
     headless_commons "$work" "$probe/config/Commons" || exit 1
     ln -s "$(readlink -f ui/boot/Ui)" "$probe/config/Ui"
     cp tests/heldlisting.qml "$probe/config/shell.qml"
     out=$(env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
         HOME="$probe/home" XDG_STATE_HOME="$probe/state" XDG_RUNTIME_DIR="$probe/runtime" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
-        FLEA_BIN="$probe/flea-proxy" FLEA_HANGLISTING_REAL="$bin" FLEA_HANGLISTING_DELAY="$hold_s" FLEA_HANGLISTING_MARKER="$probe/held" \
+        DLEA_BIN="$probe/dlea-proxy" DLEA_HANGLISTING_REAL="$bin" DLEA_HANGLISTING_DELAY="$hold_s" DLEA_HANGLISTING_MARKER="$probe/held" \
         HELDLISTING_VIEW="$view" HELDLISTING_MS=$((hold_s * 1000)) HELDLISTING_DIR="$probe/home/fixture" timeout 30 qs -p "$probe/config" 2>&1)
     noisy=$(printf '%s\n' "$out" | grep -av 'does not support setting window masks' | grep -aiE 'WARN|ERROR|Binding loop|TypeError|ReferenceError|is not a function|is not defined')
     if [ "$(printf '%s\n' "$out" | grep -ac 'HELDLISTING PASS')" = 1 ] && [ "$(printf '%s\n' "$out" | grep -ac 'HELDLISTING DONE')" = 1 ] \
@@ -192,7 +192,7 @@ pane_leg() {
 boot_ipc() {
     local runtime=$1
     shift
-    env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE XDG_RUNTIME_DIR="$runtime" QT_QPA_PLATFORM=offscreen timeout 5 "$FLEA_IPC_HELPER" -p "$PWD/ui/boot" call flea "$@" 2> /dev/null
+    env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE XDG_RUNTIME_DIR="$runtime" QT_QPA_PLATFORM=offscreen timeout 5 "$DLEA_IPC_HELPER" -p "$PWD/ui/boot" call dlea "$@" 2> /dev/null
 }
 
 # The real entry offscreen: no seam answers while the list is held, and the seam answers once the rows have landed in the view the leg is named for.
@@ -201,11 +201,11 @@ boot_leg() {
     leg_dirs "boot-$view" || { bad "boot $view: the probe directories could not be made"; return; }
     HOME="$probe/home" XDG_STATE_HOME="$probe/state" env -- "$bin" --ui-state '{"view":"'"$view"'","columnsLimit":'"$limit"',"updates":{"autoCheck":false}}' > /dev/null \
         || { bad "boot $view: the state seed failed"; return; }
-    setsid env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u FLEA_SELECT \
+    setsid env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u DLEA_SELECT \
         HOME="$probe/home" XDG_CONFIG_HOME="$probe/config" XDG_STATE_HOME="$probe/state" \
         XDG_DATA_HOME="$probe/data" XDG_CACHE_HOME="$probe/cache" XDG_RUNTIME_DIR="$probe/runtime" \
-        FLEA_PATH="$probe/home/fixture" FLEA_BIN="$probe/flea-proxy" GVFS_DISABLE_FUSE=1 \
-        FLEA_HANGLISTING_REAL="$bin" FLEA_HANGLISTING_DELAY="$hold_s" FLEA_HANGLISTING_MARKER="$probe/held" \
+        DLEA_PATH="$probe/home/fixture" DLEA_BIN="$probe/dlea-proxy" GVFS_DISABLE_FUSE=1 \
+        DLEA_HANGLISTING_REAL="$bin" DLEA_HANGLISTING_DELAY="$hold_s" DLEA_HANGLISTING_MARKER="$probe/held" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
         dbus-run-session -- qs -p "$PWD/ui/boot" > "$probe/qs.log" 2>&1 < /dev/null &
     runner=$!

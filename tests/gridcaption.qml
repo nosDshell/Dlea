@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-gridcaption-test
+//@ pragma ShellId dlea-gridcaption-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/GridGeometry.js" as GridGeometry
-import "flea/js/Density.js" as Density
+import "dlea" as Dlea
+import "dlea/js/GridGeometry.js" as GridGeometry
+import "dlea/js/Density.js" as Density
 
 // GridTile caption geometry at text sizes 12 and 14 (the old slot must fail at 14), the caption alone at rest, the drop label added under a drag.
 ShellRoot {
@@ -16,15 +16,15 @@ ShellRoot {
 
     // The real cell height GridArea gives a tile, so bottom<=height means the window contains it.
     function cellH() {
-        return GridGeometry.cellHeightFor(Flea.ViewState.thumbnailPixels, Flea.Theme.spacing.gap,
-            Math.ceil(Flea.Theme.grid.captionHeight),
-            Density.gridPadY(Flea.Theme.spacing.rowPaddingX, Flea.ViewState.density))
+        return GridGeometry.cellHeightFor(Dlea.ViewState.thumbnailPixels, Dlea.Theme.spacing.gap,
+            Math.ceil(Dlea.Theme.grid.captionHeight),
+            Density.gridPadY(Dlea.Theme.spacing.rowPaddingX, Dlea.ViewState.density))
     }
 
     Column {
-        Flea.GridTile { id: normalTile; width: 147; height: root.cellH(); row: root.fileRow }
-        Flea.GridTile { id: dropTile; width: 147; height: root.cellH(); row: root.fileRow; dropTarget: true }
-        Flea.GridTile { id: wrapTile; width: 147; height: root.cellH(); row: null }
+        Dlea.GridTile { id: normalTile; width: 147; height: root.cellH(); row: root.fileRow }
+        Dlea.GridTile { id: dropTile; width: 147; height: root.cellH(); row: root.fileRow; dropTarget: true }
+        Dlea.GridTile { id: wrapTile; width: 147; height: root.cellH(); row: null }
     }
 
     property int phase: 0
@@ -56,7 +56,7 @@ ShellRoot {
     }
 
     function measure(base, withNegative) {
-        var lineH = Flea.Theme.grid.captionLineHeight
+        var lineH = Dlea.Theme.grid.captionLineHeight
         var cap = normalTile.captionItem
         var ntext = String(cap.text)
         console.log("GRIDCAPTION MEASURE base=" + base + " tile=normal lines=" + cap.lineCount + " textHeight=" + cap.contentHeight + " slotHeight=" + cap.height + " bottom=" + (cap.y + cap.height) + " tileHeight=" + normalTile.height)
@@ -72,8 +72,8 @@ ShellRoot {
         root.check(dcap.lineCount === 1, "base " + base + " drop lines " + dcap.lineCount)
         root.check(dcap.contentHeight <= dcap.height, "base " + base + " drop textHeight " + dcap.contentHeight + " over slot " + dcap.height)
         root.check(dcap.y + dcap.height <= dropTile.height, "base " + base + " drop bottom past tile")
-        // The hover tip follows Flea's own elide: on for the cut name, which Qt sees whole, off for a name that wraps whole.
-        root.check(!cap.truncated, "base " + base + " Qt cut the caption Flea elided")
+        // The hover tip follows Dlea's own elide: on for the cut name, which Qt sees whole, off for a name that wraps whole.
+        root.check(!cap.truncated, "base " + base + " Qt cut the caption Dlea elided")
         normalTile.hovered = true
         root.check(root.tipShows(normalTile, root.longName), "base " + base + " hovered elided caption shows no tip")
         normalTile.hovered = false
@@ -109,11 +109,11 @@ ShellRoot {
 
     function step() {
         if (root.phase === 0)
-            Flea.ViewState.setTextSize({ mode: 12 })
+            Dlea.ViewState.setTextSize({ mode: 12 })
         else if (root.phase === 1)
             root.measure(12, false)
         else if (root.phase === 2)
-            Flea.ViewState.setTextSize({ mode: 14 })
+            Dlea.ViewState.setTextSize({ mode: 14 })
         else if (root.phase === 3)
             root.measure(14, true)
         else

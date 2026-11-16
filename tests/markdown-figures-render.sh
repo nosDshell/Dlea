@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # Render this checkout's Markdown figures with the real helper, checking geometry, ink, fallback and request history.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -11,8 +11,8 @@ if ! command -v qs >/dev/null; then
 fi
 
 resolve_qjs() {
-    if [ -n "${FLEA_QJS:-}" ] && [ "${FLEA_QJS#/}" != "${FLEA_QJS}" ] && [ -x "${FLEA_QJS}" ]; then
-        printf '%s\n' "${FLEA_QJS}"
+    if [ -n "${DLEA_QJS:-}" ] && [ "${DLEA_QJS#/}" != "${DLEA_QJS}" ] && [ -x "${DLEA_QJS}" ]; then
+        printf '%s\n' "${DLEA_QJS}"
     elif command -v qjs >/dev/null 2>&1; then
         command -v qjs
     elif [ -x "$PWD/.superpowers/tools/qjs" ]; then
@@ -21,10 +21,10 @@ resolve_qjs() {
         return 1
     fi
 }
-fleabin=""
-for cand in "$PWD/target/debug/flea" "$PWD/target/release/flea"; do
+dleabin=""
+for cand in "$PWD/target/debug/dlea" "$PWD/target/release/dlea"; do
     if [ -x "$cand" ]; then
-        fleabin="$cand"
+        dleabin="$cand"
         break
     fi
 done
@@ -32,32 +32,32 @@ if ! qjs=$(resolve_qjs); then
     echo 'FAIL missing qjs: the real figure helper requires quickjs-ng'
     exit 1
 fi
-if [ -z "$fleabin" ]; then
-    echo 'FAIL missing flea binary: build this checkout before rendering figures'
+if [ -z "$dleabin" ]; then
+    echo 'FAIL missing dlea binary: build this checkout before rendering figures'
     exit 1
 fi
 printf 'MODE=real\n'
 
-test_root="$FIXTURE_ROOT/flea-markdown-figrender-$$"
+test_root="$FIXTURE_ROOT/dlea-markdown-figrender-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
 
 mkdir -p "$test_root/config" "$test_root/home" "$test_root/state" "$test_root/cache" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/markdown-figures-render.js "$test_root/config/" || exit 1
 cp tests/markdown-figures-render.qml "$test_root/config/shell.qml" || exit 1
 
 # The real helper and QML must use the same checkout's assets.
-export FLEA_UI="$PWD/ui"
+export DLEA_UI="$PWD/ui"
 # These checks are about drawing, so every helper start runs from source and no background build outlives the sandbox.
-export FLEA_FIGURE_CACHE=off
+export DLEA_FIGURE_CACHE=off
 # Sample input: {"id":1,"kind":"math","source":"x^2","display":false,"theme":{...}}.
-helper_probe_out=$(printf '%s\n' '{"id":1,"kind":"math","source":"x^2","display":false,"theme":{"bg":"#101315","fg":"#c0caf5","accent":"#7aa2f7","font":"monospace","bodyPx":14}}' | FLEA_QJS="$qjs" "$fleabin" --figure-helper 2>&1)
+helper_probe_out=$(printf '%s\n' '{"id":1,"kind":"math","source":"x^2","display":false,"theme":{"bg":"#101315","fg":"#c0caf5","accent":"#7aa2f7","font":"monospace","bodyPx":14}}' | DLEA_QJS="$qjs" "$dleabin" --figure-helper 2>&1)
 if ! printf '%s\n' "$helper_probe_out" | grep -q '"svg"'; then
     printf 'FAIL the figure helper did not answer: %s\n' "$helper_probe_out"
     exit 1
@@ -94,15 +94,15 @@ echo '```'
 # The harness ends itself with a kill, so the subshell keeps bash's "Terminated" notice out of the report.
 output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_MARKDOWN_FIGURE_FIXTURE="$test_root/notes.md" \
-    FLEA_FIG_MODE=real FLEA_BIN="$fleabin" FLEA_QJS="$qjs" FLEA_UI="$FLEA_UI" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_MARKDOWN_FIGURE_FIXTURE="$test_root/notes.md" \
+    DLEA_FIG_MODE=real DLEA_BIN="$dleabin" DLEA_QJS="$qjs" DLEA_UI="$DLEA_UI" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 \
     timeout 120 qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 
 # Sample input: MARKDOWN_FIGRENDER PASS (real) three figures, one mono fallback, widths fit, far figure unasked
 if [ "$(printf '%s\n' "$output" | grep -c 'MARKDOWN_FIGRENDER PASS')" -ne 1 ] || printf '%s\n' "$output" | grep -q 'MARKDOWN_FIGRENDER FAIL'; then
     printf 'FAIL the figure preview missed a check\n'
-    printf '%s\n' "$output" | grep -aE 'MARKDOWN_FIGRENDER|FigureService|ERROR|error|flea:' | head -20
+    printf '%s\n' "$output" | grep -aE 'MARKDOWN_FIGRENDER|FigureService|ERROR|error|dlea:' | head -20
     exit 1
 fi
 # Sample input: This plugin does not support setting window masks
@@ -115,10 +115,10 @@ if [ -n "$warnings" ]; then
     exit 1
 fi
 shot=$(ls "$test_root/runtime"/markdown-figrender-*.png 2>/dev/null | head -1)
-if [ -n "${FLEA_CI_SUITE_LOGS:-}" ] && [ -n "$shot" ]; then
-    mkdir -p "$FLEA_CI_SUITE_LOGS" || exit 1
-    cp "$shot" "$FLEA_CI_SUITE_LOGS/markdown-figures-render.png" || exit 1
-    printf 'shot %s\n' "$FLEA_CI_SUITE_LOGS/markdown-figures-render.png"
+if [ -n "${DLEA_CI_SUITE_LOGS:-}" ] && [ -n "$shot" ]; then
+    mkdir -p "$DLEA_CI_SUITE_LOGS" || exit 1
+    cp "$shot" "$DLEA_CI_SUITE_LOGS/markdown-figures-render.png" || exit 1
+    printf 'shot %s\n' "$DLEA_CI_SUITE_LOGS/markdown-figures-render.png"
 elif [ -n "$shot" ]; then
     printf 'shot %s\n' "$shot"
 fi
@@ -156,15 +156,15 @@ EOF
 cp tests/markdown-mathgap.qml "$test_root/config/shell.qml" || exit 1
 mathgap_output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_MARKDOWN_FIGURE_FIXTURE="$test_root/mathgap.md" \
-    FLEA_BIN="$fleabin" FLEA_QJS="$qjs" FLEA_UI="$FLEA_UI" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_MARKDOWN_FIGURE_FIXTURE="$test_root/mathgap.md" \
+    DLEA_BIN="$dleabin" DLEA_QJS="$qjs" DLEA_UI="$DLEA_UI" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 \
     timeout 25 qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 printf '%s\n' "$mathgap_output" | grep -oE 'MARKDOWN_MATHGAP .*'
 warnings=$(printf '%s\n' "$mathgap_output" | grep -aE 'TypeError|ReferenceError|WARN|invalid nullptr parameter' | grep -vF "$platform_warning")
 [ -z "$warnings" ] || { printf 'FAIL maths gap harness warning: %s\n' "$warnings"; exit 1; }
-if [ -n "${FLEA_CI_SUITE_LOGS:-}" ] && [ -f "$test_root/runtime/markdown-mathgap.png" ]; then
-    cp "$test_root/runtime/markdown-mathgap.png" "$FLEA_CI_SUITE_LOGS/markdown-mathgap.png" || exit 1
+if [ -n "${DLEA_CI_SUITE_LOGS:-}" ] && [ -f "$test_root/runtime/markdown-mathgap.png" ]; then
+    cp "$test_root/runtime/markdown-mathgap.png" "$DLEA_CI_SUITE_LOGS/markdown-mathgap.png" || exit 1
 fi
 expected_mathgap_checks=34
 # Sample input: MARKDOWN_MATHGAP 34 checks, 0 failed
@@ -188,8 +188,8 @@ cp tests/markdown-mathsize.js "$test_root/config/" || exit 1
 cp tests/markdown-mathsize.qml "$test_root/config/shell.qml" || exit 1
 mathsize_output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_MARKDOWN_FIGURE_FIXTURE="$test_root/mathsize.md" \
-    FLEA_BIN="$fleabin" FLEA_QJS="$qjs" FLEA_UI="$FLEA_UI" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_MARKDOWN_FIGURE_FIXTURE="$test_root/mathsize.md" \
+    DLEA_BIN="$dleabin" DLEA_QJS="$qjs" DLEA_UI="$DLEA_UI" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 \
     timeout 45 qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 printf '%s\n' "$mathsize_output" | grep -oE 'MARKDOWN_MATHSIZE .*'
@@ -219,8 +219,8 @@ EOF
 cp tests/markdown-figflush.qml "$test_root/config/shell.qml" || exit 1
 figflush_output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_MARKDOWN_FIGURE_FIXTURE="$test_root/figflush.md" \
-    FLEA_BIN="$fleabin" FLEA_QJS="$qjs" FLEA_UI="$FLEA_UI" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_MARKDOWN_FIGURE_FIXTURE="$test_root/figflush.md" \
+    DLEA_BIN="$dleabin" DLEA_QJS="$qjs" DLEA_UI="$DLEA_UI" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 \
     timeout 25 qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 printf '%s\n' "$figflush_output" | grep -oE 'MARKDOWN_FIGFLUSH .*'
@@ -232,8 +232,8 @@ if ! printf '%s\n' "$figflush_output" | grep -qE "(^|: )MARKDOWN_FIGFLUSH $expec
     printf 'FAIL markdown-figures-render: figflush expected %s checks, 0 failed; arrived [%s]\n' "$expected_figflush_checks" "${figflush_output:-<empty>}" >&2
     exit 1
 fi
-if [ -n "${FLEA_CI_SUITE_LOGS:-}" ] && [ -f "$test_root/runtime/markdown-figflush.png" ]; then
-    cp "$test_root/runtime/markdown-figflush.png" "$FLEA_CI_SUITE_LOGS/markdown-figflush.png" || exit 1
+if [ -n "${DLEA_CI_SUITE_LOGS:-}" ] && [ -f "$test_root/runtime/markdown-figflush.png" ]; then
+    cp "$test_root/runtime/markdown-figflush.png" "$DLEA_CI_SUITE_LOGS/markdown-figflush.png" || exit 1
 fi
 
 # The post-pass over real library output and hand-built shapes: no broken viewBox, no label cut, every tspan line its own text.
@@ -260,7 +260,7 @@ printf '%s\n' "$paths_output" | head -1
 cp tests/markdown-figures-render-arrows.qml "$test_root/config/shell.qml" || exit 1
 arrow_output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_BIN="$fleabin" FLEA_QJS="$qjs" FLEA_UI="$FLEA_UI" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_BIN="$dleabin" DLEA_QJS="$qjs" DLEA_UI="$DLEA_UI" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 \
     timeout 25 qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 printf '%s\n' "$arrow_output" | grep -oE 'MARKDOWN_ARROWS .*'
@@ -272,15 +272,15 @@ if ! printf '%s\n' "$arrow_output" | grep -qE "(^|: )MARKDOWN_ARROWS $expected_a
     printf 'FAIL markdown-figures-render: arrows expected %s checks, 0 failed; arrived [%s]\n' "$expected_arrow_checks" "${arrow_output:-<empty>}" >&2
     exit 1
 fi
-if [ -n "${FLEA_CI_SUITE_LOGS:-}" ]; then
-    cp "$test_root/runtime/markdown-arrows.png" "$FLEA_CI_SUITE_LOGS/markdown-arrows.png" || exit 1
+if [ -n "${DLEA_CI_SUITE_LOGS:-}" ]; then
+    cp "$test_root/runtime/markdown-arrows.png" "$DLEA_CI_SUITE_LOGS/markdown-arrows.png" || exit 1
 fi
 
 # Every end mark of a link, flowchart and class, drawn at both ends of the first edge.
 cp tests/markdown-figures-render-ends.qml "$test_root/config/shell.qml" || exit 1
 ends_output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_BIN="$fleabin" FLEA_QJS="$qjs" FLEA_UI="$FLEA_UI" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_BIN="$dleabin" DLEA_QJS="$qjs" DLEA_UI="$DLEA_UI" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 \
     timeout 25 qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 printf '%s\n' "$ends_output" | grep -oE 'MARKDOWN_ENDS (MARKS|FAIL).*'
@@ -292,8 +292,8 @@ if ! printf '%s\n' "$ends_output" | grep -qE "(^|: )MARKDOWN_ENDS $expected_ends
     printf 'FAIL markdown-figures-render: end marks expected %s checks, 0 failed; arrived [%s]\n' "$expected_ends_checks" "${ends_output:-<empty>}" >&2
     exit 1
 fi
-if [ -n "${FLEA_CI_SUITE_LOGS:-}" ]; then
-    cp "$test_root/runtime/markdown-ends.png" "$FLEA_CI_SUITE_LOGS/markdown-ends.png" || exit 1
+if [ -n "${DLEA_CI_SUITE_LOGS:-}" ]; then
+    cp "$test_root/runtime/markdown-ends.png" "$DLEA_CI_SUITE_LOGS/markdown-ends.png" || exit 1
 fi
 
 md3u_output=$(timeout 45 "$qjs" tests/markdown-advfix-md3u.mjs) || { printf '%s\n' "$md3u_output"; exit 1; }
@@ -312,8 +312,8 @@ if [ "$md3u_status" -ne 0 ] || [ "$md3u_native_cases" -ne "$expected_md3u_native
     printf 'FAIL markdown-figures-render: md3u native expected %s cases, %s checks, 0 failed; exited %s; arrived %s cases [%s]\n' "$expected_md3u_native_cases" "$expected_md3u_native_checks" "$md3u_status" "$md3u_native_cases" "${md3u_native:-<empty>}" >&2
     exit 1
 fi
-if [ -n "${FLEA_CI_SUITE_LOGS:-}" ]; then
-    cp "$test_root/md3u-cases.png" "$FLEA_CI_SUITE_LOGS/markdown-md3u-geometry.png" || exit 1
+if [ -n "${DLEA_CI_SUITE_LOGS:-}" ]; then
+    cp "$test_root/md3u-cases.png" "$DLEA_CI_SUITE_LOGS/markdown-md3u-geometry.png" || exit 1
 fi
 
 # Nesting and inline maths: the ql-markdown-nesting fixture, a formula pair for ink, a failing formula, a repeat and one far below the cache.
@@ -363,8 +363,8 @@ cp tests/markdown-draw.js "$test_root/config/" || exit 1
 cp tests/markdown-draw.qml "$test_root/config/shell.qml" || exit 1
 draw_output=$( ( env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CACHE_HOME="$test_root/cache" \
-    XDG_RUNTIME_DIR="$test_root/runtime" FLEA_DRAW_DIR="$draw_dir" \
-    FLEA_BIN="$fleabin" FLEA_QJS="$qjs" FLEA_UI="$FLEA_UI" \
+    XDG_RUNTIME_DIR="$test_root/runtime" DLEA_DRAW_DIR="$draw_dir" \
+    DLEA_BIN="$dleabin" DLEA_QJS="$qjs" DLEA_UI="$DLEA_UI" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_QPA_UPDATE_IDLE_TIME=1 QT_FORCE_STDERR_LOGGING=1 \
     timeout 90 qs -p "$test_root/config" 2>&1 ) 2>/dev/null )
 printf '%s\n' "$draw_output" | grep -oE 'MARKDOWN_DRAW .*'
@@ -376,6 +376,6 @@ if ! printf '%s\n' "$draw_output" | grep -qE "(^|: )MARKDOWN_DRAW $expected_draw
     printf 'FAIL markdown-figures-render: nesting and inline maths expected %s checks, 0 failed; arrived [%s]\n' "$expected_draw_checks" "${draw_output:-<empty>}" >&2
     exit 1
 fi
-if [ -n "${FLEA_CI_SUITE_LOGS:-}" ] && ls "$test_root/runtime"/markdown-draw-*.png >/dev/null 2>&1; then
-    cp "$(ls "$test_root/runtime"/markdown-draw-*.png | head -1)" "$FLEA_CI_SUITE_LOGS/markdown-draw.png" || exit 1
+if [ -n "${DLEA_CI_SUITE_LOGS:-}" ] && ls "$test_root/runtime"/markdown-draw-*.png >/dev/null 2>&1; then
+    cp "$(ls "$test_root/runtime"/markdown-draw-*.png | head -1)" "$DLEA_CI_SUITE_LOGS/markdown-draw.png" || exit 1
 fi

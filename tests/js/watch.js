@@ -400,7 +400,7 @@ function editing() {
     var stop = { stop: function () {} }
     var refresh = handler(wireFile, "function refreshRename(request, selected, pointer) {", "\n    Connections {")(p, root, stop, Anchor, Nav, SlowOp, Errors, Ops, Swap, Sort)
     root.refreshRename = refresh
-    var failed = handler(wireFile, "function onFailed(where, input, message, mode) {", "\n    }\n\n    // flea --ui-state")
+    var failed = handler(wireFile, "function onFailed(where, input, message, mode) {", "\n    }\n\n    // dlea --ui-state")
     var renamed = handler(wireFile, "function onRenamed(ok, path) {", "// A remote write past its deadline")(p, root, stop, Anchor, Nav, SlowOp, Errors, Ops, Swap, Sort)
     p.fail = function (where, input, message) { failed(p, root, stop, Anchor, Nav, SlowOp, Errors, Ops, Swap, Sort)(where, input, message, 0) }
     p.done = function (name) { renamed(true, name) }
@@ -531,7 +531,7 @@ function renameReplies(check) {
         p = editing()
         p.fail(dead[d], "", "the backend stopped")
         same("a " + dead[d] + " failure ends the request without a verdict", [p.renamePending, p.renamingIndex, messages],
-             [false, -1, ["Flea stopped responding, so the rename may not have finished. Check the name.|true"]])
+             [false, -1, ["Dlea stopped responding, so the rename may not have finished. Check the name.|true"]])
         same("and leaves the listing in the error state with no rows: " + dead[d], [p.listingState, p.total], ["error", 0])
     }
     p = editing()

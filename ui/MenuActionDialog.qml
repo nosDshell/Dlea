@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Format.js" as Format
 import "js/PropertyFacts.js" as PropertyFacts
 import "js/Tags.js" as Tags
@@ -13,7 +13,7 @@ FocusScope {
     // Closed means no input, even while the fade-out is still drawn.
     enabled: opened
     opacity: 0
-    Flea.Reveal { target: root; shown: root.opened; lift: card }
+    Dlea.Reveal { target: root; shown: root.opened; lift: card }
     property bool opened: false
     property string action: ""
     property int requestId: 0
@@ -225,7 +225,7 @@ FocusScope {
             acceptedButtons: Qt.LeftButton | Qt.RightButton
             onWheel: function(wheel) { wheel.accepted = true }
         }
-        Flea.CardFrame {
+        Dlea.CardFrame {
             id: body
             bleed: Theme.focusClearance
             anchors.fill: parent
@@ -233,7 +233,7 @@ FocusScope {
             title: Column {
                 width: parent.width
                 spacing: Theme.spacing.gap
-                Flea.DialogTitle {
+                Dlea.DialogTitle {
                     width: parent.width
                     text: root.title
                 }
@@ -242,7 +242,7 @@ FocusScope {
             buttons: Row {
                 anchors.right: parent.right
                 spacing: Theme.spacing.gap
-                Flea.DialogButton {
+                Dlea.DialogButton {
                     id: closeButton
                     label: root.action === "properties" ? "Close" : "Cancel"
                     available: !(root.busy && root.committing && root.action === "newFile")
@@ -251,7 +251,7 @@ FocusScope {
                     onTabbed: function(from, back) { root.stepFocus(back) }
                     onActivated: root.close()
                 }
-                Flea.DialogButton {
+                Dlea.DialogButton {
                     id: submitButton
                     visible: root.action !== "properties" && root.action !== "deletePermanently"
                     label: root.action === "newFile" ? "Create" : root.action === "moveTo" ? "Move" : "Copy"
@@ -345,8 +345,8 @@ FocusScope {
                                     id: tagItem
                                     required property string modelData
                                     spacing: Theme.spacing.tagNameGap
-                                    // A name Flea does not know is plain text with no swatch; a digit fallback keeps the 14 px square its digit needs.
-                                    Flea.TagSwatch {
+                                    // A name Dlea does not know is plain text with no swatch; a digit fallback keeps the 14 px square its digit needs.
+                                    Dlea.TagSwatch {
                                         size: Theme.tag.fallback ? Tags.SWATCH_SIZE : Tags.PAIR_SWATCH_SIZE
                                         visible: Tags.NAMES.indexOf(tagItem.modelData) >= 0
                                         anchors.verticalCenter: parent.verticalCenter
@@ -381,7 +381,7 @@ FocusScope {
     }
     // Match Trash's identity-check cadence only while the destructive strip is visible.
     Timer { interval: 2500; repeat: true; running: confirmation.opened && !root.busy; onTriggered: root.checkDeletion() }
-    Flea.TrashConfirm {
+    Dlea.TrashConfirm {
         id: confirmation
         scopeName: "items"
         onCancelled: root.close()

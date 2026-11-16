@@ -11,8 +11,8 @@ import threading
 parent = (Path.cwd() / ".superpowers" / "fb2").resolve()
 parent.mkdir(parents=True, exist_ok=True)
 root = Path(subprocess.check_output(["mktemp", "-d", str(parent / "search-match.XXXXXX")], text=True).strip())
-marker = root / ".flea-test-sandbox"
-marker.write_text("flea test sandbox\n")
+marker = root / ".dlea-test-sandbox"
+marker.write_text("dlea test sandbox\n")
 process = None
 try:
     tree = root / "tree"
@@ -97,5 +97,5 @@ finally:
         process.kill()
         process.wait(timeout=10)
     assert str(root) and root.is_absolute() and root.parent == parent and root.name.startswith("search-match.")
-    assert marker.read_text() == "flea test sandbox\n"
+    assert marker.read_text() == "dlea test sandbox\n"
     shutil.rmtree(root)

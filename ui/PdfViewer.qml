@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Keymap.js" as Keymap
 import "js/PreviewKeys.js" as PreviewKeys
 
@@ -98,7 +98,7 @@ Item {
             opacity: 0.12
         }
 
-        Flea.Glyph {
+        Dlea.Glyph {
             id: kindMark
             anchors.left: parent.left
             anchors.leftMargin: Theme.spacing.rowPaddingX
@@ -136,7 +136,7 @@ Item {
             visible: root.pageCount > 0
             spacing: Theme.spacing.gap
 
-            Flea.ChromeButton {
+            Dlea.ChromeButton {
                 gesturePolicy: TapHandler.ReleaseWithinBounds
                 ruleRows: Theme.spacing.hairline
                 id: previous
@@ -160,7 +160,7 @@ Item {
                 textFormat: Text.PlainText
             }
 
-            Flea.ChromeButton {
+            Dlea.ChromeButton {
                 gesturePolicy: TapHandler.ReleaseWithinBounds
                 ruleRows: Theme.spacing.hairline
                 id: next
@@ -181,7 +181,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             spacing: Theme.spacing.gap
 
-            Flea.ChromeButton {
+            Dlea.ChromeButton {
                 gesturePolicy: TapHandler.ReleaseWithinBounds
                 ruleRows: Theme.spacing.hairline
                 id: zoomOut
@@ -192,7 +192,7 @@ Item {
                 onActivated: root.zoomBy(-1)
             }
 
-            Flea.ChromeButton {
+            Dlea.ChromeButton {
                 gesturePolicy: TapHandler.ReleaseWithinBounds
                 ruleRows: Theme.spacing.hairline
                 id: zoomIn
@@ -203,7 +203,7 @@ Item {
                 onActivated: root.zoomBy(1)
             }
 
-            Flea.ChromeButton {
+            Dlea.ChromeButton {
                 gesturePolicy: TapHandler.ReleaseWithinBounds
                 ruleRows: Theme.spacing.hairline
                 id: expand
@@ -214,7 +214,7 @@ Item {
                 onActivated: root.toggleExpand()
             }
 
-            Flea.ChromeButton {
+            Dlea.ChromeButton {
                 gesturePolicy: TapHandler.ReleaseWithinBounds
                 ruleRows: Theme.spacing.hairline
                 id: close
@@ -238,12 +238,12 @@ Item {
         contentHeight: height * root.zoom
         boundsBehavior: Flickable.StopAtBounds
 
-        Flea.FastScrollHandler {
+        Dlea.FastScrollHandler {
             parent: pageFlick
             flickable: pageFlick
         }
 
-        Flea.ViewportScrollBars {
+        Dlea.ViewportScrollBars {
             parent: pageFlick
             flickable: pageFlick
         }
@@ -253,7 +253,7 @@ Item {
             height: pageFlick.contentHeight
             color: Theme.color.background
 
-            Flea.PreviewPdf {
+            Dlea.PreviewPdf {
                 id: pdf
                 anchors.fill: parent
                 anchors.margins: 2 * Theme.spacing.rowPaddingX
@@ -274,7 +274,7 @@ Item {
         spacing: Theme.spacing.gap
         visible: root.failed
 
-        Flea.Glyph {
+        Dlea.Glyph {
             anchors.horizontalCenter: parent.horizontalCenter
             width: Theme.iconSize
             height: Theme.iconSize

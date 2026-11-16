@@ -1,7 +1,7 @@
 // Ported from tests/js/picker.js: the request, label, answer and URI cases, with every refusal kept.
 use super::*;
 
-// The shape tools/flea-portal writes for an OpenFile with two filters, taken from its request_for().
+// The shape tools/dlea-portal writes for an OpenFile with two filters, taken from its request_for().
 const ASKED: &str = r#"{"mode":"open","title":"Send to unraid","app":"","accept":"Send","multiple":true,
     "directory":false,"folder":"/home/gm/Pictures","file":"","name":"","files":[],
     "filters":[{"label":"Images","globs":["*.png","*.jpg"],"mimes":[]},{"label":"Any text","globs":[],"mimes":["text/plain"]}],
@@ -193,7 +193,7 @@ fn the_start_folder_and_seeds_refuse_what_the_caller_cannot_name() {
         "/srv"
     );
     assert_eq!(
-        start_folder(&request(r#"{"folder":"flea:recent"}"#), "/home/u"),
+        start_folder(&request(r#"{"folder":"dlea:recent"}"#), "/home/u"),
         "/home/u"
     );
     assert_eq!(
@@ -201,7 +201,7 @@ fn the_start_folder_and_seeds_refuse_what_the_caller_cannot_name() {
         "/home/u"
     );
     assert_eq!(initial_save_name(&request(r#"{"name":"a.txt"}"#)), "a.txt");
-    // tools/flea-portal reads current_name verbatim, so the window is the thing that refuses a traversal.
+    // tools/dlea-portal reads current_name verbatim, so the window is the thing that refuses a traversal.
     let traversal = request(r#"{"name":"../../pwn"}"#);
     assert_eq!(
         traversal.name, "../../pwn",

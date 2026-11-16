@@ -161,7 +161,7 @@ fn sd2_failure_size_not_checked_and_root_words() {
 fn sd2_locale_witness_translates_falls_back_and_follows_a_language_change() {
     let root = Root::new();
     root.write(
-        "catalog/de/flea.json",
+        "catalog/de/dlea.json",
         r#"{"send.rclone.failed":"Senden fehlgeschlagen","send.rclone.checking":{"one":"Prüfe %1 Datei auf %2","other":"Prüfe %1 Dateien auf %2"}}"#,
     );
     let mut i18n = root.i18n("en");

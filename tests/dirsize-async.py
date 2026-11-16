@@ -11,8 +11,8 @@ import time
 
 root = Path(sys.argv[1]).resolve()
 binary = str(Path(sys.argv[2]).resolve())
-assert root.name.startswith("flea-dirsize-async-")
-assert (root / ".flea-test-sandbox").is_file()
+assert root.name.startswith("dlea-dirsize-async-")
+assert (root / ".dlea-test-sandbox").is_file()
 assert not root.is_relative_to(Path.home().resolve())
 library = root / "block.so"
 subprocess.run(["cc", "-shared", "-fPIC", "-o", str(library),
@@ -34,9 +34,9 @@ class Backend:
         (self.fast / "data").write_bytes(b"fast-with-a-different-size")
         (self.destination / "data").write_bytes(b"destination")
         env = dict(os.environ, LD_PRELOAD=str(library),
-                   FLEA_TEST_SIZE_PATH=str(self.slow),
-                   FLEA_TEST_SIZE_ENTERED=str(self.entered),
-                   FLEA_TEST_SIZE_RELEASE=str(self.release))
+                   DLEA_TEST_SIZE_PATH=str(self.slow),
+                   DLEA_TEST_SIZE_ENTERED=str(self.entered),
+                   DLEA_TEST_SIZE_RELEASE=str(self.release))
         self.proc = subprocess.Popen([binary, "--backend"], env=env, text=True,
                                      stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                                      stderr=None)

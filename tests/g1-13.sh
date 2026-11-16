@@ -3,13 +3,13 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 # Composition never touches the filesystem: the host pieces take plain state, producer seams live with sr2 at the join.
-if grep -rnE 'std::fs|read_dir|File::open|metadata\(' crates/flea-gui/src/strips crates/flea-gui/src/ipc/strips.rs; then
+if grep -rnE 'std::fs|read_dir|File::open|metadata\(' crates/dlea-gui/src/strips crates/dlea-gui/src/ipc/strips.rs; then
     printf 'G1_13 FAIL the strips surface reads the filesystem on the UI thread\n'
     exit 1
 fi
 mkdir -p "$PWD/.superpowers/g1-13"
 unit_root=$(mktemp -d "$PWD/.superpowers/g1-13/ci.XXXXXXXX")
-: > "$unit_root/.flea-test-sandbox"
+: > "$unit_root/.dlea-test-sandbox"
 mkdir -p "$unit_root/home" "$unit_root/config" "$unit_root/cache" "$unit_root/state" "$unit_root/runtime"
 run() {
     setsid -w env -i PATH="$PATH" HOME="$unit_root/home" \
@@ -20,8 +20,8 @@ run() {
         CARGO_PROFILE_TEST_DEBUG=line-tables-only CARGO_PROFILE_DEV_DEBUG=line-tables-only \
         "$@" < /dev/null
 }
-run cargo test --locked -p flea-gui --test g1_13
+run cargo test --locked -p dlea-gui --test g1_13
 clippy_root=$(mktemp -d "$PWD/.superpowers/g1-13/clippy.XXXXXXXX")
-: > "$clippy_root/.flea-test-sandbox"
-tools/flea-clippy tools/clippy-baseline.txt "$clippy_root"
+: > "$clippy_root/.dlea-test-sandbox"
+tools/dlea-clippy tools/clippy-baseline.txt "$clippy_root"
 printf 'G1_13 PASS filter strip states, status priority, IPC readers and clippy\n'

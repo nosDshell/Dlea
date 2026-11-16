@@ -75,20 +75,20 @@ def check(label, action):
 
 with tempfile.TemporaryDirectory(prefix="picker-native-lock-") as runtime:
     namespace["root"] = Path(runtime)
-    (Path(runtime) / ".flea-test-sandbox").write_text("")
-    os.environ.pop("FLEA_DISPLAY_LOCK_FD", None)
+    (Path(runtime) / ".dlea-test-sandbox").write_text("")
+    os.environ.pop("DLEA_DISPLAY_LOCK_FD", None)
     def unset():
         with take_lock(runtime):
-            with open(Path(runtime) / "flea-display.lock", "a") as contender:
+            with open(Path(runtime) / "dlea-display.lock", "a") as contender:
                 try:
                     fcntl.flock(contender, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 except BlockingIOError:
                     return
                 raise AssertionError("unset path did not acquire lock")
     check("unset opens and locks runtime file", unset)
-    with open(Path(runtime) / "flea-display.lock", "a") as owned:
+    with open(Path(runtime) / "dlea-display.lock", "a") as owned:
         fcntl.flock(owned, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        os.environ["FLEA_DISPLAY_LOCK_FD"] = str(owned.fileno())
+        os.environ["DLEA_DISPLAY_LOCK_FD"] = str(owned.fileno())
         os.set_inheritable(owned.fileno(), True)
         def inherited():
             with take_lock(runtime) as held:
@@ -134,9 +134,9 @@ with tempfile.TemporaryDirectory(prefix="picker-native-lock-") as runtime:
         check("control start() keeping descriptors fails the closed check", lambda: control("start()", keeping_start))
         def unrelated():
             other = Path(runtime) / "unrelated-open-file"
-            expected = Path(runtime) / "flea-display.lock"
+            expected = Path(runtime) / "dlea-display.lock"
             with open(other, "a") as wrong:
-                os.environ["FLEA_DISPLAY_LOCK_FD"] = str(wrong.fileno())
+                os.environ["DLEA_DISPLAY_LOCK_FD"] = str(wrong.fileno())
                 try:
                     with contextlib.redirect_stdout(io.StringIO()) as output:
                         held = take_lock(runtime)
@@ -149,7 +149,7 @@ with tempfile.TemporaryDirectory(prefix="picker-native-lock-") as runtime:
                 raise AssertionError("F31 unrelated open file accepted as display lock")
         check("unrelated inherited file refuses and names both paths", unrelated)
         for value in ["", "9x", "-1", "999999", "9" * 100]:
-            os.environ["FLEA_DISPLAY_LOCK_FD"] = value
+            os.environ["DLEA_DISPLAY_LOCK_FD"] = value
             def invalid():
                 try:
                     with contextlib.redirect_stdout(io.StringIO()) as output:
@@ -160,6 +160,6 @@ with tempfile.TemporaryDirectory(prefix="picker-native-lock-") as runtime:
                 held.close()
                 raise AssertionError("invalid fd accepted")
             check("invalid inherited fd " + repr(value), invalid)
-os.environ.pop("FLEA_DISPLAY_LOCK_FD", None)
+os.environ.pop("DLEA_DISPLAY_LOCK_FD", None)
 print(f"picker-native-lock-check: {checks} checks, {failures} failed")
 raise SystemExit(bool(failures))

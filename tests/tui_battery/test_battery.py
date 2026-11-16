@@ -33,7 +33,7 @@ FIFO_DEADLINE_SECONDS = 5
 class BatteryTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        parent = Path(os.environ.get("FLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
+        parent = Path(os.environ.get("DLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
         if not parent.is_absolute():
             parent = parent.absolute()
         cls.scratch = Path(tempfile.mkdtemp(prefix="tests.", dir=parent))

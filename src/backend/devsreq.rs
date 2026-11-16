@@ -26,7 +26,7 @@ fn device(path: &str, body: &str) -> u64 {
     if !path.starts_with('/') {
         return 0;
     }
-    let owned = flea::bytename::exact(path);
+    let owned = dlea::bytename::exact(path);
     let target = owned.clone();
     iomount::call(&owned, body, "devs", move || dev_of(&target)).unwrap_or(0)
 }

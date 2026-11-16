@@ -60,12 +60,12 @@ fn compare(a: &str, b: &str) -> Outcome {
 
 // The answers that need no process: over is judged on both files before binary is, and diff runs only for text of a size it can answer.
 fn screen(a: &str, b: &str) -> Result<(), Outcome> {
-    if !flea::bytename::view(a).is_absolute() || !flea::bytename::view(b).is_absolute() {
+    if !dlea::bytename::view(a).is_absolute() || !dlea::bytename::view(b).is_absolute() {
         return Err(Outcome::Failed);
     }
     let (Some(first), Some(second)) = (
-        open_regular(&flea::bytename::view(a)),
-        open_regular(&flea::bytename::view(b)),
+        open_regular(&dlea::bytename::view(a)),
+        open_regular(&dlea::bytename::view(b)),
     ) else {
         return Err(Outcome::Failed);
     };
@@ -105,7 +105,7 @@ fn diff(a: &str, b: &str) -> Outcome {
     let inner = diff_argv(a, b);
     let mut full = sandbox::wrap_readonly_extra(
         &inner,
-        &[&*flea::bytename::view(a), &*flea::bytename::view(b)],
+        &[&*dlea::bytename::view(a), &*dlea::bytename::view(b)],
     );
     sandbox::add_status(&mut full, inner.len());
     let spawned = jail::spawn_jailed(&full, |cmd| {

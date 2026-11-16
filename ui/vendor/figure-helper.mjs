@@ -1,11 +1,11 @@
-// One sandboxed figure renderer: newline-delimited JSON in and out, started by flea --figure-helper under bwrap with no network or writable paths.
+// One sandboxed figure renderer: newline-delimited JSON in and out, started by dlea --figure-helper under bwrap with no network or writable paths.
 import * as std from "qjs:std";
 
 // Sample input: {"id":3,"kind":"math","source":"\\frac{a}{b}","display":true,"theme":{"bg":"#101315","fg":"#c0caf5"}}.
 var worker = await import("../js/FigureWorker.mjs");
 var mathApi = null;
 var mermaidApi = null;
-// Sample argv: figure-helper.mjs --bytecode=/home/gm/.cache/flea/figures/<key> --warm=mermaid,math --report; each flag is optional.
+// Sample argv: figure-helper.mjs --bytecode=/home/gm/.cache/dlea/figures/<key> --warm=mermaid,math --report; each flag is optional.
 function flagValue(name) {
     var prefix = "--" + name + "=";
     var found = scriptArgs.slice(1).find(function (arg) { return arg.startsWith(prefix); });

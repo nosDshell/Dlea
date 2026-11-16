@@ -1,7 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "." as Flea
+import "." as Dlea
 import "js/LocalSend.js" as LocalSendJs
 import "js/Archive.js" as Archive
 import "js/Menu.js" as Menu
@@ -17,7 +17,7 @@ Loader {
     // other one. The work is the backend's, which drives localsend-cli on a pty of its own.
     readonly property alias localSend: localSend
 
-    Flea.LocalSend {
+    Dlea.LocalSend {
         id: localSend
         backend: root.pane.backend
     }
@@ -38,7 +38,7 @@ Loader {
         return root.pane.cursorRow ? [root.pane.join(Search.baseOf(root.pane), root.pane.cursorRow.n)] : []
     }
 
-    // Actions rule 1: every shelf action is a `flea shelf` call, so the menu row makes the same one
+    // Actions rule 1: every shelf action is a `dlea shelf` call, so the menu row makes the same one
     // a drop onto the card makes and nothing here knows the pile's shape.
     function shelve(paths) {
         if (paths.length === 0) { root.pane.message("There is nothing to put on the shelf.", true); return }
@@ -57,7 +57,7 @@ Loader {
         stderr: StdioCollector { waitForEnd: true }
         function startAdd(paths) {
             shelver.count = paths.length
-            shelver.command = [Quickshell.env("FLEA_BIN") || "flea", "shelf", "add"].concat(paths)
+            shelver.command = [Quickshell.env("DLEA_BIN") || "dlea", "shelf", "add"].concat(paths)
             shelver.running = true
         }
         onExited: function (code, status) {
@@ -65,7 +65,7 @@ Loader {
                 root.pane.message(shelver.count === 1 ? Ops.WORDS.shelfOne
                                                       : Format.fill(Ops.WORDS.shelfMany, shelver.count), false)
             } else {
-                var said = shelver.stderr.text.trim().split("\n").pop().replace(/^flea: /, "")
+                var said = shelver.stderr.text.trim().split("\n").pop().replace(/^dlea: /, "")
                 root.pane.message(said.length > 0 ? said : "The shelf did not take that.", true)
             }
             if (shelver.pendingAdds.length > 0) {
@@ -90,7 +90,7 @@ Loader {
     }
 
     function perform(action, menuId, paths) {
-        if (action.indexOf("runScript:") === 0) { Flea.Scripts.run(action.substring("runScript:".length), paths || []); return }
+        if (action.indexOf("runScript:") === 0) { Dlea.Scripts.run(action.substring("runScript:".length), paths || []); return }
         if (action.indexOf("localsend:") === 0) { LocalSendJs.send(root.pane, localSend, root.pane.backend.providers.localsend, action.substring("localsend:".length), root.targets(paths)); return }
         if (action.indexOf("taildrop:") === 0) { root.pane.sendTaildrop(action.substring("taildrop:".length), root.targets(paths).length === 1 ? root.targets(paths)[0] : ""); return }
         if (action === "addToShelf") { root.shelve(root.targets(paths)); return }
@@ -117,7 +117,7 @@ Loader {
     }
     // A script's own non-zero exit is its last stderr line, said once in the status centre.
     Connections {
-        target: Flea.Scripts
+        target: Dlea.Scripts
         function onSaid(text, isError) { root.pane.message(text, isError) }
     }
     anchors.fill: parent

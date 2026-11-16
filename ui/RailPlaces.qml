@@ -16,7 +16,7 @@ QtObject {
         return entry
     })
     readonly property var recentEntries: root.settings.showRecent === true
-        ? [{ label: "Recent", path: "flea:recent", group: "recent", kind: "recent", glyph: "history" }] : []
+        ? [{ label: "Recent", path: "dlea:recent", group: "recent", kind: "recent", glyph: "history" }] : []
     readonly property var trashEntries: root.settings.showTrash === false ? []
         : [{ label: "Trash", path: "trash:///", group: "trash", kind: "trash", glyph: "trash" }]
     function entries() {

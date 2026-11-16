@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-search-exit-reads-test
+//@ pragma ShellId dlea-search-exit-reads-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Scroll.js" as Scroll
+import "dlea" as Dlea
+import "dlea/js/Scroll.js" as Scroll
 
 // While an exit holds the walk every planner refuses the listing that is out, so no row-indexed request leaves.
 ShellRoot {
@@ -68,8 +68,8 @@ ShellRoot {
             stepTimer.start()
         }
     }
-    Component { id: listComponent; Flea.List {} }
-    Component { id: gridComponent; Flea.GridArea {} }
+    Component { id: listComponent; Dlea.List {} }
+    Component { id: gridComponent; Dlea.GridArea {} }
 
     // One scroll held inside the bounds as ui/FastScrollHandler.qml writes it, plus every planner; the timers it restarts fire before the next step asserts.
     function drive() {

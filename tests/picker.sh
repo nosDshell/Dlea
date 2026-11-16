@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
-. "$(dirname "${BASH_SOURCE[0]}")/../tools/flea-ipc"
-flea_ipc_init qs
+. "$(dirname "${BASH_SOURCE[0]}")/../tools/dlea-ipc"
+dlea_ipc_init qs
 # Drives the file chooser the way an application does: omarchy-file-select asks the XDG portal,
 # xdg-desktop-portal routes org.freedesktop.impl.portal.FileChooser to whichever backend the
-# configuration names, and this asserts what comes back AT THE CALLER. It proves nothing about Flea
-# unless Flea is the backend, so it checks that first.
+# configuration names, and this asserts what comes back AT THE CALLER. It proves nothing about Dlea
+# unless Dlea is the backend, so it checks that first.
 # Usage: ./tests/picker.sh [pick|save|savename|cancel|withdrawn|died|fault|taildrop]; taildrop is opt-in.
-# FLEA_PICKER_CONFIG names the running picker's qs config path, which is the packaged one by default.
-# FLEA_PICKER_EVIDENCE names a directory the caller owns for the taildrop case's screenshot.
+# DLEA_PICKER_CONFIG names the running picker's qs config path, which is the packaged one by default.
+# DLEA_PICKER_EVIDENCE names a directory the caller owns for the taildrop case's screenshot.
 set -u
 set -o pipefail
 if [[ "${1:-native}" == native ]]; then
     exec python3 "$(dirname "$0")/picker-native.py" "${@:2}"
 fi
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete this suite makes.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 
 fail() {
     printf 'FAIL: %s\n' "$*" >&2
@@ -30,10 +30,10 @@ fi
 # A portal client opens its own connection to the session bus, which an ssh session does not export.
 export DBUS_SESSION_BUS_ADDRESS="${DBUS_SESSION_BUS_ADDRESS:-unix:path=$XDG_RUNTIME_DIR/bus}"
 
-picker_config="${FLEA_PICKER_CONFIG:-/usr/share/flea/ui/boot/picker.qml}"
-fixture="$FIXTURE_ROOT/flea-picker-$$"
+picker_config="${DLEA_PICKER_CONFIG:-/usr/share/dlea/ui/boot/picker.qml}"
+fixture="$FIXTURE_ROOT/dlea-picker-$$"
 # The taildrop case takes the title the real caller gives its window, so this is not readonly.
-title="Flea picker test $$"
+title="Dlea picker test $$"
 client=0
 # The background portal client a case starts, tracked the same way the omarchy-file-select one is.
 # A case that fails partway must not leave its window standing: the next case's ipc reaches the
@@ -41,7 +41,7 @@ client=0
 asker=0
 
 ipc() {
-    timeout 5 "$FLEA_IPC_HELPER" drive -p "$picker_config" fleapicker "$@" 2>/dev/null
+    timeout 5 "$DLEA_IPC_HELPER" drive -p "$picker_config" dleapicker "$@" 2>/dev/null
 }
 
 press() {
@@ -70,16 +70,16 @@ ipc_is_live() {
 }
 trap cleanup EXIT
 
-backend_is_flea() {
+backend_is_dlea() {
     local owner
-    owner=$(busctl --user --list --no-pager 2>/dev/null | grep -c 'org.freedesktop.impl.portal.desktop.flea')
-    [[ "$owner" -gt 0 ]] || fail "org.freedesktop.impl.portal.desktop.flea is not activatable, so run flea --picker and restart xdg-desktop-portal"
+    owner=$(busctl --user --list --no-pager 2>/dev/null | grep -c 'org.freedesktop.impl.portal.desktop.dlea')
+    [[ "$owner" -gt 0 ]] || fail "org.freedesktop.impl.portal.desktop.dlea is not activatable, so run dlea --picker and restart xdg-desktop-portal"
 }
 
 make_fixture() {
     sandbox_make "$fixture"
-    printf 'flea picker fixture\n' > "$fixture/alpha.txt"
-    printf 'flea picker fixture two\n' > "$fixture/beta.txt"
+    printf 'dlea picker fixture\n' > "$fixture/alpha.txt"
+    printf 'dlea picker fixture two\n' > "$fixture/beta.txt"
     head -c 4096 /dev/urandom > "$fixture/gamma.bin"
 }
 
@@ -95,7 +95,7 @@ walk_to_fixture() {
         sleep 0.3
     done
     [[ "$(ipc path)" == "/home" ]] || fail "Backspace did not climb to /home, the picker is at $(ipc path)"
-    for want in flea-sandbox "${fixture##*/}"; do
+    for want in dlea-sandbox "${fixture##*/}"; do
         step=0
         while [[ "$(ipc cursorName)" != "$want" ]]; do
             step=$((step + 1))
@@ -175,7 +175,7 @@ def on_response(connection, sender, path, interface, signal, params):
     seen.append(" ".join([str(code)] + list(results.get("uris", []))))
     loop.quit()
 
-token = "fleatest"
+token = "dleatest"
 sender = bus.get_unique_name()[1:].replace(".", "_")
 path = "/org/freedesktop/portal/desktop/request/%s/%s" % (sender, token)
 bus.signal_subscribe("org.freedesktop.portal.Desktop", "org.freedesktop.portal.Request",
@@ -205,10 +205,10 @@ import gi
 gi.require_version("Gio", "2.0")
 from gi.repository import Gio, GLib
 
-BACKEND = "org.freedesktop.impl.portal.desktop.flea"
+BACKEND = "org.freedesktop.impl.portal.desktop.dlea"
 CHOOSER = "org.freedesktop.impl.portal.FileChooser"
 REQUEST = "org.freedesktop.impl.portal.Request"
-handle = "/org/freedesktop/portal/desktop/request/fleatest/withdrawn"
+handle = "/org/freedesktop/portal/desktop/request/dleatest/withdrawn"
 bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
 loop = GLib.MainLoop()
 seen = []
@@ -275,7 +275,7 @@ case_save() {
 }
 
 # The save name is a client string and the answer built from it must stay inside the folder the
-# window showed. Both ways one arrives: the current_name tools/flea-portal passes through verbatim,
+# window showed. Both ways one arrives: the current_name tools/dlea-portal passes through verbatim,
 # and whatever somebody types into the field afterwards. Neither may be rewritten into a safe name;
 # a rewrite answers the caller with a path nobody approved.
 # What carries this case is three readings and no filesystem guard: ipc saveName is empty, so the
@@ -310,18 +310,18 @@ case_savename() {
     # whichever of the two OCR happens to return first buys a flake, not coverage.
 
     # An interior NUL cannot cross D-Bus, whose strings end at the first one, so this arm goes in
-    # through FLEA_PICKER: JSON's \u0000 is six characters in the environment and one after parsing,
+    # through DLEA_PICKER: JSON's \u0000 is six characters in the environment and one after parsing,
     # which is where the NUL that truncates a path at the syscall comes from.
-    local flea reply
-    flea="$(cd "$(dirname "$0")/.." && pwd)/target/release/flea"
-    [[ -x "$flea" ]] || fail "no built flea at $flea"
+    local dlea reply
+    dlea="$(cd "$(dirname "$0")/.." && pwd)/target/release/dlea"
+    [[ -x "$dlea" ]] || fail "no built dlea at $dlea"
     reply="$fixture/nul-reply.json"
-    # FLEA_UI names the same picker the ipc above talks to. Without it paths::ui_dir() prefers the
-    # packaged /usr/share/flea/ui, and this arm would drive a window the rest of the suite is not
+    # DLEA_UI names the same picker the ipc above talks to. Without it paths::ui_dir() prefers the
+    # packaged /usr/share/dlea/ui, and this arm would drive a window the rest of the suite is not
     # reading, or none at all when that install predates the picker.
-    FLEA_UI="$(dirname "$picker_config")" \
-        FLEA_PICKER="{\"mode\":\"save\",\"title\":\"$title\",\"folder\":\"$fixture\",\"name\":\"pwn\\u0000.desktop\"}" \
-        "$flea" --pick "$reply" &
+    DLEA_UI="$(dirname "$picker_config")" \
+        DLEA_PICKER="{\"mode\":\"save\",\"title\":\"$title\",\"folder\":\"$fixture\",\"name\":\"pwn\\u0000.desktop\"}" \
+        "$dlea" --pick "$reply" &
     asker=$!
     omarchy-drive wait window "$title" --timeout 25 >/dev/null || fail "the NUL request raised no picker window"
     omarchy-drive focus "$title" >/dev/null || fail "the picker window would not take focus"
@@ -337,18 +337,18 @@ case_savename() {
 }
 
 # A chooser that cannot open at all refuses before any window and writes no reply file, which is what
-# tools/flea-portal turns into 2. Both refusals are argv-level, so neither needs the display.
+# tools/dlea-portal turns into 2. Both refusals are argv-level, so neither needs the display.
 case_fault() {
     make_fixture
-    local flea status
-    flea="$(cd "$(dirname "$0")/.." && pwd)/target/release/flea"
-    [[ -x "$flea" ]] || fail "no built flea at $flea"
+    local dlea status
+    dlea="$(cd "$(dirname "$0")/.." && pwd)/target/release/dlea"
+    [[ -x "$dlea" ]] || fail "no built dlea at $dlea"
     status=0
-    env -u FLEA_PICKER "$flea" --pick "$fixture/never.json" 2>"$fixture/pick.err" || status=$?
+    env -u DLEA_PICKER "$dlea" --pick "$fixture/never.json" 2>"$fixture/pick.err" || status=$?
     [[ "$status" == 2 ]] || fail "a pick with no request exited $status, not 2"
-    grep -q "needs FLEA_PICKER" "$fixture/pick.err" || fail "the refusal said $(cat "$fixture/pick.err")"
+    grep -q "needs DLEA_PICKER" "$fixture/pick.err" || fail "the refusal said $(cat "$fixture/pick.err")"
     status=0
-    FLEA_PICKER='{"mode":"open"}' "$flea" --pick "" 2>>"$fixture/pick.err" || status=$?
+    DLEA_PICKER='{"mode":"open"}' "$dlea" --pick "" 2>>"$fixture/pick.err" || status=$?
     [[ "$status" == 2 ]] || fail "a pick with no reply file exited $status, not 2"
     [[ ! -e "$fixture/never.json" ]] || fail "a refused picker still wrote a reply file"
     printf 'fault: a picker that cannot open exits 2 before any window and writes no reply\n'
@@ -357,27 +357,27 @@ case_fault() {
 # Opt-in, like tests/ui.sh's networklive: this one drives the stock Tailscale panel and really sends
 # a file, so it never runs unless a peer is named and it is asked for by name.
 case_taildrop() {
-    local peer="${FLEA_TAILDROP_PEER:-}"
-    [[ -n "$peer" ]] || fail "taildrop needs FLEA_TAILDROP_PEER, so no run can send a file to a peer nobody named"
+    local peer="${DLEA_TAILDROP_PEER:-}"
+    [[ -n "$peer" ]] || fail "taildrop needs DLEA_TAILDROP_PEER, so no run can send a file to a peer nobody named"
     make_fixture
-    local sent="flea-picker-acceptance-$(date +%Y%m%d-%H%M%S).txt"
-    printf 'Flea file picker acceptance fixture, generated %s. Safe to delete.\n' "$(date -Is)" > "$fixture/$sent"
+    local sent="dlea-picker-acceptance-$(date +%Y%m%d-%H%M%S).txt"
+    printf 'Dlea file picker acceptance fixture, generated %s. Safe to delete.\n' "$(date -Is)" > "$fixture/$sent"
     title="Send to $peer"
     # The panel is a toggle, so a run that ended with it open would close it here instead: this
     # dismisses whatever is up before asking for it, or the click below reads an empty screen.
     omarchy-drive key -k Escape >/dev/null 2>&1
     sleep 1
-    FLEA_IPC_KIND=qml "$FLEA_IPC_HELPER" drive omarchy.tailscale open >/dev/null || fail "the stock Tailscale panel would not open"
+    DLEA_IPC_KIND=qml "$DLEA_IPC_HELPER" drive omarchy.tailscale open >/dev/null || fail "the stock Tailscale panel would not open"
     sleep 3
     # The peer row has no click action of its own; the hover under the click is what moves the
-    # panel's own cursor, and s is the panel's own send key. Neither is Flea's. The label is a
+    # panel's own cursor, and s is the panel's own send key. Neither is Dlea's. The label is a
     # separate variable because the panel draws the peer's display name, which is not always the
     # name tailscale addresses, and because click-text reads the screen with OCR.
-    omarchy-drive click-text "${FLEA_TAILDROP_LABEL:-$peer}" >/dev/null \
-        || fail "no row reading ${FLEA_TAILDROP_LABEL:-$peer} in the Tailscale panel"
+    omarchy-drive click-text "${DLEA_TAILDROP_LABEL:-$peer}" >/dev/null \
+        || fail "no row reading ${DLEA_TAILDROP_LABEL:-$peer} in the Tailscale panel"
     # The evidence for which row the pointer actually landed on, before anything is sent. It goes
     # in the fixture unless the caller named a directory of its own to keep it in.
-    omarchy-drive shot "${FLEA_PICKER_EVIDENCE:-$fixture}/tailscale-panel.png" >/dev/null
+    omarchy-drive shot "${DLEA_PICKER_EVIDENCE:-$fixture}/tailscale-panel.png" >/dev/null
     omarchy-drive key s >/dev/null || fail "the panel refused the send key"
     omarchy-drive wait window "$title" --timeout 25 >/dev/null || fail "the Tailscale send raised no picker window"
     omarchy-drive focus "$title" >/dev/null || fail "the picker window would not take focus"
@@ -395,10 +395,10 @@ case_taildrop() {
     # it could not. Read off the screen, because Omarchy's shell owns its notifications.
     omarchy-drive wait ocr "" "Sent to $peer" --timeout 60 >/dev/null \
         || fail "the caller never reported a send, and the screen says: $(omarchy-drive ocr 2>&1 | tail -4)"
-    printf 'taildrop: the stock plugin raised Flea, and the caller sent %s to %s\n' "$sent" "$peer"
+    printf 'taildrop: the stock plugin raised Dlea, and the caller sent %s to %s\n' "$sent" "$peer"
 }
 
-backend_is_flea
+backend_is_dlea
 [[ "$#" -gt 0 ]] || set -- pick save savename cancel withdrawn died fault
 for name in "$@"; do
     case "$name" in

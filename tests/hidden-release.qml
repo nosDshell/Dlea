@@ -1,17 +1,17 @@
-//@ pragma ShellId flea-hidden-release-test
+//@ pragma ShellId dlea-hidden-release-test
 import QtQuick
 import QtTest
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
-import "flea/js/Focus.js" as Focus
-import "flea/js/Mounts.js" as Mounts
+import "dlea" as Dlea
+import "dlea/js/Focus.js" as Focus
+import "dlea/js/Mounts.js" as Mounts
 
 // A release in flight outlives the surface that asked for it: the real window, PaneRail and DeviceMounts against slow gio doubles.
 ShellRoot {
     id: root
     readonly property var pane: body.currentPane
-    readonly property string box: Quickshell.env("FLEA_HR_BOX")
+    readonly property string box: Quickshell.env("DLEA_HR_BOX")
     readonly property string home: Quickshell.env("HOME")
     property int checks: 0
     property int failures: 0
@@ -82,7 +82,7 @@ ShellRoot {
         id: window
         implicitWidth: 1000
         implicitHeight: 650
-        Flea.WindowBody { id: body; host: window }
+        Dlea.WindowBody { id: body; host: window }
         Item { anchors.fill: parent; TestEvent { id: driver } }
     }
     Connections {
@@ -110,7 +110,7 @@ ShellRoot {
 
     readonly property var steps: [
         function () { return until("the first listing", ready(at("Data"))) },
-        function () { Flea.ViewState.changeLeaf("places", { rail: "hidden" }); return true },
+        function () { Dlea.ViewState.changeLeaf("places", { rail: "hidden" }); return true },
         // A fixed volume has no Eject, so Ctrl+E unmounts it, and the hidden rail's own host carries the unmount.
         function () {
             if (!until("the rail to hide", pane.sidebar === null)) return false
@@ -187,8 +187,8 @@ ShellRoot {
             if (!until("the host to unload after the slow unmount", root.find(pane, "DeviceMounts") === null)) return false
             pane.open(root.home)
             // Auto-hide first, so the rail never shows for a moment and builds a Sidebar that the next change destroys.
-            Flea.ViewState.changeLeaf("places", { autoHide: true })
-            Flea.ViewState.changeLeaf("places", { rail: "shown" })
+            Dlea.ViewState.changeLeaf("places", { autoHide: true })
+            Dlea.ViewState.changeLeaf("places", { rail: "shown" })
             return true
         },
         // An auto-hide rail that withdraws mid-unmount keeps its Sidebar until the unmount ends.
@@ -215,8 +215,8 @@ ShellRoot {
         },
         // A docked rail hidden with Ctrl+B mid-unmount keeps its Sidebar, undrawn, until the unmount ends.
         function () {
-            Flea.ViewState.changeLeaf("places", { autoHide: false })
-            Flea.ViewState.changeLeaf("places", { rail: "shown" })
+            Dlea.ViewState.changeLeaf("places", { autoHide: false })
+            Dlea.ViewState.changeLeaf("places", { rail: "shown" })
             return true
         },
         function () {
@@ -237,7 +237,7 @@ ShellRoot {
             var held = root.find(pane, "Sidebar")
             check("a docked rail hidden mid-unmount keeps its Sidebar, still unmounting", held !== null && held.releasing, true)
             check("undrawn, with no width and no inset", (held ? held.visible : "no Sidebar") + "|" + pane.sidebarWidth + "|" + pane.railInset, "false|0|0")
-            check("and the rail stays hidden", Flea.ViewState.railHidden, true)
+            check("and the rail stays hidden", Dlea.ViewState.railHidden, true)
             root.press(Qt.Key_B, Qt.ControlModifier)
             return true
         },
@@ -262,7 +262,7 @@ ShellRoot {
             if (!until("the held Sidebar to go", root.find(pane, "Sidebar") === null)) return false
             check("the held unmount's refusal lands once, naming the volume", root.errors.length + "|" + (root.errors.length > 0 && root.errors[0].indexOf("Held") >= 0), "1|true")
             check("and the status bar lists it once", root.barErrors("Held"), 1)
-            check("and the rail is still hidden once the hold ends", Flea.ViewState.railHidden, true)
+            check("and the rail is still hidden once the hold ends", Dlea.ViewState.railHidden, true)
             return true
         }
     ]

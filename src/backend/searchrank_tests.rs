@@ -377,23 +377,23 @@ fn search_typo_rows_answer_only_a_query_no_basename_holds() {
     let scope = dir.path().to_str().unwrap();
     let mut session = Session::open_sync(scope, scope, false);
     let mut index = Index::new();
-    for path in ["notes/flea.txt", "Flea-notes.md", "audio-flac.flac", "fleet.txt", "flex.rs", "flame.png", "src/render_frame.rs"] {
+    for path in ["notes/dlea.txt", "Dlea-notes.md", "audio-flac.flac", "fleet.txt", "flex.rs", "flame.png", "src/render_frame.rs"] {
         assert!(index.push(path, false));
     }
     *session.index.lock().unwrap() = index;
     let (mut gen, mut seen) = (0, Seen::default());
-    for (query, want) in [("flea", &["Flea-notes.md", "notes/flea.txt"][..]), ("frame", &["src/render_frame.rs"]), ("flae", &["notes/flea.txt", "fleet.txt"])] {
+    for (query, want) in [("dlea", &["Dlea-notes.md", "notes/dlea.txt"][..]), ("frame", &["src/render_frame.rs"]), ("flae", &["notes/dlea.txt", "fleet.txt"])] {
         check(&mut session, &mut gen, query, CHUNK, &mut seen);
         let files: Vec<_> = reference(&session, query).order.into_iter().filter(|(_, dir)| !dir).map(|(path, _)| path).collect();
         let typo = files.iter().filter(|path| !want.iter().any(|name| path.ends_with(name))).count();
         assert!(want.iter().all(|name| files.iter().any(|path| path.ends_with(name))), "{query:?} lists {want:?}: {files:?}");
         assert!(query == "flae" || typo == 0, "{query:?} lists no typo row beside its real hits: {files:?}");
     }
-    // A mid-word dropped letter leaves "flea" a shadow of "flac": never listed, still kept for narrowing.
+    // A mid-word dropped letter leaves "dlea" a shadow of "flac": never listed, still kept for narrowing.
     let mut index = Index::new();
     for path in ["audio-flac.flac", "music/song.flac"] { assert!(index.push(path, false)); }
     *session.index.lock().unwrap() = index;
-    check(&mut session, &mut gen, "flea", CHUNK, &mut seen);
-    let answer = session.query(gen + 1, "flea", CHUNK).unwrap();
+    check(&mut session, &mut gen, "dlea", CHUNK, &mut seen);
+    let answer = session.query(gen + 1, "dlea", CHUNK).unwrap();
     assert_eq!((answer.total, session.last_matches.len()), (0, 2), "shadow rows are kept for narrowing and never listed");
 }

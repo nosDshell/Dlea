@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Buttons.js" as Buttons
 import "js/Protocols.js" as Protocols
 
@@ -200,7 +200,7 @@ Column {
 
         Repeater {
             model: Protocols.PROTOCOLS
-            delegate: Flea.ProtocolChip {
+            delegate: Dlea.ProtocolChip {
                 required property string modelData
                 label: modelData
                 picked: root.protocol === modelData
@@ -210,7 +210,7 @@ Column {
         }
     }
 
-    Flea.DialogField {
+    Dlea.DialogField {
         id: labelField
         width: parent.width
         label: "Label"
@@ -223,7 +223,7 @@ Column {
         width: parent.width
         spacing: Style.space(10)
 
-        Flea.DialogField {
+        Dlea.DialogField {
             id: hostField
             width: (parent.width - parent.spacing) / 2
             label: "Host"
@@ -231,7 +231,7 @@ Column {
             onTabbed: function (from, back) { root.step(from, back ? -1 : 1) }
         }
 
-        Flea.DialogField {
+        Dlea.DialogField {
             width: hostField.width
             id: portField
             label: "Port"
@@ -241,7 +241,7 @@ Column {
     }
 
     // Share, Path or Export: the row is the same, the thing it names is not.
-    Flea.DialogField {
+    Dlea.DialogField {
         id: pathField
         width: parent.width
         label: root.spec.pathLabel
@@ -249,7 +249,7 @@ Column {
         onTabbed: function (from, back) { root.step(from, back ? -1 : 1) }
     }
 
-    Flea.DialogField {
+    Dlea.DialogField {
         id: domainField
         width: parent.width
         visible: root.spec.domain
@@ -259,7 +259,7 @@ Column {
         onTabbed: function (from, back) { root.step(from, back ? -1 : 1) }
     }
 
-    Flea.DialogField {
+    Dlea.DialogField {
         id: userField
         width: parent.width
         visible: root.spec.credentials
@@ -269,7 +269,7 @@ Column {
         onTabbed: function (from, back) { root.step(from, back ? -1 : 1) }
     }
 
-    Flea.DialogField {
+    Dlea.DialogField {
         id: passwordField
         width: parent.width
         visible: root.spec.credentials
@@ -332,7 +332,7 @@ Column {
             border.color: root.tls ? Theme.color.accent
                                    : (tlsRow.focused ? Theme.color.foreground : Theme.color.mutedFrame)
 
-            Flea.Glyph {
+            Dlea.Glyph {
                 anchors.fill: parent
                 visible: root.tls
                 name: "check"
@@ -378,7 +378,7 @@ Column {
                 contentHeight: sentence.implicitHeight
                 flickableDirection: Flickable.HorizontalFlick
                 boundsBehavior: Flickable.StopAtBounds
-                Flea.FastScrollHandler {
+                Dlea.FastScrollHandler {
                     parent: sentenceFlick
                     flickable: sentenceFlick
                 }

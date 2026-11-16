@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/QuickLookKinds.js" as LookKinds
 
 // What Quick Look's first Space needs before it opens: the rested file's prepared entry and held pictures, the compiled units, and the card itself built closed.
@@ -57,7 +57,7 @@ Item {
     // Quick Look's own unit is held and the cursor has rested on a file whose kind has a unit: the first landing on a new kind holds its unit. A move clears rested, so a held key compiles none.
     readonly property bool kindDue: root.previewUnit !== null && prepare.rested && root.kindUnit !== ""
     onKindDueChanged: if (root.kindDue) root.holdKind()
-    Flea.QuickLookPrepare { id: prepare; pane: root.pane; resting: root.resting }
+    Dlea.QuickLookPrepare { id: prepare; pane: root.pane; resting: root.resting }
     // The card Quick Look opens; resting reads it so a rest never prepares over an open card.
     readonly property var look: root.pane ? root.pane.preview : null
     // The cursor is already on its file when this is built, so the first rest starts here and not on a move.

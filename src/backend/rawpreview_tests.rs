@@ -81,7 +81,7 @@ fn a_raw_extracts_once_per_mtime_and_again_when_it_changes() {
 #[test]
 fn the_copy_is_private_and_a_leftover_temp_does_not_survive() {
     let d = TestDir::new("rawprev-mode");
-    let cache = d.join("cache").join("flea").join("raw");
+    let cache = d.join("cache").join("dlea").join("raw");
     let got = ensure_in(&cache, &raw_with(&d, "c.cr2", &jpeg(640, 480), None)).expect("a preview");
     assert_eq!(std::fs::metadata(&got.file).unwrap().permissions().mode() & 0o777, FILE_MODE);
     assert_eq!(std::fs::metadata(&cache).unwrap().permissions().mode() & 0o777, DIR_MODE);
@@ -176,7 +176,7 @@ fn tables(d: &TestDir, png: &[u8]) -> Tables {
 
 // Where the route puts its copies in a test: inside the sandbox, never the user's cache.
 fn raw_dir(d: &TestDir) -> PathBuf {
-    d.join("cache").join("flea").join("raw")
+    d.join("cache").join("dlea").join("raw")
 }
 
 #[test]

@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-run-card-sink-test
+//@ pragma ShellId dlea-run-card-sink-test
 import QtQuick
 import Quickshell
 import Quickshell.Io
 import QtTest
-import "flea" as Flea
+import "dlea" as Dlea
 import "qml-probe.js" as QmlProbe
 
 // tests/run-card-sink.sh's harness: the real ui/RunCard.qml over a stub pane, offscreen.
@@ -51,7 +51,7 @@ ShellRoot {
         Item {
             id: holder
             anchors.fill: parent
-            Flea.RunCard { id: card }
+            Dlea.RunCard { id: card }
         }
         TestEvent { id: driver }
     }

@@ -1,4 +1,4 @@
-//! `flea --action <id> [--window <pid>]` and `flea --actions [--window <pid>]`: one request on the window's IPC socket.
+//! `dlea --action <id> [--window <pid>]` and `dlea --actions [--window <pid>]`: one request on the window's IPC socket.
 use super::{
     client, endpoint,
     wire::{Reply, Request},
@@ -26,7 +26,7 @@ pub struct Options {
 fn usage() -> Reply {
     Reply::error(
         USAGE,
-        "usage: flea --action <id> [--window <pid>] | flea --actions [--window <pid>]",
+        "usage: dlea --action <id> [--window <pid>] | dlea --actions [--window <pid>]",
     )
 }
 
@@ -47,7 +47,7 @@ pub fn parse(arguments: &[String]) -> Result<Options, Reply> {
             pid.parse::<u32>()
                 .ok()
                 .filter(|pid| *pid > 0 && *pid <= i32::MAX as u32)
-                .ok_or_else(|| Reply::error(USAGE, "flea: --window needs a window's process id"))?,
+                .ok_or_else(|| Reply::error(USAGE, "dlea: --window needs a window's process id"))?,
         ),
         _ => return Err(usage()),
     };
@@ -58,7 +58,7 @@ pub fn parse(arguments: &[String]) -> Result<Options, Reply> {
     Ok(Options {
         window,
         request: Request::Call {
-            target: "flea".into(),
+            target: "dlea".into(),
             function: function.into(),
             arguments,
         },
@@ -66,7 +66,7 @@ pub fn parse(arguments: &[String]) -> Result<Options, Reply> {
 }
 
 /// The Hyprland client pids from most to least recently focused, read off `hyprctl -j clients`.
-// Sample input: [{"address":"0x55d1","pid":4242,"class":"com.thisisgm.flea","focusHistoryID":0}, ...]
+// Sample input: [{"address":"0x55d1","pid":4242,"class":"com.nosDshell.dlea","focusHistoryID":0}, ...]
 pub fn focus_order(clients: &str) -> Vec<u32> {
     let Ok(Json::Arr(clients)) = jsondoc::parse(clients) else {
         return Vec::new();
@@ -122,7 +122,7 @@ fn compositor_clients() -> Option<String> {
         .flatten()
 }
 
-/// The named window, else the most recently focused Flea window, else the newest one when the compositor cannot say.
+/// The named window, else the most recently focused Dlea window, else the newest one when the compositor cannot say.
 pub fn choose(
     windows: &[(u32, PathBuf)],
     named: Option<u32>,
@@ -136,7 +136,7 @@ pub fn choose(
             .ok_or_else(|| {
                 Reply::error(
                     NO_WINDOW,
-                    format!("flea: no running Flea window has process id {pid}"),
+                    format!("dlea: no running Dlea window has process id {pid}"),
                 )
             });
     }
@@ -148,7 +148,7 @@ pub fn choose(
         .ok_or_else(|| {
             Reply::error(
                 NO_WINDOW,
-                "flea: no Flea window is running, so there is nothing to run the action in",
+                "dlea: no Dlea window is running, so there is nothing to run the action in",
             )
         })
 }
@@ -177,7 +177,7 @@ fn checked(listing: bool, reply: Reply) -> Reply {
     if answer == "Function not found." {
         return Reply::error(
             UNAVAILABLE,
-            "flea: that window is an older Flea that cannot run actions",
+            "dlea: that window is an older Dlea that cannot run actions",
         );
     }
     let said = if reply.stderr.trim().is_empty() {
@@ -197,7 +197,7 @@ fn checked(listing: bool, reply: Reply) -> Reply {
     };
     Reply::error(
         UNAVAILABLE,
-        format!("flea: the window could not {what}: {said}"),
+        format!("dlea: the window could not {what}: {said}"),
     )
 }
 
@@ -217,12 +217,12 @@ fn exchange_failed(path: &Path, error: io::Error) -> Reply {
     if gone {
         Reply::error(
             NO_WINDOW,
-            "flea: no Flea window is running, so there is nothing to run the action in",
+            "dlea: no Dlea window is running, so there is nothing to run the action in",
         )
     } else {
         Reply::error(
             UNAVAILABLE,
-            format!("flea: the window did not answer: {error}"),
+            format!("dlea: the window did not answer: {error}"),
         )
     }
 }
@@ -233,7 +233,7 @@ pub fn execute(root: &Path, options: &Options, focus: impl FnOnce() -> Vec<u32>)
         Err(error) => {
             return Reply::error(
                 NO_WINDOW,
-                format!("flea: the window sockets could not be read: {error}"),
+                format!("dlea: the window sockets could not be read: {error}"),
             )
         }
     };
@@ -263,7 +263,7 @@ pub fn run(arguments: &[String]) -> i32 {
             }),
             Err(error) => Reply::error(
                 NO_WINDOW,
-                format!("flea: the window sockets could not be read: {error}"),
+                format!("dlea: the window sockets could not be read: {error}"),
             ),
         },
     };

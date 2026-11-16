@@ -2,14 +2,14 @@ import QtQuick
 import Quickshell.Io
 import "Run.js" as Run
 
-// The doing half of the shelf. Actions rule 1: every action is a `flea shelf` call, so this starts
+// The doing half of the shelf. Actions rule 1: every action is a `dlea shelf` call, so this starts
 // processes and parses their lines and knows nothing else about files.
 Item {
   id: root
   visible: false
 
-  // The flea that owns the pile, which the service resolved from the plugin's own setting.
-  property string fleaCommand: "flea"
+  // The dlea that owns the pile, which the service resolved from the plugin's own setting.
+  property string dleaCommand: "dlea"
   property var run: Run.idle()
   signal landed(string sentence)
   // An action asked for while one is already running: the card says so rather than losing it.
@@ -34,7 +34,7 @@ Item {
     root.runDest = dest
     root.runFailed = 0
     root.runError = ""
-    action.command = [root.fleaCommand, "shelf", moving ? "move" : "copy", dest].concat(paths)
+    action.command = [root.dleaCommand, "shelf", moving ? "move" : "copy", dest].concat(paths)
     action.running = true
   }
 
@@ -48,7 +48,7 @@ Item {
     }
     root.runVerb = "Zipped"
     root.runDest = String(paths.length)
-    action.command = [root.fleaCommand, "shelf", "zip", date].concat(paths)
+    action.command = [root.dleaCommand, "shelf", "zip", date].concat(paths)
     action.running = true
   }
 
@@ -64,7 +64,7 @@ Item {
     root.runDest = peer
     // What this send handed over, which is the chosen rows and not the whole pile.
     root.sending = paths.length
-    action.command = [root.fleaCommand, "shelf", "send", peer].concat(paths)
+    action.command = [root.dleaCommand, "shelf", "send", peer].concat(paths)
     action.running = true
   }
 
@@ -73,7 +73,7 @@ Item {
     if (stop.running) {
       return
     }
-    stop.command = [root.fleaCommand, "shelf", "cancel"]
+    stop.command = [root.dleaCommand, "shelf", "cancel"]
     stop.running = true
   }
 
@@ -149,7 +149,7 @@ Item {
     root.cancelled = false
   }
 
-  // The flyouts' own rows: Flea's places, and Taildrop's peers.
+  // The flyouts' own rows: Dlea's places, and Taildrop's peers.
   property var places: []
   property var peers: []
   // Actions rule 3: unavailable by configuration disappears, so a box whose peers call fails has
@@ -160,7 +160,7 @@ Item {
     if (placeList.running) {
       return
     }
-    placeList.command = [root.fleaCommand, "shelf", "places"]
+    placeList.command = [root.dleaCommand, "shelf", "places"]
     placeList.running = true
   }
 
@@ -168,7 +168,7 @@ Item {
     if (peerList.running) {
       return
     }
-    peerList.command = [root.fleaCommand, "shelf", "peers"]
+    peerList.command = [root.dleaCommand, "shelf", "peers"]
     peerList.running = true
   }
 
@@ -182,7 +182,7 @@ Item {
     stderr: StdioCollector { waitForEnd: true }
     onExited: function (code) {
       if (code !== 0) {
-        root.refused("Flea could not list its places.")
+        root.refused("Dlea could not list its places.")
       }
     }
   }
@@ -198,14 +198,14 @@ Item {
     onExited: function (code) { root.peerable = code === 0 }
   }
 
-  // The chooser, which is Flea's own picker: it answers with a directory or with nothing.
+  // The chooser, which is Dlea's own picker: it answers with a directory or with nothing.
   signal browsed(string dest)
 
   function choose(title, start) {
     if (chooser.running) {
       return
     }
-    chooser.command = [root.fleaCommand, "shelf", "choose", title, start]
+    chooser.command = [root.dleaCommand, "shelf", "choose", title, start]
     chooser.running = true
   }
 
@@ -236,7 +236,7 @@ Item {
       return
     }
     clipper.count = paths.length
-    clipper.command = [root.fleaCommand, "shelf", "clip"].concat(paths)
+    clipper.command = [root.dleaCommand, "shelf", "clip"].concat(paths)
     clipper.running = true
   }
 

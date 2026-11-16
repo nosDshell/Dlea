@@ -1,4 +1,4 @@
-//@ pragma ShellId flea-search-calib
+//@ pragma ShellId dlea-search-calib
 
 import QtQuick
 import Quickshell

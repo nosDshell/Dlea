@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-hiddenlast-views-test
+//@ pragma ShellId dlea-hiddenlast-views-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // "Hidden files last" orders one folder the same way through every request a view sends, on the real backend: a pane's list and sort, a column's peek, then the chooser's list and its header sort, with the setting on and then off in one run.
 ShellRoot {
@@ -60,7 +60,7 @@ ShellRoot {
         ]
     }
 
-    Flea.Backend { id: be }
+    Dlea.Backend { id: be }
 
     Connections {
         target: be
@@ -73,7 +73,7 @@ ShellRoot {
     }
 
     Component.onCompleted: {
-        var comp = Qt.createComponent("flea/PickerWindow.qml")
+        var comp = Qt.createComponent("dlea/PickerWindow.qml")
         if (comp.status !== Component.Ready) {
             console.log("HLV FAIL compile " + comp.errorString())
             Qt.exit(1)
@@ -81,7 +81,7 @@ ShellRoot {
         }
         root.win = comp.createObject(root).pickerWin
         // The chooser's header sort writes the default sort and keeps its own until the window closes, so the second pass puts both back before it lists.
-        root.steps = root.setting(true).concat([{ label: "setting off and the default sort back", start: function () { Flea.ViewState.changeKey("hiddenLast", false); Flea.ViewState.changeLeaf("sort", { key: "name", reverse: false }); root.win.requestSort({ key: "name", desc: false }) }, read: function () { return root.win.sortDesc ? null : root.pickerRows() } }], root.setting(false))
+        root.steps = root.setting(true).concat([{ label: "setting off and the default sort back", start: function () { Dlea.ViewState.changeKey("hiddenLast", false); Dlea.ViewState.changeLeaf("sort", { key: "name", reverse: false }); root.win.requestSort({ key: "name", desc: false }) }, read: function () { return root.win.sortDesc ? null : root.pickerRows() } }], root.setting(false))
         root.armedAt = Date.now()
     }
 

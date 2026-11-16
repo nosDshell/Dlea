@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # A Tags flyout choice toggles in place and leaves the menu and flyout open, and Copy as still closes; the real pane and backend, offscreen, no display or lock.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -10,10 +10,10 @@ if ! command -v qs >/dev/null; then
     exit 1
 fi
 command -v dbus-run-session >/dev/null || { echo 'FAIL tagflyout needs private D-Bus'; exit 1; }
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [[ -x "$bin" ]] || { echo 'FAIL tagflyout needs the candidate backend'; exit 1; }
 
-test_root="$FIXTURE_ROOT/flea-tagflyout-$$"
+test_root="$FIXTURE_ROOT/dlea-tagflyout-$$"
 sandbox_make "$test_root"
 cleanup() { sandbox_remove "$test_root"; }
 trap cleanup EXIT
@@ -32,17 +32,17 @@ assert os.getxattr(sys.argv[1], "user.xdg.tags") == b"Blue"
 PY
 env HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" "$bin" --ui-state \
     '{"view":"list","keys":"default","preview":{"column":false,"thumbnails":"off"},"updates":{"autoCheck":false},"display":{"textSize":{"mode":14}}}' >/dev/null || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
-ln -s "$PWD/ui/boot/fleatab.qml" "$test_root/config/fleatab.qml" || exit 1
+ln -s "$PWD/ui/boot/dleatab.qml" "$test_root/config/dleatab.qml" || exit 1
 cp tests/tagflyout.qml "$test_root/config/shell.qml" || exit 1
 
-output=$(env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u FLEA_SELECT \
+output=$(env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u DLEA_SELECT \
     HOME="$test_root/home" XDG_STATE_HOME="$test_root/state" XDG_CONFIG_HOME="$test_root/config" \
     XDG_DATA_HOME="$test_root/data" XDG_CACHE_HOME="$test_root/cache" XDG_RUNTIME_DIR="$test_root/runtime" \
-    FLEA_PATH="$test_root/home/fixture" FLEA_BIN="$bin" GIO_USE_VOLUME_MONITOR=unix QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
+    DLEA_PATH="$test_root/home/fixture" DLEA_BIN="$bin" GIO_USE_VOLUME_MONITOR=unix QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic \
     QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
     timeout 60 dbus-run-session -- qs -p "$test_root/config" 2>&1)
 status=$?

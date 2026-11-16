@@ -1,14 +1,14 @@
 // Kept scanner reuse, panic recovery and bounded retries on a held device.
 use super::*;
 use crate::backend::quietpanic;
-use crate::error::FleaError;
+use crate::error::DleaError;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread;
 use std::time::Duration;
 
 fn refused(path: &str) -> Result<ListOut, ListErr> {
     Err(ListErr {
-        error: FleaError {
+        error: DleaError {
             where_: "scan".into(),
             path: path.into(),
             msg: "refused".into(),

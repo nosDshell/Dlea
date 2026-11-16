@@ -127,7 +127,7 @@ fn failed_write(_: &mut Child, _: &str) -> std::io::Result<()> {
 }
 
 // A shell stub through the production jail path, its stdin write failing as a child that left early makes it.
-fn run_stub_unread(shell: &str) -> Result<Option<SevenFailure>, FleaError> {
+fn run_stub_unread(shell: &str) -> Result<Option<SevenFailure>, DleaError> {
     let d = TestDir::new("archpwunread");
     let mut work = Work::new(d.path(), "arc").expect("work dir");
     let inner = vec!["/usr/bin/sh".to_string(), "-c".to_string(), shell.to_string()];
@@ -247,7 +247,7 @@ fn the_proc_scan_sees_a_secret_that_is_in_argv() {
     use std::io::BufRead;
     let marker = format!("f039-control-{}-{}", std::process::id(), STUBS.fetch_add(1, Ordering::SeqCst));
     // The trailing `true` stops dash from exec'ing cat in sh's place, which would take the marker out of the cmdline.
-    let mut child = std::process::Command::new(flea::testpath::tool("/usr/bin/sh"))
+    let mut child = std::process::Command::new(dlea::testpath::tool("/usr/bin/sh"))
         .args(["-c", &format!(": {} control-secret-1006; echo up; cat; true", marker)])
         .stdin(Stdio::piped()).stdout(Stdio::piped()).spawn().expect("sh");
     let mut up = String::new();

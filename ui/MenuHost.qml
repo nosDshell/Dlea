@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Menu.js" as Menu
 import "js/MenuContext.js" as MenuContext
 
@@ -180,7 +180,7 @@ Item {
     function listingContext(flyoutAction, includeHidden) {
         if (root.item) return root.item.listingContext(flyoutAction, includeHidden)
         return MenuContext.listingContext(root, flyoutAction, includeHidden, {
-            scripts: Flea.Scripts.entries, hiddenActions: ViewState.menuHidden,
+            scripts: Dlea.Scripts.entries, hiddenActions: ViewState.menuHidden,
             langMarks: ViewState.langMarks,
             thumbPreview: ViewState.preview, updateVersion: UpdateCheck.menuVersion
         })

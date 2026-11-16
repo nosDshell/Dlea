@@ -1,15 +1,15 @@
-//@ pragma ShellId flea-preview-geometry-test
+//@ pragma ShellId dlea-preview-geometry-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // The preview geometry gate (AGENTS.md "The preview swap"); tests/preview-geometry.sh drives it.
 ShellRoot {
     id: root
 
-    readonly property string dir: Quickshell.env("FLEA_PREVIEW_GEOMETRY_DIR")
-    readonly property string out: Quickshell.env("FLEA_PREVIEW_GEOMETRY_OUT")
+    readonly property string dir: Quickshell.env("DLEA_PREVIEW_GEOMETRY_DIR")
+    readonly property string out: Quickshell.env("DLEA_PREVIEW_GEOMETRY_OUT")
     property var failures: []
     property int index: 0
     property int waited: 0
@@ -66,14 +66,14 @@ ShellRoot {
         implicitHeight: 1560
         color: "black"
 
-        Flea.PreviewColumn {
+        Dlea.PreviewColumn {
             id: colWide
             x: 10
             y: 10
             width: 760
             height: 860
         }
-        Flea.PreviewColumn {
+        Dlea.PreviewColumn {
             id: colNarrow
             x: 780
             y: 10
@@ -86,7 +86,7 @@ ShellRoot {
             y: 880
             width: 800
             height: 600
-            Flea.PreviewImage {
+            Dlea.PreviewImage {
                 id: qlWideImage
                 anchors.fill: parent
             }
@@ -97,7 +97,7 @@ ShellRoot {
             y: 880
             width: 400
             height: 300
-            Flea.PreviewImage {
+            Dlea.PreviewImage {
                 id: qlNarrowImage
                 anchors.fill: parent
             }

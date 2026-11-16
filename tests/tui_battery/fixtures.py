@@ -202,7 +202,7 @@ def discard(root):
 def build(case, family, source=None, dry=False, tmpfs=TMPFS):
     """The case's fixture, built in its own marked root on tmpfs; retain copies it into the case once the terminal is closed."""
     Owned(case)
-    root = Path(tempfile.mkdtemp(prefix="flea-battery-fx.", dir=tmpfs))
+    root = Path(tempfile.mkdtemp(prefix="dlea-battery-fx.", dir=tmpfs))
     (root / MARKER).write_text(f"battery fixture {os.getpid()}\n")
     try:
         fx = Owned(root).directory("fx")
@@ -280,11 +280,11 @@ def namespace(binary, fx, cwd, environment, tool_policy=None, cups_server=None, 
     for path in ("/usr", "/bin", "/lib", "/lib64", "/etc"):
         if Path(path).exists():
             argv += ["--ro-bind", path, path]
-    # Without the system font cache, fc-list outlasts Flea's 150 ms icon probe (src/tui/icons.rs) and draws text marks.
+    # Without the system font cache, fc-list outlasts Dlea's 150 ms icon probe (src/tui/icons.rs) and draws text marks.
     if os.path.isdir(FONT_CACHE):
         argv += ["--ro-bind", FONT_CACHE, FONT_CACHE]
     argv += ["--proc", "/proc", "--dev", "/dev", "--ro-bind", "/sys", "/sys",
-             "--dir", "/opt", "--ro-bind", str(binary), "/opt/flea", "--bind", str(fx), "/fx",
+             "--dir", "/opt", "--ro-bind", str(binary), "/opt/dlea", "--bind", str(fx), "/fx",
              "--bind", str(fx / "tmp"), "/tmp", "--clearenv"]
     env = {"PATH": "/fx/tools:/usr/bin:/bin", "HOME": "/fx/home", "XDG_CONFIG_HOME": "/fx/config",
            "XDG_DATA_HOME": "/fx/data", "XDG_STATE_HOME": "/fx/state", "XDG_CACHE_HOME": "/fx/cache",
@@ -302,4 +302,4 @@ def namespace(binary, fx, cwd, environment, tool_policy=None, cups_server=None, 
         env["PATH"] = policy["PATH"]
     for key, value in env.items():
         argv += ["--setenv", key, value]
-    return argv + ["--chdir", cwd, "/opt/flea"] + (["--tui", cwd] if arguments is None else list(arguments))
+    return argv + ["--chdir", cwd, "/opt/dlea"] + (["--tui", cwd] if arguments is None else list(arguments))

@@ -14,7 +14,7 @@ from . import test_review_r4 as r4
 class Review5Tests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        parent = Path(os.environ.get("FLEA_BATTERY_TEST_ROOT", Path(__file__).resolve().parents[2] / ".superpowers/t12a"))
+        parent = Path(os.environ.get("DLEA_BATTERY_TEST_ROOT", Path(__file__).resolve().parents[2] / ".superpowers/t12a"))
         cls.root = Path(tempfile.mkdtemp(prefix="review-r5.", dir=parent))
         (cls.root / MARKER).write_text("Chafa polite-mode regression\n")
 

@@ -1,4 +1,4 @@
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::{
     editor::Editor,
     input::Key,
@@ -470,7 +470,7 @@ pub(super) fn act(m: &mut Model, action: &str, w: &mut Wire) -> io::Result<()> {
         "search" | "searchContents" => {
             m.find.mode = action == "searchContents";
             if m.find.mode {
-                m.find.session.scope = flea::ui_logic_file_search::Scope::Folder;
+                m.find.session.scope = dlea::ui_logic_file_search::Scope::Folder;
             }
             let folder = m.search_from.clone().unwrap_or_else(|| m.path.clone());
             m.editor = Some(Editor::new("search", String::new(), folder));
@@ -478,7 +478,7 @@ pub(super) fn act(m: &mut Model, action: &str, w: &mut Wire) -> io::Result<()> {
         "reload" => m.refresh(w)?,
         "goHome" | "goConfig" | "goDownloads" => {
             let home = std::env::var_os("HOME")
-                .map(flea::bytename::exact)
+                .map(dlea::bytename::exact)
                 .filter(|p| p.is_absolute());
             if let Some(home) = home {
                 let path = match action {
@@ -624,7 +624,7 @@ pub(super) fn act(m: &mut Model, action: &str, w: &mut Wire) -> io::Result<()> {
             let child = super::terminal::launch(&m.path, action == "windowNew")?;
             m.launched(
                 if action == "windowNew" {
-                    "tui.actions.new_flea_window"
+                    "tui.actions.new_dlea_window"
                 } else {
                     "keys.action.openTerminal"
                 },
@@ -913,7 +913,7 @@ pub(super) fn send_find(
     count: usize,
     wire: &mut Wire,
 ) -> io::Result<()> {
-    use flea::ui_logic_file_search::Request;
+    use dlea::ui_logic_file_search::Request;
     if ask.contents {
         super::contents::send(
             wire,

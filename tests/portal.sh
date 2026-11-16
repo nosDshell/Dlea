@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Drives tools/flea-portal over a real D-Bus round trip and asserts what the handler decoded.
+# Drives tools/dlea-portal over a real D-Bus round trip and asserts what the handler decoded.
 #
 # The defect this exists for looked correct in isolation. path_option() gated on
 # isinstance(value, bytes), and PyGObject 3.56.3 on Python 3.14 unpacks a D-Bus `ay` as a list of
@@ -8,28 +8,28 @@
 # own 600 s timeout. A synthetic GLib.Variant unpack proves the shape and nothing else; only a call
 # arriving over a bus proves the handler, which is why this suite exists rather than a unit test.
 #
-# No window opens: FLEA_BIN names a stub that records the request and writes the reply, which is the
-# seam tools/flea-portal already reads. The bus is a private one this suite starts and takes with it,
+# No window opens: DLEA_BIN names a stub that records the request and writes the reply, which is the
+# seam tools/dlea-portal already reads. The bus is a private one this suite starts and takes with it,
 # so the operator's own chooser routing is never touched and no D-Bus service file is written.
 set -u
 set -o pipefail
 
 # The re-exec comes before everything, including the guard: every case needs a session bus and this
 # suite must never borrow the operator's, where owning the backend's name would shadow the real one.
-if [ -z "${FLEA_PORTAL_PRIVATE_BUS:-}" ]; then
+if [ -z "${DLEA_PORTAL_PRIVATE_BUS:-}" ]; then
     command -v dbus-run-session >/dev/null 2>&1 || {
         printf 'portal.sh: dbus-run-session is missing, and this suite will not run on the session bus\n' >&2
         exit 1
     }
-    export FLEA_PORTAL_PRIVATE_BUS=1
+    export DLEA_PORTAL_PRIVATE_BUS=1
     exec dbus-run-session -- "$0" "$@"
 fi
 
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete below.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
-backend=tools/flea-portal
+backend=tools/dlea-portal
 [ -f "$backend" ] || { printf 'portal.sh: %s is missing, refusing to report on nothing\n' "$backend" >&2; exit 1; }
 python3 -c 'import gi; gi.require_version("Gio", "2.0")' 2>/dev/null || {
     printf 'portal.sh: python-gobject is missing, which is the backend the suite drives\n' >&2
@@ -37,7 +37,7 @@ python3 -c 'import gi; gi.require_version("Gio", "2.0")' 2>/dev/null || {
 }
 python3 tests/portal-labels.py || exit 1
 
-dir="$FIXTURE_ROOT/flea-portal-$$"
+dir="$FIXTURE_ROOT/dlea-portal-$$"
 # The one child this suite starts, so the one it may signal: the pid came from its own spawn.
 portal=0
 cleanup() {
@@ -55,15 +55,15 @@ capture="$dir/request.json"
 # The picker the backend spawns, standing in for the window: it records the request the backend
 # built and writes the reply the backend reads back. 1 is the user's own refusal, which carries no
 # URI, so every case here stays about the request and not about the answer.
-cat > "$dir/flea" <<'STUB'
+cat > "$dir/dlea" <<'STUB'
 #!/bin/sh
-printf '%s' "$FLEA_PICKER" > "$FLEA_PORTAL_CAPTURE"
-cat "$FLEA_PORTAL_ANSWER" > "$2"
+printf '%s' "$DLEA_PICKER" > "$DLEA_PORTAL_CAPTURE"
+cat "$DLEA_PORTAL_ANSWER" > "$2"
 STUB
-chmod +x "$dir/flea"
+chmod +x "$dir/dlea"
 
 # XDG_RUNTIME_DIR is where the backend's own mkdtemp goes, so it is pointed inside the sandbox.
-env FLEA_BIN="$dir/flea" FLEA_PORTAL_CAPTURE="$capture" FLEA_PORTAL_ANSWER="$dir/answer.json" XDG_RUNTIME_DIR="$dir/run" \
+env DLEA_BIN="$dir/dlea" DLEA_PORTAL_CAPTURE="$capture" DLEA_PORTAL_ANSWER="$dir/answer.json" XDG_RUNTIME_DIR="$dir/run" \
     python3 "$backend" > "$dir/portal.log" 2>&1 &
 portal=$!
 
@@ -80,7 +80,7 @@ check() {
   fi
 }
 
-out=$(env FLEA_PORTAL_CAPTURE="$capture" FLEA_PORTAL_FOLDER="$dir/folder" python3 - <<'ASK'
+out=$(env DLEA_PORTAL_CAPTURE="$capture" DLEA_PORTAL_FOLDER="$dir/folder" python3 - <<'ASK'
 import json
 import os
 import sys
@@ -91,15 +91,15 @@ import gi
 gi.require_version("Gio", "2.0")
 from gi.repository import Gio, GLib
 
-BACKEND = "org.freedesktop.impl.portal.desktop.flea"
+BACKEND = "org.freedesktop.impl.portal.desktop.dlea"
 OBJECT_PATH = "/org/freedesktop/portal/desktop"
 CHOOSER = "org.freedesktop.impl.portal.FileChooser"
 # A caller waits 600 s for a response; ten seconds is long enough to tell answered from never.
 CALL_TIMEOUT_MS = 10000
 READY_TIMEOUT_SEC = 15
 
-capture = os.environ["FLEA_PORTAL_CAPTURE"]
-folder = os.environ["FLEA_PORTAL_FOLDER"]
+capture = os.environ["DLEA_PORTAL_CAPTURE"]
+folder = os.environ["DLEA_PORTAL_FOLDER"]
 fixture = os.path.dirname(folder)
 last_results = {}
 bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
@@ -107,7 +107,7 @@ bus = Gio.bus_get_sync(Gio.BusType.SESSION, None)
 
 def guard(path):
     assert path and os.path.isabs(path)
-    assert os.path.isfile(os.path.join(fixture, ".flea-test-sandbox"))
+    assert os.path.isfile(os.path.join(fixture, ".dlea-test-sandbox"))
     assert os.path.commonpath([os.path.realpath(path), fixture]) == fixture and os.path.realpath(path) != fixture
     return path
 
@@ -137,7 +137,7 @@ def ask(method, options, token, answer=None):
         json.dump({"response": 1} if answer is None else answer, output)
     with open(guard(capture), "w"):
         pass
-    handle = "%s/request/fleaportaltest/%s" % (OBJECT_PATH, token)
+    handle = "%s/request/dleaportaltest/%s" % (OBJECT_PATH, token)
     try:
         reply = bus.call_sync(BACKEND, OBJECT_PATH, CHOOSER, method,
                               GLib.Variant("(osssa{sv})", (handle, "portal.sh", "", "portal.sh", options)),
@@ -206,12 +206,12 @@ for token, answer in [
     code, req = ask("OpenFile", {}, token, answer)
     print("%s %s %s" % (token, code, last_results == {}))
 
-os.rename(guard(os.path.join(fixture, "flea")), guard(os.path.join(fixture, "flea-away")))
+os.rename(guard(os.path.join(fixture, "dlea")), guard(os.path.join(fixture, "dlea-away")))
 try:
     code, req = ask("OpenFile", {}, "launcher")
     print("launcher %s %s" % (code, last_results == {}))
 finally:
-    os.rename(guard(os.path.join(fixture, "flea-away")), guard(os.path.join(fixture, "flea")))
+    os.rename(guard(os.path.join(fixture, "dlea-away")), guard(os.path.join(fixture, "dlea")))
 os.rename(guard(os.path.join(fixture, "run")), guard(os.path.join(fixture, "run-away")))
 try:
     code, req = ask("OpenFile", {}, "runtime")

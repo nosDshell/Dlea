@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-gridnarrow-test
+//@ pragma ShellId dlea-gridnarrow-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // gridnarrow: a real ui/GridArea.qml keeps its drawn tiles and its cursor tile across a narrowing; tests/gridnarrow.sh drives it.
 ShellRoot {
@@ -107,9 +107,9 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 900
         implicitHeight: 500
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
-        Flea.GridArea {
+        Dlea.GridArea {
             id: grid
             width: 700
             height: 300

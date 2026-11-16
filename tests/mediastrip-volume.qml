@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-mediastrip-volume-test
+//@ pragma ShellId dlea-mediastrip-volume-test
 import QtQuick
 import Quickshell
 import Quickshell.Io
 import QtTest
-import "flea" as Flea
+import "dlea" as Dlea
 
 // tests/mediastrip-volume.sh's harness: the real ui/MediaStrip.qml, unframed and framed, over the real MediaSound and ViewState and a stub writer that logs each patch.
 ShellRoot {
@@ -22,8 +22,8 @@ ShellRoot {
     property var boxed: null
 
     readonly property int stripWidth: 640
-    readonly property int gap: Flea.Theme.spacing.gap
-    readonly property int slot: Math.max(Flea.Theme.hitMin, Flea.Theme.font.bodySmall)
+    readonly property int gap: Dlea.Theme.spacing.gap
+    readonly property int slot: Math.max(Dlea.Theme.hitMin, Dlea.Theme.font.bodySmall)
     // The level ui.json holds before the strip is built: the first frame has to draw this one.
     readonly property int storedLevel: Number(Quickshell.env("MEDIASTRIPVOL_STORED"))
 
@@ -73,7 +73,7 @@ ShellRoot {
             implicitWidth: 700
             implicitHeight: 300
             color: "#303030"
-            Flea.Preview {
+            Dlea.Preview {
                 id: preview
                 anchors.fill: parent
             }
@@ -83,7 +83,7 @@ ShellRoot {
 
     Component {
         id: stripComponent
-        Flea.MediaStrip {
+        Dlea.MediaStrip {
             width: shell.stripWidth
             position: 47000
             duration: 192000
@@ -112,7 +112,7 @@ ShellRoot {
 
     // The unframed strip builds with the stored level already on its track, in the call that creates it.
     function stepCreate() {
-        shell.check("setup: the stored level is what MediaSound reads", [Flea.MediaSound.volume, Flea.MediaSound.muted], [shell.storedLevel, false])
+        shell.check("setup: the stored level is what MediaSound reads", [Dlea.MediaSound.volume, Dlea.MediaSound.muted], [shell.storedLevel, false])
         // Text size 14 draws a 60 px track, where every multiple of 5 is a whole pixel; the lane's own Omarchy size would move the width under the legs.
         shell.pinTextSize(14)
         shell.boxed = stripComponent.createObject(holder, { framed: true, y: 100 })
@@ -154,11 +154,11 @@ ShellRoot {
     function stepGain() {
         var want = { 0: 0, 50: 0.150514997832, 75: 0.301029995664, 100: 1 }
         for (var level in want) {
-            Flea.MediaSound.setVolume(Number(level))
-            shell.near("gain: level " + level + " maps through the logarithmic scale", Flea.MediaSound.gain, want[level])
+            Dlea.MediaSound.setVolume(Number(level))
+            shell.near("gain: level " + level + " maps through the logarithmic scale", Dlea.MediaSound.gain, want[level])
         }
-        Flea.MediaSound.held = -1
-        shell.check("gain: no press down reads the stored level again", Flea.MediaSound.volume, shell.storedLevel)
+        Dlea.MediaSound.held = -1
+        shell.check("gain: no press down reads the stored level again", Dlea.MediaSound.volume, shell.storedLevel)
     }
 
     // A drag sets the level on every move, heard live, and stores nothing until the button is released.
@@ -169,20 +169,20 @@ ShellRoot {
         shell.check("drag: nothing was stored before the press", shell.saves().length, 0)
         shell.touches = 0
         driver.mousePress(track, xs[0], y, Qt.LeftButton, Qt.NoModifier, 0)
-        shell.check("drag: a press sets the level at the pointer", Flea.MediaSound.volume, shell.levelAt(xs[0], track.width))
+        shell.check("drag: a press sets the level at the pointer", Dlea.MediaSound.volume, shell.levelAt(xs[0], track.width))
         shell.check("drag: a press re-arms the strip's hide timer", shell.touches > 0, true)
         for (var i = 1; i < xs.length; i++) {
             driver.mouseMove(track, xs[i], y, 0, Qt.LeftButton, Qt.NoModifier)
-            shell.check("drag: move " + i + " sets the level", Flea.MediaSound.volume, shell.levelAt(xs[i], track.width))
+            shell.check("drag: move " + i + " sets the level", Dlea.MediaSound.volume, shell.levelAt(xs[i], track.width))
             shell.check("drag: move " + i + " draws it on the track", track.fraction, shell.levelAt(xs[i], track.width) / 100)
         }
         shell.check("drag: no move stored anything", shell.saves().length, 0)
-        shell.check("drag: the stored level is still the old one", Flea.ViewState.mediaVolume, shell.storedLevel)
+        shell.check("drag: the stored level is still the old one", Dlea.ViewState.mediaVolume, shell.storedLevel)
         var before = shell.touches
         driver.mouseRelease(track, xs[2], y, Qt.LeftButton, Qt.NoModifier, 0)
         shell.check("drag: a release re-arms the strip's hide timer", shell.touches > before, true)
-        shell.check("drag: the release keeps the level it ended on", [Flea.MediaSound.volume, Flea.ViewState.mediaVolume], [75, 75])
-        shell.check("drag: the press is over", Flea.MediaSound.held, -1)
+        shell.check("drag: the release keeps the level it ended on", [Dlea.MediaSound.volume, Dlea.ViewState.mediaVolume], [75, 75])
+        shell.check("drag: the press is over", Dlea.MediaSound.held, -1)
     }
 
     function stepStored() {
@@ -194,13 +194,13 @@ ShellRoot {
         var before = shell.touches
         driver.mouseMove(track, shell.xFor(30, track.width), track.height / 2, 0, Qt.NoButton, Qt.NoModifier)
         shell.check("hover: the pointer over the track re-arms the hide timer", shell.touches > before, true)
-        shell.check("hover: a move with no press leaves the level and the file alone", [Flea.MediaSound.volume, shell.saves().length], [75, 1])
+        shell.check("hover: a move with no press leaves the level and the file alone", [Dlea.MediaSound.volume, shell.saves().length], [75, 1])
     }
 
     function stepClick() {
         var track = shell.bare.volumeItem
         driver.mouseClick(track, shell.xFor(20, track.width), track.height / 2, Qt.LeftButton, Qt.NoModifier, 0)
-        shell.check("click: sets the level at the pointer", Flea.MediaSound.volume, 20)
+        shell.check("click: sets the level at the pointer", Dlea.MediaSound.volume, 20)
     }
 
     function stepClickStored() {
@@ -211,16 +211,16 @@ ShellRoot {
 
     function stepMute() {
         shell.check("click: the same level again stores nothing", shell.saves().length, 2)
-        var level = Flea.MediaSound.volume
+        var level = Dlea.MediaSound.volume
         var mark = shell.bare.muteItem
         var before = shell.touches
         driver.mouseClick(mark, mark.width / 2, mark.height / 2, Qt.LeftButton, Qt.NoModifier, 0)
-        shell.check("mute: the mark mutes", Flea.MediaSound.muted, true)
-        shell.check("mute: the mark leaves the level alone", [Flea.MediaSound.volume, Flea.ViewState.mediaVolume, shell.saves().length], [level, level, 2])
+        shell.check("mute: the mark mutes", Dlea.MediaSound.muted, true)
+        shell.check("mute: the mark leaves the level alone", [Dlea.MediaSound.volume, Dlea.ViewState.mediaVolume, shell.saves().length], [level, level, 2])
         shell.check("mute: the track keeps drawing the level", shell.bare.volumeItem.fraction, level / 100)
         shell.check("mute: the mark re-arms the hide timer", shell.touches > before, true)
         driver.mouseClick(mark, mark.width / 2, mark.height / 2, Qt.LeftButton, Qt.NoModifier, 0)
-        shell.check("mute: the mark unmutes", [Flea.MediaSound.muted, Flea.MediaSound.volume, shell.saves().length], [false, level, 2])
+        shell.check("mute: the mark unmutes", [Dlea.MediaSound.muted, Dlea.MediaSound.volume, shell.saves().length], [false, level, 2])
     }
 
     // A grab stolen mid-drag (the track disabled under the button) ends the press like a release: the level heard is stored.
@@ -229,10 +229,10 @@ ShellRoot {
         var y = track.height / 2
         driver.mousePress(track, shell.xFor(40, track.width), y, Qt.LeftButton, Qt.NoModifier, 0)
         driver.mouseMove(track, shell.xFor(35, track.width), y, 0, Qt.LeftButton, Qt.NoModifier)
-        shell.check("cancel: the drag is at 35 and nothing new is stored", [Flea.MediaSound.volume, shell.saves().length], [35, 2])
+        shell.check("cancel: the drag is at 35 and nothing new is stored", [Dlea.MediaSound.volume, shell.saves().length], [35, 2])
         track.enabled = false
-        shell.check("cancel: the stolen grab keeps the level it named", [Flea.MediaSound.volume, Flea.ViewState.mediaVolume], [35, 35])
-        shell.check("cancel: the press is over", Flea.MediaSound.held, -1)
+        shell.check("cancel: the stolen grab keeps the level it named", [Dlea.MediaSound.volume, Dlea.ViewState.mediaVolume], [35, 35])
+        shell.check("cancel: the press is over", Dlea.MediaSound.held, -1)
         track.enabled = true
         driver.mouseRelease(track, shell.xFor(35, track.width), y, Qt.LeftButton, Qt.NoModifier, 0)
     }
@@ -247,42 +247,42 @@ ShellRoot {
         var y = track.height / 2
         driver.mousePress(track, shell.xFor(10, track.width), y, Qt.LeftButton, Qt.NoModifier, 0)
         driver.mouseMove(track, shell.xFor(5, track.width), y, 0, Qt.LeftButton, Qt.NoModifier)
-        shell.check("destroy: the drag is at 5", Flea.MediaSound.volume, 5)
+        shell.check("destroy: the drag is at 5", Dlea.MediaSound.volume, 5)
         shell.bare.destroy()
     }
 
     function stepDestroyed() {
-        shell.check("destroy: no press is held", Flea.MediaSound.held, -1)
-        shell.check("destroy: the stored level is still the old one", [Flea.MediaSound.volume, Flea.ViewState.mediaVolume, shell.saves().length], [35, 35, 3])
+        shell.check("destroy: no press is held", Dlea.MediaSound.held, -1)
+        shell.check("destroy: the stored level is still the old one", [Dlea.MediaSound.volume, Dlea.ViewState.mediaVolume, shell.saves().length], [35, 35, 3])
         driver.mouseRelease(holder, 5, 5, Qt.LeftButton, Qt.NoModifier, 0)
     }
 
     // Media040 draws the track 60 px wide at bodySmall 13: text size 14 pins 13 and text size 12 pins 11, so the width is 60 and 51 by number.
     function pinTextSize(stop) {
-        var doc = JSON.parse(JSON.stringify(Flea.ViewState.state))
+        var doc = JSON.parse(JSON.stringify(Dlea.ViewState.state))
         doc.display = { textSize: { mode: stop } }
-        Flea.ViewState.state = doc
+        Dlea.ViewState.state = doc
     }
 
     function stepSize14() {
         shell.late = stripComponent.createObject(holder, { framed: false, y: 0 })
         shell.pinTextSize(14)
-        shell.check("size: text size 14 draws bodySmall 13", Flea.Theme.font.bodySmall, 13)
+        shell.check("size: text size 14 draws bodySmall 13", Dlea.Theme.font.bodySmall, 13)
         shell.check("size: the track is 60 px wide at text size 14", shell.late.volumeItem.width, 60)
     }
 
     function stepSize12() {
         shell.pinTextSize(12)
-        shell.check("size: text size 12 draws bodySmall 11", Flea.Theme.font.bodySmall, 11)
+        shell.check("size: text size 12 draws bodySmall 11", Dlea.Theme.font.bodySmall, 11)
         shell.check("size: the track is 51 px wide at text size 12", shell.late.volumeItem.width, 51)
     }
 
     // A screen reader's increase and decrease step the level by 5 and store it as a release does.
     function stepAccess() {
         var track = shell.late.volumeItem
-        shell.check("access: the level starts where the cancel leg left it", Flea.MediaSound.volume, 35)
+        shell.check("access: the level starts where the cancel leg left it", Dlea.MediaSound.volume, 35)
         track.Accessible.increaseAction()
-        shell.check("access: increase steps up by 5 and keeps it", [Flea.MediaSound.volume, Flea.ViewState.mediaVolume, Flea.MediaSound.held], [40, 40, -1])
+        shell.check("access: increase steps up by 5 and keeps it", [Dlea.MediaSound.volume, Dlea.ViewState.mediaVolume, Dlea.MediaSound.held], [40, 40, -1])
     }
 
     function stepAccessDown() {
@@ -290,7 +290,7 @@ ShellRoot {
         shell.check("access: increase stored one patch", shell.saves().slice(3), ['{"preview":{"volume":40}}'])
         track.Accessible.decreaseAction()
         track.Accessible.decreaseAction()
-        shell.check("access: decrease steps down by 5 each time", [Flea.MediaSound.volume, Flea.ViewState.mediaVolume, Flea.MediaSound.held], [30, 30, -1])
+        shell.check("access: decrease steps down by 5 each time", [Dlea.MediaSound.volume, Dlea.ViewState.mediaVolume, Dlea.MediaSound.held], [30, 30, -1])
     }
 
     // A video Quick Look: a short hide delay, a press held past it, and the strip stays until the button is up.
@@ -367,7 +367,7 @@ ShellRoot {
         running: true
         onTriggered: {
             shell.ticks++
-            if (shell.done || shell.ticks < 4 || Flea.ViewState.writeBook.inflight.length > 0) return
+            if (shell.done || shell.ticks < 4 || Dlea.ViewState.writeBook.inflight.length > 0) return
             if (shell.hold > 0) { shell.hold--; return }
             if (shell.step >= shell.script.length) { shell.finish(); return }
             var run = shell.script[shell.step]

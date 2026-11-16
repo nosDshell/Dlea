@@ -18,7 +18,7 @@ FIXTURE_TIME = 1790158470
 
 
 def fixture(root):
-    assert root.is_absolute() and (root / '.flea-test-sandbox').is_file()
+    assert root.is_absolute() and (root / '.dlea-test-sandbox').is_file()
     for name in ('home', 'config', 'cache', 'state', 'runtime', 'work'):
         (root / name).mkdir()
     (root / 'runtime').chmod(0o700)
@@ -34,7 +34,7 @@ def fixture(root):
     env = dict(PATH='/usr/bin:/bin', HOME=str(root / 'home'), XDG_CONFIG_HOME=str(root / 'config'),
                XDG_CACHE_HOME=str(root / 'cache'), XDG_STATE_HOME=str(root / 'state'),
                XDG_RUNTIME_DIR=str(root / 'runtime'), LANG='C.UTF-8', TERM='xterm-256color', TZ='UTC0',
-               FLEA_TUI_INPUT_TIMEOUT_MS='30', FLEA_TUI_TEST_NO_ICONS='1')
+               DLEA_TUI_INPUT_TIMEOUT_MS='30', DLEA_TUI_TEST_NO_ICONS='1')
     return work, env
 
 

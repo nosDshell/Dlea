@@ -1,5 +1,5 @@
 // Multi-item Properties describes held identities and counts folders only under the menu's cancellation.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::menu_actions::{response, Selected, SELECTION_CHANGED};
 use super::menucontents;
 use super::opsreq::OpMsg;

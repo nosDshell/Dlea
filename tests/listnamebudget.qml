@@ -1,11 +1,11 @@
-//@ pragma ShellId flea-listnamebudget-test
+//@ pragma ShellId dlea-listnamebudget-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 // The same resolved URL ui/List.qml imports, so this is the list's own library instance and not a copy.
-import "flea/js/ClipMarks.js" as ClipMarks
-import "flea/js/TextSize.js" as TextSize
+import "dlea/js/ClipMarks.js" as ClipMarks
+import "dlea/js/TextSize.js" as TextSize
 
 // w34 listnamebudget: a real ui/List.qml shares plain/clip budgets off exact drawn geometry with Picker/drop keeping local for the maintainer's offscreen run.
 ShellRoot {
@@ -94,7 +94,7 @@ ShellRoot {
     property var stubBackend: backendStub.createObject(root)
     property var stubPane: paneStub.createObject(root, { backend: root.stubBackend, rows: root.sampleRows })
 
-    Flea.List {
+    Dlea.List {
         id: list
         width: 700
         height: 300
@@ -103,7 +103,7 @@ ShellRoot {
     }
 
     // Picker exception: no assigned budget, so it keeps local measured geometry.
-    Flea.Row {
+    Dlea.Row {
         id: pickerRow
         width: 700
         row: ({ n: "averylongfilenamethatgoesonandonandonandonandonandonandonandonandonandon.txt", d: false, i: "text-x-generic", p: 420, s: 13, m: 1758835200, t: false, k: 0, v: 0 })
@@ -114,7 +114,7 @@ ShellRoot {
     }
 
     // Drop exception: assigned is set, but the drop keeps local measured geometry with the label reserve.
-    Flea.Row {
+    Dlea.Row {
         id: dropRow
         width: 700
         row: ({ n: "averylongfilenamethatgoesonandonandonandonandonandonandonandonandonandon.txt", d: false, i: "text-x-generic", p: 420, s: 13, m: 1758835200, t: false, k: 0, v: 0 })
@@ -148,10 +148,10 @@ ShellRoot {
             root.fail(label + " lists " + list.count + ", want " + root.sampleRows.length)
             return
         }
-        var adv = Flea.Theme.bodyAdvance
+        var adv = Dlea.Theme.bodyAdvance
         if (!(adv > 0)) { root.fail(label + " has no bodyAdvance"); return }
         // Pixel slots stay exact: plain less the clip reserve is the clip slot, floored only after.
-        var wantClipPx = Math.max(0, list.nameSlotPlainPx - Flea.Theme.spacing.gap - list.listClipPx)
+        var wantClipPx = Math.max(0, list.nameSlotPlainPx - Dlea.Theme.spacing.gap - list.listClipPx)
         if (Math.abs(wantClipPx - list.nameSlotClipPx) > 0.5)
             root.fail(label + " clip slot " + list.nameSlotClipPx + ", want " + wantClipPx)
         if (list.nameBudgetClip >= list.nameBudgetPlain)
@@ -224,20 +224,20 @@ ShellRoot {
         if (root.failures.length > 0) { root.report(); return }
         root.stubPane.dualMode = false
         // Stored widths, hidden columns, tight density and pinned-20 text size still budget off exact drawn geometry.
-        Flea.ViewState.state = { columns: ["name", "size"], columnWidths: { size: 200 }, density: "tight", display: { textSize: { mode: TextSize.nearest(20) } } }
+        Dlea.ViewState.state = { columns: ["name", "size"], columnWidths: { size: 200 }, density: "tight", display: { textSize: { mode: TextSize.nearest(20) } } }
         t4.start()
     }
 
     function phaseHidden() {
-        if (Flea.Theme.baseSize !== 20)
-            root.fail("sized draws baseSize " + Flea.Theme.baseSize + ", want pinned 20")
-        if (Flea.ViewState.density !== "tight")
-            root.fail("sized draws density " + Flea.ViewState.density + ", want tight")
-        if (Flea.Theme.densityRatio !== 0)
-            root.fail("sized draws densityRatio " + Flea.Theme.densityRatio + ", want 0")
+        if (Dlea.Theme.baseSize !== 20)
+            root.fail("sized draws baseSize " + Dlea.Theme.baseSize + ", want pinned 20")
+        if (Dlea.ViewState.density !== "tight")
+            root.fail("sized draws density " + Dlea.ViewState.density + ", want tight")
+        if (Dlea.Theme.densityRatio !== 0)
+            root.fail("sized draws densityRatio " + Dlea.Theme.densityRatio + ", want 0")
         checkShared("hidden-density-textsize")
         if (root.failures.length > 0) { root.report(); return }
-        Flea.ViewState.state = {}
+        Dlea.ViewState.state = {}
         // Search draws its own loader off searchSlot, never the ordinary name (Row.qml:240,257,270); shared budgets stay supplied but undrawn.
         root.stubPane.searchMode = "files"
         root.stubPane.searchQuery = "avery"

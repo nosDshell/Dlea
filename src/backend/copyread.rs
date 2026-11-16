@@ -90,7 +90,7 @@ fn spawn_reader(work: impl FnOnce() + Send + 'static) -> io::Result<std::thread:
     if TEST_SPAWN_FAILURE.with(|slot| slot.replace(false)) {
         return Err(io::ErrorKind::Other.into());
     }
-    std::thread::Builder::new().name("flea-copy-read".into()).spawn(work)
+    std::thread::Builder::new().name("dlea-copy-read".into()).spawn(work)
 }
 
 enum Source {

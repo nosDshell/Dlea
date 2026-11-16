@@ -9,7 +9,7 @@ import sys
 import time
 
 root = Path(os.environ['RCLONE_CONFIG']).parent
-assert root.is_absolute() and (root / '.flea-test-sandbox').is_file()
+assert root.is_absolute() and (root / '.dlea-test-sandbox').is_file()
 control = json.loads((root / 'control.json').read_text())
 args = sys.argv[1:]
 with (root / 'argv.jsonl').open('a') as log:
@@ -37,7 +37,7 @@ if control.get('real'):
             os.mkfifo(omitted)
             result = subprocess.run([control['real'], *args], check=False)
             assert str(omitted) and omitted.is_absolute() and omitted.parent.resolve().is_relative_to(root)
-            assert (root / '.flea-test-sandbox').is_file()
+            assert (root / '.dlea-test-sandbox').is_file()
             omitted.unlink()
             sys.exit(result.returncode)
     if args[0] == 'check' and control.get('mismatch'):

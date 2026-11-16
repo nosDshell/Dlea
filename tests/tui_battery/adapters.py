@@ -11,7 +11,7 @@ from .geometry import COLUMNS, ROWS, ORIGIN
 
 TERMINALS = ("alacritty", "foot", "ghostty", "kitty", "tmux")
 # Every owned window's class and title start here; the class is also a valid GTK application ID.
-OWNED_CLASS_PREFIX = "flea.battery."
+OWNED_CLASS_PREFIX = "dlea.battery."
 # GLib's g_application_id_is_valid: dot-separated elements of [A-Za-z0-9_-], none empty or starting with a digit, 255 bytes at most.
 APPLICATION_ID = re.compile(r"(?=.{1,255}$)[A-Za-z_-][A-Za-z0-9_-]*(\.[A-Za-z_-][A-Za-z0-9_-]*)+")
 OPTIONS = {

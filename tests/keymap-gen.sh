@@ -3,20 +3,20 @@
 set -u
 cd "$(dirname "$0")/.." || exit 1
 
-probe_dir=$(mktemp -d /tmp/flea-keymap.XXXXXXXX) || exit 1
-: > "$probe_dir/.flea-test-sandbox"
+probe_dir=$(mktemp -d /tmp/dlea-keymap.XXXXXXXX) || exit 1
+: > "$probe_dir/.dlea-test-sandbox"
 tmp=$probe_dir/Keymap.js
 cleanup() {
   # The test owns this mktemp root; every deletion must still pass its absolute-path guard.
-  case "$probe_dir" in /tmp/flea-keymap.?*) ;; *) return 1 ;; esac
+  case "$probe_dir" in /tmp/dlea-keymap.?*) ;; *) return 1 ;; esac
   local path=$probe_dir
-  case "$path" in "$probe_dir"|"$probe_dir"/*) [ -f "$probe_dir/.flea-test-sandbox" ] && rm -rf -- "${path:?}" ;; *) return 1 ;; esac
+  case "$path" in "$probe_dir"|"$probe_dir"/*) [ -f "$probe_dir/.dlea-test-sandbox" ] && rm -rf -- "${path:?}" ;; *) return 1 ;; esac
 }
 trap cleanup EXIT
 
-./tools/flea-keymap-gen "$tmp" --rust "$probe_dir/keys_generated.rs" || { echo "FAIL the generator did not run"; exit 1; }
+./tools/dlea-keymap-gen "$tmp" --rust "$probe_dir/keys_generated.rs" || { echo "FAIL the generator did not run"; exit 1; }
 if ! cmp -s src/keys_generated.rs "$probe_dir/keys_generated.rs"; then
-  echo "FAIL src/keys_generated.rs is stale, run ./tools/flea-keymap-gen"
+  echo "FAIL src/keys_generated.rs is stale, run ./tools/dlea-keymap-gen"
   exit 1
 fi
 echo "ok   src/keys_generated.rs matches keys.toml"
@@ -36,7 +36,7 @@ keys = "ctrl-1"
 action = "viewGrid"
 label = "grid view"
 CONFLICT
-if ./tools/flea-keymap-gen "$probe_dir/conflict.js" "$conflict" 2>"$probe_dir/conflict.err"; then
+if ./tools/dlea-keymap-gen "$probe_dir/conflict.js" "$conflict" 2>"$probe_dir/conflict.err"; then
   echo "FAIL the generator accepted a preset claiming ctrl-1 twice"
   exit 1
 fi
@@ -53,7 +53,7 @@ scoped=$probe_dir/scoped.toml
 for scope in 'frontend = "gui"' 'context = "media"'; do
   cp keys.toml "$scoped"
   printf '\n[[shift]]\nkey = "Insert"\naction = "extendRight"\n%s\n' "$scope" >> "$scoped"
-  if ./tools/flea-keymap-gen "$probe_dir/scoped.js" "$scoped" 2>"$probe_dir/scoped.err"; then
+  if ./tools/dlea-keymap-gen "$probe_dir/scoped.js" "$scoped" 2>"$probe_dir/scoped.err"; then
     echo "FAIL the generator accepted a shared row scoped by $scope"
     exit 1
   fi
@@ -122,5 +122,5 @@ if diff -u ui/js/Keymap.js "$tmp"; then
   echo "ok   ui/js/Keymap.js matches keys.toml"
   exit 0
 fi
-echo "FAIL ui/js/Keymap.js is stale, run ./tools/flea-keymap-gen"
+echo "FAIL ui/js/Keymap.js is stale, run ./tools/dlea-keymap-gen"
 exit 1

@@ -57,7 +57,7 @@ fn every_fragment_boundary_preserves_keys_and_positive_capabilities() {
         assert!(!d.negotiation.take_keyboard_enable());
     }
     let mut d = decoder(Transport::Direct, now);
-    let shared = format!("\x1b_Gi=32,s=1,v=1,a=q,t=s,f=24;{}\x1b\\", crate::tui::graphics::base64(b"/flea-unit-pixel"));
+    let shared = format!("\x1b_Gi=32,s=1,v=1,a=q,t=s,f=24;{}\x1b\\", crate::tui::graphics::base64(b"/dlea-unit-pixel"));
     let query = d.negotiation.queries(&shared);
     for byte in input { d.feed_at(&[*byte], false, now); }
     assert_eq!(d.negotiation.detected.graphics, Protocol::Kitty);

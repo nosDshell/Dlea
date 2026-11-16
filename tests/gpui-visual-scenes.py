@@ -11,7 +11,7 @@ import time
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(REPO / 'tests/lib'), str(REPO / 'ci/visual')]
-from flea_transport import Window, load, endpoint, client_run
+from dlea_transport import Window, load, endpoint, client_run
 import scenes
 import blackgate
 import omi_fit
@@ -44,7 +44,7 @@ def call(window, function, *arguments, fail=False):
     with endpoint(record):
         pass
     result = client_run(record, [record['binary'], 'ipc', '--pid', str(window.pid),
-                                 'call', 'flea', function, *map(str, arguments)], 5)
+                                 'call', 'dlea', function, *map(str, arguments)], 5)
     if fail:
         scenes.require(result.returncode == 2, f'control accepted {function}: {result}')
         return result
@@ -101,12 +101,12 @@ try:
     switch_fixture.mkdir()
     (switch_fixture / 'gamma.txt').write_text('three\n')
     os.utime(switch_fixture / 'gamma.txt', (1750000000, 1750000000))
-    os.environ['FLEA_TEST_WINDOWS_ROOT'] = str(root)
+    os.environ['DLEA_TEST_WINDOWS_ROOT'] = str(root)
     codeicons_native.run(root, logs, Window, call, wait, grab, run, windows)
     for scene in registered:
         name = scene['id']
         state = json.dumps(dict(view=scene['view'], density='compact', display=dict(textSize=dict(mode=14))))
-        run(os.environ['FLEA_BIN'], '--ui-state', state)
+        run(os.environ['DLEA_BIN'], '--ui-state', state)
         run('hyprctl', 'eval', f'hl.config({{ decoration = {{ rounding = {scene["corner_radius"]} }} }})')
         option = json.loads(run('hyprctl', 'getoption', 'decoration:rounding', '-j'))
         scenes.require(option['int'] == scene['corner_radius'], 'compositor corner mismatch')
@@ -169,14 +169,14 @@ try:
             else:
                 raise ValueError('empty sidecar was accepted')
         window.quit()
-    run(os.environ['FLEA_BIN'], '--ui-state', json.dumps(dict(
+    run(os.environ['DLEA_BIN'], '--ui-state', json.dumps(dict(
         view='list', density='compact', display=dict(textSize=dict(mode=14)))))
     empty = root / 'omi-empty'
     empty.mkdir()
     # Capture mode forces reduced motion, which stops the caption rotation this case measures.
     window = Window.start(empty, parent=root, frontend='gpui',
                           log=logs / 'omi-caption-app.log', timeout=15,
-                          wrap=('/usr/bin/env', 'FLEA_GPUI_CAPTURE=0'))
+                          wrap=('/usr/bin/env', 'DLEA_GPUI_CAPTURE=0'))
     windows.append(window)
     wait(window, 'total', '0')
     omi_fit.caption_case(window, call, grab, logs)

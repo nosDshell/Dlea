@@ -1,4 +1,4 @@
-//! Carry: X lifts the marked rows, or the cursor row, as one captured payload that rides until a click lands it, esc drops it or its source window or pane ends; no I/O, the rows resolve through the backend's paths answer as a copy's do, and the landing's verb and refusal are the drag's own (flea::ui_logic_drag_drop through the GUI's decide).
+//! Carry: X lifts the marked rows, or the cursor row, as one captured payload that rides until a click lands it, esc drops it or its source window or pane ends; no I/O, the rows resolve through the backend's paths answer as a copy's do, and the landing's verb and refusal are the drag's own (dlea::ui_logic_drag_drop through the GUI's decide).
 use super::wire::paths_request_line;
 use super::words;
 use super::Said;

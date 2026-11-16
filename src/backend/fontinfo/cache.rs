@@ -7,7 +7,7 @@ use std::os::unix::fs::MetadataExt;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, SystemTime};
 
-const CACHE_LEAF: &str = "flea/fonts";
+const CACHE_LEAF: &str = "dlea/fonts";
 // 300 looks of three files; past it the oldest go until 200 looks remain.
 const CACHE_MAX_FILES: usize = 900;
 const CACHE_KEEP_FILES: usize = 600;

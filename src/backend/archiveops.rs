@@ -12,8 +12,8 @@ use crate::backend::archivework::{
 use crate::backend::archivework::workhome;
 use crate::backend::convert;
 use crate::backend::opsreq::op_err;
-use crate::error::{from_io, FleaError};
-use flea::bytename::ExactText as _;
+use crate::error::{from_io, DleaError};
+use dlea::bytename::ExactText as _;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -31,7 +31,7 @@ pub struct Password<'a> {
 
 // One archive out of a selection that all shares a parent, which is what a listing selection is.
 pub fn compress(formats: &Formats, parent: &Path, names: &[String], format: &str,
-                dest: &Path, cancel: &AtomicBool, password: Option<Password>) -> Result<(), FleaError> {
+                dest: &Path, cancel: &AtomicBool, password: Option<Password>) -> Result<(), DleaError> {
     compress_leaving(formats, parent, names, format, dest, cancel, password).map(|_| ())
 }
 
@@ -44,7 +44,7 @@ pub(crate) fn compress_leaving(
     dest: &Path,
     cancel: &AtomicBool,
     password: Option<Password>,
-) -> Result<Option<String>, FleaError> {
+) -> Result<Option<String>, DleaError> {
     // A quit landing between registration and this check never starts a child.
     if cancel.load(Ordering::Relaxed) {
         return Err(op_err("archive", &dest.to_string_lossy(), "cancelled"));
@@ -111,7 +111,7 @@ pub fn extract(
     dest: &Path,
     cancel: &AtomicBool,
     password: Option<&str>,
-) -> Result<bool, FleaError> {
+) -> Result<bool, DleaError> {
     extract_reporting(formats, archive, dest, cancel, password, None).map(|(verified, _)| verified)
 }
 
@@ -123,7 +123,7 @@ pub(crate) fn extract_reporting(
     cancel: &AtomicBool,
     password: Option<&str>,
     report: Option<(usize, &std::sync::mpsc::Sender<super::opsreq::OpMsg>)>,
-) -> Result<(bool, Option<String>), FleaError> {
+) -> Result<(bool, Option<String>), DleaError> {
     // A disk image lists and is never extracted, so it is refused before any staging or probing.
     if Formats::is_list_only(archive) {
         return Err(op_err("archive", &archive.to_string_lossy(), DISK_IMAGE_REFUSAL));
@@ -204,7 +204,7 @@ pub(crate) fn extract_reporting(
         let said = said.or_else(|| escape_refusal(&f.message));
         return Err(op_err("archive", &leaf, said.unwrap_or(&f.message)));
     }
-    // compress and convert stat a path Flea never creates, so their existence check is a real test.
+    // compress and convert stat a path Dlea never creates, so their existence check is a real test.
     // This one creates its own staging directory, so the same shape always passes. Two archives
     // legally extract to nothing: an empty one, and one whose only member is the archive root, which
     // is what `tar -c -C <empty dir> .` produces.
@@ -224,7 +224,7 @@ pub(crate) fn extract_reporting(
             // Nothing to extract, so an empty destination is the correct result.
             Some(_) => {}
             // The index could not be read, so this cannot be judged. Refusing would punish the
-            // operator for Flea's own verification failing, including for our own deadline, and an
+            // operator for Dlea's own verification failing, including for our own deadline, and an
             // unverifiable check is not evidence of failure. It is published and SAID to be
             // unverified, because a success nobody checked must not read as one that was checked.
             // corner: a tool that lies AND an unreadable index at once publishes an empty directory.
@@ -250,7 +250,7 @@ fn escape_refusal(message: &str) -> Option<&'static str> {
 }
 
 // Issue 370: a stage workhome kept off a copy-fallback mount crosses a filesystem, so it lands by the exclusive copy, which the cancel stops.
-fn publish(staged: &Path, dest: &Path, cancel: &AtomicBool) -> Result<(), FleaError> {
+fn publish(staged: &Path, dest: &Path, cancel: &AtomicBool) -> Result<(), DleaError> {
     match crate::backend::renamecompat::rename_cancellable(staged, dest, cancel) {
         // The copy landed whole and flushed and only the stage would not go: that is clear's to retry, not a failed job.
         Err(error) if error.where_ == crate::backend::renamecompat::KEPT => Ok(()),
@@ -276,7 +276,7 @@ fn clear(mut work: Work) -> Option<String> {
 }
 
 #[cfg(test)]
-pub fn convert_one(input: &Path, dest: &Path, strip: bool, cancel: &AtomicBool) -> Result<(), FleaError> {
+pub fn convert_one(input: &Path, dest: &Path, strip: bool, cancel: &AtomicBool) -> Result<(), DleaError> {
     convert_leaving(input, dest, strip, cancel).map(|_| ())
 }
 
@@ -286,7 +286,7 @@ pub(crate) fn convert_leaving(
     dest: &Path,
     strip: bool,
     cancel: &AtomicBool,
-) -> Result<Option<String>, FleaError> {
+) -> Result<Option<String>, DleaError> {
     if dest.symlink_metadata().is_ok() {
         return Err(op_err("convert", &dest.to_string_lossy(), "that destination already exists"));
     }
@@ -313,12 +313,12 @@ pub(crate) fn convert_leaving(
 // A compress names absolute paths, which all share a parent because a selection comes from one
 // listing; the parent and the relative names are derived here rather than sent twice on the wire.
 pub fn split_paths(paths: &[String]) -> Option<(PathBuf, Vec<String>)> {
-    let first = flea::bytename::view(paths.first()?);
+    let first = dlea::bytename::view(paths.first()?);
     let first = &*first;
     let parent = first.parent()?.to_path_buf();
     let mut names = Vec::with_capacity(paths.len());
     for p in paths {
-        let path = flea::bytename::view(p);
+        let path = dlea::bytename::view(p);
         let path = &*path;
         // A path from another directory would be stored under a name that is not its own, so it is refused.
         if path.parent() != Some(parent.as_path()) {

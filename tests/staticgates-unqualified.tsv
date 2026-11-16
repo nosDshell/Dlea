@@ -2380,7 +2380,7 @@ ui/WindowBody.qml	453	view	Declared QML id; component context access is valid at
 ui/WindowBody.qml	458	view	Declared QML id; component context access is valid at runtime.
 ui/WindowBody.qml	458	view	Declared QML id; component context access is valid at runtime.
 ui/WindowBody.qml	476	view	Declared QML id; component context access is valid at runtime.
-ui/boot/fleatab.qml	19	root	Declared QML id; component context access is valid at runtime.
+ui/boot/dleatab.qml	19	root	Declared QML id; component context access is valid at runtime.
 ui/boot/tabtearoff.qml	21	anchors	Inherited QtQuick Item property in the enclosing item scope.
 ui/boot/tabtearoff.qml	39	modelData	Declared QML property; enclosing component context supplies it.
 ui/boot/tabtearoff.qml	39	modelData	Declared QML property; enclosing component context supplies it.

@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-preview-earlyask-test
+//@ pragma ShellId dlea-preview-earlyask-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Thumbs.js" as Thumbs
+import "dlea" as Dlea
+import "dlea/js/Thumbs.js" as Thumbs
 
 // Pre-capture thumb ask over the real ColumnsArea and SelectionPreview: idle press asks once before capture, walk none early.
 ShellRoot {
@@ -150,9 +150,9 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 1200
         implicitHeight: 600
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
-        Flea.ColumnsArea {
+        Dlea.ColumnsArea {
             id: area
             anchors.fill: parent
             pane: root.stubPane
@@ -182,14 +182,14 @@ ShellRoot {
     Timer { id: stallQuiet; interval: 400; repeat: false; onTriggered: root.retryWalkOrFail() }
 
     function phaseStart() {
-        if (!Flea.ViewState.previewAutomatic || !Flea.ViewState.previewColumn) {
+        if (!Dlea.ViewState.previewAutomatic || !Dlea.ViewState.previewColumn) {
             root.fail("start needs automatic preview with its column, else no load follows a press")
             root.report()
             return
         }
         root.stubPane.rows = [root.folderSub, root.fileA, root.fileB, root.fileC, root.fileD, root.fileE]
         // Column-off leg first, through the production toggle, sampled before the listing's own settle.
-        Flea.ViewState.changeLeaf("preview", { column: false })
+        Dlea.ViewState.changeLeaf("preview", { column: false })
         root.pressColumnOff()
     }
 
@@ -221,7 +221,7 @@ ShellRoot {
                 + root.thumbLog[0].rows.join(",") + ", want no early ask")
         if (root.failures.length > 0) { root.report(); return }
         root.stubPane.cursorIndex = 0
-        Flea.ViewState.changeLeaf("preview", { column: true })
+        Dlea.ViewState.changeLeaf("preview", { column: true })
         poll.polls = 0
         poll.start()
     }
@@ -248,7 +248,7 @@ ShellRoot {
             + " idx=" + root.stubPane.cursorIndex + " t=" + (cur ? cur.t : "norow")
             + " askedKeys=" + Object.keys(root.stubPane.thumbState.file).join(",")
             + " class=" + root.stubPane.storageClass + " lastMoveAt=" + pv.lastMoveAt
-            + " lastMoveKey=" + pv.lastMoveKey + " auto=" + Flea.ViewState.previewAutomatic)
+            + " lastMoveKey=" + pv.lastMoveKey + " auto=" + Dlea.ViewState.previewAutomatic)
         root.thumbLog = []
         root.holdsAtPress = root.swap().holds
         root.stubPane.cursorIndex = 2

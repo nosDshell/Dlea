@@ -39,7 +39,7 @@ pub(super) fn parse(text: &str, path: &Path) -> Vec<Locale> {
     let mut locales = Vec::new();
     let document = if text.is_empty() { Ok(Json::Null) } else { document::parse(text) };
     if let Err(error) = &document {
-        eprintln!("flea: refusing i18n roster {}: {error}", path.display());
+        eprintln!("dlea: refusing i18n roster {}: {error}", path.display());
     }
     if let Ok(Json::Obj(entries)) = document {
         for (code, entry) in entries {

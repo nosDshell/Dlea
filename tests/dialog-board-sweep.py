@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-# Names every colourless Rectangle that encloses a Flea.CheckBox under a ui root: one file:line per wrapper, exit 0 either way.
+# Names every colourless Rectangle that encloses a Dlea.CheckBox under a ui root: one file:line per wrapper, exit 0 either way.
 import os
 import re
 import sys
 
 # An object-opening line, optionally behind a "prop:" prefix, with anything after the brace: "background: Rectangle { id: box".
 OPEN = re.compile(r"^(\s*)(?:[\w. ]+:\s*)?([A-Z][\w.]*)\s*\{(.*)$")
-# Sample input: "        Flea.CheckBox {" or "indicator: CheckBox {".
-CHECKBOX = re.compile(r"^\s*(?:[\w. ]+:\s*)?(?:Flea\.)?CheckBox\s*\{")
+# Sample input: "        Dlea.CheckBox {" or "indicator: CheckBox {".
+CHECKBOX = re.compile(r"^\s*(?:[\w. ]+:\s*)?(?:Dlea\.)?CheckBox\s*\{")
 # Sample input: "        color: Theme.surface" matches, "        border.color: x" does not.
 DIRECT_COLOR = re.compile(r"^\s*(color|gradient)\s*:")
 

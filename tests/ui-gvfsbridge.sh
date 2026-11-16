@@ -9,15 +9,15 @@ gvfsbridge_runtime_fits() {
     done
 }
 
-# Only Flea takes the fixture's HOME and bridge stub (and under qml the runtime dir; GPUI's owned transport gives its own), so kill_flea, hyprctl and omarchy-drive keep the operator's.
+# Only Dlea takes the fixture's HOME and bridge stub (and under qml the runtime dir; GPUI's owned transport gives its own), so kill_dlea, hyprctl and omarchy-drive keep the operator's.
 gvfsbridge_launch() {
     local dir="$1" fixture_home="$2" runtime="$3" fuse="$4"
-    local -a flea_launch_wrap=(env "HOME=$fixture_home" "PATH=$dir/bin:$PATH" "FLEA_GVFS_FUSE=$fuse")
-    [[ "$test_frontend" != qml ]] || flea_launch_wrap+=("XDG_RUNTIME_DIR=$runtime")
+    local -a dlea_launch_wrap=(env "HOME=$fixture_home" "PATH=$dir/bin:$PATH" "DLEA_GVFS_FUSE=$fuse")
+    [[ "$test_frontend" != qml ]] || dlea_launch_wrap+=("XDG_RUNTIME_DIR=$runtime")
     launch "$dir"
     gvfsbridge_runtime=$runtime
     if [[ "$test_frontend" == gpui ]]; then
-        gvfsbridge_runtime=$(jq -er .runtime "$FLEA_TEST_WINDOW/window.json") || fail "gvfsbridge: owned runtime is unavailable"
+        gvfsbridge_runtime=$(jq -er .runtime "$DLEA_TEST_WINDOW/window.json") || fail "gvfsbridge: owned runtime is unavailable"
     fi
 }
 
@@ -26,11 +26,11 @@ gvfsbridge_drop() {
     local runtime="$1" made="${2:-}"
     [[ -z "$made" ]] || rmdir -- "$made" 2>/dev/null || true
     # rm does not follow the links into the operator's runtime dir.
-    [[ "$runtime" == /tmp/fgb.?* && -f "$runtime/.flea-test-sandbox" ]] && rm -rf -- "$runtime"
+    [[ "$runtime" == /tmp/fgb.?* && -f "$runtime/.dlea-test-sandbox" ]] && rm -rf -- "$runtime"
     return 0
 }
 
-# The GVFS bridge's Starting and failure lines, staged through the FLEA_GVFS_FUSE seam; runs only by name (ui:gvfsbridge).
+# The GVFS bridge's Starting and failure lines, staged through the DLEA_GVFS_FUSE seam; runs only by name (ui:gvfsbridge).
 case_gvfsbridge() {
     local dir="$fixture_root/gvfsbridge"
     sandbox_scratch "$dir"
@@ -42,14 +42,14 @@ case_gvfsbridge() {
     # A root of its own, since the run root's /tmp name leaves Hyprland's socket path past the limit; the trap removes it on a failure too.
     local runtime
     runtime=$(mktemp -d /tmp/fgb.XXXXXX) || fail "gvfsbridge: cannot create a runtime directory under /tmp"
-    : > "$runtime/.flea-test-sandbox"
+    : > "$runtime/.dlea-test-sandbox"
     trap "gvfsbridge_drop ${runtime@Q}" EXIT
     gvfsbridge_runtime_fits "$runtime"
     mkdir "$runtime/gvfs"
     local leaf_slow="smb-share:server=bridge-slow.test,share=data"
     local leaf_fail="smb-share:server=bridge-fail.test,share=data"
 
-    # Under qml every runtime entry but gvfs and flea-ipc is linked through, so the sockets resolve and the bridge dir starts unserved.
+    # Under qml every runtime entry but gvfs and dlea-ipc is linked through, so the sockets resolve and the bridge dir starts unserved.
     local real_runtime="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
     if [[ "$test_frontend" == qml && -d "$real_runtime" ]]; then
         # Quickshell registers the instance under the runtime dir, so the restored client only sees it through this link; a directory made here goes again at exit.
@@ -59,12 +59,12 @@ case_gvfsbridge() {
         shopt -s nullglob dotglob
         for entry in "$real_runtime"/*; do
             base="${entry##*/}"
-            [[ "$base" == . || "$base" == .. || "$base" == gvfs || "$base" == flea-ipc ]] && continue
+            [[ "$base" == . || "$base" == .. || "$base" == gvfs || "$base" == dlea-ipc ]] && continue
             ln -s "$entry" "$runtime/$base"
         done
         shopt -u nullglob dotglob
     fi
-    mkdir -m 700 "$runtime/flea-ipc"
+    mkdir -m 700 "$runtime/dlea-ipc"
 
     # Empty listing, instant mount claim and info under the sandboxed bridge dir; trash keeps the real gio.
     cat > "$dir/bin/gio" <<EOS
@@ -83,22 +83,22 @@ EOS
     chmod +x "$dir/bin/gio"
     : > "$dir/mount-calls"
     # Sample input: "<fusebin> <bridgedir> -f"; serves the leaf only after the 250 ms Starting line stands.
-    cat > "$dir/bin/flea-gvfs-fuse-slow" <<EOS
+    cat > "$dir/bin/dlea-gvfs-fuse-slow" <<EOS
 #!/bin/sh
 sleep 2
 mkdir -p "\$1/$leaf_slow"
 printf 'served\n' > "\$1/$leaf_slow/alpha.txt"
 EOS
-    chmod +x "$dir/bin/flea-gvfs-fuse-slow"
+    chmod +x "$dir/bin/dlea-gvfs-fuse-slow"
     # The failing bridge: serves nothing, so the whole-ensure 15 s deadline fails the wait.
-    cat > "$dir/bin/flea-gvfs-fuse-fail" <<EOS
+    cat > "$dir/bin/dlea-gvfs-fuse-fail" <<EOS
 #!/bin/sh
 exit 1
 EOS
-    chmod +x "$dir/bin/flea-gvfs-fuse-fail"
+    chmod +x "$dir/bin/dlea-gvfs-fuse-fail"
 
     seed_ui_state "$state" '{"view":"list","keys":"default","places":{"favourites":[{"label":"Bridge slow","path":"smb://bridge-slow.test/data"},{"label":"Bridge fail","path":"smb://bridge-fail.test/data"}]}}'
-    gvfsbridge_launch "$dir" "$fixture_home" "$runtime" "$dir/bin/flea-gvfs-fuse-slow"
+    gvfsbridge_launch "$dir" "$fixture_home" "$runtime" "$dir/bin/dlea-gvfs-fuse-slow"
     wait_listing 3
     wait_rail_label "Bridge slow"
 
@@ -121,7 +121,7 @@ EOS
     printf 'GVFSBRIDGE slow=started-opened\n'
 
     # The fail flight swaps only the fuse stub.
-    gvfsbridge_launch "$dir" "$fixture_home" "$runtime" "$dir/bin/flea-gvfs-fuse-fail"
+    gvfsbridge_launch "$dir" "$fixture_home" "$runtime" "$dir/bin/dlea-gvfs-fuse-fail"
     wait_listing 3
     wait_rail_label "Bridge fail"
     local fail_index
@@ -134,10 +134,10 @@ EOS
     shot gvfsbridge-failed
     printf 'GVFSBRIDGE fail=error-line\n'
 
-    kill_flea
+    kill_dlea
     sandbox_remove "$fixture_home"
     # The runtime dir holds links into the operator's, and rm does not follow them.
-    [[ "$runtime" == /tmp/fgb.?* && -f "$runtime/.flea-test-sandbox" ]] \
+    [[ "$runtime" == /tmp/fgb.?* && -f "$runtime/.dlea-test-sandbox" ]] \
         || fail "gvfsbridge: $runtime is not the case's marked runtime root, so it stays"
     rm -rf -- "$runtime"
 }

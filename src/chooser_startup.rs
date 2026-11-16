@@ -35,7 +35,7 @@ pub fn restart() -> bool {
             return true;
         }
     }
-    eprintln!("flea: the portal restart could not be verified. Run: systemctl --user restart xdg-desktop-portal; then: journalctl --user -u xdg-desktop-portal.service -b --no-pager");
+    eprintln!("dlea: the portal restart could not be verified. Run: systemctl --user restart xdg-desktop-portal; then: journalctl --user -u xdg-desktop-portal.service -b --no-pager");
     false
 }
 
@@ -97,7 +97,7 @@ mod tests {
 
     #[test]
     fn a_stalled_helper_is_killed_and_reaped_at_the_bound() {
-        let mut command = Command::new(flea::testpath::tool("/bin/sleep"));
+        let mut command = Command::new(dlea::testpath::tool("/bin/sleep"));
         command.arg("10");
         let start = Instant::now();
         assert!(bounded(command, Duration::from_millis(50)).is_none());

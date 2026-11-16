@@ -10,9 +10,9 @@ import "js/Settings.js" as Settings
 import "js/TextSize.js" as TextSize
 import "js/UiState.js" as UiState
 
-// The per-user state that outlives a window, `~/.local/state/flea/ui.json`. Read once here with a
+// The per-user state that outlives a window, `~/.local/state/dlea/ui.json`. Read once here with a
 // blocking FileView so the first paint already has it, and never written from QML: every change
-// goes back out through `flea --ui-state`, the one Rust path that takes the lock, validates each
+// goes back out through `dlea --ui-state`, the one Rust path that takes the lock, validates each
 // key, merges the caller's and renames a temp into place. main() settles this file before the
 // window, so whenever that settle succeeded on a document it could read, what is read here has
 // already been through that same validation; one it could not read is left alone and lands in the
@@ -140,8 +140,8 @@ QtObject {
     }
 
     // One leaf inside a group. The leaf merges into whatever else the group holds so the document
-    // keeps a sub-key a newer Flea left there, and the patch carries the leaf ALONE: a sub-key this
-    // Flea has no rule for is one src/uistate.rs refuses, and it refuses the whole patch with it.
+    // keeps a sub-key a newer Dlea left there, and the patch carries the leaf ALONE: a sub-key this
+    // Dlea has no rule for is one src/uistate.rs refuses, and it refuses the whole patch with it.
     function changeLeaf(key, leaf) {
         root.owe(key, UiState.withGroup(root.state, key, leaf), UiState.withGroup(root.unsaved, key, leaf))
     }
@@ -302,7 +302,7 @@ QtObject {
         root.changeKey("columns", shown)
     }
 
-    // A patch flea refused, or a state file it could not write. The pane turns it into the status
+    // A patch dlea refused, or a state file it could not write. The pane turns it into the status
     // bar's one sentence: the change is on screen and the file does not have it.
     signal saveFailed()
     signal favouritesReadFailed(string message)
@@ -342,7 +342,7 @@ QtObject {
     }
 
     function run(patch) {
-        patcher.command = [Quickshell.env("FLEA_BIN") || "flea", "--ui-state", patch]
+        patcher.command = [Quickshell.env("DLEA_BIN") || "dlea", "--ui-state", patch]
         patcher.running = true
     }
 
@@ -391,7 +391,7 @@ QtObject {
         root.settleMode = mode
         root.settleRevision = root.writeRevision
         root.settleAnswer = {}
-        settler.command = [Quickshell.env("FLEA_BIN") || "flea", "--ui-state"]
+        settler.command = [Quickshell.env("DLEA_BIN") || "dlea", "--ui-state"]
         settler.running = true
     }
     // A settler's exit and its collected text land in either order, so only a whole answer reaches settleDone.
@@ -482,7 +482,7 @@ QtObject {
     property var store: FileView {
         id: stateFile
         path: (Quickshell.env("XDG_STATE_HOME") && Quickshell.env("XDG_STATE_HOME").length > 0
-               ? Quickshell.env("XDG_STATE_HOME") : Quickshell.env("HOME") + "/.local/state") + "/flea/ui.json"
+               ? Quickshell.env("XDG_STATE_HOME") : Quickshell.env("HOME") + "/.local/state") + "/dlea/ui.json"
         blockLoading: true
         watchChanges: true
         onFileChanged: reload()

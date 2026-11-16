@@ -3,7 +3,7 @@ use std::io::{BufRead, BufReader, Write};
 use std::os::unix::fs::MetadataExt;
 use std::process::{Command, Stdio};
 
-const CHILD: &str = "FLEA_RENAME_IDENTITY_CHILD";
+const CHILD: &str = "DLEA_RENAME_IDENTITY_CHILD";
 const TEST: &str = "backend::renamework::tests::identity::backend_child";
 
 #[test]
@@ -40,7 +40,7 @@ fn rename_json(source: &std::path::Path, identity: &str, root: &std::path::Path)
         .env("XDG_DATA_HOME", root.join("data"))
         .env("XDG_STATE_HOME", root.join("state"))
         .env("XDG_RUNTIME_DIR", root)
-        .env("FLEA_UNDO_DIR", root.join("undo"))
+        .env("DLEA_UNDO_DIR", root.join("undo"))
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::inherit())

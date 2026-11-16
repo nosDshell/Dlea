@@ -102,7 +102,7 @@ impl Gate {
             }
             let result = catch_unwind(AssertUnwindSafe(|| work(loop_tx))).unwrap_or_else(|_| {
                 Err(ListErr {
-                    error: internal_failure("scan", &flea::bytename::view(&path)),
+                    error: internal_failure("scan", &dlea::bytename::view(&path)),
                     mode: 0,
                     watch_wd: -1,
                 })

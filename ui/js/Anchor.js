@@ -6,7 +6,7 @@
 var LOCATE_ID_FLOOR = 2147483648
 var locateSeq = LOCATE_ID_FLOOR
 
-// Re-reading the open listing without moving the user off it, for a foreign change and Flea's own delete.
+// Re-reading the open listing without moving the user off it, for a foreign change and Dlea's own delete.
 
 // A re-read renumbers every row, so it waits while an interaction owns the rows or while any paths asker resolves.
 function busy(pane, anchor) {
@@ -31,7 +31,7 @@ function watched(pane, wantChanged, rowH) {
     return anchoredRefresh(pane, false, selectedMarks(pane), wantChanged, rowH)
 }
 
-// Flea's own delete: the anchor is the deleted cursor row and apply()'s fallback lands on whatever took its place, which is Finder's rule. A failed delete matches by name instead.
+// Dlea's own delete: the anchor is the deleted cursor row and apply()'s fallback lands on whatever took its place, which is Finder's rule. A failed delete matches by name instead.
 // Sample input: afterDelete(pane, true) with pane.trashedFirst set by Ops.trash.
 function afterDelete(pane, landed) {
     if (landed && pane.trashedFirst >= 0)

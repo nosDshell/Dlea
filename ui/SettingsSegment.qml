@@ -1,5 +1,5 @@
 import QtQuick
-import "." as Flea
+import "." as Dlea
 import "js/Buttons.js" as Buttons
 
 // The Display board's two-value control: both names side by side, the current one bright, rather than
@@ -51,7 +51,7 @@ Row {
             Accessible.name: String(segment.modelData)
             Accessible.onPressAction: root.picked(segment.index)
 
-            Flea.Glyph {
+            Dlea.Glyph {
                 anchors.centerIn: parent
                 visible: segment.glyph.length > 0
                 width: Theme.railIconSize

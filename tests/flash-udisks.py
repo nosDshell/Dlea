@@ -24,8 +24,8 @@ sys.modules["gi.repository.Gio"] = repository.Gio
 sys.modules["gi.repository.GLib"] = repository.GLib
 sys.modules["gi.repository.UDisks"] = repository.UDisks
 
-loader = importlib.machinery.SourceFileLoader("flea_udisks", sys.argv[1] if len(sys.argv) > 1 else "tools/flea-udisks")
-spec = importlib.util.spec_from_loader("flea_udisks", loader)
+loader = importlib.machinery.SourceFileLoader("dlea_udisks", sys.argv[1] if len(sys.argv) > 1 else "tools/dlea-udisks")
+spec = importlib.util.spec_from_loader("dlea_udisks", loader)
 helper = importlib.util.module_from_spec(spec)
 loader.exec_module(helper)
 
@@ -126,7 +126,7 @@ with tempfile.TemporaryDirectory() as tmp:
 
     point(backing)
     check("loop without a marker", seam("loop_allowed", "loop3", root, sysfs), False)
-    open(os.path.join(root, ".flea-test-sandbox"), "w").close()
+    open(os.path.join(root, ".dlea-test-sandbox"), "w").close()
     check("loop inside a marked root", seam("loop_allowed", "loop3", root, sysfs), True)
     check("loop with no root", seam("loop_allowed", "loop3", "", sysfs), False)
     check("a disk is never a loop", seam("loop_allowed", "sda", root, sysfs), False)
@@ -210,14 +210,14 @@ import shutil
 with tempfile.TemporaryDirectory() as tmp:
     lone_dir = os.path.join(tmp, "lib")
     os.makedirs(lone_dir)
-    lone_path = os.path.join(lone_dir, "flea-udisks")
+    lone_path = os.path.join(lone_dir, "dlea-udisks")
     shutil.copy(loader.path, lone_path)
-    lone_loader = importlib.machinery.SourceFileLoader("flea_udisks_lone", lone_path)
-    lone = importlib.util.module_from_spec(importlib.util.spec_from_loader("flea_udisks_lone", lone_loader))
+    lone_loader = importlib.machinery.SourceFileLoader("dlea_udisks_lone", lone_path)
+    lone = importlib.util.module_from_spec(importlib.util.spec_from_loader("dlea_udisks_lone", lone_loader))
     lone_loader.exec_module(lone)
     root = os.path.join(tmp, "root")
     os.makedirs(root)
-    open(os.path.join(root, ".flea-test-sandbox"), "w").close()
+    open(os.path.join(root, ".dlea-test-sandbox"), "w").close()
     backing = os.path.join(root, "backing.img")
     open(backing, "w").close()
     sysfs = os.path.join(tmp, "sys")
@@ -226,7 +226,7 @@ with tempfile.TemporaryDirectory() as tmp:
         out.write(backing + "\n")
     check("an installed helper keeps the daemon's system verdict for a marked loop", lone.treat_as_system("loop3", None, root, sysfs), True)
     lone.blocks = lambda: []
-    check("an installed helper refuses --loop-root", lone.main(["flea-udisks", "drives", "--loop-root", root, "loop3"]), 2)
+    check("an installed helper refuses --loop-root", lone.main(["dlea-udisks", "drives", "--loop-root", root, "loop3"]), 2)
 
 # OpenDevice flags travel as i: udisks looks up flags with g_variant_lookup "i", so a u misses and the open silently drops O_EXCL and O_DIRECT.
 seen = {}

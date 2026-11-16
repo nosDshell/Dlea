@@ -144,7 +144,7 @@ TOKEN = re.compile(r"[^\s;|&()<>]+")
 ASSIGNMENT = re.compile(r"[A-Za-z_][A-Za-z_0-9]*=")
 WRAPPERS = {"env", "xargs", "time", "nice", "command", "timeout", "exec"}
 OPTION_VALUE = {"-u", "--unset", "-a", "-d", "-E", "-e", "-I", "-L", "-l", "-n", "-P", "-s", "-f", "--format", "-o", "--output", "--adjustment", "--max-args", "--max-procs", "--replace", "--arg-file", "--delimiter", "--max-lines", "--max-chars"}
-SHELL_LIBRARIES = {"flea-ipc-pid", "flea-sandbox-guard", "flea-pkgrel-field"}
+SHELL_LIBRARIES = {"dlea-ipc-pid", "dlea-sandbox-guard", "dlea-pkgrel-field"}
 FILTER = {"sort", "uniq", "comm", "join"}
 PARSER_NAMES = FILTER | set("awk sed grep rg tr ls ps pgrep find findmnt du df date uname pacman curl file diff python3 perl bc readelf nm strings expr".split())
 

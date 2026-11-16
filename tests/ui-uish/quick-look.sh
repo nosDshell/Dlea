@@ -32,7 +32,7 @@ case_open() {
     seek_row_named subdir
     key l >/dev/null
     wait_path "$dir/subdir"
-    flea_ipc_wait -p "$flea_ui/boot" flea state empty --timeout 10 >/dev/null \
+    dlea_ipc_wait -p "$dlea_ui/boot" dlea state empty --timeout 10 >/dev/null \
         || fail "open: subdir never reached its empty listing, state is $(ipc state)"
     [[ ! -s "$opened" ]] || fail "l on a directory handed $(cat "$opened") to $open_handoff open"
     [[ -z "$(ipc lastMessage)" ]] || fail "open: entering the empty subdir said $(ipc lastMessage)"
@@ -91,11 +91,11 @@ case_open() {
     [[ "$(grep -c OPENED "$opened")" == "1" ]] || fail "a broken symlink was handed to $open_handoff open"
     [[ "$(ipc total)" == "8" ]] || fail "the listing did not survive Enter on a broken symlink"
 
-    # The operator's 0.1.4 ruling: Enter on an archive opens Flea's own view and hands nothing on,
+    # The operator's 0.1.4 ruling: Enter on an archive opens Dlea's own view and hands nothing on,
     # because every archive type this box can name defaults to org.gnome.Nautilus.desktop.
     seek_row_named sample.zip
     key -k Return >/dev/null
-    flea_ipc_wait -p "$flea_ui/boot" flea previewState archive --timeout 10 >/dev/null \
+    dlea_ipc_wait -p "$dlea_ui/boot" dlea previewState archive --timeout 10 >/dev/null \
         || fail "Enter on an archive left the preview at $(ipc previewState), kind $(ipc previewKind), and the log holds $(cat "$opened")"
     printf 'OPEN archive kind=%q state=%q log=%q\n' "$(ipc previewKind)" "$(ipc previewState)" "$(cat "$opened")"
     shot open-archive
@@ -123,7 +123,7 @@ case_preview() {
       printf 'printf "OPENED %%s\\n" "$2" >> %q\n' "$opened"
     } > "$dir/bin/$open_handoff"
     chmod +x "$dir/bin/$open_handoff"
-    printf 'hello from flea\n' > "$dir/sample.txt"
+    printf 'hello from dlea\n' > "$dir/sample.txt"
     printf '# Notes\n\nSome *text*.\n' > "$dir/notes.md"
     truncate -s 2M "$dir/big.txt"
     # A 440 Hz tone and not silence, so playback is provable by ear and not just by state. Fifteen
@@ -151,8 +151,8 @@ PYEOF
     [[ -s "$dir/clip.mp4" ]] || fail "ffmpeg produced no clip.mp4"
     # Space on a pdf answered "This file cannot be previewed" until kindOf gained its branch, on a
     # type the preview column had rendered all along, so this row is what guards that branch.
-    magick \( -size 400x560 xc:white -fill black "${flea_magick_font_args[@]}" -pointsize 40 -annotate +40+80 'PAGEONE' \) \
-           \( -size 400x560 xc:white -fill black "${flea_magick_font_args[@]}" -pointsize 40 -annotate +40+80 'PAGETWO' \) \
+    magick \( -size 400x560 xc:white -fill black "${dlea_magick_font_args[@]}" -pointsize 40 -annotate +40+80 'PAGEONE' \) \
+           \( -size 400x560 xc:white -fill black "${dlea_magick_font_args[@]}" -pointsize 40 -annotate +40+80 'PAGETWO' \) \
            "$dir/manual.pdf"
     [[ -s "$dir/manual.pdf" ]] || fail "magick produced no manual.pdf"
 
@@ -306,9 +306,9 @@ PYEOF
         || fail "preview: the pdf overlay reports $(ipc previewState), so it fell through to the refusal"
     [[ "$(ipc previewPdfPage)" == "0" ]] || fail "preview: manual.pdf opened on page $(ipc previewPdfPage), not page 0"
     key l >/dev/null
-    flea_ipc_wait -p "$flea_ui/boot" flea previewPdfPage 1 --timeout 10 >/dev/null \
+    dlea_ipc_wait -p "$dlea_ui/boot" dlea previewPdfPage 1 --timeout 10 >/dev/null \
         || fail "preview: l left manual.pdf on page $(ipc previewPdfPage), not page 1"
-    omarchy-drive wait ocr flea PAGETWO --timeout 10 >/dev/null \
+    omarchy-drive wait ocr dlea PAGETWO --timeout 10 >/dev/null \
         || fail "preview: l advanced manual.pdf state but left page 1 painted"
     shot preview-pdf
     key -k Escape >/dev/null
@@ -346,17 +346,17 @@ PYEOF
     [[ "$(ipc previewOpen)" == "false" ]] || fail "preview: escape did not close the click-away preview"
 
     printf 'PREVIEW text=ok markdown=ok audio=ok video=ok toolarge=ok mediacontrols=ok striphide=ok clickaway=ok\n'
-    kill_flea
+    kill_dlea
 }
 
 case_lookopen() {
     local dir="$fixture_root/lookopen" view name want wait
     sandbox_scratch "$dir"
-    magick \( -size 440x354 xc:white -fill black "${flea_magick_font_args[@]}" -pointsize 24 -annotate +30+45 PAGEONE \) \
-           \( -size 440x354 xc:white -fill black "${flea_magick_font_args[@]}" -pointsize 24 -annotate +30+45 PAGETWO \) "$dir/a-doc.pdf" \
+    magick \( -size 440x354 xc:white -fill black "${dlea_magick_font_args[@]}" -pointsize 24 -annotate +30+45 PAGEONE \) \
+           \( -size 440x354 xc:white -fill black "${dlea_magick_font_args[@]}" -pointsize 24 -annotate +30+45 PAGETWO \) "$dir/a-doc.pdf" \
         || fail "lookopen: magick could not make a-doc.pdf"
     ffmpeg -y -f lavfi -i "testsrc=size=320x240" -frames:v 1 "$dir/b-image.jpg" >/dev/null 2>&1 || fail "lookopen: ffmpeg could not make b-image.jpg"
-    printf 'hello from flea\n' > "$dir/c-notes.txt"
+    printf 'hello from dlea\n' > "$dir/c-notes.txt"
     ffmpeg -y -f lavfi -i "testsrc=size=8000x8000" -frames:v 1 "$dir/d-large.png" >/dev/null 2>&1 || fail "lookopen: ffmpeg could not make d-large.png"
     for view in list columns; do
         lookopen_launch "$dir" "$view" default "{\"keys\":\"default\",\"view\":\"$view\"}"
@@ -365,7 +365,7 @@ case_lookopen() {
         if [[ "$view" == columns ]]; then want=0; wait=1; else want=1; wait=0; fi
         lookopen_step "$view" d-large.png "$want" "$wait"
         lookopen_reopen "$view" d-large.png "$want"
-        kill_flea
+        kill_dlea
     done
 }
 
@@ -375,7 +375,7 @@ case_relstart() {
     mkdir -p "$dir/sub"
     real=$(cd "$dir" && pwd -P)
     magick -size 320x240 xc:'#3070c0' "$dir/a-photo.png" || fail "relstart: magick could not make a-photo.png"
-    magick -size 440x354 xc:white -fill black "${flea_magick_font_args[@]}" -pointsize 24 -annotate +30+45 PAGEONE "$dir/b-doc.pdf" \
+    magick -size 440x354 xc:white -fill black "${dlea_magick_font_args[@]}" -pointsize 24 -annotate +30+45 PAGEONE "$dir/b-doc.pdf" \
         || fail "relstart: magick could not make b-doc.pdf"
     magick -size 240x320 xc:'#c07030' "$dir/sub/c-photo.png" || fail "relstart: magick could not make c-photo.png"
     # The relative start stays relative to the case's cwd, and the launch records its PID here, not in a subshell.
@@ -394,5 +394,5 @@ case_relstart() {
     settle
     relstart_look c-photo.png image
     printf 'RELSTART path=%s\n' "$real"
-    kill_flea
+    kill_dlea
 }

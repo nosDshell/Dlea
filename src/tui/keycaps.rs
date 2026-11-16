@@ -1,6 +1,6 @@
 //! The active keyboard group behind every key label, read from Hyprland's devices answer off the loop.
 use crate::jsondoc::{self, Json};
-use flea::keys::display::{KeycapError, KeycapSnapshot};
+use dlea::keys::display::{KeycapError, KeycapSnapshot};
 use std::io::{BufRead, BufReader, Read, Write};
 use std::os::unix::net::UnixStream;
 use std::path::PathBuf;
@@ -188,7 +188,7 @@ impl Keycaps {
             }
             None => Self::unsupported(Fault::NoCompositor),
         };
-        keycaps.trace = std::env::var("FLEA_TUI_KEYCAPS").as_deref() == Ok("1");
+        keycaps.trace = std::env::var("DLEA_TUI_KEYCAPS").as_deref() == Ok("1");
         keycaps.report();
         keycaps
     }
@@ -223,7 +223,7 @@ impl Keycaps {
             trace: false,
         };
         let spawned = std::thread::Builder::new()
-            .name("flea-keycaps".into())
+            .name("dlea-keycaps".into())
             .spawn(move || {
                 let mut first = true;
                 let mut backoff = RECONNECT_FIRST;
@@ -280,7 +280,7 @@ impl Keycaps {
         }
         let (query, sender, asking) = (query.clone(), sender.clone(), self.asking.clone());
         let spawned = std::thread::Builder::new()
-            .name("flea-keycaps-resume".into())
+            .name("dlea-keycaps-resume".into())
             .spawn(move || {
                 let reading = read(&query);
                 asking.store(false, Ordering::Relaxed);
@@ -354,7 +354,7 @@ impl Keycaps {
         }
     }
 
-    // FLEA_TUI_KEYCAPS=1 names each status change on stderr, the same way FLEA_TUI_CAPABILITIES traces negotiation.
+    // DLEA_TUI_KEYCAPS=1 names each status change on stderr, the same way DLEA_TUI_CAPABILITIES traces negotiation.
     fn report(&self) {
         if !self.trace {
             return;
@@ -370,7 +370,7 @@ impl Keycaps {
         };
         let _ = writeln!(
             std::io::stderr().lock(),
-            "flea: keycaps {state}, generation {}",
+            "dlea: keycaps {state}, generation {}",
             self.generation
         );
     }

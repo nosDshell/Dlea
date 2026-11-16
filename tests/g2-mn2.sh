@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p "$PWD/.superpowers/g2-mn2"
 unit_root=$(mktemp -d "$PWD/.superpowers/g2-mn2/ci.XXXXXXXX")
-: > "$unit_root/.flea-test-sandbox"
+: > "$unit_root/.dlea-test-sandbox"
 python3 -B tests/native/g2/mn2-boundary-controls.py "$unit_root"
 python3 -B tests/native/g2/mn2-boundary.py "$unit_root"
 mkdir -p "$unit_root/home" "$unit_root/config" "$unit_root/cache" "$unit_root/state" "$unit_root/runtime"
@@ -22,9 +22,9 @@ run() {
 # A filter that matched nothing would pass with zero, so each count is required from cargo's summary line.
 count() { sed -n 's/^test result: ok\. \([0-9]*\) passed; 0 failed.*/\1/p' "$1" | head -1; }
 set +e
-run "$unit_root/core.log" -p flea --lib ui_logic_custom_actions
+run "$unit_root/core.log" -p dlea --lib ui_logic_custom_actions
 core_rc=$?
-run "$unit_root/gui.log" -p flea-gui --lib g2::custom_actions
+run "$unit_root/gui.log" -p dlea-gui --lib g2::custom_actions
 gui_rc=$?
 set -e
 [ "$core_rc" -eq 0 ] || { tail -40 "$unit_root/core.log" >&2; printf 'g2-mn2: FAIL core tests exited %s\n' "$core_rc"; exit 1; }
@@ -34,6 +34,6 @@ gui=$(count "$unit_root/gui.log")
 [ "${core:-0}" -ge 39 ] || { printf 'g2-mn2: FAIL only %s core checks ran\n' "${core:-0}"; exit 1; }
 [ "${gui:-0}" -ge 25 ] || { printf 'g2-mn2: FAIL only %s GPUI checks ran\n' "${gui:-0}"; exit 1; }
 clippy_root=$(mktemp -d "$PWD/.superpowers/g2-mn2/clippy.XXXXXXXX")
-: > "$clippy_root/.flea-test-sandbox"
-tools/flea-clippy tools/clippy-baseline.txt "$clippy_root"
+: > "$clippy_root/.dlea-test-sandbox"
+tools/dlea-clippy tools/clippy-baseline.txt "$clippy_root"
 printf 'G2MN2 PASS %s core and %s GPUI checks\n' "$core" "$gui"

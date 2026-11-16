@@ -27,7 +27,7 @@ LOCALES = {"ja": "tmpfs · 空き 64.1 MB", "ar": "tmpfs · 64.1 MB ةحاتم",
 class Review2Tests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        parent = Path(os.environ.get("FLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
+        parent = Path(os.environ.get("DLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
         parent.mkdir(parents=True, exist_ok=True)
         cls.scratch = Path(tempfile.mkdtemp(prefix="review-r2.", dir=parent))
         (cls.scratch / MARKER).write_text("second-round controls\n")
@@ -170,8 +170,8 @@ class Review2Tests(unittest.TestCase):
                   "capabilities.json": {}, "state.json": {"preset": "vim", "requested": state, "variant": config["variant"]}, "commands.json": [], "diff.png": {}, "overlay.png": {},
                   "media.json": {"status": "PASS"}, "profile.json": dict(config["profile"], terminal="foot", packages=["foot 1"], path=str(case / "terminal.conf")),
                   "fixtures.json": {"family": "work", "manifest_sha256": "original-fixture"}, "launch-spec.json": {"argv": ["foot"]},
-                  "relay-spec.json": {"argv": ["flea"]}, "capture-config.json": config,
-                  "candidate-settings.json": {"keys": "vim"}, "fx/state/flea/ui.json": {"keys": "vim"}, "terminal.conf": {}, "dynamic-facts.json": {}}
+                  "relay-spec.json": {"argv": ["dlea"]}, "capture-config.json": config,
+                  "candidate-settings.json": {"keys": "vim"}, "fx/state/dlea/ui.json": {"keys": "vim"}, "terminal.conf": {}, "dynamic-facts.json": {}}
         for name, value in values.items():
             target = case / name
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -199,7 +199,7 @@ class Review2Tests(unittest.TestCase):
     def test_3_changed_case_files_cannot_reuse_acceptance(self):
         source, case, identity, row, config = self.retained_case()
         self.assertEqual(self.reconcile(source, identity, row, config)["status"], "PASS")
-        for name in ("profile.json", "fixtures.json", "launch-spec.json", "relay-spec.json", "fx/state/flea/ui.json",
+        for name in ("profile.json", "fixtures.json", "launch-spec.json", "relay-spec.json", "fx/state/dlea/ui.json",
                      "terminal.conf", "candidate-settings.json", "capture-config.json", "graphics.log"):
             with self.subTest(file=name):
                 path = case / name

@@ -4,7 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p "$PWD/.superpowers/g2-mn1"
 clippy_root=$(mktemp -d "$PWD/.superpowers/g2-mn1/clippy.XXXXXXXX")
-: > "$clippy_root/.flea-test-sandbox"
-printf 'tools/flea-clippy tools/clippy-baseline.txt %s\n' "$clippy_root"
-tools/flea-clippy tools/clippy-baseline.txt "$clippy_root"
+: > "$clippy_root/.dlea-test-sandbox"
+printf 'tools/dlea-clippy tools/clippy-baseline.txt %s\n' "$clippy_root"
+tools/dlea-clippy tools/clippy-baseline.txt "$clippy_root"
 printf 'G2_MN1 PASS clippy baseline\n'

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-. "$(dirname "${BASH_SOURCE[0]}")/../tools/flea-ipc"
+. "$(dirname "${BASH_SOURCE[0]}")/../tools/dlea-ipc"
 # Runs the real capture case with controlled replies and a clock advanced only by settle.
 set -uo pipefail
 repo="$(cd "$(dirname "$0")/.." && pwd)" || exit 1
 . "$repo/tests/ui-captures.sh"
-. "$repo/tools/flea-sandbox-guard"
+. "$repo/tools/dlea-sandbox-guard"
 sandbox_root_ok
-scratch=$(mktemp -d "$SANDBOX_ROOT/flea-capsheet.XXXXXX") || exit 1
+scratch=$(mktemp -d "$SANDBOX_ROOT/dlea-capsheet.XXXXXX") || exit 1
 : > "$scratch/$SANDBOX_MARKER"
 trap 'sandbox_remove "$scratch"' EXIT
 
@@ -45,7 +45,7 @@ shot() {
     printf '%s\n' "$1" >> "$case_dir/shots"
 }
 
-kill_flea() {
+kill_dlea() {
     :
 }
 
@@ -102,11 +102,11 @@ sheet_rows() {
         mute) [[ "$scenario" == mute-missing ]] || printf 'm mute\n' ;;
         fl)
             case "$scenario" in
-                fl-no-recent) printf ' Open flea\n' ;;
+                fl-no-recent) printf ' Open dlea\n' ;;
                 fl-no-place) printf ' Open mix.flac\n' ;;
-                fl-order) printf ' Open mix.flac\n Open flea\n' ;;
+                fl-order) printf ' Open mix.flac\n Open dlea\n' ;;
                 # The recent row stands only while the case's own history survives in its fixture home.
-                *) printf ' Open flea\n'; if [[ -f "$fixture_root/cap-sheet-home/.local/share/recently-used.xbel" ]]; then printf ' Open mix.flac\n'; fi ;;
+                *) printf ' Open dlea\n'; if [[ -f "$fixture_root/cap-sheet-home/.local/share/recently-used.xbel" ]]; then printf ' Open mix.flac\n'; fi ;;
             esac ;;
         comp)
             if [[ "$scenario" == comp-cap ]]; then printf ' Compress to .zip\nz Compress to .tar\n'
@@ -130,16 +130,16 @@ menu_dialog_state() {
 
 # Sample input: [{"keys":"m","label":"mute","where":"in Preview","disabled":false}], the sheet's result rows with the where each delegate draws.
 sheet_results() {
-    local mix_where="in ~/Documents/claude" flea_where="in Favorites" mute_where="in Preview"
+    local mix_where="in ~/Documents/claude" dlea_where="in Favorites" mute_where="in Preview"
     [[ "$scenario" == mute-no-where ]] && mute_where=""
     [[ "$scenario" == mute-wrong-where ]] && mute_where="in Places"
-    [[ "$scenario" == fl-no-fav-where ]] && flea_where=""
+    [[ "$scenario" == fl-no-fav-where ]] && dlea_where=""
     [[ "$scenario" == fl-recent-where-moved ]] && mix_where="in ~/Documents"
     case "$typed_query" in
         mute) [[ "$scenario" == mute-missing ]] && printf '[]\n' \
             || printf '[{"keys":"m","label":"mute","where":"%s","disabled":false}]\n' "$mute_where" ;;
         fl)
-            printf '[{"keys":"","label":"Open flea","where":"%s","disabled":false}' "$flea_where"
+            printf '[{"keys":"","label":"Open dlea","where":"%s","disabled":false}' "$dlea_where"
             if [[ -f "$fixture_root/cap-sheet-home/.local/share/recently-used.xbel" ]]; then
                 printf ',{"keys":"","label":"Open mix.flac","where":"%s","disabled":false}' "$mix_where"
             fi
@@ -177,8 +177,8 @@ ipc() {
     esac
 }
 
-# Sample input: flea_ipc_wait -p /fixture/ui/boot flea keymapQuery "" --timeout 10
-flea_ipc_wait() {
+# Sample input: dlea_ipc_wait -p /fixture/ui/boot dlea keymapQuery "" --timeout 10
+dlea_ipc_wait() {
     local out
     out=$(ipc "$4") || return $?
     [[ "$out" == *"$5"* ]]
@@ -203,7 +203,7 @@ check_case() {
     printf '0\n' > "$case_dir/elapsed"
     (
         fixture_root="$case_dir"
-        flea_ui="$case_dir/ui"
+        dlea_ui="$case_dir/ui"
         sheet_open=false
         dialog_open=false
         escape_at=-1
@@ -256,10 +256,10 @@ check_case comp-parent-last 1 0 0 "the comp query lists the Compress parent"
 check_case mute-missing 1 0 "$deadline_s" "the mute query lists no m mute row"
 check_case mute-no-where 1 0 "$deadline_s" "the mute row draws no where Preview"
 check_case mute-wrong-where 1 0 "$deadline_s" "the mute row draws no where Preview"
-check_case fl-no-fav-where 1 0 "$deadline_s" "the favourite flea draws no where Favorites"
+check_case fl-no-fav-where 1 0 "$deadline_s" "the favourite dlea draws no where Favorites"
 check_case fl-recent-where-moved 1 0 "$deadline_s" "the recent mix.flac draws no where ~/Documents/claude"
 check_case fl-no-recent 1 0 "$deadline_s" "the fl query lists no recent file mix.flac"
-check_case fl-no-place 1 0 0 "the fl query lists no favourite flea"
+check_case fl-no-place 1 0 0 "the fl query lists no favourite dlea"
 check_case fl-order 1 0 0 "the fl query does not lead with the favourite"
 check_case rank-moved 1 0 0 "the second perm row is not Permissions"
 check_case dialog-never 1 0 "$deadline_s" "Enter on Permissions opened no dialog"

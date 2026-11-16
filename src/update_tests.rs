@@ -1,7 +1,7 @@
 use super::*;
 
-// What `pacman -Qi flea` prints under LC_ALL=C for OPR's signed package, trimmed to the fields around the two read.
-const OPR_INFO: &str = "Name            : flea
+// What `pacman -Qi dlea` prints under LC_ALL=C for OPR's signed package, trimmed to the fields around the two read.
+const OPR_INFO: &str = "Name            : dlea
 Version         : 0.3.2-1
 Description     : Fast, keyboard-first file manager for Omarchy
 Architecture    : x86_64
@@ -11,18 +11,18 @@ Validated By    : Signature
 ";
 
 // The same fields for a `makepkg -si` build, which pacman installed with nothing to validate.
-const LOCAL_INFO: &str = "Name            : flea
+const LOCAL_INFO: &str = "Name            : dlea
 Version         : 0.3.3-1
 Validated By    : None
 ";
 
 #[test]
 fn the_owner_is_the_one_package_name_pacman_printed() {
-    assert_eq!(owner_from("flea\n"), Some("flea".to_string()));
-    assert_eq!(owner_from("flea-bin\n"), Some("flea-bin".to_string()));
+    assert_eq!(owner_from("dlea\n"), Some("dlea".to_string()));
+    assert_eq!(owner_from("dlea-bin\n"), Some("dlea-bin".to_string()));
     assert_eq!(owner_from(""), None, "no package owns the binary");
-    assert_eq!(owner_from("flea\nflea-git\n"), None, "one path has one owner, so two names are not an answer");
-    assert_eq!(owner_from("error: No package owns /tmp/flea\n"), None);
+    assert_eq!(owner_from("dlea\ndlea-git\n"), None, "one path has one owner, so two names are not an answer");
+    assert_eq!(owner_from("error: No package owns /tmp/dlea\n"), None);
 }
 
 #[test]
@@ -38,24 +38,24 @@ fn package_info_reads_the_version_and_whether_a_signature_validated_it() {
 }
 
 #[test]
-fn the_kind_follows_the_owner_and_only_a_signed_flea_is_opr() {
-    assert_eq!(kind_for("flea", true), Kind::Opr);
-    assert_eq!(kind_for("flea", false), Kind::Local, "a local makepkg build carries OPR's name and no signature");
-    assert_eq!(kind_for("flea-bin", false), Kind::Release, "the prebuilt release binary, signed or not");
-    assert_eq!(kind_for("flea-bin", true), Kind::Release);
-    assert_eq!(kind_for("flea-git", false), Kind::Local);
-    assert_eq!(kind_for("flea-git", true), Kind::Local);
-    assert_eq!(kind_for("my-flea", true), Kind::Local, "a name Flea never shipped under has no known updater");
+fn the_kind_follows_the_owner_and_only_a_signed_dlea_is_opr() {
+    assert_eq!(kind_for("dlea", true), Kind::Opr);
+    assert_eq!(kind_for("dlea", false), Kind::Local, "a local makepkg build carries OPR's name and no signature");
+    assert_eq!(kind_for("dlea-bin", false), Kind::Release, "the prebuilt release binary, signed or not");
+    assert_eq!(kind_for("dlea-bin", true), Kind::Release);
+    assert_eq!(kind_for("dlea-git", false), Kind::Local);
+    assert_eq!(kind_for("dlea-git", true), Kind::Local);
+    assert_eq!(kind_for("my-dlea", true), Kind::Local, "a name Dlea never shipped under has no known updater");
 }
 
 #[test]
 fn checkupdates_names_the_new_version_of_the_package_asked_about_and_no_other() {
-    let listed = "linux 6.16.8.arch1-1 -> 6.16.9.arch1-1\nflea-bin 0.3.2-1 -> 0.3.9-1\nflea 0.3.2-1 -> 0.3.3-1\n";
-    assert_eq!(checkupdates_version(listed, "flea"), Some("0.3.3-1".to_string()));
-    assert_eq!(checkupdates_version("linux 6.16.8.arch1-1 -> 6.16.9.arch1-1\n", "flea"), None);
-    assert_eq!(checkupdates_version("flea-git 0.3.2-1 -> 0.3.3-1\n", "flea"), None, "a prefix is not the package");
-    assert_eq!(checkupdates_version("flea 0.3.2-1 -> 0.3.3-1 [ignored]\n", "flea"), None, "an IgnorePkg line is no offer");
-    assert_eq!(checkupdates_version("", "flea"), None);
+    let listed = "linux 6.16.8.arch1-1 -> 6.16.9.arch1-1\ndlea-bin 0.3.2-1 -> 0.3.9-1\ndlea 0.3.2-1 -> 0.3.3-1\n";
+    assert_eq!(checkupdates_version(listed, "dlea"), Some("0.3.3-1".to_string()));
+    assert_eq!(checkupdates_version("linux 6.16.8.arch1-1 -> 6.16.9.arch1-1\n", "dlea"), None);
+    assert_eq!(checkupdates_version("dlea-git 0.3.2-1 -> 0.3.3-1\n", "dlea"), None, "a prefix is not the package");
+    assert_eq!(checkupdates_version("dlea 0.3.2-1 -> 0.3.3-1 [ignored]\n", "dlea"), None, "an IgnorePkg line is no offer");
+    assert_eq!(checkupdates_version("", "dlea"), None);
 }
 
 #[test]
@@ -98,7 +98,7 @@ fn a_newer_offer_is_available_and_anything_else_is_current() {
 #[test]
 fn a_source_that_could_not_be_asked_fails_and_one_with_nothing_newer_is_current() {
     let installed = Some("0.3.2-1".to_string());
-    let down = from_source(Kind::Opr, installed.clone(), Err("the package mirrors could not be asked for a newer Flea"));
+    let down = from_source(Kind::Opr, installed.clone(), Err("the package mirrors could not be asked for a newer Dlea"));
     assert_eq!((down.line(), down.status()), ("failed opr 0.3.2-1 -".to_string(), FAILED));
     let quiet = from_source(Kind::Opr, installed, Ok(None));
     assert_eq!((quiet.line(), quiet.status()), ("current opr 0.3.2-1 -".to_string(), NOTHING_TO_INSTALL));

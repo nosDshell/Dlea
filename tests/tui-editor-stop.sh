@@ -2,12 +2,12 @@
 # A SIGTERM to the TUI's job while the bulk rename editor's return runs its stty ends the TUI with status 0 and the terminal restored.
 set -u
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete below.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [[ -x "$bin" ]] || { echo 'FAIL tui-editor-stop needs the candidate binary'; exit 1; }
 
-scratch="$FIXTURE_ROOT/flea-tui-editor-stop-$$"
+scratch="$FIXTURE_ROOT/dlea-tui-editor-stop-$$"
 sandbox_make "$scratch" || exit 1
 cleanup() { sandbox_remove "$scratch"; }
 trap cleanup EXIT
@@ -22,7 +22,7 @@ cat > "$scratch/bin/stty" <<SH
 if [ "\$1" = raw ]; then
     if [ -f "$scratch/prepared" ] && [ ! -f "$scratch/held" ]; then
         : > "$scratch/held"
-        printf 'FLEA_EDITOR_RETURN_HELD\n'
+        printf 'DLEA_EDITOR_RETURN_HELD\n'
         exec /bin/cat "$scratch/stty-gate"
     fi
     : > "$scratch/prepared"
@@ -47,7 +47,7 @@ result=$(env -i PATH="$scratch/bin:/usr/bin:/bin" HOME="$scratch/home" XDG_STATE
   /usr/bin/python3 - "$bin" "$scratch/fixture" <<'PY'
 import fcntl, os, select, signal, struct, sys, termios, time
 binary, fixture = sys.argv[1], sys.argv[2]
-HELD = b"FLEA_EDITOR_RETURN_HELD"
+HELD = b"DLEA_EDITOR_RETURN_HELD"
 master, slave = os.openpty()
 fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack("HHHH", 40, 160, 1600, 800))
 saved = termios.tcgetattr(slave)
@@ -119,7 +119,7 @@ fault = int(b"terminal interface" in seen or b"The terminal could not" in seen)
 restored = int(termios.tcgetattr(slave) == saved)
 print("held=%d exit=%s fault=%d restored=%d" % (int(held), code, fault, restored))
 if fault:
-    start = max(seen.rfind(b"flea:"), 0)
+    start = max(seen.rfind(b"dlea:"), 0)
     print("output: %r" % seen[start:start + 200])
 PY
 )

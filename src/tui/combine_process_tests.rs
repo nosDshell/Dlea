@@ -16,7 +16,7 @@ use std::{
 
 pub fn scenario(case: &str) {
     if case == "review-navigation" {
-        let identity = Command::new(flea::testpath::tool("/usr/bin/timeout"))
+        let identity = Command::new(dlea::testpath::tool("/usr/bin/timeout"))
             .arg("10")
             .arg(std::env::var("RUSTC").unwrap_or_else(|_| "rustc".into()))
             .arg("-vV")
@@ -34,12 +34,12 @@ pub fn scenario(case: &str) {
     ] {
         dir.dir(name);
     }
-    dir.file("i18n/en/flea.json", r#"{"tui.combine.running":"Combining images…","tui.combine.cancelled":"Image combination cancelled."}"#);
+    dir.file("i18n/en/dlea.json", r#"{"tui.combine.running":"Combining images…","tui.combine.cancelled":"Image combination cancelled."}"#);
     if case == "font-fallback" {
         use std::os::unix::fs::PermissionsExt;
         dir.file(
             "bin/fc-match",
-            "#!/bin/sh\nprintf x >> \"$FLEA_TUI_COMBINE_ROOT/font-lookups\"\nexit 1\n",
+            "#!/bin/sh\nprintf x >> \"$DLEA_TUI_COMBINE_ROOT/font-lookups\"\nexit 1\n",
         );
         std::fs::set_permissions(
             dir.join("bin/fc-match"),
@@ -47,7 +47,7 @@ pub fn scenario(case: &str) {
         )
         .unwrap();
     }
-    let mut cmd = Command::new(flea::testpath::tool("/usr/bin/setsid"));
+    let mut cmd = Command::new(dlea::testpath::tool("/usr/bin/setsid"));
     cmd.args([
         "-w",
         "/usr/bin/bwrap",
@@ -86,9 +86,9 @@ pub fn scenario(case: &str) {
         "PATH",
         format!("{}:/usr/local/bin:/usr/bin:/bin", dir.join("bin").display()),
     )
-    .env("FLEA_TUI_COMBINE_ROOT", dir.path())
-    .env("FLEA_TUI_COMBINE_CASE", case)
-    .env("FLEA_I18N", dir.join("i18n"))
+    .env("DLEA_TUI_COMBINE_ROOT", dir.path())
+    .env("DLEA_TUI_COMBINE_CASE", case)
+    .env("DLEA_I18N", dir.join("i18n"))
     .env("TMPDIR", dir.join("tmp"))
     .env("MAGICK_THREAD_LIMIT", "1")
     .env("OMP_NUM_THREADS", "1")
@@ -117,24 +117,24 @@ pub fn scenario(case: &str) {
     }
 }
 fn backend() -> Wire {
-    let mut cmd = Command::new(flea::testpath::tool("/bin/sh"));
+    let mut cmd = Command::new(dlea::testpath::tool("/bin/sh"));
     cmd.args(["-c", r#""$1" --exact tui::combine_process_tests::tui_combine_backend_helper --ignored --nocapture --quiet | /usr/bin/sed -u -n '/^{/p'"#, "tui-combine-backend"])
-        .arg(std::env::current_exe().unwrap()).env("FLEA_TUI_COMBINE_BACKEND", "1");
+        .arg(std::env::current_exe().unwrap()).env("DLEA_TUI_COMBINE_BACKEND", "1");
     Wire::spawn(cmd).unwrap()
 }
 #[test]
 #[ignore = "private backend entry point"]
 fn tui_combine_backend_helper() {
-    if std::env::var_os("FLEA_TUI_COMBINE_BACKEND").is_some() {
+    if std::env::var_os("DLEA_TUI_COMBINE_BACKEND").is_some() {
         std::process::exit(crate::backend::run::run());
     }
 }
 #[test]
 #[ignore = "private clean combination scenarios"]
 fn tui_combine_process_helper() {
-    let root = PathBuf::from(std::env::var_os("FLEA_TUI_COMBINE_ROOT").unwrap());
-    assert!(root.is_absolute() && root.join(".flea-test-sandbox").is_file());
-    match std::env::var("FLEA_TUI_COMBINE_CASE").unwrap().as_str() {
+    let root = PathBuf::from(std::env::var_os("DLEA_TUI_COMBINE_ROOT").unwrap());
+    assert!(root.is_absolute() && root.join(".dlea-test-sandbox").is_file());
+    match std::env::var("DLEA_TUI_COMBINE_CASE").unwrap().as_str() {
         "order" => order(&root),
         "dimensions" => dimensions(&root),
         "graphics" => graphics_tests::run(&root),
@@ -152,7 +152,7 @@ fn tui_combine_process_helper() {
     }
     std::fs::write(
         root.join("executed"),
-        std::env::var("FLEA_TUI_COMBINE_CASE").unwrap(),
+        std::env::var("DLEA_TUI_COMBINE_CASE").unwrap(),
     )
     .unwrap();
 }
@@ -318,7 +318,7 @@ fn jpeg(root: &Path) {
     assert_eq!(f.format, "jpg");
     assert_eq!(
         f.settings.background,
-        flea::ui_logic_print_convert::composition::Background::White
+        dlea::ui_logic_print_convert::composition::Background::White
     );
     assert!(f.name.ends_with(".jpg"));
     assert!(!combine::geometry(&m)

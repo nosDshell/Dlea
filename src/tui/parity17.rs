@@ -1,5 +1,5 @@
 //! Follow-on yazi actions share the existing listing, operation and terminal lifecycles.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::{
     model::Model,
     wire::{count, flag, number, text, word, Wire},
@@ -104,7 +104,7 @@ pub fn receive(m: &mut Model, value: &Json, w: &mut Wire) -> io::Result<bool> {
                 && listing == w.listing
                 && m.pending.is_none()
             {
-                let folder = flea::bytename::exact(text(value, "directory"));
+                let folder = dlea::bytename::exact(text(value, "directory"));
                 let name = text(value, "name");
                 // A broken link says so; a link to / opens / itself, which has no folder to show it in.
                 if folder.is_absolute() && folder.join(name).symlink_metadata().is_err() {
@@ -219,8 +219,8 @@ fn stale(m: &Model, value: &Json, w: &Wire) -> bool {
         || asked.is_some_and(|listing| listing != count(value, "listing"))
 }
 pub fn copy_text(paths: &[String], form: &str, cwd: &std::path::Path) -> String {
-    use flea::ui_logic_context_menus::copyas;
-    let mut paths: Vec<PathBuf> = paths.iter().map(flea::bytename::exact).collect();
+    use dlea::ui_logic_context_menus::copyas;
+    let mut paths: Vec<PathBuf> = paths.iter().map(dlea::bytename::exact).collect();
     if paths.is_empty() && matches!(form, "dirpath" | "dirurl") {
         paths.push(cwd.join("placeholder"));
     }

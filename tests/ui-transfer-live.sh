@@ -12,7 +12,7 @@ transferlive_ms_per_s=1000
 transferlive_si_step=1000
 # The throughput sample: this much fresh random data, then one read/write copy of it.
 transferlive_probe_mib=512
-# src/backend/copyfile.rs CHUNK, so the sample copies in the same 256 KiB reads and writes Flea's own loop does.
+# src/backend/copyfile.rs CHUNK, so the sample copies in the same 256 KiB reads and writes Dlea's own loop does.
 transferlive_chunk=256K
 # The payload aims at this long a copy at the sampled rate; the sample runs in page cache, so a real leg only runs longer.
 transferlive_target_s=8
@@ -123,23 +123,23 @@ transferlive_seconds() {
     esac
 }
 
-# Each y starts a detached flea --clip-own (src/clip/own.rs spawn_owner) that holds the selection until a newer copy cancels it, so kill_flea never drains it.
+# Each y starts a detached dlea --clip-own (src/clip/own.rs spawn_owner) that holds the selection until a newer copy cancels it, so kill_dlea never drains it.
 transferlive_stop_owners() {
     local pid pids result=0 deadline=$((SECONDS + drain_wait_s))
     local -a owned=() alive=()
-    pids=$(pgrep -x flea) || result=$?
+    pids=$(pgrep -x dlea) || result=$?
     (( result <= 1 )) || return 1
     for pid in $pids; do
-        # Sample cmdline: "/usr/bin/flea\0--clip-own\0", which tr reads as "/usr/bin/flea --clip-own ".
+        # Sample cmdline: "/usr/bin/dlea\0--clip-own\0", which tr reads as "/usr/bin/dlea --clip-own ".
         [[ "$(tr '\0' ' ' 2>/dev/null < "/proc/$pid/cmdline")" == *" --clip-own " ]] || continue
-        flea_process_owned "$pid" || continue
+        dlea_process_owned "$pid" || continue
         owned+=("$pid")
         kill "$pid" 2>/dev/null || true
     done
     while (( ${#owned[@]} > 0 )); do
         alive=()
         for pid in "${owned[@]}"; do
-            if flea_process_owned "$pid"; then alive+=("$pid"); fi
+            if dlea_process_owned "$pid"; then alive+=("$pid"); fi
         done
         owned=("${alive[@]}")
         (( ${#owned[@]} > 0 )) || break
@@ -154,7 +154,7 @@ transferlive_teardown() {
     for pid in "${transferlive_writer_pids[@]}"; do kill "$pid" 2>/dev/null || true; done
     for pid in "${transferlive_writer_pids[@]}"; do wait "$pid" 2>/dev/null || true; done
     transferlive_writer_pids=()
-    ( kill_flea ) || drained=0
+    ( kill_dlea ) || drained=0
     ( transferlive_stop_owners ) || drained=0
     if [[ -n "$transferlive_bus_pid" ]]; then kill "$transferlive_bus_pid" 2>/dev/null || true; fi
     transferlive_bus_pid=""
@@ -162,9 +162,9 @@ transferlive_teardown() {
     (( drained )) || fail "transferlive: the window or a clipboard owner did not drain at teardown; the payload was deleted anyway"
 }
 
-# A diagnostic for a transfer that stalls: FLEA_TRANSFERLIVE_SYNC=1 waits for the fixture's own writeback before each launch.
+# A diagnostic for a transfer that stalls: DLEA_TRANSFERLIVE_SYNC=1 waits for the fixture's own writeback before each launch.
 transferlive_sync() {
-    if [[ "${FLEA_TRANSFERLIVE_SYNC:-}" == 1 ]]; then
+    if [[ "${DLEA_TRANSFERLIVE_SYNC:-}" == 1 ]]; then
         sync -f "$transferlive_root" || fail "transferlive: sync -f $transferlive_root failed"
     fi
 }
@@ -549,7 +549,7 @@ transferlive_one() {
     transferlive_watch one "$want" 1 'big\.bin'
     transferlive_settled one "Copied 1 item · z undoes"
     transferlive_sample_one="[$transferlive_seen_first] [$transferlive_seen_last]"
-    kill_flea
+    kill_dlea
     transferlive_holds "$dir/to" "big.bin"
     menus_same_file "one: the copy is byte-identical to its source" "$dir/big.bin" "$dir/to/big.bin"
     sandbox_remove "$dir"
@@ -598,7 +598,7 @@ transferlive_batch() {
     printf 'TRANSFERLIVE_BATCH_TOTAL of=[%s] skipped_only_would_read=[%s] all_three_would_read=[%s] totaled_lines=%s before_the_sweep=[%s]\n' \
         "$want" "$skipped" "$every" "$transferlive_seen_totaled" "$transferlive_seen_early"
     transferlive_sample_batch="[$transferlive_seen_first] [$transferlive_seen_last]"
-    kill_flea
+    kill_dlea
     transferlive_holds "$dir/to" "a.bin b.bin c.bin"
     [[ "$(cat "$dir/to/b.bin")" == there ]] || fail "transferlive: batch: Skip wrote over the b.bin already there"
     for name in a.bin c.bin; do
@@ -635,7 +635,7 @@ transferlive_replace() {
     transferlive_watch replace "$want" 1 'big\.bin'
     transferlive_settled replace "Copied 1 item · z undoes"
     transferlive_sample_replace="[$transferlive_seen_first] [$transferlive_seen_last]"
-    kill_flea
+    kill_dlea
     [[ "$(cat "$replace_trash/big.bin" 2>/dev/null)" == there ]] \
         || fail "transferlive: replace: the replaced big.bin is not in $replace_trash: $(ls -A "$replace_trash" 2>&1)"
     transferlive_holds "$dir/to" "big.bin"

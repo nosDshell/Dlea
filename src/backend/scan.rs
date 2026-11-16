@@ -1,5 +1,5 @@
 use crate::backend::listing::Listing;
-use crate::error::{from_io, FleaError};
+use crate::error::{from_io, DleaError};
 use std::ffi::{c_char, c_int, CString};
 use std::fs;
 use std::os::unix::fs::MetadataExt;
@@ -7,11 +7,11 @@ use std::time::Instant;
 
 // Phase 1 stats only typeless entries: d_type is free, see AGENTS.md "Two-phase listing".
 // hidden:false is the shell's own dotfile convention, matched here rather than left to the client.
-pub fn scan(path: &str, hidden: bool) -> Result<(Listing, f64), FleaError> {
+pub fn scan(path: &str, hidden: bool) -> Result<(Listing, f64), DleaError> {
     #[cfg(test)]
     super::scanhold::held(path, super::scanhold::Stage::Read);
     // The gvfs check first, so a local listing never reads the prefetch environment or the gio name.
-    if !super::gvfslist::is_gvfs(&flea::bytename::view(path)) {
+    if !super::gvfslist::is_gvfs(&dlea::bytename::view(path)) {
         return scan_with(path, hidden, None, "gio");
     }
     scan_with(path, hidden, crate::gvfsprefetch::env_prefetch(), &super::gvfslist::gio_bin())
@@ -23,7 +23,7 @@ pub fn scan_with(
     hidden: bool,
     prefetch: Option<crate::gvfsprefetch::Prefetch>,
     gio: &str,
-) -> Result<(Listing, f64), FleaError> {
+) -> Result<(Listing, f64), DleaError> {
     scan_in(path, hidden, prefetch, gio, &crate::gvfsprefetch::runtime_dir)
 }
 
@@ -34,9 +34,9 @@ pub(crate) fn scan_in(
     prefetch: Option<crate::gvfsprefetch::Prefetch>,
     gio: &str,
     runtime: &dyn Fn() -> Option<std::path::PathBuf>,
-) -> Result<(Listing, f64), FleaError> {
+) -> Result<(Listing, f64), DleaError> {
     // One prefix check: local and USB paths take exactly today's code past it.
-    if super::gvfslist::is_gvfs(&flea::bytename::view(path)) {
+    if super::gvfslist::is_gvfs(&dlea::bytename::view(path)) {
         // The launcher's head start on this exact path; anything else takes today's gio path.
         if let Some(found) = prefetch.as_ref().and_then(|p| crate::gvfsprefetch::adopt_matching_in(path, hidden, p, runtime().as_deref())) {
             return Ok(found);
@@ -93,7 +93,7 @@ fn dir_from_dtype_resolved(dtype: u8, mode: Option<u32>) -> (bool, bool) {
 }
 
 // Sample input: code 5 answers Err, code 0 answers Ok; scan_raw returns exactly this.
-fn finish_raw(code: c_int, path: &str) -> Result<(), FleaError> {
+fn finish_raw(code: c_int, path: &str) -> Result<(), DleaError> {
     if code != 0 {
         return Err(from_io("scan", path, &std::io::Error::from_raw_os_error(code)));
     }
@@ -133,10 +133,10 @@ fn stat_mode_at(fd: c_int, raw: &[u8]) -> Option<u32> {
 }
 
 // Raw getdents with an fstatat fallback for typeless entries only, so xfs ftype=0 resolves before any order.
-fn scan_raw(path: &str, hidden: bool, l: &mut Listing) -> Result<(), FleaError> {
+fn scan_raw(path: &str, hidden: bool, l: &mut Listing) -> Result<(), DleaError> {
     // The folder's exact bytes, so a folder whose own name is not UTF-8 lists like any other.
     let c = match CString::new(std::os::unix::ffi::OsStrExt::as_bytes(
-        flea::bytename::text_path(path).as_os_str(),
+        dlea::bytename::text_path(path).as_os_str(),
     )) {
         Ok(c) => c,
         Err(_) => {
@@ -165,7 +165,7 @@ fn scan_raw(path: &str, hidden: bool, l: &mut Listing) -> Result<(), FleaError> 
         let dtype = unsafe { (*entry).dtype };
         let bytes: Vec<u8> = unsafe { (*entry).name.iter().take_while(|&&b| b != 0).map(|&b| b as u8).collect() };
         // A name that is not UTF-8 keeps its exact bytes in its text, so a row never names its lossy twin.
-        let name = flea::bytename::name_text(&bytes);
+        let name = dlea::bytename::name_text(&bytes);
         // readdir returns . and .. like any other entry, while ReadDir filters them.
         if name == "." || name == ".." {
             continue;
@@ -192,7 +192,7 @@ fn scan_raw(path: &str, hidden: bool, l: &mut Listing) -> Result<(), FleaError> 
 pub fn mode_of(path: &str) -> u32 {
     #[cfg(test)]
     super::scanhold::held(path, super::scanhold::Stage::Mode);
-    match fs::metadata(flea::bytename::text_path(path)) {
+    match fs::metadata(dlea::bytename::text_path(path)) {
         Ok(m) => m.mode(),
         Err(_) => 0,
     }

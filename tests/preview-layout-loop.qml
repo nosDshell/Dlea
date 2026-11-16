@@ -1,14 +1,14 @@
-//@ pragma ShellId flea-preview-layout-loop-test
+//@ pragma ShellId dlea-preview-layout-loop-test
 
 import QtQuick
 import QtTest
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // Real column and Quick Look hosts, including first Source toggle and nearest documents across overflow.
 ShellRoot {
     id: shell
-    readonly property string dir: Quickshell.env("FLEA_LAYOUT_DIR")
+    readonly property string dir: Quickshell.env("DLEA_LAYOUT_DIR")
     property int scenario: -1
     property int stage: 0
     property int cases: 0
@@ -129,9 +129,9 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 1400
         implicitHeight: 920
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
         TestEvent { id: driver }
-        Flea.PreviewMarkdown {
+        Dlea.PreviewMarkdown {
             id: firstToggle
             x: 1020
             width: 350
@@ -141,12 +141,12 @@ ShellRoot {
             size: 1
             view: "rendered"
         }
-        Flea.PreviewColumn { id: column; width: 380; height: 860 }
+        Dlea.PreviewColumn { id: column; width: 380; height: 860 }
         Item {
             id: lookHost
             width: 1000
             height: 800
-            Flea.Preview { id: look; anchors.fill: parent }
+            Dlea.Preview { id: look; anchors.fill: parent }
         }
     }
 
@@ -206,7 +206,7 @@ ShellRoot {
         var ring = pane.barGeometry().close.ringItem
         var bar = pane.barGeometry().bar
         var rect = ring.mapToItem(surface, 0, 0, ring.width, ring.height)
-        var rule = bar.mapToItem(surface, 0, bar.height).y - Flea.Theme.spacing.hairline
+        var rule = bar.mapToItem(surface, 0, bar.height).y - Dlea.Theme.spacing.hairline
         var shown = ring.visible
         look.markdownCloseFocus = false
         if (!shell.check(shown, label + " close ring is not drawn while focused")) return
@@ -238,7 +238,7 @@ ShellRoot {
         if (!shell.columnHost) shell.quickLookFrame(label)
         if (shell.done) return
         var bar = shell.barFor(md, f)
-        if (!shell.check(bar && bar.width === Flea.Theme.spacing.rowPaddingX,
+        if (!shell.check(bar && bar.width === Dlea.Theme.spacing.rowPaddingX,
             "scroll lane changed its fixed overlay geometry")) return
         if (!shell.check(bar.overflow === (h - md.height > 0.5), "overflow disagrees with laid-out content")) return
         shell.cases++
@@ -394,8 +394,8 @@ ShellRoot {
                 return
             }
             if (shell.scenario < 0) {
-                if (!Flea.Theme.ready) return
-                if (!shell.check(String(Flea.Theme.color.background) === Quickshell.env("FLEA_LAYOUT_BACKGROUND"), "theme did not load")) return
+                if (!Dlea.Theme.ready) return
+                if (!shell.check(String(Dlea.Theme.color.background) === Quickshell.env("DLEA_LAYOUT_BACKGROUND"), "theme did not load")) return
                 shell.begin()
                 return
             }

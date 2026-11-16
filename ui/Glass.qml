@@ -6,11 +6,11 @@ import qs.Commons
 import qs.Commons as Commons
 import "js/Material.js" as Material
 
-// shell.toml's [flea] background-alpha through Omarchy's reader, and Omarchy's Window Transparency mode: one plane per pixel, content opaque; AGENTS.md "Theme roles and sources".
+// shell.toml's [dlea] background-alpha through Omarchy's reader, and Omarchy's Window Transparency mode: one plane per pixel, content opaque; AGENTS.md "Theme roles and sources".
 QtObject {
     id: root
 
-    readonly property string key: "flea.background-alpha"
+    readonly property string key: "dlea.background-alpha"
     // Pick candidate A: match Nautilus's 0.75 ground, lifting text rather than fading it like window opacity does.
     property real glassAlpha: root.mode === "glassy" && root.usesDefault ? Material.floor(Theme.color.opaquePalette, Theme.textContrast) / 255 : 1
     property bool focused: Qt.application.active
@@ -22,7 +22,7 @@ QtObject {
     property bool hasGlassy: false
     // Set once by launch(), before the window exists, because a Wayland surface's format is fixed at creation.
     property bool clear: false
-    // In whole 8-bit steps, so a value that rounds to 1 is 1; a launch a [flea] value pins opaque holds 1 until the next launch.
+    // In whole 8-bit steps, so a value that rounds to 1 is 1; a launch a [dlea] value pins opaque holds 1 until the next launch.
     readonly property real alpha: root.clear ? root.stepped(root.wanted()) : 1
     // False keeps every plane on its own opaque role, so a stock theme draws exactly what it drew before.
     readonly property bool on: root.alpha < 1
@@ -49,11 +49,11 @@ QtObject {
     property Connections reloads: Connections {
         target: Theme
         function onConfigReloaded() { root.reread(); root.retag() }
-        function onFleaWindowOpened() { root.startTagger() }
+        function onDleaWindowOpened() { root.startTagger() }
     }
     // Only inside Hyprland, as ui/Theme.qml's event hookup: a headless run has no compositor to ask.
     readonly property bool inHyprland: Quickshell.env("HYPRLAND_INSTANCE_SIGNATURE") !== null
-    // ui/GlassTagger.qml, made when Hyprland opens the first Flea window, so it costs nothing before the first rows.
+    // ui/GlassTagger.qml, made when Hyprland opens the first Dlea window, so it costs nothing before the first rows.
     property QtObject tagger: null
     onModeChanged: root.retag()
     onUsesDefaultChanged: root.retag()
@@ -86,7 +86,7 @@ QtObject {
         root.mode = root.hasGlassy ? "glassy" : root.hasOpaque ? "opaque" : "transparent"
     }
 
-    // A [flea] value that pins 1 keeps an opaque surface; every other launch is made clear, so each Window Transparency switch shows live.
+    // A [dlea] value that pins 1 keeps an opaque surface; every other launch is made clear, so each Window Transparency switch shows live.
     function pinsOpaque() {
         var user = root.valueIn(Commons.Color.userShellValues)
         if (user >= 0) return root.stepped(user) >= 1

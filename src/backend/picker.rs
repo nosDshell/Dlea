@@ -1,5 +1,5 @@
 // Picker checks retain reviewed objects; only the application receiving a URI writes its contents.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::listing::Listing;
 use super::mime::Db;
 use super::opsreq::OpMsg;
@@ -53,7 +53,7 @@ impl Picker {
         }
         if let Err(error) = self.requests.try_send(line) {
             let (line, message) = match error {
-                TrySendError::Full(line) => (line, "Flea is still checking this item; try again."),
+                TrySendError::Full(line) => (line, "Dlea is still checking this item; try again."),
                 TrySendError::Disconnected(line) => (line, "The check stopped; open the file chooser again."),
             };
             let _ = self.replies.send(OpMsg::Meta { line: response(&line, Err(message.into())) });
@@ -147,7 +147,7 @@ impl State {
         let id = field_usize(line, "id").filter(|id| *id > 0).ok_or("Picker request has no identity.")?;
         match field_str(line, "op").as_deref() {
             Some("mark") => {
-                let path = flea::bytename::exact(field_str(line, "path").unwrap_or_default());
+                let path = dlea::bytename::exact(field_str(line, "path").unwrap_or_default());
                 if let Some(index) = self.marks.iter().position(|item| item.path == path) {
                     self.marks.remove(index);
                 } else {
@@ -163,7 +163,7 @@ impl State {
             Some("select") => {
                 let paths: Vec<PathBuf> = field_str_array(line, "paths")
                     .into_iter()
-                    .map(flea::bytename::exact)
+                    .map(dlea::bytename::exact)
                     .collect();
                 let directory = field_bool(line, "directory");
                 self.select(&paths, directory, cancel, Held::open)
@@ -171,7 +171,7 @@ impl State {
             Some("validate") => self.valid_marks(cancel),
             Some("save") => {
                 self.save = None;
-                let path = flea::bytename::exact(field_str(line, "folder").unwrap_or_default());
+                let path = dlea::bytename::exact(field_str(line, "folder").unwrap_or_default());
                 let name = field_str(line, "name").unwrap_or_default();
                 if let Some(refusal) = super::ops::name_refusal_sentence(&name) { return Err(refusal); }
                 let folder = Held::open(&path, true)?;

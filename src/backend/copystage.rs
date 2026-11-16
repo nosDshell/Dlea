@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::Mutex;
 
-pub(crate) const PREFIX: &str = ".flea-part-";
+pub(crate) const PREFIX: &str = ".dlea-part-";
 // FUSE_SUPER_MAGIC: a daemon's rename may be refused, copied on the device or re-uploaded, so FUSE writes in place.
 const FUSE_MAGIC: i64 = 0x65735546;
 // An inode with no name until linkat gives it one, so a kill or a crash leaves nothing behind.
@@ -181,7 +181,7 @@ fn sibling<T>(parent: &Path, make: impl Fn(&Path) -> io::Result<T>) -> io::Resul
     }
 }
 
-// Sample output: ".flea-part-3f2a9c1e-48211-7", the boot, this process and its seventh file or folder.
+// Sample output: ".dlea-part-3f2a9c1e-48211-7", the boot, this process and its seventh file or folder.
 fn leaf(seq: u64) -> String {
     format!("{PREFIX}{}-{}-{seq}", boot(), std::process::id())
 }

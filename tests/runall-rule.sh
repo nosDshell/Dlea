@@ -5,7 +5,7 @@ cd "$(dirname "$0")/.." || exit 1
 # A pipe holds 64 KB; a suite printing more than this after its FAIL line is what a loud real suite does.
 PIPE_BYTES=65536
 FILLER_BYTES=$((PIPE_BYTES * 2))
-MARKER=.flea-test-sandbox
+MARKER=.dlea-test-sandbox
 box=$(mktemp -d) || exit 1
 : > "$box/$MARKER"
 # Removes only an absolute, non-empty root that still carries its marker.
@@ -18,7 +18,7 @@ trap cleanup EXIT
 python3 -B tests/headless-commons-check.py "$box" || exit 1
 checks=0
 bad=0
-# The verdict word is reworded in every line this suite prints, so only a real failure reads as one to flea-ci.
+# The verdict word is reworded in every line this suite prints, so only a real failure reads as one to dlea-ci.
 say() { local s=$*; printf '%s\n' "${s//FAIL/failed}"; }
 check() {
     checks=$((checks + 1))
@@ -92,9 +92,9 @@ for pattern in '^fail_line=' '\|\| printed=\$\('; do
     fi
 done
 
-# flea-ci shards run-all.sh to loop over FLEA_CI_SUITES and keep each log in FLEA_CI_SUITE_LOGS; the scratch run points both at itself.
+# dlea-ci shards run-all.sh to loop over DLEA_CI_SUITES and keep each log in DLEA_CI_SUITE_LOGS; the scratch run points both at itself.
 mkdir -p "$box/logs" || exit 1
-out=$(env PATH="$box/bin:$PATH" FLEA_CI_SUITES="$names" FLEA_CI_SUITE_LOGS="$box/logs" bash "$box/tests/run-all.sh" 2>&1)
+out=$(env PATH="$box/bin:$PATH" DLEA_CI_SUITES="$names" DLEA_CI_SUITE_LOGS="$box/logs" bash "$box/tests/run-all.sh" 2>&1)
 status=$?
 # The line run-all printed for one suite.
 line_of() { grep -a -E -- "^  $1 +" <<< "$out" | head -n 1; }

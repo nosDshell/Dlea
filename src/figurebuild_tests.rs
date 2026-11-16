@@ -323,7 +323,7 @@ fn a_cache_root_that_is_gone_is_not_recreated_by_a_late_build() {
 
 #[test]
 fn foreign_and_newer_manifests_survive_read_build_and_sweep() {
-    for original in ["{\"foreign\":true}\n", "flea-figures 999\nkey future\n", "unparsable"] {
+    for original in ["{\"foreign\":true}\n", "dlea-figures 999\nkey future\n", "unparsable"] {
         let rig = rig("figure-preserve");
         let key = figurecache::key(&rig.qjs, &rig.ui).unwrap();
         let dir = rig.root.join(&key);

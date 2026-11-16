@@ -33,7 +33,7 @@ case_tabs() {
     # A remembered strip is whole: the single tabs dir with its index, never a refused half patch.
     local tabs_doc=""
     for _attempt in $(seq 1 40); do
-        tabs_doc=$(env XDG_STATE_HOME="$suite_state" "$flea_bin" --ui-state 2>/dev/null || true)
+        tabs_doc=$(env XDG_STATE_HOME="$suite_state" "$dlea_bin" --ui-state 2>/dev/null || true)
         [[ -n "$tabs_doc" ]] || { sleep 0.25; continue; }
         if printf '%s' "$tabs_doc" | jq -e --arg dir "$dir" '.lastPath == $dir and .lastTabs == {paths: [$dir], index: 0}' >/dev/null; then
             break
@@ -69,7 +69,7 @@ case_tabs() {
     (( $(date +%s%N) - notice_seen_ns < withdraw_within_ms * 1000000 )) || fail "tabs: the empty read landed past $withdraw_within_ms ms, inside the bar's own expiry"
     shot tabs-two
     printf 'TABS count=%s index=%s labels=%s\n' "$(ipc tabCount)" "$(ipc tabIndex)" "$(ipc tabLabels)"
-    kill_flea
+    kill_dlea
 }
 
 case_tabdrag() {
@@ -129,7 +129,7 @@ case_tabdrag() {
     [[ "$(ipc tabIndex)" == "2" ]] || fail "tabdrag: clicking tab 2 after a drag did not select it"
     printf 'TABDRAG labels=%s index=%s\n' "$(ipc tabLabels)" "$(ipc tabIndex)"
     shot tabdrag-dropped
-    kill_flea
+    kill_dlea
 }
 
 case_middleclick() {
@@ -186,7 +186,7 @@ case_middleclick() {
     wait_tabs "$((count + 1))" "a middle click on the Fav row"
     wait_path "$dir/fav"
     shot middleclick-rail
-    kill_flea
+    kill_dlea
 }
 
 case_opentab() {
@@ -230,12 +230,12 @@ case_opentab() {
         [[ "$(ipc visibleRowName 0)" == alpha ]] || fail "opentab: $view never drew alpha at row 0 after the tab switch"
     done
     shot opentab-views
-    kill_flea
+    kill_dlea
 }
 
 case_folderviews() {
     local root="$fixture_root/folderviews" state="$fixture_root/folderviews-state" off_state="$fixture_root/folderviews-off-state" d
-    local stored="$state/flea/ui.json"
+    local stored="$state/dlea/ui.json"
     sandbox_scratch "$root"
     for d in a b c; do
         mkdir -p "$root/$d"
@@ -297,14 +297,14 @@ case_folderviews() {
     folderviews_is columns "B after a relaunch"
     launch "$root/c"; wait_listing 2
     folderviews_is list "C, which holds no view, after a relaunch"
-    kill_flea
+    kill_dlea
 
     seed_ui_state "$off_state" '{"view":"list"}'
     launch "$root/a"; wait_listing 2
     switch_view grid
     launch "$root/b"; wait_listing 2
     folderviews_is grid "B, off, in the last-used view"
-    kill_flea
-    jq -e '(.folderViews // {}) | length == 0' "$off_state/flea/ui.json" >/dev/null || fail "folderviews: off, the state file holds $(jq -c .folderViews "$off_state/flea/ui.json")"
+    kill_dlea
+    jq -e '(.folderViews // {}) | length == 0' "$off_state/dlea/ui.json" >/dev/null || fail "folderviews: off, the state file holds $(jq -c .folderViews "$off_state/dlea/ui.json")"
     printf 'FOLDERVIEWS ok\n'
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # An absent recently-used.xbel answers no rows with no warning, a present one lists its bookmarks, and a directory answers no rows with one warning.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 command -v qs >/dev/null || { echo "picker-recent.sh: qs is not installed, cannot load the reader"; exit 1; }
 
@@ -17,11 +17,11 @@ cleanup() {
 trap cleanup EXIT
 
 home="$fixture/home"
-mkdir -p "$home" "$fixture/data" "$fixture/flea/js"
+mkdir -p "$home" "$fixture/data" "$fixture/dlea/js"
 # No xbel here on purpose: the absent case is the first refresh.
-cp ui/PickerRecent.qml "$fixture/flea/"
-cp ui/js/Recent.js ui/js/Format.js "$fixture/flea/js/"
-printf 'module flea\nPickerRecent 1.0 PickerRecent.qml\n' > "$fixture/flea/qmldir"
+cp ui/PickerRecent.qml "$fixture/dlea/"
+cp ui/js/Recent.js ui/js/Format.js "$fixture/dlea/js/"
+printf 'module dlea\nPickerRecent 1.0 PickerRecent.qml\n' > "$fixture/dlea/qmldir"
 cp tests/picker-recent.qml "$fixture/shell.qml"
 
 log="$fixture/qs.log"

@@ -142,11 +142,11 @@ fn backend_stopped_names_the_archive_or_not() {
     let i18n = english();
     assert_eq!(
         backend_stopped_line(&i18n, Some("backup.7z")),
-        "backup.7z could not be opened because the Flea backend stopped; reopen Flea and try again."
+        "backup.7z could not be opened because the Dlea backend stopped; reopen Dlea and try again."
     );
     assert_eq!(
         backend_stopped_line(&i18n, None),
-        "This archive could not be opened because the Flea backend stopped; reopen Flea and try again."
+        "This archive could not be opened because the Dlea backend stopped; reopen Dlea and try again."
     );
 }
 

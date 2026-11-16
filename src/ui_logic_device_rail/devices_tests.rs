@@ -9,7 +9,7 @@ use crate::jsondoc::Json;
 // The live box's own listing, taken 2026-09-11 with one stick in; the encrypted root lists four mountpoints.
 pub(super) const LIVE: &str = concat!(
     r#"{"blockdevices":["#,
-    r#"{"name":"loop0","path":"/dev/loop0","label":"FLEATEST","mountpoints":[null],"rm":false,"size":67108864,"type":"loop","model":null},"#,
+    r#"{"name":"loop0","path":"/dev/loop0","label":"DLEATEST","mountpoints":[null],"rm":false,"size":67108864,"type":"loop","model":null},"#,
     r#"{"name":"sda","path":"/dev/sda","label":null,"mountpoints":[null],"rm":true,"size":124656812032,"type":"disk","model":"USB Flash Disk","#,
     r#""children":[{"name":"sda1","path":"/dev/sda1","label":"128GB","mountpoints":["/run/media/gm/128GB"],"rm":true,"size":124656812032,"type":"part","model":null}]},"#,
     r#"{"name":"zram0","path":"/dev/zram0","label":"zram0","mountpoints":["[SWAP]"],"rm":false,"size":20724056064,"type":"disk","model":null},"#,

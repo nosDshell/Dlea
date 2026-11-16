@@ -1,10 +1,10 @@
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::{
     model::{Model, Row},
     wire::{count, text, Wire},
 };
 use crate::jsondoc::{self, Json};
-use flea::ui_logic_file_search::{parse_line, ContentsMatch, Line, Request, Scope, Session};
+use dlea::ui_logic_file_search::{parse_line, ContentsMatch, Line, Request, Scope, Session};
 use std::{collections::BTreeMap, io, path::PathBuf};
 
 mod failure;
@@ -26,7 +26,7 @@ struct Block {
 #[derive(Default)]
 pub(super) struct State {
     pub mode: bool,
-    pub session: flea::ui_logic_file_search::Session,
+    pub session: dlea::ui_logic_file_search::Session,
     pub next: usize,
     // The generation a committed line's Enter acts on once its rows land (enter_once.rs).
     pub enter_after: Option<usize>,
@@ -85,7 +85,7 @@ pub(super) fn start(
         m.find.session.scope = m.find.active.as_ref().map_or(Scope::Folder, |q| q.scope);
         return Ok(false);
     };
-    let root = flea::bytename::exact(root);
+    let root = dlea::bytename::exact(root);
     if m.find.previous.is_none() {
         m.find.previous = Some((
             m.search.clone(),

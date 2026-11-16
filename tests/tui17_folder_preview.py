@@ -17,12 +17,12 @@ import time
 import zlib
 
 binary, mode = Path(sys.argv[1]), sys.argv[2]
-root = Path(tempfile.mkdtemp(prefix="flea-test-tui17-folder-"))
+root = Path(tempfile.mkdtemp(prefix="dlea-test-tui17-folder-"))
 assert root.is_absolute() and root.parent == Path(tempfile.gettempdir())
-(root / ".flea-test-sandbox").write_text("TUI17 folder preview fixture\n")
+(root / ".dlea-test-sandbox").write_text("TUI17 folder preview fixture\n")
 
 def cleanup():
-    assert root.is_absolute() and str(root) and (root / ".flea-test-sandbox").is_file()
+    assert root.is_absolute() and str(root) and (root / ".dlea-test-sandbox").is_file()
     shutil.rmtree(root)
 
 try:
@@ -36,7 +36,7 @@ try:
     for name in ("Empty", "Locked", "Many", "Media"):
         (root / "work" / name).mkdir()
     (root / "work/Media/letter.odt").write_bytes(b"PK not really an office document\n")
-    (root / "work/Media/blob.dat").write_bytes(b"\x00\x01\x02flea visual gate blob\x03")
+    (root / "work/Media/blob.dat").write_bytes(b"\x00\x01\x02dlea visual gate blob\x03")
     (root / "work/notes.txt").write_text("notes\n")
     (root / "work/todo.md").write_text("todo\n")
     (root / "work/Code").mkdir()

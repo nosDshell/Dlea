@@ -14,11 +14,11 @@ mkdir -p -- "$W/.superpowers/g05"
 scratch=$(mktemp -d "$W/.superpowers/g05/golden.XXXXXX")
 [[ "$scratch" = "$W"/.superpowers/g05/golden.?* ]] || exit 2
 printf '%s\n' 'g05 theme golden scratch' > "$scratch/.g05-test-root"
-mkdir -p -- "$scratch/home/.local/state/omarchy/current/theme" "$scratch/home/.local/state/flea" \
+mkdir -p -- "$scratch/home/.local/state/omarchy/current/theme" "$scratch/home/.local/state/dlea" \
     "$scratch/cache" "$scratch/config" "$scratch/runtime"
 chmod 700 -- "$scratch/runtime"
 printf '%s\n' 'background = "#101315"' 'foreground = "#cacccc"' > "$scratch/home/.local/state/omarchy/current/theme/colors.toml"
-printf '%s\n' '{"display":{"textSize":{"mode":"system"}}}' > "$scratch/home/.local/state/flea/ui.json"
+printf '%s\n' '{"display":{"textSize":{"mode":"system"}}}' > "$scratch/home/.local/state/dlea/ui.json"
 cp -- "$W/tools/theme-golden/dump.qml" "$scratch/shell.qml"
 ln -s -- "$commons/Commons" "$scratch/Commons"
 ln -s -- "$oracle" "$scratch/Oracle"
@@ -28,7 +28,7 @@ fi
 python3 "$W/tools/theme-golden/manifest.py" "$scratch" "$commons" "$@"
 set +e
 HOME="$scratch/home" XDG_CONFIG_HOME="$scratch/config" XDG_CACHE_HOME="$scratch/cache" \
-    XDG_STATE_HOME="$scratch/home/.local/state" XDG_RUNTIME_DIR="$scratch/runtime" FLEA_GOLDEN_MANIFEST="$scratch/palettes.json" \
+    XDG_STATE_HOME="$scratch/home/.local/state" XDG_RUNTIME_DIR="$scratch/runtime" DLEA_GOLDEN_MANIFEST="$scratch/palettes.json" \
     QSG_RHI_BACKEND=opengl QT_QPA_PLATFORM=offscreen \
     timeout --signal=TERM 120s qs -p "$scratch" > "$scratch/qs.log" 2>&1
 status=$?
@@ -66,7 +66,7 @@ if cases != {(name, str(stop)) for name in expected for stop in (12, 14)}:
     raise SystemExit('palette/stop coverage mismatch')
 if len(rows) != len(set('\t'.join(r.split('\t')[:3]) for r in rows)):
     raise SystemExit('duplicate token rows')
-print('# QML golden, live Omarchy Commons plus frozen Flea QML, tag rule 2026-10-17')
+print('# QML golden, live Omarchy Commons plus frozen Dlea QML, tag rule 2026-10-17')
 print('# palette\tstop\ttoken\tvalue; colors are #AARRGGBB; input.* retains reproducible inputs')
 print('\n'.join(rows))
 print(f'evidence: {scratch}', file=sys.stderr)

@@ -62,7 +62,7 @@ def core_xml(title, author, created="2025-06-02T09:00:00Z"):
 def app_xml(extra):
     return ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Properties '
             'xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties">'
-            f'<Application>flea fixture</Application>{extra}</Properties>\n').encode()
+            f'<Application>dlea fixture</Application>{extra}</Properties>\n').encode()
 
 
 ROOT_RELS = ('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships '
@@ -236,8 +236,8 @@ def encryption_info(salt, key, verifier):
 
 def encrypted(package, salt=None):
     """The package encrypted with PASSWORD into a 15-sector compound file, exactly 8,192 bytes."""
-    salt = salt or hashlib.sha256(b"flea fixture lease salt").digest()[:16]
-    verifier = hashlib.sha256(b"flea fixture lease verifier").digest()[:16]
+    salt = salt or hashlib.sha256(b"dlea fixture lease salt").digest()[:16]
+    verifier = hashlib.sha256(b"dlea fixture lease verifier").digest()[:16]
     key = standard_key(PASSWORD, salt)
     info = encryption_info(salt, key, verifier)
     padded = package + b"\0" * (-len(package) % 16)

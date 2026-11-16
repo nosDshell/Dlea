@@ -169,8 +169,8 @@ fn tui_convert_rtl_rows_mirror_the_format_edge_and_the_option_brackets() {
         include_str!("../i18n/fixtures/locales.json"),
     );
     root.file(
-        "catalog/en/flea.json",
-        include_str!("../../i18n/en/flea.json"),
+        "catalog/en/dlea.json",
+        include_str!("../../i18n/en/dlea.json"),
     );
     let (mut w, reader) = wire::echo_wire();
     let mut m = opened(&mut w, "photo.png");
@@ -255,10 +255,10 @@ fn tui_convert_rtl_rows_mirror_the_format_edge_and_the_option_brackets() {
         "the underline starts with the label, not its padding"
     );
     // A catalog output label without the trailing separator still fits its lead whole.
-    let catalog = include_str!("../../i18n/en/flea.json");
+    let catalog = include_str!("../../i18n/en/dlea.json");
     let en = catalog.replace("\"Output \"", "\"Output\"");
     assert_ne!(en, catalog, "the fixture drops the trailing separator");
-    root.file("catalog/en/flea.json", &en);
+    root.file("catalog/en/dlea.json", &en);
     m.i18n = crate::i18n::I18n::load(crate::i18n::Paths {
         omarchy: root.join("omarchy"),
         language_file: root.join("language"),

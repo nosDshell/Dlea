@@ -26,7 +26,7 @@ def main():
     write("palettes/test/colors.toml", 'background = "#000000"\nforeground = "#ffffff"\n')
     write("palettes/test/shell.toml", "")
     write("bin/qs", '''#!/bin/bash
-mode=$FLEA_QS_STUB_MODE
+mode=$DLEA_QS_STUB_MODE
 if [[ "$mode" = deadline ]]; then sleep 10; exit 0; fi
 if [[ "$mode" = incomplete ]]; then exit 0; fi
 printf 'THEME_GOLDEN\ttest\t12\tbaseSize\t12\nTHEME_GOLDEN\ttest\t14\tbaseSize\t14\n'
@@ -38,7 +38,7 @@ case "$mode" in done-*) exit "${mode#done-}" ;; esac
 exit 0
 ''', True)
     write("bin/timeout", '''#!/bin/bash
-if [[ "$FLEA_QS_STUB_MODE" = deadline ]]; then
+if [[ "$DLEA_QS_STUB_MODE" = deadline ]]; then
     shift 2
     exec /usr/bin/timeout 0.1s "$@"
 fi
@@ -48,7 +48,7 @@ exec /usr/bin/timeout "$@"
     cases += [(name, False) for name in ("done-124", "deadline", "incomplete", "no-done", "fail", "error")]
     failures = []
     for mode, success in cases:
-        env = dict(os.environ, PATH=str(root / "bin") + os.pathsep + os.environ["PATH"], FLEA_QS_STUB_MODE=mode)
+        env = dict(os.environ, PATH=str(root / "bin") + os.pathsep + os.environ["PATH"], DLEA_QS_STUB_MODE=mode)
         result = subprocess.run(["bash", str(worktree / "tools/theme-golden/run.sh"),
                                  str(root / "commons"), str(root / "oracle"), str(root / "palettes")],
                                 env=env, capture_output=True, text=True, timeout=10)

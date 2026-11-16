@@ -30,7 +30,7 @@ var BREAK_TAG = /<br\b[^<>]*>/i
 var ROW_IMAGE_CAP = 64
 var CENTRED_WRAP = '<p align="center">'
 // The elements that start their own line, and the ones that nest and so are counted open and closed.
-// Sample input: '<h1 align="center">Flea</h1>' and '  <details open>' start a line of their own; '<b>x</b>' does not.
+// Sample input: '<h1 align="center">Dlea</h1>' and '  <details open>' start a line of their own; '<b>x</b>' does not.
 var LINE_OPENER = /^ {0,3}<(?:p|div|h[1-6]|details|summary|hr|table|ul|ol|blockquote|pre)(?=[\s>\/])/i
 // Sample input: '<div class="x">' answers slash "" and '</div>' answers "/"; '<b>' and '<divider>' match nothing.
 var NESTING_TAG = /<(\/?)(?:p|div|h[1-6]|details|summary|table|ul|ol|blockquote|pre)(?=[\s>\/])[^<>]*>/gi
@@ -251,7 +251,7 @@ function separateBlocks(lines) {
 var HEADING_LEVEL = { h1: 1, h2: 2, h3: 3, h4: 4, h5: 5, h6: 6 }
 // The shortest heading line that holds text, "<h1>x</h1>": anything shorter is never one.
 var HEADING_SHORTEST = 10
-// Sample input: '<h1 align="center">Flea</h1>' answers level 1 with centre and inner Flea; '<h2>x</h2> tail' answers null.
+// Sample input: '<h1 align="center">Dlea</h1>' answers level 1 with centre and inner Dlea; '<h2>x</h2> tail' answers null.
 function htmlHeading(line) {
     var text = String(line).trim()
     if (text.length < HEADING_SHORTEST)

@@ -53,7 +53,7 @@ fn a_busy_or_stopped_picker_says_what_to_do() {
     picker.request(check(3));
     let mut said = Vec::new();
     while let Ok(OpMsg::Meta { line }) = answers.try_recv() { said.push((field_usize(&line, "id"), field_str(&line, "error"))); }
-    assert_eq!(said, vec![(Some(2), Some("Flea is still checking this item; try again.".to_string())),
+    assert_eq!(said, vec![(Some(2), Some("Dlea is still checking this item; try again.".to_string())),
                           (Some(3), Some("The check stopped; open the file chooser again.".to_string()))]);
 }
 

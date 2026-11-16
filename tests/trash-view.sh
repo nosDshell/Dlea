@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # The Trash view keeps the order the backend gives its rows, opens with the cursor on the first row, and m opens the cursor row's menu under that row; offscreen, no display or lock. The backend's own order is tested in src/backend/trashbrowse.rs, and nothing here reads a Trash.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 if ! command -v qs >/dev/null; then
@@ -11,7 +11,7 @@ if ! command -v qs >/dev/null; then
 fi
 
 # A marked sandbox of its own under the fixture root, so cleanup deletes only what this run owns.
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-trash-view-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-trash-view-XXXXXX") || exit 1
 # GNU mktemp -d keeps a relative TMPDIR verbatim, so the path is checked absolute and two components deep.
 case $test_root in
   /*/*) ;;
@@ -39,11 +39,11 @@ notes.txt	2026-10-03T09:00:00	false	text-x-generic
 old-folder	2026-10-01T09:00:00	true	folder
 TABLE
 
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
-ln -s "$PWD/ui/boot/fleatab.qml" "$test_root/config/fleatab.qml" || exit 1
+ln -s "$PWD/ui/boot/dleatab.qml" "$test_root/config/dleatab.qml" || exit 1
 cp tests/qml-probe.js "$test_root/config/qml-probe.js" || exit 1
 cp tests/trash-view.qml "$test_root/config/shell.qml" || exit 1
 

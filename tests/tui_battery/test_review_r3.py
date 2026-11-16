@@ -14,9 +14,9 @@ from .media import inspect as inspect_media
 from .review_support import board_file
 
 def boards_directory():
-    value = os.environ.get("FLEA_BATTERY_BOARDS")
+    value = os.environ.get("DLEA_BATTERY_BOARDS")
     if not value:
-        raise Blocked("FLEA_BATTERY_BOARDS is unset: set it to the design-hig directory that holds boards/")
+        raise Blocked("DLEA_BATTERY_BOARDS is unset: set it to the design-hig directory that holds boards/")
     return Path(value) / "boards"
 NAMES = ("tui-list-text", "tui-lang-ja", "tui-lang-ja-menu", "tui-lang-ar", "tui-lang-ru-keys")
 
@@ -66,7 +66,7 @@ class Review3Tests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.boards = boards_directory()
-        parent = Path(os.environ.get("FLEA_BATTERY_TEST_ROOT", Path(__file__).resolve().parents[2] / ".superpowers/t12a"))
+        parent = Path(os.environ.get("DLEA_BATTERY_TEST_ROOT", Path(__file__).resolve().parents[2] / ".superpowers/t12a"))
         parent.mkdir(parents=True, exist_ok=True)
         cls.scratch = Path(tempfile.mkdtemp(prefix="review-r3.", dir=parent))
         (cls.scratch / MARKER).write_text("third-round regression controls\n")
@@ -146,9 +146,9 @@ class Review3Tests(unittest.TestCase):
 
 class BoardsVariableTests(unittest.TestCase):
     def test_unset_boards_variable_refuses_by_name(self):
-        environment = {key: value for key, value in os.environ.items() if key != "FLEA_BATTERY_BOARDS"}
+        environment = {key: value for key, value in os.environ.items() if key != "DLEA_BATTERY_BOARDS"}
         with patch.dict(os.environ, environment, clear=True):
-            with self.assertRaisesRegex(Blocked, "FLEA_BATTERY_BOARDS"):
+            with self.assertRaisesRegex(Blocked, "DLEA_BATTERY_BOARDS"):
                 Review3Tests.setUpClass()
 
 

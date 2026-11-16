@@ -1,14 +1,14 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
+import "dlea" as Dlea
 import "qml-probe.js" as QmlProbe
 
 // The reader's place against the disk: a file written without pause, a reader who moves while a place is held, a list of blocks of uneven height.
 ShellRoot {
     id: root
-    property string scenario: Quickshell.env("FLEA_PREVIEW_HUNT_CASE")
-    property string fixture: Quickshell.env("FLEA_PREVIEW_HUNT_DIR") + "/" + scenario + ".md"
+    property string scenario: Quickshell.env("DLEA_PREVIEW_HUNT_CASE")
+    property string fixture: Quickshell.env("DLEA_PREVIEW_HUNT_DIR") + "/" + scenario + ".md"
     property int stage: 0
     property int settle: 0
     property int waited: 0
@@ -99,8 +99,8 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 760
         implicitHeight: 700
-        color: Flea.Theme.color.background
-        Flea.PreviewMarkdown {
+        color: Dlea.Theme.color.background
+        Dlea.PreviewMarkdown {
             id: md
             width: 600
             height: 580

@@ -6,12 +6,12 @@
 # could not start at all, and a lost update needs two processes holding two reads of one file.
 set -u
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete below.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
-BIN=$PWD/target/debug/flea
+BIN=$PWD/target/debug/dlea
 SANDBOX=$FIXTURE_ROOT/uiwriter-$$
-QMLDIR=$SANDBOX/flea
+QMLDIR=$SANDBOX/dlea
 fail=0
 
 check() {
@@ -58,7 +58,7 @@ while [ -n "${libs// /}" ]; do
   libs=$next
 done
 headless_commons "$SANDBOX" "$QMLDIR/Commons" || exit 1
-printf 'module flea\nsingleton ViewState 1.0 ViewState.qml\n' > "$QMLDIR/qmldir" || exit 1
+printf 'module dlea\nsingleton ViewState 1.0 ViewState.qml\n' > "$QMLDIR/qmldir" || exit 1
 
 cat > "$QMLDIR/probe.qml" <<'QML'
 import QtQuick
@@ -287,23 +287,23 @@ QML
 drive() {
   sandbox_scratch "$SANDBOX/state" || exit 1
   env QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
-      XDG_STATE_HOME="$SANDBOX/state" FLEA_BIN="$1" \
+      XDG_STATE_HOME="$SANDBOX/state" DLEA_BIN="$1" \
       timeout 60 qs -p "$QMLDIR/${2:-probe.qml}" 2>&1
 }
 
 # A writer that cannot start. Quickshell emits no exited for it, so the book has to learn from the
 # only signal there is, and both patches have to end refused rather than one of them stranded.
-out=$(drive /nonexistent/flea-uiwriter-test)
+out=$(drive /nonexistent/dlea-uiwriter-test)
 check "a writer that never starts is reported to the pane" "1" "$(echo "$out" | grep -c 'PROBE failures=2')"
 check "and leaves nothing in flight" "1" "$(echo "$out" | grep -c 'PROBE inflight=\[\]')"
 check "and nothing queued behind it" "1" "$(echo "$out" | grep -c 'PROBE pending=\[\]')"
-check "and writes no state file at all" "0" "$([ -e "$SANDBOX/state/flea/ui.json" ] && echo 1 || echo 0)"
+check "and writes no state file at all" "0" "$([ -e "$SANDBOX/state/dlea/ui.json" ] && echo 1 || echo 0)"
 
 # The same two toggles against the real binary: one writer at a time, and the queued one drains.
 out=$(drive "$BIN")
 check "a writer that runs reports nothing to the pane" "1" "$(echo "$out" | grep -c 'PROBE failures=0')"
 check "and the queued patch drains through the first writer's exit" "1" "$(echo "$out" | grep -c 'PROBE inflight=\[\]')"
-check "and both column changes reached the file" "1" "$(tr -d ' \n' < "$SANDBOX/state/flea/ui.json" 2>/dev/null | grep -c '"columns":\["name","size","date","kind","mode"\]')"
+check "and both column changes reached the file" "1" "$(tr -d ' \n' < "$SANDBOX/state/dlea/ui.json" 2>/dev/null | grep -c '"columns":\["name","size","date","kind","mode"\]')"
 
 # Two settings in one turn, and the second queues behind the first carrying both. The queued patch
 # is the union of what changed and not the newest key alone, so a refusal under it loses neither.
@@ -317,13 +317,13 @@ check "the second setting queues behind the running writer" "1" "$(echo "$queued
 check "and the queued patch still carries the first" "1" "$(echo "$queued" | grep -c '"columns"')"
 check "the queue drains" "1" "$(echo "$out" | grep -c 'PROBE inflight=\[\]')"
 check "and nothing is left waiting" "1" "$(echo "$out" | grep -c 'PROBE pending=\[\]')"
-state_flat=$(tr -d ' \n' < "$SANDBOX/state/flea/ui.json" 2>/dev/null)
+state_flat=$(tr -d ' \n' < "$SANDBOX/state/dlea/ui.json" 2>/dev/null)
 check "the column change reached the file" "1" "$(echo "$state_flat" | grep -c '"columns":\["name","size","date","kind"\]')"
 check "and the preset beside it did too" "1" "$(echo "$state_flat" | grep -c '"keys":"windows"')"
 
 # A writer that never started leaves its setting owed: the change after it has to carry both, or the
 # refused one is lost with nothing but a status-bar sentence to say it ever existed.
-out=$(drive /nonexistent/flea-uiwriter-test owed.qml)
+out=$(drive /nonexistent/dlea-uiwriter-test owed.qml)
 refused_second=$(echo "$out" | grep 'PROBE second=' | head -1)
 check "the probe printed the patch after the refusal" "1" "$([ -n "$refused_second" ] && echo 1 || echo 0)"
 check "the refusal is reported before the next change" "1" "$(echo "$out" | grep -c 'PROBE failures=1')"
@@ -341,27 +341,27 @@ check "a landed write is not reported" "1" "$(echo "$out" | grep -c 'PROBE failu
 check "and the second writer drains with nothing reported" "1" "$(echo "$out" | grep -c 'PROBE drained failures=0')"
 check "the change after a landed write names its own setting" "1" "$(echo "$landed_second" | grep -c '"display"')"
 check "and nothing else" "0" "$(echo "$landed_second" | grep -c '"keys"')"
-state_flat=$(tr -d ' \n' < "$SANDBOX/state/flea/ui.json" 2>/dev/null)
+state_flat=$(tr -d ' \n' < "$SANDBOX/state/dlea/ui.json" 2>/dev/null)
 check "both settings are in the file" "1" "$(echo "$state_flat" | grep -c '"keys":"windows"')"
 check "including the one written second" "1" "$(echo "$state_flat" | grep -c '"textSize":{"mode":16}')"
 
-# A ui.json a newer Flea wrote carries sub-keys this one has no rule for, and both the settle and the
+# A ui.json a newer Dlea wrote carries sub-keys this one has no rule for, and both the settle and the
 # merge keep them, so the window reads them. A patch has to carry the leaf its writer changed and
 # never the group that leaf was merged into: src/uistate.rs refuses display.aKeyThisBuildHasNeverHeardOf
 # and refuses the whole patch with it, so the change would be lost and the pane would say so.
 sandbox_scratch "$SANDBOX/newer" || exit 1
-mkdir -p "$SANDBOX/newer/state/flea" || exit 1
+mkdir -p "$SANDBOX/newer/state/dlea" || exit 1
 printf '%s\n' '{"keys":"mac","display":{"textSize":{"mode":"system"},"aKeyThisBuildHasNeverHeardOf":true}}' \
-  > "$SANDBOX/newer/state/flea/ui.json" || exit 1
+  > "$SANDBOX/newer/state/dlea/ui.json" || exit 1
 out=$(env QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 XDG_STATE_HOME="$SANDBOX/newer/state" \
-      FLEA_BIN="$BIN" PROBE_CHANGE=display PROBE_TRIGGER="" timeout 60 qs -p "$QMLDIR/two.qml" 2>&1)
+      DLEA_BIN="$BIN" PROBE_CHANGE=display PROBE_TRIGGER="" timeout 60 qs -p "$QMLDIR/two.qml" 2>&1)
 newer_sent=$(echo "$out" | grep 'PROBE sent=' | head -1)
-check "the probe printed the patch it sent beside a newer Flea's sub-key" "1" "$([ -n "$newer_sent" ] && echo 1 || echo 0)"
+check "the probe printed the patch it sent beside a newer Dlea's sub-key" "1" "$([ -n "$newer_sent" ] && echo 1 || echo 0)"
 check "and that patch never names the sub-key" "0" "$(echo "$newer_sent" | grep -c 'NeverHeardOf')"
 check "so nothing was refused" "1" "$(echo "$out" | grep -c 'PROBE failures=0')"
-newer_flat=$(tr -d ' \n' < "$SANDBOX/newer/state/flea/ui.json" 2>/dev/null)
+newer_flat=$(tr -d ' \n' < "$SANDBOX/newer/state/dlea/ui.json" 2>/dev/null)
 check "the text size reached the file" "1" "$(echo "$newer_flat" | grep -c '"textSize":{"mode":16}')"
-check "and the newer Flea's sub-key survived beside it" "1" "$(echo "$newer_flat" | grep -c 'aKeyThisBuildHasNeverHeardOf')"
+check "and the newer Dlea's sub-key survived beside it" "1" "$(echo "$newer_flat" | grep -c 'aKeyThisBuildHasNeverHeardOf')"
 
 # Two windows over one state file, which is the lost update itself. The waiting window reads first,
 # the other window changes a different setting and that change lands, and only then does the waiting
@@ -383,7 +383,7 @@ two_windows() {
   env XDG_STATE_HOME="$state" "$BIN" --ui-state "$SEED" >/dev/null 2>&1 \
     || { echo "FAIL two windows: the seed write failed"; fail=1; return 1; }
   env QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 XDG_STATE_HOME="$state" \
-      FLEA_BIN="$BIN" PROBE_CHANGE="$waits" PROBE_TRIGGER="$trigger" \
+      DLEA_BIN="$BIN" PROBE_CHANGE="$waits" PROBE_TRIGGER="$trigger" \
       timeout 60 qs -p "$QMLDIR/two.qml" > "$SANDBOX/two/waiting.log" 2>&1 &
   # The only process this block kills is the one it started, and it is waited for rather than killed:
   # the probe quits itself and timeout bounds it, so no pattern over anyone else's processes is used.
@@ -400,19 +400,19 @@ two_windows() {
     sleep 0.05
   done
   env QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 XDG_STATE_HOME="$state" \
-      FLEA_BIN="$BIN" PROBE_CHANGE="$acts" PROBE_TRIGGER="" \
+      DLEA_BIN="$BIN" PROBE_CHANGE="$acts" PROBE_TRIGGER="" \
       timeout 60 qs -p "$QMLDIR/two.qml" > "$SANDBOX/two/acting.log" 2>&1
   two_act_rc=$?
   # The ordering is proven and not assumed: the trigger is only released once the acting window's
   # change is in the file, so the waiting window's save is the later of the two and its read the older.
-  if ! grep -q '"mode": 16\|"keys": "windows"' "$state/flea/ui.json" 2>/dev/null; then
+  if ! grep -q '"mode": 16\|"keys": "windows"' "$state/dlea/ui.json" 2>/dev/null; then
     echo "FAIL two windows: the acting window's change never reached the file"
     fail=1
   fi
   : > "$trigger" || exit 1
   wait "$waiting_pid"
   two_wait_rc=$?
-  two_flat=$(tr -d ' \n' < "$state/flea/ui.json" 2>/dev/null)
+  two_flat=$(tr -d ' \n' < "$state/dlea/ui.json" 2>/dev/null)
   two_sent=$(grep 'PROBE sent=' "$SANDBOX/two/waiting.log" | head -1)
   # Printed, so what is said about this pair is read off the run rather than off the check labels.
   echo "     the waiting window changed $waits and sent ${two_sent##*PROBE sent=}"
@@ -444,9 +444,9 @@ check "and never named the one it only read" "0" "$(echo "$two_sent" | grep -c '
 # The temporal half of the lost update, which a narrower patch cannot close: the window records what
 # a writer stored only when the whole queue drains, so a setting that has ALREADY landed stays owed
 # and rides along inside every patch queued behind it. The wrapper below is what makes the ordering a
-# fact rather than a hope: it stands in for flea, records the argv of every writer, and holds the one
+# fact rather than a hope: it stands in for dlea, records the argv of every writer, and holds the one
 # the suite names at the door until the suite has changed the file under it.
-cat > "$SANDBOX/wrapflea" <<'WRAP'
+cat > "$SANDBOX/wrapdlea" <<'WRAP'
 #!/bin/sh
 set -u
 # Sample input: --ui-state {"keys":"windows"}
@@ -459,7 +459,7 @@ n=$((n + 1))
 printf '%s\n' "$n" > "$PROBE_WRAP_DIR/count"
 printf '%s' "$2" > "$PROBE_WRAP_DIR/sent.$n"
 if [ "$n" = "${PROBE_WRAP_FAIL:-}" ]; then
-  printf 'flea: refused by the uiwriter wrapper\n' >&2
+  printf 'dlea: refused by the uiwriter wrapper\n' >&2
   exit 2
 fi
 # Written after the argv, so the file the suite waits on proves the argv beside it is already there.
@@ -469,7 +469,7 @@ if [ "$n" = "${PROBE_WRAP_HOLD:-}" ]; then
 fi
 exec "$PROBE_WRAP_REAL" "$@"
 WRAP
-chmod +x "$SANDBOX/wrapflea" || exit 1
+chmod +x "$SANDBOX/wrapdlea" || exit 1
 
 # Two changes in ONE turn, so the second is queued behind the first writer rather than racing it.
 # The probe quits on the book emptying and not on a timing, so a held writer cannot be cut off.
@@ -569,7 +569,7 @@ QML
 
 WRAPSEED='{"columns":["name","size","date"],"keys":"mac","display":{"textSize":{"mode":"system"}}}'
 
-# One wrap run: its own state home, its own wrapper bookkeeping, and the wrapper as FLEA_BIN. Started
+# One wrap run: its own state home, its own wrapper bookkeeping, and the wrapper as DLEA_BIN. Started
 # in the background so the suite can act between two of its writers; the caller waits for wrap_pid.
 wrap_start() {
   local probe="$1" hold="$2" refuse="$3"
@@ -578,7 +578,7 @@ wrap_start() {
   env XDG_STATE_HOME="$SANDBOX/wrap/state" "$BIN" --ui-state "$WRAPSEED" >/dev/null 2>&1 \
     || { echo "FAIL wrap: the seed write failed"; fail=1; return 1; }
   env QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
-      XDG_STATE_HOME="$SANDBOX/wrap/state" FLEA_BIN="$SANDBOX/wrapflea" \
+      XDG_STATE_HOME="$SANDBOX/wrap/state" DLEA_BIN="$SANDBOX/wrapdlea" \
       PROBE_WRAP_DIR="$SANDBOX/wrap/bin" PROBE_WRAP_REAL="$BIN" \
       PROBE_WRAP_HOLD="$hold" PROBE_WRAP_FAIL="$refuse" \
       timeout 60 qs -p "$QMLDIR/$probe" > "$SANDBOX/wrap/probe.log" 2>&1 &
@@ -590,7 +590,7 @@ wrap_start() {
 # preset LANDS; the CLI then changes the preset, the way another window or a script would; and only
 # then is the queued writer let go. Its patch must name the text size alone, because the preset it
 # was holding is already in the file and is no longer this window's to write.
-wrap_ui=$SANDBOX/wrap/state/flea/ui.json
+wrap_ui=$SANDBOX/wrap/state/dlea/ui.json
 if wrap_start queued.qml 2 ""; then
   waited=0
   until [ -e "$SANDBOX/wrap/bin/held" ]; do
@@ -654,17 +654,17 @@ fi
 
 # The navigation uses the real body and its path/tab signal wiring, with the same spawn wrapper.
 nav_root=$SANDBOX/navigation
-mkdir -p "$nav_root/config" "$nav_root/home" "$nav_root/state/flea" "$nav_root/bin" "$nav_root/cache" "$nav_root/runtime" "$nav_root/from" "$nav_root/to" || exit 1
+mkdir -p "$nav_root/config" "$nav_root/home" "$nav_root/state/dlea" "$nav_root/bin" "$nav_root/cache" "$nav_root/runtime" "$nav_root/from" "$nav_root/to" || exit 1
 chmod 700 "$nav_root/runtime" || exit 1
-ln -s "$PWD/ui" "$nav_root/config/flea" || exit 1
+ln -s "$PWD/ui" "$nav_root/config/dlea" || exit 1
 headless_commons "$nav_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$nav_root/config/Ui" || exit 1
 cp tests/uiwriter-navigation.qml "$nav_root/config/shell.qml" || exit 1
-printf '%s\n' '{"updates":{"autoCheck":false},"places":{"rail":"hidden","showTrash":false,"showNetwork":false,"showDevices":false}}' > "$nav_root/state/flea/ui.json" || exit 1
+printf '%s\n' '{"updates":{"autoCheck":false},"places":{"rail":"hidden","showTrash":false,"showNetwork":false,"showDevices":false}}' > "$nav_root/state/dlea/ui.json" || exit 1
 # The 60 s kill every probe here has; the probe's own 50 s backstop fires inside it and names the step it stalled on.
 env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
     HOME="$nav_root/home" XDG_STATE_HOME="$nav_root/state" XDG_CACHE_HOME="$nav_root/cache" XDG_RUNTIME_DIR="$nav_root/runtime" \
-    FLEA_BIN="$SANDBOX/wrapflea" FLEA_PATH="$nav_root/from" PROBE_NAV_TO="$nav_root/to" \
+    DLEA_BIN="$SANDBOX/wrapdlea" DLEA_PATH="$nav_root/from" PROBE_NAV_TO="$nav_root/to" \
     PROBE_WRAP_DIR="$nav_root/bin" PROBE_WRAP_REAL="$BIN" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
     timeout 60 qs -p "$nav_root/config" > "$nav_root/probe.log" 2>&1

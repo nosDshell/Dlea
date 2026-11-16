@@ -1,6 +1,6 @@
 import QtQuick
-import "flea" as Flea
-import "flea/js/Filter.js" as Filter
+import "dlea" as Dlea
+import "dlea/js/Filter.js" as Filter
 
 // The exit-hold pane: walk rows under the strip, then the folder they land as, with only the surface the real List and GridArea read; the sent arrays are what the probe asserts through.
 QtObject {
@@ -40,7 +40,7 @@ QtObject {
     property string storageClass: ""
     property bool listInFlight: true
     property string listingState: "ready"
-    property int visibleRows: listArea ? Math.ceil(listArea.height / Flea.Theme.fileRowHeight) : 0
+    property int visibleRows: listArea ? Math.ceil(listArea.height / Dlea.Theme.fileRowHeight) : 0
     property int cacheRows: 0
     property int firstSettleMs: 70
     property int settleMs: 120

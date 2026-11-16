@@ -3,7 +3,7 @@ import re
 
 TOKENS = re.compile(r"\n|;;&|;;|;&|&&|\|\||[();|&<>]|[^\s();|&<>]+")
 LOOPS = {"for", "while", "until", "select"}
-BYTE_TOOLS = ('flea-bench-manifest', 'flea-matched-fixture', 'flea-showcase')
+BYTE_TOOLS = ('dlea-bench-manifest', 'dlea-matched-fixture', 'dlea-showcase')
 GIO_UTF8_OBSERVED = 'OBSERVED gio preserves UTF-8 display names: gio kept UTF-8 under LC_ALL=C'
 
 
@@ -128,7 +128,7 @@ def top_level(masked, *, case_patterns=True, operator_boundaries=True, strict=Tr
     return ''.join(top)
 
 
-# Sample input: an actual tools/flea-matched-fixture line ending with # locale-bytes: count raw names.
+# Sample input: an actual tools/dlea-matched-fixture line ending with # locale-bytes: count raw names.
 def unmarked_rows(api, repo, target):
     path = repo / 'tools' / target
     source = path.read_text()

@@ -2,7 +2,7 @@
 . "$(dirname "$0")/headless-commons.sh"
 # DialogButtons040's and Archives040's critic findings, pinned on the shipped files: no check box draws a stray ground, the Trash strip's Back and Up are ChromeButtons, OpenWith's search field sits where the board puts it; offscreen, no display or lock.
 set -u
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 verdict=0
@@ -14,7 +14,7 @@ if ! command -v qs >/dev/null; then
 fi
 
 # A marked sandbox of its own under the fixture root, so cleanup deletes only what this run owns.
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-dialog-board-XXXXXX") || exit 1
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-dialog-board-XXXXXX") || exit 1
 # GNU mktemp -d honours a relative TMPDIR verbatim, so the path is checked absolute and two components deep.
 case $test_root in
   /*/*) ;;
@@ -27,24 +27,24 @@ trap cleanup EXIT
 
 # The sweep first proves itself on wrappers of its own: no fill and a border-only colour are reported, a fill is not, on the brace line or a child row, and a grandchild's colour is no fill.
 mkdir -p "$test_root/sweep" || exit 1
-printf '%s\n' 'Item {' '    Rectangle { id: bare' '        Flea.CheckBox {' '        }' '    }' '}' > "$test_root/sweep/Bare.qml"
-printf '%s\n' 'Item {' '    Rectangle { border.color: "red"' '        Flea.CheckBox {' '        }' '    }' '}' > "$test_root/sweep/Border.qml"
-printf '%s\n' 'Item {' '    Rectangle { color: "black"' '        Flea.CheckBox {' '        }' '    }' '}' > "$test_root/sweep/Filled.qml"
-printf '%s\n' 'Item {' '    Rectangle {' '        border.color: "red"' '        Flea.CheckBox {' '        }' '    }' '}' > "$test_root/sweep/RowBorder.qml"
-printf '%s\n' 'Item {' '    Rectangle {' '        color: "black"' '        Flea.CheckBox {' '        }' '    }' '}' > "$test_root/sweep/RowFilled.qml"
-printf '%s\n' 'Item {' '    Rectangle {' '        Text {' '            color: "black"' '        }' '        Flea.CheckBox {' '        }' '    }' '}' > "$test_root/sweep/Nested.qml"
+printf '%s\n' 'Item {' '    Rectangle { id: bare' '        Dlea.CheckBox {' '        }' '    }' '}' > "$test_root/sweep/Bare.qml"
+printf '%s\n' 'Item {' '    Rectangle { border.color: "red"' '        Dlea.CheckBox {' '        }' '    }' '}' > "$test_root/sweep/Border.qml"
+printf '%s\n' 'Item {' '    Rectangle { color: "black"' '        Dlea.CheckBox {' '        }' '    }' '}' > "$test_root/sweep/Filled.qml"
+printf '%s\n' 'Item {' '    Rectangle {' '        border.color: "red"' '        Dlea.CheckBox {' '        }' '    }' '}' > "$test_root/sweep/RowBorder.qml"
+printf '%s\n' 'Item {' '    Rectangle {' '        color: "black"' '        Dlea.CheckBox {' '        }' '    }' '}' > "$test_root/sweep/RowFilled.qml"
+printf '%s\n' 'Item {' '    Rectangle {' '        Text {' '            color: "black"' '        }' '        Dlea.CheckBox {' '        }' '    }' '}' > "$test_root/sweep/Nested.qml"
 proof=$(python3 -B tests/dialog-board-sweep.py "$test_root/sweep" | sed "s|^$test_root/sweep/||" | tr '\n' ' ')
 [ "$proof" = "Bare.qml:2 Border.qml:2 Nested.qml:2 RowBorder.qml:2 " ] || fail "the static sweep reported '$proof' on its own fixture, want 'Bare.qml:2 Border.qml:2 Nested.qml:2 RowBorder.qml:2 '"
-# A Rectangle without its own colour paints Qt's default white, so none may enclose a Flea.CheckBox; a script, not a grep, since it follows nesting by indent.
+# A Rectangle without its own colour paints Qt's default white, so none may enclose a Dlea.CheckBox; a script, not a grep, since it follows nesting by indent.
 colourless=$(python3 -B tests/dialog-board-sweep.py ui)
 sweep_status=$?
 [ "$sweep_status" -eq 0 ] || fail "the static sweep (tests/dialog-board-sweep.py) exited $sweep_status instead of reporting"
-[ -z "$colourless" ] || fail "a colourless Rectangle wraps a Flea.CheckBox (Qt paints it white): $colourless"
+[ -z "$colourless" ] || fail "a colourless Rectangle wraps a Dlea.CheckBox (Qt paints it white): $colourless"
 
 mkdir -p "$test_root/config" "$test_root/home/.config" "$test_root/state" "$test_root/data" "$test_root/cache" "$test_root/runtime" || exit 1
 chmod 700 "$test_root/runtime" || exit 1
-# The probe imports ui/ as Flea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
-ln -s "$PWD/ui" "$test_root/config/flea" || exit 1
+# The probe imports ui/ as Dlea, and ui/'s qs.Commons resolves against this root, as it does from ui/boot.
+ln -s "$PWD/ui" "$test_root/config/dlea" || exit 1
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui" || exit 1
 cp tests/dialog-board.qml "$test_root/config/shell.qml" || exit 1

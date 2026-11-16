@@ -3,9 +3,9 @@ use super::events::Event;
 use super::state::{Held, State, Tables};
 use super::thumbs::Pool;
 use crate::backend::events::Sender;
-use crate::error::FleaError;
+use crate::error::DleaError;
 use crate::json::{escape, field_str};
-use flea::ui_logic_file_search::ContentsMatches;
+use dlea::ui_logic_file_search::ContentsMatches;
 use std::io::Write;
 #[path = "contentsguard.rs"]
 mod guard;
@@ -83,7 +83,7 @@ pub fn intercept(
 }
 
 pub fn error(out: &mut impl Write, ask: Option<&Ask>, reason: &str) {
-    let error = FleaError {
+    let error = DleaError {
         where_: "searchcontents".into(),
         path: ask.map_or("", |ask| &ask.path).into(),
         msg: contents::message("search.contents.failed", reason),
@@ -121,7 +121,7 @@ pub fn done(
             watches.0.stop();
             watches.1.clear();
             forget_rows(st, pool);
-            st.base = flea::bytename::exact(&ask.path);
+            st.base = dlea::bytename::exact(&ask.path);
             st.held = Held::Walk;
             st.listing = super::listing::Listing::new();
             for hit in &snapshot.matches {
@@ -276,7 +276,7 @@ pub fn refusal(line: &str, st: &State) -> Option<String> {
 }
 
 fn identity_error(command: &str) -> String {
-    super::proto::error_line(&FleaError {
+    super::proto::error_line(&DleaError {
         where_: "contentsidentity".into(),
         path: command.into(),
         msg: contents::message("search.contents.identity", ""),

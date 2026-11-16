@@ -13,9 +13,9 @@ for tool in qs magick exiv2 inotifywait; do
     command -v "$tool" >/dev/null || { echo "preview-decode.sh: $tool is not installed"; exit 1; }
 done
 
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 sandbox_root_ok
-test_root="$SANDBOX_ROOT/flea-preview-decode-$$"
+test_root="$SANDBOX_ROOT/dlea-preview-decode-$$"
 sandbox_make "$test_root"
 cleanup() {
     local result=$?

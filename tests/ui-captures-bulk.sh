@@ -79,7 +79,7 @@ case_cap_bulk() {
     settle
     cap_bulk_expect ".opened == false" "Escape did not close the bulk card"
     printf 'CAP_BULK card=ok find-replace=ok invalid=ok\n'
-    kill_flea
+    kill_dlea
     launch "$swap"
     wait_listing 2
     cap_resize 1100 700
@@ -112,7 +112,7 @@ case_cap_bulk() {
     settle
     cap_bulk_expect ".opened == false" "Escape did not close the swap card"
     printf 'CAP_BULK swap=ok focus=terminal,cancel,rename\n'
-    kill_flea
+    kill_dlea
 }
 
 # Up and Down walk the name lines and stop at the ends: 2 Down lands 3, two Ups land 1, Up on 1 stays.
@@ -144,5 +144,5 @@ case_cap_bulk_updown() {
     settle
     cap_bulk_expect ".opened == false" "Escape did not close the updown card"
     printf 'CAP_BULK_UPDOWN updown=ok\n'
-    kill_flea
+    kill_dlea
 }

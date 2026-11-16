@@ -1,5 +1,5 @@
 #!/bin/bash
-# Early dependency refusals in tests/ui.sh, tests/drag.sh and tools/flea-field-bench, with every setup step stubbed.
+# Early dependency refusals in tests/ui.sh, tests/drag.sh and tools/dlea-field-bench, with every setup step stubbed.
 set -euo pipefail
 cd -- "$(dirname -- "$0")/.."
 python3 -B tests/tool-preflight.py

@@ -8,7 +8,7 @@ import sys
 import tempfile
 import unittest
 
-HERE = pathlib.Path(__file__).resolve().parents[1] / 'tools/flea-searchbench'
+HERE = pathlib.Path(__file__).resolve().parents[1] / 'tools/dlea-searchbench'
 sys.path.insert(0, str(HERE))
 from fair.eligibility import compare as original_compare
 from metrics import summarize

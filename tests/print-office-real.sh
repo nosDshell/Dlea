@@ -2,7 +2,7 @@
 # Converts a real office fixture through the release backend and its production sandbox.
 set -euo pipefail
 repo=$(cd "$(dirname "$0")/.." && pwd -P)
-binary=${FLEA_BIN:-$repo/target/release/flea}
+binary=${DLEA_BIN:-$repo/target/release/dlea}
 if ! command -v soffice >/dev/null 2>&1; then
     printf 'ok   print-office-real: soffice not installed, real conversion needs minipc\n'
     exit 0
@@ -12,7 +12,7 @@ parent="$repo/.superpowers/print-office-real"
 mkdir -p "$parent"
 box=$(mktemp -d "$parent/suite.XXXXXXXX")
 [[ -n "$box" && "$box" == /* ]] || { printf 'FAIL print-office-real: bad sandbox root %s\n' "$box"; exit 1; }
-: > "$box/.flea-test-sandbox"
+: > "$box/.dlea-test-sandbox"
 cleanup() {
     local status=$?
     if [ "$status" -ne 0 ]; then
@@ -20,7 +20,7 @@ cleanup() {
         return
     fi
     case $box in
-        /*) [ -n "$box" ] && [ "${box%/*}" = "$parent" ] && [ -f "$box/.flea-test-sandbox" ] && rm -rf -- "$box" ;;
+        /*) [ -n "$box" ] && [ "${box%/*}" = "$parent" ] && [ -f "$box/.dlea-test-sandbox" ] && rm -rf -- "$box" ;;
     esac
 }
 trap cleanup EXIT
@@ -36,7 +36,7 @@ import time
 
 binary = str(Path(sys.argv[1]).resolve(strict=True))
 root = Path(sys.argv[2])
-assert root.is_absolute() and (root / '.flea-test-sandbox').is_file()
+assert root.is_absolute() and (root / '.dlea-test-sandbox').is_file()
 env = {'PATH': os.environ['PATH'], 'LC_ALL': 'C.UTF-8', 'LANG': 'C.UTF-8'}
 for key, leaf in [('HOME', 'home'), ('XDG_CONFIG_HOME', 'config'), ('XDG_CACHE_HOME', 'cache'),
                   ('XDG_STATE_HOME', 'state'), ('XDG_DATA_HOME', 'data'), ('XDG_RUNTIME_DIR', 'runtime')]:
@@ -95,7 +95,7 @@ PY
 # The ignored unit test drives print's office leg through the office service; --exact and the count stop a renamed test passing as zero run.
 test=backend::printreq::tests::real::print_real_office_leg_converts_through_the_office_service
 log="$box/office-leg-test.log"
-if ! (cd "$repo" && cargo test --locked --bin flea -- --ignored --exact "$test") > "$log" 2>&1 || ! grep -q '^test result: ok. 1 passed' "$log"; then
+if ! (cd "$repo" && cargo test --locked --bin dlea -- --ignored --exact "$test") > "$log" 2>&1 || ! grep -q '^test result: ok. 1 passed' "$log"; then
     printf 'FAIL print-office-real: %s did not pass, see %s\n' "$test" "$log"
     exit 1
 fi

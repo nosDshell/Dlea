@@ -461,7 +461,7 @@ function restoreItems(pane, paths) {
 }
 
 // A lift offers only private tab MIME; JSON preserves folder paths and cursor names verbatim.
-var TAB_MIME = "application/x-flea-tab"
+var TAB_MIME = "application/x-dlea-tab"
 
 var TAB_VIEWS = ["list", "grid", "columns"]
 
@@ -479,9 +479,9 @@ function newToken() {
 }
 
 // The hand-off a tear-off gives the one window it starts; src/tearoff.rs drops the same names for Rust launches.
-var TEAR_OFF_ENV = ["FLEA_TAB_SOURCE_PID", "FLEA_TAB_CURSOR", "FLEA_TAB_TOKEN"]
+var TEAR_OFF_ENV = ["DLEA_TAB_SOURCE_PID", "DLEA_TAB_CURSOR", "DLEA_TAB_TOKEN"]
 
-// Sample input: ["flea", "/tmp"] gives ["env", "-u", "FLEA_TAB_SOURCE_PID", "-u", "FLEA_TAB_CURSOR", "-u", "FLEA_TAB_TOKEN", "flea", "/tmp"].
+// Sample input: ["dlea", "/tmp"] gives ["env", "-u", "DLEA_TAB_SOURCE_PID", "-u", "DLEA_TAB_CURSOR", "-u", "DLEA_TAB_TOKEN", "dlea", "/tmp"].
 function freshLaunch(argv) {
     var unset = ["env"]
     for (var i = 0; i < TEAR_OFF_ENV.length; i++)

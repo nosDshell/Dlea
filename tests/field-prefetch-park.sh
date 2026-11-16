@@ -1,20 +1,20 @@
 #!/bin/bash
-# Gates tools/flea-field-bench's prefetch park and restore on a scratch HOME: the operator's list leaves for the run and comes back unchanged.
+# Gates tools/dlea-field-bench's prefetch park and restore on a scratch HOME: the operator's list leaves for the run and comes back unchanged.
 set -u
 cd "$(dirname "$0")/.." || exit 1
-bench="$PWD/tools/flea-field-bench"
+bench="$PWD/tools/dlea-field-bench"
 export TEST_READY_POLLS=200
 export TEST_READY_POLL_S=0.01
 export TEST_CHILD_SLEEP_S=300
 
 # The fixture root is a mktemp -d of its own, and its one delete is checked absolute and two deep before the trap exists.
-scratch=$(mktemp -d /tmp/flea-prefetch-park.XXXXXX) || exit 1
+scratch=$(mktemp -d /tmp/dlea-prefetch-park.XXXXXX) || exit 1
 case $scratch in
   /*/*) ;;
   *) echo "FAIL: mktemp -d gave '$scratch', which is not an absolute path two components deep"; exit 1 ;;
 esac
-: > "$scratch/.flea-test-sandbox"
-trap 'case $scratch in /tmp/?*) [ -f "$scratch/.flea-test-sandbox" ] && rm -rf -- "$scratch" ;; esac' EXIT
+: > "$scratch/.dlea-test-sandbox"
+trap 'case $scratch in /tmp/?*) [ -f "$scratch/.dlea-test-sandbox" ] && rm -rf -- "$scratch" ;; esac' EXIT
 
 fail=0
 check() {
@@ -34,23 +34,23 @@ check "the bench names the four prefetch globals" 4 "$(printf '%s\n' "$globals" 
 
 # One case per subshell, so a fail() inside the block ends that case and not the suite.
 run_case() {
-  ( HOME="$scratch/home-$1"; mkdir -p "$HOME/.cache/flea"
+  ( HOME="$scratch/home-$1"; mkdir -p "$HOME/.cache/dlea"
     fail() { printf 'refused: %s\n' "$*"; exit 3; }
     eval "$globals"; eval "$block"; shift; "$@" )
 }
 
 # The operator had a list: parked during the run, the warm launch's list replaces it, and the restore brings back the original bytes.
 op_case() {
-  printf 'operator list\n/usr/bin/flea 0 4096\n' > "$PREFETCH"
+  printf 'operator list\n/usr/bin/dlea 0 4096\n' > "$PREFETCH"
   park_prefetch
   printf 'parked=%s present=%s ' "$(head -1 "$PREFETCH_PARKED")" "$([ -e "$PREFETCH" ] && echo yes || echo no)"
   printf 'arm list\n' > "$PREFETCH"
   restore_prefetch
-  printf 'restored=%s leftover=%s' "$(head -1 "$PREFETCH")" "$(ls "$HOME/.cache/flea" | grep -c parked)"
+  printf 'restored=%s leftover=%s' "$(head -1 "$PREFETCH")" "$(ls "$HOME/.cache/dlea" | grep -c parked)"
 }
 check "an operator list is parked, then restored unchanged" "parked=operator list present=no restored=operator list leftover=0" "$(run_case a op_case)"
 
-# The operator had none: the run's list is removed at the end, so no tested Flea's list outlives the run.
+# The operator had none: the run's list is removed at the end, so no tested Dlea's list outlives the run.
 none_case() {
   park_prefetch
   printf 'arm list\n' > "$PREFETCH"
@@ -69,7 +69,7 @@ orphan_case() {
 out=$(run_case c orphan_case); rc=$?
 check "an orphaned park refuses the run" 3 "$rc"
 check "the refusal names the orphan" 1 "$(printf '%s\n' "$out" | grep -c 'prefetch-parked-1 was parked by an invocation that was killed')"
-check "the orphan and the live list are untouched" "older operator list|newer" "$(cat "$scratch/home-c/.cache/flea/prefetch-parked-1")|$(cat "$scratch/home-c/.cache/flea/prefetch")"
+check "the orphan and the live list are untouched" "older operator list|newer" "$(cat "$scratch/home-c/.cache/dlea/prefetch-parked-1")|$(cat "$scratch/home-c/.cache/dlea/prefetch")"
 
 # A restore with nothing parked, as the EXIT trap runs it after an early failure, touches nothing.
 early_case() {
@@ -103,7 +103,7 @@ check "a cache home elsewhere refuses" 3 "$(cache_home "$scratch/elsewhere")"
 park_line=$(grep -n '^park_prefetch$' "$bench" | cut -d: -f1)
 warm_line=$(grep -n '^# warm jobs begin$' "$bench" | cut -d: -f1)
 check "park_prefetch runs once at setup" 1 "$(printf '%s\n' "$park_line" | grep -c .)"
-check "each Flea build is warmed once, the flea and the anchor" 2 "$(grep -c 'wait "$WARM_PID" || exit 1$' "$bench")"
+check "each Dlea build is warmed once, the dlea and the anchor" 2 "$(grep -c 'wait "$WARM_PID" || exit 1$' "$bench")"
 check "the list is parked before the first warm launch records one" yes "$([ "${park_line:-0}" -gt 0 ] && [ "${park_line:-0}" -lt "${warm_line:-0}" ] && echo yes || echo no)"
 # run_guarded's calls end in ;; and run at launch time, so only the setup calls order against the park.
 first_prefetch_line=$(grep -n 'prefetch_for "\$' "$bench" | grep -v ';;' | head -1 | cut -d: -f1)
@@ -112,7 +112,7 @@ check "restore_prefetch runs at the end" 1 "$(grep -c '^restore_prefetch$' "$ben
 check "the EXIT trap restores in a subshell, so a failure there skips no later step" 1 "$(grep -c '^  ( restore_prefetch ) || cleanup_rc=1$' "$bench")"
 check "the warm launch refuses to leave no list" 1 "$(grep -c 'the warm launch recorded no prefetch list' "$bench")"
 
-# Signals must stop the warm shell and its group both before Flea starts and while it polls a mapped Flea.
+# Signals must stop the warm shell and its group both before Dlea starts and while it polls a mapped Dlea.
 export WARM_TEXT=$(sed -n '/^# warm launch begin$/,/^# warm launch end$/p' "$bench") SWEEP_TEXT=$(sed -n '/^# entrant sweep begin$/,/^# entrant sweep end$/p' "$bench")
 export CLEAN_TEXT=$(sed -n '/^clean_bench() {$/,/^}$/p' "$bench") CLEANUP_TEXT=$(sed -n '/^bench_cleanup() {$/,/^}$/p' "$bench")
 export WARM_START_TEXT=$(sed -n '/^# warm jobs begin$/,/^# warm jobs end$/p' "$bench")
@@ -130,13 +130,13 @@ group_running() {
 }
 signal_case() {
   local mode=$1 signal=$2 expected=$3 warm="$scratch/warm-$1-$2" warm_pid fake copy_pid rc elapsed alive group_alive
-  mkdir -p "$warm/cg" "$warm/qml" "$warm/state/flea"
-  printf '#!/bin/bash\necho $$ > "$FAKE_PIDFILE"\n: > "$QML_DISK_CACHE_PATH/unit"\necho list > "$FAKE_PREFETCH"\nexec sleep "$TEST_CHILD_SLEEP_S"\n' > "$warm/flea"; chmod +x "$warm/flea"
+  mkdir -p "$warm/cg" "$warm/qml" "$warm/state/dlea"
+  printf '#!/bin/bash\necho $$ > "$FAKE_PIDFILE"\n: > "$QML_DISK_CACHE_PATH/unit"\necho list > "$FAKE_PREFETCH"\nexec sleep "$TEST_CHILD_SLEEP_S"\n' > "$warm/dlea"; chmod +x "$warm/dlea"
   printf '#!/bin/bash\ntrap "" TERM\necho $$ > "$W/copy-pid"\nwhile :; do sleep 1; done\n' > "$warm/copy.sh"
   cat > "$warm/run.sh" <<'EOS'
 set -uo pipefail
 fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
-FIELD_FRONTEND=qml; FLEA_FRONTEND=qml
+FIELD_FRONTEND=qml; DLEA_FRONTEND=qml
 now_ms() { NOW_MS=$(( $(date +%s%N) / 1000000 )); }
 wait_for_window() { return 0; }
 kill_entrant() { :; }
@@ -147,17 +147,17 @@ restore_thumbs() { :; }
 restore_prefetch() { printf 'operator list\n' > "$PREFETCH"; }
 prefetch_keep() { :; }
 prefetch_for() { :; }
-only_has() { if [ "$MODE" = anchor-fork ]; then [ "$1" = flea-anchor ]; else [ "$1" = flea ]; fi; }
+only_has() { if [ "$MODE" = anchor-fork ]; then [ "$1" = dlea-anchor ]; else [ "$1" = dlea ]; fi; }
 KILL_TARGETS=(); SWEEP_TERM_POLLS=20; SWEEP_KILL_POLLS=20; TUI_CONF=""
-BENCH_TOKEN="warm-test-$$-$RANDOM"; BENCH_CG=$W/cg; FLEA_QMLCACHE=$W/qml; FLEA_STATE=$W/state
-FLEA_BIN=$W/flea; FLEA_UI=$W/ui; FIXTURE=$W; PREFETCH=$W/prefetch; ENTRANT_LAUNCHED=""; ROWS_PID=""; WARM_PID=""; WARM_STARTING=""; WARM_PREVIOUS_PID=""
-FLEA_PREFETCH_SLOT=""; WITH_ANCHOR=no
+BENCH_TOKEN="warm-test-$$-$RANDOM"; BENCH_CG=$W/cg; DLEA_QMLCACHE=$W/qml; DLEA_STATE=$W/state
+DLEA_BIN=$W/dlea; DLEA_UI=$W/ui; FIXTURE=$W; PREFETCH=$W/prefetch; ENTRANT_LAUNCHED=""; ROWS_PID=""; WARM_PID=""; WARM_STARTING=""; WARM_PREVIOUS_PID=""
+DLEA_PREFETCH_SLOT=""; WITH_ANCHOR=no
 if [ "$MODE" = anchor-fork ]; then
-  WITH_ANCHOR=yes; ANCHOR_BIN=$FLEA_BIN; ANCHOR_UI=$FLEA_UI; ANCHOR_QMLCACHE=$FLEA_QMLCACHE; ANCHOR_STATE=$FLEA_STATE; ANCHOR_PREFETCH_SLOT=""
+  WITH_ANCHOR=yes; ANCHOR_BIN=$DLEA_BIN; ANCHOR_UI=$DLEA_UI; ANCHOR_QMLCACHE=$DLEA_QMLCACHE; ANCHOR_STATE=$DLEA_STATE; ANCHOR_PREFETCH_SLOT=""
 fi
 export FAKE_PIDFILE=$W/pid FAKE_PREFETCH=$W/prefetch
 eval "$WARM_TEXT"; eval "$SWEEP_TEXT"; eval "$CLEAN_TEXT"; eval "$CLEANUP_TEXT"
-# The fake cgroup is ordinary files; the real token sweep still ends the independently sessioned Flea.
+# The fake cgroup is ordinary files; the real token sweep still ends the independently sessioned Dlea.
 warm_stop() { :; }
 eval "$(declare -f warm_qml_cache | sed '1s/warm_qml_cache/warm_qml_cache_body/')"
 warm_qml_cache() { printf '%s\n' "$BASHPID" > "$W/warm-pid"; warm_qml_cache_body; }
@@ -233,12 +233,12 @@ PYDRIVER
   if [ "$mode" = mapped ]; then
     alive=no; running "$fake" && alive=yes
     [ "$alive" = yes ] && kill -KILL "$fake" 2>/dev/null
-    check "$signal during $mode ends the warm Flea through the EXIT trap" no "$alive"
+    check "$signal during $mode ends the warm Dlea through the EXIT trap" no "$alive"
   else
     copy_pid=$(cat "$warm/copy-pid" 2>/dev/null)
     alive=no; running "$copy_pid" && alive=yes
     check "$signal during $mode kills a setup child that ignores TERM" no "$alive"
-    check "$signal during $mode never launches Flea after cleanup" "" "$fake"
+    check "$signal during $mode never launches Dlea after cleanup" "" "$fake"
   fi
   check "$signal during $mode restores the operator's list unchanged" 'operator list' "$(cat "$warm/prefetch" 2>/dev/null)"
   # Rescue runs after every assertion, so it cannot make an un-killed setup child appear stopped.

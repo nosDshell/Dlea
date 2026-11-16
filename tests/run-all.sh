@@ -18,14 +18,14 @@ export QT_QPA_PLATFORMTHEME=generic
 export PYTHONDONTWRITEBYTECODE=1
 
 # Both profiles unconditionally, the debug binary for the suites that drive it and the release one for thumbs.sh: an `[ ! -x <path> ]` guard is satisfied by a stale binary from an older commit, and measured on 2026-09-05 the debug and release hashes were unchanged across a whole run-all over edited source.
-printf 'run-all: building target/debug/flea, the debug-binary suites need it\n'
+printf 'run-all: building target/debug/dlea, the debug-binary suites need it\n'
 cargo build -q || { printf 'run-all: cargo build failed, nothing else was run\n' >&2; exit 1; }
-printf 'run-all: building target/release/flea, thumbs.sh needs it\n'
+printf 'run-all: building target/release/dlea, thumbs.sh needs it\n'
 cargo build -q --release || { printf 'run-all: release build failed, nothing else was run\n' >&2; exit 1; }
 printf 'run-all: building the headless IPC surface\n'
-cargo build --locked -q -p flea-gui --example ipc-fixture || { printf 'run-all: IPC fixture build failed\n' >&2; exit 1; }
+cargo build --locked -q -p dlea-gui --example ipc-fixture || { printf 'run-all: IPC fixture build failed\n' >&2; exit 1; }
 
-cargo build --locked -q -p flea-gui || exit 1
+cargo build --locked -q -p dlea-gui || exit 1
 
 # Suites that need no display; each suite's own first comment line says what it checks.
 headless="aur-versions preview-quality suite-inventory jobs rclone rclone-ci staticgates gpui-lint gpui-gates js keymap-gen charts budget pkgrel-check signalarity empty-state sandbox capability-ownership gio-auth gvfs ops empty-trash fatcopy modes update locale protocol viewerorder-backend portal archive unzip-progress thumbs thumbs-exec trashthumb-backend appimage-icon network-open-share network-keyless mount-listing lazy-objects startup-objects connections-style pdf-turn pdf-first preview-decode preview-swap preview-colwork preview-settle-live preview-select preview-hunt uistate uiwriter xwsettings xwstate media filemanager1 dragwire tabcatcher runall-rule tabreceive sidebarcost shellload bootload xwtab-scan settings-columns preview-frame preview-geometry jump-ui jump-gap picker-recent picker-stall grid-gap rowcost langmarks3 langtoggle columnscost columnrow-geom columndividers columnsfolder columnsback  headercost headerhandles menu-settle menu-snapshot-retire flash-ending-focus menus-evidence menu-shebang pane-states eject-verdict markdown-render markdown-figures markdown-figures-render figure-warm figure-store markdown-security markdown-spec markdown-html markdown-linearity markdown-lazy markdown-memory markdown-blockcost markdown-nest fencehosts preview-layout-loop lockedmenu arm-prompt acceptance-matrix counts listcost poolpark listprebuild gridprebuild slowsource-load cursormark listnarrow gridnarrow columnnarrow columnsfilter-edge filter-held gridmark search-exit-deep columnshidden search-warm rowscroll listnamebudget clickedge-origin ui-fixture-home ui-captures-sheet ui-captures-permissions ui-captures-fences cap-drops-trash network-kernel-mounts mtp-scan columnsfilter columns-peekdrag dropcase-guards search-live filter-firstkey search-exit-reads search-exit-columns wait-listing heldlisting dropmods-wait dropmods-windows search-keep foldersort-keep sortnew search-answered  search-sizes folderviews-flow sheet-query menu-scroll-width menu-refresh-scroll button-system menu-card-sink scroll-fill columnclip-empty listhidden gridhidden gridcaption gridbare statusbar-hint xw-addr xw-harness touchpad fs-matrix-smoke scroll-lanes touchpad-tool touchpad-edge scroll-bounds picker-grid picker-header picker-hunt picker-selection permissions-adv permissions-skips permissions-focus presskeep scrolloff-view hyprdispatch pointer-glide-proof sidebar-flows menu-clipboard-hunt menu-backend-hunt figure-package rename-scroll rename-list-bottom quicklook-firstframe quicklook-hold quicklook-followrest qslog-crash watch-views markdown-tables remote-start shelf-add-queue pdf-idle run-card-sink opener-ask tagrows sweep-picker-env click-chrome picker-save-wrap trash-locations gridcapbreak gridviewport hoverready dragready gridgrowth griddroplive heldkey trash-view gridresize shelf-mark html-preview markdown-preview-state"
@@ -33,7 +33,7 @@ headless="aur-versions preview-quality suite-inventory jobs rclone rclone-ci sta
 headless="$headless g1-01 g1-02 g1-03 g1-04 g1-06 g1-07 g1-08 g1-10 g1-11 g1-12 g1-13 g2-mn1 g2-pl3 g2-sr1 g2-pv2-md g2-pv2-web g2-pv2-office raw-corpus gpui-spinner gui-ipc gpui-theme-gate tui-cwd tui-battery tui-detail tui-owner-stall parity capsweep-check ring-bounds rename-frame rename-cost rename-lag menu-fit settings-tail dialog-board chromering framegap colwatch-gate cursor-swap cursorback field-write-guard preview-earlyask field-prefetch-park navcost navframe tui-wake glass glass-boot preview-holdframes field-entrant-sweep field-tui-frame quicklook-tablewarm spinner-still emptybeats hidden-release unlock-stdin unlock-lsblk-shim unlock-poller unlock-host archive-threat columnsprebuild ui-gvfsbridge-env devicelock dropmods-box-proof columns-peekdrag-noise slowsource-load-cleanup field-instant cap-filter-width readme-grab search-rawnames columns-held hiddenlast-views portal-startup portal-startup-abort holdoff-cap fillroles gridjump quicklook-firstkind slowsource-nas quicklook-zoom mediastrip-volume dualdivider menu-contents tagflyout railmotion theme-contrast glasspick-case reveal navsupersede keyreach heldcolumns  permissions-point-proof transferlive-owners transferhold tui-quit-playing tui-editor-stop mountfail-image glass-mode flingframe mpris mediasession fontpane preview-tall pv-gif pv-gif-reply columns-pwid code-engine code-column preview-raw field-launch-order field-strata-src preview-pdf-flow quicklook-code quicklook-rect pv-compare pv-compare-menu preview-scroll markdown-code csv-preview cohesion-reader capture-port raw-fixture columnsmoves fenceparity settings-ground raildrop material-startup volume-udisks properties-multi properties-races print-office-real matchtext-zerowidth native-transport native-transport-r1 search-ci-lint searchprior-ci"
 headless="$headless g1-14"
 headless="$headless i18n-quality"
-# Sample input: "FAIL x", "suite: FAIL x" and "a FAIL: x" match, "ok FAILED" and "xFAIL x" do not; the flea-ci contract.
+# Sample input: "FAIL x", "suite: FAIL x" and "a FAIL: x" match, "ok FAILED" and "xFAIL x" do not; the dlea-ci contract.
 headless="$headless third-party-licenses gpui-capture-smoke gpui-visual-scenes gui-render-fallback g2-op1 g2-op2 g2-dg1 g2-mn2 g2-pv2 g2-pl1 g2-st2 field-product field-localsearch"
 headless="$headless cli-contract cli-contract-mutations legacy-upgrade legacy-helpers state-compat chooser-replies"
 # A UISH suite is registered here when its file lands, so the full run never names a missing suite.
@@ -84,16 +84,16 @@ not_run="
 native-transport-gpui|needs a native display or Xvfb and the stage native picker entry
 rename-timing|is a manual twenty-run protocol timing diagnosis through the host broker
 rename-cost-matrix|is a manual three-run comparison of the frozen rename-cost gate
-rename-grid-bottom|needs node, which the flea-ci image does not carry, so it runs by name on a host that has node
+rename-grid-bottom|needs node, which the dlea-ci image does not carry, so it runs by name on a host that has node
 preview-040|exits 0 only on its known per-file scroll restoration failure and exits 1 on any other result, unexpected green included
-ui|needs the display, and refuses beside a Flea it did not start; cap_raw_grid, cap_raw_columns, cap_raw_quicklook and cap_raw_properties also need native screenshots
+ui|needs the display, and refuses beside a Dlea it did not start; cap_raw_grid, cap_raw_columns, cap_raw_quicklook and cap_raw_properties also need native screenshots
 drag|needs the display and a real pointer through uinput
 drag-look235|needs display and uinput capture for review
 drag-look235-case|is a case library sourced by drag.sh look235
 cardsizes|needs the display, a real pointer through uinput, and Hyprland to resize the window
 bench|is a separate headless benchmark-contract suite
-package|needs a real makepkg archive in FLEA_PACKAGE_FILE
-picker|needs the display, a session bus, and Flea activatable as the FileChooser backend
+package|needs a real makepkg archive in DLEA_PACKAGE_FILE
+picker|needs the display, a session bus, and Dlea activatable as the FileChooser backend
 picker-issue313-native|needs native Omarchy input, Qt 6.12 and the serialized minipc display lane
 picker-040|is 0.3.10's acceptance suite and is red until the picker has path entry and collision review
 network-live|needs live share credentials and the approved runtime bundle, maintainer only

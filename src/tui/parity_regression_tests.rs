@@ -61,7 +61,7 @@ fn parity_checker_runs_the_live_check_for_every_listing_and_panel_row() {
         .filter(|line| !line.starts_with('#'))
     {
         let row: Vec<_> = line.split('\t').collect();
-        if row[0] == "flea" || row[6] == "unsupported" || !matches!(row[3], "listing" | "panel") {
+        if row[0] == "dlea" || row[6] == "unsupported" || !matches!(row[3], "listing" | "panel") {
             continue;
         }
         let (listing_before, panel_before) = counts();
@@ -93,7 +93,7 @@ fn reject_inert_keys(keep: fn(&[&str]) -> bool, expected: usize) {
         .filter(|line| !line.starts_with('#'))
     {
         let row: Vec<_> = line.split('\t').collect();
-        if row[0] == "flea" || row[6] == "unsupported" || !keep(&row) {
+        if row[0] == "dlea" || row[6] == "unsupported" || !keep(&row) {
             continue;
         }
         check_row(&row, &map);
@@ -137,11 +137,11 @@ fn confirm_notes_claim_only_the_focus_the_dialog_keeps() {
 
 #[test]
 fn bound_appendix_notes_never_call_their_action_unavailable() {
-    // candidate::appendix runs every bound Flea row's handler, so a note saying the action is missing or unavailable is stale.
+    // candidate::appendix runs every bound Dlea row's handler, so a note saying the action is missing or unavailable is stale.
     let rows: Vec<_> = include_str!("parity.tsv")
         .lines()
         .map(|line| line.split('\t').collect::<Vec<_>>())
-        .filter(|row| row[0] == "flea" && row[6] == "bound")
+        .filter(|row| row[0] == "dlea" && row[6] == "bound")
         .collect();
     assert!(!rows.is_empty());
     for row in rows {

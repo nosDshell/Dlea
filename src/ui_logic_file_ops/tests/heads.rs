@@ -14,7 +14,7 @@ fn job(fields: &str) -> JobRow {
 fn german() -> Catalog {
     let mut cat = Catalog::with_language("de");
     let path =
-        std::path::Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/i18n")).join("de/flea.json");
+        std::path::Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/i18n")).join("de/dlea.json");
     cat.write_catalog("de", &std::fs::read_to_string(path).unwrap());
     cat
 }

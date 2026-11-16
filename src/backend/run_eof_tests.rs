@@ -3,7 +3,7 @@ use super::*;
 use crate::backend::searchjobs::Gate as Jobs;
 use std::process::{Command, Stdio};
 
-const CHILD: &str = "FLEA_TEST_SEARCH_EOF_CHILD";
+const CHILD: &str = "DLEA_TEST_SEARCH_EOF_CHILD";
 
 #[test]
 fn search_fix4_piped_eof_answers_the_deferred_walk_before_exit() {

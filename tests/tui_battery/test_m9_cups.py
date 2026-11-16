@@ -1,4 +1,4 @@
-"""Real receiver-side private IPC controls, with no Flea, native display or physical printer."""
+"""Real receiver-side private IPC controls, with no Dlea, native display or physical printer."""
 import hashlib
 import io
 import json
@@ -18,13 +18,13 @@ def request(document, operation=2, extra=b""):
     charset = b"\x47\x00\x12attributes-charset\x00\x05utf-8"
     language = b"\x48\x00\x1battributes-natural-language\x00\x02en"
     body = b"\x02\x00" + struct.pack(">HI", operation, 1) + b"\x01" + charset + language + extra + b"\x03" + document
-    return (b"POST /printers/flea-private HTTP/1.1\r\nContent-Type: application/ipp\r\nContent-Length: "
+    return (b"POST /printers/dlea-private HTTP/1.1\r\nContent-Type: application/ipp\r\nContent-Length: "
             + str(len(body)).encode() + b"\r\n\r\n" + body)
 
 
 class PrivateCupsTests(unittest.TestCase):
     def setUp(self):
-        self.root = Path(tempfile.mkdtemp(prefix="m9-cups.", dir=os.environ["FLEA_BATTERY_TEST_ROOT"]))
+        self.root = Path(tempfile.mkdtemp(prefix="m9-cups.", dir=os.environ["DLEA_BATTERY_TEST_ROOT"]))
         (self.root / MARKER).write_text("owned private CUPS IPC fixture\n")
         self.fx = self.root / "fx"
         work = self.fx / "v/work"
@@ -107,7 +107,7 @@ class PrivateCupsTests(unittest.TestCase):
     def test_chunked_request_preserves_wire_bytes_and_document(self):
         original = request(self.document)
         _, body = cups.http_request(io.BytesIO(original))
-        wire = (b"POST /printers/flea-private HTTP/1.1\r\nContent-Type: application/ipp\r\nTransfer-Encoding: chunked\r\n\r\n"
+        wire = (b"POST /printers/dlea-private HTTP/1.1\r\nContent-Type: application/ipp\r\nTransfer-Encoding: chunked\r\n\r\n"
                 + hex(len(body))[2:].encode() + b"\r\n" + body + b"\r\n0\r\n\r\n")
         raw, decoded = cups.http_request(io.BytesIO(wire))
         self.assertEqual(raw, wire)

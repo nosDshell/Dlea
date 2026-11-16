@@ -2,11 +2,11 @@
 # Drives the real binary over stdin and asserts the exact stdout contract.
 set -u
 # Hard rule 9's guard, which owns FIXTURE_ROOT and every create and delete below.
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 
 cd "$(dirname "$0")/.." || exit 1
 
-BIN=${BIN:-./target/debug/flea}
+BIN=${BIN:-./target/debug/dlea}
 # A clean git archive export carries no target/, and without this the suite runs every case
 # against a missing binary and reports them as product failures.
 if [ ! -x "$BIN" ]; then
@@ -20,7 +20,7 @@ if ! command -v cc >/dev/null 2>&1; then
 fi
 # The sandbox is the parent and the listing is a directory inside it, because the guard's marker is
 # a real dotfile and this suite asserts what a hidden:true listing contains.
-SB="$FIXTURE_ROOT/flea-proto-test-$$"
+SB="$FIXTURE_ROOT/dlea-proto-test-$$"
 D="$SB/tree"
 SIZES="$SB/sizes"
 # damson.txt's size: far above any folder's walked size, so the folder sorts below it on every filesystem.
@@ -91,7 +91,7 @@ check "a select in another directory starts it at row 0" "0" "$(listed_start 1 "
 ln -s "$D/sub" "$SB/sublink"
 for asked in "$D/sub/" "$SB/sublink" "$D/sub/.."; do
   out=$(printf '{"c":"list","path":"%s","first":0}\n{"c":"quit"}\n' "$asked" | $BIN --backend)
-  # Sample output, the listed line: {"t":"listed","n":2,"read":0.040,"sort":0.010,"v":42,"path":"/tmp/flea/sub/"}
+  # Sample output, the listed line: {"t":"listed","n":2,"read":0.040,"sort":0.010,"v":42,"path":"/tmp/dlea/sub/"}
   check "listed names ${asked#"$SB"/} exactly as it was asked" "\"path\":\"$asked\"" "$(echo "$out" | grep -F '"t":"listed"' | head -1 | grep -oE '"path":"[^"]*"')"
 done
 
@@ -196,7 +196,7 @@ prefetch_run() {
       [ "$(cat "$2" 2>/dev/null)" != "$3" ] && { : > "$SEEN"; break; }
       sleep 0.1
     done
-    printf '{"c":"quit"}\n'; } | FLEA_PREFETCH="$2" FLEA_PREFETCH_SHELL="$1" $BIN --backend > "$REPLY"
+    printf '{"c":"quit"}\n'; } | DLEA_PREFETCH="$2" DLEA_PREFETCH_SHELL="$1" $BIN --backend > "$REPLY"
   PREFETCH_RC=${PIPESTATUS[1]}
 }
 # Sample reply line: {"t":"listed","n":3,"read":0.041,"sort":0.003,"v":1,"path":"/x"}, the proof the backend served the list.
@@ -219,11 +219,11 @@ shell_exe=$(readlink -f /proc/$$/exe)
 # Sample range line: "0 32768 /usr/bin/bash", offset, length and path, so " <path>" matches only the path field.
 check "and lists the shell's own executable, not the backend's" "yes no" \
   "$(grep -qF " $shell_exe" "$LIST" && echo yes || echo no) $(grep -qF " $(readlink -f $BIN)" "$LIST" && echo yes || echo no)"
-printf 'flea-prefetch 2\nshell %s 1\n0 4096 /sentinel\n' "$$" > "$LIST"
+printf 'dlea-prefetch 2\nshell %s 1\n0 4096 /sentinel\n' "$$" > "$LIST"
 prefetch_run $$ "$LIST" "$(cat "$LIST")"
 check "a list naming this pid with another start time is an earlier shell's, and is replaced" "$identity no" \
   "$(sed -n 2p "$LIST") $(grep -qF /sentinel "$LIST" && echo yes || echo no)"
-printf 'flea-prefetch 2\n%s\n0 4096 /sentinel\n' "$identity" > "$LIST"
+printf 'dlea-prefetch 2\n%s\n0 4096 /sentinel\n' "$identity" > "$LIST"
 recorded=$(cat "$LIST")
 prefetch_run $$ "$LIST" "$recorded"
 check "a later backend of the same shell serves its list and leaves the launch's list alone" "0 1 same" \
@@ -248,7 +248,7 @@ check "the backend exits 0 even after an error" "0" "$?"
 out=$(printf 'total junk\n{"c":"quit"}\n' | $BIN --backend)
 check "junk produces no output and no crash" "" "$out"
 
-ND_SB="$FIXTURE_ROOT/flea-newline-test-$$"
+ND_SB="$FIXTURE_ROOT/dlea-newline-test-$$"
 ND="$ND_SB/tree"
 sandbox_make "$ND_SB"
 mkdir -p "$ND"
@@ -258,7 +258,7 @@ check "a newline in a real filename keeps the response on two lines" "2" "$(echo
 check "and the name is escaped in the row" "1" "$(echo "$out" | sed -n 2p | grep -c 'two\\nlines.txt')"
 sandbox_remove "$ND_SB"
 
-SD_SB="$FIXTURE_ROOT/flea-symlink-test-$$"
+SD_SB="$FIXTURE_ROOT/dlea-symlink-test-$$"
 SD="$SD_SB/tree"
 sandbox_make "$SD_SB"
 mkdir -p "$SD"
@@ -285,7 +285,7 @@ sandbox_remove "$SD_SB"
 # ungrouped gives 1 2 11, so a build with the grouping taken out fails this and only this shape can
 # tell them apart. Descending needs the whole order and not the first name: grouped gives 11 1 2 and
 # ungrouped gives 11 2 1, which share a first row.
-GR_SB="$FIXTURE_ROOT/flea-grouping-test-$$"
+GR_SB="$FIXTURE_ROOT/dlea-grouping-test-$$"
 GR="$GR_SB/tree"
 sandbox_make "$GR_SB"
 mkdir -p "$GR/1" "$GR/11"
@@ -386,7 +386,7 @@ check "a failed list leaves the previous listing intact" "sub" "$(echo "$out" | 
 check "and that listing still stats against its own directory" '"n":"three.txt","d":false,"s":3' "$(echo "$out" | sed -n 4p | grep -o '"n":"three.txt","d":false,"s":3')"
 
 setup
-PW="$FIXTURE_ROOT/flea-prewarm-test-$$.json"
+PW="$FIXTURE_ROOT/dlea-prewarm-test-$$.json"
 rm -f "$PW"
 $BIN --prewarm "$D" 2 "$PW"
 check "prewarm file exists" "0" "$([ -f "$PW" ] && echo 0 || echo 1)"
@@ -403,7 +403,7 @@ printf 'STALE\n' > "$PW"
 $BIN --prewarm /definitely/not/here 2 "$PW" >/dev/null 2>&1
 check "a failed prewarm exits non-zero" "1" "$?"
 
-TGT="$FIXTURE_ROOT/flea-prewarm-target-$$.txt"
+TGT="$FIXTURE_ROOT/dlea-prewarm-target-$$.txt"
 printf 'TARGET UNTOUCHED' > "$TGT"
 rm -f "$PW"
 ln -s "$TGT" "$PW"
@@ -452,7 +452,7 @@ check "the same bytes without the bit draw a document" "1" "$(echo "$out" | sed 
 
 # Row order after setup plus the copy is sub, empty.txt, photo.jpg, three.txt, so the indices are 1, 3 and 4.
 setup
-cp "$FIXTURE_ROOT/flea-media-btrfs/photo_0.jpg" "$D/photo.jpg" 2>/dev/null || printf 'x' > "$D/photo.jpg"
+cp "$FIXTURE_ROOT/dlea-media-btrfs/photo_0.jpg" "$D/photo.jpg" 2>/dev/null || printf 'x' > "$D/photo.jpg"
 out=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"quit"}\n' "$D" | $BIN --backend)
 check "a directory row cannot be thumbnailed" "false" "$(echo "$out" | sed -n 2p | grep -oE '"t":(true|false)' | sed -n 1p | cut -d: -f2)"
 check "a jpeg row can be thumbnailed" "true" "$(echo "$out" | sed -n 2p | grep -oE '"t":(true|false)' | sed -n 3p | cut -d: -f2)"
@@ -465,7 +465,7 @@ check "a closed stdin ends the loop without a quit" "rc=0" "$(echo "$out" | tail
 
 # Row order after setup plus the copy is sub, empty.txt, photo.jpg, three.txt, so row 2 is the jpeg.
 setup
-cp "$FIXTURE_ROOT/flea-media-btrfs/photo_0.jpg" "$D/photo.jpg"
+cp "$FIXTURE_ROOT/dlea-media-btrfs/photo_0.jpg" "$D/photo.jpg"
 out=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"thumb","rows":[2]}\n{"c":"quit"}\n' "$D" | $BIN --backend)
 check "a thumb request answers a thumbed line" "thumbed" "$(echo "$out" | grep -oE '"t":"thumbed"' | head -1 | cut -d'"' -f4)"
 check "the thumbed line names its row" '"row":2' "$(echo "$out" | grep -o '"row":2' | head -1)"
@@ -486,10 +486,10 @@ check "a directory row answers an empty file" '"row":0,"file":""' "$(echo "$out"
 
 # ExtThumbs, callout 3: off is cache-only. The decoder is jailed with only its input and output bound, so the witness is this suite's cache.
 setup
-cp "$FIXTURE_ROOT/flea-media-btrfs/photo_0.jpg" "$D/photo-a.jpg"
-cp "$FIXTURE_ROOT/flea-media-btrfs/photo_0.jpg" "$D/photo-b.jpg"
+cp "$FIXTURE_ROOT/dlea-media-btrfs/photo_0.jpg" "$D/photo-a.jpg"
+cp "$FIXTURE_ROOT/dlea-media-btrfs/photo_0.jpg" "$D/photo-b.jpg"
 out=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"thumb","rows":[2]}\n{"c":"quit"}\n' "$D" | $BIN --backend)
-# Sample input: {"t":"thumbed","row":2,"file":"/home/flea-sandbox/t/cache/thumbnails/large/0a1b.png","ms":98.1}
+# Sample input: {"t":"thumbed","row":2,"file":"/home/dlea-sandbox/t/cache/thumbnails/large/0a1b.png","ms":98.1}
 decoded=$(echo "$out" | grep -oE '"row":2,"file":"[^"]+"' | cut -d'"' -f6)
 check "the full path starts the decoder" "1" "$([ -n "$decoded" ] && [ -s "$decoded" ] && echo 1 || echo 0)"
 # A decode that started leaves a thumbnail or a fail marker here before quit returns, so an unchanged cache means none started.
@@ -588,7 +588,7 @@ dirsize_run() {
 # Ten seconds, five times the walk's own 2000 ms deadline, so only a walk that never answers runs it out.
 DIRSIZE_WAIT_TENTHS=100
 
-DZ_SB="$FIXTURE_ROOT/flea-dirsize-test-$$"
+DZ_SB="$FIXTURE_ROOT/dlea-dirsize-test-$$"
 DZ="$DZ_SB/tree"
 sandbox_make "$DZ_SB"
 mkdir -p "$DZ"
@@ -620,7 +620,7 @@ out=$(printf '{"c":"list","path":"%s","first":10}\n{"c":"dirsize","rows":[0]}\n{
 check "a row cancelled before it was walked is never answered" "0" "$(echo "$out" | grep -c '"t":"dirsized"')"
 
 # list and sort both reassign what a row index names, the same reason a list or a sort clears the thumbnail map, see docs/protocol.md "dirsized".
-SZ_SB="$FIXTURE_ROOT/flea-dirsize-sort-test-$$"
+SZ_SB="$FIXTURE_ROOT/dlea-dirsize-sort-test-$$"
 SZ="$SZ_SB/tree"
 sandbox_make "$SZ_SB"
 mkdir -p "$SZ"
@@ -639,7 +639,7 @@ check "row 0's answer after the sort is zzz's larger size, not aaa's stale cache
 sandbox_remove "$SZ_SB"; sandbox_remove "$DZ_SB"
 
 # A new folder: one mkdir(2), answered like rename and journaled so z removes it; see docs/protocol.md "mkdir".
-MK_SB="$FIXTURE_ROOT/flea-mkdir-test-$$"
+MK_SB="$FIXTURE_ROOT/dlea-mkdir-test-$$"
 MK="$MK_SB/tree"
 sandbox_make "$MK_SB"
 mkdir -p "$MK"
@@ -696,7 +696,7 @@ check "and what they put inside is still there" "yes" "$([ -f "$MK/filled/theirs
 sandbox_remove "$MK_SB"
 
 # Bulk rename: the whole batch is validated first, swaps ride temp names, one undo reverses.
-BR_SB="$FIXTURE_ROOT/flea-bulk-test-$$"
+BR_SB="$FIXTURE_ROOT/dlea-bulk-test-$$"
 BR="$BR_SB/tree"
 sandbox_make "$BR_SB"
 mkdir -p "$BR"
@@ -726,7 +726,7 @@ check "and the chain's names are back" "bbbaaa|a.txt b.txt" "$(cat "$BR/a.txt" 2
 sandbox_remove "$BR_SB"
 
 # Names a transfer would land on, asked first, then one choice for them; see docs/protocol.md "collisions".
-CO_SB="$FIXTURE_ROOT/flea-collide-test-$$"
+CO_SB="$FIXTURE_ROOT/dlea-collide-test-$$"
 CO="$CO_SB/tree"
 collide_fixture() {
   sandbox_remove "$CO_SB"
@@ -862,7 +862,7 @@ chmod +x "$SB/pastebin/wl-paste"
 out=$(PATH="$SB/pastebin:$PATH" backend_steps "$(printf '{"c":"pasteimage","dest":"%s/to","name":"Pasted image 2026-09-23 at 10.14.32.png"}' "$CO")" 'wait:"t":"made"')
 check "a paste answers made for its name" '"path":"'"$CO"'/to/Pasted image 2026-09-23 at 10.14.32.png"' "$(echo "$out" | grep -oE '"path":"[^"]*Pasted image[^"]*"')"
 check "and those are the clipboard's own bytes" "4" "$(wc -c < "$CO/to/Pasted image 2026-09-23 at 10.14.32.png" | tr -d ' ')"
-check "and leaves no temp behind" "0" "$(ls -A "$CO/to" | grep -c 'flea-paste' || true)"
+check "and leaves no temp behind" "0" "$(ls -A "$CO/to" | grep -c 'dlea-paste' || true)"
 out=$(PATH="$SB/pastebin:$PATH" backend_steps "$(printf '{"c":"pasteimage","dest":"%s/to","name":"second.png"}' "$CO")" 'wait:"t":"made"' '{"c":"undo"}' 'wait:"t":"undone"')
 check "and undo takes the pasted file back" "no" "$([ -e "$CO/to/second.png" ] && echo yes || echo no)"
 out=$(printf '{"c":"pasteimage","dest":"%s/to","name":"a/b.png"}\n{"c":"quit"}\n' "$CO" | $BIN --backend)
@@ -964,7 +964,7 @@ check "and no job was started for it" "0" "$(echo "$out" | grep -c '"t":"archive
 # Issue 68: the listed directory is watched, so a change made from outside answers a changed line.
 # The only unsolicited line on the wire, so every case here is driven by a real create, rename or
 # delete landing between two requests rather than by a request asking for it.
-WT_SB="$FIXTURE_ROOT/flea-watch-test-$$"
+WT_SB="$FIXTURE_ROOT/dlea-watch-test-$$"
 WT="$WT_SB/tree"
 OTHER="$WT_SB/other"
 sandbox_make "$WT_SB"
@@ -1180,7 +1180,7 @@ sandbox_remove "$WT_SB"
 
 # A test-only opendir barrier pins a real size worker until the parent releases it. These
 # requests must finish while it is blocked; no sleeps or tree-size guesses choose the race.
-ASYNC_SB="$FIXTURE_ROOT/flea-dirsize-async-$$"
+ASYNC_SB="$FIXTURE_ROOT/dlea-dirsize-async-$$"
 sandbox_make "$ASYNC_SB"
 python3 tests/dirsize-async.py "$ASYNC_SB" "$BIN"
 check "running size jobs allow cancel, list, sort and quit without stale replies" "0" "$?"
@@ -1284,19 +1284,19 @@ out=$(printf '{"c":"flashimage","path":"%s"}\n{"c":"quit"}\n' "$SB/flash/fake.im
 check "magic refusing a mismatched suffix answers no kind" "1" "$(echo "$out" | grep -c "\"t\":\"flashimage\",\"path\":\"$SB/flash/fake.img.xz\",\"kind\":\"\"")"
 out=$(printf '{"c":"flashimage","path":"%s"}\n{"c":"quit"}\n' "$SB/flash/plain.img.gz" | $BIN --backend)
 check "a gzip image probes with an unknown size" "1" "$(echo "$out" | grep -c "\"kind\":\"gz\",\"bytes\":[0-9]*,\"unpacked\":0,\"known\":false")"
-out=$(printf '{"c":"flashtargets","image":""}\n{"c":"quit"}\n' | FLEA_UDISKS=/nonexistent-helper $BIN --backend)
+out=$(printf '{"c":"flashtargets","image":""}\n{"c":"quit"}\n' | DLEA_UDISKS=/nonexistent-helper $BIN --backend)
 check "flashtargets answers one line with a drives array" "1" "$(echo "$out" | grep -c '^{"t":"flashtargets","drives":\[')"
 # The refusal field of every listed drive is pinned by the flashtargets_line unit test, since this host may list no drive at all.
-out=$(printf '{"c":"flash","id":41,"image":"%s","dev":"flea-no-such-drive","seq":0,"serial":"","bytes":0}\n{"c":"quit"}\n' "$SB/flash/disk.img" | FLEA_UDISKS=/nonexistent-helper $BIN --backend)
+out=$(printf '{"c":"flash","id":41,"image":"%s","dev":"dlea-no-such-drive","seq":0,"serial":"","bytes":0}\n{"c":"quit"}\n' "$SB/flash/disk.img" | DLEA_UDISKS=/nonexistent-helper $BIN --backend)
 check "a flash that names no live drive still starts before it refuses" "1" "$(echo "$out" | grep -c '"t":"flashstarted","id":41')"
 check "and ends changed with nothing touched" "1" "$(echo "$out" | grep -c '"t":"flashdone","id":41,"ok":false,"phase":"prepare","at":0,"err":"changed","blank":false')"
 out=$(printf '{"c":"flashcancel","id":41}\n{"c":"flashimage","path":"%s"}\n{"c":"quit"}\n' "$SB/flash/disk.img" | $BIN --backend)
 check "a cancel naming no running flash answers nothing of its own" "0" "$(echo "$out" | grep -c flashdone)"
 check "and the stream behind it is still answered" "1" "$(echo "$out" | grep -c '"t":"flashimage"')"
-out=$(printf '{"c":"flasheject","dev":"flea-no-such-drive","seq":0}\n{"c":"quit"}\n' | $BIN --backend)
+out=$(printf '{"c":"flasheject","dev":"dlea-no-such-drive","seq":0}\n{"c":"quit"}\n' | $BIN --backend)
 check "ejecting a drive the kernel never listed is gone" "1" "$(echo "$out" | grep -c '{"t":"flasheject","ok":false,"err":"gone"}')"
 # The helper's own decisions, gi stubbed: the installed helper carries no seam and unlocked volumes unmount before they lock.
-udisks_out=$(python3 tests/flash-udisks.py "$PWD/tools/flea-udisks" 2>&1)
+udisks_out=$(python3 tests/flash-udisks.py "$PWD/tools/dlea-udisks" 2>&1)
 check "the udisks helper's decisions all hold" "1" "$(printf '%s\n' "$udisks_out" | grep -c '^flash-udisks: all checks passed$')"
 printf '%s\n' "$udisks_out" | grep '^FAIL' || true
 

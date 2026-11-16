@@ -100,7 +100,7 @@ pub(super) fn run(
     let exceeded = overflow.clone();
     decoder.reader = Some(
         std::thread::Builder::new()
-            .name("flea-chafa-output".into())
+            .name("dlea-chafa-output".into())
             .spawn(move || {
                 let mut bytes = Vec::new();
                 output

@@ -10,7 +10,7 @@ import time
 
 binary, directory = sys.argv[1:]
 root = Path(directory)
-assert root.is_absolute() and str(root) and (root / ".flea-test-sandbox").is_file()
+assert root.is_absolute() and str(root) and (root / ".dlea-test-sandbox").is_file()
 assert Path(os.environ["XDG_DATA_HOME"]) == root / "data"
 files, infos = root / "data/Trash/files", root / "data/Trash/info"
 files.mkdir(parents=True)

@@ -16,7 +16,7 @@ impl Fixture {
         assert!(output.status.success());
         let path = PathBuf::from(String::from_utf8(output.stdout).unwrap().trim());
         assert!(path.is_absolute() && path.starts_with(parent));
-        std::fs::write(path.join(".flea-test-sandbox"), "TUI rounding controls\n").unwrap();
+        std::fs::write(path.join(".dlea-test-sandbox"), "TUI rounding controls\n").unwrap();
         Self(path)
     }
 }
@@ -28,7 +28,7 @@ impl Drop for Fixture {
         assert!(
             self.0.is_absolute()
                 && self.0.starts_with(parent)
-                && self.0.join(".flea-test-sandbox").is_file()
+                && self.0.join(".dlea-test-sandbox").is_file()
         );
         std::fs::remove_dir_all(&self.0).unwrap();
     }
@@ -47,7 +47,7 @@ fn m9_corner_tui_nonzero_exit_is_square() {
     let root = Fixture::new();
     let program = root.0.join("hyprctl");
     std::fs::write(&program, "#!/bin/sh\nprintf '{\"int\":8}'\nexit 1\n").unwrap();
-    flea::executable_file::write(&program, &std::fs::read(&program).unwrap(), 0o700).unwrap();
+    dlea::executable_file::write(&program, &std::fs::read(&program).unwrap(), 0o700).unwrap();
     assert!(!read_rounding(&mut Command::new(program)));
 }
 
@@ -90,6 +90,6 @@ fn m9_corner_tui_successful_command_is_rounded() {
     let root = Fixture::new();
     let program = root.0.join("hyprctl");
     std::fs::write(&program, "#!/bin/sh\nprintf '{\"int\":8}'\nexit 0\n").unwrap();
-    flea::executable_file::write(&program, &std::fs::read(&program).unwrap(), 0o700).unwrap();
+    dlea::executable_file::write(&program, &std::fs::read(&program).unwrap(), 0o700).unwrap();
     assert!(read_rounding(&mut Command::new(program)));
 }

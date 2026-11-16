@@ -142,7 +142,7 @@ hypr_cursor_move() {
     _hypr_reply_ok "$status" "$answer" "$@"
 }
 
-# Sample input: hypr_session_exec_script /home/flea-sandbox/iso/session-mount.ABCD/run.sh, never a shell expression.
+# Sample input: hypr_session_exec_script /home/dlea-sandbox/iso/session-mount.ABCD/run.sh, never a shell expression.
 hypr_session_exec_script() {
     _hypr_arity hypr_session_exec_script 'SCRIPT' "$@" || return 1
     [[ "$1" == /* && "$1" != *[!a-zA-Z0-9_./=-]* ]] || {
@@ -154,7 +154,7 @@ hypr_session_exec_script() {
     _hypr_reply_ok "$status" "$answer" "$@"
 }
 
-# Sample input: hypr_session_exec_rules name:tui-proof FLEA-tui-proof /tmp/case/launch.sh, the script runs under window rules.
+# Sample input: hypr_session_exec_rules name:tui-proof DLEA-tui-proof /tmp/case/launch.sh, the script runs under window rules.
 # The workspace rule is not silent: a silent one leaves the output on its first workspace, so its screencopy never shows the window.
 hypr_session_exec_rules() {
     _hypr_arity hypr_session_exec_rules 'WORKSPACE OUTPUT SCRIPT' "$@" || return 1
@@ -170,7 +170,7 @@ hypr_session_exec_rules() {
 }
 
 _hypr_output_name() {
-    [[ "$2" =~ ^FLEA-[A-Za-z0-9._-]+$ ]] || _hypr_refuse "$1" "$2" 'expected an owned FLEA- output name'
+    [[ "$2" =~ ^DLEA-[A-Za-z0-9._-]+$ ]] || _hypr_refuse "$1" "$2" 'expected an owned DLEA- output name'
 }
 
 _hypr_mode() {
@@ -228,7 +228,7 @@ hypr_output_remove() {
     _hypr_reply_ok "$status" "$answer" "$@"
 }
 
-# Sample input: hypr_monitor_mode FLEA-ab12 2560x1440@60, sets scale 1 at the automatic position.
+# Sample input: hypr_monitor_mode DLEA-ab12 2560x1440@60, sets scale 1 at the automatic position.
 hypr_monitor_mode() {
     _hypr_arity hypr_monitor_mode 'NAME MODE' "$@" || return 1
     _hypr_output_name hypr_monitor_mode "$1" || return 1

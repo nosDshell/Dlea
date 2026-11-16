@@ -6,7 +6,7 @@
 
 // #259: the drop follows the keys held at the drop, not the lift, run against the shipped key record in ui/js/DragOut.js.
 function run(check) {
-    var rows = [{ n: "omarchy", d: true }, { n: "flea", d: true }, { n: "a.txt", d: false }, { n: "b.txt", d: false }]
+    var rows = [{ n: "omarchy", d: true }, { n: "dlea", d: true }, { n: "a.txt", d: false }, { n: "b.txt", d: false }]
 
     var plainDropMarker = Drag.markerPayload([0], false, "/d", 56)
     var copyDropMarker = Drag.markerPayload([0], true, "/d", 56)

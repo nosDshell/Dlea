@@ -67,7 +67,7 @@ function bar(pane, shell) {
         root[names[i]] = method(text, names[i], root, Quickshell, ackTimer, sourceGeometry, strip, null, takenAck, tabDropDeadline)
     root.sendTaken = function (pid, token) { root.acks.push(token) }
     var ackRoot = { tabBar: root, view: { currentPane: pane }, tabs: Tabs, traceTab: function () {} }
-    root.take = method(source("../../ui/boot/fleatab.qml"), "take", ackRoot)
+    root.take = method(source("../../ui/boot/dleatab.qml"), "take", ackRoot)
     root.focus = function (pane) { ackRoot.view.currentPane = pane; root.pane = pane }
     return root
 }

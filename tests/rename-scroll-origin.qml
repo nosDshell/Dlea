@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-rename-scroll-origin-test
+//@ pragma ShellId dlea-rename-scroll-origin-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Filter.js" as Filter
+import "dlea" as Dlea
+import "dlea/js/Filter.js" as Filter
 
 // The real ui/List.qml over the stub pane: an expanded rename delegate discarded by a scroll shifts originY, and one Home action must land on the first row.
 ShellRoot {
@@ -57,7 +57,7 @@ ShellRoot {
         function onCursorClamped(first, last) { Filter.clampCursor(root.stubPane, first, last) }
     }
 
-    Component { id: listComponent; Flea.List {} }
+    Component { id: listComponent; Dlea.List {} }
 
     function cellNow() { return root.view ? root.view.currentItem : null }
     function editorOf(cell) { return cell ? cell.editorField : null }
@@ -80,8 +80,8 @@ ShellRoot {
             root.editorOf(root.cellNow()).inputItem.text = "b-existing.md"
             root.stubPane.renameError = "b-existing.md already exists."
         }],
-        [function () { return root.cellNow() !== null && root.cellNow().height > Flea.Theme.fileRowHeight }, function () {
-            root.check(root.cellNow().height > Flea.Theme.fileRowHeight, "error expanded row")
+        [function () { return root.cellNow() !== null && root.cellNow().height > Dlea.Theme.fileRowHeight }, function () {
+            root.check(root.cellNow().height > Dlea.Theme.fileRowHeight, "error expanded row")
             root.geometryLine("expanded")
             root.view.contentY = Math.max(root.view.originY, root.view.originY + root.view.contentHeight - root.view.height)
         }],
@@ -99,7 +99,7 @@ ShellRoot {
             root.check(root.view.visibleRange().first === 0, "visible work starts at first row")
             root.view.requestIfDrifted()
             root.check(root.stubPane.backend.asked === 0, "held-window request starts at first row")
-            root.view.contentY = root.view.originY + Flea.Theme.fileRowHeight + 1
+            root.view.contentY = root.view.originY + Dlea.Theme.fileRowHeight + 1
         }],
         [function () { return root.stubPane.cursorIndex === 1 }, function () {
             root.check(root.stubPane.cursorIndex === 1 && root.view.visibleRange().first === 1, "ordinary scroll follows relative row offset")

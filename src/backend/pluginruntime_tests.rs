@@ -1,7 +1,7 @@
 use super::plugins_tests::{ask, code, env, get, plugin};
 use super::testdir::TestDir;
-use flea::jsondoc::{self, Json};
-use flea::ui_logic_plugin_settings::wire;
+use dlea::jsondoc::{self, Json};
+use dlea::ui_logic_plugin_settings::wire;
 
 fn running(dir: &TestDir, name: &str) -> String {
     std::fs::read_to_string(dir.join(name))
@@ -20,7 +20,7 @@ fn plugin_runtime_backend_enable_run_disable_uses_one_child() {
     );
     plugin(
         &dir,
-        "config/flea/plugins/example.lifecycle",
+        "config/dlea/plugins/example.lifecycle",
         "example.lifecycle",
         &source,
     );
@@ -67,7 +67,7 @@ fn plugin_runtime_backend_failed_answer_stays_failed_after_listing() {
     let env = env(&dir);
     plugin(
         &dir,
-        "config/flea/plugins/example.bad-answer",
+        "config/dlea/plugins/example.bad-answer",
         "example.bad-answer",
         "#!/bin/sh\nread hello\necho '{\"op\":\"ready\"}'\nread run\necho broken\nsleep 30\n",
     );
@@ -108,7 +108,7 @@ fn plugin_runtime_backend_refuses_undeclared_kind_without_starting() {
     let env = env(&dir);
     plugin(
         &dir,
-        "config/flea/plugins/example.kind",
+        "config/dlea/plugins/example.kind",
         "example.kind",
         super::plugins_tests::READY,
     );
@@ -139,7 +139,7 @@ fn plugin_runtime_backend_refuses_undeclared_kind_without_starting() {
 
 #[test]
 fn plugin_runtime_shelf_kind_switches_the_named_omarchy_plugin_and_draws_its_schema() {
-    use flea::ui_logic_plugin_settings::pages::{self, Row, Update};
+    use dlea::ui_logic_plugin_settings::pages::{self, Row, Update};
     let dir = TestDir::new("plugin-runtime-shelf");
     let mut env = env(&dir);
     env.plugin_manager = dir.script(
@@ -151,11 +151,11 @@ fn plugin_runtime_shelf_kind_switches_the_named_omarchy_plugin_and_draws_its_sch
     );
     plugin(
         &dir,
-        "config/flea/plugins/example.shelf",
+        "config/dlea/plugins/example.shelf",
         "example.shelf",
         super::plugins_tests::READY,
     );
-    dir.file("config/flea/plugins/example.shelf/manifest.json", r#"{"schemaVersion":1,"id":"example.shelf","name":"Team Shelf","version":"1","author":"Example","description":"A shelf plugin.","kinds":["shelf"],"entryPoints":{"run":"bin/run"},"shelf":{"omarchyPlugin":"example.team-shelf"},"schema":[{"key":"compact","type":"boolean","label":"Compact","defaultValue":false}]}"#);
+    dir.file("config/dlea/plugins/example.shelf/manifest.json", r#"{"schemaVersion":1,"id":"example.shelf","name":"Team Shelf","version":"1","author":"Example","description":"A shelf plugin.","kinds":["shelf"],"entryPoints":{"run":"bin/run"},"shelf":{"omarchyPlugin":"example.team-shelf"},"schema":[{"key":"compact","type":"boolean","label":"Compact","defaultValue":false}]}"#);
     let (result, listing) = ask(
         &env,
         r#"{"c":"plugins","op":"enable","id":1,"plugin":"example.shelf"}"#,
@@ -190,11 +190,11 @@ fn plugin_runtime_shelf_retry_repeats_failed_external_sync_before_clearing_failu
     ));
     plugin(
         &dir,
-        "config/flea/plugins/example.shelf-retry",
+        "config/dlea/plugins/example.shelf-retry",
         "example.shelf-retry",
         super::plugins_tests::READY,
     );
-    dir.file("config/flea/plugins/example.shelf-retry/manifest.json", r#"{"schemaVersion":1,"id":"example.shelf-retry","name":"Retry","version":"1","author":"Example","description":"A shelf plugin.","kinds":["shelf"],"entryPoints":{"run":"bin/run"},"shelf":{"omarchyPlugin":"example.retry"}}"#);
+    dir.file("config/dlea/plugins/example.shelf-retry/manifest.json", r#"{"schemaVersion":1,"id":"example.shelf-retry","name":"Retry","version":"1","author":"Example","description":"A shelf plugin.","kinds":["shelf"],"entryPoints":{"run":"bin/run"},"shelf":{"omarchyPlugin":"example.retry"}}"#);
     let enable = r#"{"c":"plugins","op":"enable","id":1,"plugin":"example.shelf-retry"}"#;
     let (_, first) = ask(&env, enable);
     let failed = get(&first, "example.shelf-retry");

@@ -1,4 +1,4 @@
-use flea::ipc::{
+use dlea::ipc::{
     client, endpoint,
     wire::{self, Reply, Request},
 };
@@ -21,18 +21,18 @@ extern "C" {
 // A short root of its own: a socket path over SUN_LEN fails to bind, so it must not depend on where the source lives.
 fn root() -> PathBuf {
     let output = Command::new("mktemp")
-        .args(["-d", "/tmp/flea-ipc-connect.XXXXXX"])
+        .args(["-d", "/tmp/dlea-ipc-connect.XXXXXX"])
         .output()
         .unwrap();
     assert!(output.status.success());
     let root = PathBuf::from(String::from_utf8(output.stdout).unwrap().trim());
     assert!(root.is_absolute());
-    fs::write(root.join(".flea-test-sandbox"), "IPC connect regression\n").unwrap();
+    fs::write(root.join(".dlea-test-sandbox"), "IPC connect regression\n").unwrap();
     root
 }
 
 fn saturated(root: &Path, pid: u32) -> (UnixListener, Vec<UnixStream>, PathBuf) {
-    assert!(root.is_absolute() && root.join(".flea-test-sandbox").is_file());
+    assert!(root.is_absolute() && root.join(".dlea-test-sandbox").is_file());
     assert_eq!(
         fs::metadata(root).unwrap().permissions().mode() & 0o777,
         0o700
@@ -74,11 +74,11 @@ impl Drop for BoundedChild {
 
 #[test]
 fn startup_probe() {
-    let Some(root) = std::env::var_os("FLEA_IPC_CONNECT_ROOT") else {
+    let Some(root) = std::env::var_os("DLEA_IPC_CONNECT_ROOT") else {
         return;
     };
     let root = PathBuf::from(root);
-    assert!(root.is_absolute() && root.join(".flea-test-sandbox").is_file());
+    assert!(root.is_absolute() && root.join(".dlea-test-sandbox").is_file());
     let endpoint = endpoint::Endpoint::bind(&root).unwrap();
     assert!(endpoint.path.exists());
 }
@@ -94,7 +94,7 @@ fn stale_full_backlog_does_not_hold_startup_or_remove_the_socket() {
     let mut child = BoundedChild(
         Command::new(std::env::current_exe().unwrap())
             .args(["--exact", "startup_probe", "--nocapture"])
-            .env("FLEA_IPC_CONNECT_ROOT", &root)
+            .env("DLEA_IPC_CONNECT_ROOT", &root)
             .spawn()
             .unwrap(),
     );
@@ -110,7 +110,7 @@ fn live_full_backlog_exits_255_at_the_connection_deadline() {
     let (_listener, _pending, _path) = saturated(&root, pid);
     let started = Instant::now();
     let mut child = BoundedChild(
-        Command::new(env!("CARGO_BIN_EXE_flea"))
+        Command::new(env!("CARGO_BIN_EXE_dlea"))
             .args(["ipc", "--pid", &pid.to_string(), "show"])
             .env("XDG_RUNTIME_DIR", &root)
             .stdout(Stdio::null())

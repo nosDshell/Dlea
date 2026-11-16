@@ -93,7 +93,7 @@ function run(check) {
     var bareLoop = '{"blockdevices":['
                   + '{"name":"nvme0n1","path":"/dev/nvme0n1","label":null,"mountpoints":[null],"rm":false,"size":256060514304,"type":"disk","model":"KBG40ZNS256G",'
                   + '"children":[{"name":"nvme0n1p1","path":"/dev/nvme0n1p1","label":null,"mountpoints":["/"],"rm":false,"size":256060514304,"type":"part","model":null}]},'
-                  + '{"name":"loop0","path":"/dev/loop0","label":"FLEATEST","mountpoints":[null],"rm":false,"size":67108864,"type":"loop","model":null}'
+                  + '{"name":"loop0","path":"/dev/loop0","label":"DLEATEST","mountpoints":[null],"rm":false,"size":67108864,"type":"loop","model":null}'
                   + ']}'
     check("an unmounted bare loop device is still not a device row", Devices.parseDevices(bareLoop).length, 1)
 }

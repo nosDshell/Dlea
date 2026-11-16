@@ -1,6 +1,6 @@
 .pragma library
 
-// The spec harness's adapter: Flea's block model, plus Qt's drawing of each block's text, as the HTML a reader would see.
+// The spec harness's adapter: Dlea's block model, plus Qt's drawing of each block's text, as the HTML a reader would see.
 .import "mdspec-qt.js" as Qt
 
 // The chip pads its background with a no-break space span, so the comparison drops them before Qt draws.

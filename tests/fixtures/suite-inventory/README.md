@@ -11,11 +11,11 @@ layouts retain their batch suites and are checked separately with `--layout-only
 runner for the cross-tree regression control. Historical layouts never inherit
 the current worktree's registered suites.
 
-In flea-ci, the proposed runner adapter stages the selected layout as
+In dlea-ci, the proposed runner adapter stages the selected layout as
 `/in/suite-inventory.layout` and its evidence as `/in/suite-evidence.txt`, both in
 the verified worker receipt. The suite checks that selected layout against the
-tree it is running on before its fixture tests. `FLEA_CI_INPUT_DIR` relocates the
-input mount for tests; `FLEA_CI_LAYOUT` and `FLEA_CI_EVIDENCE` explicitly override
+tree it is running on before its fixture tests. `DLEA_CI_INPUT_DIR` relocates the
+input mount for tests; `DLEA_CI_LAYOUT` and `DLEA_CI_EVIDENCE` explicitly override
 the two files. A missing staged input fails instead of using a fixture. The
 standalone suite broker has no selected layout and runs the fixture tests.
 

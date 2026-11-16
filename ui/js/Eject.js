@@ -7,9 +7,9 @@
 
 // Whole sentences with "%1" for the drive and "%2" for the drives still mounted under it, filled by Format.fill; the first three are what Ctrl+E answers with when it releases nothing.
 var WORDS = {
-    systemDrive: "%1 is the system drive, which Flea never unmounts",
-    systemVolume: "This folder is on a system volume, which Flea never unmounts",
-    noVolume: "This folder is not on a volume Flea can unmount",
+    systemDrive: "%1 is the system drive, which Dlea never unmounts",
+    systemVolume: "This folder is on a system volume, which Dlea never unmounts",
+    noVolume: "This folder is not on a volume Dlea can unmount",
     safe: "Ejected %1. It is safe to unplug.",
     safeImage: "Ejected %1.",
     stillMounted: "%1 is still mounted; close what is using it.",

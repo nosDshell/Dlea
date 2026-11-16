@@ -189,56 +189,56 @@
     {
       "from": "}\n",
       "to": ",\"frontend\":\"gpui\"}\n",
-      "reason": "CTL2 ruling 141: the default and explicit GPUI routes launch flea-gui; the recorder names the actual child."
+      "reason": "CTL2 ruling 141: the default and explicit GPUI routes launch dlea-gui; the recorder names the actual child."
     }
   ],
   "cli:bare-directory": [
     {
       "from": "}\n",
       "to": ",\"frontend\":\"gpui\"}\n",
-      "reason": "CTL2 ruling 141: the default and explicit GPUI routes launch flea-gui; the recorder names the actual child."
+      "reason": "CTL2 ruling 141: the default and explicit GPUI routes launch dlea-gui; the recorder names the actual child."
     }
   ],
   "cli:bare-file": [
     {
       "from": "}\n",
       "to": ",\"frontend\":\"gpui\"}\n",
-      "reason": "CTL2 ruling 141: the default and explicit GPUI routes launch flea-gui; the recorder names the actual child."
+      "reason": "CTL2 ruling 141: the default and explicit GPUI routes launch dlea-gui; the recorder names the actual child."
     }
   ],
   "cli:bare-relative": [
     {
       "from": "}\n",
       "to": ",\"frontend\":\"gpui\"}\n",
-      "reason": "CTL2 ruling 141: the default and explicit GPUI routes launch flea-gui; the recorder names the actual child."
+      "reason": "CTL2 ruling 141: the default and explicit GPUI routes launch dlea-gui; the recorder names the actual child."
     }
   ],
   "cli:select-path": [
     {
       "from": "}\n",
       "to": ",\"frontend\":\"gpui\"}\n",
-      "reason": "CTL2 ruling 141: the default and explicit GPUI routes launch flea-gui; the recorder names the actual child."
+      "reason": "CTL2 ruling 141: the default and explicit GPUI routes launch dlea-gui; the recorder names the actual child."
     }
   ],
   "cli:select-uri": [
     {
       "from": "}\n",
       "to": ",\"frontend\":\"gpui\"}\n",
-      "reason": "CTL2 ruling 141: the default and explicit GPUI routes launch flea-gui; the recorder names the actual child."
+      "reason": "CTL2 ruling 141: the default and explicit GPUI routes launch dlea-gui; the recorder names the actual child."
     }
   ],
   "cli:pick": [
     {
       "from": "}\n",
       "to": ",\"frontend\":\"gpui\"}\n",
-      "reason": "CTL2 ruling 141: the default and explicit GPUI routes launch flea-gui; the recorder names the actual child."
+      "reason": "CTL2 ruling 141: the default and explicit GPUI routes launch dlea-gui; the recorder names the actual child."
     }
   ],
   "cli:unlock": [
     {
       "from": "}\n",
       "to": ",\"frontend\":\"gpui\"}\n",
-      "reason": "CTL2 ruling 141: the default and explicit GPUI routes launch flea-gui; the recorder names the actual child."
+      "reason": "CTL2 ruling 141: the default and explicit GPUI routes launch dlea-gui; the recorder names the actual child."
     }
   ],
   "cli-stderr:shelf-bad": [
@@ -250,13 +250,13 @@
   ],
   "cli-usage:actions": [
     {
-      "from": "       flea ipc [--pid N|--any] call",
-      "to": "       flea --action <id> [--window <pid>] | --actions [--window <pid>]\n       flea ipc [--pid N|--any] call",
+      "from": "       dlea ipc [--pid N|--any] call",
+      "to": "       dlea --action <id> [--window <pid>] | --actions [--window <pid>]\n       dlea ipc [--pid N|--any] call",
       "reason": "The existing 0.4.0 action CLI adds this usage row while preserving every 0.3.12 invocation."
     },
     {
-      "from": "       flea --version\n",
-      "to": "       flea --version | -V\n       flea --help | -h\n",
+      "from": "       dlea --version\n",
+      "to": "       dlea --version | -V\n       dlea --help | -h\n",
       "reason": "0.4.2 adds -V beside --version and a --help or -h that prints this usage on stdout with status 0. In 0.3.12 --help was an unknown flag and any word with one leading dash, -h and -V included, opened as a start folder; 0.4.2 reads -h and -V as these flags and refuses every other dash-led word, so those answers change on purpose. Usage errors gain these two rows, and every other 0.3.12 row keeps its bytes."
     }
   ]

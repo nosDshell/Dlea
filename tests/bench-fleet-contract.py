@@ -11,11 +11,11 @@ import tarfile
 
 
 ROOT = Path(sys.argv[1])
-assert ROOT.is_absolute() and (ROOT / ".flea-test-sandbox").is_file()
+assert ROOT.is_absolute() and (ROOT / ".dlea-test-sandbox").is_file()
 assert ROOT.parent == Path.cwd() / ".superpowers/m9-bench-05"
-TOOL = Path.cwd() / "tools/flea-bench-fleet"
+TOOL = Path.cwd() / "tools/dlea-bench-fleet"
 NOW = "2026-10-24T12:00:00Z"
-ALIASES = ("flea-candidate", "flea-0.3.12", "strata-stable", "strata-nightly", "dolphin", "nautilus",
+ALIASES = ("dlea-candidate", "dlea-0.3.12", "strata-stable", "strata-nightly", "dolphin", "nautilus",
            "nemo", "thunar", "krusader", "pcmanfm", "yazi", "mc", "broot", "nnn", "lf", "ranger",
            "xplr", "superfile", "fsearch-nd", "fff-bare", "fff-rich", "fsearch")
 count = 0
@@ -74,7 +74,7 @@ def artifact(row):
 
 
 def entrant(alias):
-    kind = "candidate" if alias == "flea-candidate" else "anchor" if alias == "flea-0.3.12" else "stable"
+    kind = "candidate" if alias == "dlea-candidate" else "anchor" if alias == "dlea-0.3.12" else "stable"
     version = "0.4.0" if kind == "candidate" else "0.3.12" if kind == "anchor" else "1.1.0"
     if alias == "strata-nightly":
         kind, version = "nightly-build", "1.0.1-nightly.20261018"
@@ -152,7 +152,7 @@ run("explicit upstream tag/version mapping for nonstandard tag names", inv, cap)
 source = {**INVENTORY["entrants"][4]["source"], "tag": "v1.0.0", "tag_version": "1.1.0"}
 inv, cap = change_both(4, "source", source)
 run("non-Strata 1.0.0 tag cannot map to 1.1.0", inv, cap, "tag_version does not match tag")
-search = {"flea-candidate", "flea-0.3.12", "fsearch-nd", "fff-bare", "fff-rich", "fsearch"}
+search = {"dlea-candidate", "dlea-0.3.12", "fsearch-nd", "fff-bare", "fff-rich", "fsearch"}
 inv, cap = copy.deepcopy(INVENTORY), copy.deepcopy(CAPTURE)
 inv["entrants"] = [row for row in inv["entrants"] if row["alias"] in search]
 cap["entrants"] = [row for row in cap["entrants"] if row["alias"] in search]

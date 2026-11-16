@@ -1,9 +1,9 @@
-//@ pragma ShellId flea-heldkey-test
+//@ pragma ShellId dlea-heldkey-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Focus.js" as Focus
+import "dlea" as Dlea
+import "dlea/js/Focus.js" as Focus
 
 // heldkey: a held j steps once per repeat through the real key dispatch and never after the release.
 ShellRoot {
@@ -160,9 +160,9 @@ ShellRoot {
         }
     }
 
-    Component { id: listView; Flea.List { pane: root.stubPane; menu: menuStub.createObject(root) } }
-    Component { id: gridView; Flea.GridArea { pane: root.stubPane; menu: menuStub.createObject(root) } }
-    Component { id: columnsView; Flea.ColumnsArea { pane: root.stubPane; menu: menuStub.createObject(root) } }
+    Component { id: listView; Dlea.List { pane: root.stubPane; menu: menuStub.createObject(root) } }
+    Component { id: gridView; Dlea.GridArea { pane: root.stubPane; menu: menuStub.createObject(root) } }
+    Component { id: columnsView; Dlea.ColumnsArea { pane: root.stubPane; menu: menuStub.createObject(root) } }
 
     // The pane's own showRow, through the real view: the cursor scrolls as it steps.
     function showRowTo(view, context) {

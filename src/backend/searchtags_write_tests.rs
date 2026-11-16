@@ -202,7 +202,7 @@ fn a_write_during_the_first_read_is_not_lost() {
     crate::backend::searchwalkhold::assert_no_landing(&rx, Duration::from_millis(200));
 }
 
-// Measured by hand, not by the suite: cargo test --release --bin flea -- --ignored --nocapture tag_pass_at_200k.
+// Measured by hand, not by the suite: cargo test --release --bin dlea -- --ignored --nocapture tag_pass_at_200k.
 #[test]
 #[ignore]
 fn tag_pass_at_200k_entries_prints_its_ms() {
@@ -285,15 +285,15 @@ fn search_fb1_deletion_and_addition_queue_only_the_new_tag_identity() {
 #[test]
 fn a_tag_term_lists_a_typo_row_only_when_no_tagged_basename_holds_the_query() {
     // The typo rule reads the rows the tag keeps, so only a tagged real hit hides a tagged typo row.
-    for (hit_tagged, listed) in [(false, ["fleet.txt"]), (true, ["flea.txt"])] {
+    for (hit_tagged, listed) in [(false, ["fleet.txt"]), (true, ["dlea.txt"])] {
         let d = fixture("tagstypo");
-        let flea = d.file("flea.txt", "");
+        let dlea = d.file("dlea.txt", "");
         let fleet = d.file("fleet.txt", "");
         crate::backend::tags::write_names(&fleet, &["Red".to_string()]).expect("tagged");
-        if hit_tagged { crate::backend::tags::write_names(&flea, &["Red".to_string()]).expect("tagged"); }
+        if hit_tagged { crate::backend::tags::write_names(&dlea, &["Red".to_string()]).expect("tagged"); }
         let (mut s, rx) = opened(&d);
-        assert_eq!(names(&s.query(1, "flea", 50).expect("answers")), ["flea.txt"], "a real hit hides the typo row");
-        assert_eq!(names(&tagged(&mut s, &rx, 2, "tag:Red flea")), listed, "flea.txt tagged: {hit_tagged}");
+        assert_eq!(names(&s.query(1, "dlea", 50).expect("answers")), ["dlea.txt"], "a real hit hides the typo row");
+        assert_eq!(names(&tagged(&mut s, &rx, 2, "tag:Red dlea")), listed, "dlea.txt tagged: {hit_tagged}");
     }
 }
 

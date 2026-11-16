@@ -1,6 +1,6 @@
 // Items a destination cannot hold inside a copied tree: each is named and skipped, and the walk goes on.
 use crate::backend::copyfile::At;
-use crate::error::{from_io, FleaError};
+use crate::error::{from_io, DleaError};
 use std::cell::RefCell;
 use std::path::{Path, PathBuf};
 
@@ -102,18 +102,18 @@ fn reason(kind: Kind, e: &std::io::Error, dst: At, inside: Option<&Path>) -> Opt
 }
 
 // A create's failure: what the drive cannot hold carries the marker; inside is the source entry within a tree, else None.
-pub(crate) fn refused(kind: Kind, e: &std::io::Error, dst: At, inside: Option<&Path>) -> FleaError {
+pub(crate) fn refused(kind: Kind, e: &std::io::Error, dst: At, inside: Option<&Path>) -> DleaError {
     match reason(kind, e, dst, inside) {
         Some(msg) => marked(dst.named, msg),
-        None => from_io("copy", &flea::bytename::path_text(dst.named), e),
+        None => from_io("copy", &dlea::bytename::path_text(dst.named), e),
     }
 }
 
 // The same marker for a refusal decided before any syscall, as the 4 GiB limit is.
-pub(crate) fn marked(named: &Path, msg: String) -> FleaError {
-    FleaError {
+pub(crate) fn marked(named: &Path, msg: String) -> DleaError {
+    DleaError {
         where_: UNHELD.to_string(),
-        path: flea::bytename::path_text(named).into_owned(),
+        path: dlea::bytename::path_text(named).into_owned(),
         msg,
     }
 }
@@ -125,12 +125,12 @@ pub(crate) fn begin(renaming: bool) {
 }
 
 // One refusal: the first NAMED are kept by path, every one is counted.
-pub(crate) fn note(e: FleaError) {
+pub(crate) fn note(e: DleaError) {
     REFUSED.with(|r| {
         let mut r = r.borrow_mut();
         r.1 += 1;
         if r.0.len() < NAMED {
-            r.0.push((flea::bytename::exact(e.path), e.msg));
+            r.0.push((dlea::bytename::exact(e.path), e.msg));
         }
     });
 }
@@ -141,15 +141,15 @@ pub fn take() -> Vec<(PathBuf, String)> {
 }
 
 // A refusal at the top is the item's own failure, said as a plain copy error.
-pub(crate) fn plain(e: FleaError) -> FleaError {
+pub(crate) fn plain(e: DleaError) -> DleaError {
     if e.where_ != UNHELD {
         return e;
     }
-    FleaError { where_: "copy".to_string(), ..e }
+    DleaError { where_: "copy".to_string(), ..e }
 }
 
 // Sample output: "sub/a.link could not be copied: this drive cannot hold links", or the count with the first one.
-pub(crate) fn summary(top: &Path, moving: bool) -> Option<FleaError> {
+pub(crate) fn summary(top: &Path, moving: bool) -> Option<DleaError> {
     REFUSED.with(|r| {
         let refused = r.borrow();
         let (first, why) = refused.0.first()?;
@@ -164,9 +164,9 @@ pub(crate) fn summary(top: &Path, moving: bool) -> Option<FleaError> {
                 format!("{n} items inside could not be copied; the first is {inside}: {why}")
             }
         };
-        Some(FleaError {
+        Some(DleaError {
             where_: "copy".to_string(),
-            path: flea::bytename::path_text(top).into_owned(),
+            path: dlea::bytename::path_text(top).into_owned(),
             msg,
         })
     })

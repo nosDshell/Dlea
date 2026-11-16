@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 . "$(dirname "$0")/headless-commons.sh"
-# [flea] background-alpha through the real WindowBody offscreen, one launch per case with its own theme and user shell.toml.
+# [dlea] background-alpha through the real WindowBody offscreen, one launch per case with its own theme and user shell.toml.
 set -u
 cd "$(dirname "$0")/.." || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 command -v qs >/dev/null || { echo 'FAIL glass needs qs'; exit 1; }
 command -v dbus-run-session >/dev/null || { echo 'FAIL glass needs a private D-Bus session'; exit 1; }
-bin=${FLEA_BIN:-$PWD/target/debug/flea}
+bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [[ -x "$bin" ]] || { echo 'FAIL glass needs the built backend'; exit 1; }
 sandbox_root_ok
-probe_root=$(mktemp -d "$SANDBOX_ROOT/flea-glass.XXXXXX") || exit 1
+probe_root=$(mktemp -d "$SANDBOX_ROOT/dlea-glass.XXXXXX") || exit 1
 : > "$probe_root/$SANDBOX_MARKER" || exit 1
 qs_pid=""
 # Polled ten times a second up to these bounds; the sweep walks every view and overlay, so it gets the longer one.
@@ -63,7 +63,7 @@ setup_failed() {
     printf 'FAIL glass %s: %s\n' "$1" "$2"
     failed=$((failed + 1))
 }
-# run_case NAME MODE EXPECT THEME USER [LATE [LATE_EXPECT]]: THEME and USER are the [flea] value, "-" for no file and "" for a file without one.
+# run_case NAME MODE EXPECT THEME USER [LATE [LATE_EXPECT]]: THEME and USER are the [dlea] value, "-" for no file and "" for a file without one.
 run_case() {
     local name=$1 mode=$2 expect=$3 theme=$4 user=$5 late=${6:-} late_expect=${7:-$3} stock=0
     local probe="$probe_root/$name" budget=$parse_budget_s
@@ -78,11 +78,11 @@ run_case() {
         && printf 'glass\n' > "$probe/home/.local/state/omarchy/current/theme.name" \
         && printf '%s\n' "$palette" > "$theme_dir/colors.toml" || { setup_failed "$name" "writing the fixture and palette failed"; return 1; }
     if [[ "$theme" != - ]]; then
-        printf '[font]\nbase-size = 14\n\n[flea]\n%s\n' "${theme:+background-alpha = $theme}" > "$theme_dir/shell.toml" \
+        printf '[font]\nbase-size = 14\n\n[dlea]\n%s\n' "${theme:+background-alpha = $theme}" > "$theme_dir/shell.toml" \
             || { setup_failed "$name" "writing the theme's shell.toml failed"; return 1; }
     fi
     if [[ "$user" != - ]]; then
-        printf '[flea]\n%s\n' "${user:+background-alpha = $user}" > "$probe/home/.config/omarchy/shell.toml" \
+        printf '[dlea]\n%s\n' "${user:+background-alpha = $user}" > "$probe/home/.config/omarchy/shell.toml" \
             || { setup_failed "$name" "writing the user's shell.toml failed"; return 1; }
     fi
     env HOME="$probe/home" XDG_STATE_HOME="$probe/state" "$bin" --ui-state \
@@ -98,16 +98,16 @@ run_case() {
             || { setup_failed "$name" "writing its glassy mode failed"; return 1; }
     fi
     # The window loads its tab catcher from the shell directory, so the probe ships it as the product does.
-    ln -s "$PWD/ui" "$probe/config/flea" || { setup_failed "$name" "linking the probe's UI failed"; return 1; }
+    ln -s "$PWD/ui" "$probe/config/dlea" || { setup_failed "$name" "linking the probe's UI failed"; return 1; }
     headless_commons "$probe" || exit 1
-    ln -s "$(readlink -f ui/boot/Ui)" "$probe/config/Ui" && ln -s "$PWD/ui/boot/fleatab.qml" "$probe/config/fleatab.qml" \
+    ln -s "$(readlink -f ui/boot/Ui)" "$probe/config/Ui" && ln -s "$PWD/ui/boot/dleatab.qml" "$probe/config/dleatab.qml" \
         && cp tests/glass.qml "$probe/config/shell.qml" && cp tests/glass.js "$probe/config/glass.js" \
         || { setup_failed "$name" "linking the probe's shell directory failed"; return 1; }
     local log="$probe/qs.log" tick
-    env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u FLEA_SELECT \
+    env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u DLEA_SELECT \
         HOME="$probe/home" XDG_STATE_HOME="$probe/state" XDG_CONFIG_HOME="$probe/config" \
         XDG_DATA_HOME="$probe/data" XDG_CACHE_HOME="$probe/cache" XDG_RUNTIME_DIR="$probe/runtime" \
-        FLEA_PATH="$probe/home/fixture" FLEA_BIN="$bin" GLASS_MODE="$mode" GLASS_EXPECT="$expect" GLASS_STOCK="$stock" \
+        DLEA_PATH="$probe/home/fixture" DLEA_BIN="$bin" GLASS_MODE="$mode" GLASS_EXPECT="$expect" GLASS_STOCK="$stock" \
         GLASS_LATE_USER="$late" GLASS_LATE_EXPECT="$late_expect" GLASS_SHOTS="${GLASS_SHOTS:+$GLASS_SHOTS/$name}" \
         QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software QT_FORCE_STDERR_LOGGING=1 \
         setsid dbus-run-session -- qs -p "$probe/config" >"$log" 2>&1 </dev/null &

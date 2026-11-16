@@ -3,8 +3,8 @@ use std::os::unix::fs::MetadataExt;
 
 pub fn fields(base: &str, name: &str, enabled: bool) -> String {
     fields_with(enabled, || {
-        flea::bytename::view(base)
-            .join(flea::bytename::view(name))
+        dlea::bytename::view(base)
+            .join(dlea::bytename::view(name))
             .symlink_metadata()
             .ok()
             .map(|meta| (meta.len(), meta.mode()))
@@ -42,7 +42,7 @@ mod tests {
     }
     #[test]
     fn a_raw_named_row_reads_its_own_file_and_never_its_twin() {
-        use flea::bytename::ExactText as _;
+        use dlea::bytename::ExactText as _;
         use std::os::unix::ffi::OsStrExt;
         let root = crate::backend::testdir::TestDir::new("peekdetail-raw");
         let raw = std::ffi::OsStr::from_bytes(b"row-\xff");

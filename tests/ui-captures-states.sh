@@ -75,19 +75,19 @@ case_cap_heldcolumns() {
     dir="$fixture_root/cap-heldcolumns"
     listing="$dir/listing"
     markers="$dir/markers"
-    real_bin="$flea_bin"
+    real_bin="$dlea_bin"
     sandbox_scratch "$dir"
     mkdir -p "$listing" "$markers"
     : > "$listing/one.txt"
     : > "$listing/two.txt"
-    hanglisting_write_proxy "$dir/flea-proxy"
-    trap 'chmod 700 "$dir"/denied-* 2>/dev/null; kill_flea' EXIT
+    hanglisting_write_proxy "$dir/dlea-proxy"
+    trap 'chmod 700 "$dir"/denied-* 2>/dev/null; kill_dlea' EXIT
     for n in 2 3 4 5; do
         seed_ui_state "$fixture_root/cap-heldcolumns-state-$n" '{"view":"columns","columnsLimit":'"$n"'}'
-        export FLEA_HANGLISTING_REAL="$real_bin" FLEA_HANGLISTING_DELAY=15 FLEA_HANGLISTING_MARKER="$markers/held-$n"
-        flea_bin="$dir/flea-proxy"
+        export DLEA_HANGLISTING_REAL="$real_bin" DLEA_HANGLISTING_DELAY=15 DLEA_HANGLISTING_MARKER="$markers/held-$n"
+        dlea_bin="$dir/dlea-proxy"
         heldcolumns_launch "$listing"
-        flea_bin="$real_bin"
+        dlea_bin="$real_bin"
         [[ "$test_frontend" != gpui ]] || cap_resize 2560 1400
         wait_marker "$markers/held-$n" "heldcolumns: limit $n never held its listing"
         # Past the 150 ms hold-off, before the 10 s deadline.
@@ -108,7 +108,7 @@ case_cap_heldcolumns() {
         wait_listing 2
         [[ "$(ipc path)" == "$listing" ]] || fail "heldcolumns: limit $n landed at $(ipc path)"
         [[ -z "$(ipc stateMessage)" ]] || fail "heldcolumns: limit $n kept $(ipc stateMessage)"
-        kill_flea
+        kill_dlea
         denied="$dir/denied-$n"
         mkdir -p "$denied"
         chmod 000 "$denied" || fail "heldcolumns: limit $n denied setup failed"
@@ -128,12 +128,12 @@ case_cap_heldcolumns() {
         heldcolumns_fade_wait
         shot "heldcolumns-$n-error"
         chmod 700 "$denied" || fail "heldcolumns: limit $n denied restore failed"
-        kill_flea
+        kill_dlea
         printf 'HELDCOLUMNS limit=%s reading=ok waiting=ok error-denied=ok\n' "$n"
     done
     printf 'HELDCOLUMNS locked-dropped: the denied main-pane hero is shot per limit, and the child-column Locked tile exposes no IPC reader\n'
     trap - EXIT
-    kill_flea
+    kill_dlea
 }
 
 # System refusals through Ctrl+E: the volume sentence in a listing, the drive sentence on the rail.
@@ -158,7 +158,7 @@ case_cap_sysrefusal() {
     # The sentence stands 4 s and the wait ends 25 s on, so the last read is blank either way; this names the branch Ctrl+E took.
     holders='[.[] | select((.path // "") != "") | select(.path as $m | $p == $m or ($p | startswith($m + "/"))) | {group, kind, label, path, mounted}]'
     diag='printf "release stubs ran: [%s], rail rows holding %s: %s, keys: %s" "$(cat "$stub_log")" "$listing" "$(ipc railEntries | jq -c --arg p "$listing" "$holders")" "$(ipc keyDeliveryState)"'
-    wait_message "This folder is on a system volume, which Flea never unmounts" "$diag"
+    wait_message "This folder is on a system volume, which Dlea never unmounts" "$diag"
     shot sysrefusal-listing
     entries=$(ipc railEntries) || fail "sysrefusal: the rail has no entries"
     label=$(jq -r '[.[] | select(.group == "device" and .kind == "disk" and .path == "/") | .label] | first // empty' <<< "$entries") || fail "sysrefusal: the system disk row is unreadable"
@@ -169,13 +169,13 @@ case_cap_sysrefusal() {
     settle
     rail_seek "$label"
     key -M ctrl -k e -m ctrl >/dev/null
-    wait_message "$label is the system drive, which Flea never unmounts"
+    wait_message "$label is the system drive, which Dlea never unmounts"
     shot sysrefusal-rail
     [[ ! -s "$stub_log" ]] || fail "sysrefusal: a release stub ran: $(cat "$stub_log")"
     export PATH="$saved_path"
     trap - EXIT
     printf 'SYSREFUSAL listing=ok rail=ok stubs=silent\n'
-    kill_flea
+    kill_dlea
 }
 
 # Grid cursor reveal by plain key moves past the fold, ending on End.
@@ -208,7 +208,7 @@ case_cap_gridreveal() {
     menus_expect renameState '.cursorName == "f1199.txt"' "gridreveal End reaches the last tile"
     shot gridreveal-end
     printf 'GRIDREVEAL down=ok end=ok\n'
-    kill_flea
+    kill_dlea
 }
 
 # Rename ending in Columns with focus back on the active column.
@@ -217,7 +217,7 @@ case_cap_columnsrename() {
     menu_box="$fixture_root/cap-columnsrename-box"
     menu_dir="$menu_box/listing"
     sandbox_scratch "$menu_box"
-    printf 'native rename fixture\n' > "$menu_box/.flea-test-sandbox"
+    printf 'native rename fixture\n' > "$menu_box/.dlea-test-sandbox"
     mkdir -p "$menu_dir"
     printf 'original bytes\n' > "$menu_dir/a-original.md"
     printf 'existing bytes\n' > "$menu_dir/b-existing.md"
@@ -242,5 +242,5 @@ case_cap_columnsrename() {
     [[ -n "$(ipc columnActiveRect)" ]] || fail "columnsrename: the active column has no rectangle"
     shot columnsrename-ended
     printf 'COLUMNSRENAME landed=ok focus=ok\n'
-    kill_flea
+    kill_dlea
 }

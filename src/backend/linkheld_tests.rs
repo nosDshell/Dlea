@@ -48,11 +48,11 @@ fn failed_held_paths_reply_keeps_its_request_and_listing() {
 
 #[test]
 fn tui17_link_journal_child() {
-    let Some(root) = std::env::var_os("FLEA_TUI17_LINK_ROOT") else {
+    let Some(root) = std::env::var_os("DLEA_TUI17_LINK_ROOT") else {
         return;
     };
     let root = PathBuf::from(root);
-    assert!(root.is_absolute() && root.join(".flea-test-sandbox").is_file());
+    assert!(root.is_absolute() && root.join(".dlea-test-sandbox").is_file());
     for key in ["XDG_DATA_HOME", "XDG_CONFIG_HOME", "XDG_CACHE_HOME"] {
         assert!(PathBuf::from(std::env::var_os(key).unwrap()).starts_with(&root));
     }
@@ -135,7 +135,7 @@ fn tui17_link_journal_child() {
 }
 #[test]
 fn a_raw_named_source_keeps_its_own_bytes_through_the_journal() {
-    use flea::bytename::ExactText as _;
+    use dlea::bytename::ExactText as _;
     use std::os::unix::ffi::OsStrExt;
     let root = TestDir::new("linkheld-raw");
     let raw = root.path().join(std::ffi::OsStr::from_bytes(b"src-\xff"));
@@ -161,7 +161,7 @@ fn identities_survive_the_protocol_and_links_undo_redo_inside_the_fixture() {
             "backend::linkheld::tests::tui17_link_journal_child",
             "--nocapture",
         ])
-        .env("FLEA_TUI17_LINK_ROOT", root.path())
+        .env("DLEA_TUI17_LINK_ROOT", root.path())
         .env("XDG_DATA_HOME", root.join("data"))
         .env("XDG_CONFIG_HOME", root.join("config"))
         .env("XDG_CACHE_HOME", root.join("cache"))

@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-preview-tall
+//@ pragma ShellId dlea-preview-tall
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Focus.js" as Focus
-import "flea/js/Keymap.js" as Keymap
+import "dlea" as Dlea
+import "dlea/js/Focus.js" as Focus
+import "dlea/js/Keymap.js" as Keymap
 
 // A tall kind's frame fills the Columns preview from its top down to the name, over one compact facts line that `i` swaps for the table; tests/preview-tall.sh drives it.
 ShellRoot {
@@ -14,8 +14,8 @@ ShellRoot {
     readonly property int winW: parseInt(Quickshell.env("TALL_W"))
     readonly property int winH: parseInt(Quickshell.env("TALL_H"))
     readonly property bool relaunch: Quickshell.env("TALL_PHASE") === "relaunch"
-    readonly property real gap: Flea.Theme.spacing.gap
-    readonly property real margin: Flea.Theme.spacing.rowPaddingX
+    readonly property real gap: Dlea.Theme.spacing.gap
+    readonly property real margin: Dlea.Theme.spacing.rowPaddingX
 
     property int passed: 0
     property int failed: 0
@@ -137,8 +137,8 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: root.winW
         implicitHeight: root.winH
-        color: Flea.Theme.color.background
-        Flea.ColumnsArea { id: area; anchors.fill: parent; pane: pane; menu: menu }
+        color: Dlea.Theme.color.background
+        Dlea.ColumnsArea { id: area; anchors.fill: parent; pane: pane; menu: menu }
         Item { id: scratch; visible: false }
     }
 
@@ -153,7 +153,7 @@ ShellRoot {
     function factsLine() { return root.find(function (it) { return typeof it.tail === "string" && typeof it.kind === "string" }) }
     function table() { return root.find(function (it) { return it.labelWidth !== undefined && it.rows !== undefined }) }
     function nameItem() {
-        return root.find(function (it) { return it.text === root.col.row.n && it.font && it.font.pixelSize === Flea.Theme.font.body })
+        return root.find(function (it) { return it.text === root.col.row.n && it.font && it.font.pixelSize === Dlea.Theme.font.body })
     }
     function top(item) { return item.mapToItem(root.col, 0, 0).y }
     function members(item) { return root.all(item, []).length + 1 }
@@ -229,7 +229,7 @@ ShellRoot {
         root.log("OBJECTS " + label + " block=" + root.members(block) + " table=" + intCount)
         root.check(label + " the facts block builds within one object of the table it replaces", root.members(block) <= intCount + 1, true)
     }
-    Component { id: tableMaker; Flea.FactsTable { width: 300 } }
+    Component { id: tableMaker; Dlea.FactsTable { width: 300 } }
 
     function pressI() {
         var action = Focus.lookup({ key: Qt.Key_I, text: "i", modifiers: Qt.NoModifier }, pane)
@@ -286,7 +286,7 @@ ShellRoot {
         var lineH = root.factsLine().height
         var compactH = fr.height
         root.pressI()
-        root.check("i writes the mode", Flea.ViewState.previewFacts, "full")
+        root.check("i writes the mode", Dlea.ViewState.previewFacts, "full")
         var t = root.table()
         root.check("the table replaces the line", t.visible && !root.factsLine().visible, true)
         root.check("the frame is shorter by exactly the table less the line", compactH - fr.height, t.height - lineH)
@@ -301,18 +301,18 @@ ShellRoot {
         root.check("the table sits one gap under the name", root.top(root.nameItem()) + root.nameItem().height + root.gap, root.top(t))
         pane.previewColumnItem = null
         root.pressI()
-        root.check("i does nothing without the column on screen", Flea.ViewState.previewFacts, "full")
+        root.check("i does nothing without the column on screen", Dlea.ViewState.previewFacts, "full")
         pane.previewColumnItem = area.previewColumn
     }
 
     function relaunchRun() {
         var t = root.table()
         var fr = root.col.frameItem
-        root.check("a relaunch reads the full mode", Flea.ViewState.previewFacts, "full")
+        root.check("a relaunch reads the full mode", Dlea.ViewState.previewFacts, "full")
         root.check("and draws the table from the first row", t.visible && t.rows.length > 0 && !root.factsLine().visible, true)
         root.check("with the frame ending above the name", root.top(fr) + fr.height + root.gap, root.top(root.nameItem()))
         root.pressI()
-        root.check("i returns to the compact line", Flea.ViewState.previewFacts + "|" + root.factsLine().visible, "compact|true")
+        root.check("i returns to the compact line", Dlea.ViewState.previewFacts + "|" + root.factsLine().visible, "compact|true")
     }
 
     function move(r) {
@@ -342,7 +342,7 @@ ShellRoot {
                 step.run()
                 if (step.write) root.stage = "write"
                 else root.advance()
-            } else if (root.stage === "write" && JSON.stringify(Flea.ViewState.unsaved) === "{}") {
+            } else if (root.stage === "write" && JSON.stringify(Dlea.ViewState.unsaved) === "{}") {
                 step.after()
                 root.advance()
             }

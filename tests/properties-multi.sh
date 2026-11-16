@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Exercise multi-item Properties through the real backend in an owned fixture.
 set -eu
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.."
-BIN=${BIN:-./target/debug/flea}
+BIN=${BIN:-./target/debug/dlea}
 [ -x "$BIN" ] || { printf 'properties-multi: no executable at %s\n' "$BIN" >&2; exit 1; }
-test_root=$(mktemp -d "$FIXTURE_ROOT/flea-properties-multi-XXXXXXXX")
+test_root=$(mktemp -d "$FIXTURE_ROOT/dlea-properties-multi-XXXXXXXX")
 case $test_root in /*/*) ;; *) exit 1 ;; esac
 sandbox_require "$test_root"
 : > "$test_root/$SANDBOX_MARKER"

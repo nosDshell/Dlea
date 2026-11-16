@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-statusbar-hint-test
+//@ pragma ShellId dlea-statusbar-hint-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // StatusHint drives the real StatusBar through its failing shape: a long error elides in the
 // primary while the whole dismissal hint stays drawn, at two widths and two lane sizes.
@@ -44,7 +44,7 @@ ShellRoot {
         Item {
             width: 880
             height: bar880.implicitHeight
-            Flea.StatusBar {
+            Dlea.StatusBar {
                 id: bar880
                 width: 880
                 path: "/hint-fixture"
@@ -57,7 +57,7 @@ ShellRoot {
         Item {
             width: 1100
             height: bar1100.implicitHeight
-            Flea.StatusBar {
+            Dlea.StatusBar {
                 id: bar1100
                 width: 1100
                 path: "/hint-fixture"

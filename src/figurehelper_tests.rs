@@ -6,8 +6,8 @@ fn an_absolute_hook_wins_and_anything_else_is_the_system_binary() {
     assert_eq!(qjs_from(Some(OsString::from(""))), PathBuf::from(SYSTEM_QJS));
     assert_eq!(qjs_from(Some(OsString::from("relative/qjs"))), PathBuf::from(SYSTEM_QJS));
     assert_eq!(
-        qjs_from(Some(OsString::from("/tmp/flea-qjs-for-this-test"))),
-        PathBuf::from("/tmp/flea-qjs-for-this-test")
+        qjs_from(Some(OsString::from("/tmp/dlea-qjs-for-this-test"))),
+        PathBuf::from("/tmp/dlea-qjs-for-this-test")
     );
 }
 
@@ -87,7 +87,7 @@ fn the_argv_carries_the_caps_the_flags_both_binds_and_qjs_last() {
     assert!(joined.contains("--ro-bind /ui/vendor /ui/vendor"), "the bundles: {joined}");
     assert!(joined.contains("--ro-bind /ui/js/FigureWorker.mjs /ui/js/FigureWorker.mjs"), "the shared post-processing: {joined}");
     assert!(!joined.contains("--bind "), "nothing writable: {joined}");
-    assert!(!got.iter().any(|a| a.contains("FLEA_QJS")), "the hook never reaches argv: {joined}");
+    assert!(!got.iter().any(|a| a.contains("DLEA_QJS")), "the hook never reaches argv: {joined}");
     let tail = &got[got.len() - 2..];
     assert_eq!(tail, ["/usr/bin/qjs", "/ui/vendor/figure-helper.mjs"]);
 }
@@ -119,11 +119,11 @@ fn an_argv_that_is_not_a_jail_gets_no_bwrap_flag() {
 
 #[test]
 fn a_verified_bytecode_directory_is_bound_read_only_and_named_after_the_helper() {
-    let got = figure_argv(Path::new("/usr/bin/qjs"), Path::new("/ui/vendor"), Some(Path::new("/cache/flea/figures/k")), &[]);
+    let got = figure_argv(Path::new("/usr/bin/qjs"), Path::new("/ui/vendor"), Some(Path::new("/cache/dlea/figures/k")), &[]);
     let joined = got.join(" ");
-    assert!(joined.contains("--ro-bind /cache/flea/figures/k /cache/flea/figures/k"), "{joined}");
+    assert!(joined.contains("--ro-bind /cache/dlea/figures/k /cache/dlea/figures/k"), "{joined}");
     assert!(!joined.contains("--bind "), "the render jail still has nothing writable: {joined}");
-    assert_eq!(got[got.len() - 3..], ["/usr/bin/qjs", "/ui/vendor/figure-helper.mjs", "--bytecode=/cache/flea/figures/k"]);
+    assert_eq!(got[got.len() - 3..], ["/usr/bin/qjs", "/ui/vendor/figure-helper.mjs", "--bytecode=/cache/dlea/figures/k"]);
     let source = argv_for("/usr/bin/qjs");
     assert_eq!(source[source.len() - 1], "/ui/vendor/figure-helper.mjs", "no cache, no extra argument");
 }
@@ -166,7 +166,7 @@ fn a_hook_outside_usr_is_bound_read_only_beside_the_vendor_tree() {
 fn the_dispatch_claims_only_exact_figure_arguments() {
     let argv = |words: &[&str]| words.iter().map(|w| w.to_string()).collect::<Vec<String>>();
     // Only the refusals run here, since a claimed mode would exec or serve.
-    for refused in [&["flea"][..], &["flea", "--figure-store", "x"], &["flea", "--figure-compile", "x"], &["flea", "--figure-helper", "x"], &["flea", "--figure-helper", "--warm=math", "x"], &["flea", "--figure"], &["flea", "x", "--figure-store"]] {
+    for refused in [&["dlea"][..], &["dlea", "--figure-store", "x"], &["dlea", "--figure-compile", "x"], &["dlea", "--figure-helper", "x"], &["dlea", "--figure-helper", "--warm=math", "x"], &["dlea", "--figure"], &["dlea", "x", "--figure-store"]] {
         assert_eq!(dispatch(&argv(refused)), None, "{refused:?}");
     }
 }

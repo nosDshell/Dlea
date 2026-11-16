@@ -5,17 +5,17 @@ repo=$(cd "$(dirname "$0")/.." && pwd -P)
 mkdir -p "$repo/.superpowers/m9-integ-07"
 scratch=$(mktemp -d "$repo/.superpowers/m9-integ-07/contracts.XXXXXXXX")
 [[ -n "$scratch" && "$scratch" == /* ]] || exit 1
-touch "$scratch/.flea-test-sandbox"
-trap 'case $scratch in "$repo"/.superpowers/m9-integ-07/contracts.?*) [ -f "$scratch/.flea-test-sandbox" ] && rm -rf -- "$scratch" ;; esac' EXIT
-python3 -B "$repo/tools/flea-strata-bench" selftest "$scratch"
-python3 -B "$repo/tools/flea-strata-bench" init "$scratch"
-python3 -B "$repo/tools/flea-strata-bench" dry-run "$scratch"
-python3 -B "$repo/tools/flea-strata-bench" selftest "$scratch" > /dev/null ||
+touch "$scratch/.dlea-test-sandbox"
+trap 'case $scratch in "$repo"/.superpowers/m9-integ-07/contracts.?*) [ -f "$scratch/.dlea-test-sandbox" ] && rm -rf -- "$scratch" ;; esac' EXIT
+python3 -B "$repo/tools/dlea-strata-bench" selftest "$scratch"
+python3 -B "$repo/tools/dlea-strata-bench" init "$scratch"
+python3 -B "$repo/tools/dlea-strata-bench" dry-run "$scratch"
+python3 -B "$repo/tools/dlea-strata-bench" selftest "$scratch" > /dev/null ||
     { printf 'strata-bench: FAIL a second selftest on one ROOT\n' >&2; exit 1; }
-python3 -B "$repo/tools/flea-strata-bench" dry-run "$scratch" > /dev/null ||
+python3 -B "$repo/tools/dlea-strata-bench" dry-run "$scratch" > /dev/null ||
     { printf 'strata-bench: FAIL a second dry-run on one ROOT\n' >&2; exit 1; }
 set +e
-python3 -B "$repo/tools/flea-strata-bench" reprot "$scratch" 2> "$scratch/usage.stderr"
+python3 -B "$repo/tools/dlea-strata-bench" reprot "$scratch" 2> "$scratch/usage.stderr"
 rc=$?
 set -e
 [[ "$rc" == 3 ]] && grep -q '^strata-bench: usage error: ' "$scratch/usage.stderr" ||
@@ -23,11 +23,11 @@ set -e
 printf 'strata-bench: selftest and dry-run rerun on one ROOT, and a usage error exits 3\n'
 typed="$scratch/wrong-typed"
 mkdir "$typed"
-touch "$typed/.flea-test-sandbox"
+touch "$typed/.dlea-test-sandbox"
 python3 -B -c 'import json,sys; p=json.load(open(sys.argv[1])); p["visual_timeout_s"]="5"; json.dump(p, open(sys.argv[2], "w"))' \
     "$scratch/plan.json" "$typed/plan.json"
 set +e
-python3 -B "$repo/tools/flea-strata-bench" dry-run "$typed" 2> "$typed/stderr"
+python3 -B "$repo/tools/dlea-strata-bench" dry-run "$typed" 2> "$typed/stderr"
 rc=$?
 set -e
 [[ "$rc" == 3 ]] && grep -qxF "strata-bench: plan $typed/plan.json: field visual_timeout_s must be a number from 1 to 60, not \"5\"" "$typed/stderr" ||
@@ -35,11 +35,11 @@ set -e
 printf 'strata-bench: a wrong-typed plan field exits 3 naming the field and the plan\n'
 injected="$scratch/injected"
 mkdir -p "$injected/tools"
-sed 's/^def dry_run(root):$/&\n    raise TypeError("injected harness bug")/' "$repo/tools/flea-strata-bench" > "$injected/tools/flea-strata-bench"
-grep -q 'injected harness bug' "$injected/tools/flea-strata-bench" ||
-    { printf 'strata-bench: FAIL sed anchor ^def dry_run(root):$ no longer matches tools/flea-strata-bench\n' >&2; exit 1; }
+sed 's/^def dry_run(root):$/&\n    raise TypeError("injected harness bug")/' "$repo/tools/dlea-strata-bench" > "$injected/tools/dlea-strata-bench"
+grep -q 'injected harness bug' "$injected/tools/dlea-strata-bench" ||
+    { printf 'strata-bench: FAIL sed anchor ^def dry_run(root):$ no longer matches tools/dlea-strata-bench\n' >&2; exit 1; }
 set +e
-python3 -B "$injected/tools/flea-strata-bench" dry-run "$scratch" 2> "$injected/stderr"
+python3 -B "$injected/tools/dlea-strata-bench" dry-run "$scratch" 2> "$injected/stderr"
 rc=$?
 set -e
 [[ "$rc" == 3 ]] && grep -q '^Traceback' "$injected/stderr" && grep -qxF 'TypeError: injected harness bug' "$injected/stderr" &&
@@ -58,7 +58,7 @@ import csv
 import subprocess
 
 repo, root = map(Path, sys.argv[1:])
-loader = importlib.machinery.SourceFileLoader('strata_contracts', str(repo / 'tools/flea-strata-bench'))
+loader = importlib.machinery.SourceFileLoader('strata_contracts', str(repo / 'tools/dlea-strata-bench'))
 spec = importlib.util.spec_from_loader(loader.name, loader)
 tool = importlib.util.module_from_spec(spec)
 loader.exec_module(tool)
@@ -87,7 +87,7 @@ tool.write_json(root / 'annotations.json', {})
 assert tool.report(root) == 2
 results = json.loads((root / 'results.json').read_text())
 assert not results['gate_passed'] and len(results['pending']) == expected_trials
-assert len(results['rows']) == 33 * len(tool.IDS) and len(results['flea_not_first']) == 33
+assert len(results['rows']) == 33 * len(tool.IDS) and len(results['dlea_not_first']) == 33
 assert all(r['rank'] is None and r['score'] is None for r in results['rows'])
 assert len((root / 'results.csv').read_text().splitlines()) == 33 * len(tool.IDS) + 1
 unmarked = root / 'unmarked'
@@ -109,7 +109,7 @@ complete.mkdir()
 tool.write_json(complete / 'plan.json', plan)
 tool.write_json(complete / 'fixtures.json', {})
 products = {ident: {'binary': '/synthetic/' + ident, 'version': ident + ' 1.0', 'sha256': 'c' * 64,
-                   'frontend': 'gpui' if ident == 'flea' else 'qml', 'gui_sha256': 'd' * 64}
+                   'frontend': 'gpui' if ident == 'dlea' else 'qml', 'gui_sha256': 'd' * 64}
             for ident in tool.IDS}
 entrants = {ident: dict(product, gui={'sha256': 'd' * 64}, attestation={}) for ident, product in products.items()}
 tool.write_json(complete / 'manifest.json', {'plan': plan, 'harness_sha256': tool.sha(tool.__file__),
@@ -121,8 +121,8 @@ annotations = {}
 for spec in tool.trial_specs(plan):
     folder = complete / 'trials' / spec['id']
     folder.mkdir()
-    score = 0.1 if spec['entrant'] == 'flea' else 2.0
-    samples = [(i / 20, min(i / 20, score), 10 if spec['entrant'] == 'flea' else 20) for i in range(101)]
+    score = 0.1 if spec['entrant'] == 'dlea' else 2.0
+    samples = [(i / 20, min(i / 20, score), 10 if spec['entrant'] == 'dlea' else 20) for i in range(101)]
     trial = dict(spec, product_identity=products[spec['entrant']], product_helper_sha256='e' * 64,
                  argv=['dbus-run-session', '--', products[spec['entrant']]['binary']],
                  baseline={'start_s': -0.2, 'end_s': -0.1}, navigation_span_s=0.01,
@@ -139,26 +139,26 @@ for spec in tool.trial_specs(plan):
 tool.write_json(complete / 'annotations.json', annotations)
 assert tool.report(complete) == 0
 summary = json.loads((complete / 'results.json').read_text())
-assert summary['gate_passed'] and not summary['flea_not_first']
+assert summary['gate_passed'] and not summary['dlea_not_first']
 assert summary['raw_corpus']['manifest_sha256'] == 'a' * 64 and summary['raw_corpus']['sets']['twelve'][0]['format'] == 'nef'
 assert all(row['runs'] == 3 for row in summary['rows'])
-annotations['flea.raw.1']['verified'] = 11
-annotations['flea.raw.1']['ready'] = None
+annotations['dlea.raw.1']['verified'] = 11
+annotations['dlea.raw.1']['ready'] = None
 tool.write_json(complete / 'annotations.json', annotations, replace=True)
 assert tool.report(complete) == 1
 summary = json.loads((complete / 'results.json').read_text())
 assert not summary['gate_passed']
-raw = next(row for row in summary['rows'] if row['entrant'] == 'flea' and row['workload'] == 'raw' and row['metric'] == 'ready_s')
+raw = next(row for row in summary['rows'] if row['entrant'] == 'dlea' and row['workload'] == 'raw' and row['metric'] == 'ready_s')
 assert raw['score'] is None and '11/12 verified' in raw['status']
 print('strata-bench: synthetic complete matrix aggregates three runs and gates all 33 measures')
-annotations['flea.raw.1'].update(verified=12, ready=[0, 1])
-annotations['flea.cpu-raw.1'].update(visible_total=100, verified=50)
+annotations['dlea.raw.1'].update(verified=12, ready=[0, 1])
+annotations['dlea.cpu-raw.1'].update(visible_total=100, verified=50)
 tool.write_json(complete / 'annotations.json', annotations, replace=True)
 assert tool.report(complete) == 1
 summary = json.loads((complete / 'results.json').read_text())
 assert not summary['gate_passed']
-assert [(loss['workload'], loss['metric']) for loss in summary['flea_not_first']] == [('cpu-raw', 'quiet_s')]
-print('strata-bench: a Flea CPU run with 50 of 100 previews verified loses its quiet_s column')
+assert [(loss['workload'], loss['metric']) for loss in summary['dlea_not_first']] == [('cpu-raw', 'quiet_s')]
+print('strata-bench: a Dlea CPU run with 50 of 100 previews verified loses its quiet_s column')
 
 early = root / 'installed-only'
 early.mkdir()
@@ -173,21 +173,21 @@ try:
     tool.validate_fixtures = lambda root: {'raw_corpus': corpus_identity}
     tool.manifest = lambda plan: {'host': 'synthetic', 'kernel': 'synthetic', 'build_sha': 'synthetic',
         'harness_sha256': tool.sha(tool.__file__), 'plan': plan, 'rival_inventory': None,
-        'entrants': {ident: {'binary': '/synthetic/' + ident if ident != 'flea' else None,
+        'entrants': {ident: {'binary': '/synthetic/' + ident if ident != 'dlea' else None,
                             'version': settings['expected_version']} for ident, settings in plan['entrants'].items()}}
     tool.load_module = lambda *args: types.SimpleNamespace(ENV=None, session_env=lambda: {}, hypr=lambda *args: '[]')
     tool.run_trial = lambda root, plan, spec, native, binaries: captured.append(spec)
     tool.bind_products = lambda plan, data, selected: {'helper_sha256': 'e' * 64,
         'identities': {ident: {'binary': data['entrants'][ident]['binary']} for ident in selected}}
-    tool.run(early, only='flea-0.3.12', installed=True, raw_corpus=early / 'corpus')
-    assert len(captured) == 42 and all(t['entrant'] == 'flea-0.3.12' for t in captured)
+    tool.run(early, only='dlea-0.3.12', installed=True, raw_corpus=early / 'corpus')
+    assert len(captured) == 42 and all(t['entrant'] == 'dlea-0.3.12' for t in captured)
     assert json.loads((early / 'manifest.json').read_text())['latest_verified'] is False
     frozen = (early / 'manifest.json').read_bytes()
     tool.run(early, only='strata-stable', installed=True, raw_corpus=early / 'corpus')
     assert len(captured) == 84 and all(t['entrant'] == 'strata-stable' for t in captured[42:])
     assert (early / 'manifest.json').read_bytes() == frozen
     invocations = [json.loads(p.read_text()) for p in (early / 'invocations').glob('*.json')]
-    assert sorted(i['selected'] for i in invocations) == [['flea-0.3.12'], ['strata-stable']]
+    assert sorted(i['selected'] for i in invocations) == [['dlea-0.3.12'], ['strata-stable']]
     old_manifest = tool.manifest
     tool.manifest = lambda plan: dict(old_manifest(plan), kernel='changed')
     try:
@@ -269,14 +269,14 @@ adapter = root / 'hermetic-corpus-adapter'
 (adapter / 'tools').mkdir(parents=True)
 corpus = adapter / 'corpus'
 calls = adapter / 'verify-calls'
-helper = adapter / 'tools/flea-raw-corpus'
+helper = adapter / 'tools/dlea-raw-corpus'
 helper.write_text('#!/usr/bin/env python3\nimport sys\nfrom pathlib import Path\np=Path(__file__).parent.parent\n'
                   "(p/'verify-calls').open('a').write(' '.join(sys.argv[1:])+'\\n')\n"
                   "sys.exit(7 if (p/'reject').exists() else 0)\n")
 helper.chmod(0o755)
 suffixes = ('cr2', 'cr3', 'nef', 'arw', 'raf', 'rw2', 'orf', 'pef', 'srw', 'dng', '3fr', 'mos')
 fields = ('set', 'suffix', 'make', 'model', 'url', 'sha256', 'bytes', 'licence', 'mime')
-with (adapter / 'tools/flea-raw-corpus.tsv').open('w') as f:
+with (adapter / 'tools/dlea-raw-corpus.tsv').open('w') as f:
     writer = csv.DictWriter(f, fieldnames=fields, delimiter='\t')
     writer.writeheader()
     for name, count in (('twelve', 12), ('hundred', 100)):
@@ -318,16 +318,16 @@ finally:
 print('strata-bench: hermetic adapter verifies both real-corpus sets first, maps twelve formats and refuses corruption/verifier failure')
 PY
 bash "$repo/tests/m9_integ_b1_missing_trials_never_pass_full_coverage.sh"
-if [[ -x "$repo/target/release/flea" ]]; then
+if [[ -x "$repo/target/release/dlea" ]]; then
     mkdir "$scratch/empty" "$scratch/home" "$scratch/cache" "$scratch/state" "$scratch/config"
     set +e
     env -u DISPLAY -u WAYLAND_DISPLAY HOME="$scratch/home" XDG_CACHE_HOME="$scratch/cache" \
-        XDG_STATE_HOME="$scratch/state" XDG_CONFIG_HOME="$scratch/config" FLEA_FRONTEND=gpui \
-        timeout 10 "$repo/target/release/flea" --gui "$scratch/empty" > "$scratch/headless-product.log" 2>&1
+        XDG_STATE_HOME="$scratch/state" XDG_CONFIG_HOME="$scratch/config" DLEA_FRONTEND=gpui \
+        timeout 10 "$repo/target/release/dlea" --gui "$scratch/empty" > "$scratch/headless-product.log" 2>&1
     rc=$?
     set -e
     [[ "$rc" == 2 ]] && grep -q 'there is no graphical session' "$scratch/headless-product.log" ||
-        { printf 'strata-bench: FAIL flea --gui headless rc=%s\n' "$rc" >&2; exit 1; }
-    printf 'strata-bench: flea --gui headless refusal verified, rc=2, no native timing claimed\n'
+        { printf 'strata-bench: FAIL dlea --gui headless rc=%s\n' "$rc" >&2; exit 1; }
+    printf 'strata-bench: dlea --gui headless refusal verified, rc=2, no native timing claimed\n'
 fi
 printf 'strata-bench: PASS capture/CPU/coverage/report contracts\n'

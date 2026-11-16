@@ -1,7 +1,7 @@
 #!/bin/bash
 # Loads the real shell the way a launch does, and fails on any QML error. Nothing else headless does
 # this: an assignment to a property that no longer exists is a load error for the WHOLE shell, so
-# Flea opens no window at all, and 0.1.4 reached a benchmark in that state with qmllint reporting 0
+# Dlea opens no window at all, and 0.1.4 reached a benchmark in that state with qmllint reporting 0
 # regressions, tests/run-all.sh green across 22 suites, and cargo clean of warnings.
 set -u
 cd "$(dirname "$0")/.." || exit 1
@@ -18,14 +18,14 @@ fi
 
 command -v dbus-run-session >/dev/null || { echo "shellload.sh: dbus-run-session is required, the shell's Trash monitor must not touch the inherited bus"; exit 1; }
 
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 sandbox_forbidden /tmp && sandbox_refuse "shellload: /tmp is inside a forbidden test target"
-shellload_root=$(mktemp -d /tmp/flea-shellload.XXXXXXXX) || exit 1
+shellload_root=$(mktemp -d /tmp/dlea-shellload.XXXXXXXX) || exit 1
 FIXTURE_ROOT=$shellload_root
 sandbox_root_ok
 shellload_root=$SANDBOX_ROOT
 readonly shellload_root
-printf 'Flea shell load sandbox\n' > "$shellload_root/$SANDBOX_MARKER" || exit 1
+printf 'Dlea shell load sandbox\n' > "$shellload_root/$SANDBOX_MARKER" || exit 1
 shellload_work="$shellload_root/work"
 readonly shellload_work
 cleanup() {
@@ -49,7 +49,7 @@ for relative in .local/state/omarchy/current/theme/colors.toml .local/state/omar
         cp -- "$HOME/$relative" "$shellload_work/home/$relative" || exit 1
     fi
 done
-shellload_bin=${FLEA_BIN:-$PWD/target/debug/flea}
+shellload_bin=${DLEA_BIN:-$PWD/target/debug/dlea}
 [ -x "$shellload_bin" ] || { echo "shellload.sh: build the candidate backend first: $shellload_bin"; exit 1; }
 log="$shellload_root/shell.log"
 sandbox_require "$log"
@@ -63,11 +63,11 @@ sandbox_require "$bus_log"
 # Seconds: generous enough for a cold QML compile on a loaded box, short enough for the battery.
 load_seconds=25
 # The shell starts the GVfs trash daemon, so it runs on its own bus, whose daemons log to bus.log and stay out of the scanned shell.log.
-env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u FLEA_SELECT \
+env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE -u DLEA_SELECT \
     HOME="$shellload_work/home" XDG_CONFIG_HOME="$shellload_work/config" \
     XDG_STATE_HOME="$shellload_work/state" XDG_DATA_HOME="$shellload_work/data" \
     XDG_CACHE_HOME="$shellload_work/cache" XDG_RUNTIME_DIR="$shellload_work/runtime" TMPDIR="$shellload_work/tmp" \
-    FLEA_PATH="$shellload_work/fixture" FLEA_BIN="$shellload_bin" \
+    DLEA_PATH="$shellload_work/fixture" DLEA_BIN="$shellload_bin" \
     QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_FORCE_STDERR_LOGGING=1 \
     dbus-run-session -- bash -c 'exec timeout "$1" qs -p "$2" > "$3" 2>&1' _ "$load_seconds" "$PWD/ui/boot" "$log" > "$bus_log" 2>&1
 status=$?
@@ -96,13 +96,13 @@ else
     grep -aiE 'ERROR|unavailable|Cannot assign to non-existent' "$log" | head -5 | sed 's/^/     /'
 fi
 
-# Sample input: "    Flea.FilterStrip {", which needs "FilterStrip 1.0 FilterStrip.qml"; the loader's file fallback hides a missing row.
+# Sample input: "    Dlea.FilterStrip {", which needs "FilterStrip 1.0 FilterStrip.qml"; the loader's file fallback hides a missing row.
 unlisted=""
-for type in $(grep -ho 'Flea\.[A-Z][A-Za-z0-9]*' ui/*.qml | cut -d. -f2 | sort -u); do
+for type in $(grep -ho 'Dlea\.[A-Z][A-Za-z0-9]*' ui/*.qml | cut -d. -f2 | sort -u); do
     grep -qE "^(singleton )?$type [0-9.]+ $type\.qml$" ui/qmldir || unlisted="$unlisted $type"
 done
 if [ -z "$unlisted" ]; then
-    ok "every Flea.<Type> a ui/ file names has its ui/qmldir line"
+    ok "every Dlea.<Type> a ui/ file names has its ui/qmldir line"
 else
     bad "ui/qmldir has no line for:$unlisted"
 fi
@@ -111,7 +111,7 @@ fi
 overlay_roots=(CollideConfirm ContextMenu ConvertDialog KeymapSheet MenuActionDialog NetworkDialog OpenWithDialog
     PermissionsDialog Preview SettingsPanel ShareBrowser TransferCard TrashConfirm)
 
-# Sample references a root carries: "Flea.MenuRow {", "NetworkForm {", "\"PdfViewer.qml\"".
+# Sample references a root carries: "Dlea.MenuRow {", "NetworkForm {", "\"PdfViewer.qml\"".
 # corner: a QtQuick "Row {" also pulls in ui/Row.qml, which carries no TapHandler.
 overlay_files=()
 queue=("${overlay_roots[@]}")
@@ -120,8 +120,8 @@ while [ "${#queue[@]}" -gt 0 ]; do
     queue=("${queue[@]:1}")
     case " ${overlay_files[*]} " in *" $name "*) continue ;; esac
     overlay_files+=("$name")
-    for ref in $(grep -oE '(Flea\.)?[A-Z][A-Za-z0-9]* *\{|"[A-Z][A-Za-z0-9]*\.qml"' "ui/$name.qml" | tr -d '"{ ' | sort -u); do
-        ref=${ref#Flea.}
+    for ref in $(grep -oE '(Dlea\.)?[A-Z][A-Za-z0-9]* *\{|"[A-Z][A-Za-z0-9]*\.qml"' "ui/$name.qml" | tr -d '"{ ' | sort -u); do
+        ref=${ref#Dlea.}
         ref=${ref%.qml}
         [ -f "ui/$ref.qml" ] && queue+=("$ref")
     done

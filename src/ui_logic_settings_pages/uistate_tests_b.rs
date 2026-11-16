@@ -1,4 +1,4 @@
-// Ports tests/js/uistate.js (Flea 0.3.12) lines 140-277: what a window owes, what a landed write clears, and the interleave.
+// Ports tests/js/uistate.js (Dlea 0.3.12) lines 140-277: what a window owes, what a landed write clears, and the interleave.
 use super::*;
 use crate::jsondoc::{parse, render, Json};
 
@@ -34,7 +34,7 @@ fn a_second_change_joins_the_patch_already_owed() {
 }
 
 #[test]
-fn the_document_keeps_a_newer_flea_sub_key_that_the_patch_never_carries() {
+fn the_document_keeps_a_newer_dlea_sub_key_that_the_patch_never_carries() {
     let read = j(r#"{"display":{"textSize":{"mode":"system"},"aKeyThisBuildHasNeverHeardOf":true}}"#);
     assert_eq!(
         with_group(&read, "display", &j(r#"{"textSize":{"mode":16}}"#)),

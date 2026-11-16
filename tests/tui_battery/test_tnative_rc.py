@@ -28,7 +28,7 @@ REAL_RUN = subprocess.run
 GTK_ID = re.compile(r"(?=.{1,255}$)[A-Za-z_-][A-Za-z0-9_-]*(\.[A-Za-z_-][A-Za-z0-9_-]*)+")
 # alacritty 0.17 on minipc drew a 72x22 grid: winit's 800x600 window in 11x26 px cells with 8 and 28 px left over.
 CELL, PADDING, OPENED = (11, 26), (8, 28), (800, 600)
-IDENTITY = "flea.battery.tfixture"
+IDENTITY = "dlea.battery.tfixture"
 QUIT = {"key": "q", "mods": "tui", "action": "quit"}
 PALETTE = {"fg": "#c6b395", "bg": "#1c120d"}
 # Stands in for bwrap at the relay's exec: it keeps the argv it was given, the sandbox the candidate would get.
@@ -154,7 +154,7 @@ class FakeHyprland:
 
 class NativeRootCauseTests(unittest.TestCase):
     def setUp(self):
-        parent = Path(os.environ.get("FLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
+        parent = Path(os.environ.get("DLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
         parent.mkdir(parents=True, exist_ok=True)
         self.root = Path(tempfile.mkdtemp(prefix="tnative-rc.", dir=parent))
         self.addCleanup(shutil.rmtree, self.root, ignore_errors=True)
@@ -179,7 +179,7 @@ class NativeRootCauseTests(unittest.TestCase):
         return terminal
 
     def owned_workspace(self):
-        return next(m for m in self.fake.monitors if m["name"] == "FLEA-id")["activeWorkspace"]["name"]
+        return next(m for m in self.fake.monitors if m["name"] == "DLEA-id")["activeWorkspace"]["name"]
 
     def test_the_terminal_maps_onto_the_workspace_its_output_shows(self):
         # On 795592aa0 every kitty, foot and tmux capture showed the owned output's first workspace, 2, with no window on it.
@@ -240,14 +240,14 @@ class NativeRootCauseTests(unittest.TestCase):
 
 class IdentityAndShutdownTests(unittest.TestCase):
     def setUp(self):
-        parent = Path(os.environ.get("FLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
+        parent = Path(os.environ.get("DLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
         parent.mkdir(parents=True, exist_ok=True)
         self.root = Path(tempfile.mkdtemp(prefix="tnative-id.", dir=parent))
         self.addCleanup(shutil.rmtree, self.root, ignore_errors=True)
         (self.root / MARKER).write_text("owned native identity regressions\n")
 
     def test_each_terminal_gets_an_identity_ghostty_keeps_as_its_class(self):
-        # ghostty 1.3 drops a class GTK refuses and maps as com.mitchellh.ghostty, so "flea-<hex>" never matched a client.
+        # ghostty 1.3 drops a class GTK refuses and maps as com.mitchellh.ghostty, so "dlea-<hex>" never matched a client.
         created = []
         root = self.root / "pair"
         root.mkdir()
@@ -256,7 +256,7 @@ class IdentityAndShutdownTests(unittest.TestCase):
         self.assertTrue(GTK_ID.fullmatch(identity), identity)
 
     def test_ghostty_refuses_a_class_it_would_ignore(self):
-        adapter = adapters.Adapter("ghostty", self.root, "flea-0123abcd", PALETTE)
+        adapter = adapters.Adapter("ghostty", self.root, "dlea-0123abcd", PALETTE)
         with self.assertRaisesRegex(Blocked, "valid GTK application ID"):
             adapter.argv(["relay"])
 
@@ -264,13 +264,13 @@ class IdentityAndShutdownTests(unittest.TestCase):
         lost = getattr(native, "DisplayLost", None)
         self.assertIsNotNone(lost, "the harness has no run-ending display failure")
         def capture(path):
-            raise lost("owned output FLEA-id shows workspace 2, not the owned workspace id")
+            raise lost("owned output DLEA-id shows workspace 2, not the owned workspace id")
         root = self.root / "lost"
         root.mkdir()
         with self.assertRaises(lost):
             pair(root, capture=capture)
         verdict = json.loads((root / "foot/tui-list-text/primary/verdict.json").read_text())
-        self.assertEqual(verdict["reason"], "owned output FLEA-id shows workspace 2, not the owned workspace id")
+        self.assertEqual(verdict["reason"], "owned output DLEA-id shows workspace 2, not the owned workspace id")
 
     def test_tmux_close_accepts_a_server_that_already_exited_with_its_session(self):
         # Every tmux state failed on "tmux: no server running": exit-empty had already ended the private server.
@@ -290,10 +290,10 @@ class IdentityAndShutdownTests(unittest.TestCase):
 
 
 class TmuxSocketTests(unittest.TestCase):
-    """Flea asks its tmux server for #{client_termfeatures}, so inside the sandbox the socket TMUX names must be there."""
+    """Dlea asks its tmux server for #{client_termfeatures}, so inside the sandbox the socket TMUX names must be there."""
 
     def setUp(self):
-        parent = Path(os.environ.get("FLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
+        parent = Path(os.environ.get("DLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
         parent.mkdir(parents=True, exist_ok=True)
         self.root = Path(tempfile.mkdtemp(prefix="tnative-tmux.", dir=parent))
         self.addCleanup(shutil.rmtree, self.root, ignore_errors=True)
@@ -317,7 +317,7 @@ class TmuxSocketTests(unittest.TestCase):
         (tools / "bwrap").chmod(0o755)
         self.record = self.root / "bwrap.json"
         with patch("tui_battery.fixtures.shutil.which", return_value="/usr/bin/bwrap"):
-            self.argv = fixtures.namespace("/opt/candidate/flea", self.root / "fx", "/fx/v/work", {})
+            self.argv = fixtures.namespace("/opt/candidate/dlea", self.root / "fx", "/fx/v/work", {})
         (self.case / "relay-spec.json").write_text(json.dumps(
             {"argv": self.argv, "environment": {"PATH": f"{tools}:/usr/bin:/bin", "BWRAP_RECORD": str(self.record)}}))
 
@@ -363,7 +363,7 @@ def remove(root):
 
 
 def total(path):
-    """A folder's size the way Flea's dirsize walk adds it: its own and every entry's lstat size below it."""
+    """A folder's size the way Dlea's dirsize walk adds it: its own and every entry's lstat size below it."""
     size = path.lstat().st_size
     if path.is_dir() and not path.is_symlink():
         size += sum(total(child) for child in path.iterdir())
@@ -375,7 +375,7 @@ class FontCacheTests(unittest.TestCase):
         # Without the font cache, fc-list outlasts the 150 ms icon probe, so folders draw text marks instead of icons.
         with patch("tui_battery.fixtures.shutil.which", return_value="/usr/bin/bwrap"), \
                 patch("tui_battery.fixtures.os.path.isdir", side_effect=lambda path: path == "/var/cache/fontconfig"):
-            argv = fixtures.namespace("/opt/candidate/flea", Path("/owned/fx"), "/fx/v/work", {})
+            argv = fixtures.namespace("/opt/candidate/dlea", Path("/owned/fx"), "/fx/v/work", {})
         binds = [argv[i + 1:i + 3] for i, option in enumerate(argv) if option == "--ro-bind"]
         self.assertIn(["/var/cache/fontconfig", "/var/cache/fontconfig"], binds)
         self.assertNotIn("/var/cache/fontconfig", [argv[i + 1] for i, option in enumerate(argv) if option == "--bind"])
@@ -385,7 +385,7 @@ class TmpfsFixtureTests(unittest.TestCase):
     """The boards' folder totals are the bundle's work tree on tmpfs, so the battery builds each case's fixture there."""
 
     def setUp(self):
-        parent = Path(os.environ.get("FLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
+        parent = Path(os.environ.get("DLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
         parent.mkdir(parents=True, exist_ok=True)
         self.root = Path(tempfile.mkdtemp(prefix="tnative-fx.", dir=parent))
         (self.root / MARKER).write_text("owned tmpfs fixture regressions\n")
@@ -412,13 +412,13 @@ class TmpfsFixtureTests(unittest.TestCase):
                 (board / name).write_bytes(data)
         drawn = {name: dynamic.size(total(board / name)) for name in ("A", "Code", "Docs", "Empty", "Many")}
         self.assertEqual(drawn, {"A": "462 B", "Code": "216 B", "Docs": "22.1 kB", "Empty": "40 B", "Many": "2.2 kB"})
-        # Flea cannot open Locked, so its total is the folder's own size, drawn as a floor.
+        # Dlea cannot open Locked, so its total is the folder's own size, drawn as a floor.
         self.assertEqual((board / "Locked").lstat().st_size, 60)
 
     def test_a_fixture_parent_that_is_not_tmpfs_is_refused_and_left_clean(self):
         with self.assertRaisesRegex(Blocked, r"reports \d+ bytes for an empty folder, not tmpfs's 40"):
             fixtures.build(self.case, "work", dry=True, tmpfs=self.root)
-        self.assertEqual([p.name for p in self.root.glob("flea-battery-fx.*")], [])
+        self.assertEqual([p.name for p in self.root.glob("dlea-battery-fx.*")], [])
         self.assertFalse((self.case / "fixtures.json").exists())
 
     def test_retain_copies_the_fixture_into_the_case_and_frees_the_tmpfs(self):
@@ -472,7 +472,7 @@ class TmpfsFixtureTests(unittest.TestCase):
 
 class PreflightAndSmokeTests(unittest.TestCase):
     def setUp(self):
-        parent = Path(os.environ.get("FLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
+        parent = Path(os.environ.get("DLEA_BATTERY_TEST_ROOT", HERE.parents[1] / ".superpowers/t12a"))
         parent.mkdir(parents=True, exist_ok=True)
         self.root = Path(tempfile.mkdtemp(prefix="tnative-pre.", dir=parent))
         self.addCleanup(shutil.rmtree, self.root, ignore_errors=True)
@@ -511,14 +511,14 @@ class PreflightAndSmokeTests(unittest.TestCase):
     def test_a_locked_or_already_owned_display_refuses(self):
         code, text = self.preflight(locked=True)
         self.assertEqual((code, json.loads(text)["reason"]), (2, "display is locked by hyprlock, so every capture would show the lock screen"))
-        self.fake.output_create("FLEA-stale")
+        self.fake.output_create("DLEA-stale")
         code, text = self.preflight()
         self.assertEqual(code, 2)
-        self.assertIn("owned output FLEA-stale from another run", json.loads(text)["reason"])
-        self.fake.output_remove("FLEA-stale")
-        self.fake.clients.append({"class": "flea.battery.tstale", "address": "0x1"})
+        self.assertIn("owned output DLEA-stale from another run", json.loads(text)["reason"])
+        self.fake.output_remove("DLEA-stale")
+        self.fake.clients.append({"class": "dlea.battery.tstale", "address": "0x1"})
         code, text = self.preflight()
-        self.assertIn("owned terminal flea.battery.tstale", json.loads(text)["reason"])
+        self.assertIn("owned terminal dlea.battery.tstale", json.loads(text)["reason"])
 
     def smoke(self, verdicts, extra=()):
         binary = self.root / "candidate"

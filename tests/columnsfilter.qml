@@ -1,11 +1,11 @@
-//@ pragma ShellId flea-columnsfilter-test
+//@ pragma ShellId dlea-columnsfilter-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/Filter.js" as Filter
-import "flea/js/Focus.js" as Focus
-import "flea/js/Nav.js" as Nav
+import "dlea" as Dlea
+import "dlea/js/Filter.js" as Filter
+import "dlea/js/Focus.js" as Focus
+import "dlea/js/Nav.js" as Nav
 import "columnsfilter-fixture.js" as Fixture
 import "button-probe.js" as Probe
 
@@ -150,7 +150,7 @@ ShellRoot {
     property var stubPane: paneStub.createObject(root, { backend: root.stubBackend, rows: Fixture.buildRows(), statusBar: root.stubStatus })
     // The real IPC seam over the stub pane: filterStamps reports what the product reports.
     QtObject { id: windowStub; function centreOf(item) { return "" } function rectOf(item) { return "" } }
-    Flea.Ipc { id: ipc; pane: root.stubPane; fleaWindow: windowStub }
+    Dlea.Ipc { id: ipc; pane: root.stubPane; dleaWindow: windowStub }
 
     Component.onCompleted: {
         // Filter.prune's toggle and Marks.follow's read, closing over the stub pane.
@@ -164,9 +164,9 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 1500
         implicitHeight: 700
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
-        Flea.FilterStrip {
+        Dlea.FilterStrip {
             id: strip
             anchors.top: parent.top
             anchors.left: parent.left
@@ -174,7 +174,7 @@ ShellRoot {
             pane: root.stubPane
         }
 
-        Flea.ColumnsArea {
+        Dlea.ColumnsArea {
             id: area
             anchors.top: strip.bottom
             anchors.left: parent.left
@@ -185,10 +185,10 @@ ShellRoot {
             menu: menuStub.createObject(root)
         }
 
-        Flea.ColumnRow { id: probeRow; opacity: 0; width: 400; row: Fixture.searchRow(); pane: Fixture.searchPane("final") }
-        Flea.ColumnRow { id: cursorProbe; opacity: 0; width: 400; row: Fixture.searchRow(); pane: Fixture.searchPane("final") }
+        Dlea.ColumnRow { id: probeRow; opacity: 0; width: 400; row: Fixture.searchRow(); pane: Fixture.searchPane("final") }
+        Dlea.ColumnRow { id: cursorProbe; opacity: 0; width: 400; row: Fixture.searchRow(); pane: Fixture.searchPane("final") }
 
-        Flea.GridArea {
+        Dlea.GridArea {
             id: grid
             anchors.top: strip.bottom
             anchors.left: area.right
@@ -266,7 +266,7 @@ ShellRoot {
             root.fail("enter leaves the List strip down")
         if (Filter.summary(root.stubPane.shown, 12, 12) !== "6 of 12 shown")
             root.fail("enter sentences " + Filter.summary(root.stubPane.shown, 12, 12))
-        Fixture.markFailures(first, probeRow, root.stubPane, Flea.Theme).forEach(root.fail)
+        Fixture.markFailures(first, probeRow, root.stubPane, Dlea.Theme).forEach(root.fail)
         var colStamps = Fixture.stamps(ipc)
         if (colStamps.view !== "columns" || !(colStamps.keyAt > 0 && colStamps.keyAt <= colStamps.narrowedAt))
             root.fail("stamps name " + JSON.stringify(colStamps) + " in columns")
@@ -388,8 +388,8 @@ ShellRoot {
             root.fail("backspace holds " + Fixture.activeCount(area) + " rows, want 6 with a column")
         Fixture.hiddenFailures(area, root.stubPane, root.press).forEach(root.fail)
         // Last, because it swaps the palette: the sandbox accent equals its foreground, which hides a name drawn in cellInk.
-        Flea.Theme.applyColors(Probe.COLOURED_THEME)
-        Fixture.nameInkFailures(cursorProbe, probeRow, Flea.Theme).forEach(root.fail)
+        Dlea.Theme.applyColors(Probe.COLOURED_THEME)
+        Fixture.nameInkFailures(cursorProbe, probeRow, Dlea.Theme).forEach(root.fail)
         if (root.failures.length > 0) { root.report(); return }
         console.log("COLUMNSFILTER PASS active=6-of-12 grid=6-of-12 strip=list esc=restored nav=forgotten parent=kept commit=enter-kept walk=j-k-kept preview=follows escape=name-kept stamps=columns-grid nomatch=empty-esc-restored-backspace-match hidden=no-marks")
         Quickshell.execDetached(["kill", String(Quickshell.processId)])

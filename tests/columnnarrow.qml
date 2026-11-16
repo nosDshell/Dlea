@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-columnnarrow-test
+//@ pragma ShellId dlea-columnnarrow-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // columnnarrow: a real ui/ColumnPane keeps its drawn rows across a narrowing and a widening; tests/columnnarrow.sh drives it.
 ShellRoot {
@@ -64,7 +64,7 @@ ShellRoot {
     property var stubBackend: backendStub.createObject(root)
     property var stubPane: paneStub.createObject(root, { backend: root.stubBackend })
 
-    Flea.ColumnPane {
+    Dlea.ColumnPane {
         id: column
         width: 400
         height: 600

@@ -136,7 +136,7 @@ def main():
     folder.mkdir()
     runtime = root / "runtime"
     runtime.mkdir(mode=0o700)
-    environment = dict(os.environ, XDG_RUNTIME_DIR=str(runtime), FLEA_UNDO_DIR=str(runtime / "flea"))
+    environment = dict(os.environ, XDG_RUNTIME_DIR=str(runtime), DLEA_UNDO_DIR=str(runtime / "dlea"))
     backends = [Backend(binary, environment), Backend(binary, environment)]
     checks = 0
 

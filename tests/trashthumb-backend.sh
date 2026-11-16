@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # Run the reviewed Trash producer and cancellation regressions where the real sandbox must work.
 set -uo pipefail
-. "$(dirname "$0")/../tools/flea-sandbox-guard"
+. "$(dirname "$0")/../tools/dlea-sandbox-guard"
 cd "$(dirname "$0")/.." || exit 1
 
 sandbox_root_ok
 cleanup() {
     [[ -n "${box:-}" && "$box" == /* ]] || return
-    if [[ -f "$box/.flea-test-sandbox" ]]; then
+    if [[ -f "$box/.dlea-test-sandbox" ]]; then
         sandbox_remove "$box"
     else
         sandbox_require "$box"
@@ -16,7 +16,7 @@ cleanup() {
 }
 box=$(mktemp -d "$FIXTURE_ROOT/trashthumb-backend.XXXXXXXX") || exit 1
 trap cleanup EXIT
-: > "$box/.flea-test-sandbox" || exit 1
+: > "$box/.dlea-test-sandbox" || exit 1
 sandbox_require "$box"
 export CARGO_TARGET_DIR="$box/target"
 export TMPDIR="$box/tmp"
@@ -27,7 +27,7 @@ python3 tests/trashthumb-backend-setup.py "$FIXTURE_ROOT" || exit 1
 
 for module in trashthumb::tests trashbrowse::thumbnail_tests thumbreq::cancel_tests run::trashthumb_protocol_tests; do
     log="$box/${module//::/-}.log"
-    cargo test --locked --bin flea -- "backend::$module::" --nocapture > "$log" 2>&1
+    cargo test --locked --bin dlea -- "backend::$module::" --nocapture > "$log" 2>&1
     rc=$?
     cat "$log"
     [ "$rc" -eq 0 ] || exit "$rc"

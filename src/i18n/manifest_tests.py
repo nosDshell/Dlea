@@ -8,7 +8,7 @@ import sys
 import unittest
 
 WORKTREE = Path(__file__).resolve().parents[2]
-TOOL = WORKTREE / 'tools/flea-i18n-manifest'
+TOOL = WORKTREE / 'tools/dlea-i18n-manifest'
 
 
 class ManifestHistory(unittest.TestCase):
@@ -22,8 +22,8 @@ class ManifestHistory(unittest.TestCase):
         self.addCleanup(self.cleanup_root)
         self.english = {'label': 'Open file', 'count': {'one': '%1 file', 'other': '%1 files'}}
         self.translation = {'label': 'Datei öffnen', 'count': {'one': '%1 Datei', 'other': '%1 Dateien'}}
-        self.write('en/flea.json', self.english)
-        self.write('de/flea.json', self.translation)
+        self.write('en/dlea.json', self.english)
+        self.write('de/dlea.json', self.translation)
         self.run_tool()
         self.initial = self.read_manifest()
 
@@ -51,55 +51,55 @@ class ManifestHistory(unittest.TestCase):
 
     def change_english(self):
         self.english['label'] = 'Open folder'
-        self.write('en/flea.json', self.english)
+        self.write('en/dlea.json', self.english)
 
     def test_regeneration_preserves_translation_source_hash(self):
         self.change_english()
         self.run_tool()
         current = self.read_manifest()
-        self.assertNotEqual(current['en']['flea:label'], self.initial['en']['flea:label'])
+        self.assertNotEqual(current['en']['dlea:label'], self.initial['en']['dlea:label'])
         self.assertEqual(current['de'], self.initial['de'])
         before = (self.root / 'translation-manifest.json').read_bytes()
         result = self.run_tool('--check')
-        self.assertIn('stale translation de:flea:label', result.stderr)
+        self.assertIn('stale translation de:dlea:label', result.stderr)
         self.assertEqual(before, (self.root / 'translation-manifest.json').read_bytes())
 
     def test_stale_translation_warns_by_name_without_failing_check(self):
         self.change_english()
         recorded = self.initial
-        recorded['en']['flea:label'] = hashlib.sha256(b'Open folder').hexdigest()[:12]
+        recorded['en']['dlea:label'] = hashlib.sha256(b'Open folder').hexdigest()[:12]
         self.write('translation-manifest.json', recorded)
         before = (self.root / 'translation-manifest.json').read_bytes()
         result = self.run_tool('--check')
-        self.assertIn('warning: stale translation de:flea:label', result.stderr)
+        self.assertIn('warning: stale translation de:dlea:label', result.stderr)
         self.assertEqual(before, (self.root / 'translation-manifest.json').read_bytes())
 
     def test_mark_updates_only_selected_translation_keys(self):
         self.change_english()
         self.english['count']['other'] = '%1 total files'
-        self.write('en/flea.json', self.english)
+        self.write('en/dlea.json', self.english)
         self.run_tool()
         self.run_tool('--mark', 'de', 'label')
         current = self.read_manifest()
-        self.assertEqual(current['de']['flea:label'], current['en']['flea:label'])
-        self.assertEqual(current['de']['flea:count'], self.initial['de']['flea:count'])
+        self.assertEqual(current['de']['dlea:label'], current['en']['dlea:label'])
+        self.assertEqual(current['de']['dlea:count'], self.initial['de']['dlea:count'])
         result = self.run_tool('--check')
-        self.assertIn('stale translation de:flea:count', result.stderr)
-        self.assertNotIn('stale translation de:flea:label', result.stderr)
-        self.run_tool('--mark', 'de', 'flea:count')
+        self.assertIn('stale translation de:dlea:count', result.stderr)
+        self.assertNotIn('stale translation de:dlea:label', result.stderr)
+        self.run_tool('--mark', 'de', 'dlea:count')
         self.assertNotIn('stale translation', self.run_tool('--check').stderr)
 
     def test_new_keys_and_languages_get_initial_hash_without_refreshing_old_keys(self):
         self.change_english()
         self.english['new'] = 'New folder'
         self.translation['new'] = 'Neuer Ordner'
-        self.write('en/flea.json', self.english)
-        self.write('de/flea.json', self.translation)
-        self.write('fr/flea.json', {'label': 'Ouvrir', 'count': {'one': '%1 fichier', 'other': '%1 fichiers'}, 'new': 'Nouveau dossier'})
+        self.write('en/dlea.json', self.english)
+        self.write('de/dlea.json', self.translation)
+        self.write('fr/dlea.json', {'label': 'Ouvrir', 'count': {'one': '%1 fichier', 'other': '%1 fichiers'}, 'new': 'Nouveau dossier'})
         self.run_tool()
         current = self.read_manifest()
-        self.assertEqual(current['de']['flea:label'], self.initial['de']['flea:label'])
-        self.assertEqual(current['de']['flea:new'], current['en']['flea:new'])
+        self.assertEqual(current['de']['dlea:label'], self.initial['de']['dlea:label'])
+        self.assertEqual(current['de']['dlea:new'], current['en']['dlea:new'])
         self.assertEqual(current['fr'], current['en'])
 
     def test_bad_marks_leave_manifest_unchanged(self):
@@ -118,42 +118,42 @@ class ManifestHistory(unittest.TestCase):
     def drop_label(self):
         self.english.pop('label')
         self.translation.pop('label')
-        self.write('en/flea.json', self.english)
-        self.write('de/flea.json', self.translation)
+        self.write('en/dlea.json', self.english)
+        self.write('de/dlea.json', self.translation)
 
     def test_regeneration_prunes_deleted_keys_from_all_sections(self):
         self.drop_label()
         self.run_tool()
         current = self.read_manifest()
-        self.assertNotIn('flea:label', current['en'])
-        self.assertNotIn('flea:label', current['de'])
-        self.assertEqual(current['de']['flea:count'], self.initial['de']['flea:count'])
+        self.assertNotIn('dlea:label', current['en'])
+        self.assertNotIn('dlea:label', current['de'])
+        self.assertEqual(current['de']['dlea:count'], self.initial['de']['dlea:count'])
 
     def test_deleted_keys_warn_as_orphans_without_mutating_manifest(self):
         self.drop_label()
         before = (self.root / 'translation-manifest.json').read_bytes()
         result = self.run_tool('--check')
-        self.assertIn('warning: orphaned entry en:flea:label', result.stderr)
-        self.assertIn('warning: orphaned entry de:flea:label', result.stderr)
+        self.assertIn('warning: orphaned entry en:dlea:label', result.stderr)
+        self.assertIn('warning: orphaned entry de:dlea:label', result.stderr)
         self.assertEqual(before, (self.root / 'translation-manifest.json').read_bytes())
 
     def test_regeneration_prunes_deleted_language_and_reinitializes_its_return(self):
-        self.delete('de/flea.json')
+        self.delete('de/dlea.json')
         self.run_tool()
         self.assertNotIn('de', self.read_manifest())
         self.change_english()
-        self.write('de/flea.json', self.translation)
+        self.write('de/dlea.json', self.translation)
         self.run_tool()
         current = self.read_manifest()
         self.assertEqual(current['de'], current['en'])
         self.assertNotIn('stale translation', self.run_tool('--check').stderr)
 
     def test_deleted_language_warns_as_orphan_without_failing_check(self):
-        self.delete('de/flea.json')
+        self.delete('de/dlea.json')
         before = (self.root / 'translation-manifest.json').read_bytes()
         result = self.run_tool('--check')
         self.assertIn('warning: orphaned language de', result.stderr)
-        self.assertIn('warning: orphaned entry de:flea:label', result.stderr)
+        self.assertIn('warning: orphaned entry de:dlea:label', result.stderr)
         self.assertEqual(before, (self.root / 'translation-manifest.json').read_bytes())
 
     def test_readded_key_records_current_english_for_its_new_translation(self):
@@ -161,58 +161,58 @@ class ManifestHistory(unittest.TestCase):
         self.run_tool()
         self.english['label'] = 'Open a new folder'
         self.translation['label'] = 'Neuen Ordner öffnen'
-        self.write('en/flea.json', self.english)
-        self.write('de/flea.json', self.translation)
+        self.write('en/dlea.json', self.english)
+        self.write('de/dlea.json', self.translation)
         self.run_tool()
         current = self.read_manifest()
-        self.assertNotEqual(current['en']['flea:label'], self.initial['en']['flea:label'])
-        self.assertEqual(current['de']['flea:label'], current['en']['flea:label'])
+        self.assertNotEqual(current['en']['dlea:label'], self.initial['en']['dlea:label'])
+        self.assertEqual(current['de']['dlea:label'], current['en']['dlea:label'])
         self.assertNotIn('stale translation', self.run_tool('--check').stderr)
 
     def test_emptied_translation_loses_its_hash_and_refill_records_current_english(self):
         self.translation['label'] = ''
-        self.write('de/flea.json', self.translation)
+        self.write('de/dlea.json', self.translation)
         self.run_tool()
-        self.assertNotIn('flea:label', self.read_manifest()['de'])
+        self.assertNotIn('dlea:label', self.read_manifest()['de'])
         self.run_tool('--check', status=1)
         self.change_english()
         self.translation['label'] = 'Ordner öffnen'
-        self.write('de/flea.json', self.translation)
+        self.write('de/dlea.json', self.translation)
         self.run_tool()
         current = self.read_manifest()
-        self.assertEqual(current['de']['flea:label'], current['en']['flea:label'])
+        self.assertEqual(current['de']['dlea:label'], current['en']['dlea:label'])
         self.assertNotIn('stale translation', self.run_tool('--check').stderr)
 
     def test_incomplete_plural_loses_its_hash_until_all_forms_are_refilled(self):
         self.translation['count']['other'] = ''
-        self.write('de/flea.json', self.translation)
+        self.write('de/dlea.json', self.translation)
         self.run_tool()
-        self.assertNotIn('flea:count', self.read_manifest()['de'])
+        self.assertNotIn('dlea:count', self.read_manifest()['de'])
         self.english['count']['other'] = '%1 total files'
         self.translation['count']['other'] = '%1 Dateien insgesamt'
-        self.write('en/flea.json', self.english)
-        self.write('de/flea.json', self.translation)
+        self.write('en/dlea.json', self.english)
+        self.write('de/dlea.json', self.translation)
         self.run_tool()
         current = self.read_manifest()
-        self.assertEqual(current['de']['flea:count'], current['en']['flea:count'])
+        self.assertEqual(current['de']['dlea:count'], current['en']['dlea:count'])
         self.assertNotIn('stale translation', self.run_tool('--check').stderr)
 
     def test_kind_lang_mime_override_is_optional_only_outside_its_owners(self):
         self.english['mime.markdown'] = 'Markdown document'
-        self.write('en/flea.json', self.english)
+        self.write('en/dlea.json', self.english)
         self.run_tool()
         self.run_tool('--check')
-        self.assertNotIn('flea:mime.markdown', self.read_manifest()['de'])
-        self.write('ja/flea.json', self.translation)
+        self.assertNotIn('dlea:mime.markdown', self.read_manifest()['de'])
+        self.write('ja/dlea.json', self.translation)
         result = self.run_tool(status=1)
         self.assertIn('mime.markdown', result.stderr)
         japanese = dict(self.translation, **{'mime.markdown': 'Markdown 文書'})
-        self.write('ja/flea.json', japanese)
+        self.write('ja/dlea.json', japanese)
         self.run_tool()
         self.run_tool('--check')
-        self.assertIn('flea:mime.markdown', self.read_manifest()['ja'])
+        self.assertIn('dlea:mime.markdown', self.read_manifest()['ja'])
         del self.translation['label']
-        self.write('de/flea.json', self.translation)
+        self.write('de/dlea.json', self.translation)
         self.assertIn('label', self.run_tool(status=1).stderr)
 
 

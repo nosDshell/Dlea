@@ -39,7 +39,7 @@ Column {
     fontFamily: row.card.fontFamily
   }
 
-  // Directive 68: the lift is Flea's own list row rather than the OEM's rounded surface, square and
+  // Directive 68: the lift is Dlea's own list row rather than the OEM's rounded surface, square and
   // at the row's full width, so the card reads as the app; ui/Row.qml is where both fills come from.
   Item {
     id: lift
@@ -102,7 +102,7 @@ Column {
       }
       onReleased: row.card.dropCarry()
       onCanceled: row.card.dropCarry()
-      // Rule 3, the contract Flea's own listing has for ctrl, shift and a plain click.
+      // Rule 3, the contract Dlea's own listing has for ctrl, shift and a plain click.
       onClicked: function (mouse) {
         if ((mouse.modifiers & Qt.ControlModifier) !== 0) {
           row.card.markRow(row.index)

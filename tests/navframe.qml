@@ -1,18 +1,18 @@
-//@ pragma ShellId flea-navframe-test
+//@ pragma ShellId dlea-navframe-test
 import QtQuick
 import QtTest
 import Quickshell
 import Quickshell.Io
-import "flea" as Flea
-import "flea/js/Swap.js" as Swap
+import "dlea" as Dlea
+import "dlea/js/Swap.js" as Swap
 
 // Enter and Back draw no frame before the landing, and the listing gate still refuses input.
 ShellRoot {
     id: root
-    readonly property string fixture: Quickshell.env("FLEA_NAVFRAME_DIR") || ""
-    readonly property string pidFile: Quickshell.env("FLEA_NAVFRAME_PID") || ""
-    readonly property string viewName: Quickshell.env("FLEA_NAVFRAME_VIEW") || "list"
-    readonly property int entries: Number(Quickshell.env("FLEA_NAVFRAME_ENTRIES") || "0")
+    readonly property string fixture: Quickshell.env("DLEA_NAVFRAME_DIR") || ""
+    readonly property string pidFile: Quickshell.env("DLEA_NAVFRAME_PID") || ""
+    readonly property string viewName: Quickshell.env("DLEA_NAVFRAME_VIEW") || "list"
+    readonly property int entries: Number(Quickshell.env("DLEA_NAVFRAME_ENTRIES") || "0")
     // The paused backend gives a frame the key asked for heldMs to draw, three 120 Hz frames inside Swap.CAP_MS.
     readonly property int heldMs: Swap.CAP_MS - 25
     property int checks: 0
@@ -165,10 +165,10 @@ ShellRoot {
         id: win
         implicitWidth: 1200
         implicitHeight: 800
-        Flea.Backend { id: probeBackend }
+        Dlea.Backend { id: probeBackend }
         Component {
             id: paneComponent
-            Flea.Pane {
+            Dlea.Pane {
                 width: 1200
                 height: 800
                 backend: probeBackend

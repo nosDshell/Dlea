@@ -35,9 +35,9 @@ impl Drop for StdoutTo {
 
 #[test]
 fn tui_office_r4_stdout_captures_close_saved_descriptors() {
-    const CHILD: &str = "FLEA_OFFICE_FD_CHILD";
+    const CHILD: &str = "DLEA_OFFICE_FD_CHILD";
     if std::env::var_os(CHILD).is_none() {
-        let output = std::process::Command::new(flea::testpath::tool("/usr/bin/setsid"))
+        let output = std::process::Command::new(dlea::testpath::tool("/usr/bin/setsid"))
             .arg("-w")
             .arg(std::env::current_exe().unwrap())
             .args([
@@ -262,9 +262,9 @@ fn tui_office_r3_handoff_keeps_the_page_image() {
     if crate::backend::sandboxprobe::skipped() {
         return;
     }
-    const CHILD: &str = "FLEA_OFFICE_HANDOFF_CHILD";
+    const CHILD: &str = "DLEA_OFFICE_HANDOFF_CHILD";
     if std::env::var_os(CHILD).is_none() {
-        let output = std::process::Command::new(flea::testpath::tool("/usr/bin/setsid"))
+        let output = std::process::Command::new(dlea::testpath::tool("/usr/bin/setsid"))
             .arg("-w")
             .arg(std::env::current_exe().unwrap())
             .args(["--exact", "tui::office::page_tests::tui_office_r3_handoff_keeps_the_page_image", "--nocapture"])

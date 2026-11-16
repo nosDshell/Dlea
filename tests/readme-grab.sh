@@ -7,7 +7,7 @@ failed=0
 ok() { printf 'ok   %s\n' "$*"; }
 bad() { printf 'FAIL %s\n' "$*"; failed=1; }
 
-MARKER=.flea-test-sandbox
+MARKER=.dlea-test-sandbox
 box=$(mktemp -d) || exit 1
 : > "$box/$MARKER"
 # A second marked root, outside the first, that a stand-in evidence_dir line points at.
@@ -52,7 +52,7 @@ run() {
         cd "$repo" || exit 1
         shift
         "$@"
-        readme_grab grid.png flea
+        readme_grab grid.png dlea
     )
 }
 

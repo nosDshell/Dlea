@@ -3,4 +3,4 @@ fence through the figure path, and case_cap_markdown_pele in tests/ui-captures-m
 
 Each diagram except flowchart.md's is an example of its type from Pele 1.6.0's tests/corpus/<type>-docs.json, which holds
 the examples of the Mermaid documentation (Mermaid, https://github.com/mermaid-js/mermaid, MIT licence; Pele,
-https://github.com/obsidianmd/pele, MIT licence). A whole-document indent is removed. flowchart.md is Flea's own fixture.
+https://github.com/obsidianmd/pele, MIT licence). A whole-document indent is removed. flowchart.md is Dlea's own fixture.

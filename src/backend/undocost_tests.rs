@@ -4,7 +4,7 @@ use super::undoshare::{claim_redo, claim_undo, finish_redone, finish_undone, liv
 use super::undocodec::encode;
 use crate::backend::testdir::TestDir;
 use crate::backend::undo::{Entry, ItemIdentity, Step};
-use crate::error::FleaError;
+use crate::error::DleaError;
 use crate::jsondoc::render;
 use std::os::unix::fs::OpenOptionsExt;
 use std::path::PathBuf;
@@ -187,7 +187,7 @@ fn a_read_only_question_decodes_once_and_never_renders() {
     assert!(live.is_some());
     assert_eq!((counts.decodes, counts.renders, counts.bytes_read, counts.bytes_written), (1, 0, size, 0));
     write_journal(&sandbox.path().join("runtime"), Vec::new(),
-        vec![StoredRedo::Err(FleaError { where_: "redo".into(), path: String::new(), msg: "nothing recorded".into() })]);
+        vec![StoredRedo::Err(DleaError { where_: "redo".into(), path: String::new(), msg: "nothing recorded".into() })]);
     let size = file_len(&sandbox.path().join("runtime"));
     let (info, counts) = measured(|| redo_info(&shared));
     assert!(info.is_err());

@@ -36,9 +36,9 @@ fn sparse(path: &Path, len: u64) {
 #[test]
 fn rev4_st2_a_record_read_takes_at_most_its_limit_from_disk() {
     let dir = TestDir::new("rev4-st2-recbytes");
-    let store = dir.dir("config/flea/plugins");
-    dir.dir("config/flea/plugins/.sources");
-    let record = dir.join("config/flea/plugins/.sources/me.tool");
+    let store = dir.dir("config/dlea/plugins");
+    dir.dir("config/dlea/plugins/.sources");
+    let record = dir.join("config/dlea/plugins/.sources/me.tool");
     dir.assert_contains(&record);
     sparse(&record, 16 << 20);
     let (source, read) = counted(move || super::pluginfs::read_source(&store, "me.tool"));
@@ -54,9 +54,9 @@ fn rev4_st2_a_record_read_takes_at_most_its_limit_from_disk() {
 #[test]
 fn rev4_st2_a_config_read_takes_at_most_its_limit_from_disk() {
     let dir = TestDir::new("rev4-st2-cfgbytes");
-    let folder = dir.dir("config/flea/plugins/me.dev");
-    dir.dir("config/flea/plugins/me.dev/.git");
-    let config = dir.join("config/flea/plugins/me.dev/.git/config");
+    let folder = dir.dir("config/dlea/plugins/me.dev");
+    dir.dir("config/dlea/plugins/me.dev/.git");
+    let config = dir.join("config/dlea/plugins/me.dev/.git/config");
     dir.assert_contains(&config);
     sparse(&config, 16 << 20);
     let (origin, read) = counted(move || super::plugingit::git_origin(&folder));

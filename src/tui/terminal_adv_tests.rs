@@ -6,10 +6,10 @@ const TIOCSCTTY: usize = 0x540e;
 
 #[test]
 fn adv_d_r1_terminal_child() {
-    let Some(root) = std::env::var_os("FLEA_T1_ADV_ROOT") else { return; };
+    let Some(root) = std::env::var_os("DLEA_T1_ADV_ROOT") else { return; };
     let root = std::path::PathBuf::from(root);
-    assert!(root.is_absolute() && root.join(".flea-test-sandbox").is_file());
-    let mode = std::env::var("FLEA_T1_ADV_MODE").unwrap();
+    assert!(root.is_absolute() && root.join(".dlea-test-sandbox").is_file());
+    let mode = std::env::var("DLEA_T1_ADV_MODE").unwrap();
     if mode == "startup" {
         extern "C" { fn raise(sig: i32) -> i32; }
         let terminal = Terminal::enter_observed(&root, |sig| {
@@ -53,7 +53,7 @@ fn lifecycle(mode: &str) {
     assert!(saved.status.success());
     let mut command = pty_test_command();
     command.args(["--exact", "tui::terminal::adv_tests::adv_d_r1_terminal_child", "--nocapture"])
-        .env("FLEA_T1_ADV_ROOT", dir.path()).env("FLEA_T1_ADV_MODE", mode).env_remove("TMUX")
+        .env("DLEA_T1_ADV_ROOT", dir.path()).env("DLEA_T1_ADV_MODE", mode).env_remove("TMUX")
         .stdin(slave.try_clone().unwrap()).stdout(slave.try_clone().unwrap()).stderr(slave.try_clone().unwrap());
     unsafe { command.pre_exec(|| {
         if setsid() < 0 || ioctl(0, TIOCSCTTY, 0) < 0 { return Err(io::Error::last_os_error()); }

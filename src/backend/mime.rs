@@ -113,7 +113,7 @@ impl Db {
             None => name,
         };
         // A name that is not UTF-8 is typed by its shown spelling, where its extension is.
-        let shown = flea::bytename::display(name);
+        let shown = dlea::bytename::display(name);
         let name = &*shown;
         let lower = name.to_lowercase();
         if let Some((_, mime)) = self.by_name_cs.get(name) {
@@ -137,13 +137,13 @@ impl Db {
                 return Some(camera_type(mime, name));
             }
         }
-        flea::rawname::mime_for_name(name)
+        dlea::rawname::mime_for_name(name)
     }
 }
 
 fn camera_type<'a>(mime: &'a str, name: &str) -> &'a str {
     if mime == "application/octet-stream" {
-        flea::rawname::mime_for_name(name).unwrap_or(mime)
+        dlea::rawname::mime_for_name(name).unwrap_or(mime)
     } else {
         mime
     }

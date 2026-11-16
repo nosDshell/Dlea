@@ -3,14 +3,14 @@
 # Release hunt: board behavior through real picker keys and backend responses.
 set -uo pipefail
 cd "$(dirname "$0")/.." || exit 1
-. "$PWD/tools/flea-sandbox-guard"
+. "$PWD/tools/dlea-sandbox-guard"
 sandbox_root_ok
-test_root=$(mktemp -d "$SANDBOX_ROOT/flea-picker-hunt.XXXXXXXX") || exit 1
+test_root=$(mktemp -d "$SANDBOX_ROOT/dlea-picker-hunt.XXXXXXXX") || exit 1
 : > "$test_root/$SANDBOX_MARKER"
 trap 'sandbox_remove "$test_root"' EXIT
 fixture="$test_root/fixture"
 mkdir -p "$test_root/config" "$fixture/sub"
-ln -s "$PWD/ui" "$test_root/config/flea"
+ln -s "$PWD/ui" "$test_root/config/dlea"
 headless_commons "$test_root" || exit 1
 ln -s "$(readlink -f ui/boot/Ui)" "$test_root/config/Ui"
 cp tests/picker-040.qml "$test_root/config/shell.qml"
@@ -29,7 +29,7 @@ probe_timeout_seconds=15
 for view in list grid; do
     for scenario in fresh-save backend-save pointer-save list-folder list-file field-cancel field-keys listing-sort listing-view header-edit path collision replace replace-button return-twice ends cancel far probe tab answers single marked; do
         phase="$test_root/$view-$scenario"
-        mkdir -p "$phase"/{home,state/flea,cache,data,runtime,tmp}
+        mkdir -p "$phase"/{home,state/dlea,cache,data,runtime,tmp}
         chmod 700 "$phase/runtime"
         mode=open
         multiple=true
@@ -40,7 +40,7 @@ for view in list grid; do
         places=""
         [ "$scenario" = path ] && places=$(printf ',"places":{"favourites":[{"label":"sub","path":"%s/sub"}]}' "$fixture")
         # Base size 14 is pinned, so the strip, the field and the dropdown are the board's numbers whatever Omarchy's own size is.
-        printf '{"pickerView":"%s","keys":"%s","display":{"textSize":{"mode":14}}%s}' "$view" "$preset" "$places" > "$phase/state/flea/ui.json"
+        printf '{"pickerView":"%s","keys":"%s","display":{"textSize":{"mode":14}}%s}' "$view" "$preset" "$places" > "$phase/state/dlea/ui.json"
         request=$(python3 - "$mode" "$multiple" "$fixture" "$scenario" <<'PY'
 import json,sys
 request=dict(mode=sys.argv[1],multiple=sys.argv[2]=='true',folder=sys.argv[3],name='new.txt' if sys.argv[4]=='probe' else 'a.txt',title='Picker hunt')
@@ -54,8 +54,8 @@ PY
         output=$(env -u DISPLAY -u WAYLAND_DISPLAY -u HYPRLAND_INSTANCE_SIGNATURE \
             HOME="$phase/home" XDG_STATE_HOME="$phase/state" XDG_CONFIG_HOME="$phase/home/.config" \
             XDG_CACHE_HOME="$phase/cache" XDG_DATA_HOME="$phase/data" XDG_RUNTIME_DIR="$phase/runtime" TMPDIR="$phase/tmp" \
-            FLEA_BIN="$PWD/target/debug/flea" FLEA_PICKER="$request" FLEA_PICKER_REPLY="$phase/reply.json" \
-            FLEA_PICKER_HUNT_CASE="$scenario" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software \
+            DLEA_BIN="$PWD/target/debug/dlea" DLEA_PICKER="$request" DLEA_PICKER_REPLY="$phase/reply.json" \
+            DLEA_PICKER_HUNT_CASE="$scenario" QT_QPA_PLATFORM=offscreen QT_QPA_PLATFORMTHEME=generic QT_QUICK_BACKEND=software \
             QT_FORCE_STDERR_LOGGING=1 timeout "$probe_timeout_seconds" qs -p "$test_root/config" 2>&1)
         code=$?
         phases=$((phases+1))

@@ -104,7 +104,7 @@ pub(super) fn pointer_key(
                     .path
                     .parent()
                     .unwrap_or(&m.path)
-                    .join(flea::bytename::text_path(&row.name));
+                    .join(dlea::bytename::text_path(&row.name));
                 if row.folder() {
                     navigate(m, path, w)?;
                 }

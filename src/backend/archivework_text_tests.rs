@@ -18,10 +18,10 @@ fn a_work_folder_that_cannot_be_made_says_so_in_plain_words() {
 // An empty PATH holds no bwrap, so both runners answer before any child starts; the child process keeps PATH off the other tests.
 #[test]
 fn a_missing_sandbox_names_the_package_to_install() {
-    if std::env::var_os("FLEA_SANDBOX_MISSING_CHILD").is_none() {
+    if std::env::var_os("DLEA_SANDBOX_MISSING_CHILD").is_none() {
         let output = std::process::Command::new(std::env::current_exe().unwrap())
             .args(["--exact", "backend::archivework::text_tests::a_missing_sandbox_names_the_package_to_install"])
-            .env("PATH", "").env("FLEA_SANDBOX_MISSING_CHILD", "1").output().unwrap();
+            .env("PATH", "").env("DLEA_SANDBOX_MISSING_CHILD", "1").output().unwrap();
         assert!(output.status.success(), "{}", String::from_utf8_lossy(&output.stderr));
         assert!(String::from_utf8_lossy(&output.stdout).contains("1 passed; 0 failed"), "the isolated missing-sandbox check did not run");
         return;

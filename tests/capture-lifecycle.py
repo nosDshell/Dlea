@@ -338,7 +338,7 @@ trash_box=$1 SANDBOX_MARKER=$2 trash_bus_address=$3
 export XDG_DATA_HOME="$trash_box/data"
 trash_private_bus_id=stand-in trash_checks=0 trash_bus_pid=""
 . "$(dirname "$0")/trash-actual.sh"
-kill_flea() { : > "$trash_box/touched"; }
+kill_dlea() { : > "$trash_box/touched"; }
 trash_cleanup 0
 ''')
 for kind in ("renamed", "missing", "bad-bus"):

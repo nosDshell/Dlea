@@ -15,7 +15,7 @@ from .evidence import Blocked, Commands, MARKER, Owned, digest
 
 class OutputProofTests(unittest.TestCase):
     def setUp(self):
-        self.root = Path(tempfile.mkdtemp(prefix="m9-output.", dir=os.environ["FLEA_BATTERY_TEST_ROOT"]))
+        self.root = Path(tempfile.mkdtemp(prefix="m9-output.", dir=os.environ["DLEA_BATTERY_TEST_ROOT"]))
         (self.root / MARKER).write_text("owned independent output decoding\n")
         self.fx = self.root / "fx"
         for name in ("tmp", "home", "config", "cache", "state", "runtime", "data", "v/work"):

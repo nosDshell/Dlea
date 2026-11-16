@@ -1,10 +1,10 @@
-//@ pragma ShellId flea-columnsfolder-test
+//@ pragma ShellId dlea-columnsfolder-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
-import "flea/js/PreviewSwap.js" as WorkCap
-import "flea/js/Swap.js" as SwapCap
+import "dlea" as Dlea
+import "dlea/js/PreviewSwap.js" as WorkCap
+import "dlea/js/Swap.js" as SwapCap
 
 // Real ColumnsArea over a stub pane: unanswered folders hold data and the handed picture until landing or fallback, back reshows the file, and empty lands settled with no entrance.
 ShellRoot {
@@ -79,9 +79,9 @@ ShellRoot {
     FloatingWindow {
         implicitWidth: 1200
         implicitHeight: 600
-        color: Flea.Theme.color.background
+        color: Dlea.Theme.color.background
 
-        Flea.ColumnsArea {
+        Dlea.ColumnsArea {
             id: area
             anchors.fill: parent
             pane: root.stubPane

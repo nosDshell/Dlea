@@ -34,13 +34,13 @@ fn a_failed_fault_compiler_leaves_no_scratch_directory() {
 #[test]
 fn only_the_production_owner_argument_pair_is_an_owner() {
     let fixtures: &[(&[u8], bool)] = &[
-        (b"/usr/bin/flea\0--clip-own", true),
-        (b"/usr/bin/flea\0--clip-own\0extra", false),
-        (b"/usr/bin/flea\0--backend", false),
+        (b"/usr/bin/dlea\0--clip-own", true),
+        (b"/usr/bin/dlea\0--clip-own\0extra", false),
+        (b"/usr/bin/dlea\0--backend", false),
         (b"", false),
     ];
     for (command, expected) in fixtures {
-        // Sample input: /usr/bin/flea\0--clip-own, after removing procfs's terminal NUL.
+        // Sample input: /usr/bin/dlea\0--clip-own, after removing procfs's terminal NUL.
         let arguments: Vec<_> = command.split(|byte| *byte == 0).collect();
         assert_eq!(owner_args(&arguments), *expected, "owner argv fixture {:?}", command);
     }
@@ -60,7 +60,7 @@ fn check_fault(mode: &str, component: &str, error: i32, counts: &str) {
     assert!(result.status.success(), "{}", String::from_utf8_lossy(&result.stderr));
     assert_eq!(String::from_utf8(result.stdout).unwrap(), format!("{}: {}\n", mode, counts));
     assert_eq!(String::from_utf8(result.stderr).unwrap(),
-        format!("flea: clipboard owner-end {} failed: {}\n", component, std::io::Error::from_raw_os_error(error)),
+        format!("dlea: clipboard owner-end {} failed: {}\n", component, std::io::Error::from_raw_os_error(error)),
         "the failed component must emit one diagnostic with its OS error");
 }
 

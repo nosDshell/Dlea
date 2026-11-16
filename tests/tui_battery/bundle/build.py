@@ -177,7 +177,7 @@ def work_files(seed_media, docs):
     for name in SEEDS:
         f("Media/" + name, seed_media[name])
     f("Media/main.rs", MAIN_RS)
-    f("Media/blob.dat", b"\x00\x01\x02flea visual gate blob\x03")
+    f("Media/blob.dat", b"\x00\x01\x02dlea visual gate blob\x03")
     f("Media/broken.pdf", b"%PDF-1.4\nthis is not pdf body\n")
     f("Media/letter.odt", b"PK not really an office document\n")
     tree["Media/link.png"] = ("symlink", "photo.png", LINK)
@@ -416,7 +416,7 @@ def build(output, seed=None, without_rasters=False):
                                     "[bracket, bracket, orange knob] then [orange knob]; the Quick Look independent raster "
                                     "uses those same translated meshes/materials/whole bed at isometric azimuth plus 30 degrees.",
                        "text and small files": "the bench recipe's exact bytes, written by Python"})
-    manifest = {"schema": 1, "generator": "tools/flea-tui-fixture-bundle", "mtime": "2025-06-15 10:00 UTC",
+    manifest = {"schema": 1, "generator": "tools/dlea-tui-fixture-bundle", "mtime": "2025-06-15 10:00 UTC",
                 "families": families, "provenance": provenance, "representations_omitted": omitted}
     with (root / "manifest.json").open("x", encoding="utf-8") as output_file:
         json.dump(manifest, output_file, ensure_ascii=False, indent=1, sort_keys=True)

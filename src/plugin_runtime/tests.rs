@@ -10,14 +10,14 @@ fn json(text: &str) -> Json {
 
 fn config(dir: &TestDir, script: &str) -> Config {
     dir.script("run", script);
-    let manifest = manifest::parse(r#"{"schemaVersion":1,"id":"example.test","name":"Test","version":"1","author":"Flea","description":"Test plugin.","kinds":["menu-action","rail-section"],"entryPoints":{"run":"run"},"menuActions":[{"id":"run","label":"Run"}],"railSection":{"title":"Test"}}"#, false).unwrap();
+    let manifest = manifest::parse(r#"{"schemaVersion":1,"id":"example.test","name":"Test","version":"1","author":"Dlea","description":"Test plugin.","kinds":["menu-action","rail-section"],"entryPoints":{"run":"run"},"menuActions":[{"id":"run","label":"Run"}],"railSection":{"title":"Test"}}"#, false).unwrap();
     let limits = json(protocol::CONTRACT);
     let seconds = |key| Duration::from_secs_f64(limits.get(key).and_then(Json::as_f64).unwrap());
     Config {
         folder: dir.path().to_owned(),
         manifest,
         hello: json(
-            r#"{"op":"hello","protocolVersion":1,"flea":"0.4.0","language":"en","decimal":".","settings":{},"kinds":["menu-action","rail-section"]}"#,
+            r#"{"op":"hello","protocolVersion":1,"dlea":"0.4.0","language":"en","decimal":".","settings":{},"kinds":["menu-action","rail-section"]}"#,
         ),
         ready_timeout: seconds("readyTimeoutSeconds"),
         request_timeout: seconds("requestTimeoutSeconds"),

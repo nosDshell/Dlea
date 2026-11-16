@@ -1,5 +1,5 @@
 // Office documents in the TUI preview: one officepdf request per source, the converted PDF handed to the page path.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::{
     graphics::Task,
     icons, job,
@@ -9,8 +9,8 @@ use super::{
     wire::{self, Wire},
 };
 use crate::jsondoc::{self, Json};
-use flea::ui_logic_doc_preview::office::{self as shared, Applied, Office};
-use flea::ui_logic_doc_preview::office_sniff;
+use dlea::ui_logic_doc_preview::office::{self as shared, Applied, Office};
+use dlea::ui_logic_doc_preview::office_sniff;
 use std::{
     fs::File,
     io,
@@ -300,7 +300,7 @@ pub fn receive(m: &mut Model, value: &Json, _wire: &mut Wire) -> io::Result<()> 
     };
     let office = &mut m.preview_state.office;
     match office.doc.reply(&line) {
-        Applied::Pdf(path) => office.open_converted(flea::bytename::exact(path)),
+        Applied::Pdf(path) => office.open_converted(dlea::bytename::exact(path)),
         Applied::Sniff => {
             let Some((path, _)) = office.subject.clone() else {
                 return Ok(());
@@ -358,7 +358,7 @@ pub fn page_drawn(pdf: &pdf::Pdf) -> bool {
 pub fn ready_pdf(state: &State) -> Option<PathBuf> {
     let office = &state.office;
     let ready = office.subject.is_some() && office.converted.is_some() && office.checked.is_some();
-    office.doc.pdf.as_ref().filter(|_| ready).map(flea::bytename::exact)
+    office.doc.pdf.as_ref().filter(|_| ready).map(dlea::bytename::exact)
 }
 
 // The count of pages, sheets or slides, then the title and author of the converted PDF as facts rows; a converter that wrote no title or author gives none.

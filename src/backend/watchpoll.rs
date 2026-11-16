@@ -52,7 +52,7 @@ fn classify_and_stat_under_deadline(
     let back = Arc::clone(&done);
     let (over, rx) = std::sync::mpsc::channel();
     let owned = path.to_path_buf();
-    if std::thread::Builder::new().name("flea-watchpoll-stat".into()).spawn(move || {
+    if std::thread::Builder::new().name("dlea-watchpoll-stat".into()).spawn(move || {
         let class = classify(&owned);
         // A class no poll wants costs no stat, so a local folder never waits on its own mtime.
         let mtime = if polls(class) { stat(&owned) } else { 0 };
@@ -157,7 +157,7 @@ impl Poller {
         let classify: Arc<dyn Fn(&Path) -> &'static str + Send + Sync> = Arc::new(classify);
         let stat: Arc<dyn Fn(&Path) -> i64 + Send + Sync> = Arc::new(stat);
         let startup = super::lazy::Lazy::new(move || {
-            std::thread::Builder::new().name("flea-watchpoll".into()).spawn(move || {
+            std::thread::Builder::new().name("dlea-watchpoll".into()).spawn(move || {
                 loop {
                     std::thread::sleep(Duration::from_secs(POLL_SECS));
                     poll_round(&at, &extra, &held, &classify, &stat, Duration::from_secs(STAT_TIMEOUT_SECS), &tx);

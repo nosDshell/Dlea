@@ -1,5 +1,5 @@
 //! Session expansions compose ordinary directory listings into one row numbering.
-use flea::bytename::ExactText as _;
+use dlea::bytename::ExactText as _;
 use super::{dirsize::DirSize, listing::Listing, state::State};
 use crate::jsondoc::Json;
 use std::{
@@ -163,7 +163,7 @@ pub fn expand(
     // Sample input: {"c":"list","path":"/home/gm","outlinePaths":["/home/gm/A","/home/gm/A/B","/srv/C"]}
     let paths: BTreeSet<PathBuf> = crate::json::field_str_array(line, "outlinePaths")
         .into_iter()
-        .map(flea::bytename::exact)
+        .map(dlea::bytename::exact)
         .collect();
     // The session remembers folders open elsewhere, and a listing holding none of them is left as it was read.
     if !paths.iter().any(|path| path.parent() == Some(base)) {
@@ -193,7 +193,7 @@ pub fn expand(
                 sort_ms += child.sort_ms;
                 if watch_refused(fd, child.watch_wd) {
                     eprintln!(
-                        "flea: {} will not follow outside changes, inotify refused a watch on it",
+                        "dlea: {} will not follow outside changes, inotify refused a watch on it",
                         path.display()
                     );
                 }
@@ -212,7 +212,7 @@ pub fn expand(
             // A folder that cannot be read stays closed; the listed folder and its other open folders still land.
             Err(error) => {
                 let _ = tx.send(super::events::Event::AbandonWatch(error.watch_wd));
-                eprintln!("flea: {} stays closed: {}", path.display(), error.error.msg);
+                eprintln!("dlea: {} stays closed: {}", path.display(), error.error.msg);
             }
         }
     }

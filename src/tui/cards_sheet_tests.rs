@@ -188,7 +188,7 @@ fn sheets_take_the_listing_page_jump_and_q_keys_in_every_preset() {
             press(&mut m, Key::character('q', ""), &mut w);
             assert!(
                 !m.sheet && m.properties.is_none() && !m.quit,
-                "{preset} {properties}: q closes the sheet and keeps Flea running"
+                "{preset} {properties}: q closes the sheet and keeps Dlea running"
             );
         }
     }

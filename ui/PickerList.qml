@@ -1,6 +1,6 @@
 import QtQuick
 import qs.Commons
-import "." as Flea
+import "." as Dlea
 import "js/Match.js" as Match
 import "js/Picker.js" as Picker
 import "js/Keymap.js" as Keymap
@@ -34,8 +34,8 @@ ListView {
     property bool firstArmed: false
     // The previous tap path, so a rebuilt list never sends a row the first tap missed.
     property string lastTapPath: ""
-    Flea.FastScrollHandler { flickable: root }
-    Flea.ViewportScrollBar {
+    Dlea.FastScrollHandler { flickable: root }
+    Dlea.ViewportScrollBar {
         parent: root
         anchors { top: parent.top; right: parent.right }
         flickable: root
@@ -69,7 +69,7 @@ ListView {
             color: Style.selectionFill
         }
 
-        Flea.Row {
+        Dlea.Row {
             anchors.fill: parent
             paintWidth: root.width
             leadingSlot: root.picker.marksAllowed ? root.checkSize + Theme.spacing.gap : 0
@@ -82,7 +82,7 @@ ListView {
             kindNames: root.picker.kindNames
         }
 
-        Flea.PickerBox {
+        Dlea.PickerBox {
             id: box
             visible: cell.markable
             anchors.left: parent.left

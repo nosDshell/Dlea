@@ -21,9 +21,9 @@ for refused in OPERATIONS:
         log = Path(scratch) / "refused-operations"
         result = subprocess.run(["python3", "-B", str(HELPER)],
                                 input="".join(json.dumps(request) + "\n" for request in requests),
-                                env=dict(os.environ, FLEA_PICKER_HUNT_CASE=scenario,
-                                         FLEA_PICKER_HUNT_REFUSAL_LOG=str(log),
-                                         FLEA_PICKER=json.dumps({"folder": str(HELPER.parent.resolve())})),
+                                env=dict(os.environ, DLEA_PICKER_HUNT_CASE=scenario,
+                                         DLEA_PICKER_HUNT_REFUSAL_LOG=str(log),
+                                         DLEA_PICKER=json.dumps({"folder": str(HELPER.parent.resolve())})),
                                 text=True, capture_output=True, check=False, timeout=TIMEOUT_SECONDS)
         logged_operations = log.read_text().splitlines() if log.exists() else []
     # Sample stdout: {"t":"picker","id":0,"op":"mark","ok":true,"marks":[...]}.

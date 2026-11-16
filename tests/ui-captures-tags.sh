@@ -196,7 +196,7 @@ case_cap_tags() {
     cap_tags_enter_sub "$dir" tags-untagged-target
     wait_listing 2
     shot tags-untagged
-    # callout 4: a foreign word survives a Flea toggle and shows in Properties
+    # callout 4: a foreign word survives a Dlea toggle and shows in Properties
     printf 'foreign\n' > "$dir/plain-sub/foreign.txt"
     cap_tags_set "$dir/plain-sub/foreign.txt" "Red,Project-X"
     # Properties is hidden on a fresh ui.json (src/uischema.rs menu.hidden), so this callout starts a window whose hidden list is the default one less properties
@@ -382,5 +382,5 @@ EOF
     cap_tags_skip_themes
     # The shot-only tokens claim a capture and nothing more; tests/tagrows.sh pins those slots on the real delegates.
     printf 'CAP_TAGS list=shot menu=T flyout=7+clear mixed=apply t=open digit=toggle removed=line undo=z rail=section search=tag:red grid=shot columns=shot overflow=shot untagged=shot unknown=properties noop=noz copy=kept move=kept nosupport=absent\n'
-    kill_flea
+    kill_dlea
 }

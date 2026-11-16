@@ -3,7 +3,7 @@
 set -u
 cd "$(dirname "$0")/.." || exit 1
 repo=$PWD
-tool="$repo/tools/flea-field-instant"
+tool="$repo/tools/dlea-field-instant"
 
 # The fixture root is a mktemp -d of its own, and its one delete is checked absolute and two deep before the trap exists.
 scratch=$(mktemp -d) || exit 1
@@ -34,17 +34,17 @@ case $last in
   *) echo "FAIL selftest last line: $last"; printf '%s\n' "$selftest_out" | grep -a 'FAIL' | head -20; fail=1 ;;
 esac
 
-# A synthetic root as tools/flea-field-instant fixtures lays it out, empty files only: the load folder L holds a_dir first.
-root="$scratch/root"; usb="$scratch/usb/flea-instant-1"; nas="$scratch/nas/flea-instant-2"
+# A synthetic root as tools/dlea-field-instant fixtures lays it out, empty files only: the load folder L holds a_dir first.
+root="$scratch/root"; usb="$scratch/usb/dlea-instant-1"; nas="$scratch/nas/dlea-instant-2"
 mkdir -p "$root/nav/nav500" "$root/nav/nav10k" "$root/nav/enter/big" "$root/nav/preview" "$root/ops" \
   "$root/load/L/a_dir" "$root/load/cold-src" "$usb/enter/big" "$usb/dst" "$nas/enter/big" "$nas/stream"
-for r in "$root" "$usb" "$nas"; do : > "$r/.flea-test-sandbox"; done
+for r in "$root" "$usb" "$nas"; do : > "$r/.dlea-test-sandbox"; done
 for f in b_text.txt f_0000.txt f_0001.txt zzz_big.bin; do : > "$root/load/L/$f"; done
 printf '{"root": "%s", "nav": {"nav500": 500}, "usb": "%s", "nas": "%s"}\n' "$root" "$usb" "$nas" > "$root/fixtures.json"
 
 dry() { # dry PART [ARGS...]: the JSON goes to $scratch/dry-PART.json, the exit status is the function's
   local part=$1; shift
-  "$tool" run "$part" --root "$root" --flea /nonexistent --out "$scratch/out" --dry "$@" > "$scratch/dry-$part.json" 2> "$scratch/dry-$part.err"
+  "$tool" run "$part" --root "$root" --dlea /nonexistent --out "$scratch/out" --dry "$@" > "$scratch/dry-$part.json" 2> "$scratch/dry-$part.err"
 }
 
 # Sample input: PARTS = ["smoke", "p1-cursor", "p2-held", "p3-navigate", "p4-open", "p5-heavy", "p6-ops", "p7-load"]

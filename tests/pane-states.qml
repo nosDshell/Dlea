@@ -1,8 +1,8 @@
-//@ pragma ShellId flea-pane-states-test
+//@ pragma ShellId dlea-pane-states-test
 
 import QtQuick
 import Quickshell
-import "flea" as Flea
+import "dlea" as Dlea
 
 // tests/pane-states.sh's harness: at most one pane-state overlay draws per listing state.
 ShellRoot {
@@ -76,7 +76,7 @@ ShellRoot {
         implicitHeight: 520
         color: "#303030"
 
-        Flea.PaneStates {
+        Dlea.PaneStates {
             id: states
             pane: stubPane
         }
