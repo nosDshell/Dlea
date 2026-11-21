@@ -97,13 +97,15 @@ pub(crate) fn dirs_text(home: &str) -> String {
         .filter(|value| !value.is_empty())
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from(home).join(".config"));
-    std::fs::read_to_string(config.join("user-dirs.dirs")).unwrap_or_default()
+    std::fs::read_to_string(config.join("user-dirs.dirs"))
+        .unwrap_or_else(|_| dlea::ui_logic_rail_places::userdirs::standard_dirs_body(home))
 }
 
 /// Icons.sidebarGlyphFor, so a home row carries the same mark the rail's own map names.
 pub fn home_glyph(label: &str) -> &'static str {
     match label {
         "Home" => "house",
+        "Desktop" => "monitor",
         "Downloads" => "download",
         "Documents" => "file-text",
         "Pictures" => "image",

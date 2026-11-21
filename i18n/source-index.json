@@ -1,6 +1,6 @@
 {
-  "catalog_file_sha256": "aa899a59281d3bb390012839dd3f7b5c88c6b59f0a4f847c0f74b1b4d63e5e40",
-  "catalog_sha256": "369c70be7c7d32d11883c5c049024b4448bc928f2e848013fdd43e39d0d31066",
+  "catalog_file_sha256": "999930f0770b744f731c05d1b074b2a454687ad16e48a10379a538e1670ea82e",
+  "catalog_sha256": "bd3669d131fa8f3bafaa9695281a4eecfd40aa71f0de72dcdadef2a2fbdc029a",
   "counts": {
     "direct_references": 0,
     "keys": 2329,
@@ -74720,15 +74720,15 @@
       ],
       "context": "list.column_kind: crates/dlea-gui/src/row/format.rs:40",
       "coverage": "existing-translated-call",
-      "english": "Kind",
+      "english": "Type",
       "kind": "text",
       "omarchy_reference": null,
       "placeholders": [],
       "plural_categories": [],
-      "resolved_english": "Kind",
-      "resolved_sha256": "aa9d6710f4cac041f5279490060c51fa8426cf2defa660b5aaffad304f154781",
-      "resolved_source_hash": "f5387f9bb6ed",
-      "source_hash": "f5387f9bb6ed"
+      "resolved_english": "Type",
+      "resolved_sha256": "c44f7ab8bbd24858d1bd1ab995f21c5f52c6a671907b29ed3a4b094345f70b21",
+      "resolved_source_hash": "baaddf70fb5d",
+      "source_hash": "baaddf70fb5d"
     },
     "list.column_mode": {
       "call_sites": [
@@ -110574,15 +110574,15 @@
       ],
       "context": "window.column_modified: crates/dlea-gui/src/row/format.rs:39",
       "coverage": "existing-translated-call",
-      "english": "Modified",
+      "english": "Time changed",
       "kind": "text",
       "omarchy_reference": null,
       "placeholders": [],
       "plural_categories": [],
-      "resolved_english": "Modified",
-      "resolved_sha256": "f011be734aa71a98d58bc35fbebe6060f10a03aeebc415db46711b77fc5d92f9",
-      "resolved_source_hash": "e8ce5dcaf408",
-      "source_hash": "e8ce5dcaf408"
+      "resolved_english": "Time changed",
+      "resolved_sha256": "3e0e0280ea33ae5e7d1707b3f69b7d4b0e51eb91aed44fa26f8910637bbbabf5",
+      "resolved_source_hash": "8b6a7d73cb78",
+      "source_hash": "8b6a7d73cb78"
     },
     "window.column_name": {
       "call_sites": [

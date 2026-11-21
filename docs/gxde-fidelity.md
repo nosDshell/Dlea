@@ -10,7 +10,7 @@ Dlea 的界面目标是 [gxde-file-manager](https://github.com/GXDE-OS/gxde-file
 - `gxde-file-manager-lib/themes/*/DFileView.theme`、`DStatusBar.theme`
 - `gxde-file-manager-lib/views/dtoolbar.cpp`、`dstatusbar.cpp`
 
-没有把 GPL 的 SVG、PNG 或 QSS 文件拷进本仓库。按钮字形仍是 Dlea 自己的描边图标。主题色走现有 `colors.toml` / `shell.toml` 合同；两边都没有时，窗口使用 GXDE 深色底 `#202020` 和强调色 `#2ca7f8`。
+没有把 GPL 的 SVG、PNG 或 QSS 文件拷进本仓库。按钮字形仍是 Dlea 自己的描边图标。主题色走现有 `colors.toml` / `shell.toml` 合同；两边都没有时，窗口使用 Deepin 15 的浅色底 `#ffffff`、前景 `#000000` 和强调色 `#2ca7f8`。已有的 Omarchy 或 `~/.config/dlea/colors.toml` 仍然覆盖它。
 
 ## 已对齐（相对源码，不是并排像素）
 
@@ -103,21 +103,29 @@ deb [signed-by=/etc/apt/keyrings/gxde-archive.gpg] https://mirrors.hit.edu.cn/GX
 
 没有采用的图：`https://www.deepin.org/zh/original/dde-file-manager/` 上的四张预览是 2024-05 上传的（`计算机-无投影.png` 等），是现行文件管理器的宣传图，不是 Deepin 15。
 
+## 2026-11-21，从合并后的 main 继续
+
+标题栏高 40 px，和列表头、状态栏的 27 px 分开。客户区装饰（`WindowDecorations::Client`）把最小化、最大化、关闭画在同一条栏的右侧。后退/前进/向上仍在一组里，向上保留；计算机按钮在这组右边，打开 `/`，不是深度那种分节的“计算机”页。没有 `user-dirs.dirs` 时，家目录里存在的 Desktop、Videos、Music、Pictures、Documents、Downloads 会进侧栏。新安装的列表从左到右是 Name、Time changed、Size、Type。裸机调色板是浅色；主题文件仍优先。
+
 ## 按这些截图改过的，以及还没对齐的
 
-已在 Dlea 里改、并用真窗口复核的：
+上一轮（已合并）在真窗口里核对过的：
 
 - 搜索按钮放进地址槽右端（网格视图仍把这个位置留给筛选和排序）。
-- 图标视图的选中态改成文件名上的实心强调色底、白字，不再给整个图标铺一块选中框。
-- 新安装的列表多出 Kind 列，对应截图和 15.4 评论里的 Type。表头文案仍是现有的 Name / Size / Modified / Kind，不是 Time modified / Type。列从左到右仍是名字、大小、修改时间、类型，15.4 评论里的顺序是名字、修改时间、大小、类型。
-- 视图按钮：在 1100×700 的 X11 窗口里，点客户区图标按钮中心会从列表切到图标视图。Ctrl+1 是列表，Ctrl+3 是图标视图。
+- 图标视图的选中态改成文件名上的实心强调色底、白字，不再给整个图标铺一块选中框。窗口不活跃时这块底是淡蓝、字是前景色。
+- 新安装的列表带类型列。这一轮把英文表头改成 Name / Time changed / Size / Type，并从左到右按这个顺序排。逻辑列名仍是 name、size、date、kind。
+- 视图按钮：Ctrl+1 是列表，Ctrl+3 是图标视图。
+
+2026-11-21 在 1100×700 的 Xvfb 窗口里又核对过：客户区装饰下只有一条 40 px 栏，上面是侧栏、后退、前进、向上、计算机、地址槽、搜索，右侧是视图按钮和最小化、最大化、关闭。点计算机进入 `/`，按钮呈选中。没有 `user-dirs.dirs` 时侧栏是 Home、Desktop、Videos、Music、Pictures、Documents、Downloads、Trash。窗口获得 X 焦点后，图标视图里点中的 `media` 文件名是实心 `#2ca7f8`、白字，图标没有选中框。列表里点中的行是整行浅蓝，类型列写 Folder。
 
 仍然不是 1:1：
 
-- 工具栏在客户区里，高 27 px（正文字号 14），上面还有 GPUI / 窗口管理器的标题。DDE 15 把同一排控件和最小化、最大化、关闭画在同一条标题栏里。
-- 没有“计算机”按钮。15.5 截图里后退/前进右边是计算机，不是向上。Dlea 保留向上，因为 V4 工具栏有这一项，拿掉会丢掉现有导航。
-- 侧栏地点取决于本机目录。对照机这次只有 Home、Trash 和一个名为 cursor 的地点，没有截图里的 Desktop、Videos 那一串和磁盘行。
-- 图标是 Dlea 自己的描边字形，不是深度的彩色文件夹。那些 SVG 是 GPL，没有并入。
-- 浅色选中工具栏图标仍是深色字形加淡蓝底，不是截图里的白字蓝底。字形对比度测试要求当前标记用主题前景色。
-- 右键菜单项和 DDE 的 New folder / Display as / Compress 不是同一组。没有为了凑菜单去造没有后端的项。
-- 无头 GPUI 截图只证明 Dlea 自己的绘制。上面的 X11 点击才是这次的运行时结果。
+- 计算机按钮打开的是文件系统根 `/`，不是分节的“计算机”页。根路径的面包屑是蓝色标记，不是单词 Computer。
+- 向上留在后退/前进一组里。在 `/` 上它是灰的。
+- 视图按钮仍是列表、分栏、图标、双栏四个，不是图标|列表对半控件。
+- 这台机器的侧栏还有一个名为 cursor 的地点，没有磁盘行，也没有单独的 Computer 行。
+- 图标是自己的描边字形，不是深度的彩色文件夹。GPL 的 SVG 没有并入。当前项的字形用前景色。
+- 浅色选中的工具栏图标仍是深色字形加淡蓝底，不是截图里的白字蓝底。
+- 右键菜单没有改，也没有为了凑 New folder / Display as / Compress 去造没有后端的项。
+- 状态栏仍是 27 px，带剩余空间和滑块。
+- 其他语言的表头还是旧文案，直到翻译按新的英文字符串更新。清单只警告，不失败。

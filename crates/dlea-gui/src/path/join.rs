@@ -198,6 +198,8 @@ impl Shell {
             "back" => Some(Step::Back),
             "forward" => Some(Step::Forward),
             "up" => Some(Step::Up),
+            // Deepin 15's monitor button opens Computer. Dlea has no sectioned computer page, so this opens /.
+            "computer" => Some(Step::Open("/".into())),
             _ => None,
         } {
             let _ = self.step(self.focus_side, step, window, cx);

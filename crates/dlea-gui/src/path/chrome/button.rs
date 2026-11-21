@@ -1,6 +1,6 @@
 //! The toolbar button owns pointer capture, its sized mark and its focus frame.
 use super::plate::{self, Kind};
-use super::{ChromeView, Sizes, ACTIONS, COPY, FORWARD, GLYPHS, SIDEBAR};
+use super::{ChromeView, Sizes, ACTIONS, COMPUTER, COPY, FORWARD, GLYPHS, SIDEBAR};
 use crate::list::Palette;
 use crate::path::mark::{mark_ink, mark_sized, resting_ink};
 use crate::window::startup::View;
@@ -181,7 +181,7 @@ impl ChromeView {
                     div()
                         .absolute()
                         .left(px(((sizes.slot - sizes.ring) / 2.).round()))
-                        .top(px(((sizes.inner() - sizes.ring) / 2.).round()))
+                        .top(px(plate_top + ((plate_h - sizes.ring) / 2.).round()))
                         .size(px(sizes.ring))
                         .rounded(px(plate::RADIUS))
                         .border_1()
@@ -321,13 +321,28 @@ impl ChromeView {
                     ))
                     .child(div().w(px(6.)).flex_none())
                     .child(nav)
+                    .child(div().w(px(6.)).flex_none())
+                    .child(self.button(
+                        sizes,
+                        COMPUTER,
+                        true,
+                        true,
+                        self.path.read(cx).inputs.paths[self.path.read(cx).inputs.side].as_ref()
+                            == "/",
+                        Kind::Solo,
+                        palette,
+                        None,
+                        cx,
+                    ))
                     .child(div().w(px(10.)).flex_none())
                     .child(self.address(sizes, palette, cx))
                     .child(div().w(px(10.)).flex_none())
                     .child(tools)
                     .child(tray)
                     .child(div().w(px(3.)).flex_none())
-                    .child(self.button(sizes, 9, true, true, false, Kind::Solo, palette, None, cx)),
+                    .child(self.button(sizes, 9, true, true, false, Kind::Solo, palette, None, cx))
+                    .child(div().w(px(8.)).flex_none())
+                    .child(self.window_controls(sizes, palette, cx)),
             );
         for control in &mut self.frame.borrow_mut().controls {
             control.hovered =

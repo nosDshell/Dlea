@@ -6,7 +6,7 @@ use gpui::{point, px, Entity, Modifiers, Point, TestAppContext, VisualTestContex
 // Board 0401-address-copy-a at text size 14: path gap, hit box and clearance past the slot.
 const COPY_GAP: f32 = 9.;
 const COPY_WIDTH: f32 = 24.;
-const COPY_HEIGHT: f32 = 27.;
+const COPY_HEIGHT: f32 = 40.;
 const CLEARANCE_AFTER_COPY: f32 = 40.;
 
 fn alpha(shell: &Entity<crate::state::Shell>, cx: &mut VisualTestContext) {
@@ -165,7 +165,7 @@ fn addrcopy_the_keyboard_reaches_the_mark_after_the_path(cx: &mut TestAppContext
     draw(cx);
     let start = read(&shell, cx, "focusStop", &[]);
     assert_eq!(start, "chrome:sidebar");
-    cx.simulate_keystrokes("right right right");
+    cx.simulate_keystrokes("right right right right");
     draw(cx);
     assert_eq!(read(&shell, cx, "focusStop", &[]), "chrome:copy");
     assert!(shown(&shell, cx), "a focused mark draws with its ring");

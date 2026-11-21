@@ -35,10 +35,10 @@ fn window_geometry_has_one_listing_and_only_dual_reserves_a_second() {
             single.panes[0].width,
             single.rows_height(false, 0.)
         ),
-        (192., 908., 619.)
+        (192., 908., 606.)
     );
     let tabs = Geometry::measure(1100., 700., &state, View::List, true);
-    assert_eq!((tabs.tabs.height, tabs.rows_height(false, 0.)), (27., 592.));
+    assert_eq!((tabs.tabs.height, tabs.rows_height(false, 0.)), (27., 579.));
     // TabBar.qml opens on more than one tab in every view, so Dual reserves the strip too.
     let dual = Geometry::measure(1100., 700., &state, View::Dual, true);
     assert_eq!(

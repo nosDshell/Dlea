@@ -84,7 +84,8 @@ impl Geometry {
     ) -> Self {
         let width = width.max(0.);
         let height = height.max(0.);
-        let top = header + if tabs { header } else { 0. };
+        let chrome = 40.; // DDE 15 title bar. `header` stays the list band and the status bar.
+        let top = chrome + if tabs { header } else { 0. };
         let bottom = (height - header).max(top);
         let places = settings
             .data
@@ -111,8 +112,8 @@ impl Geometry {
             room
         };
         Self {
-            chrome: Rect::at(0., 0., width, header),
-            tabs: Rect::at(0., header, width, top - header),
+            chrome: Rect::at(0., 0., width, chrome),
+            tabs: Rect::at(0., chrome, width, top - chrome),
             rail: Rect::at(
                 0.,
                 top,
@@ -140,16 +141,14 @@ impl Geometry {
     /// Where a pane's rows draw: below its path row, header and this pane's mounted strip.
     pub fn rows(&self, side: usize, dual: bool, strip: f32) -> Rect {
         let pane = self.panes[side];
-        let top = self.chrome.height + if dual { self.chrome.height } else { 0. } + strip;
+        let band = self.status.height * u8::from(self.chrome.height > 0.) as f32;
+        let top = band * (1. + if dual { 1. } else { 0. }) + strip;
         Rect::at(pane.x, pane.y + top, pane.width, pane.height - top)
     }
 
     pub fn rows_height(&self, dual: bool, strip: f32) -> f32 {
-        (self.panes[0].height
-            - self.chrome.height
-            - if dual { self.chrome.height } else { 0. }
-            - strip)
-            .max(0.)
+        let band = self.status.height * u8::from(self.chrome.height > 0.) as f32;
+        (self.panes[0].height - band * (1. + if dual { 1. } else { 0. }) - strip).max(0.)
     }
 
     pub fn content_height(&self, view: View, strip: f32) -> f32 {

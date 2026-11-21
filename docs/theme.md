@@ -100,8 +100,9 @@ The toolbar follows `gxde-file-manager`'s `DFileManagerWindow.theme` on top of
 that recipe: a joined back/forward/up group, a 4 px crumb well, and a view
 tray. Dark plates use foreground at 15% / 30% / 10% (rest / hover / press).
 Row and menu washes stay on the bookmark recipe above. With no Omarchy palette
-and no `~/.config/dlea/colors.toml`, the window ground is the GXDE dark
-`#202020` / accent `#2ca7f8`. What matches, and what does not, is listed in
+and no `~/.config/dlea/colors.toml`, the window ground is the Deepin 15 light
+window (`#ffffff`, foreground `#000000`, accent `#2ca7f8`). A theme file still
+wins. What matches, and what does not, is listed in
 [gxde-fidelity.md](gxde-fidelity.md).
 
 Set only the keys a template owns; the rest fall through to Dlea's defaults or

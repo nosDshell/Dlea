@@ -15,6 +15,8 @@ impl Column {
     pub const ALL: [Column; 4] = [Column::Mode, Column::Size, Column::Date, Column::Kind];
     /// Widest first, the order they drop in: kind repeats the mark and the extension, mode is the permanent column.
     pub const DROP_ORDER: [Column; 4] = [Column::Kind, Column::Date, Column::Size, Column::Mode];
+    /// Right to left in the row, so a fresh list reads Name, Time changed, Size, Type.
+    pub const PLACE_ORDER: [Column; 4] = [Column::Kind, Column::Size, Column::Date, Column::Mode];
 
     pub fn key(self) -> &'static str {
         match self {
@@ -324,14 +326,14 @@ pub fn resolve(row: f32, tokens: &Tokens, switched: Switched, stored: StoredWidt
 pub(super) fn chain(row: f32, tokens: &Tokens, on: [bool; 4], widths: [f32; 4]) -> Layout {
     let mut cells = [None; 4];
     let mut right = row - tokens.pad;
-    for column in Column::DROP_ORDER {
+    for column in Column::PLACE_ORDER {
         if on[column.slot()] {
             let width = widths[column.slot()];
             cells[column.slot()] = Some(Cell {
                 x: right - width,
                 width,
             });
-            let flush = tokens.flush_size && column == Column::Date && on[Column::Size.slot()];
+            let flush = tokens.flush_size && column == Column::Size && on[Column::Date.slot()];
             right -= width + if flush { 0. } else { tokens.gap };
         }
     }

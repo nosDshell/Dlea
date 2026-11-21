@@ -95,6 +95,25 @@ fn gxde_rank(role: &str) -> usize {
         .unwrap_or(GXDE_ORDER.len())
 }
 
+/// The six standard folders when `user-dirs.dirs` is missing and the directory exists.
+pub fn standard_dirs_body(home: &str) -> String {
+    const ROLES: [(&str, &str); 6] = [
+        ("DESKTOP", "Desktop"),
+        ("VIDEOS", "Videos"),
+        ("MUSIC", "Music"),
+        ("PICTURES", "Pictures"),
+        ("DOCUMENTS", "Documents"),
+        ("DOWNLOAD", "Downloads"),
+    ];
+    let mut out = String::new();
+    for (role, name) in ROLES {
+        if std::path::Path::new(home).join(name).is_dir() {
+            out.push_str(&format!("XDG_{role}_DIR=\"$HOME/{name}\"\n"));
+        }
+    }
+    out
+}
+
 // Sample input: XDG_DOWNLOAD_DIR="$HOME/Downloads"; a disabled role that points at Home is no place of its own.
 pub fn user_dirs(body: &str, home: &str) -> Vec<UserDir> {
     let mut dirs: Vec<UserDir> = read_roles(body, home)

@@ -92,7 +92,10 @@ mod u07_tests;
 mod uish2a_capture_tests;
 
 use crate::{ipc::server::Event, state::Shell};
-use gpui::{px, size, App, AppContext, TitlebarOptions, WindowBounds, WindowHandle, WindowOptions};
+use gpui::{
+    px, size, App, AppContext, TitlebarOptions, WindowBounds, WindowDecorations, WindowHandle,
+    WindowOptions,
+};
 use root::Root;
 use startup::Launch;
 
@@ -119,8 +122,10 @@ pub fn open(
         window_background: appearance,
         app_id: Some(APP_ID.into()),
         window_bounds: Some(WindowBounds::centered(size(px(900.), px(600.)), cx)),
+        window_decorations: Some(WindowDecorations::Client),
         titlebar: Some(TitlebarOptions {
             title: Some(title.into()),
+            appears_transparent: true,
             ..Default::default()
         }),
         ..Default::default()

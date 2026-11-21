@@ -77,6 +77,7 @@ pub fn mark_sized(
         "arrow-left" => Some(("dlea-chrome:arrow-left".into(), br#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"><path d="M19 12H5 M12 19l-7-7 7-7"/></svg>"#.as_slice())),
         "arrow-right" => Some(("dlea-chrome:arrow-right".into(), br#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"><path d="M5 12h14 M12 5l7 7-7 7"/></svg>"#.as_slice())),
         "filter" => Some(("dlea-chrome:filter".into(), br#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"><path d="M3 4h18l-7 8v7l-4 2v-9z"/></svg>"#.as_slice())),
+        "computer" => Some(("dlea-chrome:computer".into(), br#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter"><path d="M3 4h18v12H3z M8 20h8 M12 16v4"/></svg>"#.as_slice())),
         _ => crate::g2::settings_pages::glyphs::svg(name),
     };
     let slot = div().size(px(side)).flex_none();
