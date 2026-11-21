@@ -141,6 +141,15 @@ impl Strip {
         true
     }
 
+    /// The filesystem root reads as Computer. The crumb's path stays `/`.
+    pub fn name_root(&mut self, label: &str) {
+        if let [crumb] = self.crumbs.as_mut_slice() {
+            if crumb.path == "/" && crumb.text != label {
+                crumb.text = label.to_owned();
+            }
+        }
+    }
+
     /// A hidden strip holds no crumbs, so a single view rebuilds nothing on every move.
     pub fn clear(&mut self) {
         if self.revision == 0 && self.crumbs.is_empty() {

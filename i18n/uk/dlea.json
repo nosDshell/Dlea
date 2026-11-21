@@ -1657,6 +1657,7 @@
   "places.recent.new_folder_refused": "У розділі «Нещодавні» не можна створити нову теку. Спершу відкрийте теку",
   "places.recent.paste_refused": "У «Нещодавні» не можна вставляти. Спочатку відкрийте теку",
   "places.row.home": "Домівка",
+  "places.row.computer": "Computer",
   "places.row.recent": "Нещодавні",
   "places.row.trash": "Смітник",
   "places.row.desktop": "Стільниця",

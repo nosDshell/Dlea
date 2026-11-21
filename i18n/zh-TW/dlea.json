@@ -1486,6 +1486,7 @@
   "places.recent.new_folder_refused": "無法在「最近使用」中建立資料夾。請先開啟資料夾",
   "places.recent.paste_refused": "無法貼上至「最近使用」。請先開啟資料夾",
   "places.row.home": "家目錄",
+  "places.row.computer": "電腦",
   "places.row.recent": "最近使用",
   "places.row.trash": "垃圾桶",
   "places.row.desktop": "桌面",

@@ -158,10 +158,14 @@ fn places_draws_no_heading_over_a_lone_recent_row() {
         Vec::new(),
         &[],
     );
-    assert_eq!(s[0].rows.len(), 1, "Recent still draws");
+    assert_eq!(
+        s[0].rows.len(),
+        2,
+        "Recent still draws, and Computer stays with it"
+    );
     assert!(
-        !matches!(s[0].heading, Heading::Key("places.heading.places")),
-        "v0.3.12 Sidebar.qml:499 shows PLACES only over Home or Trash rows"
+        matches!(s[0].heading, Heading::Key("places.heading.places")),
+        "Computer is a places row, so the section keeps its heading"
     );
 }
 

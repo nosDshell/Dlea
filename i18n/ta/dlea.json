@@ -1543,6 +1543,7 @@
   "places.recent.new_folder_refused": "சமீபத்தியவற்றில் புதிய கோப்புறையை உருவாக்க முடியாது. முதலில் ஒரு கோப்புறையைத் திறக்கவும்",
   "places.recent.paste_refused": "சமீபத்தியவற்றில் ஒட்ட முடியாது. முதலில் ஒரு கோப்புறையைத் திறக்கவும்",
   "places.row.home": "முகப்பு",
+  "places.row.computer": "Computer",
   "places.row.recent": "சமீபத்தியவை",
   "places.row.trash": "குப்பை",
   "places.row.desktop": "பணிமேடை",

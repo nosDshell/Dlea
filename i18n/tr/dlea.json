@@ -1543,6 +1543,7 @@
   "places.recent.new_folder_refused": "Son kullanılanlarda yeni klasör oluşturulamaz. Önce bir klasör açın",
   "places.recent.paste_refused": "Son kullanılanlara yapıştırılamaz. Önce bir klasör açın",
   "places.row.home": "Ev",
+  "places.row.computer": "Computer",
   "places.row.recent": "Son kullanılan",
   "places.row.trash": "Çöp kutusu",
   "places.row.desktop": "Masaüstü",

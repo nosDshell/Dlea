@@ -1543,6 +1543,7 @@
   "places.recent.new_folder_refused": "সাম্প্রতিক তালিকায় নতুন ফোল্ডার রাখা যায় না। আগে একটি ফোল্ডার খুলুন",
   "places.recent.paste_refused": "সাম্প্রতিক তালিকায় পেস্ট করা যায় না। আগে ফোল্ডার খুলুন",
   "places.row.home": "হোম",
+  "places.row.computer": "Computer",
   "places.row.recent": "সাম্প্রতিক",
   "places.row.trash": "ট্র্যাশ",
   "places.row.desktop": "ডেস্কটপ",

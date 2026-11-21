@@ -1543,6 +1543,7 @@
   "places.recent.new_folder_refused": "Det går inte att skapa en ny mapp i Senaste. Öppna en mapp först",
   "places.recent.paste_refused": "Det går inte att klistra in i Senaste. Öppna en mapp först",
   "places.row.home": "Hem",
+  "places.row.computer": "Computer",
   "places.row.recent": "Senaste",
   "places.row.trash": "Papperskorg",
   "places.row.desktop": "Skrivbord",

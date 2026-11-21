@@ -1543,6 +1543,7 @@
   "places.recent.new_folder_refused": "В „Скорошни“ не може да се създаде папка. Първо отвори папка",
   "places.recent.paste_refused": "Не може да се поставя в „Скорошни“. Първо отвори папка",
   "places.row.home": "Домашна папка",
+  "places.row.computer": "Computer",
   "places.row.recent": "Скорошни",
   "places.row.trash": "Кошче",
   "places.row.desktop": "Плот",

@@ -1657,6 +1657,7 @@
   "places.recent.new_folder_refused": "В разделе «Недавние» нельзя создать папку. Сначала откройте папку",
   "places.recent.paste_refused": "В «Недавние» нельзя вставить элементы. Сначала откройте папку",
   "places.row.home": "Домашняя папка",
+  "places.row.computer": "Computer",
   "places.row.recent": "Недавние",
   "places.row.trash": "Корзина",
   "places.row.desktop": "Рабочий стол",

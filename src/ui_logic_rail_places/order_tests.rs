@@ -63,7 +63,7 @@ fn rail_favorites_draws_places_then_favorites_then_the_built_in_tail() {
     assert_eq!(
         labels(&drawn),
         [
-            "places.heading.places:places.row.recent,places.row.home,places.row.trash",
+            "places.heading.places:places.row.recent,places.row.home,places.row.trash,places.row.computer",
             "places.heading.favorites:Docs",
             "devices.heading:QEMU HARDDISK"
         ],
@@ -71,7 +71,7 @@ fn rail_favorites_draws_places_then_favorites_then_the_built_in_tail() {
     );
     assert_eq!(
         flat(&drawn).len(),
-        5,
+        6,
         "the cursor walks every drawn row in order"
     );
 }
@@ -86,7 +86,7 @@ fn switches_place_recent_first_and_hide_home_or_trash() {
     let drawn = rail_sections(&home, shown, Vec::new(), &[false; 7], Vec::new(), &[]);
     assert_eq!(
         labels(&drawn),
-        ["places.heading.places:places.row.recent,places.row.home,Music,places.row.trash"]
+        ["places.heading.places:places.row.recent,places.row.home,Music,places.row.trash,places.row.computer"]
     );
     let bare = rail_sections(
         &home,
@@ -101,7 +101,11 @@ fn switches_place_recent_first_and_hide_home_or_trash() {
         Vec::new(),
         &[],
     );
-    assert!(bare.is_empty(), "no rows, no heading");
+    assert_eq!(
+        labels(&bare),
+        ["places.heading.places:places.row.computer"],
+        "Computer stays when Home, Recent and Trash are hidden"
+    );
 }
 
 #[test]

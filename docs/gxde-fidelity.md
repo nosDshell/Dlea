@@ -105,7 +105,7 @@ deb [signed-by=/etc/apt/keyrings/gxde-archive.gpg] https://mirrors.hit.edu.cn/GX
 
 ## 2026-11-21，从合并后的 main 继续
 
-标题栏高 40 px，和列表头、状态栏的 27 px 分开。客户区装饰（`WindowDecorations::Client`）把最小化、最大化、关闭画在同一条栏的右侧。后退/前进/向上仍在一组里，向上保留；计算机按钮在这组右边，打开 `/`，不是深度那种分节的“计算机”页。没有 `user-dirs.dirs` 时，家目录里存在的 Desktop、Videos、Music、Pictures、Documents、Downloads 会进侧栏。新安装的列表从左到右是 Name、Time changed、Size、Type。裸机调色板是浅色；主题文件仍优先。
+标题栏高 40 px，和列表头、状态栏的 27 px 分开。客户区装饰（`WindowDecorations::Client`）把最小化、最大化、关闭画在同一条栏的右侧。后退/前进/向上仍在一组里，向上保留；计算机按钮在这组右边，打开 `/`，不是深度那种分节的“计算机”页。没有 `user-dirs.dirs` 时，家目录里存在的 Desktop、Videos、Music、Pictures、Documents、Downloads 会进侧栏，回收站后面还有计算机，打开 `/`。根路径的面包屑写成 Computer。新安装的列表从左到右是 Name、Time changed、Size、Type。裸机调色板是浅色；主题文件仍优先。
 
 ## 按这些截图改过的，以及还没对齐的
 
@@ -116,14 +116,14 @@ deb [signed-by=/etc/apt/keyrings/gxde-archive.gpg] https://mirrors.hit.edu.cn/GX
 - 新安装的列表带类型列。这一轮把英文表头改成 Name / Time changed / Size / Type，并从左到右按这个顺序排。逻辑列名仍是 name、size、date、kind。
 - 视图按钮：Ctrl+1 是列表，Ctrl+3 是图标视图。
 
-2026-11-21 在 1100×700 的 Xvfb 窗口里又核对过：客户区装饰下只有一条 40 px 栏，上面是侧栏、后退、前进、向上、计算机、地址槽、搜索，右侧是视图按钮和最小化、最大化、关闭。点计算机进入 `/`，按钮呈选中。没有 `user-dirs.dirs` 时侧栏是 Home、Desktop、Videos、Music、Pictures、Documents、Downloads、Trash。窗口获得 X 焦点后，图标视图里点中的 `media` 文件名是实心 `#2ca7f8`、白字，图标没有选中框。列表里点中的行是整行浅蓝，类型列写 Folder。
+2026-11-21 在 1100×700 的 Xvfb 窗口里又核对过：客户区装饰下只有一条 40 px 栏，上面是侧栏、后退、前进、向上、计算机、地址槽、搜索，右侧是视图按钮和最小化、最大化、关闭。点计算机进入 `/`，按钮呈选中。没有 `user-dirs.dirs` 时侧栏是 Home、Desktop、Videos、Music、Pictures、Documents、Downloads、Trash，回收站后面是 Computer。点 Computer 后地址槽写成 Computer，列表是 `/`。在别的目录里这一行不保持选中，根磁盘行仍按原来的规则点亮。窗口获得 X 焦点后，图标视图里点中的 `media` 文件名是实心 `#2ca7f8`、白字，图标没有选中框。列表里点中的行是整行浅蓝，类型列写 Folder。
 
 仍然不是 1:1：
 
-- 计算机按钮打开的是文件系统根 `/`，不是分节的“计算机”页。根路径的面包屑是蓝色标记，不是单词 Computer。
+- 计算机按钮和侧栏里的计算机行都打开文件系统根 `/`，不是分节的“计算机”页。根路径的面包屑写成 Computer，点进去仍是 `/` 的目录列表。
 - 向上留在后退/前进一组里。在 `/` 上它是灰的。
 - 视图按钮仍是列表、分栏、图标、双栏四个，不是图标|列表对半控件。
-- 这台机器的侧栏还有一个名为 cursor 的地点，没有磁盘行，也没有单独的 Computer 行。
+- 这台机器的侧栏还有一个名为 cursor 的地点，没有磁盘行。计算机行在回收站后面，图标和桌面共用显示器描边。
 - 图标是自己的描边字形，不是深度的彩色文件夹。GPL 的 SVG 没有并入。当前项的字形用前景色。
 - 浅色选中的工具栏图标仍是深色字形加淡蓝底，不是截图里的白字蓝底。
 - 右键菜单没有改，也没有为了凑 New folder / Display as / Compress 去造没有后端的项。

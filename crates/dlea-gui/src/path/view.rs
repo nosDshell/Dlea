@@ -179,6 +179,9 @@ impl PathView {
         } else {
             self.strips[slot].fit(path, &self.inputs.home, alias.as_ref(), budget);
         }
+        if path == "/" {
+            self.strips[slot].name_root(&self.catalog.tr("places.row.computer"));
+        }
         self.inputs.side == side
     }
 

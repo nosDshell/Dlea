@@ -1486,6 +1486,7 @@
   "places.recent.new_folder_refused": "Không thể tạo thư mục mới trong Gần đây. Hãy mở một thư mục trước",
   "places.recent.paste_refused": "Không thể dán vào Gần đây. Hãy mở một thư mục trước",
   "places.row.home": "Thư mục cá nhân",
+  "places.row.computer": "Computer",
   "places.row.recent": "Gần đây",
   "places.row.trash": "Thùng rác",
   "places.row.desktop": "Màn hình nền",

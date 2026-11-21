@@ -480,6 +480,7 @@
   "places.heading.tags": "Tags",
   "places.heading.network": "omarchy:keybindings.Network",
   "places.row.home": "Benutzerordner",
+  "places.row.computer": "Computer",
   "places.row.recent": "Zuletzt",
   "places.row.trash": "Papierkorb",
   "places.row.desktop": "Schreibtisch",

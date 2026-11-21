@@ -1771,6 +1771,7 @@
   "places.recent.new_folder_refused": "لا يمكن إنشاء مجلد في العناصر الأخيرة. افتح مجلدًا أولًا",
   "places.recent.paste_refused": "لا يمكن اللصق في العناصر الأخيرة. افتح مجلدًا أولًا",
   "places.row.home": "المنزل",
+  "places.row.computer": "Computer",
   "places.row.recent": "الأخيرة",
   "places.row.trash": "سلة المهملات",
   "places.row.desktop": "سطح المكتب",

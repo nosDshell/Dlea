@@ -221,6 +221,19 @@ fn held_by_lights_the_deepest_row_holding_the_view() {
 }
 
 #[test]
+fn computer_lights_only_at_the_root_and_a_disk_keeps_the_other_paths() {
+    let computer = RailEntry {
+        label_key: "places.row.computer",
+        ..row(Kind::Home, "/", None)
+    };
+    let disk = row(Kind::Disk, "/", Some(true));
+    let view = dir("");
+    assert_eq!(held_by(&[computer.clone()], "/", &view), Some(0));
+    assert_eq!(held_by(&[computer.clone()], "/tmp/x", &view), None);
+    assert_eq!(held_by(&[computer, disk], "/fx/v", &view), Some(1));
+}
+
+#[test]
 fn lit_view_picks_the_view_the_pane_shows() {
     assert_eq!(
         lit_view(true, true, true, "tag:Red", None),

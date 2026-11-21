@@ -127,13 +127,7 @@ fn runtime_language_switch_relabels_fixed_places(cx: &mut TestAppContext) {
     frame(cx);
     let producer = shell.read_with(cx, |shell, _| shell.rail.as_ref().unwrap().places.clone());
     for (revision, language, expected) in [
-        (
-            2,
-            "zh-CN",
-            [
-                "桌面", "视频", "音乐", "图片", "文档", "下载",
-            ],
-        ),
+        (2, "zh-CN", ["桌面", "视频", "音乐", "图片", "文档", "下载"]),
         (
             3,
             "de",
@@ -180,18 +174,19 @@ fn runtime_language_switch_relabels_fixed_places(cx: &mut TestAppContext) {
                 );
             }
             assert_eq!(labels[8].as_ref(), catalog.tr("places.row.trash"));
-            assert_eq!(labels[9].as_ref(), "Downloads", "user bookmark name");
+            assert_eq!(labels[9].as_ref(), catalog.tr("places.row.computer"));
+            assert_eq!(labels[10].as_ref(), "Downloads", "user bookmark name");
             for (index, name) in dlea::ui_logic_rail_places::tags::NAMES
                 .into_iter()
                 .enumerate()
             {
                 assert_eq!(
-                    labels[index + 10].as_ref(),
+                    labels[index + 11].as_ref(),
                     catalog.tr(dlea::ui_logic_rail_places::tags::label_key(name))
                 );
             }
-            assert_eq!(labels[17].as_ref(), "NAS", "share name");
-            assert_eq!(labels[18].as_ref(), "Documents", "volume label");
+            assert_eq!(labels[18].as_ref(), "NAS", "share name");
+            assert_eq!(labels[19].as_ref(), "Documents", "volume label");
             for (section, key) in producer.provider.drawn.iter().zip([
                 "places.heading.places",
                 "places.heading.favorites",

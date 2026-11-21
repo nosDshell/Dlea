@@ -1657,6 +1657,7 @@
   "places.recent.new_folder_refused": "V pogledu Nedavno ni mogoče ustvariti nove mape. Najprej odprite mapo",
   "places.recent.paste_refused": "V Nedavno ni mogoče lepiti. Najprej odprite mapo",
   "places.row.home": "Domov",
+  "places.row.computer": "Computer",
   "places.row.recent": "Nedavno",
   "places.row.trash": "Koš",
   "places.row.desktop": "Namizje",

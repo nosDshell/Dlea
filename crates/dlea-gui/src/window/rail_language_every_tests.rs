@@ -90,6 +90,7 @@ fn expected() -> Vec<(&'static str, Result<&'static str, &'static str>)> {
         ("documents", Ok("places.row.documents")),
         ("downloads", Ok("places.row.downloads")),
         ("trash", Ok("places.row.trash")),
+        ("computer", Ok("places.row.computer")),
         ("favourite", Err("Projects")),
         ("invalid favourite", Ok("places.favorite.invalid_label")),
     ];

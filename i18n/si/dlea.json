@@ -1543,6 +1543,7 @@
   "places.recent.new_folder_refused": "මෑත අයිතම තුළ නව ෆෝල්ඩරයක් සෑදිය නොහැක. පළමුව ෆෝල්ඩරයක් විවෘත කරන්න",
   "places.recent.paste_refused": "මෑත අයිතම වෙත ඇලවිය නොහැක. පළමුව ෆෝල්ඩරයක් විවෘත කරන්න",
   "places.row.home": "නිවස",
+  "places.row.computer": "Computer",
   "places.row.recent": "මෑත අයිතම",
   "places.row.trash": "කුණු කූඩය",
   "places.row.desktop": "වැඩතලය",

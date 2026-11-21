@@ -1600,6 +1600,7 @@
   "places.recent.new_folder_refused": "V časti Nedávne nie je možné vytvoriť nový priečinok. Najprv otvorte priečinok",
   "places.recent.paste_refused": "Do nedávnych položiek sa nedá vkladať. Najprv otvorte priečinok",
   "places.row.home": "Domov",
+  "places.row.computer": "Computer",
   "places.row.recent": "Nedávne",
   "places.row.trash": "Kôš",
   "places.row.desktop": "Plocha",

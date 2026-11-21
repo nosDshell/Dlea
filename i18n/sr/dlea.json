@@ -1600,6 +1600,7 @@
   "places.recent.new_folder_refused": "У Недавно није могуће направити нову фасциклу. Прво отворите фасциклу",
   "places.recent.paste_refused": "У одељак „Недавно“ није могуће налепити ставке. Прво отворите фасциклу",
   "places.row.home": "Почетна фасцикла",
+  "places.row.computer": "Computer",
   "places.row.recent": "Недавно",
   "places.row.trash": "Корпа",
   "places.row.desktop": "Радна површ",

@@ -94,6 +94,18 @@ pub fn trash_entry() -> RailEntry {
     }
 }
 
+// Deepin 15 lists Computer after Trash. The row opens `/`; Dlea has no sectioned computer page.
+pub fn computer_entry() -> RailEntry {
+    RailEntry {
+        group: Group::Home,
+        kind: Kind::Home,
+        label_key: "places.row.computer",
+        path: "/".into(),
+        glyph: "monitor",
+        ..RailEntry::default()
+    }
+}
+
 // The TAGS rows list only tags in use, in menu order.
 pub fn tag_entries(in_use: &[bool; 7]) -> Vec<RailEntry> {
     tags::rail_tags(in_use)
@@ -136,6 +148,7 @@ pub fn rail_sections(
 ) -> Vec<RailSection> {
     let home = if shown.home { home } else { &[] };
     // gxde-file-manager's Common group lists Recent first, the home places next and Trash last.
+    // Computer stays after Trash, as the Deepin 15 sidebar draws it.
     let mut places: Vec<RailEntry> = Vec::new();
     if shown.recent {
         places.push(recent_entry());
@@ -144,6 +157,7 @@ pub fn rail_sections(
     if shown.trash {
         places.push(trash_entry());
     }
+    places.push(computer_entry());
     let tag_rows = if shown.tags {
         tag_entries(in_use)
     } else {

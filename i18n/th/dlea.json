@@ -1486,6 +1486,7 @@
   "places.recent.new_folder_refused": "สร้างโฟลเดอร์ใหม่ใน “ล่าสุด” ไม่ได้ โปรดเปิดโฟลเดอร์ก่อน",
   "places.recent.paste_refused": "วางในล่าสุดไม่ได้ เปิดโฟลเดอร์ก่อน",
   "places.row.home": "โฮม",
+  "places.row.computer": "Computer",
   "places.row.recent": "ล่าสุด",
   "places.row.trash": "ถังขยะ",
   "places.row.desktop": "พื้นโต๊ะ",

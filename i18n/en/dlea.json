@@ -480,6 +480,7 @@
   "places.heading.tags": "Tags",
   "places.heading.network": "omarchy:keybindings.Network",
   "places.row.home": "Home",
+  "places.row.computer": "Computer",
   "places.row.recent": "Recent",
   "places.row.trash": "Trash",
   "places.row.desktop": "Desktop",
