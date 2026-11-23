@@ -15,6 +15,10 @@ use gpui::{Context, SharedString, Window};
 pub(crate) fn path_label(host: &PaneHost, recent_name: &str) -> SharedString {
     if host.recent.on {
         recent_name.into()
+    } else if host.pane.place() == dlea::ui_logic_rail_places::order::COMPUTER
+        || host.path == dlea::ui_logic_rail_places::order::COMPUTER
+    {
+        dlea::ui_logic_rail_places::order::COMPUTER.into()
     } else {
         host.path.clone().into()
     }

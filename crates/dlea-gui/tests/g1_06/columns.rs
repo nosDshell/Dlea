@@ -219,8 +219,8 @@ fn a_preview_moves_the_dragged_edge_and_the_chain_left_of_it_only() {
     let layout = resolve(row, &t, Switched::default(), StoredWidths::default());
     let preview = layout.previewing(Column::Size, 150., &t, row);
     assert_eq!(
-        preview.cell(Column::Date),
-        layout.cell(Column::Date),
+        preview.cell(Column::Kind),
+        layout.cell(Column::Kind),
         "the column right of the edge moved"
     );
     assert_eq!(preview.cell(Column::Size).unwrap().width, 150.);

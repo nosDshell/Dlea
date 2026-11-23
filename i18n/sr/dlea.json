@@ -982,6 +982,14 @@
   "jobs.undone.settags": "Претходне ознаке су враћене.",
   "jobs.undone.trash": "Враћено из корпе.",
   "jobs.working": "Обрада…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Додај мрежно место",
   "keys.action.autofitColumns": "Подеси ширину колона",
   "keys.action.carry": "У другу апликацију",
@@ -1600,6 +1608,7 @@
   "places.recent.new_folder_refused": "У Недавно није могуће направити нову фасциклу. Прво отворите фасциклу",
   "places.recent.paste_refused": "У одељак „Недавно“ није могуће налепити ставке. Прво отворите фасциклу",
   "places.row.home": "Почетна фасцикла",
+  "places.row.computer": "Computer",
   "places.row.recent": "Недавно",
   "places.row.trash": "Корпа",
   "places.row.desktop": "Радна површ",

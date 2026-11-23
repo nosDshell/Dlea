@@ -965,6 +965,14 @@
   "jobs.undone.settags": "S'han restaurat les etiquetes anteriors.",
   "jobs.undone.trash": "S'ha retornat de la paperera.",
   "jobs.working": "S'està treballant…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Afegeix lloc de xarxa",
   "keys.action.autofitColumns": "Ajusta les columnes",
   "keys.action.copy": "Copia",
@@ -1559,6 +1567,7 @@
   "places.heading.tags": "Etiquetes",
   "places.recent.paste_refused": "No es pot enganxar a Recents. Obre primer una carpeta",
   "places.row.home": "Carpeta personal",
+  "places.row.computer": "Computer",
   "places.row.recent": "Recents",
   "places.row.trash": "Paperera",
   "places.row.desktop": "Escriptori",

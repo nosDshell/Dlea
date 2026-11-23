@@ -64,7 +64,8 @@ impl EmptyHero {
             }
         };
         self.rotating = PHRASES.iter().map(|key| raise(key)).collect();
-        self.fixed = raise("pane.empty.fixed");
+        // The fixed line stays in the catalog's own case. "Folder is empty" is not shouted.
+        self.fixed = catalog.tr("pane.empty.fixed").into();
         self.phrases = self.active_phrases();
     }
 
@@ -72,7 +73,7 @@ impl EmptyHero {
         self.look
     }
 
-    /// Unticked messages hold EMPTY FOLDER alone, so every width and every shaped beat reads one phrase.
+    /// Unticked messages hold the fixed phrase alone, so every width and every shaped beat reads one phrase.
     fn active_phrases(&self) -> Vec<SharedString> {
         if self.look.rotate {
             self.rotating.clone()

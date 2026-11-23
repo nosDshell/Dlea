@@ -965,6 +965,14 @@
   "jobs.undone.settags": "Atkurtos ankstesnės žymos.",
   "jobs.undone.trash": "Grąžinta iš šiukšlinės.",
   "jobs.working": "Vykdoma…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Pridėti tinklo vietą",
   "keys.action.autofitColumns": "Pritaikyti stulpelius",
   "keys.action.copy": "Kopijuoti",
@@ -1559,6 +1567,7 @@
   "places.heading.tags": "Žymos",
   "places.recent.paste_refused": "Į naujausių failų sąrašą įklijuoti negalima. Pirmiausia atidarykite aplanką",
   "places.row.home": "Namų aplankas",
+  "places.row.computer": "Computer",
   "places.row.recent": "Naujausi",
   "places.row.trash": "Šiukšlinė",
   "places.row.desktop": "Darbastalis",

@@ -1014,6 +1014,14 @@
   "jobs.undone.settags": "Przywrócono poprzednie tagi.",
   "jobs.undone.trash": "Przywrócono z Kosza.",
   "jobs.working": "Przetwarzanie…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Dodaj miejsce sieciowe",
   "keys.action.autofitColumns": "Dopasuj kolumny",
   "keys.action.copy": "Kopiuj",
@@ -1615,6 +1623,7 @@
   "places.heading.tags": "Tagi",
   "places.recent.paste_refused": "Nie można wklejać w Ostatnich. Najpierw otwórz folder",
   "places.row.home": "Katalog domowy",
+  "places.row.computer": "Computer",
   "places.row.recent": "Ostatnie",
   "places.row.trash": "Kosz",
   "places.row.desktop": "Pulpit",

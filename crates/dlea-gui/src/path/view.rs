@@ -179,13 +179,19 @@ impl PathView {
         } else {
             self.strips[slot].fit(path, &self.inputs.home, alias.as_ref(), budget);
         }
+        if path == dlea::ui_logic_rail_places::order::COMPUTER {
+            self.strips[slot].place_label(path, &self.catalog.tr("places.row.computer"));
+        }
         self.inputs.side == side
     }
 
     /// keys.toml's pathBar action, and the pointer's tap on inert ground.
     pub fn open(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.strip_press = None;
-        let path = self.path().to_owned();
+        let mut path = self.path().to_owned();
+        if path == dlea::ui_logic_rail_places::order::COMPUTER {
+            path = self.catalog.tr("places.row.computer");
+        }
         self.tapped = false;
         if !self.entry.start(&path) {
             return;

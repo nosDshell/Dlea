@@ -916,6 +916,14 @@
   "jobs.undone.settags": "برچسب‌های قبلی بازیابی شدند.",
   "jobs.undone.trash": "از سطل زباله بازگردانده شد.",
   "jobs.working": "در حال انجام…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains ⁨%1⁩ item)",
+    "other": "1 folder selected (contains ⁨%1⁩ items)"
+  },
   "keys.action.addNetwork": "افزودن مکان شبکه",
   "keys.action.autofitColumns": "تنظیم خودکار عرض ستون‌ها",
   "keys.action.copy": "کپی",
@@ -1503,6 +1511,7 @@
   "places.heading.tags": "برچسب‌ها",
   "places.recent.paste_refused": "در «اخیر» نمی‌توان چسباند. ابتدا پوشه‌ای باز کنید",
   "places.row.home": "خانه",
+  "places.row.computer": "Computer",
   "places.row.recent": "اخیر",
   "places.row.trash": "سطل زباله",
   "places.row.desktop": "میز‌کار",

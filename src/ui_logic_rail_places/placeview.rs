@@ -119,7 +119,10 @@ pub fn held_by(entries: &[RailEntry], dir: &str, view: &View) -> Option<usize> {
         if e.path.is_empty() {
             continue;
         }
-        let holds = if e.path == "/" {
+        // A disk mounted at / holds every local path. Computer lights only on its own place.
+        let holds = if e.label_key == "places.row.computer" {
+            dir == super::order::COMPUTER
+        } else if e.path == "/" {
             dir.starts_with('/')
         } else {
             inside(dir, &e.path)

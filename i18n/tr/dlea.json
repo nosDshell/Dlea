@@ -933,6 +933,14 @@
   "jobs.undone.settags": "Önceki etiketler geri yüklendi.",
   "jobs.undone.trash": "Çöp kutusundan geri getirildi.",
   "jobs.working": "Çalışıyor…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Ağ konumu ekle",
   "keys.action.autofitColumns": "Sütunları sığdır",
   "keys.action.carry": "Başka uygulamaya götür",
@@ -1543,6 +1551,7 @@
   "places.recent.new_folder_refused": "Son kullanılanlarda yeni klasör oluşturulamaz. Önce bir klasör açın",
   "places.recent.paste_refused": "Son kullanılanlara yapıştırılamaz. Önce bir klasör açın",
   "places.row.home": "Ev",
+  "places.row.computer": "Computer",
   "places.row.recent": "Son kullanılan",
   "places.row.trash": "Çöp kutusu",
   "places.row.desktop": "Masaüstü",

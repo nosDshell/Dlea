@@ -112,12 +112,12 @@ impl Navigator {
 
     // Backspace and the chrome's up arrow stop at the root; the parent lands on the directory left.
     pub fn parent(&mut self, pane: &mut Pane) -> Result<bool, Refusal> {
-        if let Some(asked) = self.asked(pane) {
+        if let Some(asked) = self.asked(pane).filter(|asked| !super::history::is_computer(asked)) {
             self.pending_select = Some(trim_slash(&asked).to_owned());
             let up = parent_of(&asked).to_owned();
             return self.open(pane, &up);
         }
-        if pane.path() == "/" {
+        if pane.path() == "/" || super::history::is_computer(pane.path()) {
             return Ok(false);
         }
         let here = pane.path().to_owned();
@@ -126,7 +126,7 @@ impl Navigator {
     }
 
     pub fn can_go_up(&self, pane: &Pane) -> bool {
-        self.asked(pane).is_some() || (pane.path() != "/" && (pane.named || pane.busy()))
+        !super::history::is_computer(pane.place()) && (self.asked(pane).filter(|asked| !super::history::is_computer(asked)).is_some() || (pane.path() != "/" && !super::history::is_computer(pane.path()) && (pane.named || pane.busy())))
     }
 
     // A click on the folder already shown is a no-op.

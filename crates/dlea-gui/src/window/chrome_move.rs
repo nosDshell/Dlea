@@ -43,16 +43,32 @@ pub fn observer(shell: Entity<Shell>) -> impl IntoElement {
 
 impl Shell {
     /// A left press on the chrome may move the window only while the path editor is closed and nothing covers the chrome.
-    fn chrome_move_down(&mut self, event: &MouseDownEvent, window: &Window, cx: &App) {
+    fn chrome_move_down(&mut self, event: &MouseDownEvent, window: &mut Window, cx: &App) {
         self.chrome_move = Gesture::default();
-        if event.button != MouseButton::Left
-            || !inside(self.geometry(window).chrome, event.position)
-        {
+        if event.button != MouseButton::Left {
+            return;
+        }
+        if let Some(edge) = super::chrome_resize::edge(window, event.position) {
+            window.start_window_resize(edge);
+            return;
+        }
+        if !inside(self.geometry(window).chrome, event.position) {
             return;
         }
         let Some(view) = self.chrome.view.as_ref() else {
             return;
         };
+        let zoom = {
+            let view = view.read(cx);
+            view.inputs.live
+                && !view.path.read(cx).editing()
+                && event.click_count >= 2
+                && !over_widget(&view.frame.borrow(), event.position)
+        };
+        if zoom {
+            window.zoom_window();
+            return;
+        }
         let view = view.read(cx);
         if view.inputs.live && !view.path.read(cx).editing() {
             self.chrome_move.origin = Some(event.position);
@@ -90,6 +106,15 @@ impl Shell {
         }
         request_move(window, cx);
     }
+}
+
+fn over_widget(frame: &crate::path::chrome::Frame, at: Point<Pixels>) -> bool {
+    frame.address_bounds.is_some_and(|bounds| bounds.contains(&at))
+        || frame.window_controls.is_some_and(|bounds| bounds.contains(&at))
+        || frame
+            .controls
+            .iter()
+            .any(|control| control.visible && control.bounds.is_some_and(|bounds| bounds.contains(&at)))
 }
 
 fn inside(rect: Rect, at: Point<Pixels>) -> bool {

@@ -884,6 +884,14 @@
   "jobs.undone.settags": "已還原先前的標籤。",
   "jobs.undone.trash": "已從垃圾桶放回原處。",
   "jobs.working": "正在處理…",
+  "computer.section.directories": "我的目錄",
+  "computer.section.internal": "內部磁碟",
+  "computer.section.external": "外部磁碟",
+  "places.row.system_disk": "系統磁碟",
+  "status.computer.folder": {
+    "one": "已選擇 1 個資料夾（包含 %1 個項目）",
+    "other": "已選擇 1 個資料夾（包含 %1 個項目）"
+  },
   "keys.action.addNetwork": "新增網路位置",
   "keys.action.autofitColumns": "自動調整欄寬",
   "keys.action.carry": "攜帶至其他應用程式",
@@ -1486,6 +1494,7 @@
   "places.recent.new_folder_refused": "無法在「最近使用」中建立資料夾。請先開啟資料夾",
   "places.recent.paste_refused": "無法貼上至「最近使用」。請先開啟資料夾",
   "places.row.home": "家目錄",
+  "places.row.computer": "電腦",
   "places.row.recent": "最近使用",
   "places.row.trash": "垃圾桶",
   "places.row.desktop": "桌面",

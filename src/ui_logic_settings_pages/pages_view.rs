@@ -86,7 +86,7 @@ pub fn view_rows(state: &State<'_>) -> Vec<Row> {
             "history",
             is_true(data, &["highlightToday"]),
         ),
-        // 0401-settings-hover: the pointer's wash on rows, tiles and the rail, off as decision hover-default ships it.
+        // GXDE ShowHoverBox defaults on. A stored false still wins; a missing key stays off.
         check(
             "highlightHover",
             "settings.row.highlight_hover",

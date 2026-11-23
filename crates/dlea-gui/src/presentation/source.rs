@@ -26,19 +26,19 @@ pub(super) type Inputs = [Option<String>; 9];
 /// The most bytes one input may hold; a larger file is refused, never cut.
 pub(super) const INPUT_CAP: usize = 65536;
 
-/// gxde-file-manager's dark `QMainWindow` (`#202020`) and accent (`#2ca7f8`),
-/// with the sidebar plane and the status/crumb ink from `themes/dark`.
+/// Deepin 15's light file manager: white window, near-black text, accent `#2ca7f8`.
+/// A packaged Omarchy theme or a dlea overlay still replaces this whole text.
 const GXDE_COLORS: &str = "\
-background = '#202020'\n\
-foreground = '#ffffff'\n\
-bright_foreground = '#ffffff'\n\
+background = '#ffffff'\n\
+foreground = '#000000'\n\
+bright_foreground = '#000000'\n\
 accent = '#2ca7f8'\n\
 blue = '#2ca7f8'\n\
-dark_background = '#252525'\n\
-muted = '#bdbdbd'\n\
+dark_background = '#f5f5f5'\n\
+muted = '#797979'\n\
 ";
 
-/// Packaged colors, then the dlea overlay. Both empty means the GXDE dark window.
+/// Packaged colors, then the dlea overlay. Both empty means the DDE 15 light window.
 pub(super) fn palette_text(packaged: &str, overlay: &str) -> String {
     if packaged.trim().is_empty() && overlay.trim().is_empty() {
         GXDE_COLORS.to_string()
@@ -222,14 +222,15 @@ mod tests {
     use std::process::Command;
 
     #[test]
-    fn a_bare_machine_takes_the_gxde_dark_window_and_an_overlay_still_wins() {
+    fn a_bare_machine_takes_the_dde15_light_window_and_an_overlay_still_wins() {
         let bare = super::palette_text("", "  ");
-        assert!(bare.contains("#202020"), "{bare}");
+        assert!(bare.contains("#ffffff"), "{bare}");
         assert!(bare.contains("#2ca7f8"), "{bare}");
+        assert!(!bare.contains("#202020"), "{bare}");
         let themed = super::palette_text("background = '#111111'\n", "accent = '#ff00aa'\n");
         assert!(themed.contains("#111111"));
         assert!(themed.contains("#ff00aa"));
-        assert!(!themed.contains("#202020"));
+        assert!(!themed.contains("#ffffff\n"));
     }
 
     fn sources(inputs: [PathBuf; 9]) -> Sources {

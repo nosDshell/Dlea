@@ -1,10 +1,10 @@
 {
-  "catalog_file_sha256": "aa899a59281d3bb390012839dd3f7b5c88c6b59f0a4f847c0f74b1b4d63e5e40",
-  "catalog_sha256": "369c70be7c7d32d11883c5c049024b4448bc928f2e848013fdd43e39d0d31066",
+  "catalog_file_sha256": "d5f840cbeaeafc8d129ad8f1aa1c71f82a3b7e3b775b7575f4e47866a0c08fc0",
+  "catalog_sha256": "2975d616abe97d0e880b4a1c60e020053bd0ae888985df39287c1d5b30a0c3a3",
   "counts": {
     "direct_references": 0,
-    "keys": 2329,
-    "plurals": 114
+    "keys": 2335,
+    "plurals": 115
   },
   "direct_references": {},
   "dynamic_callsite_handoffs": [
@@ -74720,15 +74720,15 @@
       ],
       "context": "list.column_kind: crates/dlea-gui/src/row/format.rs:40",
       "coverage": "existing-translated-call",
-      "english": "Kind",
+      "english": "Type",
       "kind": "text",
       "omarchy_reference": null,
       "placeholders": [],
       "plural_categories": [],
-      "resolved_english": "Kind",
-      "resolved_sha256": "aa9d6710f4cac041f5279490060c51fa8426cf2defa660b5aaffad304f154781",
-      "resolved_source_hash": "f5387f9bb6ed",
-      "source_hash": "f5387f9bb6ed"
+      "resolved_english": "Type",
+      "resolved_sha256": "c44f7ab8bbd24858d1bd1ab995f21c5f52c6a671907b29ed3a4b094345f70b21",
+      "resolved_source_hash": "baaddf70fb5d",
+      "source_hash": "baaddf70fb5d"
     },
     "list.column_mode": {
       "call_sites": [
@@ -81708,24 +81708,24 @@
     "pane.empty.fixed": {
       "call_sites": [
         {
-          "excerpt": "self.fixed = raise(\"pane.empty.fixed\");",
-          "line": 67,
+          "excerpt": "self.fixed = catalog.tr(\"pane.empty.fixed\").into();",
+          "line": 68,
           "path": "crates/dlea-gui/src/g2/status_feedback/hero_look.rs",
           "surface": "gui",
-          "usage": "key-declaration"
+          "usage": "translated-call"
         }
       ],
       "context": "pane.empty.fixed: crates/dlea-gui/src/g2/status_feedback/hero_look.rs:67",
-      "coverage": "occurrence-needs-owner-verification",
-      "english": "EMPTY FOLDER",
+      "coverage": "existing-translated-call",
+      "english": "Folder is empty",
       "kind": "text",
       "omarchy_reference": null,
       "placeholders": [],
       "plural_categories": [],
-      "resolved_english": "EMPTY FOLDER",
-      "resolved_sha256": "14bac138ab2e649421daee07036dccd1b24c179e8a5e611345a1448f11a4158d",
-      "resolved_source_hash": "0cb7d49bc5be",
-      "source_hash": "0cb7d49bc5be"
+      "resolved_english": "Folder is empty",
+      "resolved_sha256": "93693acdccb0e9a06616fc47d4804a3f5baba44522267af92976fe7338eb1b05",
+      "resolved_source_hash": "2bfcc1082c4f",
+      "source_hash": "2bfcc1082c4f"
     },
     "pane.empty.hint_new_folder": {
       "call_sites": [
@@ -85658,6 +85658,35 @@
       "resolved_sha256": "6a08349b668e3ae8c16facbb72eacba90bc1e793b68390ab416488bbe8b1b9fc",
       "resolved_source_hash": "cf43d0c39074",
       "source_hash": "cf43d0c39074"
+    },
+    "places.row.computer": {
+      "call_sites": [
+        {
+          "excerpt": "label_key: \"places.row.computer\",",
+          "line": 102,
+          "path": "src/ui_logic_rail_places/order.rs",
+          "surface": "core/backend",
+          "usage": "key-declaration"
+        },
+        {
+          "excerpt": "self.strips[slot].name_root(&self.catalog.tr(\"places.row.computer\"));",
+          "line": 183,
+          "path": "crates/dlea-gui/src/path/view.rs",
+          "surface": "gui",
+          "usage": "translated-call"
+        }
+      ],
+      "context": "places.row.computer: crates/dlea-gui/src/path/view.rs:183",
+      "coverage": "existing-translated-call",
+      "english": "Computer",
+      "kind": "text",
+      "omarchy_reference": null,
+      "placeholders": [],
+      "plural_categories": [],
+      "resolved_english": "Computer",
+      "resolved_sha256": "0b6c5c6ecc0a61dc28381a79088612bc4d32b1fdbdfe861e9f0cb9c17760dd43",
+      "resolved_source_hash": "76ed42d22129",
+      "source_hash": "76ed42d22129"
     },
     "places.row.desktop": {
       "call_sites": [
@@ -104069,6 +104098,39 @@
       "resolved_source_hash": "67e877ee28c9",
       "source_hash": "67e877ee28c9"
     },
+    "status.computer.folder": {
+      "call_sites": [
+        {
+          "excerpt": "catalog.trn(\"status.computer.folder\",",
+          "line": 65,
+          "path": "crates/dlea-gui/src/window/status_counts.rs",
+          "surface": "gui",
+          "usage": "translated-call"
+        }
+      ],
+      "context": "status.computer.folder: crates/dlea-gui/src/window/status_counts.rs:65",
+      "coverage": "existing-translated-call",
+      "english": {
+        "one": "1 folder selected (contains %1 item)",
+        "other": "1 folder selected (contains %1 items)"
+      },
+      "kind": "plural",
+      "omarchy_reference": null,
+      "placeholders": [
+        "%1"
+      ],
+      "plural_categories": [
+        "one",
+        "other"
+      ],
+      "resolved_english": {
+        "one": "1 folder selected (contains %1 item)",
+        "other": "1 folder selected (contains %1 items)"
+      },
+      "resolved_sha256": "0ad4383fafd0a9c5a30d4ec6d359447d1f59b5486220a422dbeebf930c3aea05",
+      "resolved_source_hash": "183005674071",
+      "source_hash": "183005674071"
+    },
     "status.host.free": {
       "call_sites": [
         {
@@ -110574,15 +110636,15 @@
       ],
       "context": "window.column_modified: crates/dlea-gui/src/row/format.rs:39",
       "coverage": "existing-translated-call",
-      "english": "Modified",
+      "english": "Time changed",
       "kind": "text",
       "omarchy_reference": null,
       "placeholders": [],
       "plural_categories": [],
-      "resolved_english": "Modified",
-      "resolved_sha256": "f011be734aa71a98d58bc35fbebe6060f10a03aeebc415db46711b77fc5d92f9",
-      "resolved_source_hash": "e8ce5dcaf408",
-      "source_hash": "e8ce5dcaf408"
+      "resolved_english": "Time changed",
+      "resolved_sha256": "3e0e0280ea33ae5e7d1707b3f69b7d4b0e51eb91aed44fa26f8910637bbbabf5",
+      "resolved_source_hash": "8b6a7d73cb78",
+      "source_hash": "8b6a7d73cb78"
     },
     "window.column_name": {
       "call_sites": [
@@ -110969,6 +111031,94 @@
       "resolved_sha256": "270ead2221e62e6294e89bc48c942ba154e1f2cdb002959314f91980ece7fbe3",
       "resolved_source_hash": "ed09556ef862",
       "source_hash": "ed09556ef862"
+    },
+    "computer.section.directories": {
+      "call_sites": [
+        {
+          "excerpt": "catalog.tr(\"computer.section.directories\")",
+          "line": 1,
+          "path": "crates/dlea-gui/src/window/computer.rs",
+          "surface": "gui",
+          "usage": "translated-call"
+        }
+      ],
+      "context": "computer.section.directories: crates/dlea-gui/src/window/computer.rs",
+      "coverage": "existing-translated-call",
+      "english": "My Directories",
+      "kind": "text",
+      "omarchy_reference": null,
+      "placeholders": [],
+      "plural_categories": [],
+      "resolved_english": "My Directories",
+      "resolved_sha256": "ad49c98fd2147588463dd5ffb7e78cabae535d334b6b60a021f7e9e70cc2936e",
+      "resolved_source_hash": "ad49c98fd214",
+      "source_hash": "ad49c98fd214"
+    },
+    "computer.section.internal": {
+      "call_sites": [
+        {
+          "excerpt": "catalog.tr(\"computer.section.internal\")",
+          "line": 1,
+          "path": "crates/dlea-gui/src/window/computer.rs",
+          "surface": "gui",
+          "usage": "translated-call"
+        }
+      ],
+      "context": "computer.section.internal: crates/dlea-gui/src/window/computer.rs",
+      "coverage": "existing-translated-call",
+      "english": "Internal Disk",
+      "kind": "text",
+      "omarchy_reference": null,
+      "placeholders": [],
+      "plural_categories": [],
+      "resolved_english": "Internal Disk",
+      "resolved_sha256": "76b54b7cce897d7405ca1c18524315075573e2773a1cd06a1097c33e435ecef5",
+      "resolved_source_hash": "76b54b7cce89",
+      "source_hash": "76b54b7cce89"
+    },
+    "computer.section.external": {
+      "call_sites": [
+        {
+          "excerpt": "catalog.tr(\"computer.section.external\")",
+          "line": 1,
+          "path": "crates/dlea-gui/src/window/computer.rs",
+          "surface": "gui",
+          "usage": "translated-call"
+        }
+      ],
+      "context": "computer.section.external: crates/dlea-gui/src/window/computer.rs",
+      "coverage": "existing-translated-call",
+      "english": "External Disk",
+      "kind": "text",
+      "omarchy_reference": null,
+      "placeholders": [],
+      "plural_categories": [],
+      "resolved_english": "External Disk",
+      "resolved_sha256": "0104a462f99973710cb7d73430068dc85c3bd67fa23cf5efaee31f22380537cf",
+      "resolved_source_hash": "0104a462f999",
+      "source_hash": "0104a462f999"
+    },
+    "places.row.system_disk": {
+      "call_sites": [
+        {
+          "excerpt": "catalog.tr(\"places.row.system_disk\")",
+          "line": 1,
+          "path": "crates/dlea-gui/src/window/computer.rs",
+          "surface": "gui",
+          "usage": "translated-call"
+        }
+      ],
+      "context": "places.row.system_disk: crates/dlea-gui/src/window/computer.rs",
+      "coverage": "existing-translated-call",
+      "english": "System Disk",
+      "kind": "text",
+      "omarchy_reference": null,
+      "placeholders": [],
+      "plural_categories": [],
+      "resolved_english": "System Disk",
+      "resolved_sha256": "e28f8df613d2660cb490558cc55cfb2eca3ae173082a4f7706bca686aa4c5e0c",
+      "resolved_source_hash": "e28f8df613d2",
+      "source_hash": "e28f8df613d2"
     }
   },
   "missing_callsite_handoffs": [

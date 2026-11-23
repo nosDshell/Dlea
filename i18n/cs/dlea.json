@@ -965,6 +965,14 @@
   "jobs.undone.settags": "Původní štítky byly obnoveny.",
   "jobs.undone.trash": "Obnoveno z koše.",
   "jobs.working": "Zpracování…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Přidat síťové umístění",
   "keys.action.autofitColumns": "Přizpůsobit sloupce",
   "keys.action.copy": "Kopírovat",
@@ -1559,6 +1567,7 @@
   "places.heading.tags": "Štítky",
   "places.recent.paste_refused": "Do Nedávných nelze vkládat. Nejprve otevřete složku",
   "places.row.home": "Domovská složka",
+  "places.row.computer": "Computer",
   "places.row.recent": "Nedávné",
   "places.row.trash": "Koš",
   "places.row.desktop": "Plocha",

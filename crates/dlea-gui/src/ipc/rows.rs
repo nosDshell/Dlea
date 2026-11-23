@@ -85,7 +85,8 @@ pub fn header_cell(
     }
     let wanted = Column::from_key(name)?;
     let mut right = row - metrics.pad;
-    for column in Column::DROP_ORDER {
+    // The same right-to-left order the row uses, so a hidden column sits on its right neighbour.
+    for column in Column::PLACE_ORDER {
         let cell = layout.cell(column);
         if column == wanted {
             return Some(cell.unwrap_or(Cell {

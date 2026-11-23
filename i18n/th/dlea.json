@@ -884,6 +884,14 @@
   "jobs.undone.settags": "คืนค่าแท็กก่อนหน้าแล้ว",
   "jobs.undone.trash": "นำกลับจากถังขยะแล้ว",
   "jobs.working": "กำลังทำงาน…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "เพิ่มตำแหน่งเครือข่าย",
   "keys.action.autofitColumns": "ปรับคอลัมน์อัตโนมัติ",
   "keys.action.carry": "นำไปยังแอปอื่น",
@@ -1486,6 +1494,7 @@
   "places.recent.new_folder_refused": "สร้างโฟลเดอร์ใหม่ใน “ล่าสุด” ไม่ได้ โปรดเปิดโฟลเดอร์ก่อน",
   "places.recent.paste_refused": "วางในล่าสุดไม่ได้ เปิดโฟลเดอร์ก่อน",
   "places.row.home": "โฮม",
+  "places.row.computer": "Computer",
   "places.row.recent": "ล่าสุด",
   "places.row.trash": "ถังขยะ",
   "places.row.desktop": "พื้นโต๊ะ",

@@ -18,6 +18,9 @@ impl Shell {
         if eligible && selection::key(event, window, cx) {
             return;
         }
+        if eligible && self.computer_key(event, window, cx) {
+            return;
+        }
         if !eligible {
             selection::clear_window(window, cx);
         }

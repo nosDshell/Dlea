@@ -40,7 +40,15 @@ fn a_wide_crumb_pushes_its_neighbour_along_and_a_press_on_its_glyphs_opens_it(
             .map(|crumb| crumb.text.clone())
             .collect::<Vec<_>>()
     });
-    assert_eq!(texts, ["~/", &format!("{WIDE}/"), "next/", "leaf"]);
+    assert_eq!(
+        texts,
+        [
+            "~\u{203a}",
+            &format!("{WIDE}\u{203a}"),
+            "next\u{203a}",
+            "leaf"
+        ]
+    );
     let drawn = widths(&mut bar);
     assert!(
         drawn[1] > 4. * cell + 1.,
@@ -53,13 +61,18 @@ fn a_wide_crumb_pushes_its_neighbour_along_and_a_press_on_its_glyphs_opens_it(
     });
     let mut left = 0.;
     for (index, (start, width)) in extents.iter().enumerate() {
-        let near = (start - left).abs() < 0.01 && (width - drawn[index]).abs() < 0.01;
+        let gap = if index + 1 == extents.len() {
+            0.
+        } else {
+            dlea_gui::path::crumb_chip::GAP
+        };
+        let near = (start - left).abs() < 0.01 && (width - drawn[index] - gap).abs() < 0.01;
         assert!(
             near,
-            "crumb {index} sits right after the one before it: {start} {width} against {left} {}",
+            "crumb {index} keeps a gap after its chevron: {start} {width} against {left} {}",
             drawn[index]
         );
-        left += drawn[index];
+        left += drawn[index] + gap;
     }
     // The last drawn folder glyph of crumb 1, which the cell grid gave to crumb 2.
     let (start, width) = extents[1];
@@ -71,7 +84,8 @@ fn a_wide_crumb_pushes_its_neighbour_along_and_a_press_on_its_glyphs_opens_it(
             path: format!("{HOME}/{WIDE}")
         }]
     );
-    bar.press(extents[2].0 + 1., 13., 1);
+    // Window x includes the chrome well's 8 px inset; the extent is measured inside it.
+    bar.press(8. + extents[2].0 + 1., 13., 1);
     assert_eq!(
         bar.take(),
         [Out::Open {
@@ -85,7 +99,7 @@ fn a_wide_crumb_pushes_its_neighbour_along_and_a_press_on_its_glyphs_opens_it(
         .unwrap();
     let want = format!(
         "{} 13",
-        (extents[2].0 + extents[2].1 / 2. + 0.5).floor() as i64
+        (8. + extents[2].0 + extents[2].1 / 2. + 0.5).floor() as i64
     );
     assert_eq!(centre.stdout.trim_end_matches('\n'), want);
 }

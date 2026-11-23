@@ -203,6 +203,14 @@
   "archive.flash.eject": "꺼내기",
   "device.menu.eject": "꺼내기",
   "menu.row.eject": "꺼내기",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.eject": "꺼내기",
   "archive.flash.eject_failed": "%1을(를) 꺼낼 수 없습니다.",
   "archive.flash.ejected": "%1을(를) 꺼냈습니다. 안전하게 분리할 수 있습니다.",
@@ -535,6 +543,7 @@
   "tabs.finish_rename": "탭을 밖으로 끌어내기 전에 이름 바꾸기를 마치세요.",
   "tabs.home": "홈",
   "places.row.home": "홈",
+  "places.row.computer": "Computer",
   "settings.choice.home": "홈",
   "settings.places.home": "홈",
   "prompt.home": "홈",

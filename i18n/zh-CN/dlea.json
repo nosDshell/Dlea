@@ -458,6 +458,7 @@
   "places.heading.tags": "标签",
   "places.heading.network": "omarchy:keybindings.Network",
   "places.row.home": "主文件夹",
+  "places.row.computer": "计算机",
   "places.row.recent": "最近",
   "places.row.trash": "回收站",
   "places.row.desktop": "桌面",
@@ -2050,6 +2051,14 @@
   "preview.zoom_in": "放大",
   "preview.expand": "展开",
   "preview.unpacked_size": "解压后 %1",
+  "computer.section.directories": "我的目录",
+  "computer.section.internal": "内部磁盘",
+  "computer.section.external": "外部磁盘",
+  "places.row.system_disk": "系统盘",
+  "status.computer.folder": {
+    "one": "已选择 1 个文件夹（包含 %1 项）",
+    "other": "已选择 1 个文件夹（包含 %1 项）"
+  },
   "keys.label.bd0b7be215ce": "关闭编辑器",
   "keys.label.bc4dd3d76b73": "保留结果",
   "keys.label.e9619e148ed8": "Control+X 不起作用",

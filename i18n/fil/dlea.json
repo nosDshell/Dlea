@@ -916,6 +916,14 @@
   "jobs.undone.settags": "Naibalik ang mga dating tag.",
   "jobs.undone.trash": "Naibalik mula sa Basurahan.",
   "jobs.working": "Ginagawa…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Magdagdag ng network",
   "keys.action.autofitColumns": "Ipagkasya mga column",
   "keys.action.copy": "Kopyahin",
@@ -1503,6 +1511,7 @@
   "places.heading.tags": "Mga tag",
   "places.recent.paste_refused": "Hindi maaaring mag-paste sa Kamakailan. Magbukas muna ng folder",
   "places.row.home": "Home",
+  "places.row.computer": "Computer",
   "places.row.recent": "Kamakailan",
   "places.row.trash": "Basurahan",
   "places.row.desktop": "Desktop",

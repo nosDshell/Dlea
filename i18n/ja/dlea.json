@@ -847,6 +847,14 @@
   "jobs.undone.settags": "以前のタグを復元しました。",
   "jobs.undone.trash": "ゴミ箱から元の場所に戻しました。",
   "jobs.working": "処理中…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "ネットワーク上の場所を追加",
   "keys.action.autofitColumns": "列幅を自動調整",
   "keys.action.copy": "コピー",
@@ -1426,6 +1434,7 @@
   "places.heading.tags": "タグ",
   "places.recent.paste_refused": "「最近使った項目」には貼り付けられません。先にフォルダーを開いてください",
   "places.row.home": "ホーム",
+  "places.row.computer": "Computer",
   "places.row.recent": "最近使った項目",
   "places.row.trash": "ゴミ箱",
   "places.row.desktop": "デスクトップ",

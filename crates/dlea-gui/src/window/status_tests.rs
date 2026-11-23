@@ -270,8 +270,26 @@ fn u05_footer_reports_painted_counts_filesystem_and_real_activity_owner(cx: &mut
         footer.get("filesystem").unwrap().as_str(),
         Some("btrfs · 442.0 GB free")
     );
-    assert_eq!(footer.get("frame").unwrap().as_str(), Some("0 673 1100 27"));
-    assert_eq!(left.get("x").unwrap().as_f64(), Some(14.));
+    // 24 px status slot under a 700 px window: the 27 px list header no longer sets this frame.
+    assert_eq!(footer.get("frame").unwrap().as_str(), Some("0 676 1100 24"));
+    let zone = footer.get("zoneWidth").unwrap().as_f64().unwrap();
+    let center = ((1100. - zone) / 2.).max(14.).round();
+    assert!(
+        (left.get("x").unwrap().as_f64().unwrap() - center).abs() <= 1.,
+        "a short activity leaves the count centered: {left:?}"
+    );
+    let primary = footer.get("centre").unwrap();
+    let (x, width, implicit) = (
+        primary.get("x").unwrap().as_f64().unwrap(),
+        left.get("width").unwrap().as_f64().unwrap(),
+        left.get("implicitWidth").unwrap().as_f64().unwrap(),
+    );
+    let drawn = implicit.min(width);
+    let glyphs = left.get("x").unwrap().as_f64().unwrap() + (width + drawn) / 2.;
+    assert!(
+        x + 1. >= glyphs + 13.,
+        "the activity covers the centered count: left={left:?} primary={primary:?}"
+    );
     assert_eq!(
         read(cx, handle, "stickyMessage"),
         Reply::value("Dragging a file")
@@ -319,9 +337,10 @@ fn u05_empty_geometry_observes_the_painted_hero_then_drops_it(cx: &mut TestAppCo
     frame(cx, handle);
     frame(cx, handle);
     assert_eq!(read(cx, handle, "emptyShown"), Reply::value("true"));
+    // Chrome is 40 and the list header stays 27, so the hero starts at 67. The status slot is 24, so the hero ends at 676.
     assert_eq!(
         read(cx, handle, "emptyStateRect"),
-        Reply::value("192 54 908 619")
+        Reply::value("192 67 908 609")
     );
     let mark = gpui::VisualTestContext::from_window(handle.into(), cx)
         .debug_bounds("fb1-hero-mark")

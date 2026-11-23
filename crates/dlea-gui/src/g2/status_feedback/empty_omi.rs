@@ -30,6 +30,12 @@ pub(crate) fn heroes(shell: &Shell, cx: &App) -> [Option<Entity<EmptyHero>>; 12]
         if shell.slots.covers[side].is_some() {
             continue;
         }
+        // Computer draws its own tiles. The folder hero must not stay painted over them.
+        if host.computer_items.is_some()
+            || crate::navigation::history::is_computer(host.pane.place())
+        {
+            continue;
+        }
         if let Some(hero) = shell.surfaces[side]
             .hero
             .as_ref()

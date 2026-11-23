@@ -916,6 +916,14 @@
   "jobs.undone.settags": "Επαναφέρθηκαν οι προηγούμενες ετικέτες.",
   "jobs.undone.trash": "Επαναφέρθηκε από τα Απορρίμματα.",
   "jobs.working": "Εκτέλεση…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Προσθήκη θέσης δικτύου",
   "keys.action.autofitColumns": "Προσαρμογή στηλών",
   "keys.action.copy": "Αντιγραφή",
@@ -1503,6 +1511,7 @@
   "places.heading.tags": "Ετικέτες",
   "places.recent.paste_refused": "Δεν γίνεται επικόλληση στα Πρόσφατα. Άνοιξε πρώτα έναν φάκελο",
   "places.row.home": "Προσωπικά",
+  "places.row.computer": "Computer",
   "places.row.recent": "Πρόσφατα",
   "places.row.trash": "Απορρίμματα",
   "places.row.desktop": "Επιφάνεια",

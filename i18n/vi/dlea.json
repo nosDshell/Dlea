@@ -884,6 +884,14 @@
   "jobs.undone.settags": "Đã khôi phục các nhãn trước đó.",
   "jobs.undone.trash": "Đã khôi phục mục từ Thùng rác.",
   "jobs.working": "Đang xử lý…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Thêm vị trí mạng",
   "keys.action.autofitColumns": "Tự khớp độ rộng cột",
   "keys.action.carry": "Mang sang ứng dụng khác",
@@ -1486,6 +1494,7 @@
   "places.recent.new_folder_refused": "Không thể tạo thư mục mới trong Gần đây. Hãy mở một thư mục trước",
   "places.recent.paste_refused": "Không thể dán vào Gần đây. Hãy mở một thư mục trước",
   "places.row.home": "Thư mục cá nhân",
+  "places.row.computer": "Computer",
   "places.row.recent": "Gần đây",
   "places.row.trash": "Thùng rác",
   "places.row.desktop": "Màn hình nền",

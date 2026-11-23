@@ -51,10 +51,27 @@ impl Shell {
     }
 
     pub(crate) fn sync_chrome(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let labels: [Option<String>; 2] = std::array::from_fn(|side| {
+            let host = self.panes[side].as_ref()?;
+            let computer = dlea::ui_logic_rail_places::order::COMPUTER;
+            if host.pane.place() == computer || host.path == computer {
+                Some(computer.to_owned())
+            } else if self.path_labels[side].as_ref() == computer {
+                Some(host.path.clone())
+            } else {
+                None
+            }
+        });
+        for (side, label) in labels.into_iter().enumerate() {
+            if let Some(label) = label {
+                self.path_labels[side] = label.into();
+            }
+        }
         let side = self.focus_side;
         let Some(host) = self.panes[side].as_ref() else {
             return;
         };
+        let on_computer = self.path_labels[side].as_ref() == dlea::ui_logic_rail_places::order::COMPUTER;
         let rail_mode = self
             .rail
             .as_ref()
@@ -67,8 +84,8 @@ impl Shell {
             forward: !host.nav.history.forward.is_empty(),
             sidebar: rail_mode.is_some_and(|mode| mode != crate::rail::Mode::Overlay),
             rail_shown: rail_mode == Some(crate::rail::Mode::Docked),
-            filter: !host.search.owner.active() && !host.pane.state.search,
-            sort: !host.search.owner.active() && !host.pane.state.search,
+            filter: !on_computer && !host.search.owner.active() && !host.pane.state.search,
+            sort: !on_computer && !host.search.owner.active() && !host.pane.state.search,
             live: !self.card_holds_keyboard(cx)
                 && self.overlay.as_ref().is_none_or(|overlay| {
                     overlay.read_with(cx, |card, _| {
@@ -198,6 +215,7 @@ impl Shell {
             "back" => Some(Step::Back),
             "forward" => Some(Step::Forward),
             "up" => Some(Step::Up),
+            "computer" => Some(Step::Open(dlea::ui_logic_rail_places::order::COMPUTER.into())),
             _ => None,
         } {
             let _ = self.step(self.focus_side, step, window, cx);
@@ -225,7 +243,14 @@ impl Shell {
     fn path_out(&mut self, out: &Out, window: &mut Window, cx: &mut Context<Self>) {
         match out {
             Out::Open { side, path } => {
-                let _ = self.step(*side, Step::Open(path.clone()), window, cx);
+                let computer = dlea::ui_logic_rail_places::order::COMPUTER;
+                let named = self.locale.catalog.tr("places.row.computer");
+                let path = if path == computer || path.as_str() == named {
+                    computer.to_owned()
+                } else {
+                    path.clone()
+                };
+                let _ = self.step(*side, Step::Open(path), window, cx);
             }
             Out::Focus(side) => self.focus_pane(*side, cx),
             Out::Network(uri) if self.chrome.network => cx.emit(NetworkPath {

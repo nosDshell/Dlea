@@ -15,11 +15,13 @@ use std::{cell::RefCell, rc::Rc, time::Instant};
 mod address;
 mod button;
 mod plate;
+mod view_menu;
+mod windows;
 
 /// The copy mark after the path is the last control, so every earlier index keeps its place.
 pub const COPY: usize = 10;
 
-pub const GLYPHS: [&str; 13] = [
+pub const GLYPHS: [&str; 14] = [
     "arrow-left",
     "arrow-up",
     "search",
@@ -33,8 +35,9 @@ pub const GLYPHS: [&str; 13] = [
     "copy",
     "sidebar",
     "arrow-right",
+    "computer",
 ];
-pub const ACTIONS: [&str; 13] = [
+pub const ACTIONS: [&str; 14] = [
     "back",
     "up",
     "search",
@@ -48,13 +51,16 @@ pub const ACTIONS: [&str; 13] = [
     "copyAddress",
     "sidebar",
     "forward",
+    "computer",
 ];
 /// The order the keyboard walks the controls, as they stand left to right: the copy mark follows the path.
-/// GXDE order: sidebar toggle, back, forward, up, then the path's copy mark, then the right cluster.
-pub const ORDER: [usize; 13] = [11, 0, 12, 1, COPY, 2, 3, 4, 5, 6, 7, 8, 9];
+/// DDE 15 order: sidebar, back, forward, up, computer, then the path's copy mark, then the right cluster.
+pub const ORDER: [usize; 14] = [11, 0, 12, 1, COMPUTER, COPY, 2, 3, 4, 5, 6, 7, 8, 9];
 /// The sidebar toggle and the forward step stand beside Back and Up the way gxde-file-manager's toolbar draws them.
 pub const SIDEBAR: usize = 11;
 pub const FORWARD: usize = 12;
+/// The computer/places button after back and forward. Up stays in the nav group.
+pub const COMPUTER: usize = 13;
 
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Control {
@@ -123,9 +129,13 @@ impl Sizes {
         let inset = (f32::from(face.caption) / 4.)
             .round()
             .max(2. * metrics.hairline);
-        let room = slot.min(metrics.header - metrics.hairline - 2. * inset);
+        // The title bar is 40 px at body 14, the DDE 15 address-toolbar height, and scales with the face.
+        let band = (40. * f32::from(face.base) / 14.)
+            .round()
+            .max(metrics.header);
+        let room = slot.min(band - metrics.hairline - 2. * inset);
         Self {
-            band: metrics.header,
+            band,
             mark,
             slot,
             ring: room - (room - mark).rem_euclid(2.),
@@ -142,7 +152,7 @@ impl Sizes {
 
 #[test]
 fn visual_geometry_toolbar_marks_keep_the_board_origin_at_14_and_20() {
-    for (base, band, mark, top) in [(14, 27., 16., 5.), (20, 37., 23., 7.)] {
+    for (base, band, mark, top) in [(14, 40., 16., 12.), (20, 57., 23., 17.)] {
         let sizes = Sizes::at(&Typeface::omarchy_default().at_base(base));
         assert_eq!((sizes.band, sizes.mark), (band, mark));
         assert_eq!((sizes.inner() - sizes.mark) / 2., top);
@@ -152,11 +162,20 @@ fn visual_geometry_toolbar_marks_keep_the_board_origin_at_14_and_20() {
 #[derive(Default)]
 pub struct Frame {
     pub bounds: Option<Bounds<Pixels>>,
-    pub controls: [Control; 13],
+    pub controls: [Control; 14],
     /// The open Settings card, whose marks underneath are left undrawn.
     pub cover: crate::g2::settings_pages::cover::Cover,
     /// The pointer is over the path's own slot, which is what shows the copy mark.
     pub address_hovered: bool,
+    pub address_bounds: Option<Bounds<Pixels>>,
+    pub window_controls: Option<Bounds<Pixels>>,
+    /// The pointer is over Close, which fills that control red.
+    pub close_hovered: bool,
+    pub computer_selected: Option<String>,
+    pub computer_paths: Vec<String>,
+    pub computer_columns: usize,
+    /// Columns and dual stay off the icon/list pair and open from this menu.
+    pub view_menu: bool,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -179,7 +198,7 @@ pub struct ChromeView {
     pub path: Entity<PathView>,
     pub inputs: Inputs,
     pub frame: Rc<RefCell<Frame>>,
-    pub focus: [FocusHandle; 13],
+    pub focus: [FocusHandle; 14],
 }
 
 impl EventEmitter<&'static str> for ChromeView {}

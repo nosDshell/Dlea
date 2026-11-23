@@ -1,6 +1,6 @@
 //! The toolbar button owns pointer capture, its sized mark and its focus frame.
 use super::plate::{self, Kind};
-use super::{ChromeView, Sizes, ACTIONS, COPY, FORWARD, GLYPHS, SIDEBAR};
+use super::{ChromeView, Sizes, ACTIONS, COMPUTER, COPY, FORWARD, GLYPHS, SIDEBAR};
 use crate::list::Palette;
 use crate::path::mark::{mark_ink, mark_sized, resting_ink};
 use crate::window::startup::View;
@@ -29,28 +29,36 @@ impl ChromeView {
         }
         let focused = self.frame.borrow().controls[index].focused && enabled;
         let resting = ink_override.unwrap_or_else(|| resting_ink(enabled, icon_on, palette));
-        let ink = mark_ink(enabled, focused, resting, palette.foreground);
+        let ink = if filled && enabled && plate::light(palette.background) {
+            palette.background
+        } else {
+            mark_ink(enabled, focused, resting, palette.foreground)
+        };
         let (hovered, pressed) = {
             let control = self.frame.borrow().controls[index];
             (control.hovered, control.pressed)
         };
         // The copy mark draws nothing at rest. Search lives in the address well, so its
         // plate appears only while the pointer, keyboard or a press is on it.
-        let show_plate = if index == COPY {
-            resting.a > 0. || hovered || pressed || focused
-        } else if index == 2 {
+        // The copy glyph shows while the pointer is on the address. Its bordered plate
+        // shows only on the button itself, the same rule as search, so the well does not
+        // grow a second page-shaped box beside the current crumb.
+        let show_plate = if index == COPY || index == 2 {
             hovered || pressed || focused
         } else {
             true
         };
         let recipe = plate::recipe(palette, kind, enabled, filled, hovered, pressed, show_plate);
         let plate_h = sizes.slot.min(sizes.band);
-        let outer_h = if kind == Kind::Solo {
+        // The copy mark is placed inside the address well. A band-tall solo box hung below
+        // that well and over the current crumb. Its plate is the slot, like search.
+        let in_well = index == COPY;
+        let outer_h = if kind == Kind::Solo && !in_well {
             sizes.band
         } else {
             plate_h
         };
-        let plate_top = if kind == Kind::Solo {
+        let plate_top = if kind == Kind::Solo && !in_well {
             ((sizes.band - plate_h) / 2.).round()
         } else {
             0.
@@ -124,6 +132,7 @@ impl ChromeView {
                     drop(frame);
                     cx.notify();
                     if activate {
+                        view.frame.borrow_mut().view_menu = false;
                         cx.emit(ACTIONS[index]);
                     }
                     cx.stop_propagation();
@@ -181,7 +190,7 @@ impl ChromeView {
                     div()
                         .absolute()
                         .left(px(((sizes.slot - sizes.ring) / 2.).round()))
-                        .top(px(((sizes.inner() - sizes.ring) / 2.).round()))
+                        .top(px(plate_top + ((plate_h - sizes.ring) / 2.).round()))
                         .size(px(sizes.ring))
                         .rounded(px(plate::RADIUS))
                         .border_1()
@@ -274,25 +283,22 @@ impl ChromeView {
                 ))
                 .child(div().w(px(3.)).flex_none());
         }
+        // One tray: icon, list, then the menu. The ground is the 10% wash and the current cell is the solid accent.
         let mut tray = div()
             .flex()
             .flex_none()
             .items_center()
-            .h(px(sizes.slot + 2.))
-            .px(px(1.))
+            .h(px(sizes.slot))
             .rounded(px(plate::RADIUS))
             .overflow_hidden()
             .bg(plate::tray_ground());
-        for (index, mode) in [
-            (5, View::List),
-            (6, View::Columns),
-            (7, View::Grid),
-            (8, View::Dual),
-        ] {
+        for (index, mode) in [(7, View::Grid), (5, View::List)] {
             let on = self.inputs.view == mode;
             tray =
                 tray.child(self.button(sizes, index, true, on, on, Kind::View, palette, None, cx));
         }
+        let menu = super::view_menu::button(self, sizes, palette, cx);
+        tray = tray.child(menu);
         let frame = self.frame.clone();
         let pointer_frame = self.frame.clone();
         let toolbar = div()
@@ -321,13 +327,28 @@ impl ChromeView {
                     ))
                     .child(div().w(px(6.)).flex_none())
                     .child(nav)
+                    .child(div().w(px(6.)).flex_none())
+                    .child(self.button(
+                        sizes,
+                        COMPUTER,
+                        true,
+                        true,
+                        self.path.read(cx).inputs.paths[self.path.read(cx).inputs.side].as_ref()
+                            == dlea::ui_logic_rail_places::order::COMPUTER,
+                        Kind::Solo,
+                        palette,
+                        None,
+                        cx,
+                    ))
                     .child(div().w(px(10.)).flex_none())
                     .child(self.address(sizes, palette, cx))
                     .child(div().w(px(10.)).flex_none())
                     .child(tools)
                     .child(tray)
                     .child(div().w(px(3.)).flex_none())
-                    .child(self.button(sizes, 9, true, true, false, Kind::Solo, palette, None, cx)),
+                    .child(self.button(sizes, 9, true, true, false, Kind::Solo, palette, None, cx))
+                    .child(div().w(px(8.)).flex_none())
+                    .child(self.window_controls(sizes, palette, cx)),
             );
         for control in &mut self.frame.borrow_mut().controls {
             control.hovered =

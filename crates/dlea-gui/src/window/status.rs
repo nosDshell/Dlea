@@ -4,7 +4,6 @@ use crate::{
         line::{ArmLost, MessageLine, NoticeEnded},
         observe::Paint,
     },
-    list::{Metrics, Palette, Typeface},
     pane::states::Kind,
     state::Shell,
     strips::status_host,
@@ -13,16 +12,12 @@ use dlea::{
     i18n::I18n,
     ui_logic_status_feedback::{messages::Messages, status::Hint},
 };
-use gpui::{div, prelude::*, px, AppContext, Context, Entity, Render, SharedString, Window};
+use gpui::{px, AppContext, Context, Entity, SharedString};
 use std::{cell::Cell, rc::Rc, sync::Arc};
 
 /// The status slider's chosen thumbnail stop, GXDE DStatusBar m_scaleSlider's valueChanged.
 pub(crate) struct ThumbSlid(pub usize);
 impl gpui::EventEmitter<ThumbSlid> for Footer {}
-
-// DStatusBar m_scaleSlider: a 120 px slider anchored 20 px off the right edge.
-const SLIDER_W: f32 = 120.;
-const SLIDER_MARGIN: f32 = 20.;
 
 #[path = "status_counts.rs"]
 mod counts;
@@ -32,6 +27,10 @@ mod detail;
 mod filesystem;
 #[path = "status_footer.rs"]
 mod handoff;
+#[path = "status_place.rs"]
+mod place;
+#[path = "status_render.rs"]
+mod render;
 pub(crate) use filesystem::Filesystem;
 
 #[cfg(test)]
@@ -65,95 +64,6 @@ pub(crate) struct Footer {
 }
 
 impl Footer {
-    /// The stop a press inside the slider names: its fraction across the groove, snapped to THUMB_STOPS.
-    fn slider_index(&self, x: gpui::Pixels) -> usize {
-        let last = crate::grid::geometry::THUMB_STOPS.len() - 1;
-        let norm = ((f32::from(x) - self.slider_left.get()) / SLIDER_W).clamp(0., 1.);
-        ((norm * last as f32) + 0.5) as usize
-    }
-
-    /// DStatusBar m_scaleSlider: a horizontal groove with an accent fill and a circular handle, which drags to a thumbnail stop.
-    fn slider(&self, height: f32, ink: &Palette, cx: &mut Context<Self>) -> impl IntoElement {
-        let last = (crate::grid::geometry::THUMB_STOPS.len() - 1) as f32;
-        let centre = ((self.thumb as f32 / last) * SLIDER_W).clamp(7., SLIDER_W - 7.);
-        let left = self.slider_left.clone();
-        div()
-            .absolute()
-            .right(px(SLIDER_MARGIN))
-            .top_0()
-            .h(px(height))
-            .w(px(SLIDER_W))
-            .flex()
-            .items_center()
-            .cursor_pointer()
-            .on_mouse_down(
-                gpui::MouseButton::Left,
-                cx.listener(|view, event: &gpui::MouseDownEvent, window, cx| {
-                    // The strip keeps the keyboard; the press only moves the handle.
-                    window.prevent_default();
-                    view.slider_drag = true;
-                    let index = view.slider_index(event.position.x);
-                    if index != view.thumb {
-                        cx.emit(ThumbSlid(index));
-                    }
-                    cx.notify();
-                }),
-            )
-            .on_mouse_move(cx.listener(|view, event: &gpui::MouseMoveEvent, _, cx| {
-                if view.slider_drag {
-                    let index = view.slider_index(event.position.x);
-                    if index != view.thumb {
-                        cx.emit(ThumbSlid(index));
-                    }
-                }
-            }))
-            .on_mouse_up(
-                gpui::MouseButton::Left,
-                cx.listener(|view, _, _, _| view.slider_drag = false),
-            )
-            .on_mouse_up_out(
-                gpui::MouseButton::Left,
-                cx.listener(|view, _, _, _| view.slider_drag = false),
-            )
-            .child(
-                div()
-                    .relative()
-                    .w_full()
-                    .h(px(4.))
-                    .rounded_full()
-                    .bg(ink.foreground.opacity(0.18))
-                    .child(
-                        gpui::canvas(
-                            move |bounds, _, _| left.set(f32::from(bounds.origin.x)),
-                            |_, _, _, _| {},
-                        )
-                        .absolute()
-                        .size_full(),
-                    )
-                    .child(
-                        div()
-                            .absolute()
-                            .left_0()
-                            .top_0()
-                            .h_full()
-                            .w(px(centre))
-                            .rounded_full()
-                            .bg(ink.accent),
-                    )
-                    .child(
-                        div()
-                            .absolute()
-                            .top(px(-5.))
-                            .left(px(centre - 7.))
-                            .size(px(14.))
-                            .rounded_full()
-                            .bg(ink.foreground)
-                            .border_1()
-                            .border_color(ink.muted_frame),
-                    ),
-            )
-    }
-
     pub(crate) fn message_line(&self) -> Entity<MessageLine> {
         self.external_line.as_ref().unwrap_or(&self.line).clone()
     }
@@ -274,7 +184,10 @@ impl Shell {
         let fs = &mut self.surfaces[self.focus_side].filesystem;
         fs.enter(&host.path);
         // RecentMode.js: Recent spans disks and asks for no figures, so its bar answers unknown.
-        let recent = host.recent.on;
+        let recent = host.recent.on
+            || host.computer_items.is_some()
+            || crate::navigation::history::is_computer(host.pane.place())
+            || crate::navigation::history::is_computer(&host.path);
         if !recent
             && !host.pane.busy()
             && fs.listing != Some(host.pane.held.listing)
@@ -294,7 +207,14 @@ impl Shell {
             status_host::place_name(catalog, &facts.name, &facts.class, free.is_some())
         });
         let filesystem = if recent {
-            status_host::disk(catalog, "", None, false)
+            status_host::disk(
+                catalog,
+                "",
+                None,
+                host.computer_items.is_some()
+                    || crate::navigation::history::is_computer(host.pane.place())
+                    || crate::navigation::history::is_computer(&host.path),
+            )
         } else {
             status_host::disk(catalog, &name, free.as_deref(), fs.pending(kind))
         };
@@ -399,127 +319,5 @@ impl Shell {
             line.update(cx, |line, cx| line.update(cx, |m, now| m.dismiss(now)));
         }
         error
-    }
-}
-
-impl Render for Footer {
-    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
-        self.painted.clear();
-        let theme = crate::window::glass::producers::chrome_theme(window, cx);
-        let ink = Palette::inherited(&window.text_style(), theme);
-        let typeface = Typeface::for_window(window, cx);
-        let height = Metrics::for_typeface(&typeface).header;
-        let style = gpui::TextStyle {
-            font_family: typeface.font.family.clone(),
-            font_size: typeface.caption.into(),
-            ..window.text_style()
-        };
-        let measure = |text: &str| {
-            let width = window
-                .text_system()
-                .layout_line(text, typeface.caption, &[style.to_run(text.len())], None)
-                .width;
-            f32::from(width)
-        };
-        let disk_width = measure(&self.filesystem).min(self.zone_width);
-        // HIG locked-menu lets the full notice use the count zone's unpainted space.
-        let count_width = measure(&self.counts).min(self.zone_width);
-        // DStatusBar anchors its 120 px scale slider 20 px off the right edge; the disk facts step in before it.
-        let disk_x = SLIDER_MARGIN + SLIDER_W + 14.;
-        let room = (self.width - 28. - disk_width - disk_x - (14. + count_width + 14.)).max(0.);
-        let counts_text = counts::elided(&self.counts, self.zone_width, measure);
-        self.counts_text = counts_text.layout().clone();
-        // A block zone, not a flex row: only a text given its zone's width is cut with the ellipsis StatusBar.qml draws.
-        let text = |name, value: SharedString, child: gpui::AnyElement| {
-            let element = self.painted.watch(
-                div()
-                    .relative()
-                    .w(px(self.zone_width))
-                    .h(px(height))
-                    .line_height(px(height))
-                    .overflow_hidden()
-                    .whitespace_nowrap()
-                    .text_ellipsis()
-                    .child(child),
-                name,
-                value.clone(),
-            );
-            if name == "counts" {
-                crate::visual::geometry::label(
-                    element,
-                    "status-text".into(),
-                    "status".into(),
-                    value,
-                    0.,
-                    false,
-                    self.probe.clone(),
-                )
-            } else {
-                element
-            }
-        };
-        let root = div()
-            .relative()
-            .w_full()
-            .h(px(height))
-            .flex_none()
-            .border(self.border_width)
-            // HIG list and rail-favorites: the status bar stands on --surface under its --hair edge.
-            .child(super::glass::producers::status_backdrop(theme.surface))
-            .font_family(typeface.font.family)
-            .text_size(typeface.caption)
-            .text_color(ink.muted)
-            .child(
-                div()
-                    .absolute()
-                    .top_0()
-                    .w_full()
-                    .h(px(1.))
-                    .bg(ink.foreground.opacity(0.12)),
-            )
-            .child(
-                text(
-                    "counts",
-                    self.counts.clone(),
-                    counts_text.into_any_element(),
-                )
-                .absolute()
-                .left(px(((self.width - self.zone_width) / 2.).max(14.))),
-            )
-            .child(
-                text(
-                    "disk",
-                    self.filesystem.clone(),
-                    self.filesystem.clone().into_any_element(),
-                )
-                .absolute()
-                .right(px(disk_x))
-                .text_right(),
-            )
-            .child(
-                self.painted.watch(
-                    div()
-                        .absolute()
-                        .right(px(disk_x + disk_width + 14.))
-                        .w(px(room))
-                        .h(px(height))
-                        .child(self.message_line()),
-                    "lane",
-                    SharedString::default(),
-                ),
-            )
-            .child(self.slider(height, &ink, cx));
-        let footer = div()
-            .size_full()
-            .flex()
-            .flex_col()
-            .child(self.painted.watch(root, "frame", SharedString::default()))
-            .children(
-                self.message_line()
-                    .read_with(cx, |line, cx| line.detail(window, cx)),
-            );
-        #[cfg(test)]
-        let footer = paint_tests::watch(footer, self, cx);
-        footer
     }
 }

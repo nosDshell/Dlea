@@ -224,7 +224,7 @@ fn a_language_change_reshapes_every_row_and_title_once() {
     );
     assert_eq!(
         dlea_gui::list::header::titles(&state.view),
-        "Name|Mode|Gr\u{f6}\u{df}e|Ge\u{e4}ndert|Kind"
+        "Name|Mode|Gr\u{f6}\u{df}e|Ge\u{e4}ndert|Type"
     );
 }
 

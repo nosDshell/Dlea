@@ -982,6 +982,14 @@
   "jobs.undone.settags": "Predchádzajúce značky obnovené.",
   "jobs.undone.trash": "Položka obnovená z koša.",
   "jobs.working": "Spracúva sa…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Pridať sieťové miesto",
   "keys.action.autofitColumns": "Prispôsobiť stĺpce",
   "keys.action.carry": "Do inej aplikácie",
@@ -1600,6 +1608,7 @@
   "places.recent.new_folder_refused": "V časti Nedávne nie je možné vytvoriť nový priečinok. Najprv otvorte priečinok",
   "places.recent.paste_refused": "Do nedávnych položiek sa nedá vkladať. Najprv otvorte priečinok",
   "places.row.home": "Domov",
+  "places.row.computer": "Computer",
   "places.row.recent": "Nedávne",
   "places.row.trash": "Kôš",
   "places.row.desktop": "Plocha",

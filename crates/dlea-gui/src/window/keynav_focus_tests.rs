@@ -40,16 +40,39 @@ fn chrome(cx: &mut TestAppContext, handle: Handle, glyph: &str) {
         assert!(chrome.focus[index].is_focused(window));
         let control = chrome.frame.borrow().controls[index];
         assert!(control.visible && control.enabled && control.focused);
-        let bounds = control.bounds.expect("focused control must be mounted");
-        Bounds::new(
-            bounds.origin + point(px(2.), px(3.)),
-            size(px(20.), px(20.)),
-        )
+        control.bounds.expect("focused control must be mounted")
     });
     assert!(
-        painted_box(cx, handle, ring),
+        focus_frame(cx, handle, ring),
         "{glyph} must paint its existing focus frame"
     );
+}
+
+fn focus_frame(cx: &mut TestAppContext, handle: Handle, bounds: Bounds<Pixels>) -> bool {
+    cx.update_window(handle.into(), |_, window, cx| {
+        let scale = window.scale_factor();
+        let theme = cx
+            .try_global::<crate::palette::Theme>()
+            .copied()
+            .unwrap_or_default();
+        let ink = crate::list::Palette::inherited(&window.text_style(), theme).foreground;
+        window.painted_quads().iter().any(|quad| {
+            let x = quad.bounds.origin.x.0 / scale;
+            let y = quad.bounds.origin.y.0 / scale;
+            let w = quad.bounds.size.width.0 / scale;
+            let h = quad.bounds.size.height.0 / scale;
+            let left = f32::from(bounds.origin.x);
+            let top = f32::from(bounds.origin.y);
+            x >= left - 1.
+                && y >= top - 1.
+                && x + w <= left + f32::from(bounds.size.width) + 1.
+                && y + h <= top + f32::from(bounds.size.height) + 1.
+                && (12. ..f32::from(bounds.size.width) + 1.).contains(&w)
+                && quad.border_color == ink
+                && (quad.border_widths.top.0 / scale - 1.).abs() < 0.1
+        })
+    })
+    .unwrap()
 }
 
 fn strip(cx: &mut TestAppContext, handle: Handle, expected: usize) {
@@ -85,7 +108,7 @@ fn keynav_vfix_chrome_raw_navigation_skips_hidden_and_disabled_controls(cx: &mut
     key(cx, handle, "tab");
     chrome(cx, handle, "sidebar");
     for glyph in [
-        "arrow-up", "copy", "search", "list", "columns", "grid", "dual", "sliders",
+        "arrow-up", "computer", "copy", "search", "list", "columns", "grid", "dual", "sliders",
     ] {
         key(cx, handle, "right");
         chrome(cx, handle, glyph);
@@ -120,7 +143,16 @@ fn keynav_vfix_chrome_raw_navigation_skips_hidden_and_disabled_controls(cx: &mut
     key(cx, handle, "tab");
     chrome(cx, handle, "sidebar");
     for glyph in [
-        "arrow-left", "arrow-up", "copy", "filter", "sort", "list", "columns", "grid", "dual",
+        "arrow-left",
+        "arrow-up",
+        "computer",
+        "copy",
+        "filter",
+        "sort",
+        "list",
+        "columns",
+        "grid",
+        "dual",
         "sliders",
     ] {
         key(cx, handle, "right");

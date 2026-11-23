@@ -29,16 +29,17 @@ fn close_waits_for_every_live_pane_once_and_another_window_stays_open() {
 fn window_geometry_has_one_listing_and_only_dual_reserves_a_second() {
     let state = settings("{}");
     let single = Geometry::measure(1100., 700., &state, View::List, false);
+    assert_eq!(single.status.height, 24., "the status bar is the 24 px DDE strip");
     assert_eq!(
         (
             single.panes[0].x,
             single.panes[0].width,
             single.rows_height(false, 0.)
         ),
-        (192., 908., 619.)
+        (192., 908., 609.)
     );
     let tabs = Geometry::measure(1100., 700., &state, View::List, true);
-    assert_eq!((tabs.tabs.height, tabs.rows_height(false, 0.)), (27., 592.));
+    assert_eq!((tabs.tabs.height, tabs.rows_height(false, 0.)), (27., 582.));
     // TabBar.qml opens on more than one tab in every view, so Dual reserves the strip too.
     let dual = Geometry::measure(1100., 700., &state, View::Dual, true);
     assert_eq!(

@@ -965,6 +965,14 @@
   "jobs.undone.settags": "התגיות הקודמות שוחזרו.",
   "jobs.undone.trash": "הוחזר מסל האשפה.",
   "jobs.working": "מבצע…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains ⁨%1⁩ item)",
+    "other": "1 folder selected (contains ⁨%1⁩ items)"
+  },
   "keys.action.addNetwork": "הוספת מיקום רשת",
   "keys.action.autofitColumns": "התאם עמודות אוטומטית",
   "keys.action.copy": "העתקה",
@@ -1559,6 +1567,7 @@
   "places.heading.tags": "תגיות",
   "places.recent.paste_refused": "לא ניתן להדביק באחרונים. פתחו תיקייה תחילה",
   "places.row.home": "בית",
+  "places.row.computer": "Computer",
   "places.row.recent": "אחרונים",
   "places.row.trash": "סל האשפה",
   "places.row.desktop": "שולחן עבודה",

@@ -108,7 +108,7 @@ fn header_readers_answer_titles_cells_and_the_drag_trace() {
     let m = metrics();
     assert_eq!(
         ask(&mut cx, &pane, "headerTitles", &[]).unwrap(),
-        "Name|Mode|Size|Modified|Kind"
+        "Name|Mode|Size|Time changed|Type"
     );
     let size = pane
         .list
@@ -129,9 +129,29 @@ fn header_readers_answer_titles_cells_and_the_drag_trace() {
             .next(),
         Some("14")
     );
+    let kind = pane
+        .list
+        .borrow()
+        .header
+        .drawn
+        .layout
+        .cell(Column::Kind)
+        .unwrap();
+    assert_eq!(
+        ask(&mut cx, &pane, "headerCellRect", &["kind"]).unwrap(),
+        format!("{}|{}", kind.x.round(), kind.width.round())
+    );
     // A column that is not drawn collapses at width zero on its right neighbour's edge.
-    let kind = ask(&mut cx, &pane, "headerCellRect", &["kind"]).unwrap();
-    assert_eq!(kind, format!("{}|0", (900. - m.lane - m.pad).round()));
+    let date = pane
+        .list
+        .borrow()
+        .header
+        .drawn
+        .layout
+        .cell(Column::Date)
+        .unwrap();
+    let mode = ask(&mut cx, &pane, "headerCellRect", &["mode"]).unwrap();
+    assert_eq!(mode, format!("{}|0", (date.x - m.gap).round()));
     assert_eq!(
         ask(&mut cx, &pane, "headerCellRect", &["bogus"]).unwrap(),
         ""

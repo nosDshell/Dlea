@@ -916,6 +916,14 @@
   "jobs.undone.settags": "Aiemmat tunnisteet palautettu.",
   "jobs.undone.trash": "Palautettu roskakorista.",
   "jobs.working": "Käsitellään…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Lisää verkkosijainti",
   "keys.action.autofitColumns": "Sovita sarakkeet",
   "keys.action.copy": "Kopioi",
@@ -1503,6 +1511,7 @@
   "places.heading.tags": "Tunnisteet",
   "places.recent.paste_refused": "Viimeisimmät-näkymään ei voi liittää. Avaa ensin kansio",
   "places.row.home": "Koti",
+  "places.row.computer": "Computer",
   "places.row.recent": "Viimeisimmät",
   "places.row.trash": "Roskakori",
   "places.row.desktop": "Työpöytä",

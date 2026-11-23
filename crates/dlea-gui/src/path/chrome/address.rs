@@ -56,9 +56,10 @@ impl ChromeView {
         } else {
             palette.foreground.opacity(0.15)
         };
+        let address_frame = self.frame.clone();
         let mut row = div()
             .id("chrome-address")
-            .h(px(sizes.inner()))
+            .h(px((sizes.band - 10.).max(sizes.slot)))
             .flex_1()
             .min_w_0()
             .flex()
@@ -72,6 +73,16 @@ impl ChromeView {
                     .border_color(palette.foreground.opacity(0.10))
             })
             .hover_listener_mode(gpui::HoverListenerMode::InputModalityIndependent)
+            .child(
+                gpui::canvas(
+                    |_, _, _| {},
+                    move |bounds, _, _, _| {
+                        address_frame.borrow_mut().address_bounds = Some(bounds);
+                    },
+                )
+                .absolute()
+                .size_full(),
+            )
             .on_hover(cx.listener(|view, hovered: &bool, _, cx| {
                 let mut frame = view.frame.borrow_mut();
                 if frame.address_hovered != *hovered {
@@ -95,7 +106,9 @@ impl ChromeView {
                 div()
                     .absolute()
                     .right_0()
-                    .top(px(((sizes.inner() - sizes.slot) / 2.).round()))
+                    .top(px(
+                        (((sizes.band - 10.).max(sizes.slot) - sizes.slot) / 2.).round()
+                    ))
                     .child(self.button(
                         sizes,
                         2,
@@ -149,7 +162,9 @@ impl Element for Follow {
             position: Position::Absolute,
             ..Style::default()
         };
+        // Stretch to the well so the mark can centre in whatever height the well actually got.
         style.inset.top = px(0.).into();
+        style.inset.bottom = px(0.).into();
         style.inset.left = px(0.).into();
         (window.request_layout(style, None, cx), ())
     }
@@ -166,8 +181,16 @@ impl Element for Follow {
         let Some(end) = self.path.read(cx).paint.borrow().chrome_end else {
             return false;
         };
-        let origin = point(bounds.origin.x + px(end + self.sizes.gap), bounds.origin.y);
-        let room = size(px(self.sizes.slot), px(self.sizes.band)).map(AvailableSpace::Definite);
+        // Centre the slot in the well. The old band-tall box started at the well's top and
+        // painted its plate across the well's bottom edge into the list header.
+        let lift = ((f32::from(bounds.size.height) - self.sizes.slot) / 2.)
+            .max(0.)
+            .round();
+        let origin = point(
+            bounds.origin.x + px(end + self.sizes.gap),
+            bounds.origin.y + px(lift),
+        );
+        let room = size(px(self.sizes.slot), px(self.sizes.slot)).map(AvailableSpace::Definite);
         self.button.prepaint_as_root(origin, room, window, cx);
         true
     }

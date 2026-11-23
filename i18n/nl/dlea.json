@@ -129,6 +129,14 @@
   },
   "archive.flash.eject": "Uitwerpen",
   "device.menu.eject": "Uitwerpen",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.eject": "Uitwerpen",
   "menu.row.eject": "Uitwerpen",
   "archive.flash.eject_failed": "%1 kon niet worden uitgeworpen.",
@@ -1756,6 +1764,7 @@
   "settings.section.places": "Locaties",
   "settings.sheet.where_places": "Locaties",
   "places.row.home": "Persoonlijke map",
+  "places.row.computer": "Computer",
   "prompt.home": "Persoonlijke map",
   "settings.choice.home": "Persoonlijke map",
   "settings.places.home": "Persoonlijke map",

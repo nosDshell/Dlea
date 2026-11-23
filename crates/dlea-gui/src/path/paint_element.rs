@@ -68,7 +68,9 @@ impl Element for CrumbElement {
         let copy = self.place == Place::Chrome && self.view.read(cx).inputs.copy_mark;
         let copy_room = if copy {
             let sizes = super::super::chrome::Sizes::at(&paint.typeface);
-            sizes.gap + sizes.slot
+            // The current block hangs past its glyphs. Reserve that pad so a full line
+            // still ends before the mark, clear of the search slot.
+            sizes.gap + sizes.slot + super::super::crumb_chip::TAIL
         } else {
             0.
         };
@@ -82,11 +84,20 @@ impl Element for CrumbElement {
             paint.area = Some(bounds);
         }
         self.view.update(cx, |view, _| {
-            paint.lay_strip(slot, &mut view.strips[slot], |typeface, text| {
-                line(typeface, text, Size::Caption, false, window)
-            });
+            paint.lay_strip(
+                slot,
+                &mut view.strips[slot],
+                Size::Caption,
+                |typeface, text| line(typeface, text, Size::Caption, false, window),
+            );
             if self.place == Place::Chrome {
-                paint.chrome_end = copy.then(|| view.strips[slot].width() + git_width);
+                let width = view.strips[slot].width();
+                // Glyphs start after the well's inset. The block then hangs past them.
+                // A git label already starts further along. Measuring from the slot edge
+                // keeps the copy mark off the block; the old figure started at the slot
+                // and landed on the current name.
+                let line = (width + super::super::crumb_chip::TAIL).max(width + git_width);
+                paint.chrome_end = copy.then_some(pad + line);
             }
         });
         (
@@ -186,21 +197,43 @@ impl Element for CrumbElement {
                             ink.accent_frame,
                         ));
                     }
-                    // DCrumbButton:checked fills the current segment with the accent and white ink.
-                    let mut crumb_ink = if lit { ink.foreground } else { rest };
-                    if !pane && crumb.last && !held {
-                        if let Some((_, width)) = extent {
-                            window.paint_quad(gpui::quad(
-                                Bounds::new(point(x, bounds.top()), size(px(width), height)),
-                                px(4.),
-                                ink.accent,
-                                px(0.),
-                                ink.accent,
-                                gpui::BorderStyle::Solid,
-                            ));
-                            crumb_ink = gpui::Hsla::white();
-                        }
+                    // The current address segment is the solid block. Its letters take the light role, not a literal white.
+                    let current = !pane && crumb.last && !held;
+                    if current {
+                        let glyph = f32::from(run.line().width);
+                        let block = super::super::crumb_chip::block(
+                            f32::from(x),
+                            glyph,
+                            f32::from(bounds.origin.y),
+                            f32::from(height),
+                        );
+                        let mut quad = fill(
+                            Bounds::new(
+                                point(px(block.x), px(block.y)),
+                                size(px(block.width), px(block.height)),
+                            ),
+                            ink.accent,
+                        );
+                        quad.corner_radii = gpui::Corners {
+                            top_left: px(0.),
+                            top_right: px(super::super::crumb_chip::RADIUS),
+                            bottom_right: px(super::super::crumb_chip::RADIUS),
+                            bottom_left: px(0.),
+                        };
+                        window.paint_quad(quad);
                     }
+                    let crumb_ink = if current {
+                        // The same light split as the toolbar plates: ground on a light window, foreground on a dark one.
+                        if ink.background.l > 0.62 {
+                            ink.background
+                        } else {
+                            ink.foreground
+                        }
+                    } else if lit {
+                        ink.foreground
+                    } else {
+                        rest
+                    };
                     paint_run(run, x, bounds.origin.y, height, crumb_ink, window);
                 }
                 if let Some(run) = &git {

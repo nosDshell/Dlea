@@ -1129,6 +1129,14 @@
   "jobs.undone.settags": "أُعيدت الوسوم السابقة.",
   "jobs.undone.trash": "أُعيد من سلة المهملات.",
   "jobs.working": "جارٍ العمل…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains ⁨%1⁩ item)",
+    "other": "1 folder selected (contains ⁨%1⁩ items)"
+  },
   "keys.action.addNetwork": "إضافة مكان شبكة",
   "keys.action.autofitColumns": "ملاءمة الأعمدة تلقائيًا",
   "keys.action.carry": "حمل إلى تطبيق آخر",
@@ -1771,6 +1779,7 @@
   "places.recent.new_folder_refused": "لا يمكن إنشاء مجلد في العناصر الأخيرة. افتح مجلدًا أولًا",
   "places.recent.paste_refused": "لا يمكن اللصق في العناصر الأخيرة. افتح مجلدًا أولًا",
   "places.row.home": "المنزل",
+  "places.row.computer": "Computer",
   "places.row.recent": "الأخيرة",
   "places.row.trash": "سلة المهملات",
   "places.row.desktop": "سطح المكتب",

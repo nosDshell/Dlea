@@ -1,7 +1,7 @@
 //! One path as the pieces a click can land on, and what fits when the strip is narrower than the path.
 use std::collections::HashMap;
 
-/// text is what is drawn, its separator included, so the pieces concatenate to the line they replace.
+/// text is what is drawn. A chevron separates segments; the path field stays the real directory.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Crumb {
     pub text: String,
@@ -55,6 +55,9 @@ pub fn clean_root(path: &str) -> &str {
     text
 }
 
+/// The drawn separator. DFMCrumbBar lays buttons with no slash; the theme's mark is a chevron.
+const SEPARATOR: char = '\u{203a}';
+
 // Only a crumb with another after it carries a separator, so the last gives its own back.
 fn finish(mut out: Vec<Crumb>) -> Vec<Crumb> {
     let many = out.len() > 1;
@@ -76,12 +79,15 @@ pub fn crumbs(path: &str, home: &str, alias: Option<&Alias>) -> Vec<Crumb> {
                 .split('/')
                 .filter(|part| !part.is_empty())
                 .collect();
-            let sep = if parts.is_empty() { "" } else { "/" };
-            let mut out = vec![Crumb::new(format!("{}{sep}", alias.label), root.to_owned())];
+            let mut label = alias.label.clone();
+            if !parts.is_empty() {
+                label.push(SEPARATOR);
+            }
+            let mut out = vec![Crumb::new(label, root.to_owned())];
             let mut walked = root.to_owned();
             for part in parts {
                 walked = format!("{walked}/{part}");
-                out.push(Crumb::new(format!("{part}/"), walked.clone()));
+                out.push(Crumb::new(format!("{part}{SEPARATOR}"), walked.clone()));
             }
             return finish(out);
         }
@@ -99,10 +105,12 @@ pub fn crumbs(path: &str, home: &str, alias: Option<&Alias>) -> Vec<Crumb> {
         String::new()
     };
     // The leading "~" and the leading "/" are crumbs of their own, naming home and the root.
-    let first = if parts.len() > 1 {
-        format!("{}/", parts[0])
+    let more = parts.iter().skip(1).any(|part| !part.is_empty());
+    let root_label = if parts[0].is_empty() { "/" } else { parts[0] };
+    let first = if more {
+        format!("{root_label}{SEPARATOR}")
     } else {
-        parts[0].to_owned()
+        root_label.to_owned()
     };
     let target = if walked.is_empty() {
         "/".to_owned()
@@ -112,7 +120,7 @@ pub fn crumbs(path: &str, home: &str, alias: Option<&Alias>) -> Vec<Crumb> {
     let mut out = vec![Crumb::new(first, target)];
     for part in parts.iter().skip(1).filter(|part| !part.is_empty()) {
         walked = format!("{walked}/{part}");
-        out.push(Crumb::new(format!("{part}/"), walked.clone()));
+        out.push(Crumb::new(format!("{part}{SEPARATOR}"), walked.clone()));
     }
     finish(out)
 }
@@ -249,7 +257,7 @@ pub fn fit_crumbs(list: Vec<Crumb>, budget: usize) -> Vec<Crumb> {
         return elide_leaf(list, budget);
     }
     let marker = Crumb {
-        text: format!("{ELLIPSIS}/"),
+        text: format!("{ELLIPSIS}{SEPARATOR}"),
         path: String::new(),
         last: false,
         elided: true,
@@ -321,7 +329,7 @@ mod tests {
         let path = "/home/u/\u{202e}fdp.exe/x";
         let list = crumbs(path, "/home/u", None);
         let texts: Vec<&str> = list.iter().map(|crumb| crumb.text.as_str()).collect();
-        assert_eq!(texts, ["~/", "fdp.exe/", "x"]);
+        assert_eq!(texts, ["~\u{203a}", "fdp.exe\u{203a}", "x"]);
         assert_eq!(list[1].path, "/home/u/\u{202e}fdp.exe");
     }
 }

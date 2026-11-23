@@ -4,9 +4,10 @@ use crate::window::u07_tests::{press, read};
 use gpui::{point, px, Entity, Modifiers, Point, TestAppContext, VisualTestContext};
 
 // Board 0401-address-copy-a at text size 14: path gap, hit box and clearance past the slot.
+// The hit box is the slot inside the address well. A band-tall box (40) hung into the list header.
 const COPY_GAP: f32 = 9.;
 const COPY_WIDTH: f32 = 24.;
-const COPY_HEIGHT: f32 = 27.;
+const COPY_HEIGHT: f32 = 24.;
 const CLEARANCE_AFTER_COPY: f32 = 40.;
 
 fn alpha(shell: &Entity<crate::state::Shell>, cx: &mut VisualTestContext) {
@@ -133,6 +134,20 @@ fn addrcopy_the_mark_shows_only_while_the_pointer_is_over_the_address(cx: &mut T
         (COPY_WIDTH, COPY_HEIGHT),
         "the chrome's own hit box"
     );
+    let (well, mark_bounds) = shell.read_with(cx, |shell, cx| {
+        let chrome = shell.chrome.view.as_ref().unwrap().read(cx);
+        let frame = chrome.frame.borrow();
+        (
+            frame.address_bounds,
+            frame.controls[crate::path::chrome::COPY].bounds,
+        )
+    });
+    let well = well.expect("the address well");
+    let mark_bounds = mark_bounds.expect("the painted copy mark");
+    assert!(
+        mark_bounds.origin.y >= well.origin.y && mark_bounds.bottom() <= well.bottom(),
+        "the copy mark stays inside the address well: {mark_bounds:?} vs {well:?}"
+    );
     hover(cx, point(leaf.x, px(300.)));
     assert!(!shown(&shell, cx), "gone the moment the pointer leaves");
     shell.update(cx, |shell, _| shell.stop_for_app_quit());
@@ -165,7 +180,7 @@ fn addrcopy_the_keyboard_reaches_the_mark_after_the_path(cx: &mut TestAppContext
     draw(cx);
     let start = read(&shell, cx, "focusStop", &[]);
     assert_eq!(start, "chrome:sidebar");
-    cx.simulate_keystrokes("right right right");
+    cx.simulate_keystrokes("right right right right");
     draw(cx);
     assert_eq!(read(&shell, cx, "focusStop", &[]), "chrome:copy");
     assert!(shown(&shell, cx), "a focused mark draws with its ring");

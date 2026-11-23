@@ -141,6 +141,24 @@ impl Strip {
         true
     }
 
+    /// One crumb for a place that is not a filesystem path. The path stays the place itself.
+    pub fn place_label(&mut self, path: &str, label: &str) {
+        if let [crumb] = self.crumbs.as_slice() {
+            if crumb.path == path && crumb.text == label && crumb.last {
+                return;
+            }
+        }
+        self.crumbs = vec![Crumb {
+            text: label.to_owned(),
+            path: path.to_owned(),
+            last: true,
+            elided: false,
+        }];
+        self.edges.clear();
+        self.revision += 1;
+        self.hovered = None;
+    }
+
     /// A hidden strip holds no crumbs, so a single view rebuilds nothing on every move.
     pub fn clear(&mut self) {
         if self.revision == 0 && self.crumbs.is_empty() {

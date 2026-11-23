@@ -204,7 +204,9 @@ pub fn load_settings() -> Result<Settings, String> {
         .unwrap_or_else(|| home.join(".config"));
     // Before the window, so a fifo or an endless file in its place reads as no file rather than a launch that never opens.
     let body = dlea::userfile::read_text(&config.join("user-dirs.dirs"), MAX_USER_DIRS_BYTES)
-        .unwrap_or_default();
+        .unwrap_or_else(|_| {
+            dlea::ui_logic_rail_places::userdirs::standard_dirs_body(&home.to_string_lossy())
+        });
     settings.newest = crate::navigation::folder_state::newest_paths(&body, &home.to_string_lossy());
     Ok(settings)
 }

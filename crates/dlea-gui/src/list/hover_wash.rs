@@ -2,14 +2,15 @@
 use dlea::jsondoc::Json;
 use gpui::{App, Global};
 
-/// Ticked, the pointer's row, tile and rail row take the 8% foreground wash and lift their ink; a fresh install draws neither.
+/// Ticked, the pointer's row, tile and rail row take the foreground wash and lift their ink.
+/// A fresh document stores true. A missing or unreadable key stays off, so an old file that never wrote the key does not flip.
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub struct HoverWash(pub bool);
 
 impl Global for HoverWash {}
 
 impl HoverWash {
-    /// Only a stored true ticks it; an absent or unreadable key reads off, as decision hover-default ships it.
+    /// Only a stored true ticks it. An absent or unreadable key stays off.
     pub fn read(data: &Json) -> Self {
         Self(data.get("highlightHover").and_then(Json::as_bool) == Some(true))
     }

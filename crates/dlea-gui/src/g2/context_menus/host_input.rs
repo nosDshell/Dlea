@@ -113,6 +113,10 @@ impl Shell {
             || (side == 1 && self.view != View::Dual)
             || self.slots.covers[side].is_some()
             || self.flash_covers(side)
+            || self.panes.get(side).and_then(Option::as_ref).is_some_and(|host| {
+                crate::navigation::history::is_computer(host.pane.place())
+                    || crate::navigation::history::is_computer(&host.path)
+            })
         {
             return;
         }

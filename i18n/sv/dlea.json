@@ -933,6 +933,14 @@
   "jobs.undone.settags": "Återställde de tidigare taggarna.",
   "jobs.undone.trash": "Återställde från papperskorgen.",
   "jobs.working": "Arbetar…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Lägg till nätverksplats",
   "keys.action.autofitColumns": "Anpassa kolumner",
   "keys.action.carry": "Bär till en annan app",
@@ -1543,6 +1551,7 @@
   "places.recent.new_folder_refused": "Det går inte att skapa en ny mapp i Senaste. Öppna en mapp först",
   "places.recent.paste_refused": "Det går inte att klistra in i Senaste. Öppna en mapp först",
   "places.row.home": "Hem",
+  "places.row.computer": "Computer",
   "places.row.recent": "Senaste",
   "places.row.trash": "Papperskorg",
   "places.row.desktop": "Skrivbord",

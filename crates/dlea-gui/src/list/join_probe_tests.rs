@@ -185,7 +185,11 @@ fn cr_o1_f6_dual_size_sits_flush_against_modified() {
                     .cell(columns::Column::Date)
                     .expect("Modified is drawn");
                 let want = if gap { list.file_metrics().gap } else { 0. };
-                assert_eq!(date.x - size.right(), want, "Size to Modified in {view:?}");
+                assert_eq!(
+                    size.x - date.right(),
+                    want,
+                    "Time changed to Size in {view:?}"
+                );
             })
             .unwrap();
     }

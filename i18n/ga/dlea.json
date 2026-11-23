@@ -516,6 +516,7 @@
   "places.heading.tags": "Clibeanna",
   "places.heading.network": "omarchy:keybindings.Network",
   "places.row.home": "Baile",
+  "places.row.computer": "Computer",
   "places.row.recent": "Is déanaí",
   "places.row.trash": "Bruscar",
   "places.row.desktop": "Deasc",
@@ -2497,6 +2498,14 @@
   "search.contents.timeout": "Chuaigh cuardach inneachair thar am.",
   "search.contents.limit": "Sháraigh cuardach inneachair a theorainn aschuir.",
   "search.contents.identity": "Ní féidir an t-ainm comhaid seo a úsáid go sábháilte. Ní dhearnadh aon ghníomh.",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.label.bd0b7be215ce": "Dún an t-eagarthóir",
   "keys.label.bc4dd3d76b73": "Coinnigh na torthaí",
   "keys.label.e9619e148ed8": "Níl aon éifeacht ag Control+X",

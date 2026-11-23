@@ -480,6 +480,7 @@
   "places.heading.tags": "Címkék",
   "places.heading.network": "omarchy:keybindings.Network",
   "places.row.home": "Saját mappa",
+  "places.row.computer": "Computer",
   "places.row.recent": "Legutóbbiak",
   "places.row.trash": "Kuka",
   "places.row.desktop": "Asztal",
@@ -2185,6 +2186,14 @@
   "search.contents.timeout": "A tartalomkeresés túllépte az időkorlátot.",
   "search.contents.limit": "A tartalomkeresés túllépte a kimeneti korlátot.",
   "search.contents.identity": "A fájlnév nem használható biztonságosan. Nem történt művelet.",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.label.bd0b7be215ce": "Szerkesztő bezárása",
   "keys.label.bc4dd3d76b73": "Találatok megtartása",
   "keys.label.e9619e148ed8": "A Control+X nem végez műveletet",

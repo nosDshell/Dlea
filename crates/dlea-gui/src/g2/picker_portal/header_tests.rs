@@ -61,7 +61,7 @@ fn picker_gm_title_taps_sort_name_size_and_date(cx: &mut TestAppContext) {
         let picker = f.picker.read(cx);
         super::geometry::Live { picker, cx }.controls()
     });
-    for title in [r#""Name""#, r#""Size""#, r#""Modified""#] {
+    for title in [r#""Name""#, r#""Size""#, r#""Time changed""#] {
         assert!(
             titles.contains(title),
             "{title} is a drawn control: {titles}"
@@ -84,7 +84,7 @@ fn picker_gm_title_taps_sort_name_size_and_date(cx: &mut TestAppContext) {
     let (line, key, desc) = tap(&mut f, Some(Column::Date));
     assert!(
         line.contains(r#""by":"mtime","desc":false"#),
-        "Modified sorts ascending: {line}"
+        "Time changed sorts ascending: {line}"
     );
     assert_eq!((key, desc), ("mtime", false));
     answer(&mut f, 4);

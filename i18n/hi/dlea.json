@@ -916,6 +916,14 @@
   "jobs.undone.settags": "पिछले टैग बहाल किए गए।",
   "jobs.undone.trash": "कूड़ेदान से वापस रखा गया।",
   "jobs.working": "काम चल रहा है…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "नेटवर्क स्थान जोड़ें",
   "keys.action.autofitColumns": "कॉलम अपने आप फ़िट करें",
   "keys.action.copy": "कॉपी करें",
@@ -1503,6 +1511,7 @@
   "places.heading.tags": "टैग",
   "places.recent.paste_refused": "हालिया में पेस्ट नहीं कर सकते। पहले कोई फ़ोल्डर खोलें",
   "places.row.home": "होम",
+  "places.row.computer": "Computer",
   "places.row.recent": "हालिया",
   "places.row.trash": "कूड़ेदान",
   "places.row.desktop": "डेस्कटॉप",

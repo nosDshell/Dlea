@@ -70,10 +70,10 @@ fn each_row_reads_its_own_key_and_turns_off_alone() {
 fn the_schema_ships_the_rows_as_041_draws_and_takes_only_booleans() {
     let fresh = crate::uistate::from_file("{}");
     for (key, on) in [
-        ("highlightHover", false),
+        ("highlightHover", true),
         ("tabsAsIcons", false),
-        ("emptyFolderOmi", true),
-        ("emptyFolderRotate", true),
+        ("emptyFolderOmi", false),
+        ("emptyFolderRotate", false),
     ] {
         assert_eq!(
             fresh.get(key).and_then(Json::as_bool),

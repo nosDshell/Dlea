@@ -965,6 +965,14 @@
   "jobs.undone.settags": "Etiquetas anteriores restauradas.",
   "jobs.undone.trash": "Item restaurado da Lixeira.",
   "jobs.working": "Processando…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Adicionar local de rede",
   "keys.action.autofitColumns": "Ajustar colunas",
   "keys.action.copy": "Copiar",
@@ -1559,6 +1567,7 @@
   "places.heading.tags": "Etiquetas",
   "places.recent.paste_refused": "Recentes não aceita colagem. Abra uma pasta primeiro",
   "places.row.home": "Pasta pessoal",
+  "places.row.computer": "Computer",
   "places.row.recent": "Recentes",
   "places.row.trash": "Lixeira",
   "places.row.desktop": "Área de trabalho",

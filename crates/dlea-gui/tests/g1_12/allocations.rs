@@ -173,18 +173,18 @@ fn a_redrawn_strip_and_popup_reuse_their_kept_runs_and_pieces_and_allocate_nothi
     })
     .collect();
     // The first frame shapes every piece and sizes both buffers.
-    paint.lay_strip(0, &mut strip, |_, text| shaped(text));
+    paint.lay_strip(0, &mut strip, Size::Caption, |_, text| shaped(text));
     paint.lay_menu(&rows, Some(0), (0, 3), |_, text, _| shaped(text));
     assert_eq!(
         (paint.runs[0].len(), strip.extent(1)),
-        (3, Some((14., 35.)))
+        (3, Some((18., 39.)))
     );
     let pieces = paint.pieces.len();
     assert!(pieces >= 6, "{pieces}");
     let count = counted(|| {
         for _ in 0..1000 {
             black_box(strip.fit("/home/gm/Work/claude", HOME, None, 120));
-            paint.lay_strip(0, &mut strip, |_, _| {
+            paint.lay_strip(0, &mut strip, Size::Caption, |_, _| {
                 unreachable!("an unchanged strip shapes nothing")
             });
             paint.lay_menu(&rows, Some(0), (0, 3), |_, _, _| {
@@ -199,5 +199,5 @@ fn a_redrawn_strip_and_popup_reuse_their_kept_runs_and_pieces_and_allocate_nothi
     assert_eq!((paint.runs[0].len(), paint.pieces.len()), (3, pieces));
     // Positive control: a changed path shapes its new crumb, which allocates.
     assert!(strip.fit("/home/gm/Work/other", HOME, None, 120));
-    assert!(counted(|| paint.lay_strip(0, &mut strip, |_, text| shaped(text))) > 0);
+    assert!(counted(|| paint.lay_strip(0, &mut strip, Size::Caption, |_, text| shaped(text))) > 0);
 }

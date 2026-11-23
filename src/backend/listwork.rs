@@ -108,6 +108,27 @@ pub fn start(
     job: Job,
     mime: Arc<super::mime::Db>,
 ) -> Started {
+    // Computer is a place, not a directory: the client still receives this generation's empty listing.
+    if job.path == dlea::ui_logic_rail_places::order::COMPUTER {
+        watch.stop();
+        let result = Ok(ListOut {
+            listing: crate::backend::listing::Listing::new(),
+            read_ms: 0.,
+            sort_ms: 0.,
+            sized: Vec::new(),
+            dev: 0,
+            writable: false,
+            first_metas: Vec::new(),
+            first_start: 0,
+            first_ms: 0.,
+            watch_wd: -1,
+            watch_mount: std::path::PathBuf::new(),
+        });
+        return Started::Inline(Box::new(Landed {
+            job,
+            done: Done { result },
+        }));
+    }
     // A new listing replaces whatever the walk was filling, so the walk ends before the scan starts.
     if finish_search(out, st, true) {
         forget_rows(st, pool);
