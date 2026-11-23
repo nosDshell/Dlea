@@ -205,6 +205,14 @@
   "archive.flash.eject": "Keluarkan",
   "device.menu.eject": "Keluarkan",
   "menu.row.eject": "Keluarkan",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.eject": "Keluarkan",
   "archive.flash.eject_failed": "Tidak dapat mengeluarkan %1.",
   "archive.flash.ejected": "%1 dikeluarkan. Aman untuk dicabut.",
@@ -2555,13 +2563,5 @@
     "other": "%1 item di dalam tidak dapat dipindahkan; yang pertama adalah %2: %3"
   },
   "keys.action.extendLeft": "Perluas ke kiri",
-  "keys.action.extendRight": "Perluas ke kanan",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.action.extendRight": "Perluas ke kanan"
 }

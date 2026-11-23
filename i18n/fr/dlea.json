@@ -965,6 +965,14 @@
   "jobs.undone.settags": "Étiquettes précédentes restaurées.",
   "jobs.undone.trash": "Élément restauré depuis la corbeille.",
   "jobs.working": "Traitement…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Ajouter un lieu réseau",
   "keys.action.autofitColumns": "Ajuster les colonnes",
   "keys.action.copy": "Copier",
@@ -2783,13 +2791,5 @@
     "other": "Impossible de déplacer %1 éléments à l’intérieur ; le premier est %2 : %3"
   },
   "keys.action.extendLeft": "Étendre vers la gauche",
-  "keys.action.extendRight": "Étendre vers la droite",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.action.extendRight": "Étendre vers la droite"
 }

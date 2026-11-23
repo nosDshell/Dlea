@@ -884,6 +884,14 @@
   "jobs.undone.settags": "คืนค่าแท็กก่อนหน้าแล้ว",
   "jobs.undone.trash": "นำกลับจากถังขยะแล้ว",
   "jobs.working": "กำลังทำงาน…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "เพิ่มตำแหน่งเครือข่าย",
   "keys.action.autofitColumns": "ปรับคอลัมน์อัตโนมัติ",
   "keys.action.carry": "นำไปยังแอปอื่น",
@@ -2555,13 +2563,5 @@
     "other": "ย้าย %1 รายการ ภายในไม่สำเร็จ รายการแรกคือ %2: %3"
   },
   "keys.action.extendLeft": "ขยายการเลือกไปทางซ้าย",
-  "keys.action.extendRight": "ขยายการเลือกไปทางขวา",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.action.extendRight": "ขยายการเลือกไปทางขวา"
 }

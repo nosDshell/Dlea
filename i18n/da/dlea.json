@@ -916,6 +916,14 @@
   "jobs.undone.settags": "Gendannede de tidligere mærker.",
   "jobs.undone.trash": "Gendannede fra papirkurven.",
   "jobs.working": "Arbejder…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Tilføj netværkssted",
   "keys.action.autofitColumns": "Tilpas kolonner",
   "keys.action.copy": "Kopier",
@@ -2669,13 +2677,5 @@
     "other": "%1 elementer indeni kunne ikke flyttes; det første er %2: %3"
   },
   "keys.action.extendLeft": "Udvid mod venstre",
-  "keys.action.extendRight": "Udvid mod højre",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.action.extendRight": "Udvid mod højre"
 }

@@ -916,6 +916,14 @@
   "jobs.undone.settags": "Aiemmat tunnisteet palautettu.",
   "jobs.undone.trash": "Palautettu roskakorista.",
   "jobs.working": "Käsitellään…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Lisää verkkosijainti",
   "keys.action.autofitColumns": "Sovita sarakkeet",
   "keys.action.copy": "Kopioi",
@@ -2669,13 +2677,5 @@
     "other": "Sisältä ei voitu siirtää %1 kohdetta; ensimmäinen on %2: %3"
   },
   "keys.action.extendLeft": "Laajenna vasemmalle",
-  "keys.action.extendRight": "Laajenna oikealle",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.action.extendRight": "Laajenna oikealle"
 }

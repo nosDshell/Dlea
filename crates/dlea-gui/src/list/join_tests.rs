@@ -135,7 +135,7 @@ fn u04_header_and_rows_share_the_live_painted_layout_and_dispatch() {
         .unwrap();
     assert_eq!(
         ask(&mut cx, handle, "headerTitles", &[]),
-        "Name|Mode|Size|Modified|Kind"
+        "Name|Mode|Size|Time changed|Type"
     );
     for name in ["headerCellCentre", "headerCellRect"] {
         assert!(!ask(&mut cx, handle, name, &["size"]).is_empty());

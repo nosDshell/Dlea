@@ -1031,6 +1031,14 @@
   "jobs.undone.settags": "Prejšnje oznake obnovljene.",
   "jobs.undone.trash": "Vrnjeno iz Koša.",
   "jobs.working": "Obdelava…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Dodaj omrežno mesto",
   "keys.action.autofitColumns": "Prilagodi stolpce",
   "keys.action.carry": "V drugo aplikacijo",
@@ -2897,13 +2905,5 @@
     "two": "Premikanje notranjih predmetov (%1) ni uspelo; prvi je %2: %3"
   },
   "keys.action.extendLeft": "Razširi levo",
-  "keys.action.extendRight": "Razširi desno",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.action.extendRight": "Razširi desno"
 }

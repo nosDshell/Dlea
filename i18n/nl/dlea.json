@@ -129,6 +129,14 @@
   },
   "archive.flash.eject": "Uitwerpen",
   "device.menu.eject": "Uitwerpen",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.eject": "Uitwerpen",
   "menu.row.eject": "Uitwerpen",
   "archive.flash.eject_failed": "%1 kon niet worden uitgeworpen.",
@@ -2669,13 +2677,5 @@
     "other": "%1 items erin konden niet worden verplaatst; het eerste is %2: %3"
   },
   "keys.action.extendLeft": "Naar links uitbreiden",
-  "keys.action.extendRight": "Naar rechts uitbreiden",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.action.extendRight": "Naar rechts uitbreiden"
 }

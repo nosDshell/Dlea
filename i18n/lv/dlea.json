@@ -965,6 +965,14 @@
   "jobs.undone.settags": "Iepriekšējās birkas atjaunotas.",
   "jobs.undone.trash": "Atjaunots no atkritnes.",
   "jobs.working": "Apstrādā…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Pievienot tīkla vietu",
   "keys.action.autofitColumns": "Pielāgot kolonnas",
   "keys.action.copy": "Kopēt",
@@ -2783,13 +2791,5 @@
     "zero": "Neizdevās pārvietot iekšējos vienumus (%1); pirmais ir %2: %3"
   },
   "keys.action.extendLeft": "Paplašināt pa kreisi",
-  "keys.action.extendRight": "Paplašināt pa labi",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.action.extendRight": "Paplašināt pa labi"
 }

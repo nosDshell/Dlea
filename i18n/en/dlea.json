@@ -2414,6 +2414,14 @@
     "one": "%1 item inside could not be moved; the first is %2: %3",
     "other": "%1 items inside could not be moved; the first is %2: %3"
   },
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.label.bd0b7be215ce": "Close editor",
   "keys.label.e9619e148ed8": "Control+X is inert",
   "keys.label.1426edd106ac": "Copy file URI",
@@ -2670,13 +2678,5 @@
   "keys.tui17.sortRandom": "Shuffle files",
   "keys.tui17.suspend": "Suspend",
   "keys.tui17.wordBackward": "Previous word (field)",
-  "keys.tui17.wordForward": "Next word (field)",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.tui17.wordForward": "Next word (field)"
 }

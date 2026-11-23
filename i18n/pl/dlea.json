@@ -1014,6 +1014,14 @@
   "jobs.undone.settags": "Przywrócono poprzednie tagi.",
   "jobs.undone.trash": "Przywrócono z Kosza.",
   "jobs.working": "Przetwarzanie…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Dodaj miejsce sieciowe",
   "keys.action.autofitColumns": "Dopasuj kolumny",
   "keys.action.copy": "Kopiuj",
@@ -2897,13 +2905,5 @@
     "other": "Nie udało się przenieść elementów wewnątrz (%1); pierwszy to %2: %3"
   },
   "keys.action.extendLeft": "Rozszerz w lewo",
-  "keys.action.extendRight": "Rozszerz w prawo",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.action.extendRight": "Rozszerz w prawo"
 }

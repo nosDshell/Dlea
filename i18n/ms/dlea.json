@@ -2082,6 +2082,14 @@
   "search.contents.timeout": "Carian kandungan tamat masa.",
   "search.contents.limit": "Carian kandungan melebihi had outputnya.",
   "search.contents.identity": "Nama fail ini tidak boleh digunakan dengan selamat. Tiada tindakan dibuat.",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.label.bd0b7be215ce": "Tutup penyunting",
   "keys.label.bc4dd3d76b73": "Simpan hasil",
   "keys.label.e9619e148ed8": "Control+X tiada tindakan",
@@ -2555,13 +2563,5 @@
     "other": "%1 item di dalam tidak dapat dipindahkan; yang pertama ialah %2: %3"
   },
   "keys.action.extendLeft": "Luaskan ke kiri",
-  "keys.action.extendRight": "Luaskan ke kanan",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.action.extendRight": "Luaskan ke kanan"
 }

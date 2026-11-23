@@ -1031,6 +1031,14 @@
   "jobs.undone.settags": "Попередні мітки відновлено.",
   "jobs.undone.trash": "Повернуто зі смітника.",
   "jobs.working": "Виконання…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Додати мережеву теку",
   "keys.action.autofitColumns": "Підібрати ширину колон",
   "keys.action.carry": "До іншої програми",
@@ -2897,13 +2905,5 @@
     "other": "Не вдалося перемістити елементи всередині (%1); перший: %2: %3"
   },
   "keys.action.extendLeft": "Розширити ліворуч",
-  "keys.action.extendRight": "Розширити праворуч",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.action.extendRight": "Розширити праворуч"
 }

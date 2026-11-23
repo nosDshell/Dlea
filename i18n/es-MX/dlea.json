@@ -965,6 +965,14 @@
   "jobs.undone.settags": "Se restauraron las etiquetas anteriores.",
   "jobs.undone.trash": "Se devolvió de la Papelera.",
   "jobs.working": "Trabajando…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Agregar lugar de red",
   "keys.action.autofitColumns": "Ajustar columnas",
   "keys.action.copy": "Copiar",
@@ -2783,13 +2791,5 @@
     "other": "No se pudieron mover %1 elementos del interior; el primero es %2: %3"
   },
   "keys.action.extendLeft": "Extender a la izquierda",
-  "keys.action.extendRight": "Extender a la derecha",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.action.extendRight": "Extender a la derecha"
 }

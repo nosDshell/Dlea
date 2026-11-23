@@ -2290,6 +2290,14 @@
   "search.contents.timeout": "A pesquisa de conteúdo excedeu o tempo limite.",
   "search.contents.limit": "A pesquisa de conteúdo excedeu o limite de saída.",
   "search.contents.identity": "Não é possível utilizar este nome de ficheiro em segurança. Nenhuma ação foi realizada.",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.label.bd0b7be215ce": "Fechar editor",
   "keys.label.bc4dd3d76b73": "Manter resultados",
   "keys.label.e9619e148ed8": "Control+X não tem efeito",
@@ -2783,13 +2791,5 @@
     "many": "Não foi possível mover %1 itens no interior; o primeiro é %2: %3"
   },
   "keys.action.extendLeft": "Estender à esquerda",
-  "keys.action.extendRight": "Estender à direita",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.action.extendRight": "Estender à direita"
 }

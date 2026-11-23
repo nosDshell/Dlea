@@ -965,6 +965,14 @@
   "jobs.undone.settags": "Původní štítky byly obnoveny.",
   "jobs.undone.trash": "Obnoveno z koše.",
   "jobs.working": "Zpracování…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Přidat síťové umístění",
   "keys.action.autofitColumns": "Přizpůsobit sloupce",
   "keys.action.copy": "Kopírovat",
@@ -2783,13 +2791,5 @@
     "other": "Uvnitř se nepodařilo přesunout %1 položek; první je %2: %3"
   },
   "keys.action.extendLeft": "Rozšířit vlevo",
-  "keys.action.extendRight": "Rozšířit vpravo",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.action.extendRight": "Rozšířit vpravo"
 }

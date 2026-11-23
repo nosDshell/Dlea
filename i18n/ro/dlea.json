@@ -965,6 +965,14 @@
   "jobs.undone.settags": "Etichetele anterioare au fost restaurate.",
   "jobs.undone.trash": "Pus înapoi din Coș.",
   "jobs.working": "Se lucrează…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.action.addNetwork": "Adaugă loc de rețea",
   "keys.action.autofitColumns": "Potrivește coloanele",
   "keys.action.copy": "Copiază",
@@ -2783,13 +2791,5 @@
     "other": "Nu s-au putut muta %1 de elemente din interior; primul este %2: %3"
   },
   "keys.action.extendLeft": "Extinde spre stânga",
-  "keys.action.extendRight": "Extinde spre dreapta",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.action.extendRight": "Extinde spre dreapta"
 }

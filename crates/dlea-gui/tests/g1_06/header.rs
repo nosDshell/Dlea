@@ -24,7 +24,7 @@ fn zones_sit_on_every_drawn_column_edge_and_only_in_a_single_unsearched_pane() {
     let zones: Vec<_> = handles(&layout, &metrics(), &view).collect();
     assert_eq!(
         zones.iter().map(|zone| zone.column).collect::<Vec<_>>(),
-        [Column::Mode, Column::Size, Column::Date]
+        [Column::Mode, Column::Size, Column::Date, Column::Kind]
     );
     for zone in &zones {
         let cell = layout.cell(zone.column).unwrap();
@@ -226,10 +226,10 @@ fn a_fit_measures_the_held_rows_only_and_an_empty_window_writes_nothing() {
         list.autofit(Column::Size, held, window)
     });
     assert_eq!(again, None, "a second fit to the same width wrote again");
-    let kind = pane.with_window(&mut cx, |list, held, window| {
-        list.autofit(Column::Kind, held, window)
+    let mode = pane.with_window(&mut cx, |list, held, window| {
+        list.autofit(Column::Mode, held, window)
     });
-    assert_eq!(kind, None, "a column that is not drawn was fitted");
+    assert_eq!(mode, None, "a column that is not drawn was fitted");
 }
 
 #[test]

@@ -2186,6 +2186,14 @@
   "search.contents.timeout": "Sisuotsingu aeg sai otsa.",
   "search.contents.limit": "Sisuotsing ületas väljundipiirangu.",
   "search.contents.identity": "Seda failinime ei saa ohutult kasutada. Midagi ei tehtud.",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.label.bd0b7be215ce": "Sulge redaktor",
   "keys.label.bc4dd3d76b73": "Jäta tulemused alles",
   "keys.label.e9619e148ed8": "ctrl-x ei tee midagi",
@@ -2669,13 +2677,5 @@
     "other": "Sees olevaid üksusi (%1) ei saanud teisaldada; esimene on %2: %3"
   },
   "keys.action.extendLeft": "Laienda vasakule",
-  "keys.action.extendRight": "Laienda paremale",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.action.extendRight": "Laienda paremale"
 }

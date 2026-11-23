@@ -916,6 +916,14 @@
   "jobs.undone.settags": "برچسب‌های قبلی بازیابی شدند.",
   "jobs.undone.trash": "از سطل زباله بازگردانده شد.",
   "jobs.working": "در حال انجام…",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains ⁨%1⁩ item)",
+    "other": "1 folder selected (contains ⁨%1⁩ items)"
+  },
   "keys.action.addNetwork": "افزودن مکان شبکه",
   "keys.action.autofitColumns": "تنظیم خودکار عرض ستون‌ها",
   "keys.action.copy": "کپی",
@@ -2669,13 +2677,5 @@
     "other": "انتقال ⁨%1⁩ مورد داخل ممکن نشد؛ نخستین مورد ⁨%2⁩ است: ⁨%3⁩"
   },
   "keys.action.extendLeft": "گسترش انتخاب به چپ",
-  "keys.action.extendRight": "گسترش انتخاب به راست",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains ⁨%1⁩ item)",
-    "other": "1 folder selected (contains ⁨%1⁩ items)"
-  }
+  "keys.action.extendRight": "گسترش انتخاب به راست"
 }

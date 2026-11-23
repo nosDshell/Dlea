@@ -2186,6 +2186,14 @@
   "search.contents.timeout": "Zeitüberschreitung bei der Inhaltssuche.",
   "search.contents.limit": "Die Inhaltssuche hat ihre Ausgabegrenze überschritten.",
   "search.contents.identity": "Dieser Dateiname kann nicht sicher verwendet werden. Es wurde keine Aktion ausgeführt.",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  },
   "keys.label.bd0b7be215ce": "Editor schließen",
   "keys.label.bc4dd3d76b73": "Ergebnisse behalten",
   "keys.label.e9619e148ed8": "ctrl+X hat keine Wirkung",
@@ -2669,13 +2677,5 @@
     "other": "%1 Elemente darin konnten nicht verschoben werden; das erste ist %2: %3"
   },
   "keys.action.extendLeft": "Nach links erweitern",
-  "keys.action.extendRight": "Nach rechts erweitern",
-  "computer.section.directories": "My Directories",
-  "computer.section.internal": "Internal Disk",
-  "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk",
-  "status.computer.folder": {
-    "one": "1 folder selected (contains %1 item)",
-    "other": "1 folder selected (contains %1 items)"
-  }
+  "keys.action.extendRight": "Nach rechts erweitern"
 }

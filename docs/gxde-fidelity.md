@@ -140,7 +140,7 @@ deb [signed-by=/etc/apt/keyrings/gxde-archive.gpg] https://mirrors.hit.edu.cn/GX
 - 计算机页不画列表表头，状态栏右侧不再写 unknown，缩放滑块还在。选中一个用户目录时，状态栏是 “1 folder selected (contains N item/items)”，N 来自该目录。
 - 标题栏双击空白最大化，客户区角落拖拽改变大小，最大化按钮和关闭按钮可用。
 - 浅色选中的工具栏按钮是实色强调色、白色字形。
-- 列表列顺序 Name / Time changed / Size / Type。裸机浅色调色板；主题文件仍优先。
+- 列表列顺序 Name / Time changed / Size / Type。没画出来的列按这个顺序贴在右边邻居上。裸机浅色调色板；主题文件仍优先。
 - 复制、粘贴、改名、移到回收站是真实文件操作。
 
 已完成并且在真窗口里测过，补记：
