@@ -20,10 +20,6 @@ use std::{cell::Cell, rc::Rc, sync::Arc};
 pub(crate) struct ThumbSlid(pub usize);
 impl gpui::EventEmitter<ThumbSlid> for Footer {}
 
-// DStatusBar m_scaleSlider: a 120 px slider anchored 20 px off the right edge.
-const SLIDER_W: f32 = 120.;
-const SLIDER_MARGIN: f32 = 20.;
-
 #[path = "status_counts.rs"]
 mod counts;
 #[path = "status_detail.rs"]
@@ -32,6 +28,8 @@ mod detail;
 mod filesystem;
 #[path = "status_footer.rs"]
 mod handoff;
+#[path = "status_place.rs"]
+mod place;
 pub(crate) use filesystem::Filesystem;
 
 #[cfg(test)]
@@ -68,21 +66,21 @@ impl Footer {
     /// The stop a press inside the slider names: its fraction across the groove, snapped to THUMB_STOPS.
     fn slider_index(&self, x: gpui::Pixels) -> usize {
         let last = crate::grid::geometry::THUMB_STOPS.len() - 1;
-        let norm = ((f32::from(x) - self.slider_left.get()) / SLIDER_W).clamp(0., 1.);
+        let norm = ((f32::from(x) - self.slider_left.get()) / place::SLIDER_W).clamp(0., 1.);
         ((norm * last as f32) + 0.5) as usize
     }
 
     /// DStatusBar m_scaleSlider: a horizontal groove with an accent fill and a circular handle, which drags to a thumbnail stop.
     fn slider(&self, height: f32, ink: &Palette, cx: &mut Context<Self>) -> impl IntoElement {
         let last = (crate::grid::geometry::THUMB_STOPS.len() - 1) as f32;
-        let centre = ((self.thumb as f32 / last) * SLIDER_W).clamp(7., SLIDER_W - 7.);
+        let centre = ((self.thumb as f32 / last) * place::SLIDER_W).clamp(7., place::SLIDER_W - 7.);
         let left = self.slider_left.clone();
         div()
             .absolute()
-            .right(px(SLIDER_MARGIN))
+            .right(px(place::SLIDER_MARGIN))
             .top_0()
             .h(px(height))
-            .w(px(SLIDER_W))
+            .w(px(place::SLIDER_W))
             .flex()
             .items_center()
             .cursor_pointer()
@@ -425,20 +423,15 @@ impl Render for Footer {
                 .width;
             f32::from(width)
         };
-        let disk_width = measure(&self.filesystem).min(self.zone_width);
-        // HIG locked-menu lets the full notice use the count zone's unpainted space.
-        let count_width = measure(&self.counts).min(self.zone_width);
-        // DStatusBar anchors its 120 px scale slider 20 px off the right edge. The disk facts stay in the probe and are not drawn.
-        let disk_x = SLIDER_MARGIN + SLIDER_W + 14.;
-        let room = (self.width - 28. - disk_width - disk_x - (14. + count_width + 14.)).max(0.);
-        let counts_text = counts::elided(&self.counts, self.zone_width, measure);
+        let bands = place::bands_for(self, &measure, cx);
+        let counts_text = counts::elided(&self.counts, bands.counts_width, &measure);
         self.counts_text = counts_text.layout().clone();
         // A block zone, not a flex row: only a text given its zone's width is cut with the ellipsis StatusBar.qml draws.
-        let text = |name, value: SharedString, child: gpui::AnyElement| {
+        let text = |name, value: SharedString, child: gpui::AnyElement, wide: f32| {
             let element = self.painted.watch(
                 div()
                     .relative()
-                    .w(px(self.zone_width))
+                    .w(px(wide))
                     .h(px(height))
                     .line_height(px(height))
                     .overflow_hidden()
@@ -486,26 +479,30 @@ impl Render for Footer {
                     "counts",
                     self.counts.clone(),
                     counts_text.into_any_element(),
+                    bands.counts_width,
                 )
                 .absolute()
-                .left(px(((self.width - self.zone_width) / 2.).max(14.))).text_center(),
+                .left(px(bands.counts_left))
+                .when(bands.center, |count| count.text_center()),
             )
             .child(
                 text(
                     "disk",
                     self.filesystem.clone(),
                     self.filesystem.clone().into_any_element(),
+                    self.zone_width,
                 )
                 .absolute()
-                .right(px(disk_x))
-                .text_right().opacity(0.),
+                .right(px(place::content_inset()))
+                .text_right()
+                .opacity(0.),
             )
             .child(
                 self.painted.watch(
                     div()
                         .absolute()
-                        .right(px(disk_x + disk_width + 14.))
-                        .w(px(room))
+                        .right(px(bands.lane_right))
+                        .w(px(bands.lane_width))
                         .h(px(height))
                         .child(self.message_line()),
                     "lane",

@@ -211,3 +211,15 @@ xfwm4 上仍是一条客户区标题栏，拖动、最大化、最小化可用�
 - 没有局域网行。英文 0 仍是 “0 items”。
 
 这几张是这次窗口上的图：列表、红色关闭、空目录、计算机页。显示效果还不是 15.5 的一比一。长通知和居中项数会叠在一起；`status_tests` 和 `status_notice_layout_tests` 仍按旧的左对齐 27 px 状态栏锁坐标，上一提交里就已经对不上 `0 673`，这次没有把它们改成通过。`status.rs` 仍超过记录的 408 行。`tests/compat/state_compat.py` 用当前 `target/debug/dlea` 重跑，退出码 0。没有重跑整库 `tests/run-all.sh`，上次的 395 套、335 套失败、退出码 79 仍然有效，不能当验收通过。
+
+## 2026-11-23 夜里，通知让开项数
+
+上游 `origin/main` 仍是 `d41392b9`。这一轮开始时本地和远程都是 `40284dfb0`。
+
+状态栏仍是 DDE 15 那条：没有磁盘余量，滑块在右边。短通知放得进项数和滑块之间的空隙时，项数继续居中。句子比这空隙长时，项数改到左边距 14，通知用剩下的宽度，右缘停在滑块前面，不再叠在项数上。1100×700 的帧是 `0 676 1100 24`：状态槽 24，不是列表头的 27。空目录英雄从列表头下沿开始，所以是 `192 67 908 609`。非错误通知用前景色，项数和 “esc dismisses” 仍是次级色。
+
+计算机页的文件夹仍是自制图形：浅色正文、更深的折页和底边，标记用强调色而不是白。采样到的正文约 rgb(137, 205, 250)，标记是 rgb(44, 167, 248)。磁盘是高的圆角块：亮绿面板、浅灰底座、一盏灯和四条栅。没有拷贝深度的图标文件。
+
+`DISPLAY=:99`，xfwm4，窗口 900×600。列表的 “11 items” 居中。通知栏左边是 `unavailable`，右边是 `Computer could not be read. · esc dismisses`，中间没有叠字。空目录仍是 “Folder is empty”，项数是 “0 items”。截图是 `dlea-lane-list.png`、`dlea-lane-notice.png`、`dlea-lane-notice-bar.png`、`dlea-lane-computer.png`、`dlea-lane-empty.png`，图标放大是 `dlea-lane-folder-zoom.png` 和 `dlea-lane-disk-zoom.png`。
+
+`cargo test --offline --locked -p dlea-gui --lib window::status`：76 通过。没有重跑整库 395 套。`status.rs` 是 526 行，记录上限仍是 408。显示效果还不是 15.5 的一比一。

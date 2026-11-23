@@ -6,6 +6,28 @@ fn number(value: &Json, key: &str) -> f64 {
     value.get(key).unwrap().as_f64().unwrap()
 }
 
+/// Glyphs of a centered count sit in the middle of the zone. A yielded count hugs its own text.
+fn glyph_right(text: &Json) -> f64 {
+    let (x, width, implicit) = (
+        number(text, "x"),
+        number(text, "width"),
+        number(text, "implicitWidth"),
+    );
+    let drawn = implicit.min(width);
+    if width > drawn + 2. {
+        x + (width + drawn) / 2.
+    } else {
+        x + drawn
+    }
+}
+
+fn clear_of(count: &Json, text: &Json) {
+    assert!(
+        number(text, "x") + 1. >= glyph_right(count) + 14. - 1.,
+        "the notice covers the count: count={count:?} text={text:?}"
+    );
+}
+
 #[gpui::test]
 fn notice_layout_hidden_rows_keep_the_complete_hig_sentence(cx: &mut TestAppContext) {
     let handle = locked(cx, Some(super::HIDDEN_0_4_0));
@@ -18,7 +40,8 @@ fn notice_layout_hidden_rows_keep_the_complete_hig_sentence(cx: &mut TestAppCont
     );
     let primary = footer.get("centre").unwrap();
     let hint = footer.get("secondary").unwrap();
-    assert_eq!(footer.get("frame").unwrap().as_str(), Some("0 673 1100 27"));
+    // The bar is the 24 px status slot, not the 27 px list header. 700 - 24 = 676.
+    assert_eq!(footer.get("frame").unwrap().as_str(), Some("0 676 1100 24"));
     handle
         .update(cx, |shell, _, _| {
             let face = shell.active_typeface();
@@ -41,17 +64,19 @@ fn notice_layout_hidden_rows_keep_the_complete_hig_sentence(cx: &mut TestAppCont
     assert!(number(hint, "width") >= number(hint, "implicitWidth") - 1.);
     assert!(number(hint, "x") >= number(primary, "x") + number(primary, "width") - 1.);
     let left = footer.get("left").unwrap();
-    let disk = footer.get("disk").unwrap();
-    assert!(number(primary, "x") >= number(left, "x") + number(left, "implicitWidth") + 14. - 1.);
+    let lane = footer.get("lane").unwrap();
+    clear_of(left, primary);
+    // The sentence ends at the slider, not against the undrawn disk string.
     assert!(
-        (number(hint, "x") + number(hint, "width") + 14.
-            - (number(disk, "x") + number(disk, "width") - number(disk, "implicitWidth")))
-        .abs()
-            <= 1.
+        (number(hint, "x") + number(hint, "width") - (number(lane, "x") + number(lane, "width")))
+            .abs()
+            <= 2.,
+        "the hint should finish at the lane's slider edge: hint={hint:?} lane={lane:?}"
     );
     assert_eq!(read(cx, handle, "statusError"), Reply::value("false"));
-    assert_eq!(primary.get("color"), left.get("color"));
-    assert_ne!(hint.get("color"), primary.get("color"));
+    // The count stays the muted status ink. A non-error notice uses the foreground so it is not a second count, and the hint stays with the count.
+    assert_ne!(primary.get("color"), left.get("color"));
+    assert_eq!(hint.get("color"), left.get("color"));
 }
 
 #[gpui::test]
@@ -100,6 +125,7 @@ fn notice_layout_long_counts_and_utf8_errors_keep_their_own_space(cx: &mut TestA
             "count must exercise its cap"
         );
         assert!(number(lane, "x") >= number(left, "x") + number(left, "width") + 14. - 1.);
+        clear_of(left, primary);
         assert_eq!(
             primary.get("text").unwrap().as_str(),
             Some(sentence.as_str())
@@ -140,11 +166,9 @@ fn notice_layout_localized_explanation_preserves_text_and_roles(cx: &mut TestApp
     let hint = footer.get("secondary").unwrap();
     assert_eq!(primary.get("text").unwrap().as_str(), Some(sentence));
     assert_eq!(primary.get("truncated").unwrap().as_bool(), Some(false));
-    assert_eq!(
-        primary.get("color"),
-        footer.get("left").unwrap().get("color")
-    );
-    assert_ne!(hint.get("color"), primary.get("color"));
+    let left = footer.get("left").unwrap();
+    assert_ne!(primary.get("color"), left.get("color"));
+    assert_eq!(hint.get("color"), left.get("color"));
     assert_eq!(read(cx, handle, "lastMessage"), Reply::value(sentence));
     assert_eq!(read(cx, handle, "statusError"), Reply::value("false"));
 }
