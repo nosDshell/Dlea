@@ -4,6 +4,15 @@ use crate::list::Palette;
 use crate::window::startup::View;
 use gpui::{deferred, div, prelude::*, px, Context, MouseButton};
 
+/// Letters on the solid accent: the window ground in a light theme, the foreground in a dark one.
+fn on_accent(palette: &Palette) -> gpui::Hsla {
+    if super::plate::light(palette.background) {
+        palette.background
+    } else {
+        palette.foreground
+    }
+}
+
 const ROWS: [(&str, View); 4] = [
     ("settings.choice.view_grid", View::Grid),
     ("settings.choice.view_list", View::List),
@@ -20,8 +29,8 @@ pub(super) fn button(
     let open = view.frame.borrow().view_menu;
     let extra = matches!(view.inputs.view, View::Columns | View::Dual);
     let filled = open || extra;
-    let ink = if filled && super::plate::light(palette.background) {
-        palette.background
+    let ink = if filled {
+        on_accent(palette)
     } else {
         palette.foreground
     };
@@ -99,7 +108,7 @@ fn menu(
         let on = current == mode;
         let label = view.path.read(cx).catalog.tr(key);
         let text = if on {
-            palette.background
+            on_accent(palette)
         } else {
             palette.foreground
         };

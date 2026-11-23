@@ -1,6 +1,7 @@
 //! The path bar's meaning, the line a typist writes and what it resolves to, with no window and no backend.
 pub(crate) mod aliases;
 pub mod chrome;
+pub mod crumb_chip;
 pub mod crumbs;
 pub mod entry;
 pub mod field;

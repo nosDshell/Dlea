@@ -31,13 +31,21 @@ fn round(value: f32) -> i64 {
 fn the_chrome_readers_answer_its_crumbs_field_and_slot(cx: &mut TestAppContext) {
     let mut bar = bar(cx, Box::new(Unranked), inputs("/home/gm/Work/claude"));
     let cell = bar.advance(Size::Caption);
+    let gap = dlea_gui::path::crumb_chip::GAP;
     assert_eq!(ask(&mut bar, "pathBarOpen", &[]), "false");
     assert_eq!(ask(&mut bar, "crumbCount", &[]), "3");
-    assert_eq!(ask(&mut bar, "crumbText", &[]), "~\u{203a}Work\u{203a}claude");
+    assert_eq!(
+        ask(&mut bar, "crumbText", &[]),
+        "~\u{203a}Work\u{203a}claude"
+    );
     assert_eq!(ask(&mut bar, "pathCentre", &[]), "394 13");
+    // The well insets 8 px. "~›" then "Work›" each keep the chevron gap, and the centre is the second box.
     assert_eq!(
         ask(&mut bar, "crumbCentre", &["1"]),
-        format!("{} 13", round(cell * 2. + cell * 5. / 2.))
+        format!(
+            "{} 13",
+            round(8. + (cell * 2. + gap) + (cell * 5. + gap) / 2.)
+        )
     );
     assert_eq!(ask(&mut bar, "crumbCentre", &["9"]), "");
     assert_eq!(
@@ -87,12 +95,17 @@ fn the_pane_readers_answer_each_dual_strip_and_the_chrome_keeps_none(cx: &mut Te
     );
     assert_eq!(ask(&mut bar, "paneCrumbCount", &["0"]), "2");
     assert_eq!(ask(&mut bar, "paneCrumbText", &["0"]), "~\u{203a}Work");
-    assert_eq!(ask(&mut bar, "paneCrumbText", &["1"]), "/\u{203a}srv\u{203a}www");
+    assert_eq!(
+        ask(&mut bar, "paneCrumbText", &["1"]),
+        "/\u{203a}srv\u{203a}www"
+    );
     assert_eq!(ask(&mut bar, "panePathRect", &["0"]), "0 26 400 27");
     assert_eq!(ask(&mut bar, "panePathRect", &["1"]), "401 26 387 27");
+    let gap = dlea_gui::path::crumb_chip::GAP;
+    // "/›" is two cells, then the chevron gap, then "srv›".
     let centre = format!(
         "{} {}",
-        round(401. + 14. + cell * 1. + cell * 4. / 2.),
+        round(401. + 14. + (cell * 2. + gap) + (cell * 4. + gap) / 2.),
         round(26. + 27. / 2.)
     );
     assert_eq!(ask(&mut bar, "paneCrumbCentre", &["1", "1"]), centre);

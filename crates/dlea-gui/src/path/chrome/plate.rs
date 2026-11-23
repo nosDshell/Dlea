@@ -67,7 +67,8 @@ pub fn recipe(
             palette.accent.opacity(0.28)
         } else if hovered {
             palette.accent.opacity(0.16)
-        } else if kind == Kind::Nav {
+        } else if kind == Kind::Nav || kind == Kind::View {
+            // The view cells share the tray's wash. A filled cell has already returned the accent.
             palette.foreground.opacity(0.)
         } else {
             palette.background

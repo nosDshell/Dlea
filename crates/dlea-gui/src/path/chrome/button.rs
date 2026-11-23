@@ -279,7 +279,7 @@ impl ChromeView {
                 ))
                 .child(div().w(px(3.)).flex_none());
         }
-        // One outlined capsule: icon, list, then the menu for columns and dual.
+        // One tray: icon, list, then the menu. The ground is the 10% wash and the current cell is the solid accent.
         let mut tray = div()
             .flex()
             .flex_none()
@@ -287,13 +287,7 @@ impl ChromeView {
             .h(px(sizes.slot))
             .rounded(px(plate::RADIUS))
             .overflow_hidden()
-            .border_1()
-            .border_color(palette.foreground.opacity(if light { 0.10 } else { 0. }))
-            .bg(if light {
-                palette.background
-            } else {
-                plate::tray_ground()
-            });
+            .bg(plate::tray_ground());
         for (index, mode) in [(7, View::Grid), (5, View::List)] {
             let on = self.inputs.view == mode;
             tray =

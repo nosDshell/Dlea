@@ -82,9 +82,12 @@ impl Element for CrumbElement {
             paint.area = Some(bounds);
         }
         self.view.update(cx, |view, _| {
-            paint.lay_strip(slot, &mut view.strips[slot], |typeface, text| {
-                line(typeface, text, Size::Caption, false, window)
-            });
+            paint.lay_strip(
+                slot,
+                &mut view.strips[slot],
+                Size::Caption,
+                |typeface, text| line(typeface, text, Size::Caption, false, window),
+            );
             if self.place == Place::Chrome {
                 paint.chrome_end = copy.then(|| view.strips[slot].width() + git_width);
             }
@@ -186,9 +189,38 @@ impl Element for CrumbElement {
                             ink.accent_frame,
                         ));
                     }
-                    // The current chrome segment is accent text. A filled chip read as a button and used a literal white.
-                    let crumb_ink = if !pane && crumb.last && !held {
-                        ink.accent
+                    // The current address segment is the solid block. Its letters take the light role, not a literal white.
+                    let current = !pane && crumb.last && !held;
+                    if current {
+                        let glyph = f32::from(run.line().width);
+                        let block = super::super::crumb_chip::block(
+                            f32::from(x),
+                            glyph,
+                            f32::from(bounds.origin.y),
+                            f32::from(height),
+                        );
+                        let mut quad = fill(
+                            Bounds::new(
+                                point(px(block.x), px(block.y)),
+                                size(px(block.width), px(block.height)),
+                            ),
+                            ink.accent,
+                        );
+                        quad.corner_radii = gpui::Corners {
+                            top_left: px(0.),
+                            top_right: px(super::super::crumb_chip::RADIUS),
+                            bottom_right: px(super::super::crumb_chip::RADIUS),
+                            bottom_left: px(0.),
+                        };
+                        window.paint_quad(quad);
+                    }
+                    let crumb_ink = if current {
+                        // The same light split as the toolbar plates: ground on a light window, foreground on a dark one.
+                        if ink.background.l > 0.62 {
+                            ink.background
+                        } else {
+                            ink.foreground
+                        }
                     } else if lit {
                         ink.foreground
                     } else {
