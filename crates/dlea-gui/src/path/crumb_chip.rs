@@ -7,7 +7,8 @@
 pub const GAP: f32 = 4.;
 
 /// Trailing pad inside the block, after the current name.
-const TAIL: f32 = 6.;
+/// The copy mark starts after this pad, so its plate does not cover the block.
+pub const TAIL: f32 = 6.;
 /// The block starts this far before the name, inside the gap the previous chevron leaves.
 const LEAD: f32 = 2.;
 /// The block sits inside the address well, clear of its hairline.

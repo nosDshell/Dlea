@@ -68,7 +68,9 @@ impl Element for CrumbElement {
         let copy = self.place == Place::Chrome && self.view.read(cx).inputs.copy_mark;
         let copy_room = if copy {
             let sizes = super::super::chrome::Sizes::at(&paint.typeface);
-            sizes.gap + sizes.slot
+            // The current block hangs past its glyphs. Reserve that pad so a full line
+            // still ends before the mark, clear of the search slot.
+            sizes.gap + sizes.slot + super::super::crumb_chip::TAIL
         } else {
             0.
         };
@@ -89,7 +91,13 @@ impl Element for CrumbElement {
                 |typeface, text| line(typeface, text, Size::Caption, false, window),
             );
             if self.place == Place::Chrome {
-                paint.chrome_end = copy.then(|| view.strips[slot].width() + git_width);
+                let width = view.strips[slot].width();
+                // Glyphs start after the well's inset. The block then hangs past them.
+                // A git label already starts further along. Measuring from the slot edge
+                // keeps the copy mark off the block; the old figure started at the slot
+                // and landed on the current name.
+                let line = (width + super::super::crumb_chip::TAIL).max(width + git_width);
+                paint.chrome_end = copy.then_some(pad + line);
             }
         });
         (

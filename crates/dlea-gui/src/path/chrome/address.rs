@@ -162,7 +162,9 @@ impl Element for Follow {
             position: Position::Absolute,
             ..Style::default()
         };
+        // Stretch to the well so the mark can centre in whatever height the well actually got.
         style.inset.top = px(0.).into();
+        style.inset.bottom = px(0.).into();
         style.inset.left = px(0.).into();
         (window.request_layout(style, None, cx), ())
     }
@@ -179,8 +181,16 @@ impl Element for Follow {
         let Some(end) = self.path.read(cx).paint.borrow().chrome_end else {
             return false;
         };
-        let origin = point(bounds.origin.x + px(end + self.sizes.gap), bounds.origin.y);
-        let room = size(px(self.sizes.slot), px(self.sizes.band)).map(AvailableSpace::Definite);
+        // Centre the slot in the well. The old band-tall box started at the well's top and
+        // painted its plate across the well's bottom edge into the list header.
+        let lift = ((f32::from(bounds.size.height) - self.sizes.slot) / 2.)
+            .max(0.)
+            .round();
+        let origin = point(
+            bounds.origin.x + px(end + self.sizes.gap),
+            bounds.origin.y + px(lift),
+        );
+        let room = size(px(self.sizes.slot), px(self.sizes.slot)).map(AvailableSpace::Definite);
         self.button.prepaint_as_root(origin, room, window, cx);
         true
     }

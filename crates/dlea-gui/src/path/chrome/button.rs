@@ -40,21 +40,25 @@ impl ChromeView {
         };
         // The copy mark draws nothing at rest. Search lives in the address well, so its
         // plate appears only while the pointer, keyboard or a press is on it.
-        let show_plate = if index == COPY {
-            resting.a > 0. || hovered || pressed || focused
-        } else if index == 2 {
+        // The copy glyph shows while the pointer is on the address. Its bordered plate
+        // shows only on the button itself, the same rule as search, so the well does not
+        // grow a second page-shaped box beside the current crumb.
+        let show_plate = if index == COPY || index == 2 {
             hovered || pressed || focused
         } else {
             true
         };
         let recipe = plate::recipe(palette, kind, enabled, filled, hovered, pressed, show_plate);
         let plate_h = sizes.slot.min(sizes.band);
-        let outer_h = if kind == Kind::Solo {
+        // The copy mark is placed inside the address well. A band-tall solo box hung below
+        // that well and over the current crumb. Its plate is the slot, like search.
+        let in_well = index == COPY;
+        let outer_h = if kind == Kind::Solo && !in_well {
             sizes.band
         } else {
             plate_h
         };
-        let plate_top = if kind == Kind::Solo {
+        let plate_top = if kind == Kind::Solo && !in_well {
             ((sizes.band - plate_h) / 2.).round()
         } else {
             0.

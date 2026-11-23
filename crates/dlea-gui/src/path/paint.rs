@@ -138,7 +138,8 @@ pub struct Paint {
     pub area: Option<Bounds<Pixels>>,
     pub frame: Option<Bounds<Pixels>>,
     pub strips: [Option<Bounds<Pixels>>; 3],
-    /// Where the chrome's line ends after its Git label, from the strip's left edge, while the copy mark follows it.
+    /// Where the chrome's line ends, from the path slot's left edge: the crumb inset, the glyphs,
+    /// the current block's trail, then a Git label when one is longer. The copy mark follows it.
     pub chrome_end: Option<f32>,
     pub pointer: crate::g2::settings_pages::probe::Probe,
     pub popup: Option<Popup>,
