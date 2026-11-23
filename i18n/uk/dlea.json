@@ -2901,5 +2901,9 @@
   "computer.section.directories": "My Directories",
   "computer.section.internal": "Internal Disk",
   "computer.section.external": "External Disk",
-  "places.row.system_disk": "System Disk"
+  "places.row.system_disk": "System Disk",
+  "status.computer.folder": {
+    "one": "1 folder selected (contains %1 item)",
+    "other": "1 folder selected (contains %1 items)"
+  }
 }

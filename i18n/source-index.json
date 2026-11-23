@@ -1,10 +1,10 @@
 {
-  "catalog_file_sha256": "e94b70f7b4dcc690739c23d85f57858dd87e64c28831b47052bba0abece11962",
-  "catalog_sha256": "8291584775f9dbc05b73b55231220529194e1be7f3e3af1d304930283c00e85b",
+  "catalog_file_sha256": "05c126d0e4ee9113f3500264b6354e984420365347b508a08ae49f4c5aafc161",
+  "catalog_sha256": "283668efe4bef00208825833359c767c5af1c49bb2d5a2c5a7905e76837ea987",
   "counts": {
     "direct_references": 0,
-    "keys": 2334,
-    "plurals": 114
+    "keys": 2335,
+    "plurals": 115
   },
   "direct_references": {},
   "dynamic_callsite_handoffs": [
@@ -104097,6 +104097,39 @@
       "resolved_sha256": "3c1b7bb6db89f68c61c73aeb2da5bc08c0d6a2cbd882c1e5cf71c53fabc96946",
       "resolved_source_hash": "67e877ee28c9",
       "source_hash": "67e877ee28c9"
+    },
+    "status.computer.folder": {
+      "call_sites": [
+        {
+          "excerpt": "catalog.trn(\"status.computer.folder\",",
+          "line": 65,
+          "path": "crates/dlea-gui/src/window/status_counts.rs",
+          "surface": "gui",
+          "usage": "translated-call"
+        }
+      ],
+      "context": "status.computer.folder: crates/dlea-gui/src/window/status_counts.rs:65",
+      "coverage": "existing-translated-call",
+      "english": {
+        "one": "1 folder selected (contains %1 item)",
+        "other": "1 folder selected (contains %1 items)"
+      },
+      "kind": "plural",
+      "omarchy_reference": null,
+      "placeholders": [
+        "%1"
+      ],
+      "plural_categories": [
+        "one",
+        "other"
+      ],
+      "resolved_english": {
+        "one": "1 folder selected (contains %1 item)",
+        "other": "1 folder selected (contains %1 items)"
+      },
+      "resolved_sha256": "0ad4383fafd0a9c5a30d4ec6d359447d1f59b5486220a422dbeebf930c3aea05",
+      "resolved_source_hash": "183005674071",
+      "source_hash": "183005674071"
     },
     "status.host.free": {
       "call_sites": [

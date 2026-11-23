@@ -2559,5 +2559,9 @@
   "computer.section.directories": "我的目录",
   "computer.section.internal": "内部磁盘",
   "computer.section.external": "外部磁盘",
-  "places.row.system_disk": "系统盘"
+  "places.row.system_disk": "系统盘",
+  "status.computer.folder": {
+    "one": "已选择 1 个文件夹（包含 %1 项）",
+    "other": "已选择 1 个文件夹（包含 %1 项）"
+  }
 }

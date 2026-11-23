@@ -43,6 +43,19 @@ fn a_root_disk_is_system_disk_and_a_removable_volume_is_external() {
 }
 
 #[test]
+fn a_user_folder_counts_its_children_and_a_volume_does_not() {
+    let root = std::env::temp_dir().join(format!("dlea-computer-count-{}", std::process::id()));
+    let home = root.join("home");
+    let desktop = home.join("Desktop");
+    std::fs::create_dir_all(&desktop).unwrap();
+    std::fs::write(desktop.join("alpha.txt"), "one\n").unwrap();
+    std::fs::write(desktop.join(".hidden"), "no\n").unwrap();
+    assert_eq!(super::folder_children_in(desktop.to_str().unwrap(), &home), Some(1));
+    assert_eq!(super::folder_children_in("/", &home), None);
+    std::fs::remove_dir_all(&root).ok();
+}
+
+#[test]
 fn standard_folders_carry_a_mark_and_a_renamed_folder_does_not() {
     assert!(super::marks::badge("places.row.downloads").is_some());
     assert!(super::marks::badge("").is_none());

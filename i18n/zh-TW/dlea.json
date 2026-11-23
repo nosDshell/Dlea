@@ -2559,5 +2559,9 @@
   "computer.section.directories": "我的目錄",
   "computer.section.internal": "內部磁碟",
   "computer.section.external": "外部磁碟",
-  "places.row.system_disk": "系統磁碟"
+  "places.row.system_disk": "系統磁碟",
+  "status.computer.folder": {
+    "one": "已選擇 1 個資料夾（包含 %1 個項目）",
+    "other": "已選擇 1 個資料夾（包含 %1 個項目）"
+  }
 }

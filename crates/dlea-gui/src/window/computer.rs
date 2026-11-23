@@ -147,7 +147,8 @@ impl Shell {
             frame.computer_selected.clone_from(&selected);
         }
         if let Some(host) = self.panes.get_mut(side).and_then(Option::as_mut) {
-            host.computer_items = Some((tiles.len(), usize::from(selected.is_some())));
+            let contained = selected.as_deref().and_then(folder_children);
+            host.computer_items = Some((tiles.len(), usize::from(selected.is_some()), contained));
             host.drawn_view = None;
             host.drawn_list = false;
         }
@@ -239,7 +240,7 @@ impl Shell {
             cx.notify();
         });
         if let Some(host) = self.panes.get_mut(side).and_then(Option::as_mut) {
-            host.computer_items = Some((paths.len(), 1));
+            host.computer_items = Some((paths.len(), 1, folder_children(&paths[next])));
         }
         cx.notify();
         true
@@ -352,6 +353,25 @@ fn cell(
                 .text_ellipsis()
                 .child(SharedString::from(name.to_owned())),
         )
+}
+
+/// Children of one user folder. A volume path is not a folder, and a name starting with a dot is not counted.
+fn folder_children(path: &str) -> Option<usize> {
+    let home = std::env::var_os("HOME")?;
+    folder_children_in(path, std::path::Path::new(&home))
+}
+
+fn folder_children_in(path: &str, home: &std::path::Path) -> Option<usize> {
+    let file = std::path::Path::new(path);
+    if file.parent() != Some(home) {
+        return None;
+    }
+    let read = std::fs::read_dir(file).ok()?;
+    Some(
+        read.filter_map(Result::ok)
+            .filter(|entry| !entry.file_name().to_string_lossy().starts_with('.'))
+            .count(),
+    )
 }
 
 #[cfg(test)]

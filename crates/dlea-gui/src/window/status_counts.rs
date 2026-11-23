@@ -59,18 +59,25 @@ pub(super) fn flash(shell: &Shell) -> Option<Snapshot> {
 }
 
 pub(super) fn folder(host: &PaneHost, catalog: &I18n) -> Snapshot {
-    if let Some((total, selected)) = host.computer_items {
-        return Snapshot {
-            kind: Kind::Ready,
-            total,
-            selected,
-            text: status_host::left(
+    if let Some((total, selected, contained)) = host.computer_items {
+        let text = match contained {
+            Some(children) => catalog.trn(
+                "status.computer.folder",
+                i64::try_from(children).unwrap_or(i64::MAX),
+            ),
+            None => status_host::left(
                 catalog,
                 Listing::Ready(total),
                 "",
                 Some((selected, -1, String::new())),
                 None,
             ),
+        };
+        return Snapshot {
+            kind: Kind::Ready,
+            total,
+            selected,
+            text,
         };
     }
     let kind = host.pane.state.kind;

@@ -127,7 +127,7 @@ deb [signed-by=/etc/apt/keyrings/gxde-archive.gpg] https://mirrors.hit.edu.cn/GX
 在 900×600 的 Xvfb + Openbox 窗口里用鼠标和键盘核对过的：
 
 - 点侧栏 Computer、点工具栏计算机、地址栏输入 Computer 后回车，主区是「My Directories」和「Internal Disk」，没有 Name / Time changed / Size / Type 表头。六个存在的用户目录用蓝色文件夹，上面是自制的小标记（显示器、播放、音符、圆点、横线、向下箭头）。根卷显示 System Disk，侧栏同一行也是 System Disk，不再用磁盘标签原文。
-- 单击磁贴选中，名字是实心强调色、白字，状态栏写现有的「1 of N selected」。双击或方向键后回车打开真实目录。后退回到计算机页。向上在这一页是灰的。在家目录点向上进入 `/tmp`，再后退回到家目录，再前进回到 `/tmp`。
+- 单击用户目录后，状态栏写 “1 folder selected (contains N item/items)”。N 是这个目录里不以点开头的条目数：空的 Music 是 0 items，只有 alpha.txt 的 Desktop 是 1 item。点系统盘仍是原来的 “1 of 7 selected”，没有假装它是文件夹。没选中时是 “7 items”。双击或方向键后回车打开真实目录。后退回到计算机页。向上在这一页是灰的。在家目录点向上进入 `/tmp`，再后退回到家目录，再前进回到 `/tmp`。
 - 侧栏悬停：新安装的「Highlight on hover」默认关着，这是已经合并的设置。把它打开后，指针停在 Music 上，这一行是灰色，当前的 Home 仍是浅蓝。
 - 最大化按钮来回切换：900×600 和铺满 1100×679。关闭按钮会关掉窗口。双击标题栏上没有控件的位置（按钮和地址槽之间的上沿，以及地址槽下沿的空白）同样来回切换这两档。客户区右下角向内拖，窗口从 900×600 变成 843×543。
 - 图标视图、列表视图、Ctrl+L 路径、Ctrl+1 列表、Shift 连选、方向键把 `/usr/bin` 滚到新的一段、右键菜单、属性对话框（路径、类型、大小、时间、权限、所有者）、搜索 `alpha`（`/usr/bin` 里 1 条）、复制、粘贴、F2 改名、Delete 进回收站，都作用在真实文件上。回收站里能看到被移走的夹具文件。
@@ -137,7 +137,7 @@ deb [signed-by=/etc/apt/keyrings/gxde-archive.gpg] https://mirrors.hit.edu.cn/GX
 已完成并且在真窗口里测过：
 
 - 计算机分节页、侧栏高亮、地址标签、后退、双击和键盘打开真实路径。
-- 计算机页不画列表表头，状态栏右侧不再写 unknown，缩放滑块还在。
+- 计算机页不画列表表头，状态栏右侧不再写 unknown，缩放滑块还在。选中一个用户目录时，状态栏是 “1 folder selected (contains N item/items)”，N 来自该目录。
 - 标题栏双击空白最大化，客户区角落拖拽改变大小，最大化按钮和关闭按钮可用。
 - 浅色选中的工具栏按钮是实色强调色、白色字形。
 - 列表列顺序 Name / Time changed / Size / Type。裸机浅色调色板；主题文件仍优先。
@@ -150,7 +150,7 @@ deb [signed-by=/etc/apt/keyrings/gxde-archive.gpg] https://mirrors.hit.edu.cn/GX
 被环境挡住：
 
 - GPUI 只在合成器同时声明 `_GTK_FRAME_EXTENTS` 时才用客户区装饰。这台 Xvfb 的 Openbox 没有这个原子，所以窗口外面仍有一条 Openbox 标题栏，客户区里再画一套最小化、最大化、关闭。不是用残缺的 GXDE 运行时当对照。
-- 状态栏句子是现有的「N of M selected」，不是 15.5 截图里的 “1 folder selected (contains 0 item)”。没有为了这句话去统计目录里的子项。
+- 英文 0 用复数 “0 items”。15.5 那张截图的读数是 “0 item”。数量来自真实目录，没有为了凑那一个词改复数规则。
 
 还能做、这次没做完：
 
