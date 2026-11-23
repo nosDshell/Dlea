@@ -267,9 +267,16 @@ impl Shell {
 
     pub(crate) fn settle_rail(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         self.tags_sync(window, cx);
-        let path = self.panes[self.focus_side]
-            .as_ref()
-            .map(|host| (host.path.clone(), host.recent.on));
+        let path = self.panes[self.focus_side].as_ref().map(|host| {
+            let shown = if crate::navigation::history::is_computer(host.pane.place())
+                || crate::navigation::history::is_computer(&host.path)
+            {
+                dlea::ui_logic_rail_places::order::COMPUTER.to_owned()
+            } else {
+                host.path.clone()
+            };
+            (shown, host.recent.on)
+        });
         let Some((path, recent)) = path else {
             return;
         };

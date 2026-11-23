@@ -2897,5 +2897,9 @@
     "other": "Не вдалося перемістити елементи всередині (%1); перший: %2: %3"
   },
   "keys.action.extendLeft": "Розширити ліворуч",
-  "keys.action.extendRight": "Розширити праворуч"
+  "keys.action.extendRight": "Розширити праворуч",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

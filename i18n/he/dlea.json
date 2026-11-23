@@ -2783,5 +2783,9 @@
     "two": "לא ניתן היה להעביר ⁨%1⁩ פריטים בפנים; הראשון הוא ⁨%2⁩: ⁨%3⁩"
   },
   "keys.action.extendLeft": "הרחבת הבחירה שמאלה",
-  "keys.action.extendRight": "הרחבת הבחירה ימינה"
+  "keys.action.extendRight": "הרחבת הבחירה ימינה",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

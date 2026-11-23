@@ -2783,5 +2783,9 @@
     "other": "No s'han pogut moure %1 elements de dins; el primer és %2: %3"
   },
   "keys.action.extendLeft": "Amplia cap a l’esquerra",
-  "keys.action.extendRight": "Amplia cap a la dreta"
+  "keys.action.extendRight": "Amplia cap a la dreta",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

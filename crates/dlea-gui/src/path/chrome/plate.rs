@@ -4,9 +4,8 @@
 //! 30% hovered, 10% pressed, 6% disabled, 4 px radius. A checked control is the
 //! solid accent (`#2ca7f8` in the GXDE dark theme).
 //!
-//! Light controls rest on the window ground with a 10% hairline. The checked plate
-//! is an accent wash rather than a solid fill: the glyph contract keeps the theme
-//! foreground, and a solid accent would bury that ink on a light palette.
+//! Light controls rest on the window ground with a 10% hairline. A checked plate
+//! is the solid accent in both themes; the mark paints white on that fill.
 use crate::list::Palette;
 use gpui::Hsla;
 
@@ -58,11 +57,7 @@ pub fn recipe(
     }
     let light = light(palette.background);
     if filled && enabled {
-        let fill = if light {
-            palette.accent.opacity(0.22)
-        } else {
-            palette.accent
-        };
+        let fill = palette.accent;
         return Recipe { fill, border: None };
     }
     if light {
@@ -132,7 +127,7 @@ mod tests {
         assert_eq!(rest.fill, palette.background);
         assert!(rest.border.is_some());
         let on = recipe(&palette, Kind::View, true, true, false, false, true);
-        assert!((on.fill.a - 0.22).abs() < 1e-3);
+        assert_eq!(on.fill, palette.accent);
         let hidden = recipe(&palette, Kind::Solo, true, false, false, false, false);
         assert_eq!(hidden.fill.a, 0.);
     }

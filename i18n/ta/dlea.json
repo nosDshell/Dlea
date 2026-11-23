@@ -2669,5 +2669,9 @@
     "other": "உள்ளேயுள்ள உருப்படிகளை (%1) நகர்த்த முடியவில்லை; முதலாவது %2: %3"
   },
   "keys.action.extendLeft": "இடப்புறம் நீட்டு",
-  "keys.action.extendRight": "வலப்புறம் நீட்டு"
+  "keys.action.extendRight": "வலப்புறம் நீட்டு",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

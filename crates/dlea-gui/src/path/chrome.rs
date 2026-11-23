@@ -166,6 +166,11 @@ pub struct Frame {
     pub cover: crate::g2::settings_pages::cover::Cover,
     /// The pointer is over the path's own slot, which is what shows the copy mark.
     pub address_hovered: bool,
+    pub address_bounds: Option<Bounds<Pixels>>,
+    pub window_controls: Option<Bounds<Pixels>>,
+    pub computer_selected: Option<String>,
+    pub computer_paths: Vec<String>,
+    pub computer_columns: usize,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]

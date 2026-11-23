@@ -292,6 +292,7 @@ pub(crate) fn render(
             continue;
         }
         let Some(content) = content else { continue };
+        let computer = paths[side].as_ref() == "computer://";
         let mut pane = geometry.panes[side].element().flex().flex_col();
         if dual {
             let id = format!("path-{side}");
@@ -325,7 +326,7 @@ pub(crate) fn render(
         let cell = |div: Div, key: &str, value: &SharedString, right: bool| {
             text(div.relative(), format!("{id}-{key}"), &id, value, 0., right).child(value.clone())
         };
-        if matches!(view, View::List | View::Dual) {
+        if matches!(view, View::List | View::Dual) && !computer {
             pane = pane.child(match &slots.headers[side] {
                 Some(view) => header.child(view.clone()),
                 None if headers[side].is_some() => header.child(headers[side].take().unwrap().0),
@@ -357,7 +358,7 @@ pub(crate) fn render(
             // HIG cols4-hero-search: Columns has no list header, so only a search strip arrives here, above the columns.
             pane = pane.child(header.child(element));
         }
-        if let Some(view) = &slots.strips[side] {
+        if let Some(view) = slots.strips[side].as_ref().filter(|_| !computer) {
             pane = pane.child(
                 div()
                     .when(glass.glassy, |div| div.child(glass.chrome()))

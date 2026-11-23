@@ -15,11 +15,23 @@ impl ChromeView {
         palette: &Palette,
         cx: &mut Context<Self>,
     ) -> impl IntoElement {
+        let frame = self.frame.clone();
         div()
+            .relative()
             .flex()
             .items_center()
             .flex_none()
             .gap(px(2.))
+            .child(
+                gpui::canvas(
+                    |_, _, _| {},
+                    move |bounds, _, _, _| {
+                        frame.borrow_mut().window_controls = Some(bounds);
+                    },
+                )
+                .absolute()
+                .size_full(),
+            )
             .child(button(sizes, palette, "min", MIN, cx, |window| {
                 window.minimize_window();
             }))

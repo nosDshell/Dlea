@@ -1,5 +1,7 @@
 //! Native window host and composition interfaces shared by later surfaces.
 pub(crate) mod chrome_move;
+pub(crate) mod chrome_resize;
+pub(crate) mod computer;
 #[cfg(test)]
 mod chrome_move_tests;
 pub mod columns;

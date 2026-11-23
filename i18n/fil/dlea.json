@@ -2669,5 +2669,9 @@
     "other": "Hindi mailipat ang %1 item sa loob; ang una ay %2: %3"
   },
   "keys.action.extendLeft": "Palawakin pakaliwa",
-  "keys.action.extendRight": "Palawakin pakanan"
+  "keys.action.extendRight": "Palawakin pakanan",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

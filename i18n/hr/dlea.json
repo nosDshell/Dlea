@@ -2783,5 +2783,9 @@
     "other": "Nije moguće premjestiti stavke unutar mape (%1); prva je %2: %3"
   },
   "keys.action.extendLeft": "Proširi ulijevo",
-  "keys.action.extendRight": "Proširi udesno"
+  "keys.action.extendRight": "Proširi udesno",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

@@ -2669,5 +2669,9 @@
     "other": "अंदर के %1 आइटम स्थानांतरित नहीं किए जा सके; पहला %2 है: %3"
   },
   "keys.action.extendLeft": "चयन बाईं ओर बढ़ाएँ",
-  "keys.action.extendRight": "चयन दाईं ओर बढ़ाएँ"
+  "keys.action.extendRight": "चयन दाईं ओर बढ़ाएँ",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

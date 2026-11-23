@@ -2669,5 +2669,9 @@
     "other": "A benne lévő %1 elem áthelyezése sikertelen; az első: %2: %3"
   },
   "keys.action.extendLeft": "Bővítés balra",
-  "keys.action.extendRight": "Bővítés jobbra"
+  "keys.action.extendRight": "Bővítés jobbra",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

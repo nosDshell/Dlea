@@ -274,7 +274,7 @@ impl Shell {
         let fs = &mut self.surfaces[self.focus_side].filesystem;
         fs.enter(&host.path);
         // RecentMode.js: Recent spans disks and asks for no figures, so its bar answers unknown.
-        let recent = host.recent.on;
+        let recent = host.recent.on || host.computer_items.is_some() || crate::navigation::history::is_computer(host.pane.place()) || crate::navigation::history::is_computer(&host.path);
         if !recent
             && !host.pane.busy()
             && fs.listing != Some(host.pane.held.listing)
@@ -294,7 +294,7 @@ impl Shell {
             status_host::place_name(catalog, &facts.name, &facts.class, free.is_some())
         });
         let filesystem = if recent {
-            status_host::disk(catalog, "", None, false)
+            status_host::disk(catalog, "", None, host.computer_items.is_some() || crate::navigation::history::is_computer(host.pane.place()) || crate::navigation::history::is_computer(&host.path))
         } else {
             status_host::disk(catalog, &name, free.as_deref(), fs.pending(kind))
         };

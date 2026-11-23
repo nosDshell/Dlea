@@ -2783,5 +2783,9 @@
     "other": "Não foi possível mover %1 itens dentro; o primeiro é %2: %3"
   },
   "keys.action.extendLeft": "Estender à esquerda",
-  "keys.action.extendRight": "Estender à direita"
+  "keys.action.extendRight": "Estender à direita",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

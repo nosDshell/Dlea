@@ -2897,5 +2897,9 @@
     "two": "Premikanje notranjih predmetov (%1) ni uspelo; prvi je %2: %3"
   },
   "keys.action.extendLeft": "Razširi levo",
-  "keys.action.extendRight": "Razširi desno"
+  "keys.action.extendRight": "Razširi desno",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

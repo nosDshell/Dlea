@@ -2783,5 +2783,9 @@
     "zero": "Neizdevās pārvietot iekšējos vienumus (%1); pirmais ir %2: %3"
   },
   "keys.action.extendLeft": "Paplašināt pa kreisi",
-  "keys.action.extendRight": "Paplašināt pa labi"
+  "keys.action.extendRight": "Paplašināt pa labi",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

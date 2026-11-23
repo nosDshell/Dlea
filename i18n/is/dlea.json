@@ -2669,5 +2669,9 @@
     "other": "Ekki tókst að færa atriðin inni (%1); það fyrsta er %2: %3"
   },
   "keys.action.extendLeft": "Víkka val til vinstri",
-  "keys.action.extendRight": "Víkka val til hægri"
+  "keys.action.extendRight": "Víkka val til hægri",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

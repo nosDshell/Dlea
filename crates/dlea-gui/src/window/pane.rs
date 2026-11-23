@@ -49,6 +49,8 @@ pub(crate) struct PaneHost {
     pub retry_line: RefCell<Option<super::retry::RetryLine>>,
     // The operation line last written to status; a listing that lands after it keeps it, as ui/StatusBar.qml keeps its notice.
     pub operation_line: Option<String>,
+    /// Item count and selection on the Computer overview; None in a folder.
+    pub computer_items: Option<(usize, usize)>,
     applied_listing: usize,
 }
 
@@ -110,6 +112,7 @@ impl PaneHost {
             watch_task: None,
             retry_line: RefCell::new(None),
             operation_line: None,
+            computer_items: None,
             applied_listing: 0,
         }
     }

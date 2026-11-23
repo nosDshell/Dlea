@@ -2669,5 +2669,9 @@
     "other": "Sees olevaid üksusi (%1) ei saanud teisaldada; esimene on %2: %3"
   },
   "keys.action.extendLeft": "Laienda vasakule",
-  "keys.action.extendRight": "Laienda paremale"
+  "keys.action.extendRight": "Laienda paremale",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

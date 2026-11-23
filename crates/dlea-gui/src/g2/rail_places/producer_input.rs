@@ -36,6 +36,9 @@ impl Producer {
             Kind::Share | Kind::Volume | Kind::Disk | Kind::Phone | Kind::Tag | Kind::PluginRow => {
                 self.queue(Event::Activate(entry))
             }
+            _ if entry.path == dlea::ui_logic_rail_places::order::COMPUTER => {
+                self.queue(Event::Open(entry.path.clone()))
+            }
             _ if !entry.path.starts_with('/') => self.queue(Event::Activate(entry)),
             _ if !entry.path.is_empty() => self.queue(Event::Open(entry.path.clone())),
             _ => {}

@@ -1,9 +1,9 @@
 {
-  "catalog_file_sha256": "323f9d51f57ffbea72e102a3fcd58e707e69d854992978dab2963a18c2eb6236",
-  "catalog_sha256": "17aec7400c2b0b09ca6d30ad03334419556a7ac976462775251188fa03dc18b4",
+  "catalog_file_sha256": "e94b70f7b4dcc690739c23d85f57858dd87e64c28831b47052bba0abece11962",
+  "catalog_sha256": "8291584775f9dbc05b73b55231220529194e1be7f3e3af1d304930283c00e85b",
   "counts": {
     "direct_references": 0,
-    "keys": 2330,
+    "keys": 2334,
     "plurals": 114
   },
   "direct_references": {},
@@ -110998,6 +110998,94 @@
       "resolved_sha256": "270ead2221e62e6294e89bc48c942ba154e1f2cdb002959314f91980ece7fbe3",
       "resolved_source_hash": "ed09556ef862",
       "source_hash": "ed09556ef862"
+    },
+    "computer.section.directories": {
+      "call_sites": [
+        {
+          "excerpt": "catalog.tr(\"computer.section.directories\")",
+          "line": 1,
+          "path": "crates/dlea-gui/src/window/computer.rs",
+          "surface": "gui",
+          "usage": "translated-call"
+        }
+      ],
+      "context": "computer.section.directories: crates/dlea-gui/src/window/computer.rs",
+      "coverage": "existing-translated-call",
+      "english": "My Directories",
+      "kind": "text",
+      "omarchy_reference": null,
+      "placeholders": [],
+      "plural_categories": [],
+      "resolved_english": "My Directories",
+      "resolved_sha256": "ad49c98fd2147588463dd5ffb7e78cabae535d334b6b60a021f7e9e70cc2936e",
+      "resolved_source_hash": "ad49c98fd214",
+      "source_hash": "ad49c98fd214"
+    },
+    "computer.section.internal": {
+      "call_sites": [
+        {
+          "excerpt": "catalog.tr(\"computer.section.internal\")",
+          "line": 1,
+          "path": "crates/dlea-gui/src/window/computer.rs",
+          "surface": "gui",
+          "usage": "translated-call"
+        }
+      ],
+      "context": "computer.section.internal: crates/dlea-gui/src/window/computer.rs",
+      "coverage": "existing-translated-call",
+      "english": "Internal Disk",
+      "kind": "text",
+      "omarchy_reference": null,
+      "placeholders": [],
+      "plural_categories": [],
+      "resolved_english": "Internal Disk",
+      "resolved_sha256": "76b54b7cce897d7405ca1c18524315075573e2773a1cd06a1097c33e435ecef5",
+      "resolved_source_hash": "76b54b7cce89",
+      "source_hash": "76b54b7cce89"
+    },
+    "computer.section.external": {
+      "call_sites": [
+        {
+          "excerpt": "catalog.tr(\"computer.section.external\")",
+          "line": 1,
+          "path": "crates/dlea-gui/src/window/computer.rs",
+          "surface": "gui",
+          "usage": "translated-call"
+        }
+      ],
+      "context": "computer.section.external: crates/dlea-gui/src/window/computer.rs",
+      "coverage": "existing-translated-call",
+      "english": "External Disk",
+      "kind": "text",
+      "omarchy_reference": null,
+      "placeholders": [],
+      "plural_categories": [],
+      "resolved_english": "External Disk",
+      "resolved_sha256": "0104a462f99973710cb7d73430068dc85c3bd67fa23cf5efaee31f22380537cf",
+      "resolved_source_hash": "0104a462f999",
+      "source_hash": "0104a462f999"
+    },
+    "places.row.system_disk": {
+      "call_sites": [
+        {
+          "excerpt": "catalog.tr(\"places.row.system_disk\")",
+          "line": 1,
+          "path": "crates/dlea-gui/src/window/computer.rs",
+          "surface": "gui",
+          "usage": "translated-call"
+        }
+      ],
+      "context": "places.row.system_disk: crates/dlea-gui/src/window/computer.rs",
+      "coverage": "existing-translated-call",
+      "english": "System Disk",
+      "kind": "text",
+      "omarchy_reference": null,
+      "placeholders": [],
+      "plural_categories": [],
+      "resolved_english": "System Disk",
+      "resolved_sha256": "e28f8df613d2660cb490558cc55cfb2eca3ae173082a4f7706bca686aa4c5e0c",
+      "resolved_source_hash": "e28f8df613d2",
+      "source_hash": "e28f8df613d2"
     }
   },
   "missing_callsite_handoffs": [

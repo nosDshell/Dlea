@@ -374,3 +374,15 @@ fn a_scan_that_panics_answers_an_error_and_leaves_the_gate_free() {
         "no mode was read, so the line carries none: {text}"
     );
 }
+
+#[test]
+fn computer_lists_inline_as_an_empty_place() {
+    let mut r = rig("listwork-computer");
+    let mut out = Vec::new();
+    let Started::Inline(landed) = r.start_out(&mut out, dlea::ui_logic_rail_places::order::COMPUTER) else {
+        panic!("computer never reaches the scan thread");
+    };
+    assert!(finish(&mut out, &mut r.st, &r.tb, &r.pool, &mut r.watch, &r.poller, *landed));
+    let text = String::from_utf8(out).unwrap();
+    assert!(text.contains(r#""t":"listed""#) && text.contains("computer://") && text.contains(r#""t":"rows""#) && !text.contains(r#""t":"error""#), "{text}");
+}

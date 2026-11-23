@@ -70,6 +70,10 @@ impl History {
 }
 
 // A bookmark can carry one trailing slash, which no row name ever has; "/" alone keeps its own.
+pub fn is_computer(path: &str) -> bool {
+    path == dlea::ui_logic_rail_places::order::COMPUTER
+}
+
 pub fn trim_slash(path: &str) -> &str {
     if path.len() > 1 && path.ends_with('/') {
         &path[..path.len() - 1]

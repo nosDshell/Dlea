@@ -2555,5 +2555,9 @@
     "other": "내부 항목 %1개를 이동하지 못했습니다. 첫 항목은 %2: %3"
   },
   "keys.action.extendLeft": "선택 영역을 왼쪽으로 확장",
-  "keys.action.extendRight": "선택 영역을 오른쪽으로 확장"
+  "keys.action.extendRight": "선택 영역을 오른쪽으로 확장",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

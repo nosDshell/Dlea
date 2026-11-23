@@ -2555,5 +2555,9 @@
     "other": "内部有 %1 个项目无法移动；第一个是 %2：%3"
   },
   "keys.action.extendLeft": "向左扩展选区",
-  "keys.action.extendRight": "向右扩展选区"
+  "keys.action.extendRight": "向右扩展选区",
+  "computer.section.directories": "我的目录",
+  "computer.section.internal": "内部磁盘",
+  "computer.section.external": "外部磁盘",
+  "places.row.system_disk": "系统盘"
 }

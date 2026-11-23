@@ -2555,5 +2555,9 @@
     "other": "%1 item di dalam tidak dapat dipindahkan; yang pertama ialah %2: %3"
   },
   "keys.action.extendLeft": "Luaskan ke kiri",
-  "keys.action.extendRight": "Luaskan ke kanan"
+  "keys.action.extendRight": "Luaskan ke kanan",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

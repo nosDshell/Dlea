@@ -2783,5 +2783,9 @@
     "other": "Nepavyko perkelti viduje esančių elementų (%1); pirmasis yra %2: %3"
   },
   "keys.action.extendLeft": "Išplėsti kairėn",
-  "keys.action.extendRight": "Išplėsti dešinėn"
+  "keys.action.extendRight": "Išplėsti dešinėn",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

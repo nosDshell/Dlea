@@ -6,6 +6,9 @@ use super::tags;
 use crate::jsondoc::Json;
 use std::collections::HashMap;
 
+/// The Computer overview. It is a navigator place, not the filesystem root.
+pub const COMPUTER: &str = "computer://";
+
 // The places switches Settings stores; Recent and Tags ship off, Home and Trash on.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub struct Shown {
@@ -94,13 +97,13 @@ pub fn trash_entry() -> RailEntry {
     }
 }
 
-// Deepin 15 lists Computer after Trash. The row opens `/`; Dlea has no sectioned computer page.
+// Deepin 15 lists Computer after Trash. The row opens the sectioned overview.
 pub fn computer_entry() -> RailEntry {
     RailEntry {
         group: Group::Home,
         kind: Kind::Home,
         label_key: "places.row.computer",
-        path: "/".into(),
+        path: COMPUTER.into(),
         glyph: "monitor",
         ..RailEntry::default()
     }

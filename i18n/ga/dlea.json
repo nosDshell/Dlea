@@ -3011,5 +3011,9 @@
     "other": "Níorbh fhéidir na míreanna laistigh (%1) a bhogadh; is é %2 an chéad cheann: %3"
   },
   "keys.action.extendLeft": "Leathnaigh ar chlé",
-  "keys.action.extendRight": "Leathnaigh ar dheis"
+  "keys.action.extendRight": "Leathnaigh ar dheis",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

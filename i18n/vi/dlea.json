@@ -2555,5 +2555,9 @@
     "other": "Không thể di chuyển %1 mục bên trong; mục đầu tiên là %2: %3"
   },
   "keys.action.extendLeft": "Mở rộng sang trái",
-  "keys.action.extendRight": "Mở rộng sang phải"
+  "keys.action.extendRight": "Mở rộng sang phải",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

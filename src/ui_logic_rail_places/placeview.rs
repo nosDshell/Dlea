@@ -119,9 +119,9 @@ pub fn held_by(entries: &[RailEntry], dir: &str, view: &View) -> Option<usize> {
         if e.path.is_empty() {
             continue;
         }
-        // A disk mounted at / holds every local path. Computer is that same path and only lights at /.
+        // A disk mounted at / holds every local path. Computer lights only on its own place.
         let holds = if e.label_key == "places.row.computer" {
-            dir == "/"
+            dir == super::order::COMPUTER
         } else if e.path == "/" {
             dir.starts_with('/')
         } else {

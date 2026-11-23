@@ -2669,5 +2669,9 @@
     "other": "Δεν ήταν δυνατό να μετακινηθούν %1 στοιχεία στο εσωτερικό· το πρώτο είναι %2: %3"
   },
   "keys.action.extendLeft": "Επέκταση αριστερά",
-  "keys.action.extendRight": "Επέκταση δεξιά"
+  "keys.action.extendRight": "Επέκταση δεξιά",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

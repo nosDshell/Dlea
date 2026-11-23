@@ -141,6 +141,10 @@ impl Render for Shell {
             cx,
         );
         for side in 0..2 {
+            if let Some(body) = self.computer_page(side, pane_width(side), &palette, cx) {
+                panes[side] = Some(body);
+                continue;
+            }
             let search_empty = self.search_empty(side, pane_width(side), window, cx);
             let contents = self.contents_blocks(side).map(Rc::new);
             let state_view = self.pane_state_view(side, cx);
@@ -334,6 +338,12 @@ impl Render for Shell {
         }
         self.sync_footer(geometry.status.width, cx);
         let paths = self.path_labels.clone();
+        let mut list_headers = lists.headers;
+        for (side, header) in list_headers.iter_mut().enumerate() {
+            if paths[side].as_ref() == "computer://" {
+                *header = None;
+            }
+        }
         let status = self
             .trash_message()
             .or_else(|| self.settings_message(cx))
@@ -351,7 +361,7 @@ impl Render for Shell {
                 composition::Content {
                     paths,
                     glass: super::glass::Grounds::for_window(window, self.focus_side, cx),
-                    headers: lists.headers,
+                    headers: list_headers,
                     status,
                     labels: &self.labels,
                     typeface: self.active_typeface(),

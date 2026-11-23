@@ -2669,5 +2669,9 @@
     "other": "İçerideki %1 öge taşınamadı; ilki %2: %3"
   },
   "keys.action.extendLeft": "Seçimi sola genişlet",
-  "keys.action.extendRight": "Seçimi sağa genişlet"
+  "keys.action.extendRight": "Seçimi sağa genişlet",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

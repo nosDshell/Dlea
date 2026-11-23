@@ -2669,5 +2669,9 @@
     "other": "Ichidagi %1 ta obyekt koʻchirilmadi; birinchisi %2: %3"
   },
   "keys.action.extendLeft": "Chapga kengaytirish",
-  "keys.action.extendRight": "O‘ngga kengaytirish"
+  "keys.action.extendRight": "O‘ngga kengaytirish",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

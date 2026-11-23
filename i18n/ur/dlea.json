@@ -2669,5 +2669,9 @@
     "other": "اندر کے ⁨%1⁩ آئٹمز منتقل نہیں ہو سکے؛ پہلا ⁨%2⁩ ہے: ⁨%3⁩"
   },
   "keys.action.extendLeft": "انتخاب بائیں طرف بڑھائیں",
-  "keys.action.extendRight": "انتخاب دائیں طرف بڑھائیں"
+  "keys.action.extendRight": "انتخاب دائیں طرف بڑھائیں",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

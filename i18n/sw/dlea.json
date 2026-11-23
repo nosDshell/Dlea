@@ -2669,5 +2669,9 @@
     "other": "Vipengee %1 vilivyomo havikuweza kuhamishwa; cha kwanza ni %2: %3"
   },
   "keys.action.extendLeft": "Panua uteuzi kushoto",
-  "keys.action.extendRight": "Panua uteuzi kulia"
+  "keys.action.extendRight": "Panua uteuzi kulia",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

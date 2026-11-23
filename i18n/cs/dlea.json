@@ -2783,5 +2783,9 @@
     "other": "Uvnitř se nepodařilo přesunout %1 položek; první je %2: %3"
   },
   "keys.action.extendLeft": "Rozšířit vlevo",
-  "keys.action.extendRight": "Rozšířit vpravo"
+  "keys.action.extendRight": "Rozšířit vpravo",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

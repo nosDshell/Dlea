@@ -56,6 +56,7 @@ impl ChromeView {
         } else {
             palette.foreground.opacity(0.15)
         };
+        let address_frame = self.frame.clone();
         let mut row = div()
             .id("chrome-address")
             .h(px(sizes.inner()))
@@ -72,6 +73,16 @@ impl ChromeView {
                     .border_color(palette.foreground.opacity(0.10))
             })
             .hover_listener_mode(gpui::HoverListenerMode::InputModalityIndependent)
+            .child(
+                gpui::canvas(
+                    |_, _, _| {},
+                    move |bounds, _, _, _| {
+                        address_frame.borrow_mut().address_bounds = Some(bounds);
+                    },
+                )
+                .absolute()
+                .size_full(),
+            )
             .on_hover(cx.listener(|view, hovered: &bool, _, cx| {
                 let mut frame = view.frame.borrow_mut();
                 if frame.address_hovered != *hovered {

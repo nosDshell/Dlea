@@ -2783,5 +2783,9 @@
     "other": "Impossible de déplacer %1 éléments à l’intérieur ; le premier est %2 : %3"
   },
   "keys.action.extendLeft": "Étendre vers la gauche",
-  "keys.action.extendRight": "Étendre vers la droite"
+  "keys.action.extendRight": "Étendre vers la droite",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

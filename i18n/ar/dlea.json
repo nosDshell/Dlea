@@ -3125,5 +3125,9 @@
     "zero": "تعذّر نقل العناصر بالداخل وعددها ⁨%1⁩؛ أولها ⁨%2⁩: ⁨%3⁩"
   },
   "keys.action.extendLeft": "توسيع التحديد لليسار",
-  "keys.action.extendRight": "توسيع التحديد لليمين"
+  "keys.action.extendRight": "توسيع التحديد لليمين",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

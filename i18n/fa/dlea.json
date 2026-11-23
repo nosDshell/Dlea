@@ -2669,5 +2669,9 @@
     "other": "انتقال ⁨%1⁩ مورد داخل ممکن نشد؛ نخستین مورد ⁨%2⁩ است: ⁨%3⁩"
   },
   "keys.action.extendLeft": "گسترش انتخاب به چپ",
-  "keys.action.extendRight": "گسترش انتخاب به راست"
+  "keys.action.extendRight": "گسترش انتخاب به راست",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

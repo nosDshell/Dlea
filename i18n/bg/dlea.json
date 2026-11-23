@@ -2669,5 +2669,9 @@
     "other": "Неуспешно преместване на %1 елемента вътре; първият е %2: %3"
   },
   "keys.action.extendLeft": "Разширяване наляво",
-  "keys.action.extendRight": "Разширяване надясно"
+  "keys.action.extendRight": "Разширяване надясно",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

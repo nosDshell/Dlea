@@ -2783,5 +2783,9 @@
     "other": "Није могуће преместити ставке унутра (%1); прва је %2: %3"
   },
   "keys.action.extendLeft": "Прошири улево",
-  "keys.action.extendRight": "Прошири удесно"
+  "keys.action.extendRight": "Прошири удесно",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

@@ -2669,5 +2669,9 @@
     "other": "ভিতরের %1টি আইটেম সরানো যায়নি; প্রথমটি %2: %3"
   },
   "keys.action.extendLeft": "বামে নির্বাচন বাড়ান",
-  "keys.action.extendRight": "ডানে নির্বাচন বাড়ান"
+  "keys.action.extendRight": "ডানে নির্বাচন বাড়ান",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

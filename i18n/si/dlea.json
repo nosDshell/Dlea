@@ -2669,5 +2669,9 @@
     "other": "ඇතුළත අයිතම %1 ක් ගෙන යා නොහැකි විය; පළමුවැන්න %2 යි: %3"
   },
   "keys.action.extendLeft": "වමට තේරීම දිගු කරන්න",
-  "keys.action.extendRight": "දකුණට තේරීම දිගු කරන්න"
+  "keys.action.extendRight": "දකුණට තේරීම දිගු කරන්න",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

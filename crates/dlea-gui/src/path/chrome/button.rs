@@ -29,7 +29,11 @@ impl ChromeView {
         }
         let focused = self.frame.borrow().controls[index].focused && enabled;
         let resting = ink_override.unwrap_or_else(|| resting_ink(enabled, icon_on, palette));
-        let ink = mark_ink(enabled, focused, resting, palette.foreground);
+        let ink = if filled && enabled && plate::light(palette.background) {
+            gpui::rgb(0xffffff).into()
+        } else {
+            mark_ink(enabled, focused, resting, palette.foreground)
+        };
         let (hovered, pressed) = {
             let control = self.frame.borrow().controls[index];
             (control.hovered, control.pressed)
@@ -328,7 +332,7 @@ impl ChromeView {
                         true,
                         true,
                         self.path.read(cx).inputs.paths[self.path.read(cx).inputs.side].as_ref()
-                            == "/",
+                            == dlea::ui_logic_rail_places::order::COMPUTER,
                         Kind::Solo,
                         palette,
                         None,

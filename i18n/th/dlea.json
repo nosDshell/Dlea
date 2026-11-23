@@ -2555,5 +2555,9 @@
     "other": "ย้าย %1 รายการ ภายในไม่สำเร็จ รายการแรกคือ %2: %3"
   },
   "keys.action.extendLeft": "ขยายการเลือกไปทางซ้าย",
-  "keys.action.extendRight": "ขยายการเลือกไปทางขวา"
+  "keys.action.extendRight": "ขยายการเลือกไปทางขวา",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }

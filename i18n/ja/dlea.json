@@ -2556,5 +2556,9 @@
     "other": "内部の %1 項目を移動できませんでした。最初の項目は %2: %3"
   },
   "keys.action.extendLeft": "選択範囲を左に拡張",
-  "keys.action.extendRight": "選択範囲を右に拡張"
+  "keys.action.extendRight": "選択範囲を右に拡張",
+  "computer.section.directories": "My Directories",
+  "computer.section.internal": "Internal Disk",
+  "computer.section.external": "External Disk",
+  "places.row.system_disk": "System Disk"
 }
