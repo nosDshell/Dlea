@@ -165,7 +165,10 @@ impl Shell {
             .flex_col();
         if !folders.is_empty() {
             page = page
-                .child(heading(&catalog.tr("computer.section.directories"), palette))
+                .child(heading(
+                    &catalog.tr("computer.section.directories"),
+                    palette,
+                ))
                 .child(wrap(side, &folders, &selected, palette, &catalog, cx));
         }
         page = page
@@ -197,7 +200,11 @@ impl Shell {
         let side = self.focus_side;
         if self.trash_opened(cx)
             || self.flash_covers(side)
-            || !self.panes.get(side).and_then(Option::as_ref).is_some_and(shown)
+            || !self
+                .panes
+                .get(side)
+                .and_then(Option::as_ref)
+                .is_some_and(shown)
         {
             return false;
         }
@@ -253,12 +260,21 @@ impl Shell {
 fn heading(text: &str, palette: &Palette) -> gpui::Div {
     div()
         .w_full()
-        .pt(px(10.))
-        .pb(px(4.))
+        .pt(px(8.))
+        .pb(px(6.))
         .px(px(8.))
+        .flex()
+        .items_center()
+        .gap(px(8.))
         .text_size(px(13.))
-        .text_color(palette.foreground.opacity(0.55))
+        .text_color(palette.foreground.opacity(0.45))
         .child(SharedString::from(text.to_owned()))
+        .child(
+            div()
+                .flex_grow(1.)
+                .h(px(1.))
+                .bg(palette.foreground.opacity(0.12)),
+        )
 }
 
 fn wrap(
@@ -307,7 +323,7 @@ fn cell(
     div()
         .id(SharedString::from(format!("computer-{side}-{path}")))
         .w(px(TILE))
-        .h(px(108.))
+        .h(px(118.))
         .flex_none()
         .flex()
         .flex_col()
@@ -329,9 +345,12 @@ fn cell(
                 cx.stop_propagation();
             }),
         )
-        .on_mouse_down(MouseButton::Right, cx.listener(|_, _, _, cx| {
-            cx.stop_propagation();
-        }))
+        .on_mouse_down(
+            MouseButton::Right,
+            cx.listener(|_, _, _, cx| {
+                cx.stop_propagation();
+            }),
+        )
         .child(
             canvas(
                 |_, _, _| {},
@@ -339,7 +358,7 @@ fn cell(
                     marks::paint(window, bounds, disk, label_key, ink, on_accent, cx);
                 },
             )
-            .size(px(56.)),
+            .size(px(72.)),
         )
         .child(
             div()

@@ -43,7 +43,6 @@ pub(super) fn button(
                 .flex()
                 .items_center()
                 .justify_center()
-                .rounded(px(super::plate::RADIUS))
                 .bg(ground)
                 .text_size(px(11.))
                 .text_color(ink)

@@ -50,7 +50,10 @@ fn a_user_folder_counts_its_children_and_a_volume_does_not() {
     std::fs::create_dir_all(&desktop).unwrap();
     std::fs::write(desktop.join("alpha.txt"), "one\n").unwrap();
     std::fs::write(desktop.join(".hidden"), "no\n").unwrap();
-    assert_eq!(super::folder_children_in(desktop.to_str().unwrap(), &home), Some(1));
+    assert_eq!(
+        super::folder_children_in(desktop.to_str().unwrap(), &home),
+        Some(1)
+    );
     assert_eq!(super::folder_children_in("/", &home), None);
     std::fs::remove_dir_all(&root).ok();
 }

@@ -147,7 +147,11 @@ impl Footer {
                             .left(px(centre - 7.))
                             .size(px(14.))
                             .rounded_full()
-                            .bg(ink.foreground)
+                            .bg(if ink.background.l > 0.62 {
+                                ink.background
+                            } else {
+                                ink.foreground
+                            })
                             .border_1()
                             .border_color(ink.muted_frame),
                     ),

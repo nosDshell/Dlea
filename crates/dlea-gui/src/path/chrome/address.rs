@@ -59,7 +59,7 @@ impl ChromeView {
         let address_frame = self.frame.clone();
         let mut row = div()
             .id("chrome-address")
-            .h(px(sizes.inner()))
+            .h(px((sizes.band - 10.).max(sizes.slot)))
             .flex_1()
             .min_w_0()
             .flex()
@@ -106,7 +106,9 @@ impl ChromeView {
                 div()
                     .absolute()
                     .right_0()
-                    .top(px(((sizes.inner() - sizes.slot) / 2.).round()))
+                    .top(px(
+                        (((sizes.band - 10.).max(sizes.slot) - sizes.slot) / 2.).round()
+                    ))
                     .child(self.button(
                         sizes,
                         2,
