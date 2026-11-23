@@ -126,7 +126,7 @@ deb [signed-by=/etc/apt/keyrings/gxde-archive.gpg] https://mirrors.hit.edu.cn/GX
 
 在 900×600 的 Xvfb + Openbox 窗口里用鼠标和键盘核对过的：
 
-- 点侧栏 Computer、点工具栏计算机、地址栏输入 Computer 后回车，主区是「My Directories」和「Internal Disk」，没有 Name / Time changed / Size / Type 表头。六个存在的用户目录用蓝色文件夹，上面是自制的小标记（显示器、播放、音符、圆点、横线、向下箭头）。根卷显示 System Disk，侧栏同一行也是 System Disk，不再用磁盘标签原文。
+- 点侧栏 Computer、点工具栏计算机、地址栏输入 Computer 后回车，主区是「My Directories」和「Internal Disk」，没有 Name / Time changed / Size / Type 表头。900 px 宽时用户目录是第一行四个、第二行两个，和 15.5 那页的换行一样。点 Desktop 再按向下，选中落到 Documents。六个目录用蓝色文件夹，上面是自制的小标记。根卷显示 System Disk，侧栏同一行也是 System Disk。
 - 单击用户目录后，状态栏写 “1 folder selected (contains N item/items)”。N 是这个目录里不以点开头的条目数：空的 Music 是 0 items，只有 alpha.txt 的 Desktop 是 1 item。点系统盘仍是原来的 “1 of 7 selected”，没有假装它是文件夹。没选中时是 “7 items”。双击或方向键后回车打开真实目录。后退回到计算机页。向上在这一页是灰的。在家目录点向上进入 `/tmp`，再后退回到家目录，再前进回到 `/tmp`。
 - 侧栏悬停：新安装的「Highlight on hover」默认关着，这是已经合并的设置。把它打开后，指针停在 Music 上，这一行是灰色，当前的 Home 仍是浅蓝。
 - 最大化按钮来回切换：900×600 和铺满 1100×679。关闭按钮会关掉窗口。双击标题栏上没有控件的位置（按钮和地址槽之间的上沿，以及地址槽下沿的空白）同样来回切换这两档。客户区右下角向内拖，窗口从 900×600 变成 843×543。

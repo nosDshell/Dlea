@@ -89,6 +89,9 @@ fn shown(host: &super::pane::PaneHost) -> bool {
     host.pane.place() == COMPUTER || host.path == COMPUTER
 }
 
+/// Wide enough that a 900 px window wraps My Directories after four folders, as the 15.5 page does.
+const TILE: f32 = 160.;
+
 fn label_of(tile: &Tile, catalog: &I18n) -> String {
     if tile.label_key.is_empty() {
         tile.label.clone()
@@ -130,7 +133,7 @@ impl Shell {
         let mut tiles = folders.clone();
         tiles.extend(internal.iter().cloned());
         tiles.extend(external.iter().cloned());
-        let columns = ((width - 36.).max(112.) / 112.).floor().max(1.) as usize;
+        let columns = ((width - 36.).max(TILE) / TILE).floor().max(1.) as usize;
         let selected = self.chrome.view.as_ref().and_then(|chrome| {
             chrome
                 .read(cx)
@@ -305,7 +308,7 @@ fn cell(
     let disk = tile.disk;
     div()
         .id(SharedString::from(format!("computer-{side}-{path}")))
-        .w(px(112.))
+        .w(px(TILE))
         .h(px(108.))
         .flex_none()
         .flex()
