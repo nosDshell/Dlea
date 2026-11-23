@@ -2,7 +2,8 @@
 use gpui::{point, px, size, Bounds, Hsla, Pixels, SharedString, Window};
 
 const FOLDER: &[u8] = br#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path fill="currentColor" d="M8 18h18l6 6h24v26H8z"/></svg>"#;
-const DRIVE: &[u8] = br##"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect x="16" y="8" width="32" height="48" rx="4" fill="currentColor"/><rect x="22" y="40" width="20" height="5" fill="#ffffff"/></svg>"##;
+const DRIVE: &[u8] = br#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect x="16" y="8" width="32" height="48" rx="4" fill="currentColor"/></svg>"#;
+const SLOT: &[u8] = br#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect x="22" y="40" width="20" height="5" fill="currentColor"/></svg>"#;
 const DESKTOP: &[u8] = br#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M3 5h18v12H3z M8 19h8v2H8z"/></svg>"#;
 const VIDEOS: &[u8] = br#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M8 6l11 6-11 6z"/></svg>"#;
 const MUSIC: &[u8] = br#"<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M15 4v9.2A3.2 3.2 0 1 1 12.4 10V4z"/></svg>"#;
@@ -28,6 +29,7 @@ pub(super) fn paint(
     disk: bool,
     label_key: &str,
     ink: Hsla,
+    mark_ink: Hsla,
     cx: &gpui::App,
 ) {
     let (data, key): (&[u8], &str) = if disk {
@@ -43,6 +45,16 @@ pub(super) fn paint(
         ink,
         cx,
     );
+    if disk {
+        let _ = window.paint_svg(
+            bounds,
+            SharedString::from("dlea-computer:drive-slot"),
+            Some(SLOT),
+            gpui::TransformationMatrix::unit(),
+            mark_ink,
+            cx,
+        );
+    }
     let Some((mark, id)) = badge(label_key) else {
         return;
     };
@@ -56,7 +68,7 @@ pub(super) fn paint(
         SharedString::from(id),
         Some(mark),
         gpui::TransformationMatrix::unit(),
-        gpui::rgb(0xffffff).into(),
+        mark_ink,
         cx,
     );
 }

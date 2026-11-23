@@ -292,18 +292,16 @@ fn cell(
     cx: &mut Context<Shell>,
 ) -> impl IntoElement {
     let path = tile.path.clone();
+    // Tag order is red, orange, yellow, green. Orange is the removable volume; executable is the theme green.
     let ink = if tile.external {
-        gpui::rgb(0xe0a030).into()
+        palette.tags[1]
     } else if tile.disk {
-        gpui::rgb(0x3caf4a).into()
+        palette.executable
     } else {
         palette.accent
     };
-    let text = if on {
-        gpui::rgb(0xffffff).into()
-    } else {
-        palette.foreground
-    };
+    let on_accent = palette.background;
+    let text = if on { on_accent } else { palette.foreground };
     let label_key = tile.label_key;
     let disk = tile.disk;
     div()
@@ -338,7 +336,7 @@ fn cell(
             canvas(
                 |_, _, _| {},
                 move |bounds, _, window, cx| {
-                    marks::paint(window, bounds, disk, label_key, ink, cx);
+                    marks::paint(window, bounds, disk, label_key, ink, on_accent, cx);
                 },
             )
             .size(px(56.)),

@@ -10,9 +10,9 @@ pub(crate) fn edge(window: &Window, at: Point<Pixels>) -> Option<ResizeEdge> {
     if width < 1. || height < 1. {
         return None;
     }
-    let left = x >= 0. && x < EDGE;
+    let left = (0. ..EDGE).contains(&x);
     let right = x <= width && x >= width - EDGE;
-    let top = y >= 0. && y < EDGE;
+    let top = (0. ..EDGE).contains(&y);
     let bottom = y <= height && y >= height - EDGE;
     match (top, bottom, left, right) {
         (true, _, true, _) => Some(ResizeEdge::TopLeft),

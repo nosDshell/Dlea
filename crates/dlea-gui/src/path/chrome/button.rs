@@ -30,7 +30,7 @@ impl ChromeView {
         let focused = self.frame.borrow().controls[index].focused && enabled;
         let resting = ink_override.unwrap_or_else(|| resting_ink(enabled, icon_on, palette));
         let ink = if filled && enabled && plate::light(palette.background) {
-            gpui::rgb(0xffffff).into()
+            palette.background
         } else {
             mark_ink(enabled, focused, resting, palette.foreground)
         };

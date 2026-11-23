@@ -186,21 +186,14 @@ impl Element for CrumbElement {
                             ink.accent_frame,
                         ));
                     }
-                    // DCrumbButton:checked fills the current segment with the accent and white ink.
-                    let mut crumb_ink = if lit { ink.foreground } else { rest };
-                    if !pane && crumb.last && !held {
-                        if let Some((_, width)) = extent {
-                            window.paint_quad(gpui::quad(
-                                Bounds::new(point(x, bounds.top()), size(px(width), height)),
-                                px(4.),
-                                ink.accent,
-                                px(0.),
-                                ink.accent,
-                                gpui::BorderStyle::Solid,
-                            ));
-                            crumb_ink = gpui::Hsla::white();
-                        }
-                    }
+                    // The current chrome segment is accent text. A filled chip read as a button and used a literal white.
+                    let crumb_ink = if !pane && crumb.last && !held {
+                        ink.accent
+                    } else if lit {
+                        ink.foreground
+                    } else {
+                        rest
+                    };
                     paint_run(run, x, bounds.origin.y, height, crumb_ink, window);
                 }
                 if let Some(run) = &git {
