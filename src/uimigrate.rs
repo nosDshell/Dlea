@@ -55,6 +55,13 @@ pub fn migrated(found: &Json, merged: Json) -> Json {
     if stored && found.get("highlightHover").is_none() {
         state = with_key(state, "highlightHover", Json::Bool(false));
     }
+    // A new document shows the calm empty folder. A stored file that never wrote these keys keeps 0.4.1's Omi and rotation.
+    if stored && found.get("emptyFolderOmi").is_none() {
+        state = with_key(state, "emptyFolderOmi", Json::Bool(true));
+    }
+    if stored && found.get("emptyFolderRotate").is_none() {
+        state = with_key(state, "emptyFolderRotate", Json::Bool(true));
+    }
     state
 }
 

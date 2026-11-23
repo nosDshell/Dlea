@@ -72,8 +72,8 @@ fn the_schema_ships_the_rows_as_041_draws_and_takes_only_booleans() {
     for (key, on) in [
         ("highlightHover", true),
         ("tabsAsIcons", false),
-        ("emptyFolderOmi", true),
-        ("emptyFolderRotate", true),
+        ("emptyFolderOmi", false),
+        ("emptyFolderRotate", false),
     ] {
         assert_eq!(
             fresh.get(key).and_then(Json::as_bool),

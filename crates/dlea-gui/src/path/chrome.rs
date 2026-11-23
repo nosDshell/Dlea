@@ -169,6 +169,8 @@ pub struct Frame {
     pub address_hovered: bool,
     pub address_bounds: Option<Bounds<Pixels>>,
     pub window_controls: Option<Bounds<Pixels>>,
+    /// The pointer is over Close, which fills that control red.
+    pub close_hovered: bool,
     pub computer_selected: Option<String>,
     pub computer_paths: Vec<String>,
     pub computer_columns: usize,

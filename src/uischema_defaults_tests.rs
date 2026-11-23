@@ -91,10 +91,10 @@ fn the_defaults_are_the_shipped_shape_key_for_key() {
     assert_eq!(d.get("highlightToday").and_then(Json::as_bool), Some(false));
     assert_eq!(d.get("highlightHover").and_then(Json::as_bool), Some(true));
     assert_eq!(d.get("tabsAsIcons").and_then(Json::as_bool), Some(false));
-    assert_eq!(d.get("emptyFolderOmi").and_then(Json::as_bool), Some(true));
+    assert_eq!(d.get("emptyFolderOmi").and_then(Json::as_bool), Some(false));
     assert_eq!(
         d.get("emptyFolderRotate").and_then(Json::as_bool),
-        Some(true)
+        Some(false)
     );
     assert_eq!(d.get("wrapAtEnds").and_then(Json::as_bool), Some(false));
     // Escape stays put and a double click opens as in 0.3.4; slow click renames, on by the defaults ledger.

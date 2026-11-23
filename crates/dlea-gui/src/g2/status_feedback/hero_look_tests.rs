@@ -88,7 +88,7 @@ fn rotate_unticked_holds_empty_folder_with_or_without_reduced_motion(cx: &mut Te
     for reduced in [false, true, false] {
         cx.update(|cx| cx.set_reduce_motion(reduced));
         run(cx, handle, 2 * ROTATE_MS);
-        assert_eq!(caption(cx, handle), "EMPTY FOLDER");
+        assert_eq!(caption(cx, handle), "Folder is empty");
         assert_eq!(read(cx, handle, |hero| hero.rotation().beats()), 0);
         assert_eq!(
             read(cx, handle, |hero| hero.rotation().next_deadline()),
@@ -128,7 +128,7 @@ fn both_rows_turn_off_and_on_again_without_tying_each_other(cx: &mut TestAppCont
     run(cx, handle, 2400);
     look(cx, false, false);
     run(cx, handle, ROTATE_MS);
-    assert_eq!(caption(cx, handle), "EMPTY FOLDER");
+    assert_eq!(caption(cx, handle), "Folder is empty");
     assert!(!drawn(cx, handle, "fb1-hero-mark"));
     assert_eq!(
         run(cx, handle, 2 * ROTATE_MS),
@@ -138,7 +138,7 @@ fn both_rows_turn_off_and_on_again_without_tying_each_other(cx: &mut TestAppCont
     look(cx, true, false);
     frame(cx, handle);
     assert!(drawn(cx, handle, "fb1-hero-mark"));
-    assert_eq!(caption(cx, handle), "EMPTY FOLDER");
+    assert_eq!(caption(cx, handle), "Folder is empty");
     look(cx, true, true);
     frame(cx, handle);
     assert_eq!(caption(cx, handle), "NOTHING HERE YET");

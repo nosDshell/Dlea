@@ -412,7 +412,7 @@ impl Render for Footer {
         let theme = crate::window::glass::producers::chrome_theme(window, cx);
         let ink = Palette::inherited(&window.text_style(), theme);
         let typeface = Typeface::for_window(window, cx);
-        let height = Metrics::for_typeface(&typeface).header;
+        let height = (Metrics::for_typeface(&typeface).header * 24. / 27.).round();
         let style = gpui::TextStyle {
             font_family: typeface.font.family.clone(),
             font_size: typeface.caption.into(),
@@ -428,7 +428,7 @@ impl Render for Footer {
         let disk_width = measure(&self.filesystem).min(self.zone_width);
         // HIG locked-menu lets the full notice use the count zone's unpainted space.
         let count_width = measure(&self.counts).min(self.zone_width);
-        // DStatusBar anchors its 120 px scale slider 20 px off the right edge; the disk facts step in before it.
+        // DStatusBar anchors its 120 px scale slider 20 px off the right edge. The disk facts stay in the probe and are not drawn.
         let disk_x = SLIDER_MARGIN + SLIDER_W + 14.;
         let room = (self.width - 28. - disk_width - disk_x - (14. + count_width + 14.)).max(0.);
         let counts_text = counts::elided(&self.counts, self.zone_width, measure);
@@ -488,7 +488,7 @@ impl Render for Footer {
                     counts_text.into_any_element(),
                 )
                 .absolute()
-                .left(px(((self.width - self.zone_width) / 2.).max(14.))),
+                .left(px(((self.width - self.zone_width) / 2.).max(14.))).text_center(),
             )
             .child(
                 text(
@@ -498,7 +498,7 @@ impl Render for Footer {
                 )
                 .absolute()
                 .right(px(disk_x))
-                .text_right(),
+                .text_right().opacity(0.),
             )
             .child(
                 self.painted.watch(

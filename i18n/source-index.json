@@ -1,6 +1,6 @@
 {
-  "catalog_file_sha256": "c70a7dc8a37ac9d449d40b46360ea2428cb9b6793623c9e3c5ec9b0a37b833a5",
-  "catalog_sha256": "283668efe4bef00208825833359c767c5af1c49bb2d5a2c5a7905e76837ea987",
+  "catalog_file_sha256": "d5f840cbeaeafc8d129ad8f1aa1c71f82a3b7e3b775b7575f4e47866a0c08fc0",
+  "catalog_sha256": "2975d616abe97d0e880b4a1c60e020053bd0ae888985df39287c1d5b30a0c3a3",
   "counts": {
     "direct_references": 0,
     "keys": 2335,
@@ -81708,24 +81708,24 @@
     "pane.empty.fixed": {
       "call_sites": [
         {
-          "excerpt": "self.fixed = raise(\"pane.empty.fixed\");",
-          "line": 67,
+          "excerpt": "self.fixed = catalog.tr(\"pane.empty.fixed\").into();",
+          "line": 68,
           "path": "crates/dlea-gui/src/g2/status_feedback/hero_look.rs",
           "surface": "gui",
-          "usage": "key-declaration"
+          "usage": "translated-call"
         }
       ],
       "context": "pane.empty.fixed: crates/dlea-gui/src/g2/status_feedback/hero_look.rs:67",
-      "coverage": "occurrence-needs-owner-verification",
-      "english": "EMPTY FOLDER",
+      "coverage": "existing-translated-call",
+      "english": "Folder is empty",
       "kind": "text",
       "omarchy_reference": null,
       "placeholders": [],
       "plural_categories": [],
-      "resolved_english": "EMPTY FOLDER",
-      "resolved_sha256": "14bac138ab2e649421daee07036dccd1b24c179e8a5e611345a1448f11a4158d",
-      "resolved_source_hash": "0cb7d49bc5be",
-      "source_hash": "0cb7d49bc5be"
+      "resolved_english": "Folder is empty",
+      "resolved_sha256": "93693acdccb0e9a06616fc47d4804a3f5baba44522267af92976fe7338eb1b05",
+      "resolved_source_hash": "2bfcc1082c4f",
+      "source_hash": "2bfcc1082c4f"
     },
     "pane.empty.hint_new_folder": {
       "call_sites": [
