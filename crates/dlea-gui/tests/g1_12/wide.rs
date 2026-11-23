@@ -40,7 +40,10 @@ fn a_wide_crumb_pushes_its_neighbour_along_and_a_press_on_its_glyphs_opens_it(
             .map(|crumb| crumb.text.clone())
             .collect::<Vec<_>>()
     });
-    assert_eq!(texts, ["~/", &format!("{WIDE}/"), "next/", "leaf"]);
+    assert_eq!(
+        texts,
+        ["~\u{203a}", &format!("{WIDE}\u{203a}"), "next\u{203a}", "leaf"]
+    );
     let drawn = widths(&mut bar);
     assert!(
         drawn[1] > 4. * cell + 1.,

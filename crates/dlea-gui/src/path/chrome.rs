@@ -15,6 +15,7 @@ use std::{cell::RefCell, rc::Rc, time::Instant};
 mod address;
 mod button;
 mod plate;
+mod view_menu;
 mod windows;
 
 /// The copy mark after the path is the last control, so every earlier index keeps its place.
@@ -171,6 +172,8 @@ pub struct Frame {
     pub computer_selected: Option<String>,
     pub computer_paths: Vec<String>,
     pub computer_columns: usize,
+    /// Columns and dual stay off the icon/list pair and open from this menu.
+    pub view_menu: bool,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]

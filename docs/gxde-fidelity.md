@@ -150,9 +150,22 @@ deb [signed-by=/etc/apt/keyrings/gxde-archive.gpg] https://mirrors.hit.edu.cn/GX
 - 计算机页的磁盘用主题的 `executable`（绿），可移动卷用标签色里的橙色，选中字和标记用 `background`。`tools/dlea-gpui-lint` 里这轮新增的字面颜色已经没有了。剩下 18 处和 `origin/main` 相同。
 - 地址栏当前段是强调色文字，不再铺一块蓝底。`~/Desktop` 里点 `~` 回到家目录。
 
+## 2026-11-23 状态栏、面包屑、视图和悬停
+
+对照的是 GXDE `char/qt6_migration` 源码，不是那次缺插件的运行时。
+
+- 状态栏内控件高度来自 `dstatusbar.cpp` 的 `STATUSBAR_WIDGET_DEFAULT_HEIGHT` 24，`sizeHint` 至少 22。列表头仍按字号算（正文字号 14 时是 27）。状态条高度是 `(列表头 * 24 / 27)` 四舍五入，所以默认字号是 24，字号变了它跟着变。`Geometry` 把列表头和状态条分开记。`composition.rs` 原来正好 401 行，绘制函数挪到 `composition_render.rs`，没有把记录上限撑破。1100×700、列表头 27 时，单栏内容高 609、带标签页时 582。
+- 面包屑画出来的分隔是 `›`（U+203A），一个字符，和 GXDE `DFMCrumbBar` 按钮之间不放斜杠一致。编辑框、复制地址、每个面包屑指向的目录仍是带 `/` 的真实路径。`~/Work/claude` 画成 `~›Work›claude`，最后一段是强调色。
+- 工具栏主视图是图标然后列表，和 15.5 图标视图那张的两段控件一致。分栏和双栏在旁边的 `▾` 菜单里，点下去发出原来的 `viewColumns` / `viewDual`。这个标记和设置按钮分开，避免两个相同的汉堡。Ctrl+1 到 Ctrl+4 仍切换四个视图。菜单用 `deferred` 画在栏的外面，点 Columns 后窗口变成分栏。
+- 悬停：`DStyledItemDelegate::hoverBoxEnabled` 读 `GA_ShowHoverBox`，`gxde-file-manager.default.json` 里是 `true`。浅色侧栏悬停底是 `light.ini` 的 `#0C000000`，深色是 `dark.ini` 的 `#1Affffff`。Dlea 的新文档现在默认打开 Highlight on hover。文件里写了 `false` 的仍是关。已经存过、但没有这个键的旧文件在读取时保持关，空的新文档仍是开。缺这个键时洗色本身也不画。洗色仍是前景色的 10%，和深色主题那条 `#1Affffff` 一致；浅色那条 `#0C000000` 更淡，对比度门闩把 10% 钉死了，这次没有拆成两套透明度。新家目录里 Music 一行是灰的，当前的 Home 仍是浅蓝。
+
+xfwm4 上仍是一条客户区标题栏，拖动、最大化、最小化可用。Openbox 不声明 `_GTK_FRAME_EXTENTS`，GPUI 就改用服务器装饰，窗口外面会再有一条标题栏。这是窗口管理器的能力，不是再画一条栏。
+
 被环境挡住：
 
 - 网络区没有接入发现后端。`device_rail` 里写明还没有 NETWORK producer，所以计算机页不画「局域网上的计算机」。已挂载的卷仍然来自真实的设备列表。
+- `qs` 是 quickshell 的命令名。这个系统的 apt 没有 quickshell 包，没有装一个来历不明的二进制顶上。依赖 `qs` 的套件因此跑不了。
+- `qml6` 这个命令名也不在已安装的 Qt 包里。`qmllint` 在 `/usr/lib/qt6/bin/qmllint`，`qmlcachegen` 在 `/usr/lib/qt6/libexec/qmlcachegen`，`plugins.qmltypes` 在 `/usr/lib/x86_64-linux-gnu/qt6/qml/QtQuick/`。`bubblewrap` 已安装，`bwrap` 可用。
 
 不照抄：
 
@@ -160,8 +173,7 @@ deb [signed-by=/etc/apt/keyrings/gxde-archive.gpg] https://mirrors.hit.edu.cn/GX
 
 还能做、这次没做完：
 
-- 面包屑段与段之间仍是 `/`。
-- 视图按钮仍是列表、分栏、图标、双栏四个。
 - 文件夹标记是自制的单色图形，不是深度那套彩色图标。GPL 资源没有并入。
 - 右键菜单沿用已有项，没有加没有后端的 Display as、Compress、Send to desktop。
-- 状态栏仍是 27 px，普通目录仍显示剩余空间。
+
+重编后的窗口里，`computer://` 不再把列表头画在分节页上面，地址里的 Computer 是强调色文字。普通目录的状态栏右侧仍是文件系统和剩余空间，例如 `ext4 · 205.8 GB free`。

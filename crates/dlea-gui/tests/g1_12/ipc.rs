@@ -33,7 +33,7 @@ fn the_chrome_readers_answer_its_crumbs_field_and_slot(cx: &mut TestAppContext) 
     let cell = bar.advance(Size::Caption);
     assert_eq!(ask(&mut bar, "pathBarOpen", &[]), "false");
     assert_eq!(ask(&mut bar, "crumbCount", &[]), "3");
-    assert_eq!(ask(&mut bar, "crumbText", &[]), "~/Work/claude");
+    assert_eq!(ask(&mut bar, "crumbText", &[]), "~\u{203a}Work\u{203a}claude");
     assert_eq!(ask(&mut bar, "pathCentre", &[]), "394 13");
     assert_eq!(
         ask(&mut bar, "crumbCentre", &["1"]),
@@ -86,8 +86,8 @@ fn the_pane_readers_answer_each_dual_strip_and_the_chrome_keeps_none(cx: &mut Te
         "dual draws no chrome crumbs"
     );
     assert_eq!(ask(&mut bar, "paneCrumbCount", &["0"]), "2");
-    assert_eq!(ask(&mut bar, "paneCrumbText", &["0"]), "~/Work");
-    assert_eq!(ask(&mut bar, "paneCrumbText", &["1"]), "/srv/www");
+    assert_eq!(ask(&mut bar, "paneCrumbText", &["0"]), "~\u{203a}Work");
+    assert_eq!(ask(&mut bar, "paneCrumbText", &["1"]), "/\u{203a}srv\u{203a}www");
     assert_eq!(ask(&mut bar, "panePathRect", &["0"]), "0 26 400 27");
     assert_eq!(ask(&mut bar, "panePathRect", &["1"]), "401 26 387 27");
     let centre = format!(

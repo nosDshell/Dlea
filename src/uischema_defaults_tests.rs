@@ -89,7 +89,7 @@ fn the_defaults_are_the_shipped_shape_key_for_key() {
     assert_eq!(d.get("langMarks").and_then(Json::as_bool), Some(true));
     assert_eq!(d.get("showGitStatus").and_then(Json::as_bool), Some(false));
     assert_eq!(d.get("highlightToday").and_then(Json::as_bool), Some(false));
-    assert_eq!(d.get("highlightHover").and_then(Json::as_bool), Some(false));
+    assert_eq!(d.get("highlightHover").and_then(Json::as_bool), Some(true));
     assert_eq!(d.get("tabsAsIcons").and_then(Json::as_bool), Some(false));
     assert_eq!(d.get("emptyFolderOmi").and_then(Json::as_bool), Some(true));
     assert_eq!(

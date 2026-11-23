@@ -23,7 +23,7 @@ pub const DEFAULTS: &str = r#"{
   "hiddenLast": false,
   "showGitStatus": false,
   "highlightToday": false,
-  "highlightHover": false,
+  "highlightHover": true,
   "tabsAsIcons": false,
   "emptyFolderOmi": true,
   "emptyFolderRotate": true,

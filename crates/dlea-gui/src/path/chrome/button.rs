@@ -128,6 +128,7 @@ impl ChromeView {
                     drop(frame);
                     cx.notify();
                     if activate {
+                        view.frame.borrow_mut().view_menu = false;
                         cx.emit(ACTIONS[index]);
                     }
                     cx.stop_propagation();
@@ -287,16 +288,13 @@ impl ChromeView {
             .rounded(px(plate::RADIUS))
             .overflow_hidden()
             .bg(plate::tray_ground());
-        for (index, mode) in [
-            (5, View::List),
-            (6, View::Columns),
-            (7, View::Grid),
-            (8, View::Dual),
-        ] {
+        // DDE 15's toolbar pair is icon then list. Columns and dual stay in the menu.
+        for (index, mode) in [(7, View::Grid), (5, View::List)] {
             let on = self.inputs.view == mode;
             tray =
                 tray.child(self.button(sizes, index, true, on, on, Kind::View, palette, None, cx));
         }
+        let menu = super::view_menu::button(self, sizes, palette, cx);
         let frame = self.frame.clone();
         let pointer_frame = self.frame.clone();
         let toolbar = div()
@@ -343,6 +341,7 @@ impl ChromeView {
                     .child(div().w(px(10.)).flex_none())
                     .child(tools)
                     .child(tray)
+                    .child(menu)
                     .child(div().w(px(3.)).flex_none())
                     .child(self.button(sizes, 9, true, true, false, Kind::Solo, palette, None, cx))
                     .child(div().w(px(8.)).flex_none())

@@ -12,21 +12,22 @@ pub(crate) const LATTE: &str = "mode = \"light\"\naccent = \"#1e66f5\"\nselectio
 /// The sunset theme the ledger row was caught on.
 pub(crate) const SUNSET: &str = "background='#1c120d'\nforeground='#c6b395'\naccent='#d28a41'\ndark_background='#150d0a'\nmuted='#68544b'";
 
-/// The current mark in the foreground, the other three in the muted frame: lighter than it on a light ground, darker on a dark one.
+/// A checked view plate is the accent. On a light ground the mark is the window color so it reads on that fill; a dark ground keeps the foreground. The resting mark stays the muted frame.
 pub(crate) fn assert_view_inks(
     name: &str,
     theme: &Theme,
     current: gpui::Hsla,
     others: &[gpui::Hsla],
 ) {
-    assert_eq!(current, theme.foreground, "{name}: the current view mark");
-    let light = theme.background.l > theme.foreground.l;
+    let on_accent = theme.background.l > 0.62;
+    let expected = if on_accent {
+        theme.background
+    } else {
+        theme.foreground
+    };
+    assert_eq!(current, expected, "{name}: the current view mark");
     for (index, ink) in others.iter().enumerate() {
         assert_eq!(*ink, theme.muted_frame, "{name}: view mark {index}");
-        assert!(
-            if light { ink.l > current.l } else { ink.l < current.l },
-            "{name}: view mark {index} reads quieter than the current one ({ink:?} against {current:?})"
-        );
     }
 }
 
@@ -66,7 +67,12 @@ fn fixchrome_ey402_toolbar_view_marks_rest_with_list_current(cx: &mut TestAppCon
         let inks = chrome.read_with(cx, |view, _| {
             assert_eq!(view.inputs.view, super::startup::View::List, "{name}");
             let frame = view.frame.borrow();
-            ["list", "columns", "grid", "dual"].map(|glyph| {
+            assert!(
+                frame.controls[control("columns")].mark_ink.is_none()
+                    && frame.controls[control("dual")].mark_ink.is_none(),
+                "{name}: columns and dual stay in the menu"
+            );
+            ["list", "grid"].map(|glyph| {
                 frame.controls[control(glyph)]
                     .mark_ink
                     .expect("view mark painted")

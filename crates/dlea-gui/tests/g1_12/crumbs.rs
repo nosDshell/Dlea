@@ -37,7 +37,7 @@ const TEAM: &str = "Cloud \u{2014} Team";
 #[test]
 fn the_crumbs_concatenate_to_the_line_they_replace_and_name_their_directories() {
     let under = crumbs("/home/gm/Work/claude", HOME, None);
-    check(21, drawn(&under), "~/Work/claude".into());
+    check(21, drawn(&under), "~\u{203a}Work\u{203a}claude".into());
     check(
         22,
         targets(&under),
@@ -55,7 +55,7 @@ fn the_crumbs_concatenate_to_the_line_they_replace_and_name_their_directories() 
     check(
         30,
         format!("{}|{}", drawn(&outside), targets(&outside)),
-        "/usr/share|/ /usr /usr/share".into(),
+        "/\u{203a}usr\u{203a}share|/ /usr /usr/share".into(),
     );
     let root = crumbs("/", HOME, None);
     check(
@@ -67,13 +67,13 @@ fn the_crumbs_concatenate_to_the_line_they_replace_and_name_their_directories() 
     check(
         36,
         format!("{}|{}", drawn(&no_home), targets(&no_home)),
-        "/home/gm/Work|/ /home /home/gm /home/gm/Work".into(),
+        "/\u{203a}home\u{203a}gm\u{203a}Work|/ /home /home/gm /home/gm/Work".into(),
     );
     let sibling = crumbs("/home/gmx/deep", HOME, None);
     check(
         41,
         format!("{}|{}", drawn(&sibling), targets(&sibling)),
-        "/home/gmx/deep|/ /home /home/gmx /home/gmx/deep".into(),
+        "/\u{203a}home\u{203a}gmx\u{203a}deep|/ /home /home/gmx /home/gmx/deep".into(),
     );
 }
 
@@ -84,7 +84,7 @@ fn a_saved_label_replaces_only_the_whole_mounted_root() {
         HOME,
         Some(&shown(DAV, PERSONAL)),
     );
-    check(48, drawn(&dav), format!("{PERSONAL}/Documents/Projects"));
+    check(48, drawn(&dav), format!("{PERSONAL}\u{203a}Documents\u{203a}Projects"));
     check(
         50,
         targets(&dav),
@@ -115,14 +115,18 @@ fn a_saved_label_replaces_only_the_whole_mounted_root() {
     check(
         61,
         format!("{}|{}|{}", slash.len(), slash[0].text, targets(&slash)),
-        format!("2|Cloud / Personal/|{DAV} {DAV}/Documents"),
+        format!("2|Cloud / Personal\u{203a}|{DAV} {DAV}/Documents"),
     );
     let sibling = crumbs(
         &format!("{DAV}-old/Documents"),
         HOME,
         Some(&shown(DAV, PERSONAL)),
     );
-    check(66, drawn(&sibling), format!("{DAV}-old/Documents"));
+    check(
+        66,
+        drawn(&sibling),
+        format!("/\u{203a}{}", format!("{DAV}-old/Documents")[1..].replace('/', "\u{203a}")),
+    );
 }
 
 #[test]
@@ -202,12 +206,12 @@ fn a_strip_too_narrow_collapses_whole_crumbs_and_elides_only_the_leaf() {
     check(
         100,
         drawn(&fit_crumbs(deep.clone(), 80)),
-        "~/one/two/three/four/five".into(),
+        "~\u{203a}one\u{203a}two\u{203a}three\u{203a}four\u{203a}five".into(),
     );
     check(
         101,
         drawn(&fit_crumbs(deep.clone(), 16)),
-        "~/\u{2026}/four/five".into(),
+        "~\u{203a}\u{2026}\u{203a}four\u{203a}five".into(),
     );
     let marker = &fit_crumbs(deep.clone(), 16)[1];
     check(
@@ -218,12 +222,12 @@ fn a_strip_too_narrow_collapses_whole_crumbs_and_elides_only_the_leaf() {
     check(
         106,
         drawn(&fit_crumbs(deep, 24)),
-        "~/one/two/\u{2026}/four/five".into(),
+        "~\u{203a}one\u{203a}two\u{203a}\u{2026}\u{203a}four\u{203a}five".into(),
     );
     check(
         109,
         drawn(&fit_crumbs(crumbs("/home/gm/one/two", HOME, None), 4)),
-        "~/one/two".into(),
+        "~\u{203a}one\u{203a}two".into(),
     );
     let long = crumbs(
         "/home/gm/a-directory-with-a-deliberately-long-name",
@@ -233,7 +237,7 @@ fn a_strip_too_narrow_collapses_whole_crumbs_and_elides_only_the_leaf() {
     check(
         114,
         drawn(&fit_crumbs(long.clone(), 20)),
-        "~/a-directo\u{2026}ong-name".into(),
+        "~\u{203a}a-directo\u{2026}ong-name".into(),
     );
     check(
         116,
@@ -244,13 +248,13 @@ fn a_strip_too_narrow_collapses_whole_crumbs_and_elides_only_the_leaf() {
     check(
         118,
         drawn(&fit_crumbs(collapsed, 18)),
-        "~/\u{2026}/three/a-ve\u{2026}ame".into(),
+        "~\u{203a}\u{2026}\u{203a}three\u{203a}a-ve\u{2026}ame".into(),
     );
     let four = crumbs("/home/gm/one/two/three/four", HOME, None);
     check(
         121,
         drawn(&fit_crumbs(four.clone(), 14)),
-        "~/\u{2026}/three/four".into(),
+        "~\u{203a}\u{2026}\u{203a}three\u{203a}four".into(),
     );
     let wide = crumbs(
         "/home/gm/one/two/a-parent-with-a-very-long-name-indeed/leaf-name",
@@ -260,9 +264,9 @@ fn a_strip_too_narrow_collapses_whole_crumbs_and_elides_only_the_leaf() {
     check(
         126,
         drawn(&fit_crumbs(wide, 16)),
-        "~/\u{2026}/leaf-name".into(),
+        "~\u{203a}\u{2026}\u{203a}leaf-name".into(),
     );
-    check(129, drawn(&fit_crumbs(four, 6)), "~/\u{2026}/four".into());
+    check(129, drawn(&fit_crumbs(four, 6)), "~\u{203a}\u{2026}\u{203a}four".into());
 }
 
 // Crumb.qml cursorShape keys on parent; this pins only Crumb::parent(), the predicate paint_element maps to the pointing hand.

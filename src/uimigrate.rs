@@ -50,6 +50,11 @@ pub fn migrated(found: &Json, merged: Json) -> Json {
         }
         state = with_key(state, MENU_VERSION, Json::Num(format!("{}", MENU_0_4_1)));
     }
+    // The shipped default is on for a new document. A stored file that never wrote the key keeps the old off.
+    let stored = matches!(found, Json::Obj(pairs) if !pairs.is_empty());
+    if stored && found.get("highlightHover").is_none() {
+        state = with_key(state, "highlightHover", Json::Bool(false));
+    }
     state
 }
 
